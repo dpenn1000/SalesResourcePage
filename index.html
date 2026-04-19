@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CT Traditional | Sales Resource Center</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #F0F2ED;
+      --card:     #FFFFFF;
+      --header:   #1A2332;
+      --nav:      #212E42;
+      --green:    #78C832;
+      --blue:     #29A9E1;
+      --orange:   #E8863A;
+      --purple:   #8B5CF6;
+      --text:     #1A2332;
+      --text2:    #6B7280;
+      --border:   #E2E5E0;
+      --radius:   10px;
+      --shadow:   0 1px 4px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-h: 0 6px 18px rgba(0,0,0,0.11);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────── */
+    header {
+      background: var(--header);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+    }
+
+    .header-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .logo-mark {
+      display: flex;
+      flex-direction: column;
+      line-height: 1;
+      gap: 3px;
+    }
+
+    .logo-ct {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+
+    .logo-trad {
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: 5px;
+      text-transform: uppercase;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    .header-title {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.5px;
+    }
+
+    .search-wrap {
+      flex: 1;
+      max-width: 380px;
+      margin-left: auto;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 9px 16px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+      transition: background 0.15s;
+    }
+
+    .search-wrap input::placeholder { color: rgba(255,255,255,0.3); }
+    .search-wrap input:focus { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.25); }
+
+    .header-date {
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      white-space: nowrap;
+    }
+
+    /* ── Category nav ────────────────────────────── */
+    .cat-nav {
+      background: var(--nav);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .cat-nav-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 2px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .cat-nav-inner::-webkit-scrollbar { display: none; }
+
+    .cat-btn {
+      padding: 11px 18px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: rgba(255,255,255,0.45);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+
+    .cat-btn:hover { color: rgba(255,255,255,0.75); }
+    .cat-btn.active { color: #fff; }
+    .cat-btn[data-cat="All"].active    { border-bottom-color: rgba(255,255,255,0.4); }
+    .cat-btn[data-cat="Solar"].active  { border-bottom-color: var(--green); }
+    .cat-btn[data-cat="Battery"].active { border-bottom-color: var(--blue); }
+    .cat-btn[data-cat="Roofing"].active { border-bottom-color: var(--orange); }
+    .cat-btn[data-cat="Training"].active { border-bottom-color: var(--purple); }
+
+    /* ── Main ────────────────────────────────────── */
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 26px 24px 48px;
+    }
+
+    /* ── Training banner ──────────────────────────── */
+    .training-banner {
+      background: var(--header);
+      border-radius: var(--radius);
+      padding: 18px 22px;
+      margin-bottom: 26px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-left: 4px solid var(--purple);
+    }
+
+    .week-badge {
+      background: var(--purple);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .training-info { flex: 1; }
+
+    .training-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .training-desc {
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+      margin-top: 2px;
+    }
+
+    .training-cta {
+      background: var(--purple);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+      transition: opacity 0.15s;
+    }
+
+    .training-cta:hover { opacity: 0.85; }
+
+    /* ── Section headers ─────────────────────────── */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0 14px;
+    }
+
+    .section-pip {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--text2);
+    }
+
+    .section-count {
+      font-size: 11px;
+      background: var(--border);
+      color: var(--text2);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+
+    .sub-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text2);
+      margin: 18px 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Cards ───────────────────────────────────── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-h);
+      transform: translateY(-2px);
+      border-color: #c8ccc6;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+    }
+
+    .card-type-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .card-name {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text);
+    }
+
+    .card-arrow {
+      font-size: 13px;
+      color: var(--text2);
+      align-self: flex-end;
+    }
+
+    /* Solar */
+    .cat-Solar .card-icon  { background: #EDFAD6; color: #4A8A14; }
+    .cat-Solar .card-type-badge { background: #EDFAD6; color: #4A8A14; }
+    .cat-Solar .card:hover { border-color: #78C832; }
+
+    /* Battery */
+    .cat-Battery .card-icon { background: #DCF0FB; color: #1375A0; }
+    .cat-Battery .card-type-badge { background: #DCF0FB; color: #1375A0; }
+    .cat-Battery .card:hover { border-color: #29A9E1; }
+
+    /* Roofing */
+    .cat-Roofing .card-icon { background: #FDEEDD; color: #A05415; }
+    .cat-Roofing .card-type-badge { background: #FDEEDD; color: #A05415; }
+    .cat-Roofing .card:hover { border-color: #E8863A; }
+
+    /* Training */
+    .cat-Training .card-icon { background: #EDE9FE; color: #5B21B6; }
+    .cat-Training .card-type-badge { background: #EDE9FE; color: #5B21B6; }
+    .cat-Training .card:hover { border-color: #8B5CF6; }
+
+    /* ── States ──────────────────────────────────── */
+    .state-box {
+      text-align: center;
+      padding: 56px 24px;
+      color: var(--text2);
+    }
+
+    .state-box h3 { font-size: 16px; margin-bottom: 6px; color: var(--text); }
+    .state-box p  { font-size: 13px; }
+
+    /* ── Footer ──────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 20px 24px;
+      font-size: 11px;
+      color: var(--text2);
+      border-top: 1px solid var(--border);
+    }
+
+    footer a { color: var(--text2); text-decoration: none; }
+    footer a:hover { color: var(--text); }
+
+    /* ── Responsive ──────────────────────────────── */
+    @media (max-width: 640px) {
+      .header-inner { padding: 12px 16px; gap: 12px; }
+      .header-date  { display: none; }
+      .header-divider { display: none; }
+      .header-title { display: none; }
+      main { padding: 18px 14px 40px; }
+      .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .training-banner { flex-wrap: wrap; gap: 10px; }
+    }
+
+    @media (max-width: 380px) {
+      .cards { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────── -->
+<header>
+  <div class="header-inner">
+    <div class="logo-mark">
+      <span class="logo-ct">CT</span>
+      <span class="logo-trad">Traditional</span>
+    </div>
+    <div class="header-divider"></div>
+    <span class="header-title">Sales Resource Center</span>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search resources..." oninput="render()">
+    </div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+  <div class="cat-nav">
+    <div class="cat-nav-inner">
+      <button class="cat-btn active" data-cat="All"      onclick="setCat('All')">All Resources</button>
+      <button class="cat-btn"        data-cat="Solar"    onclick="setCat('Solar')">&#9728; Solar</button>
+      <button class="cat-btn"        data-cat="Roofing"  onclick="setCat('Roofing')">&#127968; Roofing</button>
+      <button class="cat-btn"        data-cat="Battery"  onclick="setCat('Battery')">&#128267; Battery</button>
+      <button class="cat-btn"        data-cat="Training" onclick="setCat('Training')">&#128218; Training</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ───────────────────────────────────────── -->
+<main>
+  <div id="trainingBanner" style="display:none" class="training-banner">
+    <div class="week-badge">This Week</div>
+    <div class="training-info">
+      <div class="training-name"  id="trainingName">Loading...</div>
+      <div class="training-desc"  id="trainingDesc"></div>
+    </div>
+    <a href="#" class="training-cta" id="trainingLink" target="_blank" rel="noopener">Open Deck &rarr;</a>
+  </div>
+
+  <div id="container">
+    <div class="state-box"><p>Loading resources&hellip;</p></div>
+  </div>
+</main>
+
+<!-- ── Footer ─────────────────────────────────────── -->
+<footer>
+  CT Traditional Sales Resource Center &nbsp;&middot;&nbsp;
+  <span id="footerYear"></span> &nbsp;&middot;&nbsp;
+  <a href="admin.html">Admin</a>
+</footer>
+
+<script>
+const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const CAT_ORDER = ['Solar', 'Roofing', 'Battery', 'Training'];
+const CAT_COLOR = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', Training: '#8B5CF6' };
+const TYPE_ICON  = {
+  'Calculator':       '&#129518;',
+  'Map Tool':         '&#128506;',
+  'Reference Portal': '&#128279;',
+  'Reference Doc':    '&#128196;',
+  'Form':             '&#128203;',
+  'Document':         '&#128209;',
+  'Spec Sheet':       '&#128208;',
+  'Financing':        '&#128176;',
+  'Manufacturer Portal': '&#127981;',
+  'Training Deck':    '&#128202;',
+};
+
+let all = [];
+let activeCat = 'All';
+
+// Header date
+const now = new Date();
+document.getElementById('headerDate').textContent =
+  now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+document.getElementById('footerYear').textContent = now.getFullYear();
+
+async function init() {
+  const { data, error } = await sb
+    .from('resources')
+    .select('*')
+    .eq('active', true)
+    .order('sort_order', { ascending: true })
+    .order('name',       { ascending: true });
+
+  if (error) {
+    document.getElementById('container').innerHTML =
+      `<div class="state-box"><h3>Could not load resources</h3><p>${error.message}</p></div>`;
+    return;
+  }
+
+  all = data || [];
+
+  // Training banner: most recent is_current Training
+  const cur = all.find(r => r.category === 'Training' && r.is_current);
+  if (cur) {
+    document.getElementById('trainingName').textContent = cur.name;
+    document.getElementById('trainingDesc').textContent = cur.description || '';
+    document.getElementById('trainingLink').href = cur.url;
+    document.getElementById('trainingBanner').style.display = 'flex';
+  }
+
+  render();
+}
+
+function setCat(cat) {
+  activeCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.cat === cat));
+  render();
+}
+
+function render() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+
+  let filtered = all.filter(r => {
+    if (activeCat !== 'All' && r.category !== activeCat) return false;
+    if (!q) return true;
+    return (r.name        || '').toLowerCase().includes(q)
+        || (r.type        || '').toLowerCase().includes(q)
+        || (r.description || '').toLowerCase().includes(q)
+        || (r.subcategory || '').toLowerCase().includes(q);
+  });
+
+  if (!filtered.length) {
+    document.getElementById('container').innerHTML =
+      `<div class="state-box"><h3>No resources found</h3><p>Try adjusting your search or category filter.</p></div>`;
+    return;
+  }
+
+  // Group: category -> subcategory -> items
+  const grouped = {};
+  filtered.forEach(r => {
+    if (!grouped[r.category]) grouped[r.category] = {};
+    const sub = r.subcategory || 'General';
+    if (!grouped[r.category][sub]) grouped[r.category][sub] = [];
+    grouped[r.category][sub].push(r);
+  });
+
+  const cats = activeCat === 'All' ? CAT_ORDER : [activeCat];
+  let html = '';
+
+  cats.forEach(cat => {
+    if (!grouped[cat]) return;
+    const subs  = grouped[cat];
+    const count = Object.values(subs).flat().length;
+    const color = CAT_COLOR[cat];
+
+    html += `
+      <div class="section-head">
+        <div class="section-pip" style="background:${color}"></div>
+        <div class="section-label">${cat}</div>
+        <div class="section-count">${count}</div>
+      </div>`;
+
+    const subKeys = Object.keys(subs);
+    subKeys.forEach(sub => {
+      if (subKeys.length > 1 || sub !== 'General') {
+        html += `<div class="sub-label">${sub}</div>`;
+      }
+      html += `<div class="cards cat-${cat}">`;
+      subs[sub].forEach(r => {
+        const icon = TYPE_ICON[r.type] || '&#128204;';
+        html += `
+          <a class="card" href="${r.url}" target="_blank" rel="noopener">
+            <div class="card-header">
+              <div class="card-icon">${icon}</div>
+              <div class="card-type-badge">${r.type || 'Resource'}</div>
+            </div>
+            <div class="card-name">${r.name}</div>
+            <div class="card-arrow">&#8599;</div>
+          </a>`;
+      });
+      html += `</div>`;
+    });
+  });
+
+  document.getElementById('container').innerHTML = html;
+}
+
+init();
+</script>
+</body>
+</html>

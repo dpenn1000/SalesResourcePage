@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CT Traditional | Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:     #F0F2ED;
+      --card:   #FFFFFF;
+      --header: #1A2332;
+      --green:  #78C832;
+      --blue:   #29A9E1;
+      --red:    #EF4444;
+      --text:   #1A2332;
+      --text2:  #6B7280;
+      --border: #E2E5E0;
+      --radius: 10px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────── */
+    header {
+      background: var(--header);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    .logo-ct {
+      font-family: Georgia, serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+    }
+
+    .logo-sub {
+      font-size: 8px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    header h1 {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.5);
+      margin-left: 8px;
+    }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.7);
+      transition: background 0.15s;
+    }
+
+    .btn-sm:hover { background: rgba(255,255,255,0.1); }
+
+    /* ── Login screen ────────────────────── */
+    #loginScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - 60px);
+      padding: 24px;
+    }
+
+    .login-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .login-card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .login-card p {
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text2);
+      margin-bottom: 5px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="url"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      background: #fff;
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color 0.15s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--blue);
+    }
+
+    textarea { resize: vertical; min-height: 72px; }
+
+    .btn-primary {
+      width: 100%;
+      padding: 10px;
+      background: var(--header);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:hover { opacity: 0.85; }
+
+    .error-msg {
+      background: #FEF2F2;
+      border: 1px solid #FCA5A5;
+      color: #991B1B;
+      font-size: 12px;
+      padding: 9px 12px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+    }
+
+    /* ── Admin panel ─────────────────────── */
+    #adminPanel { display: none; }
+
+    .admin-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 24px 56px;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .panel-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .btn-add {
+      padding: 9px 18px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-add:hover { opacity: 0.85; }
+
+    /* ── Form card ───────────────────────── */
+    #formCard {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    #formCard h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 16px;
+    }
+
+    .form-full { grid-column: 1 / -1; }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-save {
+      padding: 9px 20px;
+      background: var(--header);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-save:hover { opacity: 0.85; }
+
+    .btn-cancel {
+      padding: 9px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text2);
+    }
+
+    .btn-cancel:hover { background: var(--bg); }
+
+    /* ── Filters ─────────────────────────── */
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .filter-row select,
+    .filter-row input {
+      margin: 0;
+      width: auto;
+      flex: 1;
+      min-width: 140px;
+    }
+
+    /* ── Resource table ──────────────────── */
+    .table-wrap {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead th {
+      background: var(--bg);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #F8FAF6; }
+
+    td { padding: 11px 14px; vertical-align: middle; }
+
+    .td-name { font-weight: 600; max-width: 220px; }
+
+    .td-url {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .td-url a {
+      color: var(--blue);
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    .cat-pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .cat-Solar    { background: #EDFAD6; color: #4A8A14; }
+    .cat-Battery  { background: #DCF0FB; color: #1375A0; }
+    .cat-Roofing  { background: #FDEEDD; color: #A05415; }
+    .cat-Training { background: #EDE9FE; color: #5B21B6; }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-on  { background: var(--green); }
+    .status-off { background: #D1D5DB; }
+
+    .row-actions { display: flex; gap: 6px; }
+
+    .btn-edit, .btn-del, .btn-cur {
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-edit { background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
+    .btn-del  { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+    .btn-cur  { background: #F5F3FF; color: #6D28D9; border-color: #DDD6FE; }
+    .btn-edit:hover, .btn-del:hover, .btn-cur:hover { opacity: 0.75; }
+
+    .cur-badge {
+      display: inline-block;
+      background: #F5F3FF;
+      color: #6D28D9;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 3px;
+    }
+
+    .empty-table {
+      text-align: center;
+      padding: 40px;
+      color: var(--text2);
+    }
+
+    /* ── Toast ───────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--header);
+      color: #fff;
+      padding: 11px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.25s;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-full { grid-column: auto; }
+      thead th:nth-child(3),
+      td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div>
+    <span class="logo-ct">CT</span>
+    <span class="logo-sub">Traditional</span>
+  </div>
+  <h1>/ Resource Admin</h1>
+  <div class="header-right">
+    <span class="user-label" id="userLabel"></span>
+    <button class="btn-sm" onclick="signOut()">Sign out</button>
+    <a href="index.html" style="color:rgba(255,255,255,0.5); font-size:12px; text-decoration:none;">&larr; View site</a>
+  </div>
+</header>
+
+<!-- Login screen -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>Admin Sign In</h2>
+    <p>Use your Supabase admin credentials to access the resource manager.</p>
+    <div id="loginError" class="error-msg" style="display:none"></div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="you@example.com">
+    <label>Password</label>
+    <input type="password" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter') signIn()">
+    <button class="btn-primary" onclick="signIn()">Sign In</button>
+  </div>
+</div>
+
+<!-- Admin panel -->
+<div id="adminPanel">
+  <div class="admin-inner">
+    <div class="panel-header">
+      <h2>Resources</h2>
+      <button class="btn-add" onclick="showForm()">+ Add Resource</button>
+    </div>
+
+    <!-- Add / Edit form -->
+    <div id="formCard">
+      <h3 id="formTitle">Add Resource</h3>
+      <input type="hidden" id="editId">
+      <div class="form-grid">
+        <div class="form-full">
+          <label>Name *</label>
+          <input type="text" id="fName" placeholder="e.g. ESS Calculator v7">
+        </div>
+        <div class="form-full">
+          <label>URL *</label>
+          <input type="url" id="fUrl" placeholder="https://">
+        </div>
+        <div>
+          <label>Category *</label>
+          <select id="fCategory">
+            <option value="">Select...</option>
+            <option>Solar</option>
+            <option>Roofing</option>
+            <option>Battery</option>
+            <option>Training</option>
+          </select>
+        </div>
+        <div>
+          <label>Type *</label>
+          <select id="fType">
+            <option value="">Select...</option>
+            <option>Spec Sheet</option>
+            <option>Calculator</option>
+            <option>Map Tool</option>
+            <option>Reference Portal</option>
+            <option>Reference Doc</option>
+            <option>Form</option>
+            <option>Document</option>
+            <option>Financing</option>
+            <option>Manufacturer Portal</option>
+            <option>Training Deck</option>
+          </select>
+        </div>
+        <div>
+          <label>Subcategory</label>
+          <input type="text" id="fSub" placeholder="e.g. CT ESS Incentive Program">
+        </div>
+        <div>
+          <label>Sort Order</label>
+          <input type="number" id="fSort" value="0" min="0">
+        </div>
+        <div class="form-full">
+          <label>Description (optional)</label>
+          <textarea id="fDesc" placeholder="Brief note shown to reps..."></textarea>
+        </div>
+        <div style="display:flex; gap:20px; align-items:center; margin-bottom:14px;">
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer;">
+            <input type="checkbox" id="fActive" checked style="width:auto; margin:0;">
+            Active (visible to reps)
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; margin:0; cursor:pointer;" id="currentWrap">
+            <input type="checkbox" id="fCurrent" style="width:auto; margin:0;">
+            Mark as current training deck
+          </label>
+        </div>
+      </div>
+      <div id="formError" class="error-msg" style="display:none"></div>
+      <div class="form-actions">
+        <button class="btn-save" onclick="saveResource()">Save Resource</button>
+        <button class="btn-cancel" onclick="hideForm()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-row">
+      <input type="text" id="filterQ" placeholder="Filter by name..." oninput="renderTable()">
+      <select id="filterCat" onchange="renderTable()">
+        <option value="">All categories</option>
+        <option>Solar</option>
+        <option>Roofing</option>
+        <option>Battery</option>
+        <option>Training</option>
+      </select>
+      <select id="filterStatus" onchange="renderTable()">
+        <option value="">All statuses</option>
+        <option value="true">Active</option>
+        <option value="false">Inactive</option>
+      </select>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Type</th>
+            <th>Subcategory</th>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="7" class="empty-table">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let allRows = [];
+
+// ── Auth ────────────────────────────────────────
+sb.auth.onAuthStateChange((_e, session) => {
+  if (session) {
+    document.getElementById('loginScreen').style.display  = 'none';
+    document.getElementById('adminPanel').style.display   = 'block';
+    document.getElementById('userLabel').textContent = session.user.email;
+    loadResources();
+  } else {
+    document.getElementById('loginScreen').style.display  = 'flex';
+    document.getElementById('adminPanel').style.display   = 'none';
+  }
+});
+
+async function signIn() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+}
+
+// ── Data ─────────────────────────────────────────
+async function loadResources() {
+  const { data, error } = await sb
+    .from('resources')
+    .select('*')
+    .order('sort_order', { ascending: true })
+    .order('name',       { ascending: true });
+
+  if (error) { toast('Error loading: ' + error.message); return; }
+  allRows = data || [];
+  renderTable();
+}
+
+function renderTable() {
+  const q      = document.getElementById('filterQ').value.toLowerCase();
+  const cat    = document.getElementById('filterCat').value;
+  const status = document.getElementById('filterStatus').value;
+
+  const rows = allRows.filter(r => {
+    if (cat    && r.category !== cat)              return false;
+    if (status !== '' && String(r.active) !== status) return false;
+    if (q && !(r.name || '').toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  if (!rows.length) {
+    document.getElementById('tableBody').innerHTML =
+      '<tr><td colspan="7" class="empty-table">No resources match your filters.</td></tr>';
+    return;
+  }
+
+  document.getElementById('tableBody').innerHTML = rows.map(r => `
+    <tr>
+      <td class="td-name">
+        ${r.name}
+        ${r.is_current ? '<span class="cur-badge">Current</span>' : ''}
+      </td>
+      <td><span class="cat-pill cat-${r.category}">${r.category}</span></td>
+      <td>${r.type || ''}</td>
+      <td style="font-size:12px; color:var(--text2)">${r.subcategory || ''}</td>
+      <td class="td-url"><a href="${r.url}" target="_blank" rel="noopener">&#8599; Open</a></td>
+      <td><span class="status-dot ${r.active ? 'status-on' : 'status-off'}"></span></td>
+      <td>
+        <div class="row-actions">
+          <button class="btn-edit" onclick="editRow('${r.id}')">Edit</button>
+          ${r.category === 'Training' ? `<button class="btn-cur" onclick="setCurrent('${r.id}')">Set current</button>` : ''}
+          <button class="btn-del"  onclick="deleteRow('${r.id}', '${r.name.replace(/'/g,"\\'")}')">Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+// ── Form ──────────────────────────────────────────
+function showForm(row) {
+  const fc = document.getElementById('formCard');
+  fc.style.display = 'block';
+  fc.scrollIntoView({ behavior: 'smooth' });
+
+  document.getElementById('formTitle').textContent = row ? 'Edit Resource' : 'Add Resource';
+  document.getElementById('editId').value    = row ? row.id : '';
+  document.getElementById('fName').value     = row ? row.name : '';
+  document.getElementById('fUrl').value      = row ? row.url : '';
+  document.getElementById('fCategory').value = row ? row.category : '';
+  document.getElementById('fType').value     = row ? row.type : '';
+  document.getElementById('fSub').value      = row ? (row.subcategory || '') : '';
+  document.getElementById('fSort').value     = row ? row.sort_order : 0;
+  document.getElementById('fDesc').value     = row ? (row.description || '') : '';
+  document.getElementById('fActive').checked  = row ? row.active : true;
+  document.getElementById('fCurrent').checked = row ? row.is_current : false;
+  document.getElementById('formError').style.display = 'none';
+}
+
+function hideForm() {
+  document.getElementById('formCard').style.display = 'none';
+}
+
+function editRow(id) {
+  const row = allRows.find(r => r.id === id);
+  if (row) showForm(row);
+}
+
+async function saveResource() {
+  const id   = document.getElementById('editId').value;
+  const name = document.getElementById('fName').value.trim();
+  const url  = document.getElementById('fUrl').value.trim();
+  const cat  = document.getElementById('fCategory').value;
+  const type = document.getElementById('fType').value;
+  const errEl = document.getElementById('formError');
+  errEl.style.display = 'none';
+
+  if (!name || !url || !cat || !type) {
+    errEl.textContent = 'Name, URL, Category, and Type are required.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const payload = {
+    name,
+    url,
+    category:    cat,
+    type,
+    subcategory: document.getElementById('fSub').value.trim() || 'General',
+    sort_order:  parseInt(document.getElementById('fSort').value) || 0,
+    description: document.getElementById('fDesc').value.trim() || null,
+    active:      document.getElementById('fActive').checked,
+    is_current:  document.getElementById('fCurrent').checked,
+  };
+
+  let error;
+  if (id) {
+    ({ error } = await sb.from('resources').update(payload).eq('id', id));
+  } else {
+    ({ error } = await sb.from('resources').insert(payload));
+  }
+
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  hideForm();
+  await loadResources();
+  toast(id ? 'Resource updated.' : 'Resource added.');
+}
+
+async function deleteRow(id, name) {
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  const { error } = await sb.from('resources').delete().eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  await loadResources();
+  toast('Resource deleted.');
+}
+
+async function setCurrent(id) {
+  // Clear all is_current first, then set the selected one
+  await sb.from('resources').update({ is_current: false }).eq('category', 'Training');
+  const { error } = await sb.from('resources').update({ is_current: true }).eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  await loadResources();
+  toast('Current training deck updated.');
+}
+
+// ── Toast ─────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
