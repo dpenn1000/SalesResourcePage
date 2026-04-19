@@ -16,26 +16,22 @@
 
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* Header */
     header { background: var(--header); padding: 14px 28px; display: flex; align-items: center; gap: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
     .logo-ct  { font-family: Georgia, serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 2px; }
     .logo-sub { font-size: 8px; font-weight: 700; color: var(--green); letter-spacing: 4px; text-transform: uppercase; display: block; }
     header h1 { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.45); margin-left: 6px; }
     .header-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
     .user-label { font-size: 12px; color: rgba(255,255,255,0.38); }
-    .btn-hdr {
-      padding: 7px 13px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.18); background: transparent; color: rgba(255,255,255,0.65); transition: background 0.15s;
-    }
+    .btn-hdr { padding: 7px 13px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.18); background: transparent; color: rgba(255,255,255,0.65); transition: background 0.15s; }
     .btn-hdr:hover { background: rgba(255,255,255,0.1); }
 
-    /* Login */
     #loginScreen { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 60px); padding: 24px; }
     .login-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 36px 32px; width: 100%; max-width: 380px; }
     .login-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
     .login-card p  { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
 
     label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 5px; letter-spacing: 0.5px; }
+
     input[type="email"], input[type="password"], input[type="text"],
     input[type="url"], input[type="number"], select, textarea {
       width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px;
@@ -49,30 +45,24 @@
     .btn-primary:hover { opacity: 0.85; }
     .error-msg { background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; font-size: 12px; padding: 9px 12px; border-radius: 6px; margin-bottom: 14px; }
 
-    /* Admin panel */
     #adminPanel { display: none; }
     .admin-inner { max-width: 1100px; margin: 0 auto; padding: 28px 24px 56px; }
-
     .panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
     .panel-header h2 { font-size: 18px; font-weight: 700; }
-
     .btn-add { padding: 9px 18px; background: var(--green); color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
     .btn-add:hover { opacity: 0.85; }
 
-    /* Form card */
     #formCard { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 22px; display: none; }
     #formCard h3 { font-size: 15px; font-weight: 700; margin-bottom: 18px; }
-
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
     .form-full { grid-column: 1 / -1; }
-
     .form-check { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; cursor: pointer; font-size: 13px; color: var(--text2); }
     .form-check input { width: auto; margin: 0; }
 
     /* Image picker */
     .img-picker { margin-bottom: 14px; }
     .img-picker-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.5px; margin-bottom: 8px; display: block; }
-    .img-tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .img-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
     .img-tab {
       padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
       background: var(--bg); font-size: 12px; font-weight: 600; color: var(--text2);
@@ -85,28 +75,51 @@
     .img-panel.active { display: block; }
 
     .img-preview-wrap {
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 12px; background: var(--bg); border-radius: 7px;
-      border: 1px solid var(--border); margin-top: 8px; min-height: 56px;
+      display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+      background: var(--bg); border-radius: 7px; border: 1px solid var(--border);
+      margin-top: 8px; min-height: 56px;
     }
     .img-preview-wrap img { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; background: #fff; }
     .img-preview-wrap span { font-size: 12px; color: var(--text2); }
 
-    .img-big-preview { width: 100%; height: 100px; object-fit: cover; border-radius: 7px; margin-top: 8px; display: none; }
+    .img-big-preview { width: 100%; height: 110px; object-fit: cover; border-radius: 7px; margin-top: 8px; display: none; }
 
     .btn-fetch { padding: 8px 14px; background: var(--blue); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
     .btn-fetch:hover { opacity: 0.85; }
     .btn-fetch:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .fetch-row { display: flex; align-items: center; gap: 10px; }
+    .fetch-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .fetch-status { font-size: 12px; color: var(--text2); }
 
     input[type="file"] { padding: 6px; cursor: pointer; }
 
-    .upload-progress {
-      height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; display: none;
-    }
+    .upload-progress { height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; display: none; }
     .upload-progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.3s; width: 0; }
+
+    /* PDF snapshot panel */
+    .pdf-source-tabs { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; width: fit-content; }
+    .pdf-src-btn {
+      padding: 7px 14px; background: var(--bg); border: none; font-size: 12px;
+      font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.15s;
+    }
+    .pdf-src-btn.active { background: var(--header); color: #fff; }
+    .pdf-src-btn:hover:not(.active) { background: var(--border); }
+
+    .pdf-source-panel { display: none; }
+    .pdf-source-panel.active { display: block; }
+
+    .pdf-canvas-wrap {
+      margin-top: 10px; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 7px; overflow: hidden; max-height: 200px; display: none;
+    }
+    .pdf-canvas-wrap canvas {
+      width: 100%; height: 200px; object-fit: contain; display: block;
+    }
+
+    .info-note {
+      font-size: 11px; color: var(--text2); background: #F0F7FF;
+      border: 1px solid #C7DFF7; padding: 8px 10px; border-radius: 6px;
+      margin-bottom: 10px; line-height: 1.5;
+    }
 
     .form-actions { display: flex; gap: 10px; margin-top: 6px; }
     .btn-save { padding: 9px 20px; background: var(--header); color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
@@ -115,11 +128,9 @@
     .btn-cancel { padding: 9px 16px; background: transparent; border: 1px solid var(--border); border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text2); }
     .btn-cancel:hover { background: var(--bg); }
 
-    /* Filters */
     .filter-row { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
     .filter-row select, .filter-row input { margin: 0; width: auto; flex: 1; min-width: 140px; }
 
-    /* Table */
     .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
     thead th { background: var(--bg); padding: 10px 14px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); border-bottom: 1px solid var(--border); }
@@ -140,14 +151,8 @@
     .status-on  { background: var(--green); }
     .status-off { background: #D1D5DB; }
 
-    .thumb-cell img { width: 36px; height: 28px; object-fit: cover; border-radius: 4px; background: var(--bg); }
-    .thumb-cell .fav { width: 20px; height: 20px; border-radius: 4px; }
-
     .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .btn-row {
-      padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer;
-      border: 1px solid; transition: opacity 0.15s; white-space: nowrap;
-    }
+    .btn-row { padding: 5px 10px; border-radius: 5px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid; transition: opacity 0.15s; white-space: nowrap; }
     .btn-edit { background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
     .btn-del  { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
     .btn-cur  { background: #F5F3FF; color: #6D28D9; border-color: #DDD6FE; }
@@ -156,7 +161,6 @@
     .cur-badge { display: inline-block; background: #F5F3FF; color: #6D28D9; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; }
     .empty-table { text-align: center; padding: 40px; color: var(--text2); }
 
-    /* Toast */
     #toast { position: fixed; bottom: 24px; right: 24px; background: var(--header); color: #fff; padding: 11px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; z-index: 999; }
     #toast.show { opacity: 1; transform: translateY(0); }
 
@@ -177,11 +181,10 @@
   <div class="header-right">
     <span class="user-label" id="userLabel"></span>
     <button class="btn-hdr" onclick="signOut()">Sign out</button>
-    <a href="index.html" style="color:rgba(255,255,255,0.45); font-size:12px; text-decoration:none;">&larr; View site</a>
+    <a href="index.html" style="color:rgba(255,255,255,0.45);font-size:12px;text-decoration:none;">&larr; View site</a>
   </div>
 </header>
 
-<!-- Login -->
 <div id="loginScreen">
   <div class="login-card">
     <h2>Admin Sign In</h2>
@@ -195,7 +198,6 @@
   </div>
 </div>
 
-<!-- Admin -->
 <div id="adminPanel">
   <div class="admin-inner">
     <div class="panel-header">
@@ -203,7 +205,6 @@
       <button class="btn-add" onclick="showForm()">+ Add Resource</button>
     </div>
 
-    <!-- Form -->
     <div id="formCard">
       <h3 id="formTitle">Add Resource</h3>
       <input type="hidden" id="editId">
@@ -253,10 +254,11 @@
           <div class="img-tabs">
             <button type="button" class="img-tab active" data-itype="favicon" onclick="setImgType('favicon')">Auto Favicon</button>
             <button type="button" class="img-tab" data-itype="og"      onclick="setImgType('og')">OG Preview</button>
+            <button type="button" class="img-tab" data-itype="pdf"     onclick="setImgType('pdf')">PDF Snapshot</button>
             <button type="button" class="img-tab" data-itype="custom"  onclick="setImgType('custom')">Custom Upload</button>
           </div>
 
-          <!-- Favicon panel -->
+          <!-- Favicon -->
           <div class="img-panel active" id="panel-favicon">
             <div class="img-preview-wrap">
               <img id="faviconPreviewImg" src="" alt="" style="display:none">
@@ -264,7 +266,7 @@
             </div>
           </div>
 
-          <!-- OG panel -->
+          <!-- OG -->
           <div class="img-panel" id="panel-og">
             <div class="fetch-row">
               <button type="button" class="btn-fetch" id="ogFetchBtn" onclick="fetchOG()">Fetch Preview</button>
@@ -273,7 +275,44 @@
             <img class="img-big-preview" id="ogPreviewImg" src="" alt="">
           </div>
 
-          <!-- Custom upload panel -->
+          <!-- PDF Snapshot -->
+          <div class="img-panel" id="panel-pdf">
+            <div class="info-note">
+              Renders the first page of a PDF as the card image. For OneDrive or SharePoint links, use
+              <strong>Upload PDF</strong> instead -- those URLs block direct access from the browser.
+            </div>
+            <div class="pdf-source-tabs">
+              <button type="button" class="pdf-src-btn active" data-psrc="url"  onclick="setPdfSrc('url')">From URL</button>
+              <button type="button" class="pdf-src-btn"        data-psrc="file" onclick="setPdfSrc('file')">Upload PDF</button>
+            </div>
+
+            <!-- PDF URL source -->
+            <div class="pdf-source-panel active" id="pdfsrc-url">
+              <label>PDF URL</label>
+              <input type="url" id="pdfUrl" placeholder="https://example.com/file.pdf" style="margin-bottom:8px">
+            </div>
+
+            <!-- PDF file source -->
+            <div class="pdf-source-panel" id="pdfsrc-file">
+              <label>PDF File</label>
+              <input type="file" id="pdfFile" accept="application/pdf" onchange="onPdfFileChange()">
+            </div>
+
+            <div class="fetch-row" style="margin-top:4px">
+              <button type="button" class="btn-fetch" id="pdfSnapBtn" onclick="generatePDFSnapshot()">Generate Snapshot</button>
+              <span class="fetch-status" id="pdfStatus">Choose a source above then click Generate Snapshot.</span>
+            </div>
+
+            <div class="pdf-canvas-wrap" id="pdfCanvasWrap">
+              <canvas id="pdfCanvas"></canvas>
+            </div>
+
+            <div class="upload-progress" id="pdfUploadProgress">
+              <div class="upload-progress-bar" id="pdfUploadBar"></div>
+            </div>
+          </div>
+
+          <!-- Custom Upload -->
           <div class="img-panel" id="panel-custom">
             <label style="margin-bottom:6px">Choose an image file</label>
             <input type="file" id="imageFile" accept="image/*" onchange="previewCustom()">
@@ -284,11 +323,11 @@
           </div>
         </div>
 
-        <div class="form-full" style="display:flex; gap:24px; flex-wrap:wrap; margin-bottom:14px;">
+        <div class="form-full" style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;">
           <label class="form-check">
             <input type="checkbox" id="fActive" checked> Active (visible to reps)
           </label>
-          <label class="form-check" id="currentWrap">
+          <label class="form-check">
             <input type="checkbox" id="fCurrent"> Mark as current training deck
           </label>
         </div>
@@ -301,14 +340,13 @@
       </div>
     </div>
 
-    <!-- Filters -->
     <div class="filter-row">
-      <input type="text"  id="filterQ"      placeholder="Filter by name..." oninput="renderTable()">
-      <select             id="filterCat"    onchange="renderTable()">
+      <input type="text" id="filterQ"      placeholder="Filter by name..." oninput="renderTable()">
+      <select           id="filterCat"    onchange="renderTable()">
         <option value="">All categories</option>
         <option>Solar</option><option>Roofing</option><option>Battery</option><option>Training</option>
       </select>
-      <select             id="filterStatus" onchange="renderTable()">
+      <select           id="filterStatus" onchange="renderTable()">
         <option value="">All statuses</option>
         <option value="true">Active</option>
         <option value="false">Inactive</option>
@@ -339,9 +377,11 @@ const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let allRows    = [];
+let allRows       = [];
 let activeImgType = 'favicon';
-let pendingImageUrl = null;
+let activePdfSrc  = 'url';
+let pendingImageUrl  = null;
+let pdfCanvasReady   = false;
 
 // ── Auth ─────────────────────────────────────────
 sb.auth.onAuthStateChange((_e, session) => {
@@ -369,8 +409,7 @@ async function signOut() { await sb.auth.signOut(); }
 
 // ── Data ─────────────────────────────────────────
 async function loadResources() {
-  const { data, error } = await sb.from('resources').select('*')
-    .order('sort_order').order('name');
+  const { data, error } = await sb.from('resources').select('*').order('sort_order').order('name');
   if (error) { toast('Error: ' + error.message); return; }
   allRows = data || [];
   document.getElementById('resourceCount').textContent = `Resources (${allRows.length})`;
@@ -383,9 +422,9 @@ function renderTable() {
   const status = document.getElementById('filterStatus').value;
 
   const rows = allRows.filter(r => {
-    if (cat    && r.category !== cat)                  return false;
-    if (status !== '' && String(r.active) !== status)  return false;
-    if (q && !(r.name || '').toLowerCase().includes(q)) return false;
+    if (cat    && r.category !== cat)                    return false;
+    if (status !== '' && String(r.active) !== status)    return false;
+    if (q && !(r.name||'').toLowerCase().includes(q))    return false;
     return true;
   });
 
@@ -397,18 +436,15 @@ function renderTable() {
 
   function thumbHtml(r) {
     if (!r.image_url) return '<span style="color:#ccc;font-size:11px">None</span>';
-    if (r.image_type === 'og' || r.image_type === 'custom')
+    if (r.image_type === 'og' || r.image_type === 'custom' || r.image_type === 'pdf')
       return `<img src="${r.image_url}" style="width:40px;height:28px;object-fit:cover;border-radius:4px" alt="">`;
     return `<img src="${r.image_url}" style="width:20px;height:20px;border-radius:4px;object-fit:contain" alt="">`;
   }
 
   document.getElementById('tableBody').innerHTML = rows.map(r => `
     <tr>
-      <td class="thumb-cell">${thumbHtml(r)}</td>
-      <td class="td-name">
-        ${r.name}
-        ${r.is_current ? '<span class="cur-badge">Current</span>' : ''}
-      </td>
+      <td>${thumbHtml(r)}</td>
+      <td class="td-name">${r.name}${r.is_current ? '<span class="cur-badge" style="margin-left:6px">Current</span>' : ''}</td>
       <td><span class="cat-pill cat-${r.category}">${r.category}</span></td>
       <td style="font-size:12px">${r.type||''}</td>
       <td style="font-size:12px;color:var(--text2)">${r.subcategory||''}</td>
@@ -428,13 +464,23 @@ function renderTable() {
 
 // ── Image type picker ─────────────────────────────
 function setImgType(type) {
-  activeImgType   = type;
+  activeImgType  = type;
   pendingImageUrl = null;
+  pdfCanvasReady  = false;
   document.querySelectorAll('.img-tab').forEach(t => t.classList.toggle('active', t.dataset.itype === type));
   document.querySelectorAll('.img-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + type).classList.add('active');
-
   if (type === 'favicon') refreshFaviconPreview();
+}
+
+function setPdfSrc(src) {
+  activePdfSrc = src;
+  pdfCanvasReady = false;
+  document.querySelectorAll('.pdf-src-btn').forEach(b => b.classList.toggle('active', b.dataset.psrc === src));
+  document.querySelectorAll('.pdf-source-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('pdfsrc-' + src).classList.add('active');
+  document.getElementById('pdfStatus').textContent = 'Choose a source above then click Generate Snapshot.';
+  document.getElementById('pdfCanvasWrap').style.display = 'none';
 }
 
 function onUrlChange() {
@@ -444,6 +490,12 @@ function onUrlChange() {
   document.getElementById('ogStatus').textContent = 'Enter a URL above then click Fetch Preview.';
 }
 
+function onPdfFileChange() {
+  pdfCanvasReady = false;
+  document.getElementById('pdfCanvasWrap').style.display = 'none';
+  document.getElementById('pdfStatus').textContent = 'File selected. Click Generate Snapshot.';
+}
+
 function refreshFaviconPreview() {
   const url = document.getElementById('fUrl').value.trim();
   const img = document.getElementById('faviconPreviewImg');
@@ -451,74 +503,140 @@ function refreshFaviconPreview() {
   if (!url) { img.style.display = 'none'; txt.textContent = 'Will auto-fetch the site icon from the URL above.'; return; }
   try {
     const domain = new URL(url).hostname;
-    const favSrc = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-    img.src = favSrc;
-    img.style.display = 'block';
+    const src    = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+    img.src = src; img.style.display = 'block';
     txt.textContent = domain;
-    pendingImageUrl = favSrc;
+    pendingImageUrl = src;
   } catch { img.style.display = 'none'; txt.textContent = 'Invalid URL.'; }
 }
 
 async function fetchOG() {
-  const url = document.getElementById('fUrl').value.trim();
-  if (!url) { document.getElementById('ogStatus').textContent = 'Enter a URL first.'; return; }
-
-  const btn = document.getElementById('ogFetchBtn');
-  const img = document.getElementById('ogPreviewImg');
-  btn.disabled = true;
-  document.getElementById('ogStatus').textContent = 'Fetching...';
-  img.style.display = 'none';
-  pendingImageUrl = null;
-
+  const url   = document.getElementById('fUrl').value.trim();
+  const btn   = document.getElementById('ogFetchBtn');
+  const img   = document.getElementById('ogPreviewImg');
+  const status = document.getElementById('ogStatus');
+  if (!url) { status.textContent = 'Enter a URL above first.'; return; }
+  btn.disabled = true; status.textContent = 'Fetching...'; img.style.display = 'none'; pendingImageUrl = null;
   try {
     const res  = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
     const data = await res.json();
     const imgUrl = data?.data?.image?.url;
     if (imgUrl) {
-      img.src = imgUrl;
-      img.style.display = 'block';
-      pendingImageUrl = imgUrl;
-      document.getElementById('ogStatus').textContent = 'Preview ready.';
+      img.src = imgUrl; img.style.display = 'block';
+      pendingImageUrl = imgUrl; status.textContent = 'Preview ready.';
     } else {
-      document.getElementById('ogStatus').textContent = 'No image found for this URL. Try a different one or use Custom Upload.';
+      status.textContent = 'No preview image found. Try Custom Upload or PDF Snapshot instead.';
     }
-  } catch {
-    document.getElementById('ogStatus').textContent = 'Could not fetch preview. Check your internet connection.';
+  } catch { status.textContent = 'Fetch failed. Check your internet connection.'; }
+  btn.disabled = false;
+}
+
+// ── PDF Snapshot ──────────────────────────────────
+async function loadPDFJS() {
+  if (window.pdfjsLib) return;
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.onload = () => {
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      resolve();
+    };
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+async function generatePDFSnapshot() {
+  const btn    = document.getElementById('pdfSnapBtn');
+  const status = document.getElementById('pdfStatus');
+  const wrap   = document.getElementById('pdfCanvasWrap');
+  const canvas = document.getElementById('pdfCanvas');
+  btn.disabled = true;
+  status.textContent = 'Loading PDF renderer...';
+  pdfCanvasReady = false;
+  wrap.style.display = 'none';
+
+  try {
+    await loadPDFJS();
+    status.textContent = 'Rendering first page...';
+
+    let pdfSource;
+    if (activePdfSrc === 'file') {
+      const file = document.getElementById('pdfFile').files[0];
+      if (!file) { status.textContent = 'No file selected.'; btn.disabled = false; return; }
+      pdfSource = { data: await file.arrayBuffer() };
+    } else {
+      const url = document.getElementById('pdfUrl').value.trim();
+      if (!url) { status.textContent = 'No URL entered.'; btn.disabled = false; return; }
+      pdfSource = { url, withCredentials: false };
+    }
+
+    const pdf      = await pdfjsLib.getDocument(pdfSource).promise;
+    const page     = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: 1.8 });
+
+    canvas.width  = viewport.width;
+    canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+    wrap.style.display = 'block';
+    pdfCanvasReady     = true;
+    status.textContent = 'Snapshot ready. Click Save Resource to upload.';
+
+  } catch (err) {
+    if (activePdfSrc === 'url') {
+      status.textContent = 'Could not load this URL -- it may block browser access. Switch to Upload PDF and try again.';
+    } else {
+      status.textContent = 'Could not render PDF. Make sure the file is a valid PDF.';
+    }
+    console.error(err);
   }
   btn.disabled = false;
 }
 
+async function uploadCanvasAsPNG(canvas, progressEl, barEl) {
+  return new Promise(resolve => {
+    canvas.toBlob(async blob => {
+      const fileName = `snapshot_${Date.now()}.png`;
+      progressEl.style.display = 'block'; barEl.style.width = '40%';
+      const { error } = await sb.storage.from('resource-images').upload(fileName, blob, {
+        contentType: 'image/png', cacheControl: '3600',
+      });
+      barEl.style.width = '90%';
+      if (error) { progressEl.style.display = 'none'; toast('Upload failed: ' + error.message); resolve(null); return; }
+      const { data } = sb.storage.from('resource-images').getPublicUrl(fileName);
+      barEl.style.width = '100%';
+      setTimeout(() => { progressEl.style.display = 'none'; barEl.style.width = '0'; }, 600);
+      resolve(data.publicUrl);
+    }, 'image/png');
+  });
+}
+
+// ── Custom image upload ───────────────────────────
 function previewCustom() {
   const file = document.getElementById('imageFile').files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
     const img = document.getElementById('customPreviewImg');
-    img.src = e.target.result;
-    img.style.display = 'block';
+    img.src = e.target.result; img.style.display = 'block';
   };
   reader.readAsDataURL(file);
-  pendingImageUrl = null; // will be resolved on save
+  pendingImageUrl = null;
 }
 
 async function uploadCustomImage() {
   const file = document.getElementById('imageFile').files[0];
   if (!file) return null;
-
   const progress = document.getElementById('uploadProgress');
   const bar      = document.getElementById('uploadBar');
-  progress.style.display = 'block';
-  bar.style.width = '30%';
-
-  const ext      = file.name.split('.').pop();
-  const fileName = `${Date.now()}.${ext}`;
-
-  bar.style.width = '60%';
-  const { error } = await sb.storage.from('resource-images').upload(fileName, file, { cacheControl: '3600', upsert: false });
+  progress.style.display = 'block'; bar.style.width = '30%';
+  const ext = file.name.split('.').pop();
+  const { error } = await sb.storage.from('resource-images').upload(`${Date.now()}.${ext}`, file, { cacheControl: '3600' });
   bar.style.width = '90%';
-
   if (error) { progress.style.display = 'none'; toast('Upload failed: ' + error.message); return null; }
-
+  const fileName = `${Date.now()}.${ext}`;
   const { data } = sb.storage.from('resource-images').getPublicUrl(fileName);
   bar.style.width = '100%';
   setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0'; }, 600);
@@ -530,33 +648,32 @@ function showForm(row) {
   const fc = document.getElementById('formCard');
   fc.style.display = 'block';
   fc.scrollIntoView({ behavior: 'smooth' });
-
   document.getElementById('formTitle').textContent = row ? 'Edit Resource' : 'Add Resource';
   document.getElementById('editId').value    = row ? row.id : '';
   document.getElementById('fName').value     = row ? row.name : '';
   document.getElementById('fUrl').value      = row ? row.url : '';
   document.getElementById('fCategory').value = row ? row.category : '';
   document.getElementById('fType').value     = row ? row.type : '';
-  document.getElementById('fSub').value      = row ? (row.subcategory || '') : '';
+  document.getElementById('fSub').value      = row ? (row.subcategory||'') : '';
   document.getElementById('fSort').value     = row ? row.sort_order : 0;
-  document.getElementById('fDesc').value     = row ? (row.description || '') : '';
+  document.getElementById('fDesc').value     = row ? (row.description||'') : '';
   document.getElementById('fActive').checked  = row ? row.active : true;
   document.getElementById('fCurrent').checked = row ? row.is_current : false;
   document.getElementById('formError').style.display = 'none';
-
-  // Reset image picker
-  const itype = row?.image_type || 'favicon';
-  setImgType(itype);
+  pdfCanvasReady = false;
   pendingImageUrl = row?.image_url || null;
 
-  if (row?.image_url && itype === 'og') {
+  const itype = row?.image_type || 'favicon';
+  setImgType(itype);
+
+  if (itype === 'og' && row?.image_url) {
     const img = document.getElementById('ogPreviewImg');
     img.src = row.image_url; img.style.display = 'block';
     document.getElementById('ogStatus').textContent = 'Current image loaded.';
   }
-  if (row?.image_url && itype === 'custom') {
+  if ((itype === 'custom' || itype === 'pdf') && row?.image_url) {
     const img = document.getElementById('customPreviewImg');
-    img.src = row.image_url; img.style.display = 'block';
+    if (itype === 'custom') { img.src = row.image_url; img.style.display = 'block'; }
   }
   if (row?.url) refreshFaviconPreview();
 }
@@ -564,18 +681,21 @@ function showForm(row) {
 function hideForm() {
   document.getElementById('formCard').style.display = 'none';
   document.getElementById('imageFile').value = '';
-  document.getElementById('customPreviewImg').style.display = 'none';
-  document.getElementById('ogPreviewImg').style.display = 'none';
+  document.getElementById('pdfFile').value   = '';
+  document.getElementById('customPreviewImg').style.display  = 'none';
+  document.getElementById('ogPreviewImg').style.display      = 'none';
+  document.getElementById('pdfCanvasWrap').style.display     = 'none';
+  pdfCanvasReady = false;
 }
 
 function editRow(id) { const row = allRows.find(r => r.id === id); if (row) showForm(row); }
 
 async function saveResource() {
-  const id   = document.getElementById('editId').value;
-  const name = document.getElementById('fName').value.trim();
-  const url  = document.getElementById('fUrl').value.trim();
-  const cat  = document.getElementById('fCategory').value;
-  const type = document.getElementById('fType').value;
+  const id    = document.getElementById('editId').value;
+  const name  = document.getElementById('fName').value.trim();
+  const url   = document.getElementById('fUrl').value.trim();
+  const cat   = document.getElementById('fCategory').value;
+  const type  = document.getElementById('fType').value;
   const errEl = document.getElementById('formError');
   const btn   = document.getElementById('saveBtn');
   errEl.style.display = 'none';
@@ -587,19 +707,27 @@ async function saveResource() {
 
   btn.disabled = true; btn.textContent = 'Saving...';
 
-  // Resolve image URL
   let imageUrl  = pendingImageUrl;
   let imageType = activeImgType;
 
-  if (activeImgType === 'custom') {
+  if (activeImgType === 'pdf' && pdfCanvasReady) {
+    const canvas    = document.getElementById('pdfCanvas');
+    const progressEl = document.getElementById('pdfUploadProgress');
+    const barEl     = document.getElementById('pdfUploadBar');
+    btn.textContent = 'Uploading snapshot...';
+    imageUrl  = await uploadCanvasAsPNG(canvas, progressEl, barEl);
+    imageType = 'custom'; // stored as custom image type, just rendered from PDF
+    if (!imageUrl) { btn.disabled = false; btn.textContent = 'Save Resource'; return; }
+
+  } else if (activeImgType === 'custom') {
     const file = document.getElementById('imageFile').files[0];
     if (file) {
+      btn.textContent = 'Uploading image...';
       imageUrl = await uploadCustomImage();
       if (!imageUrl) { btn.disabled = false; btn.textContent = 'Save Resource'; return; }
     }
-  }
 
-  if (activeImgType === 'favicon' && !imageUrl) {
+  } else if (activeImgType === 'favicon' && !imageUrl) {
     refreshFaviconPreview();
     imageUrl = pendingImageUrl;
   }
@@ -620,11 +748,8 @@ async function saveResource() {
     : await sb.from('resources').insert(payload);
 
   btn.disabled = false; btn.textContent = 'Save Resource';
-
   if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
-
-  hideForm();
-  await loadResources();
+  hideForm(); await loadResources();
   toast(id ? 'Resource updated.' : 'Resource added.');
 }
 
@@ -632,22 +757,19 @@ async function deleteRow(id, name) {
   if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
   const { error } = await sb.from('resources').delete().eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
-  await loadResources();
-  toast('Resource deleted.');
+  await loadResources(); toast('Resource deleted.');
 }
 
 async function setCurrent(id) {
   await sb.from('resources').update({ is_current: false }).eq('category', 'Training');
   const { error } = await sb.from('resources').update({ is_current: true }).eq('id', id);
   if (error) { toast('Error: ' + error.message); return; }
-  await loadResources();
-  toast('Current training deck updated.');
+  await loadResources(); toast('Current training deck updated.');
 }
 
 function toast(msg) {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
+  el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2800);
 }
 </script>
