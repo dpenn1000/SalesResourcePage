@@ -9,20 +9,20 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #F0F2ED;
-      --card:     #FFFFFF;
-      --header:   #1A2332;
-      --nav:      #212E42;
-      --green:    #78C832;
-      --blue:     #29A9E1;
-      --orange:   #E8863A;
-      --purple:   #8B5CF6;
-      --text:     #1A2332;
-      --text2:    #6B7280;
-      --border:   #E2E5E0;
-      --radius:   10px;
-      --shadow:   0 1px 4px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-h: 0 6px 18px rgba(0,0,0,0.11);
+      --bg:      #EFF1EC;
+      --card:    #FFFFFF;
+      --header:  #1A2332;
+      --nav:     #212E42;
+      --green:   #78C832;
+      --blue:    #29A9E1;
+      --orange:  #E8863A;
+      --purple:  #8B5CF6;
+      --text:    #1A2332;
+      --text2:   #6B7280;
+      --border:  #DFE2DA;
+      --radius:  10px;
+      --shadow:  0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-h:0 6px 20px rgba(0,0,0,0.12);
     }
 
     body {
@@ -32,354 +32,249 @@
       min-height: 100vh;
     }
 
-    /* ── Header ─────────────────────────────────── */
+    /* Header */
     header {
       background: var(--header);
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.28);
     }
 
     .header-inner {
       max-width: 1240px;
       margin: 0 auto;
-      padding: 14px 24px;
+      padding: 13px 24px;
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 18px;
     }
 
-    .logo-mark {
-      display: flex;
-      flex-direction: column;
-      line-height: 1;
-      gap: 3px;
-    }
+    .logo-mark { display: flex; flex-direction: column; gap: 2px; line-height: 1; }
+    .logo-ct   { font-family: Georgia, serif; font-size: 24px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+    .logo-trad { font-size: 8px; font-weight: 700; color: var(--green); letter-spacing: 5px; text-transform: uppercase; }
+    .header-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
+    .header-title   { font-size: 12px; color: rgba(255,255,255,0.38); white-space: nowrap; }
 
-    .logo-ct {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 24px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 2px;
-    }
-
-    .logo-trad {
-      font-size: 8px;
-      font-weight: 700;
-      color: var(--green);
-      letter-spacing: 5px;
-      text-transform: uppercase;
-    }
-
-    .header-divider {
-      width: 1px;
-      height: 32px;
-      background: rgba(255,255,255,0.12);
-    }
-
-    .header-title {
-      font-size: 13px;
-      color: rgba(255,255,255,0.45);
-      letter-spacing: 0.5px;
-    }
-
-    .search-wrap {
-      flex: 1;
-      max-width: 380px;
-      margin-left: auto;
-    }
-
+    .search-wrap { flex: 1; max-width: 400px; margin-left: auto; position: relative; }
     .search-wrap input {
       width: 100%;
-      padding: 9px 16px;
+      padding: 9px 36px 9px 16px;
       border-radius: 7px;
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.1);
       background: rgba(255,255,255,0.08);
       color: #fff;
       font-size: 13px;
       outline: none;
       transition: background 0.15s;
     }
+    .search-wrap input::placeholder { color: rgba(255,255,255,0.28); }
+    .search-wrap input:focus { background: rgba(255,255,255,0.13); }
 
-    .search-wrap input::placeholder { color: rgba(255,255,255,0.3); }
-    .search-wrap input:focus { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.25); }
-
-    .header-date {
-      font-size: 11px;
-      color: rgba(255,255,255,0.3);
-      white-space: nowrap;
+    .search-clear {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: rgba(255,255,255,0.35);
+      font-size: 16px; cursor: pointer; padding: 2px 4px; display: none; line-height: 1;
     }
+    .search-clear:hover { color: rgba(255,255,255,0.7); }
+    .header-date { font-size: 11px; color: rgba(255,255,255,0.28); white-space: nowrap; }
 
-    /* ── Category nav ────────────────────────────── */
-    .cat-nav {
-      background: var(--nav);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
+    /* Category nav */
+    .cat-nav { background: var(--nav); border-bottom: 1px solid rgba(0,0,0,0.15); }
     .cat-nav-inner {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 0 20px;
-      display: flex;
-      gap: 2px;
-      overflow-x: auto;
-      scrollbar-width: none;
+      max-width: 1240px; margin: 0 auto; padding: 0 20px;
+      display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
     }
-
     .cat-nav-inner::-webkit-scrollbar { display: none; }
 
     .cat-btn {
-      padding: 11px 18px;
-      background: transparent;
-      border: none;
-      border-bottom: 3px solid transparent;
-      color: rgba(255,255,255,0.45);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: color 0.15s;
+      padding: 10px 18px; background: transparent; border: none;
+      border-bottom: 3px solid transparent; color: rgba(255,255,255,0.4);
+      font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+      transition: color 0.15s; display: flex; align-items: center; gap: 6px;
     }
-
-    .cat-btn:hover { color: rgba(255,255,255,0.75); }
+    .cat-btn:hover { color: rgba(255,255,255,0.72); }
     .cat-btn.active { color: #fff; }
-    .cat-btn[data-cat="All"].active    { border-bottom-color: rgba(255,255,255,0.4); }
-    .cat-btn[data-cat="Solar"].active  { border-bottom-color: var(--green); }
-    .cat-btn[data-cat="Battery"].active { border-bottom-color: var(--blue); }
-    .cat-btn[data-cat="Roofing"].active { border-bottom-color: var(--orange); }
+    .cat-btn[data-cat="All"].active      { border-bottom-color: rgba(255,255,255,0.35); }
+    .cat-btn[data-cat="Solar"].active    { border-bottom-color: var(--green); }
+    .cat-btn[data-cat="Battery"].active  { border-bottom-color: var(--blue); }
+    .cat-btn[data-cat="Roofing"].active  { border-bottom-color: var(--orange); }
     .cat-btn[data-cat="Training"].active { border-bottom-color: var(--purple); }
 
-    /* ── Main ────────────────────────────────────── */
-    main {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 26px 24px 48px;
+    .cat-count {
+      background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.5);
+      font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px;
     }
+    .cat-btn.active .cat-count { background: rgba(255,255,255,0.18); color: rgba(255,255,255,0.8); }
 
-    /* ── Training banner ──────────────────────────── */
+    /* Main */
+    main { max-width: 1240px; margin: 0 auto; padding: 24px 24px 56px; }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .filter-label { font-size: 11px; font-weight: 600; color: var(--text2); white-space: nowrap; }
+    .type-chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+    .type-chip {
+      padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--card); font-size: 11px; font-weight: 600; color: var(--text2);
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .type-chip:hover { border-color: #b0b8ab; color: var(--text); }
+    .type-chip.active { background: var(--header); color: #fff; border-color: var(--header); }
+
+    .sort-wrap { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .sort-wrap select {
+      padding: 5px 10px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--card); font-size: 11px; font-weight: 600; color: var(--text2);
+      cursor: pointer; outline: none;
+    }
+    .result-count { font-size: 11px; color: var(--text2); white-space: nowrap; }
+
+    /* Training banner */
     .training-banner {
-      background: var(--header);
-      border-radius: var(--radius);
-      padding: 18px 22px;
-      margin-bottom: 26px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
+      background: var(--header); border-radius: var(--radius);
+      padding: 16px 20px; margin-bottom: 22px;
+      display: flex; align-items: center; gap: 14px;
       border-left: 4px solid var(--purple);
+      animation: fadeUp 0.4s ease forwards;
     }
-
     .week-badge {
-      background: var(--purple);
-      color: #fff;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 4px;
-      white-space: nowrap;
+      background: var(--purple); color: #fff; font-size: 9px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; padding: 4px 10px; border-radius: 4px; white-space: nowrap;
     }
-
-    .training-info { flex: 1; }
-
-    .training-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .training-desc {
-      font-size: 11px;
-      color: rgba(255,255,255,0.45);
-      margin-top: 2px;
-    }
-
+    .training-info { flex: 1; min-width: 0; }
+    .training-name { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .training-desc { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
     .training-cta {
-      background: var(--purple);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 7px;
-      font-size: 12px;
-      font-weight: 700;
-      text-decoration: none;
-      white-space: nowrap;
-      letter-spacing: 0.3px;
-      transition: opacity 0.15s;
+      background: var(--purple); color: #fff; padding: 8px 16px; border-radius: 7px;
+      font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; transition: opacity 0.15s;
     }
+    .training-cta:hover { opacity: 0.82; }
 
-    .training-cta:hover { opacity: 0.85; }
-
-    /* ── Section headers ─────────────────────────── */
-    .section-head {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 8px 0 14px;
-    }
-
-    .section-pip {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--text2);
-    }
-
-    .section-count {
-      font-size: 11px;
-      background: var(--border);
-      color: var(--text2);
-      padding: 2px 8px;
-      border-radius: 20px;
-    }
-
+    /* Section headers */
+    .section-head { display: flex; align-items: center; gap: 10px; margin: 6px 0 14px; }
+    .section-pip   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text2); }
+    .section-count { font-size: 11px; background: var(--border); color: var(--text2); padding: 2px 8px; border-radius: 20px; }
     .sub-label {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--text2);
-      margin: 18px 0 10px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+      color: var(--text2); margin: 16px 0 10px; padding-bottom: 7px; border-bottom: 1px solid var(--border);
     }
 
-    /* ── Cards ───────────────────────────────────── */
+    /* Cards */
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
       gap: 12px;
-      margin-bottom: 30px;
+      margin-bottom: 28px;
     }
 
     .card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      text-decoration: none;
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+      background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
+      box-shadow: var(--shadow); text-decoration: none; color: var(--text);
+      display: flex; flex-direction: column; overflow: hidden;
+      transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s;
+      position: relative; animation: fadeUp 0.35s ease both;
     }
-
-    .card:hover {
-      box-shadow: var(--shadow-h);
-      transform: translateY(-2px);
-      border-color: #c8ccc6;
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-icon {
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 15px;
-    }
-
-    .card-type-badge {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 4px;
-    }
-
-    .card-name {
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.35;
-      color: var(--text);
-    }
-
-    .card-arrow {
-      font-size: 13px;
-      color: var(--text2);
-      align-self: flex-end;
-    }
-
-    /* Solar */
-    .cat-Solar .card-icon  { background: #EDFAD6; color: #4A8A14; }
-    .cat-Solar .card-type-badge { background: #EDFAD6; color: #4A8A14; }
-    .cat-Solar .card:hover { border-color: #78C832; }
-
-    /* Battery */
-    .cat-Battery .card-icon { background: #DCF0FB; color: #1375A0; }
-    .cat-Battery .card-type-badge { background: #DCF0FB; color: #1375A0; }
+    .card:hover { box-shadow: var(--shadow-h); transform: translateY(-3px); }
+    .cat-Solar   .card:hover { border-color: #78C832; }
     .cat-Battery .card:hover { border-color: #29A9E1; }
-
-    /* Roofing */
-    .cat-Roofing .card-icon { background: #FDEEDD; color: #A05415; }
-    .cat-Roofing .card-type-badge { background: #FDEEDD; color: #A05415; }
     .cat-Roofing .card:hover { border-color: #E8863A; }
-
-    /* Training */
-    .cat-Training .card-icon { background: #EDE9FE; color: #5B21B6; }
-    .cat-Training .card-type-badge { background: #EDE9FE; color: #5B21B6; }
     .cat-Training .card:hover { border-color: #8B5CF6; }
 
-    /* ── States ──────────────────────────────────── */
-    .state-box {
-      text-align: center;
-      padding: 56px 24px;
-      color: var(--text2);
+    .card-image { width: 100%; height: 110px; overflow: hidden; background: var(--bg); flex-shrink: 0; }
+    .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 13px 14px 0; }
+
+    .card-favicon {
+      width: 28px; height: 28px; border-radius: 6px; object-fit: contain;
+      background: var(--bg); padding: 2px; flex-shrink: 0;
+    }
+    .card-icon {
+      width: 30px; height: 30px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+    }
+    .cat-Solar   .card-icon { background: #EDFAD6; }
+    .cat-Battery .card-icon { background: #DCF0FB; }
+    .cat-Roofing .card-icon { background: #FDEEDD; }
+    .cat-Training .card-icon { background: #EDE9FE; }
+
+    .card-type {
+      font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 4px; white-space: nowrap;
+    }
+    .cat-Solar   .card-type { background: #EDFAD6; color: #4A8A14; }
+    .cat-Battery .card-type { background: #DCF0FB; color: #1375A0; }
+    .cat-Roofing .card-type { background: #FDEEDD; color: #A05415; }
+    .cat-Training .card-type { background: #EDE9FE; color: #5B21B6; }
+
+    .card-name { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--text); padding: 8px 14px; flex: 1; }
+    .card-name mark { background: #EDFAD6; color: #4A8A14; padding: 0 2px; border-radius: 2px; font-style: normal; }
+
+    .card-footer { display: flex; align-items: center; justify-content: space-between; padding: 6px 14px 12px; }
+    .card-arrow  { font-size: 14px; color: var(--text2); }
+
+    .copy-btn {
+      display: none; background: none; border: 1px solid var(--border); border-radius: 5px;
+      padding: 3px 8px; font-size: 10px; font-weight: 600; color: var(--text2);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .card:hover .copy-btn { display: block; }
+    .copy-btn:hover { background: var(--bg); color: var(--text); }
+
+    .new-badge {
+      position: absolute; top: 8px; right: 8px;
+      background: var(--green); color: #fff; font-size: 8px; font-weight: 800;
+      letter-spacing: 1.5px; padding: 2px 7px; border-radius: 3px; text-transform: uppercase;
+      animation: pulse 2s ease infinite;
     }
 
-    .state-box h3 { font-size: 16px; margin-bottom: 6px; color: var(--text); }
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.65; }
+    }
+
+    /* States */
+    .state-box { text-align: center; padding: 60px 24px; color: var(--text2); animation: fadeUp 0.3s ease; }
+    .state-box h3 { font-size: 16px; margin-bottom: 8px; color: var(--text); }
     .state-box p  { font-size: 13px; }
 
-    /* ── Footer ──────────────────────────────────── */
-    footer {
-      text-align: center;
-      padding: 20px 24px;
-      font-size: 11px;
-      color: var(--text2);
-      border-top: 1px solid var(--border);
+    /* Toast */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--header); color: #fff; padding: 10px 16px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; opacity: 0; transform: translateY(8px);
+      transition: all 0.22s; pointer-events: none; z-index: 999;
     }
+    #toast.show { opacity: 1; transform: translateY(0); }
 
+    /* Footer */
+    footer { text-align: center; padding: 20px 24px; font-size: 11px; color: var(--text2); border-top: 1px solid var(--border); }
     footer a { color: var(--text2); text-decoration: none; }
     footer a:hover { color: var(--text); }
 
-    /* ── Responsive ──────────────────────────────── */
+    /* Responsive */
     @media (max-width: 640px) {
-      .header-inner { padding: 12px 16px; gap: 12px; }
-      .header-date  { display: none; }
-      .header-divider { display: none; }
-      .header-title { display: none; }
-      main { padding: 18px 14px 40px; }
+      .header-inner { padding: 12px 14px; gap: 10px; }
+      .header-date, .header-title, .header-divider { display: none; }
+      main { padding: 16px 12px 48px; }
       .cards { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .training-banner { flex-wrap: wrap; gap: 10px; }
+      .sort-wrap { display: none; }
     }
-
-    @media (max-width: 380px) {
-      .cards { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 380px) { .cards { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 
-<!-- ── Header ─────────────────────────────────────── -->
 <header>
   <div class="header-inner">
     <div class="logo-mark">
@@ -389,30 +284,44 @@
     <div class="header-divider"></div>
     <span class="header-title">Sales Resource Center</span>
     <div class="search-wrap">
-      <input type="text" id="searchInput" placeholder="Search resources..." oninput="render()">
+      <input type="text" id="searchInput" placeholder="Search resources&hellip; (press /)" oninput="onSearch(this.value)">
+      <button class="search-clear" id="searchClear" onclick="clearSearch()" title="Clear">&times;</button>
     </div>
     <div class="header-date" id="headerDate"></div>
   </div>
   <div class="cat-nav">
     <div class="cat-nav-inner">
-      <button class="cat-btn active" data-cat="All"      onclick="setCat('All')">All Resources</button>
-      <button class="cat-btn"        data-cat="Solar"    onclick="setCat('Solar')">&#9728; Solar</button>
-      <button class="cat-btn"        data-cat="Roofing"  onclick="setCat('Roofing')">&#127968; Roofing</button>
-      <button class="cat-btn"        data-cat="Battery"  onclick="setCat('Battery')">&#128267; Battery</button>
-      <button class="cat-btn"        data-cat="Training" onclick="setCat('Training')">&#128218; Training</button>
+      <button class="cat-btn active" data-cat="All"      onclick="setCat('All')">All Resources <span class="cat-count" id="cnt-All"></span></button>
+      <button class="cat-btn"        data-cat="Solar"    onclick="setCat('Solar')">&#9728; Solar <span class="cat-count" id="cnt-Solar"></span></button>
+      <button class="cat-btn"        data-cat="Roofing"  onclick="setCat('Roofing')">&#127968; Roofing <span class="cat-count" id="cnt-Roofing"></span></button>
+      <button class="cat-btn"        data-cat="Battery"  onclick="setCat('Battery')">&#128267; Battery <span class="cat-count" id="cnt-Battery"></span></button>
+      <button class="cat-btn"        data-cat="Training" onclick="setCat('Training')">&#128218; Training <span class="cat-count" id="cnt-Training"></span></button>
     </div>
   </div>
 </header>
 
-<!-- ── Main ───────────────────────────────────────── -->
 <main>
   <div id="trainingBanner" style="display:none" class="training-banner">
     <div class="week-badge">This Week</div>
     <div class="training-info">
-      <div class="training-name"  id="trainingName">Loading...</div>
-      <div class="training-desc"  id="trainingDesc"></div>
+      <div class="training-name" id="trainingName"></div>
+      <div class="training-desc" id="trainingDesc"></div>
     </div>
     <a href="#" class="training-cta" id="trainingLink" target="_blank" rel="noopener">Open Deck &rarr;</a>
+  </div>
+
+  <div class="filter-bar" id="filterBar" style="display:none">
+    <span class="filter-label">Type:</span>
+    <div class="type-chips" id="typeChips"></div>
+    <div class="sort-wrap">
+      <span class="result-count" id="resultCount"></span>
+      <select id="sortSelect" onchange="render()">
+        <option value="sort_order">Default order</option>
+        <option value="name">A &rarr; Z</option>
+        <option value="newest">Newest first</option>
+        <option value="type">By type</option>
+      </select>
+    </div>
   </div>
 
   <div id="container">
@@ -420,12 +329,13 @@
   </div>
 </main>
 
-<!-- ── Footer ─────────────────────────────────────── -->
 <footer>
   CT Traditional Sales Resource Center &nbsp;&middot;&nbsp;
   <span id="footerYear"></span> &nbsp;&middot;&nbsp;
   <a href="admin.html">Admin</a>
 </footer>
+
+<div id="toast"></div>
 
 <script>
 const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
@@ -433,47 +343,43 @@ const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const CAT_ORDER = ['Solar', 'Roofing', 'Battery', 'Training'];
-const CAT_COLOR = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', Training: '#8B5CF6' };
-const TYPE_ICON  = {
-  'Calculator':       '&#129518;',
-  'Map Tool':         '&#128506;',
-  'Reference Portal': '&#128279;',
-  'Reference Doc':    '&#128196;',
-  'Form':             '&#128203;',
-  'Document':         '&#128209;',
-  'Spec Sheet':       '&#128208;',
-  'Financing':        '&#128176;',
-  'Manufacturer Portal': '&#127981;',
-  'Training Deck':    '&#128202;',
+const CAT_ORDER  = ['Solar', 'Roofing', 'Battery', 'Training'];
+const CAT_COLOR  = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', Training: '#8B5CF6' };
+const TYPE_EMOJI = {
+  'Calculator': '&#129518;', 'Map Tool': '&#128506;', 'Reference Portal': '&#128279;',
+  'Reference Doc': '&#128196;', 'Form': '&#128203;', 'Document': '&#128209;',
+  'Spec Sheet': '&#128208;', 'Financing': '&#128176;',
+  'Manufacturer Portal': '&#127981;', 'Training Deck': '&#128202;',
 };
 
-let all = [];
-let activeCat = 'All';
+let all = [], activeCat = 'All', activeType = '', searchQ = '';
 
-// Header date
 const now = new Date();
 document.getElementById('headerDate').textContent =
-  now.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 document.getElementById('footerYear').textContent = now.getFullYear();
 
-async function init() {
-  const { data, error } = await sb
-    .from('resources')
-    .select('*')
-    .eq('active', true)
-    .order('sort_order', { ascending: true })
-    .order('name',       { ascending: true });
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    e.preventDefault(); document.getElementById('searchInput').focus();
+  }
+  if (e.key === 'Escape') clearSearch();
+});
 
+async function init() {
+  const { data, error } = await sb.from('resources').select('*')
+    .eq('active', true).order('sort_order').order('name');
   if (error) {
     document.getElementById('container').innerHTML =
       `<div class="state-box"><h3>Could not load resources</h3><p>${error.message}</p></div>`;
     return;
   }
-
   all = data || [];
-
-  // Training banner: most recent is_current Training
+  document.getElementById('cnt-All').textContent = all.length;
+  CAT_ORDER.forEach(cat => {
+    const el = document.getElementById('cnt-' + cat);
+    if (el) el.textContent = all.filter(r => r.category === cat).length;
+  });
   const cur = all.find(r => r.category === 'Training' && r.is_current);
   if (cur) {
     document.getElementById('trainingName').textContent = cur.name;
@@ -481,38 +387,94 @@ async function init() {
     document.getElementById('trainingLink').href = cur.url;
     document.getElementById('trainingBanner').style.display = 'flex';
   }
-
   render();
 }
 
 function setCat(cat) {
-  activeCat = cat;
-  document.querySelectorAll('.cat-btn').forEach(b =>
-    b.classList.toggle('active', b.dataset.cat === cat));
+  activeCat = cat; activeType = '';
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
   render();
 }
 
-function render() {
-  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+function onSearch(val) {
+  searchQ = val.toLowerCase().trim();
+  document.getElementById('searchClear').style.display = searchQ ? 'block' : 'none';
+  render();
+}
 
+function clearSearch() {
+  const inp = document.getElementById('searchInput');
+  inp.value = ''; searchQ = '';
+  document.getElementById('searchClear').style.display = 'none';
+  inp.focus(); render();
+}
+
+function setType(type) {
+  activeType = activeType === type ? '' : type;
+  document.querySelectorAll('.type-chip').forEach(c => c.classList.toggle('active', c.dataset.type === activeType));
+  render();
+}
+
+function getSorted(arr) {
+  const s = document.getElementById('sortSelect').value;
+  const c = [...arr];
+  if (s === 'name')   return c.sort((a,b) => a.name.localeCompare(b.name));
+  if (s === 'newest') return c.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+  if (s === 'type')   return c.sort((a,b) => (a.type||'').localeCompare(b.type||''));
+  return c;
+}
+
+function hl(text, q) {
+  if (!q) return text;
+  return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>');
+}
+
+function copyUrl(e, url) {
+  e.preventDefault(); e.stopPropagation();
+  navigator.clipboard.writeText(url).then(() => toast('Link copied'));
+}
+
+function isNew(r) {
+  return r.created_at && (Date.now() - new Date(r.created_at)) < 7 * 86400000;
+}
+
+function faviconUrl(url) {
+  try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`; }
+  catch { return ''; }
+}
+
+function render() {
   let filtered = all.filter(r => {
     if (activeCat !== 'All' && r.category !== activeCat) return false;
-    if (!q) return true;
-    return (r.name        || '').toLowerCase().includes(q)
-        || (r.type        || '').toLowerCase().includes(q)
-        || (r.description || '').toLowerCase().includes(q)
-        || (r.subcategory || '').toLowerCase().includes(q);
+    if (activeType && r.type !== activeType) return false;
+    if (searchQ) return [r.name, r.type, r.description, r.subcategory]
+      .some(v => (v||'').toLowerCase().includes(searchQ));
+    return true;
   });
+
+  const pool  = activeCat === 'All' ? all : all.filter(r => r.category === activeCat);
+  const types = [...new Set(pool.map(r => r.type).filter(Boolean))].sort();
+
+  if (types.length > 1) {
+    document.getElementById('filterBar').style.display = 'flex';
+    document.getElementById('typeChips').innerHTML = types.map(t =>
+      `<button class="type-chip${activeType === t ? ' active' : ''}" data-type="${t}" onclick="setType('${t}')">${t}</button>`
+    ).join('');
+  } else {
+    document.getElementById('filterBar').style.display = 'none';
+  }
+
+  document.getElementById('resultCount').textContent =
+    filtered.length !== all.length ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''}` : '';
 
   if (!filtered.length) {
     document.getElementById('container').innerHTML =
-      `<div class="state-box"><h3>No resources found</h3><p>Try adjusting your search or category filter.</p></div>`;
+      `<div class="state-box"><h3>No resources found</h3><p>Try a different search or filter.</p></div>`;
     return;
   }
 
-  // Group: category -> subcategory -> items
   const grouped = {};
-  filtered.forEach(r => {
+  getSorted(filtered).forEach(r => {
     if (!grouped[r.category]) grouped[r.category] = {};
     const sub = r.subcategory || 'General';
     if (!grouped[r.category][sub]) grouped[r.category][sub] = [];
@@ -526,38 +488,66 @@ function render() {
     if (!grouped[cat]) return;
     const subs  = grouped[cat];
     const count = Object.values(subs).flat().length;
-    const color = CAT_COLOR[cat];
+    html += `<div class="section-head">
+      <div class="section-pip" style="background:${CAT_COLOR[cat]}"></div>
+      <div class="section-label">${cat}</div>
+      <div class="section-count">${count}</div>
+    </div>`;
 
-    html += `
-      <div class="section-head">
-        <div class="section-pip" style="background:${color}"></div>
-        <div class="section-label">${cat}</div>
-        <div class="section-count">${count}</div>
-      </div>`;
-
-    const subKeys = Object.keys(subs);
-    subKeys.forEach(sub => {
-      if (subKeys.length > 1 || sub !== 'General') {
+    Object.entries(subs).forEach(([sub, items]) => {
+      if (Object.keys(subs).length > 1 || sub !== 'General')
         html += `<div class="sub-label">${sub}</div>`;
-      }
+
       html += `<div class="cards cat-${cat}">`;
-      subs[sub].forEach(r => {
-        const icon = TYPE_ICON[r.type] || '&#128204;';
-        html += `
-          <a class="card" href="${r.url}" target="_blank" rel="noopener">
-            <div class="card-header">
-              <div class="card-icon">${icon}</div>
-              <div class="card-type-badge">${r.type || 'Resource'}</div>
+      items.forEach((r, i) => {
+        const hasImg   = r.image_url && (r.image_type === 'og' || r.image_type === 'custom');
+        const fav      = r.image_url && r.image_type === 'favicon' ? r.image_url : faviconUrl(r.url);
+        const emoji    = TYPE_EMOJI[r.type] || '&#128204;';
+        const newBadge = isNew(r) ? '<span class="new-badge">New</span>' : '';
+        const delay    = `animation-delay:${i * 0.04}s`;
+        const nameHl   = hl(r.name, searchQ);
+        const urlSafe  = r.url.replace(/'/g, "\\'");
+
+        if (hasImg) {
+          html += `<a class="card" href="${r.url}" target="_blank" rel="noopener" style="${delay}">
+            ${newBadge}
+            <div class="card-image"><img src="${r.image_url}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+            <div class="card-head" style="padding:10px 14px 0"><span class="card-type">${r.type||'Resource'}</span></div>
+            <div class="card-name">${nameHl}</div>
+            <div class="card-footer">
+              <span class="card-arrow">&#8599;</span>
+              <button class="copy-btn" onclick="copyUrl(event,'${urlSafe}')">Copy link</button>
             </div>
-            <div class="card-name">${r.name}</div>
-            <div class="card-arrow">&#8599;</div>
           </a>`;
+        } else {
+          html += `<a class="card" href="${r.url}" target="_blank" rel="noopener" style="${delay}">
+            ${newBadge}
+            <div class="card-head">
+              ${fav
+                ? `<img class="card-favicon" src="${fav}" alt="" loading="lazy" onerror="this.outerHTML='<div class=card-icon>${emoji}</div>'">`
+                : `<div class="card-icon">${emoji}</div>`}
+              <span class="card-type">${r.type||'Resource'}</span>
+            </div>
+            <div class="card-name">${nameHl}</div>
+            <div class="card-footer">
+              <span class="card-arrow">&#8599;</span>
+              <button class="copy-btn" onclick="copyUrl(event,'${urlSafe}')">Copy link</button>
+            </div>
+          </a>`;
+        }
       });
       html += `</div>`;
     });
   });
 
   document.getElementById('container').innerHTML = html;
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
 }
 
 init();
