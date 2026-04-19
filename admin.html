@@ -452,9 +452,11 @@ function setImgType(type) {
 // ── Favicon ───────────────────────────────────────
 function onUrlChange() {
   if (activeImgType === 'favicon') refreshFaviconPreview();
-  pendingImageUrl = null;
-  document.getElementById('ogPreviewImg').style.display = 'none';
-  document.getElementById('ogStatus').textContent = 'Enter a URL above then click Fetch Preview.';
+  if (activeImgType === 'og') {
+    pendingImageUrl = null;
+    document.getElementById('ogPreviewImg').style.display = 'none';
+    document.getElementById('ogStatus').textContent = 'Enter a URL above then click Fetch Preview.';
+  }
 }
 
 function refreshFaviconPreview() {
