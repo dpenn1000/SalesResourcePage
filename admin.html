@@ -10,7 +10,7 @@
 
     :root {
       --bg: #EFF1EC; --card: #FFFFFF; --header: #1A2332;
-      --green: #78C832; --blue: #29A9E1; --red: #EF4444;
+      --green: #78C832; --blue: #29A9E1;
       --text: #1A2332; --text2: #6B7280; --border: #DFE2DA; --radius: 10px;
     }
 
@@ -31,7 +31,6 @@
     .login-card p  { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
 
     label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 5px; letter-spacing: 0.5px; }
-
     input[type="email"], input[type="password"], input[type="text"],
     input[type="url"], input[type="number"], select, textarea {
       width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px;
@@ -40,6 +39,7 @@
     }
     input:focus, select:focus, textarea:focus { border-color: var(--blue); }
     textarea { resize: vertical; min-height: 68px; }
+    input[type="file"] { padding: 6px; cursor: pointer; }
 
     .btn-primary { width: 100%; padding: 10px; background: var(--header); color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
     .btn-primary:hover { opacity: 0.85; }
@@ -63,25 +63,16 @@
     .img-picker { margin-bottom: 14px; }
     .img-picker-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.5px; margin-bottom: 8px; display: block; }
     .img-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-    .img-tab {
-      padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border);
-      background: var(--bg); font-size: 12px; font-weight: 600; color: var(--text2);
-      cursor: pointer; transition: all 0.15s;
-    }
+    .img-tab { padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); font-size: 12px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.15s; }
     .img-tab.active { background: var(--header); color: #fff; border-color: var(--header); }
     .img-tab:hover:not(.active) { border-color: #b0b8ab; color: var(--text); }
 
     .img-panel { display: none; }
     .img-panel.active { display: block; }
 
-    .img-preview-wrap {
-      display: flex; align-items: center; gap: 12px; padding: 10px 12px;
-      background: var(--bg); border-radius: 7px; border: 1px solid var(--border);
-      margin-top: 8px; min-height: 56px;
-    }
+    .img-preview-wrap { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--bg); border-radius: 7px; border: 1px solid var(--border); margin-top: 8px; min-height: 56px; }
     .img-preview-wrap img { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; background: #fff; }
     .img-preview-wrap span { font-size: 12px; color: var(--text2); }
-
     .img-big-preview { width: 100%; height: 110px; object-fit: cover; border-radius: 7px; margin-top: 8px; display: none; }
 
     .btn-fetch { padding: 8px 14px; background: var(--blue); color: #fff; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
@@ -90,36 +81,22 @@
     .fetch-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
     .fetch-status { font-size: 12px; color: var(--text2); }
 
-    input[type="file"] { padding: 6px; cursor: pointer; }
-
     .upload-progress { height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; display: none; }
     .upload-progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.3s; width: 0; }
 
-    /* PDF snapshot panel */
-    .pdf-source-tabs { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; width: fit-content; }
-    .pdf-src-btn {
-      padding: 7px 14px; background: var(--bg); border: none; font-size: 12px;
-      font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.15s;
-    }
-    .pdf-src-btn.active { background: var(--header); color: #fff; }
-    .pdf-src-btn:hover:not(.active) { background: var(--border); }
+    /* PDF / XLSX source tabs */
+    .src-tabs { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; width: fit-content; }
+    .src-btn { padding: 7px 14px; background: var(--bg); border: none; font-size: 12px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+    .src-btn.active { background: var(--header); color: #fff; }
+    .src-btn:hover:not(.active) { background: var(--border); }
 
-    .pdf-source-panel { display: none; }
-    .pdf-source-panel.active { display: block; }
+    .src-panel { display: none; }
+    .src-panel.active { display: block; }
 
-    .pdf-canvas-wrap {
-      margin-top: 10px; background: var(--bg); border: 1px solid var(--border);
-      border-radius: 7px; overflow: hidden; max-height: 200px; display: none;
-    }
-    .pdf-canvas-wrap canvas {
-      width: 100%; height: 200px; object-fit: contain; display: block;
-    }
+    .canvas-wrap { margin-top: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; overflow: hidden; max-height: 200px; display: none; }
+    .canvas-wrap canvas { width: 100%; height: 200px; object-fit: contain; display: block; }
 
-    .info-note {
-      font-size: 11px; color: var(--text2); background: #F0F7FF;
-      border: 1px solid #C7DFF7; padding: 8px 10px; border-radius: 6px;
-      margin-bottom: 10px; line-height: 1.5;
-    }
+    .info-note { font-size: 11px; color: var(--text2); background: #F0F7FF; border: 1px solid #C7DFF7; padding: 8px 10px; border-radius: 6px; margin-bottom: 10px; line-height: 1.5; }
 
     .form-actions { display: flex; gap: 10px; margin-top: 6px; }
     .btn-save { padding: 9px 20px; background: var(--header); color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
@@ -248,14 +225,15 @@
           <textarea id="fDesc" placeholder="Brief note shown in the training banner..."></textarea>
         </div>
 
-        <!-- Image picker -->
+        <!-- ── Image picker ── -->
         <div class="form-full img-picker">
           <span class="img-picker-label">Card Image</span>
           <div class="img-tabs">
             <button type="button" class="img-tab active" data-itype="favicon" onclick="setImgType('favicon')">Auto Favicon</button>
-            <button type="button" class="img-tab" data-itype="og"      onclick="setImgType('og')">OG Preview</button>
-            <button type="button" class="img-tab" data-itype="pdf"     onclick="setImgType('pdf')">PDF Snapshot</button>
-            <button type="button" class="img-tab" data-itype="custom"  onclick="setImgType('custom')">Custom Upload</button>
+            <button type="button" class="img-tab" data-itype="og"    onclick="setImgType('og')">OG Preview</button>
+            <button type="button" class="img-tab" data-itype="pdf"   onclick="setImgType('pdf')">PDF Snapshot</button>
+            <button type="button" class="img-tab" data-itype="xlsx"  onclick="setImgType('xlsx')">Excel Snapshot</button>
+            <button type="button" class="img-tab" data-itype="custom" onclick="setImgType('custom')">Custom Upload</button>
           </div>
 
           <!-- Favicon -->
@@ -278,58 +256,58 @@
           <!-- PDF Snapshot -->
           <div class="img-panel" id="panel-pdf">
             <div class="info-note">
-              Renders the first page of a PDF as the card image. For OneDrive or SharePoint links, use
-              <strong>Upload PDF</strong> instead -- those URLs block direct access from the browser.
+              Renders page 1 of a PDF as the card image. For OneDrive or SharePoint files, use
+              <strong>Upload PDF</strong> -- those URLs block direct browser access.
             </div>
-            <div class="pdf-source-tabs">
-              <button type="button" class="pdf-src-btn active" data-psrc="url"  onclick="setPdfSrc('url')">From URL</button>
-              <button type="button" class="pdf-src-btn"        data-psrc="file" onclick="setPdfSrc('file')">Upload PDF</button>
+            <div class="src-tabs">
+              <button type="button" class="src-btn active" data-psrc="url"  onclick="setPdfSrc('url')">From URL</button>
+              <button type="button" class="src-btn"        data-psrc="file" onclick="setPdfSrc('file')">Upload PDF</button>
             </div>
-
-            <!-- PDF URL source -->
-            <div class="pdf-source-panel active" id="pdfsrc-url">
+            <div class="src-panel active" id="pdfsrc-url">
               <label>PDF URL</label>
               <input type="url" id="pdfUrl" placeholder="https://example.com/file.pdf" style="margin-bottom:8px">
             </div>
-
-            <!-- PDF file source -->
-            <div class="pdf-source-panel" id="pdfsrc-file">
+            <div class="src-panel" id="pdfsrc-file">
               <label>PDF File</label>
               <input type="file" id="pdfFile" accept="application/pdf" onchange="onPdfFileChange()">
             </div>
-
             <div class="fetch-row" style="margin-top:4px">
               <button type="button" class="btn-fetch" id="pdfSnapBtn" onclick="generatePDFSnapshot()">Generate Snapshot</button>
-              <span class="fetch-status" id="pdfStatus">Choose a source above then click Generate Snapshot.</span>
+              <span class="fetch-status" id="pdfStatus">Choose a source then click Generate Snapshot.</span>
             </div>
+            <div class="canvas-wrap" id="pdfCanvasWrap"><canvas id="pdfCanvas"></canvas></div>
+            <div class="upload-progress" id="pdfUploadProgress"><div class="upload-progress-bar" id="pdfUploadBar"></div></div>
+          </div>
 
-            <div class="pdf-canvas-wrap" id="pdfCanvasWrap">
-              <canvas id="pdfCanvas"></canvas>
+          <!-- Excel Snapshot -->
+          <div class="img-panel" id="panel-xlsx">
+            <div class="info-note">
+              Renders the first sheet of an XLSX file as a styled table card image.
+              The preview shows real cell data from your spreadsheet.
+              File upload only -- OneDrive links block direct browser access.
             </div>
-
-            <div class="upload-progress" id="pdfUploadProgress">
-              <div class="upload-progress-bar" id="pdfUploadBar"></div>
+            <label>XLSX File</label>
+            <input type="file" id="xlsxFile" accept=".xlsx,.xls,.csv" onchange="onXlsxFileChange()">
+            <div class="fetch-row" style="margin-top:4px">
+              <button type="button" class="btn-fetch" id="xlsxSnapBtn" onclick="generateExcelSnapshot()">Generate Snapshot</button>
+              <span class="fetch-status" id="xlsxStatus">Upload a spreadsheet file then click Generate Snapshot.</span>
             </div>
+            <div class="canvas-wrap" id="xlsxCanvasWrap"><canvas id="xlsxCanvas"></canvas></div>
+            <div class="upload-progress" id="xlsxUploadProgress"><div class="upload-progress-bar" id="xlsxUploadBar"></div></div>
           </div>
 
           <!-- Custom Upload -->
           <div class="img-panel" id="panel-custom">
             <label style="margin-bottom:6px">Choose an image file</label>
             <input type="file" id="imageFile" accept="image/*" onchange="previewCustom()">
-            <div class="upload-progress" id="uploadProgress">
-              <div class="upload-progress-bar" id="uploadBar"></div>
-            </div>
+            <div class="upload-progress" id="uploadProgress"><div class="upload-progress-bar" id="uploadBar"></div></div>
             <img class="img-big-preview" id="customPreviewImg" src="" alt="">
           </div>
         </div>
 
         <div class="form-full" style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;">
-          <label class="form-check">
-            <input type="checkbox" id="fActive" checked> Active (visible to reps)
-          </label>
-          <label class="form-check">
-            <input type="checkbox" id="fCurrent"> Mark as current training deck
-          </label>
+          <label class="form-check"><input type="checkbox" id="fActive" checked> Active (visible to reps)</label>
+          <label class="form-check"><input type="checkbox" id="fCurrent"> Mark as current training deck</label>
         </div>
       </div>
 
@@ -377,11 +355,12 @@ const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let allRows       = [];
-let activeImgType = 'favicon';
-let activePdfSrc  = 'url';
+let allRows        = [];
+let activeImgType  = 'favicon';
+let activePdfSrc   = 'url';
 let pendingImageUrl  = null;
 let pdfCanvasReady   = false;
+let xlsxCanvasReady  = false;
 
 // ── Auth ─────────────────────────────────────────
 sb.auth.onAuthStateChange((_e, session) => {
@@ -420,11 +399,10 @@ function renderTable() {
   const q      = document.getElementById('filterQ').value.toLowerCase();
   const cat    = document.getElementById('filterCat').value;
   const status = document.getElementById('filterStatus').value;
-
-  const rows = allRows.filter(r => {
-    if (cat    && r.category !== cat)                    return false;
-    if (status !== '' && String(r.active) !== status)    return false;
-    if (q && !(r.name||'').toLowerCase().includes(q))    return false;
+  const rows   = allRows.filter(r => {
+    if (cat    && r.category !== cat)                  return false;
+    if (status !== '' && String(r.active) !== status)  return false;
+    if (q && !(r.name||'').toLowerCase().includes(q))  return false;
     return true;
   });
 
@@ -436,9 +414,9 @@ function renderTable() {
 
   function thumbHtml(r) {
     if (!r.image_url) return '<span style="color:#ccc;font-size:11px">None</span>';
-    if (r.image_type === 'og' || r.image_type === 'custom' || r.image_type === 'pdf')
-      return `<img src="${r.image_url}" style="width:40px;height:28px;object-fit:cover;border-radius:4px" alt="">`;
-    return `<img src="${r.image_url}" style="width:20px;height:20px;border-radius:4px;object-fit:contain" alt="">`;
+    if (r.image_type === 'favicon')
+      return `<img src="${r.image_url}" style="width:20px;height:20px;border-radius:4px;object-fit:contain" alt="">`;
+    return `<img src="${r.image_url}" style="width:40px;height:28px;object-fit:cover;border-radius:4px" alt="">`;
   }
 
   document.getElementById('tableBody').innerHTML = rows.map(r => `
@@ -462,38 +440,21 @@ function renderTable() {
     </tr>`).join('');
 }
 
-// ── Image type picker ─────────────────────────────
+// ── Image type switcher ───────────────────────────
 function setImgType(type) {
-  activeImgType  = type;
-  pendingImageUrl = null;
-  pdfCanvasReady  = false;
+  activeImgType = type; pendingImageUrl = null; pdfCanvasReady = false; xlsxCanvasReady = false;
   document.querySelectorAll('.img-tab').forEach(t => t.classList.toggle('active', t.dataset.itype === type));
   document.querySelectorAll('.img-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + type).classList.add('active');
   if (type === 'favicon') refreshFaviconPreview();
 }
 
-function setPdfSrc(src) {
-  activePdfSrc = src;
-  pdfCanvasReady = false;
-  document.querySelectorAll('.pdf-src-btn').forEach(b => b.classList.toggle('active', b.dataset.psrc === src));
-  document.querySelectorAll('.pdf-source-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('pdfsrc-' + src).classList.add('active');
-  document.getElementById('pdfStatus').textContent = 'Choose a source above then click Generate Snapshot.';
-  document.getElementById('pdfCanvasWrap').style.display = 'none';
-}
-
+// ── Favicon ───────────────────────────────────────
 function onUrlChange() {
   if (activeImgType === 'favicon') refreshFaviconPreview();
   pendingImageUrl = null;
   document.getElementById('ogPreviewImg').style.display = 'none';
   document.getElementById('ogStatus').textContent = 'Enter a URL above then click Fetch Preview.';
-}
-
-function onPdfFileChange() {
-  pdfCanvasReady = false;
-  document.getElementById('pdfCanvasWrap').style.display = 'none';
-  document.getElementById('pdfStatus').textContent = 'File selected. Click Generate Snapshot.';
 }
 
 function refreshFaviconPreview() {
@@ -504,108 +465,251 @@ function refreshFaviconPreview() {
   try {
     const domain = new URL(url).hostname;
     const src    = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-    img.src = src; img.style.display = 'block';
-    txt.textContent = domain;
-    pendingImageUrl = src;
+    img.src = src; img.style.display = 'block'; txt.textContent = domain; pendingImageUrl = src;
   } catch { img.style.display = 'none'; txt.textContent = 'Invalid URL.'; }
 }
 
+// ── OG Preview ────────────────────────────────────
 async function fetchOG() {
-  const url   = document.getElementById('fUrl').value.trim();
-  const btn   = document.getElementById('ogFetchBtn');
-  const img   = document.getElementById('ogPreviewImg');
-  const status = document.getElementById('ogStatus');
-  if (!url) { status.textContent = 'Enter a URL above first.'; return; }
-  btn.disabled = true; status.textContent = 'Fetching...'; img.style.display = 'none'; pendingImageUrl = null;
+  const url = document.getElementById('fUrl').value.trim();
+  const btn = document.getElementById('ogFetchBtn');
+  const img = document.getElementById('ogPreviewImg');
+  const st  = document.getElementById('ogStatus');
+  if (!url) { st.textContent = 'Enter a URL above first.'; return; }
+  btn.disabled = true; st.textContent = 'Fetching...'; img.style.display = 'none'; pendingImageUrl = null;
   try {
     const res  = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
     const data = await res.json();
     const imgUrl = data?.data?.image?.url;
     if (imgUrl) {
-      img.src = imgUrl; img.style.display = 'block';
-      pendingImageUrl = imgUrl; status.textContent = 'Preview ready.';
+      img.src = imgUrl; img.style.display = 'block'; pendingImageUrl = imgUrl; st.textContent = 'Preview ready.';
     } else {
-      status.textContent = 'No preview image found. Try Custom Upload or PDF Snapshot instead.';
+      st.textContent = 'No preview image found. Try PDF Snapshot or Custom Upload instead.';
     }
-  } catch { status.textContent = 'Fetch failed. Check your internet connection.'; }
+  } catch { st.textContent = 'Fetch failed. Check your connection.'; }
   btn.disabled = false;
 }
 
 // ── PDF Snapshot ──────────────────────────────────
+function setPdfSrc(src) {
+  activePdfSrc = src; pdfCanvasReady = false;
+  document.querySelectorAll('.src-btn').forEach(b => b.classList.toggle('active', b.dataset.psrc === src));
+  document.querySelectorAll('#panel-pdf .src-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('pdfsrc-' + src).classList.add('active');
+  document.getElementById('pdfStatus').textContent = 'Choose a source then click Generate Snapshot.';
+  document.getElementById('pdfCanvasWrap').style.display = 'none';
+}
+
+function onPdfFileChange() {
+  pdfCanvasReady = false;
+  document.getElementById('pdfCanvasWrap').style.display = 'none';
+  document.getElementById('pdfStatus').textContent = 'File selected. Click Generate Snapshot.';
+}
+
 async function loadPDFJS() {
   if (window.pdfjsLib) return;
   return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-    script.onload = () => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => {
       pdfjsLib.GlobalWorkerOptions.workerSrc =
         'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
       resolve();
     };
-    script.onerror = reject;
-    document.head.appendChild(script);
+    s.onerror = reject;
+    document.head.appendChild(s);
   });
 }
 
 async function generatePDFSnapshot() {
-  const btn    = document.getElementById('pdfSnapBtn');
-  const status = document.getElementById('pdfStatus');
-  const wrap   = document.getElementById('pdfCanvasWrap');
-  const canvas = document.getElementById('pdfCanvas');
-  btn.disabled = true;
-  status.textContent = 'Loading PDF renderer...';
-  pdfCanvasReady = false;
-  wrap.style.display = 'none';
-
+  const btn  = document.getElementById('pdfSnapBtn');
+  const st   = document.getElementById('pdfStatus');
+  const wrap = document.getElementById('pdfCanvasWrap');
+  btn.disabled = true; st.textContent = 'Loading renderer...'; wrap.style.display = 'none'; pdfCanvasReady = false;
   try {
     await loadPDFJS();
-    status.textContent = 'Rendering first page...';
-
-    let pdfSource;
+    st.textContent = 'Rendering first page...';
+    let src;
     if (activePdfSrc === 'file') {
       const file = document.getElementById('pdfFile').files[0];
-      if (!file) { status.textContent = 'No file selected.'; btn.disabled = false; return; }
-      pdfSource = { data: await file.arrayBuffer() };
+      if (!file) { st.textContent = 'No file selected.'; btn.disabled = false; return; }
+      src = { data: await file.arrayBuffer() };
     } else {
       const url = document.getElementById('pdfUrl').value.trim();
-      if (!url) { status.textContent = 'No URL entered.'; btn.disabled = false; return; }
-      pdfSource = { url, withCredentials: false };
+      if (!url) { st.textContent = 'No URL entered.'; btn.disabled = false; return; }
+      src = { url, withCredentials: false };
     }
-
-    const pdf      = await pdfjsLib.getDocument(pdfSource).promise;
+    const pdf      = await pdfjsLib.getDocument(src).promise;
     const page     = await pdf.getPage(1);
     const viewport = page.getViewport({ scale: 1.8 });
-
-    canvas.width  = viewport.width;
-    canvas.height = viewport.height;
+    const canvas   = document.getElementById('pdfCanvas');
+    canvas.width = viewport.width; canvas.height = viewport.height;
     await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-
-    wrap.style.display = 'block';
-    pdfCanvasReady     = true;
-    status.textContent = 'Snapshot ready. Click Save Resource to upload.';
-
+    wrap.style.display = 'block'; pdfCanvasReady = true;
+    st.textContent = 'Snapshot ready. Click Save Resource to upload.';
   } catch (err) {
-    if (activePdfSrc === 'url') {
-      status.textContent = 'Could not load this URL -- it may block browser access. Switch to Upload PDF and try again.';
-    } else {
-      status.textContent = 'Could not render PDF. Make sure the file is a valid PDF.';
-    }
+    st.textContent = activePdfSrc === 'url'
+      ? 'Could not load this URL -- try Upload PDF instead.'
+      : 'Could not render this file. Make sure it is a valid PDF.';
     console.error(err);
   }
   btn.disabled = false;
 }
 
+// ── Excel Snapshot ────────────────────────────────
+function onXlsxFileChange() {
+  xlsxCanvasReady = false;
+  document.getElementById('xlsxCanvasWrap').style.display = 'none';
+  document.getElementById('xlsxStatus').textContent = 'File selected. Click Generate Snapshot.';
+}
+
+async function loadSheetJS() {
+  if (window.XLSX) return;
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function generateExcelSnapshot() {
+  const btn  = document.getElementById('xlsxSnapBtn');
+  const st   = document.getElementById('xlsxStatus');
+  const wrap = document.getElementById('xlsxCanvasWrap');
+  btn.disabled = true; st.textContent = 'Loading spreadsheet renderer...';
+  wrap.style.display = 'none'; xlsxCanvasReady = false;
+
+  const file = document.getElementById('xlsxFile').files[0];
+  if (!file) { st.textContent = 'No file selected.'; btn.disabled = false; return; }
+
+  try {
+    await loadSheetJS();
+    st.textContent = 'Reading spreadsheet...';
+    const buffer = await file.arrayBuffer();
+    const wb     = XLSX.read(buffer, { type: 'array' });
+    const ws     = wb.Sheets[wb.SheetNames[0]];
+    const data   = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+    if (!data || !data.length) { st.textContent = 'The first sheet appears to be empty.'; btn.disabled = false; return; }
+
+    const canvas = document.getElementById('xlsxCanvas');
+    drawSheetToCanvas(data, canvas);
+    wrap.style.display = 'block'; xlsxCanvasReady = true;
+    st.textContent = 'Snapshot ready. Click Save Resource to upload.';
+
+  } catch (err) {
+    st.textContent = 'Could not read this file. Make sure it is a valid Excel or CSV file.';
+    console.error(err);
+  }
+  btn.disabled = false;
+}
+
+function drawSheetToCanvas(data, canvas) {
+  const ctx     = canvas.getContext('2d');
+  const MAX_R   = Math.min(data.length, 14);
+  const MAX_C   = 8;
+  const ROW_H   = 24;
+  const HDR_H   = 28;
+  const PAD     = 8;
+  const MIN_COL = 70;
+  const MAX_COL = 160;
+
+  // Find actual number of columns in use
+  let numCols = 0;
+  for (let r = 0; r < MAX_R; r++) {
+    const row = data[r] || [];
+    for (let c = row.length - 1; c >= 0; c--) {
+      if (String(row[c] ?? '').trim()) { numCols = Math.max(numCols, c + 1); break; }
+    }
+  }
+  numCols = Math.min(numCols || 1, MAX_C);
+
+  // Measure column widths from content
+  ctx.font = 'bold 11px Arial';
+  const colWidths = [];
+  for (let c = 0; c < numCols; c++) {
+    let w = MIN_COL;
+    for (let r = 0; r < MAX_R; r++) {
+      ctx.font = r === 0 ? 'bold 11px Arial' : '11px Arial';
+      const measured = ctx.measureText(String((data[r]||[])[c] ?? '')).width + PAD * 2;
+      w = Math.max(w, Math.min(measured, MAX_COL));
+    }
+    colWidths.push(w);
+  }
+
+  const totalW = colWidths.reduce((a, b) => a + b, 0);
+  const totalH = HDR_H + (MAX_R - 1) * ROW_H;
+  canvas.width = totalW; canvas.height = totalH;
+
+  // White base
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, totalW, totalH);
+
+  // Draw rows
+  for (let r = 0; r < MAX_R; r++) {
+    const y = r === 0 ? 0 : HDR_H + (r - 1) * ROW_H;
+    const h = r === 0 ? HDR_H : ROW_H;
+
+    // Row background
+    ctx.fillStyle = r === 0 ? '#1A2332' : r % 2 === 0 ? '#EFF1EC' : '#FFFFFF';
+    ctx.fillRect(0, y, totalW, h);
+
+    let x = 0;
+    for (let c = 0; c < numCols; c++) {
+      const cellW  = colWidths[c];
+      const rawVal = String((data[r] || [])[c] ?? '');
+      ctx.font      = r === 0 ? 'bold 11px Arial' : '11px Arial';
+      ctx.fillStyle = r === 0 ? '#FFFFFF' : '#1A2332';
+      ctx.textBaseline = 'middle';
+
+      // Truncate to fit column
+      let text = rawVal;
+      const maxW = cellW - PAD * 2;
+      while (text.length > 1 && ctx.measureText(text).width > maxW) {
+        text = text.slice(0, -1);
+      }
+      if (text !== rawVal) text = text.slice(0, -1) + '\u2026';
+
+      ctx.fillText(text, x + PAD, y + h / 2);
+      x += cellW;
+    }
+  }
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+  ctx.lineWidth = 0.5;
+
+  // Horizontal
+  let y = HDR_H;
+  for (let r = 1; r < MAX_R; r++) {
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(totalW, y); ctx.stroke();
+    y += ROW_H;
+  }
+
+  // Vertical
+  let x = 0;
+  for (let c = 0; c < numCols - 1; c++) {
+    x += colWidths[c];
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, totalH); ctx.stroke();
+  }
+
+  // Bottom border on header
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, HDR_H); ctx.lineTo(totalW, HDR_H); ctx.stroke();
+}
+
+// ── Upload canvas as PNG ──────────────────────────
 async function uploadCanvasAsPNG(canvas, progressEl, barEl) {
   return new Promise(resolve => {
     canvas.toBlob(async blob => {
-      const fileName = `snapshot_${Date.now()}.png`;
+      const name = `snapshot_${Date.now()}.png`;
       progressEl.style.display = 'block'; barEl.style.width = '40%';
-      const { error } = await sb.storage.from('resource-images').upload(fileName, blob, {
-        contentType: 'image/png', cacheControl: '3600',
-      });
+      const { error } = await sb.storage.from('resource-images').upload(name, blob, { contentType: 'image/png', cacheControl: '3600' });
       barEl.style.width = '90%';
       if (error) { progressEl.style.display = 'none'; toast('Upload failed: ' + error.message); resolve(null); return; }
-      const { data } = sb.storage.from('resource-images').getPublicUrl(fileName);
+      const { data } = sb.storage.from('resource-images').getPublicUrl(name);
       barEl.style.width = '100%';
       setTimeout(() => { progressEl.style.display = 'none'; barEl.style.width = '0'; }, 600);
       resolve(data.publicUrl);
@@ -618,10 +722,7 @@ function previewCustom() {
   const file = document.getElementById('imageFile').files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
-    const img = document.getElementById('customPreviewImg');
-    img.src = e.target.result; img.style.display = 'block';
-  };
+  reader.onload = e => { const img = document.getElementById('customPreviewImg'); img.src = e.target.result; img.style.display = 'block'; };
   reader.readAsDataURL(file);
   pendingImageUrl = null;
 }
@@ -629,25 +730,24 @@ function previewCustom() {
 async function uploadCustomImage() {
   const file = document.getElementById('imageFile').files[0];
   if (!file) return null;
-  const progress = document.getElementById('uploadProgress');
-  const bar      = document.getElementById('uploadBar');
-  progress.style.display = 'block'; bar.style.width = '30%';
-  const ext = file.name.split('.').pop();
-  const { error } = await sb.storage.from('resource-images').upload(`${Date.now()}.${ext}`, file, { cacheControl: '3600' });
+  const prog = document.getElementById('uploadProgress');
+  const bar  = document.getElementById('uploadBar');
+  prog.style.display = 'block'; bar.style.width = '30%';
+  const ext  = file.name.split('.').pop();
+  const name = `${Date.now()}.${ext}`;
+  const { error } = await sb.storage.from('resource-images').upload(name, file, { cacheControl: '3600' });
   bar.style.width = '90%';
-  if (error) { progress.style.display = 'none'; toast('Upload failed: ' + error.message); return null; }
-  const fileName = `${Date.now()}.${ext}`;
-  const { data } = sb.storage.from('resource-images').getPublicUrl(fileName);
+  if (error) { prog.style.display = 'none'; toast('Upload failed: ' + error.message); return null; }
+  const { data } = sb.storage.from('resource-images').getPublicUrl(name);
   bar.style.width = '100%';
-  setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0'; }, 600);
+  setTimeout(() => { prog.style.display = 'none'; bar.style.width = '0'; }, 600);
   return data.publicUrl;
 }
 
 // ── Form ─────────────────────────────────────────
 function showForm(row) {
   const fc = document.getElementById('formCard');
-  fc.style.display = 'block';
-  fc.scrollIntoView({ behavior: 'smooth' });
+  fc.style.display = 'block'; fc.scrollIntoView({ behavior: 'smooth' });
   document.getElementById('formTitle').textContent = row ? 'Edit Resource' : 'Add Resource';
   document.getElementById('editId').value    = row ? row.id : '';
   document.getElementById('fName').value     = row ? row.name : '';
@@ -660,36 +760,32 @@ function showForm(row) {
   document.getElementById('fActive').checked  = row ? row.active : true;
   document.getElementById('fCurrent').checked = row ? row.is_current : false;
   document.getElementById('formError').style.display = 'none';
-  pdfCanvasReady = false;
+  pdfCanvasReady = false; xlsxCanvasReady = false;
   pendingImageUrl = row?.image_url || null;
 
   const itype = row?.image_type || 'favicon';
   setImgType(itype);
-
   if (itype === 'og' && row?.image_url) {
-    const img = document.getElementById('ogPreviewImg');
-    img.src = row.image_url; img.style.display = 'block';
+    const img = document.getElementById('ogPreviewImg'); img.src = row.image_url; img.style.display = 'block';
     document.getElementById('ogStatus').textContent = 'Current image loaded.';
   }
-  if ((itype === 'custom' || itype === 'pdf') && row?.image_url) {
-    const img = document.getElementById('customPreviewImg');
-    if (itype === 'custom') { img.src = row.image_url; img.style.display = 'block'; }
+  if (itype === 'custom' && row?.image_url) {
+    const img = document.getElementById('customPreviewImg'); img.src = row.image_url; img.style.display = 'block';
   }
   if (row?.url) refreshFaviconPreview();
 }
 
 function hideForm() {
   document.getElementById('formCard').style.display = 'none';
-  document.getElementById('imageFile').value = '';
-  document.getElementById('pdfFile').value   = '';
-  document.getElementById('customPreviewImg').style.display  = 'none';
-  document.getElementById('ogPreviewImg').style.display      = 'none';
-  document.getElementById('pdfCanvasWrap').style.display     = 'none';
-  pdfCanvasReady = false;
+  ['imageFile','pdfFile','xlsxFile'].forEach(id => { document.getElementById(id).value = ''; });
+  ['customPreviewImg','ogPreviewImg'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+  ['pdfCanvasWrap','xlsxCanvasWrap'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+  pdfCanvasReady = false; xlsxCanvasReady = false;
 }
 
 function editRow(id) { const row = allRows.find(r => r.id === id); if (row) showForm(row); }
 
+// ── Save ──────────────────────────────────────────
 async function saveResource() {
   const id    = document.getElementById('editId').value;
   const name  = document.getElementById('fName').value.trim();
@@ -711,12 +807,23 @@ async function saveResource() {
   let imageType = activeImgType;
 
   if (activeImgType === 'pdf' && pdfCanvasReady) {
-    const canvas    = document.getElementById('pdfCanvas');
-    const progressEl = document.getElementById('pdfUploadProgress');
-    const barEl     = document.getElementById('pdfUploadBar');
-    btn.textContent = 'Uploading snapshot...';
-    imageUrl  = await uploadCanvasAsPNG(canvas, progressEl, barEl);
-    imageType = 'custom'; // stored as custom image type, just rendered from PDF
+    btn.textContent = 'Uploading PDF snapshot...';
+    imageUrl  = await uploadCanvasAsPNG(
+      document.getElementById('pdfCanvas'),
+      document.getElementById('pdfUploadProgress'),
+      document.getElementById('pdfUploadBar')
+    );
+    imageType = 'custom';
+    if (!imageUrl) { btn.disabled = false; btn.textContent = 'Save Resource'; return; }
+
+  } else if (activeImgType === 'xlsx' && xlsxCanvasReady) {
+    btn.textContent = 'Uploading Excel snapshot...';
+    imageUrl  = await uploadCanvasAsPNG(
+      document.getElementById('xlsxCanvas'),
+      document.getElementById('xlsxUploadProgress'),
+      document.getElementById('xlsxUploadBar')
+    );
+    imageType = 'custom';
     if (!imageUrl) { btn.disabled = false; btn.textContent = 'Save Resource'; return; }
 
   } else if (activeImgType === 'custom') {
