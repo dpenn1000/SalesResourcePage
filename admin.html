@@ -141,6 +141,28 @@
     #toast { position: fixed; bottom: 24px; right: 24px; background: var(--header); color: #fff; padding: 11px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; z-index: 999; }
     #toast.show { opacity: 1; transform: translateY(0); }
 
+    /* Page tabs */
+    .page-tabs { background: var(--card); border-bottom: 1px solid var(--border); }
+    .page-tabs-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; gap: 2px; }
+    .page-tab { padding: 12px 20px; background: transparent; border: none; border-bottom: 3px solid transparent; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; transition: color 0.15s; }
+    .page-tab:hover { color: var(--text); }
+    .page-tab.active { color: var(--text); border-bottom-color: var(--green); }
+
+    /* Team section */
+    .team-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+    .team-header h2 { font-size: 18px; font-weight: 700; }
+
+    .team-form-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 22px; display: none; }
+    .team-form-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+    .team-form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .team-form-row input { flex: 1; min-width: 180px; margin-bottom: 0; }
+    .team-form-actions { display: flex; gap: 10px; margin-top: 12px; }
+
+    .team-table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .team-empty { text-align: center; padding: 40px; color: var(--text2); }
+
+    .you-badge { display: inline-block; background: #EDFAD6; color: #4A8A14; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; margin-left: 6px; }
+
     @media (max-width: 640px) {
       .form-grid { grid-template-columns: 1fr; }
       .form-full { grid-column: auto; }
@@ -176,7 +198,17 @@
 </div>
 
 <div id="adminPanel">
-  <div class="admin-inner">
+
+  <!-- Page-level tabs -->
+  <div class="page-tabs">
+    <div class="page-tabs-inner">
+      <button class="page-tab active" onclick="switchTab('resources')">Resources</button>
+      <button class="page-tab"        onclick="switchTab('team')">Team</button>
+    </div>
+  </div>
+
+  <!-- Resources section -->
+  <div id="tabResources" class="admin-inner">
     <div class="panel-header">
       <h2 id="resourceCount">Resources</h2>
       <button class="btn-add" onclick="showForm()">+ Add Resource</button>
@@ -307,7 +339,7 @@
 
         <div class="form-full" style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;">
           <label class="form-check"><input type="checkbox" id="fActive" checked> Active (visible to reps)</label>
-          <label class="form-check"><input type="checkbox" id="fCurrent"> Mark as current training deck</label>
+          <label class="form-check"><input type="checkbox" id="fCurrent"> Mark as current homework</label>
         </div>
       </div>
 
@@ -345,6 +377,43 @@
       </table>
     </div>
   </div>
+
+  <!-- Team section -->
+  <div id="tabTeam" class="admin-inner" style="display:none">
+    <div class="team-header">
+      <h2>Team</h2>
+      <button class="btn-add" onclick="showTeamForm()">+ Add Admin</button>
+    </div>
+
+    <div class="team-form-card" id="teamFormCard">
+      <h3>Add Admin</h3>
+      <div id="teamFormError" class="error-msg" style="display:none"></div>
+      <div class="team-form-row">
+        <input type="email"    id="tEmail"    placeholder="Email address">
+        <input type="password" id="tPassword" placeholder="Temporary password">
+      </div>
+      <div class="team-form-actions">
+        <button class="btn-save" id="teamSaveBtn" onclick="createAdmin()">Create Admin</button>
+        <button class="btn-cancel" onclick="hideTeamForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="team-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Added</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="teamTableBody">
+          <tr><td colspan="3" class="team-empty">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 
 <div id="toast"></div>
@@ -432,7 +501,7 @@ function renderTable() {
         <div class="row-actions">
           <button class="btn-row btn-edit" onclick="editRow('${r.id}')">Edit</button>
           ${r.category === 'Training'
-            ? `<button class="btn-row btn-cur" onclick="setCurrent('${r.id}')">Set current</button>`
+            ? `<button class="btn-row btn-cur" onclick="setCurrent('${r.id}')">Set as current homework</button>`
             : ''}
           <button class="btn-row btn-del" onclick="deleteRow('${r.id}','${r.name.replace(/'/g,"\\'")}')">Delete</button>
         </div>
@@ -452,11 +521,9 @@ function setImgType(type) {
 // ── Favicon ───────────────────────────────────────
 function onUrlChange() {
   if (activeImgType === 'favicon') refreshFaviconPreview();
-  if (activeImgType === 'og') {
-    pendingImageUrl = null;
-    document.getElementById('ogPreviewImg').style.display = 'none';
-    document.getElementById('ogStatus').textContent = 'Enter a URL above then click Fetch Preview.';
-  }
+  pendingImageUrl = null;
+  document.getElementById('ogPreviewImg').style.display = 'none';
+  document.getElementById('ogStatus').textContent = 'Enter a URL above then click Fetch Preview.';
 }
 
 function refreshFaviconPreview() {
@@ -880,6 +947,170 @@ function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── Tab switching ─────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.page-tab').forEach((t, i) =>
+    t.classList.toggle('active', (i === 0 && tab === 'resources') || (i === 1 && tab === 'team')));
+  document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
+  document.getElementById('tabTeam').style.display      = tab === 'team'      ? 'block' : 'none';
+  if (tab === 'team') loadTeam();
+}
+
+// ── Team ──────────────────────────────────────────
+const EDGE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-admins';
+
+async function callEdge(payload) {
+  const { data: { session } } = await sb.auth.getSession();
+  const res = await fetch(EDGE_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+  return res.json();
+}
+
+let teamUsers = [];
+let currentUserId = null;
+
+async function loadTeam() {
+  const { data: { session } } = await sb.auth.getSession();
+  currentUserId = session?.user?.id;
+  document.getElementById('teamTableBody').innerHTML =
+    '<tr><td colspan="3" class="team-empty">Loading...</td></tr>';
+  const result = await callEdge({ action: 'list' });
+  if (result.error) { toast('Error: ' + result.error); return; }
+  teamUsers = result.users?.users || [];
+  renderTeamTable();
+}
+
+function renderTeamTable() {
+  if (!teamUsers.length) {
+    document.getElementById('teamTableBody').innerHTML =
+      '<tr><td colspan="3" class="team-empty">No admins found.</td></tr>';
+    return;
+  }
+  document.getElementById('teamTableBody').innerHTML = teamUsers.map(u => `
+    <tr>
+      <td style="font-weight:600">
+        ${u.email}
+        ${u.id === currentUserId ? '<span class="you-badge">You</span>' : ''}
+      </td>
+      <td style="font-size:12px;color:var(--text2)">
+        ${u.created_at ? new Date(u.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : ''}
+      </td>
+      <td>
+        ${u.id !== currentUserId
+          ? `<button class="btn-row btn-del" onclick="removeAdmin('${u.id}','${u.email.replace(/'/g,"\\'")}')">Remove</button>`
+          : '<span style="font-size:11px;color:var(--text2)">Current user</span>'}
+      </td>
+    </tr>`).join('');
+}
+
+function showTeamForm() {
+  document.getElementById('teamFormCard').style.display = 'block';
+  document.getElementById('teamFormCard').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById('teamFormError').style.display = 'none';
+  document.getElementById('tEmail').value    = '';
+  document.getElementById('tPassword').value = '';
+}
+
+function hideTeamForm() {
+  document.getElementById('teamFormCard').style.display = 'none';
+}
+
+async function createAdmin() {
+  const email    = document.getElementById('tEmail').value.trim();
+  const password = document.getElementById('tPassword').value;
+  const errEl    = document.getElementById('teamFormError');
+  const btn      = document.getElementById('teamSaveBtn');
+  errEl.style.display = 'none';
+
+  if (!email || !password) {
+    errEl.textContent = 'Email and password are required.';
+    errEl.style.display = 'block'; return;
+  }
+  if (password.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.style.display = 'block'; return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Creating...';
+  const result = await callEdge({ action: 'create', email, password });
+  btn.disabled = false; btn.textContent = 'Create Admin';
+
+  if (result.error) {
+    errEl.textContent = result.error;
+    errEl.style.display = 'block'; return;
+  }
+
+  hideTeamForm();
+  await loadTeam();
+  showCredentialCard(email, password);
+}
+
+async function removeAdmin(userId, email) {
+  if (!confirm(`Remove ${email} as admin? They will lose access immediately.`)) return;
+  const result = await callEdge({ action: 'delete', userId });
+  if (result.error) { toast('Error: ' + result.error); return; }
+  await loadTeam();
+  toast('Admin removed.');
+}
+
+function showCredentialCard(email, password) {
+  const existing = document.getElementById('credentialCard');
+  if (existing) existing.remove();
+
+  const card = document.createElement('div');
+  card.id = 'credentialCard';
+  card.style.cssText = 'background:#FFF8E7;border:1px solid #F5C842;border-radius:10px;padding:20px 22px;margin-bottom:22px;';
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <span style="font-size:18px">&#9888;</span>
+      <strong style="font-size:14px;color:#1A2332">Admin account created -- share these credentials now</strong>
+    </div>
+    <p style="font-size:12px;color:#6B7280;margin-bottom:14px;line-height:1.6">
+      This is the only time this password will be shown here. Copy and share it directly with the new admin
+      via a secure channel (text, Teams, phone call). They should change their password after first sign-in.
+    </p>
+    <div style="background:#fff;border:1px solid #DFE2DA;border-radius:7px;padding:14px 16px;margin-bottom:14px;font-family:monospace;font-size:13px;line-height:2.2">
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;font-style:normal">ADMIN URL</span><br>https://dpenn1000.github.io/SalesResourcePage/admin.html</div>
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;font-style:normal">EMAIL</span><br>${email}</div>
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;font-style:normal">PASSWORD</span><br>${password}</div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button id="copyCredBtn"
+        onclick="copyCredentials('${email.replace(/'/g,"\\'")}','${password.replace(/'/g,"\\'")}',this)"
+        style="padding:8px 16px;background:#1A2332;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">
+        Copy credentials
+      </button>
+      <button onclick="document.getElementById('credentialCard').remove()"
+        style="padding:8px 14px;background:transparent;border:1px solid #DFE2DA;border-radius:7px;font-size:12px;font-weight:600;color:#6B7280;cursor:pointer">
+        Dismiss
+      </button>
+    </div>
+  `;
+
+  const teamHeader = document.querySelector('#tabTeam .team-header');
+  teamHeader.insertAdjacentElement('afterend', card);
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function copyCredentials(email, password, btn) {
+  const text = [
+    'CT Traditional Sales Resource Center',
+    'Admin URL: https://dpenn1000.github.io/SalesResourcePage/admin.html',
+    'Email: ' + email,
+    'Password: ' + password
+  ].join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy credentials'; }, 2200);
+  });
 }
 </script>
 </body>
