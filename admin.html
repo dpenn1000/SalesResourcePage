@@ -176,7 +176,7 @@
     <span class="logo-ct">CT</span>
     <span class="logo-sub">Traditional</span>
   </div>
-  <h1>/ Resource Admin</h1>
+  <h1 style="display:none">/ Resource Admin</h1>
   <div class="header-right">
     <span class="user-label" id="userLabel"></span>
     <button class="btn-hdr" onclick="signOut()">Sign out</button>
@@ -189,11 +189,13 @@
     <h2>Admin Sign In</h2>
     <p>Manage resources, images, and training decks for the CT Traditional sales team.</p>
     <div id="loginError" class="error-msg" style="display:none"></div>
-    <label>Email</label>
-    <input type="email" id="loginEmail" placeholder="you@example.com">
-    <label>Password</label>
-    <input type="password" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')signIn()">
-    <button class="btn-primary" onclick="signIn()">Sign In</button>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+      <button type="submit" class="btn-primary">Sign In</button>
+    </form>
   </div>
 </div>
 
@@ -385,19 +387,6 @@
       <button class="btn-add" onclick="showTeamForm()">+ Add Admin</button>
     </div>
 
-    <div class="team-form-card" id="teamFormCard">
-      <h3>Add Admin</h3>
-      <div id="teamFormError" class="error-msg" style="display:none"></div>
-      <div class="team-form-row">
-        <input type="email"    id="tEmail"    placeholder="Email address">
-        <input type="password" id="tPassword" placeholder="Temporary password">
-      </div>
-      <div class="team-form-actions">
-        <button class="btn-save" id="teamSaveBtn" onclick="createAdmin()">Create Admin</button>
-        <button class="btn-cancel" onclick="hideTeamForm()">Cancel</button>
-      </div>
-    </div>
-
     <div class="team-table-wrap">
       <table>
         <thead>
@@ -414,6 +403,30 @@
     </div>
   </div>
 
+</div>
+
+<!-- ── Admin Modal ────────────────────────────── -->
+<div id="adminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:12px;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,0.2);overflow:hidden;">
+
+    <!-- Modal header -->
+    <div style="background:#1A2332;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;">
+      <span id="modalTitle" style="font-size:15px;font-weight:700;color:#fff;"></span>
+      <button onclick="closeModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer;line-height:1;padding:0 2px;">&times;</button>
+    </div>
+
+    <!-- Modal body -->
+    <div style="padding:22px;">
+      <div id="modalError" class="error-msg" style="display:none;margin-bottom:14px"></div>
+      <div id="modalBody"></div>
+    </div>
+
+    <!-- Modal footer -->
+    <div style="padding:0 22px 20px;display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closeModal()" style="padding:9px 16px;background:transparent;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:#6B7280;">Cancel</button>
+      <button id="modalConfirmBtn" style="padding:9px 20px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s;"></button>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -958,7 +971,7 @@ function switchTab(tab) {
   if (tab === 'team') loadTeam();
 }
 
-// ── Team ──────────────────────────────────────────
+// ── Edge Function ─────────────────────────────────
 const EDGE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-admins';
 
 async function callEdge(payload) {
@@ -974,12 +987,12 @@ async function callEdge(payload) {
   return res.json();
 }
 
-let teamUsers = [];
+// ── Team data ─────────────────────────────────────
+let teamUsers     = [];
 let currentUserId = null;
 
 async function loadTeam() {
-  const { data: { session } } = await sb.auth.getSession();
-  currentUserId = session?.user?.id;
+  currentUserId = (await sb.auth.getSession()).data.session?.user?.id;
   document.getElementById('teamTableBody').innerHTML =
     '<tr><td colspan="3" class="team-empty">Loading...</td></tr>';
   const result = await callEdge({ action: 'list' });
@@ -1001,70 +1014,177 @@ function renderTeamTable() {
         ${u.id === currentUserId ? '<span class="you-badge">You</span>' : ''}
       </td>
       <td style="font-size:12px;color:var(--text2)">
-        ${u.created_at ? new Date(u.created_at).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : ''}
+        ${u.created_at ? new Date(u.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}
       </td>
       <td>
         ${u.id !== currentUserId
-          ? `<button class="btn-row btn-del" onclick="removeAdmin('${u.id}','${u.email.replace(/'/g,"\\'")}')">Remove</button>`
-          : '<span style="font-size:11px;color:var(--text2)">Current user</span>'}
+          ? `<div class="row-actions">
+               <button class="btn-row btn-edit" onclick="openEditModal('${u.id}','${u.email.replace(/'/g,"\\'")}')">Edit</button>
+               <button class="btn-row btn-del"  onclick="openRemoveModal('${u.id}','${u.email.replace(/'/g,"\\'")}')">Remove</button>
+             </div>`
+          : '<span style="font-size:11px;color:var(--text2)">Current account</span>'}
       </td>
     </tr>`).join('');
 }
 
-function showTeamForm() {
-  document.getElementById('teamFormCard').style.display = 'block';
-  document.getElementById('teamFormCard').scrollIntoView({ behavior: 'smooth' });
-  document.getElementById('teamFormError').style.display = 'none';
-  document.getElementById('tEmail').value    = '';
-  document.getElementById('tPassword').value = '';
+// ── Modal core ────────────────────────────────────
+function openModal(title, bodyHtml, confirmLabel, confirmStyle, onConfirm) {
+  document.getElementById('modalTitle').textContent   = title;
+  document.getElementById('modalBody').innerHTML      = bodyHtml;
+  document.getElementById('modalError').style.display = 'none';
+  const btn = document.getElementById('modalConfirmBtn');
+  btn.textContent  = confirmLabel;
+  btn.style.cssText = `padding:9px 20px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s;${confirmStyle}`;
+  btn.onclick = onConfirm;
+  const modal = document.getElementById('adminModal');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.querySelector('input, button#modalConfirmBtn')?.focus(), 50);
 }
 
-function hideTeamForm() {
-  document.getElementById('teamFormCard').style.display = 'none';
+function closeModal() {
+  document.getElementById('adminModal').style.display = 'none';
+  document.getElementById('modalError').style.display = 'none';
+}
+
+function setModalError(msg) {
+  const el = document.getElementById('modalError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function setModalLoading(btn, loading, label) {
+  btn.disabled    = loading;
+  btn.textContent = loading ? 'Saving...' : label;
+}
+
+// Close on backdrop click
+document.getElementById('adminModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('adminModal')) closeModal();
+});
+
+// ── Add Admin modal ───────────────────────────────
+function showTeamForm() {
+  openModal(
+    'Add Admin',
+    `<div style="display:flex;flex-direction:column;gap:12px">
+      <form onsubmit="event.preventDefault();createAdmin()" style="display:contents">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">EMAIL *</label>
+        <input type="email" id="mEmail" placeholder="email@example.com" autocomplete="off" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">TEMPORARY PASSWORD *</label>
+        <input type="password" id="mPassword" placeholder="Minimum 6 characters" autocomplete="new-password" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
+      </div>
+      <p style="font-size:11px;color:#6B7280;line-height:1.5;margin-top:2px">
+        You will be shown the credentials after creation to share directly with the new admin.
+      </p>
+      </form>
+    </div>`,
+    'Create Admin',
+    'background:#78C832;color:#fff;',
+    createAdmin
+  );
 }
 
 async function createAdmin() {
-  const email    = document.getElementById('tEmail').value.trim();
-  const password = document.getElementById('tPassword').value;
-  const errEl    = document.getElementById('teamFormError');
-  const btn      = document.getElementById('teamSaveBtn');
-  errEl.style.display = 'none';
+  const email    = document.getElementById('mEmail').value.trim();
+  const password = document.getElementById('mPassword').value;
+  const btn      = document.getElementById('modalConfirmBtn');
+  document.getElementById('modalError').style.display = 'none';
 
-  if (!email || !password) {
-    errEl.textContent = 'Email and password are required.';
-    errEl.style.display = 'block'; return;
-  }
-  if (password.length < 6) {
-    errEl.textContent = 'Password must be at least 6 characters.';
-    errEl.style.display = 'block'; return;
-  }
+  if (!email || !password) return setModalError('Email and password are required.');
+  if (password.length < 6)  return setModalError('Password must be at least 6 characters.');
 
-  btn.disabled = true; btn.textContent = 'Creating...';
+  setModalLoading(btn, true, 'Create Admin');
   const result = await callEdge({ action: 'create', email, password });
-  btn.disabled = false; btn.textContent = 'Create Admin';
+  setModalLoading(btn, false, 'Create Admin');
 
-  if (result.error) {
-    errEl.textContent = result.error;
-    errEl.style.display = 'block'; return;
-  }
+  if (result.error) return setModalError(result.error);
 
-  hideTeamForm();
+  closeModal();
   await loadTeam();
   showCredentialCard(email, password);
 }
 
-async function removeAdmin(userId, email) {
-  if (!confirm(`Remove ${email} as admin? They will lose access immediately.`)) return;
-  const result = await callEdge({ action: 'delete', userId });
-  if (result.error) { toast('Error: ' + result.error); return; }
-  await loadTeam();
-  toast('Admin removed.');
+// ── Edit Admin modal ──────────────────────────────
+function openEditModal(userId, email) {
+  openModal(
+    'Edit Admin',
+    `<div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">EMAIL</label>
+        <input type="email" id="mEditEmail" value="${email}" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">NEW PASSWORD</label>
+        <input type="password" id="mEditPassword" placeholder="Leave blank to keep current password" autocomplete="new-password" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
+      </div>
+      <p style="font-size:11px;color:#6B7280;line-height:1.5">
+        Only fill in the fields you want to change. Leave password blank to keep it unchanged.
+      </p>
+    </div>`,
+    'Save Changes',
+    'background:#1A2332;color:#fff;',
+    () => saveEdit(userId, email)
+  );
 }
 
+async function saveEdit(userId, originalEmail) {
+  const newEmail    = document.getElementById('mEditEmail').value.trim();
+  const newPassword = document.getElementById('mEditPassword').value;
+  const btn         = document.getElementById('modalConfirmBtn');
+  document.getElementById('modalError').style.display = 'none';
+
+  if (!newEmail) return setModalError('Email cannot be empty.');
+  if (newPassword && newPassword.length < 6) return setModalError('Password must be at least 6 characters.');
+  if (newEmail === originalEmail && !newPassword) return setModalError('No changes detected.');
+
+  const payload = { action: 'update', userId };
+  if (newEmail !== originalEmail) payload.email    = newEmail;
+  if (newPassword)                payload.password = newPassword;
+
+  setModalLoading(btn, true, 'Save Changes');
+  const result = await callEdge(payload);
+  setModalLoading(btn, false, 'Save Changes');
+
+  if (result.error) return setModalError(result.error);
+
+  closeModal();
+  await loadTeam();
+  toast('Admin updated.');
+}
+
+// ── Remove Admin modal ────────────────────────────
+function openRemoveModal(userId, email) {
+  openModal(
+    'Remove Admin',
+    `<div style="font-size:13px;line-height:1.6;color:#1A2332">
+      <p>Are you sure you want to remove <strong>${email}</strong> as an admin?</p>
+      <p style="margin-top:10px;color:#6B7280;font-size:12px">
+        This will immediately revoke their access to the admin panel. This action cannot be undone.
+      </p>
+    </div>`,
+    'Remove Admin',
+    'background:#EF4444;color:#fff;',
+    () => confirmRemove(userId, email)
+  );
+}
+
+async function confirmRemove(userId, email) {
+  const btn = document.getElementById('modalConfirmBtn');
+  setModalLoading(btn, true, 'Remove Admin');
+  const result = await callEdge({ action: 'delete', userId });
+  setModalLoading(btn, false, 'Remove Admin');
+  if (result.error) return setModalError(result.error);
+  closeModal();
+  await loadTeam();
+  toast(`${email} removed.`);
+}
+
+// ── Credential card ───────────────────────────────
 function showCredentialCard(email, password) {
   const existing = document.getElementById('credentialCard');
   if (existing) existing.remove();
-
   const card = document.createElement('div');
   card.id = 'credentialCard';
   card.style.cssText = 'background:#FFF8E7;border:1px solid #F5C842;border-radius:10px;padding:20px 22px;margin-bottom:22px;';
@@ -1074,17 +1194,15 @@ function showCredentialCard(email, password) {
       <strong style="font-size:14px;color:#1A2332">Admin account created -- share these credentials now</strong>
     </div>
     <p style="font-size:12px;color:#6B7280;margin-bottom:14px;line-height:1.6">
-      This is the only time this password will be shown here. Copy and share it directly with the new admin
-      via a secure channel (text, Teams, phone call). They should change their password after first sign-in.
+      This is the only time this password will be shown here. Share it directly via a secure channel (text, Teams, phone). They should change it after first sign-in.
     </p>
     <div style="background:#fff;border:1px solid #DFE2DA;border-radius:7px;padding:14px 16px;margin-bottom:14px;font-family:monospace;font-size:13px;line-height:2.2">
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;font-style:normal">ADMIN URL</span><br>https://dpenn1000.github.io/SalesResourcePage/admin.html</div>
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;font-style:normal">EMAIL</span><br>${email}</div>
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px;font-style:normal">PASSWORD</span><br>${password}</div>
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">ADMIN URL</span><br>https://ct-resource-page.com/admin.html</div>
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">EMAIL</span><br>${email}</div>
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">PASSWORD</span><br>${password}</div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button id="copyCredBtn"
-        onclick="copyCredentials('${email.replace(/'/g,"\\'")}','${password.replace(/'/g,"\\'")}',this)"
+      <button onclick="copyCredentials('${email.replace(/'/g,"\\'")}','${password.replace(/'/g,"\\'")}',this)"
         style="padding:8px 16px;background:#1A2332;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">
         Copy credentials
       </button>
@@ -1092,18 +1210,15 @@ function showCredentialCard(email, password) {
         style="padding:8px 14px;background:transparent;border:1px solid #DFE2DA;border-radius:7px;font-size:12px;font-weight:600;color:#6B7280;cursor:pointer">
         Dismiss
       </button>
-    </div>
-  `;
-
-  const teamHeader = document.querySelector('#tabTeam .team-header');
-  teamHeader.insertAdjacentElement('afterend', card);
+    </div>`;
+  document.querySelector('#tabTeam .team-header').insertAdjacentElement('afterend', card);
   card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function copyCredentials(email, password, btn) {
   const text = [
     'CT Traditional Sales Resource Center',
-    'Admin URL: https://dpenn1000.github.io/SalesResourcePage/admin.html',
+    'Admin URL: https://ct-resource-page.com/admin.html',
     'Email: ' + email,
     'Password: ' + password
   ].join('\n');
@@ -1113,5 +1228,6 @@ function copyCredentials(email, password, btn) {
   });
 }
 </script>
+
 </body>
 </html>
