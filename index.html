@@ -288,6 +288,7 @@
       <button class="search-clear" id="searchClear" onclick="clearSearch()" title="Clear">&times;</button>
     </div>
     <div class="header-date" id="headerDate"></div>
+    <a href="admin.html" style="padding:7px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:rgba(255,255,255,0.55);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.14)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">Admin</a>
   </div>
   <div class="cat-nav">
     <div class="cat-nav-inner">
@@ -295,14 +296,14 @@
       <button class="cat-btn"        data-cat="Solar"    onclick="setCat('Solar')">&#9728; Solar <span class="cat-count" id="cnt-Solar"></span></button>
       <button class="cat-btn"        data-cat="Roofing"  onclick="setCat('Roofing')">&#127968; Roofing <span class="cat-count" id="cnt-Roofing"></span></button>
       <button class="cat-btn"        data-cat="Battery"  onclick="setCat('Battery')">&#128267; Battery <span class="cat-count" id="cnt-Battery"></span></button>
-      <button class="cat-btn"        data-cat="Training" onclick="setCat('Training')">&#128218; Training <span class="cat-count" id="cnt-Training"></span></button>
+      <button class="cat-btn"        data-cat="Training" onclick="setCat('Training')">&#128218; Current Homework <span class="cat-count" id="cnt-Training"></span></button>
     </div>
   </div>
 </header>
 
 <main>
   <div id="trainingBanner" style="display:none" class="training-banner">
-    <div class="week-badge">This Week</div>
+    <div class="week-badge">Current Homework</div>
     <div class="training-info">
       <div class="training-name" id="trainingName"></div>
       <div class="training-desc" id="trainingDesc"></div>
@@ -455,7 +456,8 @@ function render() {
   const pool  = activeCat === 'All' ? all : all.filter(r => r.category === activeCat);
   const types = [...new Set(pool.map(r => r.type).filter(Boolean))].sort();
 
-  if (types.length > 1) {
+  const showFilter = types.length > 0 && (activeCat !== 'All' || types.length > 1);
+  if (showFilter) {
     document.getElementById('filterBar').style.display = 'flex';
     document.getElementById('typeChips').innerHTML = types.map(t =>
       `<button class="type-chip${activeType === t ? ' active' : ''}" data-type="${t}" onclick="setType('${t}')">${t}</button>`
