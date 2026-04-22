@@ -1303,7 +1303,7 @@ function showBulkError(msg) {
 document.getElementById('bulkModal').addEventListener('click', e => {
   if (e.target === document.getElementById('bulkModal')) closeBulkModal();
 });
-</script>
+
 function switchTab(tab) {
   document.querySelectorAll('.page-tab').forEach((t, i) =>
     t.classList.toggle('active', (i === 0 && tab === 'resources') || (i === 1 && tab === 'team')));
