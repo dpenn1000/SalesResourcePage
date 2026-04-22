@@ -123,6 +123,7 @@
     .cat-Battery  { background: #DCF0FB; color: #1375A0; }
     .cat-Roofing  { background: #FDEEDD; color: #A05415; }
     .cat-Training { background: #EDE9FE; color: #5B21B6; }
+    .cat-Sales-Psychology { background: #FDE8F0; color: #9B1B5A; }
 
     .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; }
     .status-on  { background: var(--green); }
@@ -213,7 +214,11 @@
   <div id="tabResources" class="admin-inner">
     <div class="panel-header">
       <h2 id="resourceCount">Resources</h2>
-      <button class="btn-add" onclick="showForm()">+ Add Resource</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-add" style="background:var(--bg);color:var(--text);border:1px solid var(--border);" onclick="downloadTemplate()">&#11015; CSV Template</button>
+        <button class="btn-add" style="background:#212E42;" onclick="showBulkModal()">&#8679; Bulk Upload</button>
+        <button class="btn-add" onclick="showForm()">+ Add Resource</button>
+      </div>
     </div>
 
     <div id="formCard">
@@ -234,6 +239,7 @@
             <option value="">Select...</option>
             <option>Solar</option><option>Roofing</option>
             <option>Battery</option><option>Training</option>
+            <option>Sales Psychology</option>
           </select>
         </div>
         <div>
@@ -356,7 +362,7 @@
       <input type="text" id="filterQ"      placeholder="Filter by name..." oninput="renderTable()">
       <select           id="filterCat"    onchange="renderTable()">
         <option value="">All categories</option>
-        <option>Solar</option><option>Roofing</option><option>Battery</option><option>Training</option>
+        <option>Solar</option><option>Roofing</option><option>Battery</option><option>Training</option><option>Sales Psychology</option>
       </select>
       <select           id="filterStatus" onchange="renderTable()">
         <option value="">All statuses</option>
@@ -403,6 +409,90 @@
     </div>
   </div>
 
+</div>
+
+<!-- ── Bulk Upload Modal ──────────────────────── -->
+<div id="bulkModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:500;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:12px;width:100%;max-width:620px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+
+    <div style="background:#1A2332;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;">
+      <span style="font-size:15px;font-weight:700;color:#fff;">Bulk Upload Resources</span>
+      <button onclick="closeBulkModal()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+
+    <div style="padding:22px;">
+
+      <!-- Step 1: Upload -->
+      <div id="bulkStep1">
+        <p style="font-size:13px;color:#6B7280;margin-bottom:16px;line-height:1.6">
+          Upload a CSV file using the template format. Each row becomes one resource card.
+          Images default to Auto Favicon -- you can update individual cards after upload.
+        </p>
+
+        <div style="border:2px dashed #DFE2DA;border-radius:10px;padding:28px;text-align:center;margin-bottom:16px;cursor:pointer;transition:border-color 0.15s" 
+             id="dropZone"
+             onclick="document.getElementById('bulkFile').click()"
+             ondragover="event.preventDefault();this.style.borderColor='#78C832'"
+             ondragleave="this.style.borderColor='#DFE2DA'"
+             ondrop="handleDrop(event)">
+          <div style="font-size:28px;margin-bottom:8px">&#128196;</div>
+          <div style="font-size:13px;font-weight:600;color:#1A2332;margin-bottom:4px">Drop your CSV here or click to browse</div>
+          <div style="font-size:11px;color:#6B7280">Accepts .csv files only</div>
+          <input type="file" id="bulkFile" accept=".csv" style="display:none" onchange="handleBulkFile(this.files[0])">
+        </div>
+
+        <div id="bulkFileInfo" style="display:none;background:#EFF1EC;border-radius:7px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#1A2332;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px">&#128196;</span>
+          <span id="bulkFileName"></span>
+          <button onclick="clearBulkFile()" style="margin-left:auto;background:none;border:none;color:#6B7280;font-size:16px;cursor:pointer;">&times;</button>
+        </div>
+
+        <div id="bulkParseError" class="error-msg" style="display:none;margin-bottom:14px"></div>
+      </div>
+
+      <!-- Step 2: Preview -->
+      <div id="bulkStep2" style="display:none">
+        <div id="bulkSummary" style="background:#EFF1EC;border-radius:7px;padding:10px 14px;margin-bottom:14px;font-size:12px;"></div>
+        <div id="bulkErrors" style="display:none;margin-bottom:14px"></div>
+        <div style="max-height:320px;overflow-y:auto;border:1px solid #DFE2DA;border-radius:7px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:#EFF1EC;position:sticky;top:0">
+                <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B7280;border-bottom:1px solid #DFE2DA">Status</th>
+                <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B7280;border-bottom:1px solid #DFE2DA">Name</th>
+                <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B7280;border-bottom:1px solid #DFE2DA">Category</th>
+                <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B7280;border-bottom:1px solid #DFE2DA">Type</th>
+                <th style="padding:8px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#6B7280;border-bottom:1px solid #DFE2DA">URL</th>
+              </tr>
+            </thead>
+            <tbody id="bulkPreviewBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Step 3: Progress -->
+      <div id="bulkStep3" style="display:none;text-align:center;padding:20px 0">
+        <div style="font-size:13px;font-weight:600;color:#1A2332;margin-bottom:12px" id="bulkProgressLabel">Uploading...</div>
+        <div style="height:6px;background:#DFE2DA;border-radius:3px;overflow:hidden;margin-bottom:8px">
+          <div id="bulkProgressBar" style="height:100%;background:#78C832;border-radius:3px;transition:width 0.3s;width:0"></div>
+        </div>
+        <div style="font-size:11px;color:#6B7280" id="bulkProgressCount"></div>
+      </div>
+
+      <!-- Step 4: Done -->
+      <div id="bulkStep4" style="display:none;text-align:center;padding:20px 0">
+        <div style="font-size:32px;margin-bottom:10px">&#10003;</div>
+        <div style="font-size:15px;font-weight:700;color:#1A2332;margin-bottom:6px" id="bulkDoneTitle"></div>
+        <div style="font-size:12px;color:#6B7280" id="bulkDoneDesc"></div>
+      </div>
+
+    </div>
+
+    <div style="padding:0 22px 20px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid #DFE2DA;padding-top:16px;margin-top:4px">
+      <button onclick="closeBulkModal()" style="padding:9px 16px;background:transparent;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:#6B7280;" id="bulkCancelBtn">Cancel</button>
+      <button id="bulkActionBtn" style="padding:9px 20px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;background:#78C832;color:#fff;display:none" onclick="bulkAction()"></button>
+    </div>
+  </div>
 </div>
 
 <!-- ── Admin Modal ────────────────────────────── -->
@@ -505,7 +595,7 @@ function renderTable() {
     <tr>
       <td>${thumbHtml(r)}</td>
       <td class="td-name">${r.name}${r.is_current ? '<span class="cur-badge" style="margin-left:6px">Current</span>' : ''}</td>
-      <td><span class="cat-pill cat-${r.category}">${r.category}</span></td>
+      <td><span class="cat-pill cat-${r.category.replace(/ /g,'-')}">${r.category}</span></td>
       <td style="font-size:12px">${r.type||''}</td>
       <td style="font-size:12px;color:var(--text2)">${r.subcategory||''}</td>
       <td><a href="${r.url}" target="_blank" rel="noopener">&#8599; Open</a></td>
@@ -843,10 +933,10 @@ function showForm(row) {
   document.getElementById('fCurrent').checked = row ? row.is_current : false;
   document.getElementById('formError').style.display = 'none';
   pdfCanvasReady = false; xlsxCanvasReady = false;
-  pendingImageUrl = row?.image_url || null;
-
+  const savedImageUrl = row?.image_url || null;
   const itype = row?.image_type || 'favicon';
   setImgType(itype);
+  pendingImageUrl = savedImageUrl;
   if (itype === 'og' && row?.image_url) {
     const img = document.getElementById('ogPreviewImg'); img.src = row.image_url; img.style.display = 'block';
     document.getElementById('ogStatus').textContent = 'Current image loaded.';
@@ -962,7 +1052,258 @@ function toast(msg) {
   setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-// ── Tab switching ─────────────────────────────────
+// ── CSV Template Download ─────────────────────────
+function downloadTemplate() {
+  const headers = ['Name', 'URL', 'Category', 'Type', 'Subcategory', 'Description'];
+  const examples = [
+    ['ESS Calculator v7.1.1', 'https://energystoragect.com/wp-content/uploads/2026/02/ESS-Calculators-Version-7.1.1.xlsx', 'Battery', 'Calculator', 'CT ESS Incentive Program', 'Excel-based incentive calculator'],
+    ['Enphase IQ8 Spec Sheet', 'https://enphase.com/...', 'Solar', 'Spec Sheet', 'General', ''],
+    ['GAF Warranty Guide', 'https://gaf.com/...', 'Roofing', 'Document', 'General', ''],
+    ['Week 16 Training Deck', 'https://ct-resource-page.com/training/week16.html', 'Training', 'Training Deck', 'General', 'Objection handling focus'],
+    ['Influence by Cialdini', 'https://...', 'Sales Psychology', 'Reference Doc', 'General', ''],
+  ];
+  const rows = [headers, ...examples];
+  const csv  = rows.map(r => r.map(v => `"${v.replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'resource_upload_template.csv';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ── Bulk Upload Modal ─────────────────────────────
+const VALID_CATS  = ['Solar', 'Roofing', 'Battery', 'Training', 'Sales Psychology'];
+const VALID_TYPES = ['Spec Sheet','Calculator','Map Tool','Reference Portal','Reference Doc','Form','Document','Financing','Manufacturer Portal','Training Deck'];
+
+let bulkRows    = [];
+let bulkStep    = 1;
+
+function showBulkModal() {
+  resetBulkModal();
+  document.getElementById('bulkModal').style.display = 'flex';
+}
+
+function closeBulkModal() {
+  document.getElementById('bulkModal').style.display = 'none';
+  if (bulkStep === 4) loadResources();
+}
+
+function resetBulkModal() {
+  bulkRows = []; bulkStep = 1;
+  showBulkStepEl(1);
+  document.getElementById('bulkFile').value = '';
+  document.getElementById('bulkFileInfo').style.display  = 'none';
+  document.getElementById('bulkParseError').style.display = 'none';
+  document.getElementById('bulkActionBtn').style.display  = 'none';
+  document.getElementById('bulkCancelBtn').textContent    = 'Cancel';
+  document.getElementById('bulkProgressBar').style.width  = '0';
+}
+
+function showBulkStepEl(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('bulkStep' + i).style.display = i === n ? 'block' : 'none';
+  });
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').style.borderColor = '#DFE2DA';
+  const file = e.dataTransfer.files[0];
+  if (file) handleBulkFile(file);
+}
+
+function handleBulkFile(file) {
+  if (!file || !file.name.endsWith('.csv')) {
+    showBulkError('Please upload a .csv file.');
+    return;
+  }
+  document.getElementById('bulkFileInfo').style.display = 'flex';
+  document.getElementById('bulkFileName').textContent   = file.name;
+  document.getElementById('bulkParseError').style.display = 'none';
+
+  const reader = new FileReader();
+  reader.onload = e => parseBulkCSV(e.target.result);
+  reader.readAsText(file);
+}
+
+function clearBulkFile() {
+  document.getElementById('bulkFile').value  = '';
+  document.getElementById('bulkFileInfo').style.display   = 'none';
+  document.getElementById('bulkActionBtn').style.display  = 'none';
+  showBulkStepEl(1);
+  bulkRows = [];
+}
+
+function parseCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; }
+    else cur += ch;
+  }
+  result.push(cur.trim()); return result;
+}
+
+function parseBulkCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) { showBulkError('CSV appears to be empty or missing data rows.'); return; }
+
+  const header = parseCSVLine(lines[0]).map(h => h.toLowerCase().replace(/\s+/g,''));
+  const nameIdx = header.findIndex(h => h === 'name');
+  const urlIdx  = header.findIndex(h => h === 'url');
+  const catIdx  = header.findIndex(h => h === 'category');
+  const typeIdx = header.findIndex(h => h === 'type');
+  const subIdx  = header.findIndex(h => h.includes('sub'));
+  const descIdx = header.findIndex(h => h.includes('desc'));
+
+  if (nameIdx < 0 || urlIdx < 0 || catIdx < 0 || typeIdx < 0) {
+    showBulkError('CSV must have at least these columns: Name, URL, Category, Type');
+    return;
+  }
+
+  bulkRows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    const cols = parseCSVLine(lines[i]);
+    const row  = {
+      name:        (cols[nameIdx] || '').trim(),
+      url:         (cols[urlIdx]  || '').trim(),
+      category:    (cols[catIdx]  || '').trim(),
+      type:        (cols[typeIdx] || '').trim(),
+      subcategory: subIdx  >= 0 ? (cols[subIdx]  || '').trim() : '',
+      description: descIdx >= 0 ? (cols[descIdx] || '').trim() : '',
+      errors:      [],
+    };
+
+    if (!row.name)     row.errors.push('Missing name');
+    if (!row.url)      row.errors.push('Missing URL');
+    if (!VALID_CATS.includes(row.category))  row.errors.push(`Invalid category: "${row.category}"`);
+    if (!VALID_TYPES.includes(row.type))     row.errors.push(`Invalid type: "${row.type}"`);
+
+    bulkRows.push(row);
+  }
+
+  if (!bulkRows.length) { showBulkError('No valid data rows found.'); return; }
+  renderBulkPreview();
+}
+
+function renderBulkPreview() {
+  const valid   = bulkRows.filter(r => !r.errors.length);
+  const invalid = bulkRows.filter(r => r.errors.length);
+
+  document.getElementById('bulkSummary').innerHTML =
+    `<strong>${bulkRows.length} rows found</strong> &nbsp;&middot;&nbsp;
+     <span style="color:#4A8A14">&#10003; ${valid.length} ready to import</span>
+     ${invalid.length ? `&nbsp;&middot;&nbsp;<span style="color:#DC2626">&#9888; ${invalid.length} have errors</span>` : ''}`;
+
+  if (invalid.length) {
+    const errHtml = invalid.map(r =>
+      `<div style="font-size:11px;color:#DC2626;padding:4px 0;border-bottom:1px solid #FECACA">
+        <strong>${r.name || 'Unnamed row'}</strong> -- ${r.errors.join(', ')}
+      </div>`).join('');
+    document.getElementById('bulkErrors').innerHTML =
+      `<div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:7px;padding:10px 14px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:#991B1B;margin-bottom:6px">Rows with errors will be skipped:</div>
+        ${errHtml}
+      </div>`;
+    document.getElementById('bulkErrors').style.display = 'block';
+  }
+
+  document.getElementById('bulkPreviewBody').innerHTML = bulkRows.map(r => `
+    <tr style="border-bottom:1px solid #DFE2DA;${r.errors.length ? 'opacity:0.5' : ''}">
+      <td style="padding:8px 12px">
+        ${r.errors.length
+          ? '<span style="color:#DC2626;font-size:11px;font-weight:700">&#9888; Skip</span>'
+          : '<span style="color:#4A8A14;font-size:11px;font-weight:700">&#10003; OK</span>'}
+      </td>
+      <td style="padding:8px 12px;font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</td>
+      <td style="padding:8px 12px">${r.category}</td>
+      <td style="padding:8px 12px">${r.type}</td>
+      <td style="padding:8px 12px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <a href="${r.url}" target="_blank" style="color:#29A9E1;font-size:11px">&#8599; ${r.url}</a>
+      </td>
+    </tr>`).join('');
+
+  showBulkStepEl(2);
+  bulkStep = 2;
+
+  if (valid.length > 0) {
+    const btn = document.getElementById('bulkActionBtn');
+    btn.textContent = `Import ${valid.length} Resource${valid.length !== 1 ? 's' : ''}`;
+    btn.style.display = 'block';
+  }
+}
+
+async function bulkAction() {
+  const valid = bulkRows.filter(r => !r.errors.length);
+  if (!valid.length) return;
+
+  showBulkStepEl(3);
+  bulkStep = 3;
+  document.getElementById('bulkActionBtn').style.display  = 'none';
+  document.getElementById('bulkCancelBtn').style.display  = 'none';
+
+  let done = 0; let failed = 0;
+  const bar   = document.getElementById('bulkProgressBar');
+  const label = document.getElementById('bulkProgressLabel');
+  const count = document.getElementById('bulkProgressCount');
+
+  for (const row of valid) {
+    label.textContent = `Importing "${row.name}"...`;
+    count.textContent = `${done + failed + 1} of ${valid.length}`;
+
+    try {
+      // Auto favicon for image
+      let imageUrl = null;
+      try {
+        const domain = new URL(row.url).hostname;
+        imageUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+      } catch {}
+
+      const { error } = await sb.from('resources').insert({
+        name:        row.name,
+        url:         row.url,
+        category:    row.category,
+        type:        row.type,
+        subcategory: row.subcategory || 'General',
+        description: row.description || null,
+        active:      true,
+        is_current:  false,
+        image_url:   imageUrl,
+        image_type:  'favicon',
+        sort_order:  0,
+      });
+
+      if (error) throw error;
+      done++;
+    } catch { failed++; }
+
+    bar.style.width = `${Math.round(((done + failed) / valid.length) * 100)}%`;
+  }
+
+  showBulkStepEl(4);
+  bulkStep = 4;
+  document.getElementById('bulkDoneTitle').textContent =
+    `${done} resource${done !== 1 ? 's' : ''} imported successfully`;
+  document.getElementById('bulkDoneDesc').textContent =
+    failed ? `${failed} row${failed !== 1 ? 's' : ''} failed and were skipped.` : 'All rows imported cleanly.';
+  document.getElementById('bulkCancelBtn').textContent = 'Close';
+  document.getElementById('bulkCancelBtn').style.display = 'block';
+}
+
+function showBulkError(msg) {
+  const el = document.getElementById('bulkParseError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+// Close bulk modal on backdrop click
+document.getElementById('bulkModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('bulkModal')) closeBulkModal();
+});
+</script>
 function switchTab(tab) {
   document.querySelectorAll('.page-tab').forEach((t, i) =>
     t.classList.toggle('active', (i === 0 && tab === 'resources') || (i === 1 && tab === 'team')));
