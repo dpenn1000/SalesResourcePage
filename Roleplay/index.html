@@ -1647,50 +1647,49 @@ Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything spec
     scenario.difficulty = params.difficulty
     currentScenario = scenario
     currentScenarioId = scenarioId
-    renderScenarioPreview(scenario, scenarioId)
 
-    // Save to Supabase in the background — non-blocking
-    sb.from('scenarios').insert({
+    // Save to Supabase via RPC — wait for it so QR encodes the real UUID
+    const savePayload = {
       id: scenarioId,
       created_by: 'manager',
       product_focus: params.product_focus,
       skill_target: params.skill_target,
-      difficulty: params.difficulty,
+      difficulty: String(params.difficulty),
       disc_profile: disc?.type || params.disc_profile,
-      one_legger: params.one_legger,
-      special_conditions: [],
+      one_legger: String(params.one_legger),
       homeowner_name_1: scenario.homeowner_name_1,
-      homeowner_name_2: scenario.homeowner_name_2,
+      homeowner_name_2: scenario.homeowner_name_2 || '',
       homeowner_occupation_1: scenario.homeowner_occupation_1,
-      homeowner_occupation_2: scenario.homeowner_occupation_2,
+      homeowner_occupation_2: scenario.homeowner_occupation_2 || '',
       town: scenario.town,
       utility: scenario.utility,
-      grid_edge: scenario.grid_edge,
+      grid_edge: String(scenario.grid_edge),
       home_age: scenario.home_age,
       roof_age: scenario.roof_age,
       roof_condition: scenario.roof_condition,
       monthly_bill: scenario.monthly_bill,
-      special_features: scenario.special_features,
       life_context: scenario.persona_backstory,
       opening_disposition: scenario.opening_disposition,
       disc_opening_behavior: scenario.character_brief,
-      disc_rapport_response: disc?.rapport_response,
-      disc_objection_style: disc?.objection_style,
+      disc_rapport_response: disc?.rapport_response || '',
+      disc_objection_style: disc?.objection_style || '',
       gm_instructions: JSON.stringify({
         character_brief: scenario.character_brief,
         reactive_guide: scenario.reactive_guide,
         objection_cards: scenario.objection_cards,
       }),
-      primary_objection_id: pickedObjs[0]?.id || null,
-      secondary_objection_id: pickedObjs[1]?.id || null,
-      tertiary_objection_id: pickedObjs[2]?.id || null,
+      primary_objection_id: pickedObjs[0]?.id || '',
+      secondary_objection_id: pickedObjs[1]?.id || '',
+      tertiary_objection_id: pickedObjs[2]?.id || '',
       buying_signals: scenario.buying_signals,
       outcome_if_rep_earns_nothing: scenario.outcome_if_rep_earns_nothing,
       outcome_if_rep_earns_everything: scenario.outcome_if_rep_earns_everything,
-    }).then(({ error }) => {
-      if (error) console.warn('Scenario save failed (non-critical):', error.message)
-      else console.log('Scenario saved:', scenarioId)
-    })
+    }
+
+    const { error: saveError } = await sb.rpc('save_scenario', { scenario_data: savePayload })
+    if (saveError) console.warn('DB save failed — QR will use local fallback:', saveError.message)
+
+    renderScenarioPreview(scenario, scenarioId, !saveError)
 
   } catch (err) {
     console.error(err)
@@ -1711,7 +1710,7 @@ Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything spec
   }
 }
 
-function renderScenarioPreview(s, id) {
+function renderScenarioPreview(s, id, saved = false) {
   const card = document.getElementById('scenario-card')
   card.style.display = 'block'
   card.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
@@ -1749,7 +1748,16 @@ function renderScenarioPreview(s, id) {
   // QR code
   const qrContainer = document.getElementById('qr-container')
   qrContainer.innerHTML = '<div id="qr-canvas"></div>'
-  const shareUrl = buildShareUrl(currentScenarioId)
+  const base = location.href.split('?')[0]
+  let shareUrl
+  if (saved) {
+    shareUrl = `${base}?session=${id}`
+  } else {
+    // Fallback: store in sessionStorage for same-device use
+    const key = id.slice(0, 8)
+    try { sessionStorage.setItem(`scenario_${key}`, JSON.stringify(s)) } catch(e) {}
+    shareUrl = `${base}?local=${key}`
+  }
   new QRCode(document.getElementById('qr-canvas'), {
     text: shareUrl,
     width: 140,
@@ -1758,8 +1766,6 @@ function renderScenarioPreview(s, id) {
     colorLight: '#ffffff',
     correctLevel: QRCode.CorrectLevel.M
   })
-
-  // URL display
   document.getElementById('share-url').textContent = shareUrl
 }
 
@@ -1793,10 +1799,7 @@ async function loadGMView(sessionId) {
 
   try {
     const { data, error } = await sb
-      .from('scenarios')
-      .select('*')
-      .eq('id', sessionId)
-      .single()
+      .rpc('get_scenario', { scenario_id: sessionId })
 
     if (error || !data) {
       showToast('Scenario not found')
