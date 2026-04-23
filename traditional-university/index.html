@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traditional Sales University — Rep Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --solar-green: #78C832;
+  --solar-green-dark: #5FA520;
+  --totalhome-blue: #29A9E1;
+  --totalhome-blue-dark: #1E8BBC;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --text: #1A1F2E;
+  --text-muted: #5B6576;
+  --text-subtle: #8B94A3;
+  --surface: #EFF1EC;
+  --surface-raised: #FAFBF7;
+  --surface-white: #FFFFFF;
+  --hairline: #D8DBD4;
+  --hairline-soft: #E5E8E0;
+  --accent-warm: #E9A648;
+  --accent-rose: #C94F5A;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.12);
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px;
+  --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px; --s-9:96px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px; line-height: 1.6; color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: 1.5rem; font-weight: 500; line-height: 1.2; }
+h2 { font-size: 1.75rem; font-weight: 500; line-height: 1.15; margin-bottom: var(--s-4); font-variation-settings: "opsz" 72; }
+h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.3; margin-bottom: var(--s-2); }
+p { margin-bottom: var(--s-3); }
+code { font-family: 'SF Mono', 'Monaco', monospace; font-size: 0.875em; background: var(--hairline-soft); padding: 2px 6px; border-radius: var(--r-sm); }
+.eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 var(--s-5); }
+
+/* HEADER */
+.page-header {
+  background: var(--ink); color: #FFFFFF;
+  padding: var(--s-5) 0;
+  border-bottom: 3px solid var(--solar-green);
+}
+.page-header .wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-4); flex-wrap: wrap;
+}
+.page-header .brand { display: flex; align-items: center; gap: var(--s-4); }
+.page-header .title-block .eyebrow { color: rgba(255,255,255,0.6); display: block; margin-bottom: 2px; }
+.page-header .title-block h1 { color: #FFFFFF; }
+.page-header .user { display: flex; align-items: center; gap: var(--s-3); font-size: 0.875rem; color: rgba(255,255,255,0.85); }
+.page-header .user .name { font-weight: 600; color: #FFFFFF; }
+.page-header .user button {
+  background: transparent; color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.25); padding: 6px 12px;
+  border-radius: var(--r-sm); cursor: pointer; font-family: inherit;
+  font-size: 0.8125rem; font-weight: 500;
+}
+.page-header .user button:hover { background: rgba(255,255,255,0.08); color: #FFFFFF; }
+
+/* NAV */
+.tabs {
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--hairline);
+  padding: 0;
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(6px); background: rgba(250,251,247,0.94);
+}
+.tabs .wrap { display: flex; gap: var(--s-5); flex-wrap: wrap; align-items: center; }
+.tabs button {
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 0.875rem; font-weight: 500;
+  color: var(--text-muted); padding: var(--s-4) 0;
+  border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
+}
+.tabs button:hover { color: var(--ink); }
+.tabs button.active { color: var(--ink); border-bottom-color: var(--solar-green); font-weight: 600; }
+
+/* MAIN */
+main { padding: var(--s-7) 0 var(--s-8); min-height: 70vh; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* SIGN-IN VIEW */
+.signin-wrap {
+  min-height: 80vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--s-5);
+}
+.signin-card {
+  background: var(--surface-white);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: var(--s-7);
+  max-width: 440px; width: 100%;
+  box-shadow: var(--shadow-md);
+}
+.signin-card .logo-row { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-5); }
+.signin-card .logo-row .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--solar-green); }
+.signin-card .logo-row span { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+.signin-card h2 { font-size: 1.5rem; margin-bottom: var(--s-2); }
+.signin-card .subtitle { color: var(--text-muted); font-size: 0.9375rem; margin-bottom: var(--s-5); }
+.signin-tabs { display: flex; gap: 0; margin-bottom: var(--s-5); border-bottom: 1px solid var(--hairline); }
+.signin-tabs button {
+  flex: 1; background: none; border: none; padding: var(--s-3) 0; cursor: pointer;
+  font-family: inherit; font-size: 0.875rem; font-weight: 500;
+  color: var(--text-muted); border-bottom: 2px solid transparent;
+}
+.signin-tabs button.active { color: var(--ink); border-bottom-color: var(--solar-green); font-weight: 600; }
+
+/* FORMS */
+.form-group { margin-bottom: var(--s-4); }
+.form-group label { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--ink); margin-bottom: var(--s-2); }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 10px 12px;
+  font-family: inherit; font-size: 0.9375rem; color: var(--text);
+  background: var(--surface-white);
+  border: 1px solid var(--hairline); border-radius: var(--r-sm);
+  transition: border-color 0.15s;
+}
+.form-group textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+  outline: none; border-color: var(--totalhome-blue);
+}
+.form-group .hint { font-size: 0.75rem; color: var(--text-subtle); margin-top: 4px; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--r-sm);
+  font-family: 'Manrope', sans-serif; font-size: 0.9375rem; font-weight: 600;
+  text-decoration: none; border: none; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--solar-green); color: var(--ink); }
+.btn-primary:hover { background: var(--solar-green-dark); color: #FFFFFF; }
+.btn-secondary { background: var(--totalhome-blue); color: #FFFFFF; }
+.btn-secondary:hover { background: var(--totalhome-blue-dark); }
+.btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--hairline); }
+.btn-ghost:hover { border-color: var(--ink); background: var(--surface-raised); }
+.btn-full { width: 100%; justify-content: center; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* MESSAGES */
+.msg { padding: var(--s-3) var(--s-4); border-radius: var(--r-sm); font-size: 0.875rem; margin-bottom: var(--s-3); }
+.msg-info { background: #E8F4FB; color: var(--totalhome-blue-dark); border-left: 3px solid var(--totalhome-blue); }
+.msg-error { background: #FBE8EA; color: var(--accent-rose); border-left: 3px solid var(--accent-rose); }
+.msg-success { background: #EFF8E5; color: var(--solar-green-dark); border-left: 3px solid var(--solar-green); }
+
+/* DASHBOARD */
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-5); margin-bottom: var(--s-6); }
+@media (max-width: 720px) { .dash-grid { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--surface-white);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  padding: var(--s-5);
+  box-shadow: var(--shadow-sm);
+}
+.panel .panel-head { margin-bottom: var(--s-4); }
+.panel .panel-head h3 { margin-bottom: var(--s-1); }
+.panel .panel-head p { color: var(--text-muted); font-size: 0.875rem; margin: 0; }
+
+.welcome-panel h2 { font-size: 1.75rem; }
+.welcome-panel .meta { color: var(--text-muted); font-size: 0.9375rem; margin-top: var(--s-2); }
+
+/* PROGRESS */
+.progress-row {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) 0; border-bottom: 1px solid var(--hairline-soft);
+}
+.progress-row:last-child { border-bottom: none; }
+.progress-row .label { min-width: 110px; font-size: 0.875rem; font-weight: 600; color: var(--ink); }
+.progress-row .bar {
+  flex: 1; height: 10px; background: var(--hairline-soft);
+  border-radius: 999px; overflow: hidden;
+}
+.progress-row .bar .fill {
+  height: 100%; background: var(--solar-green);
+  transition: width 0.4s ease;
+}
+.progress-row.stage2 .bar .fill { background: var(--totalhome-blue); }
+.progress-row .count { font-size: 0.8125rem; font-family: 'SF Mono', monospace; color: var(--text-muted); min-width: 40px; text-align: right; }
+
+/* CERT GRID */
+.cert-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--s-4);
+}
+.cert-card {
+  background: var(--surface-white);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  display: flex; flex-direction: column; gap: var(--s-3);
+}
+.cert-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--solar-green); }
+.cert-card .head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-3); }
+.cert-card .icon { font-size: 1.75rem; line-height: 1; }
+.cert-card .stage-chip {
+  font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 3px 10px; border-radius: 999px;
+  background: var(--hairline-soft); color: var(--text-muted);
+}
+.cert-card.stage-1 .stage-chip { background: #E8F4FB; color: var(--totalhome-blue-dark); }
+.cert-card.stage-2 .stage-chip { background: #EFF8E5; color: var(--solar-green-dark); }
+.cert-card h4 { font-family: 'Fraunces', serif; font-size: 1.125rem; font-weight: 500; margin: 0; color: var(--ink); }
+.cert-card .core { font-size: 0.75rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.cert-card .desc { font-size: 0.8125rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+.cert-card .footer {
+  margin-top: auto; padding-top: var(--s-3);
+  border-top: 1px solid var(--hairline-soft);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-2);
+}
+.cert-card .status-badge {
+  font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 3px 10px; border-radius: 999px;
+}
+.status-not-started { background: var(--hairline-soft); color: var(--text-muted); }
+.status-in-progress { background: #FEF3DC; color: #8A5E15; }
+.status-pending     { background: #E8F4FB; color: var(--totalhome-blue-dark); }
+.status-approved    { background: #EFF8E5; color: var(--solar-green-dark); }
+.status-retake      { background: #FBE8EA; color: var(--accent-rose); }
+.status-not-assigned{ background: transparent; color: var(--text-subtle); border: 1px dashed var(--hairline); }
+
+.cert-card .action {
+  font-size: 0.8125rem; font-weight: 600; color: var(--solar-green-dark);
+}
+.cert-card.unavailable { opacity: 0.55; cursor: default; }
+.cert-card.unavailable:hover { transform: none; box-shadow: none; border-color: var(--hairline); }
+
+/* QUIZ VIEW */
+.quiz-wrap { max-width: 760px; margin: 0 auto; }
+.quiz-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: var(--s-4); margin-bottom: var(--s-5);
+}
+.quiz-head .back {
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 0.8125rem; color: var(--text-muted);
+  display: flex; align-items: center; gap: 6px; padding: 4px 0;
+}
+.quiz-head .back:hover { color: var(--ink); }
+.quiz-title h2 { margin-bottom: var(--s-1); }
+.quiz-title .subtitle { color: var(--text-muted); font-size: 0.9375rem; }
+
+.question {
+  background: var(--surface-white);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: var(--s-5);
+  margin-bottom: var(--s-4);
+}
+.question .q-number {
+  font-family: 'SF Mono', monospace; font-size: 0.75rem;
+  color: var(--text-subtle); margin-bottom: var(--s-2);
+}
+.question .q-prompt { font-size: 1.0625rem; color: var(--ink); font-weight: 500; margin-bottom: var(--s-4); line-height: 1.5; }
+.q-options { display: flex; flex-direction: column; gap: var(--s-2); }
+.q-option {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--hairline); border-radius: var(--r-sm);
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  background: var(--surface-raised);
+}
+.q-option:hover { border-color: var(--totalhome-blue); }
+.q-option input[type="radio"] { margin: 0; accent-color: var(--totalhome-blue); }
+.q-option span { font-size: 0.9375rem; }
+.q-option.selected { background: #E8F4FB; border-color: var(--totalhome-blue); }
+
+.q-text-note { font-size: 0.75rem; color: var(--text-subtle); font-style: italic; margin-top: var(--s-2); }
+
+.quiz-actions { display: flex; gap: var(--s-3); justify-content: flex-end; margin-top: var(--s-5); }
+
+/* RESULT VIEW */
+.result-card {
+  background: var(--surface-white); border: 1px solid var(--hairline);
+  border-radius: var(--r-lg); padding: var(--s-6);
+  text-align: center; margin-bottom: var(--s-5);
+}
+.result-card .result-icon { font-size: 2.5rem; margin-bottom: var(--s-3); }
+.result-card h2 { margin-bottom: var(--s-2); }
+.result-card .score {
+  font-family: 'Fraunces', serif; font-size: 2.5rem; font-weight: 500;
+  color: var(--solar-green-dark); margin: var(--s-3) 0;
+}
+.result-card .note { color: var(--text-muted); font-size: 0.9375rem; max-width: 480px; margin: 0 auto; }
+
+/* SHADOW LIST */
+.list { display: flex; flex-direction: column; gap: var(--s-3); }
+.list-item {
+  background: var(--surface-white); border: 1px solid var(--hairline);
+  border-radius: var(--r-md); padding: var(--s-4);
+  display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-4);
+}
+.list-item .main .title { font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.list-item .main .meta { font-size: 0.8125rem; color: var(--text-muted); }
+.list-item .main .notes { margin-top: var(--s-2); font-size: 0.875rem; color: var(--text); }
+
+.empty {
+  text-align: center; padding: var(--s-6) var(--s-4);
+  color: var(--text-muted); font-size: 0.9375rem;
+  background: var(--surface-raised); border: 1px dashed var(--hairline);
+  border-radius: var(--r-md);
+}
+
+/* FORM CARD */
+.form-card {
+  background: var(--surface-white); border: 1px solid var(--hairline);
+  border-radius: var(--r-md); padding: var(--s-5);
+  margin-bottom: var(--s-5);
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-4); }
+@media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+
+/* SKELETON / LOADING */
+.loading { text-align: center; padding: var(--s-7); color: var(--text-muted); }
+
+/* FOOTER */
+.page-footer { background: var(--ink); color: rgba(255,255,255,0.7); padding: var(--s-5) 0; text-align: center; font-size: 0.8125rem; }
+</style>
+</head>
+<body>
+
+<!-- ===================== SIGN-IN VIEW ===================== -->
+<div id="signin-view" class="signin-wrap">
+  <div class="signin-card">
+    <div class="logo-row">
+      <span class="dot"></span>
+      <span>CT Traditional · Trinity Solar</span>
+    </div>
+    <h2>Rep Portal</h2>
+    <p class="subtitle">Sign in with the email your manager set up for you.</p>
+
+    <div class="signin-tabs">
+      <button id="tab-magic" class="active" onclick="setAuthMode('magic')">Magic link</button>
+      <button id="tab-password" onclick="setAuthMode('password')">Password</button>
+    </div>
+
+    <div id="signin-msg"></div>
+
+    <form id="signin-form" onsubmit="handleSignin(event)">
+      <div class="form-group">
+        <label for="si-email">Email</label>
+        <input type="email" id="si-email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+      <div class="form-group" id="password-group" style="display:none;">
+        <label for="si-password">Password</label>
+        <input type="password" id="si-password" autocomplete="current-password">
+        <div class="hint">New here? Set a password by signing in with a magic link first, then set one in your account.</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="signin-btn">Send magic link</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== AUTHENTICATED SHELL ===================== -->
+<div id="app-shell" style="display:none;">
+
+<header class="page-header">
+  <div class="wrap">
+    <div class="brand">
+      <div class="title-block">
+        <span class="eyebrow">CT Traditional · Trinity Solar</span>
+        <h1>Traditional Sales University</h1>
+      </div>
+    </div>
+    <div class="user">
+      <span>Signed in as <span class="name" id="header-name">...</span></span>
+      <button onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="active" data-tab="dashboard" onclick="setTab('dashboard')">Dashboard</button>
+    <button data-tab="certs" onclick="setTab('certs')">Certifications</button>
+    <button data-tab="shadows" onclick="setTab('shadows')">Shadow Log</button>
+    <button data-tab="uploads" onclick="setTab('uploads')">Uploads</button>
+    <button data-tab="help" onclick="setTab('help')">Help</button>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="view active">
+      <div class="panel welcome-panel" style="margin-bottom: var(--s-5);">
+        <h2 id="welcome-h2">Welcome.</h2>
+        <div class="meta" id="welcome-meta"></div>
+      </div>
+
+      <div class="dash-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Progress to graduation</h3>
+            <p>Your journey through Stage 1 and Stage 2 micro-certs.</p>
+          </div>
+          <div id="progress-bars"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h3>Next up</h3>
+            <p>Your current focus.</p>
+          </div>
+          <div id="next-up"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Recent activity</h3>
+          <p>Your last five actions.</p>
+        </div>
+        <div id="recent-activity"></div>
+      </div>
+    </div>
+
+    <!-- CERTS -->
+    <div id="view-certs" class="view">
+      <h2>Certifications</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Complete each cert in Stage 1 to earn Solar Associate. Stage 2 unlocks after Stage 1 graduation.
+      </p>
+      <div class="cert-grid" id="cert-grid"></div>
+    </div>
+
+    <!-- QUIZ -->
+    <div id="view-quiz" class="view">
+      <div class="quiz-wrap">
+        <div class="quiz-head">
+          <div class="quiz-title">
+            <button class="back" onclick="setTab('certs')">← Back to certifications</button>
+            <h2 id="quiz-title">Quiz</h2>
+            <div class="subtitle" id="quiz-subtitle"></div>
+          </div>
+        </div>
+        <div id="quiz-body"></div>
+      </div>
+    </div>
+
+    <!-- SHADOWS -->
+    <div id="view-shadows" class="view">
+      <h2>Shadow Log</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Record every appointment you shadowed with another rep. Manager approves each entry.
+      </p>
+
+      <div class="form-card">
+        <h3>Log a new shadow</h3>
+        <form onsubmit="submitShadow(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Rep you shadowed</label>
+              <input type="text" id="sh-name" required placeholder="Full name">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="sh-date" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Duration (minutes)</label>
+              <input type="number" id="sh-duration" min="1" placeholder="60">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="sh-notes" placeholder="What did you observe? What did you learn?"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit shadow log</button>
+          <div id="shadow-msg"></div>
+        </form>
+      </div>
+
+      <h3 style="margin-top: var(--s-6);">Your shadow history</h3>
+      <div id="shadow-list" class="list"></div>
+    </div>
+
+    <!-- UPLOADS -->
+    <div id="view-uploads" class="view">
+      <h2>Uploads</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Upload documents, screenshots, or photos as supporting evidence for a cert.
+      </p>
+
+      <div class="form-card">
+        <h3>Upload a file</h3>
+        <form onsubmit="submitUpload(event)">
+          <div class="form-group">
+            <label>File</label>
+            <input type="file" id="up-file" required>
+          </div>
+          <div class="form-group">
+            <label>Related cert (optional)</label>
+            <select id="up-cert">
+              <option value="">— None —</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="up-desc" placeholder="What is this?"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Upload</button>
+          <div id="upload-msg"></div>
+        </form>
+      </div>
+
+      <h3 style="margin-top: var(--s-6);">Your uploads</h3>
+      <div id="upload-list" class="list"></div>
+    </div>
+
+    <!-- HELP -->
+    <div id="view-help" class="view">
+      <h2>Help</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Stuck or need a boost? Send a message to your manager.
+      </p>
+
+      <div class="form-card">
+        <h3>Send a message</h3>
+        <form onsubmit="submitHelp(event)">
+          <div class="form-group">
+            <label>Message</label>
+            <textarea id="hp-msg" required placeholder="What do you need help with?"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Send</button>
+          <div id="help-msg"></div>
+        </form>
+      </div>
+
+      <h3 style="margin-top: var(--s-6);">Your conversations</h3>
+      <div id="help-list" class="list"></div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="wrap">
+    <p>Trinity Solar · CT Traditional · Traditional Sales University</p>
+  </div>
+</footer>
+
+</div><!-- /app-shell -->
+
+<script>
+// ===================== CONFIG =====================
+const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
+const STORAGE_BUCKET = 'portal-uploads';
+
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ===================== STATE =====================
+let state = {
+  session: null,
+  rep: null,
+  certs: [],
+  assignments: [],
+  attempts: [],
+  shadows: [],
+  uploads: [],
+  help: [],
+  authMode: 'magic',
+  activeTab: 'dashboard',
+  activeQuiz: null, // { cert, attempt, questions, responses }
+};
+
+// ===================== AUTH =====================
+function setAuthMode(mode) {
+  state.authMode = mode;
+  document.getElementById('tab-magic').classList.toggle('active', mode === 'magic');
+  document.getElementById('tab-password').classList.toggle('active', mode === 'password');
+  document.getElementById('password-group').style.display = mode === 'password' ? 'block' : 'none';
+  document.getElementById('signin-btn').textContent = mode === 'magic' ? 'Send magic link' : 'Sign in';
+}
+
+async function handleSignin(e) {
+  e.preventDefault();
+  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const msg = document.getElementById('signin-msg');
+  const btn = document.getElementById('signin-btn');
+  msg.innerHTML = '';
+  btn.disabled = true;
+
+  try {
+    if (state.authMode === 'magic') {
+      const { error } = await supa.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.href }
+      });
+      if (error) throw error;
+      msg.innerHTML = '<div class="msg msg-success">Check your email for a sign-in link.</div>';
+    } else {
+      const password = document.getElementById('si-password').value;
+      const { error } = await supa.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await init();
+    }
+  } catch (err) {
+    msg.innerHTML = `<div class="msg msg-error">${err.message || 'Sign-in failed.'}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function signOut() {
+  await supa.auth.signOut();
+  window.location.reload();
+}
+
+// ===================== INIT =====================
+async function init() {
+  const { data: { session } } = await supa.auth.getSession();
+  state.session = session;
+
+  if (!session) {
+    document.getElementById('signin-view').style.display = 'flex';
+    document.getElementById('app-shell').style.display = 'none';
+    return;
+  }
+
+  // Look up the rep record
+  const { data: rep, error } = await supa
+    .from('reps')
+    .select('*')
+    .eq('auth_user_id', session.user.id)
+    .maybeSingle();
+
+  if (error || !rep) {
+    // Not yet linked. Check by email and force re-link attempt.
+    const email = session.user.email;
+    const { data: repByEmail } = await supa
+      .from('reps')
+      .select('*')
+      .eq('email', email.toLowerCase())
+      .maybeSingle();
+
+    if (repByEmail && !repByEmail.auth_user_id) {
+      await supa.from('reps').update({ auth_user_id: session.user.id }).eq('id', repByEmail.id);
+      state.rep = { ...repByEmail, auth_user_id: session.user.id };
+    } else {
+      document.getElementById('signin-view').style.display = 'flex';
+      document.getElementById('app-shell').style.display = 'none';
+      document.getElementById('signin-msg').innerHTML =
+        '<div class="msg msg-error">No rep account found for this email. Ask your manager to add you to the portal first.</div>';
+      await supa.auth.signOut();
+      return;
+    }
+  } else {
+    state.rep = rep;
+  }
+
+  document.getElementById('signin-view').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
+  document.getElementById('header-name').textContent = state.rep.name;
+
+  await loadAll();
+  renderDashboard();
+  renderCerts();
+  renderShadows();
+  renderUploads();
+  renderHelp();
+  populateCertDropdown();
+}
+
+async function loadAll() {
+  const [certsRes, assignsRes, attemptsRes, shadowsRes, uploadsRes, helpRes] = await Promise.all([
+    supa.from('certs').select('*').order('order_index'),
+    supa.from('cert_assignments').select('*').eq('rep_id', state.rep.id),
+    supa.from('quiz_attempts').select('*').eq('rep_id', state.rep.id).order('started_at', { ascending: false }),
+    supa.from('shadow_logs').select('*').eq('rep_id', state.rep.id).order('shadow_date', { ascending: false }),
+    supa.from('uploads').select('*').eq('rep_id', state.rep.id).order('uploaded_at', { ascending: false }),
+    supa.from('help_requests').select('*').eq('rep_id', state.rep.id).order('created_at', { ascending: false }),
+  ]);
+  state.certs = certsRes.data || [];
+  state.assignments = assignsRes.data || [];
+  state.attempts = attemptsRes.data || [];
+  state.shadows = shadowsRes.data || [];
+  state.uploads = uploadsRes.data || [];
+  state.help = helpRes.data || [];
+}
+
+// ===================== TABS =====================
+function setTab(tab) {
+  state.activeTab = tab;
+  document.querySelectorAll('.tabs button').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard() {
+  const first = state.rep.name.split(' ')[0];
+  document.getElementById('welcome-h2').textContent = `Welcome back, ${first}.`;
+  const cohortText = state.rep.cohort_start_date
+    ? `Cohort start: ${formatDate(state.rep.cohort_start_date)} · Day ${daysSince(state.rep.cohort_start_date)} of 90`
+    : 'No cohort start date set yet.';
+  document.getElementById('welcome-meta').textContent = cohortText;
+
+  // Progress bars
+  const s1 = state.certs.filter(c => c.stage === 1);
+  const s2 = state.certs.filter(c => c.stage === 2);
+  const s1Done = s1.filter(c => certStatus(c.id) === 'approved').length;
+  const s2Done = s2.filter(c => certStatus(c.id) === 'approved').length;
+
+  document.getElementById('progress-bars').innerHTML = `
+    <div class="progress-row stage1">
+      <span class="label">Stage 1</span>
+      <div class="bar"><div class="fill" style="width:${(s1Done/s1.length)*100}%"></div></div>
+      <span class="count">${s1Done} / ${s1.length}</span>
+    </div>
+    <div class="progress-row stage2">
+      <span class="label">Stage 2</span>
+      <div class="bar"><div class="fill" style="width:${(s2Done/Math.max(s2.length,1))*100}%"></div></div>
+      <span class="count">${s2Done} / ${s2.length}</span>
+    </div>
+  `;
+
+  // Next up
+  const nextCert = findNextCert();
+  document.getElementById('next-up').innerHTML = nextCert
+    ? `<div class="cert-card stage-${nextCert.stage}" onclick="openCert('${nextCert.id}')">
+         <div class="head">
+           <div class="icon">${nextCert.icon || '📘'}</div>
+           <span class="stage-chip">Stage ${nextCert.stage}</span>
+         </div>
+         <div>
+           <div class="core">${nextCert.core}</div>
+           <h4>${nextCert.name}</h4>
+         </div>
+         <p class="desc">${nextCert.description || ''}</p>
+         <div class="footer">
+           <span class="status-badge ${statusBadgeClass(certStatus(nextCert.id))}">${statusLabel(certStatus(nextCert.id))}</span>
+           <span class="action">Open →</span>
+         </div>
+       </div>`
+    : `<div class="empty">You're all caught up. Nothing pending right now.</div>`;
+
+  // Recent activity
+  const activity = [];
+  state.attempts.slice(0, 3).forEach(a => {
+    const cert = state.certs.find(c => c.id === a.cert_id);
+    activity.push({
+      date: a.submitted_at || a.started_at,
+      text: `${statusLabel(a.status)} · ${cert?.name || 'Quiz'}`
+    });
+  });
+  state.shadows.slice(0, 2).forEach(s => {
+    activity.push({ date: s.created_at, text: `Shadowed ${s.shadowed_rep_name}` });
+  });
+  activity.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const top = activity.slice(0, 5);
+  document.getElementById('recent-activity').innerHTML = top.length
+    ? `<div class="list">${top.map(a => `
+         <div class="list-item">
+           <div class="main">
+             <div class="title">${a.text}</div>
+             <div class="meta">${formatDate(a.date)}</div>
+           </div>
+         </div>`).join('')}</div>`
+    : `<div class="empty">No activity yet.</div>`;
+}
+
+function findNextCert() {
+  // First incomplete Stage 1, then Stage 2 if Stage 1 done
+  const s1 = state.certs.filter(c => c.stage === 1);
+  const s1Next = s1.find(c => certStatus(c.id) !== 'approved');
+  if (s1Next) return s1Next;
+  const s2 = state.certs.filter(c => c.stage === 2);
+  return s2.find(c => certStatus(c.id) !== 'approved');
+}
+
+// ===================== CERTS =====================
+function renderCerts() {
+  const grid = document.getElementById('cert-grid');
+  const s1Done = state.certs.filter(c => c.stage === 1 && certStatus(c.id) === 'approved').length;
+  const s1Total = state.certs.filter(c => c.stage === 1).length;
+  const stage2Unlocked = s1Done === s1Total;
+
+  grid.innerHTML = state.certs.map(cert => {
+    const status = certStatus(cert.id);
+    const assigned = state.assignments.some(a => a.cert_id === cert.id);
+    const locked = cert.stage === 2 && !stage2Unlocked;
+    const clickable = !locked;
+
+    return `
+      <div class="cert-card stage-${cert.stage} ${locked ? 'unavailable' : ''}"
+           ${clickable ? `onclick="openCert('${cert.id}')"` : ''}>
+        <div class="head">
+          <div class="icon">${cert.icon || '📘'}</div>
+          <span class="stage-chip">Stage ${cert.stage}</span>
+        </div>
+        <div>
+          <div class="core">${cert.core}</div>
+          <h4>${cert.name}</h4>
+        </div>
+        <p class="desc">${cert.description || ''}</p>
+        <div class="footer">
+          <span class="status-badge ${statusBadgeClass(locked ? 'locked' : (assigned || status !== 'not-started' ? status : 'not-assigned'))}">
+            ${locked ? 'Locked' : (assigned || status !== 'not-started' ? statusLabel(status) : 'Not assigned')}
+          </span>
+          ${clickable ? `<span class="action">${actionLabel(status)} →</span>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function certStatus(certId) {
+  // Return the most recent attempt status, or 'not-started'
+  const attempts = state.attempts.filter(a => a.cert_id === certId);
+  if (!attempts.length) return 'not-started';
+  return attempts[0].status;
+}
+
+function statusBadgeClass(s) {
+  return ({
+    'not-started':  'status-not-started',
+    'in_progress':  'status-in-progress',
+    'pending_review':'status-pending',
+    'approved':     'status-approved',
+    'retake':       'status-retake',
+    'locked':       'status-not-started',
+    'not-assigned': 'status-not-assigned',
+  })[s] || 'status-not-started';
+}
+
+function statusLabel(s) {
+  return ({
+    'not-started':   'Not started',
+    'in_progress':   'In progress',
+    'pending_review':'In review',
+    'approved':      'Complete',
+    'retake':        'Retake needed',
+  })[s] || s;
+}
+
+function actionLabel(s) {
+  return ({
+    'not-started':   'Start quiz',
+    'in_progress':   'Continue',
+    'pending_review':'View',
+    'approved':      'Review',
+    'retake':        'Retake',
+  })[s] || 'Open';
+}
+
+// ===================== QUIZ =====================
+async function openCert(certId) {
+  const cert = state.certs.find(c => c.id === certId);
+  if (!cert) return;
+  const status = certStatus(certId);
+
+  if (status === 'pending_review' || status === 'approved') {
+    showCertSummary(cert);
+    return;
+  }
+
+  // Start or resume
+  await startOrResumeQuiz(cert);
+}
+
+async function startOrResumeQuiz(cert) {
+  // Get questions
+  const { data: questions } = await supa
+    .from('quiz_questions')
+    .select('*')
+    .eq('cert_id', cert.id)
+    .order('order_index');
+
+  if (!questions || questions.length === 0) {
+    alert('No questions set up yet for this cert. Ask your manager.');
+    return;
+  }
+
+  // Find or create in-progress attempt
+  let attempt = state.attempts.find(a => a.cert_id === cert.id && a.status === 'in_progress');
+  if (!attempt) {
+    const { data: newAttempt, error } = await supa
+      .from('quiz_attempts')
+      .insert({ rep_id: state.rep.id, cert_id: cert.id })
+      .select()
+      .single();
+    if (error) { alert(error.message); return; }
+    attempt = newAttempt;
+    state.attempts = [attempt, ...state.attempts];
+  }
+
+  state.activeQuiz = { cert, attempt, questions, responses: {} };
+  setTab('quiz');
+  renderQuiz();
+}
+
+function renderQuiz() {
+  const { cert, questions } = state.activeQuiz;
+  document.getElementById('quiz-title').textContent = cert.name;
+  document.getElementById('quiz-subtitle').textContent = `${cert.core} · ${questions.length} questions`;
+
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = questions.map((q, i) => renderQuestion(q, i)).join('') +
+    `<div class="quiz-actions">
+       <button class="btn btn-ghost" onclick="setTab('certs')">Save &amp; exit</button>
+       <button class="btn btn-primary" onclick="submitQuiz()">Submit quiz</button>
+     </div>`;
+
+  // Attach option change listeners
+  questions.forEach(q => {
+    if (q.question_type !== 'text') {
+      body.querySelectorAll(`input[name="q-${q.id}"]`).forEach(inp => {
+        inp.addEventListener('change', e => {
+          state.activeQuiz.responses[q.id] = { option: e.target.value };
+          body.querySelectorAll(`.q-option[data-q="${q.id}"]`).forEach(o => {
+            o.classList.toggle('selected', o.querySelector('input').checked);
+          });
+        });
+      });
+    } else {
+      const ta = body.querySelector(`textarea[data-q="${q.id}"]`);
+      ta.addEventListener('input', e => {
+        state.activeQuiz.responses[q.id] = { text: e.target.value };
+      });
+    }
+  });
+}
+
+function renderQuestion(q, idx) {
+  const num = `Question ${idx + 1} of ${state.activeQuiz.questions.length}`;
+  let body = '';
+  if (q.question_type === 'mc') {
+    const opts = q.options_json || [];
+    body = `<div class="q-options">
+      ${opts.map(o => `
+        <label class="q-option" data-q="${q.id}">
+          <input type="radio" name="q-${q.id}" value="${o.key}">
+          <span><strong>${o.key.toUpperCase()}.</strong> ${escapeHtml(o.text)}</span>
+        </label>`).join('')}
+    </div>`;
+  } else if (q.question_type === 'tf') {
+    body = `<div class="q-options">
+      <label class="q-option" data-q="${q.id}">
+        <input type="radio" name="q-${q.id}" value="true"><span>True</span>
+      </label>
+      <label class="q-option" data-q="${q.id}">
+        <input type="radio" name="q-${q.id}" value="false"><span>False</span>
+      </label>
+    </div>`;
+  } else {
+    body = `<textarea data-q="${q.id}" placeholder="Your answer..."
+              style="width:100%; min-height:140px; padding:12px; font-family:inherit; font-size:0.9375rem;
+                     border:1px solid var(--hairline); border-radius: var(--r-sm); background: var(--surface-raised);"></textarea>
+            <div class="q-text-note">Your manager will review this answer.</div>`;
+  }
+  return `<div class="question">
+    <div class="q-number">${num} · ${q.question_type.toUpperCase()}</div>
+    <div class="q-prompt">${escapeHtml(q.prompt)}</div>
+    ${body}
+  </div>`;
+}
+
+async function submitQuiz() {
+  const { cert, attempt, questions, responses } = state.activeQuiz;
+
+  // Validate everything answered
+  const missing = questions.filter(q => {
+    const r = responses[q.id];
+    if (!r) return true;
+    if (q.question_type === 'text') return !r.text || !r.text.trim();
+    return !r.option;
+  });
+  if (missing.length) {
+    alert(`Please answer all ${questions.length} questions. Missing ${missing.length}.`);
+    return;
+  }
+
+  // Auto-grade
+  let autoScore = 0, autoMax = 0;
+  const rows = questions.map(q => {
+    const r = responses[q.id];
+    let isCorrect = null;
+    if (q.question_type === 'mc' || q.question_type === 'tf') {
+      autoMax += q.points;
+      isCorrect = r.option === q.correct_answer;
+      if (isCorrect) autoScore += q.points;
+    }
+    return {
+      attempt_id: attempt.id,
+      question_id: q.id,
+      response_option: q.question_type !== 'text' ? r.option : null,
+      response_text: q.question_type === 'text' ? r.text : null,
+      is_correct: isCorrect,
+    };
+  });
+
+  const { error: insErr } = await supa.from('quiz_responses').insert(rows);
+  if (insErr) { alert(insErr.message); return; }
+
+  const { error: updErr } = await supa
+    .from('quiz_attempts')
+    .update({
+      submitted_at: new Date().toISOString(),
+      auto_score: autoScore,
+      auto_max: autoMax,
+      status: 'pending_review'
+    })
+    .eq('id', attempt.id);
+  if (updErr) { alert(updErr.message); return; }
+
+  await loadAll();
+  renderCerts();
+  renderDashboard();
+  showQuizResult(cert, autoScore, autoMax);
+}
+
+function showQuizResult(cert, score, max) {
+  const body = document.getElementById('quiz-body');
+  const hasText = state.activeQuiz.questions.some(q => q.question_type === 'text');
+  body.innerHTML = `
+    <div class="result-card">
+      <div class="result-icon">📝</div>
+      <h2>Quiz submitted</h2>
+      ${max > 0 ? `<div class="score">${score} / ${max}</div>` : ''}
+      <p class="note">
+        ${hasText
+          ? 'Your manager will review your written answers and sign off. You\'ll see the result here once they do.'
+          : 'Your manager will sign off on this cert. You\'ll see the result here once they do.'}
+      </p>
+    </div>
+    <div class="quiz-actions">
+      <button class="btn btn-primary" onclick="setTab('certs')">Back to certifications</button>
+    </div>
+  `;
+  state.activeQuiz = null;
+}
+
+async function showCertSummary(cert) {
+  const attempt = state.attempts.find(a => a.cert_id === cert.id);
+  const { data: responses } = await supa
+    .from('quiz_responses')
+    .select('*, quiz_questions(*)')
+    .eq('attempt_id', attempt.id);
+
+  state.activeQuiz = { cert, attempt, questions: [], responses: {} };
+  setTab('quiz');
+  document.getElementById('quiz-title').textContent = cert.name;
+  document.getElementById('quiz-subtitle').textContent = `${cert.core} · Submitted ${formatDate(attempt.submitted_at)}`;
+
+  const body = document.getElementById('quiz-body');
+  const status = attempt.status;
+  const iconMap = { pending_review: '⏳', approved: '✅', retake: '🔁' };
+  const titleMap = { pending_review: 'Awaiting manager review', approved: 'Complete', retake: 'Retake requested' };
+
+  body.innerHTML = `
+    <div class="result-card">
+      <div class="result-icon">${iconMap[status] || '📝'}</div>
+      <h2>${titleMap[status] || status}</h2>
+      ${attempt.auto_max ? `<div class="score">${attempt.auto_score} / ${attempt.auto_max}</div>` : ''}
+      ${attempt.manager_notes ? `<p class="note"><strong>Manager note:</strong> ${escapeHtml(attempt.manager_notes)}</p>` : ''}
+    </div>
+    ${responses && responses.length ? `
+      <div class="panel" style="margin-bottom: var(--s-4);">
+        <div class="panel-head"><h3>Your answers</h3></div>
+        ${responses.map((r, i) => {
+          const q = r.quiz_questions;
+          const ans = q.question_type === 'text'
+            ? escapeHtml(r.response_text || '')
+            : (r.response_option || '');
+          const correctBadge = r.is_correct === true
+            ? `<span class="status-badge status-approved" style="margin-left:8px;">Correct</span>`
+            : r.is_correct === false
+              ? `<span class="status-badge status-retake" style="margin-left:8px;">Incorrect</span>`
+              : `<span class="status-badge status-pending" style="margin-left:8px;">Review pending</span>`;
+          return `
+            <div style="padding: var(--s-3) 0; border-bottom: 1px solid var(--hairline-soft);">
+              <div style="font-size: 0.8125rem; color: var(--text-subtle); margin-bottom: 4px;">Q${i+1} · ${q.question_type.toUpperCase()}</div>
+              <div style="font-weight: 500; color: var(--ink); margin-bottom: 6px;">${escapeHtml(q.prompt)}</div>
+              <div style="font-size: 0.9375rem;">${ans || '<em style="color:var(--text-subtle);">No answer</em>'} ${correctBadge}</div>
+            </div>`;
+        }).join('')}
+      </div>` : ''}
+    <div class="quiz-actions">
+      ${status === 'retake'
+        ? `<button class="btn btn-primary" onclick="retakeQuiz('${cert.id}')">Start retake</button>`
+        : `<button class="btn btn-primary" onclick="setTab('certs')">Back to certifications</button>`}
+    </div>
+  `;
+}
+
+async function retakeQuiz(certId) {
+  const cert = state.certs.find(c => c.id === certId);
+  // Start a new attempt
+  const { data: newAttempt, error } = await supa
+    .from('quiz_attempts')
+    .insert({ rep_id: state.rep.id, cert_id: cert.id })
+    .select()
+    .single();
+  if (error) { alert(error.message); return; }
+  state.attempts = [newAttempt, ...state.attempts];
+  await startOrResumeQuiz(cert);
+}
+
+// ===================== SHADOW LOG =====================
+function renderShadows() {
+  const list = document.getElementById('shadow-list');
+  if (!state.shadows.length) {
+    list.innerHTML = `<div class="empty">No shadows logged yet.</div>`;
+    return;
+  }
+  list.innerHTML = state.shadows.map(s => `
+    <div class="list-item">
+      <div class="main">
+        <div class="title">Shadowed ${escapeHtml(s.shadowed_rep_name)}</div>
+        <div class="meta">${formatDate(s.shadow_date)}${s.duration_minutes ? ` · ${s.duration_minutes} min` : ''}</div>
+        ${s.notes ? `<div class="notes">${escapeHtml(s.notes)}</div>` : ''}
+        ${s.manager_note ? `<div class="notes" style="color: var(--text-muted);"><strong>Manager:</strong> ${escapeHtml(s.manager_note)}</div>` : ''}
+      </div>
+      <span class="status-badge ${s.status === 'approved' ? 'status-approved' : s.status === 'denied' ? 'status-retake' : 'status-pending'}">
+        ${s.status}
+      </span>
+    </div>
+  `).join('');
+}
+
+async function submitShadow(e) {
+  e.preventDefault();
+  const name = document.getElementById('sh-name').value.trim();
+  const date = document.getElementById('sh-date').value;
+  const dur = document.getElementById('sh-duration').value;
+  const notes = document.getElementById('sh-notes').value.trim();
+  const msg = document.getElementById('shadow-msg');
+  msg.innerHTML = '';
+
+  const { error } = await supa.from('shadow_logs').insert({
+    rep_id: state.rep.id,
+    shadowed_rep_name: name,
+    shadow_date: date,
+    duration_minutes: dur ? parseInt(dur) : null,
+    notes: notes || null,
+  });
+  if (error) {
+    msg.innerHTML = `<div class="msg msg-error">${error.message}</div>`;
+    return;
+  }
+  msg.innerHTML = `<div class="msg msg-success">Shadow logged.</div>`;
+  e.target.reset();
+  await loadAll();
+  renderShadows();
+  renderDashboard();
+}
+
+// ===================== UPLOADS =====================
+function renderUploads() {
+  const list = document.getElementById('upload-list');
+  if (!state.uploads.length) {
+    list.innerHTML = `<div class="empty">No uploads yet.</div>`;
+    return;
+  }
+  list.innerHTML = state.uploads.map(u => {
+    const cert = state.certs.find(c => c.id === u.cert_id);
+    return `
+      <div class="list-item">
+        <div class="main">
+          <div class="title">${escapeHtml(u.file_name || 'File')}</div>
+          <div class="meta">${formatDate(u.uploaded_at)}${cert ? ` · ${cert.name}` : ''}</div>
+          ${u.description ? `<div class="notes">${escapeHtml(u.description)}</div>` : ''}
+        </div>
+        <button class="btn btn-ghost" onclick="downloadUpload('${u.storage_path}')">Open</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function populateCertDropdown() {
+  const sel = document.getElementById('up-cert');
+  sel.innerHTML = '<option value="">— None —</option>' +
+    state.certs.map(c => `<option value="${c.id}">${c.icon || ''} ${c.name} (Stage ${c.stage})</option>`).join('');
+}
+
+async function submitUpload(e) {
+  e.preventDefault();
+  const file = document.getElementById('up-file').files[0];
+  const certId = document.getElementById('up-cert').value || null;
+  const desc = document.getElementById('up-desc').value.trim() || null;
+  const msg = document.getElementById('upload-msg');
+  msg.innerHTML = '';
+  if (!file) return;
+
+  const path = `${state.rep.id}/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
+  const { error: upErr } = await supa.storage.from(STORAGE_BUCKET).upload(path, file);
+  if (upErr) {
+    msg.innerHTML = `<div class="msg msg-error">${upErr.message}</div>`;
+    return;
+  }
+
+  const { error: insErr } = await supa.from('uploads').insert({
+    rep_id: state.rep.id,
+    cert_id: certId,
+    storage_path: path,
+    file_name: file.name,
+    file_type: file.type,
+    description: desc,
+  });
+  if (insErr) {
+    msg.innerHTML = `<div class="msg msg-error">${insErr.message}</div>`;
+    return;
+  }
+
+  msg.innerHTML = `<div class="msg msg-success">Uploaded.</div>`;
+  e.target.reset();
+  await loadAll();
+  renderUploads();
+}
+
+async function downloadUpload(path) {
+  const { data, error } = await supa.storage.from(STORAGE_BUCKET).createSignedUrl(path, 60);
+  if (error) { alert(error.message); return; }
+  window.open(data.signedUrl, '_blank');
+}
+
+// ===================== HELP =====================
+function renderHelp() {
+  const list = document.getElementById('help-list');
+  if (!state.help.length) {
+    list.innerHTML = `<div class="empty">No messages yet.</div>`;
+    return;
+  }
+  list.innerHTML = state.help.map(h => `
+    <div class="list-item">
+      <div class="main">
+        <div class="title">${escapeHtml(h.message)}</div>
+        <div class="meta">${formatDate(h.created_at)}</div>
+        ${h.manager_note ? `<div class="notes"><strong>Manager:</strong> ${escapeHtml(h.manager_note)}</div>` : ''}
+      </div>
+      <span class="status-badge ${h.status === 'resolved' ? 'status-approved' : 'status-pending'}">${h.status}</span>
+    </div>
+  `).join('');
+}
+
+async function submitHelp(e) {
+  e.preventDefault();
+  const message = document.getElementById('hp-msg').value.trim();
+  const msg = document.getElementById('help-msg');
+  msg.innerHTML = '';
+  if (!message) return;
+
+  const { error } = await supa.from('help_requests').insert({
+    rep_id: state.rep.id,
+    message,
+  });
+  if (error) {
+    msg.innerHTML = `<div class="msg msg-error">${error.message}</div>`;
+    return;
+  }
+  msg.innerHTML = `<div class="msg msg-success">Message sent.</div>`;
+  e.target.reset();
+  await loadAll();
+  renderHelp();
+}
+
+// ===================== UTILS =====================
+function formatDate(d) {
+  if (!d) return '';
+  const date = new Date(d);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function daysSince(d) {
+  if (!d) return 0;
+  const diff = Date.now() - new Date(d).getTime();
+  return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+}
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
+}
+
+// ===================== BOOT =====================
+supa.auth.onAuthStateChange((_event, session) => {
+  if (session && !state.session) {
+    state.session = session;
+    init();
+  }
+});
+init();
+</script>
+</body>
+</html>
