@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trinity Roleplay — Sales Sim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+<style>
+/* ── TOKENS ─────────────────────────────────────── */
+:root {
+  --green: #78C832;
+  --green-dark: #5fa022;
+  --blue: #29A9E1;
+  --bg: #EFF1EC;
+  --dark: #1C2B2B;
+  --card: #ffffff;
+  --muted: #7a8a7a;
+  --border: #d8ddd4;
+  --radius: 12px;
+
+  /* DISC colors */
+  --d-color: #E84040;
+  --i-color: #F5A623;
+  --s-color: #78C832;
+  --c-color: #29A9E1;
+
+  /* GM dark theme */
+  --gm-bg: #0F1623;
+  --gm-card: #1a2235;
+  --gm-border: #2a3550;
+  --gm-text: #e8edf5;
+  --gm-muted: #6b7a99;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  min-height: 100vh;
+}
+
+/* ── VIEWS ──────────────────────────────────────── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── GENERATOR VIEW ─────────────────────────────── */
+#view-generate {
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+.gen-header {
+  background: var(--dark);
+  color: white;
+  padding: 20px 24px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.gen-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  background: var(--green);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--dark);
+}
+
+.gen-header h1 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.gen-header p {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-left: 42px;
+}
+
+.gen-body {
+  padding: 20px 16px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+  margin-top: 24px;
+}
+
+/* Pill selectors */
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--dark);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pill:hover { border-color: var(--green); }
+.pill.selected {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.pill.disc-D.selected { background: var(--d-color); border-color: var(--d-color); }
+.pill.disc-I.selected { background: var(--i-color); border-color: var(--i-color); color: var(--dark); }
+.pill.disc-S.selected { background: var(--s-color); border-color: var(--s-color); }
+.pill.disc-C.selected { background: var(--c-color); border-color: var(--c-color); }
+
+/* DISC card selectors */
+.disc-card-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.disc-sel-card {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  background: white;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.disc-sel-card:hover { border-color: var(--muted); }
+
+.disc-sel-type {
+  font-family: 'Oswald', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1;
+  margin-bottom: 2px;
+  transition: color 0.15s;
+}
+
+.disc-sel-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.disc-sel-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.disc-sel-card.disc-D.selected { border-color: var(--d-color); background: #fff5f5; }
+.disc-sel-card.disc-D.selected .disc-sel-type { color: var(--d-color); }
+.disc-sel-card.disc-I.selected { border-color: var(--i-color); background: #fffbf0; }
+.disc-sel-card.disc-I.selected .disc-sel-type { color: var(--i-color); }
+.disc-sel-card.disc-S.selected { border-color: var(--s-color); background: #f5fbee; }
+.disc-sel-card.disc-S.selected .disc-sel-type { color: var(--s-color); }
+.disc-sel-card.disc-C.selected { border-color: var(--c-color); background: #f0f9ff; }
+.disc-sel-card.disc-C.selected .disc-sel-type { color: var(--c-color); }
+.disc-sel-card.disc-R.selected { border-color: var(--dark); background: #f5f5f5; }
+.disc-sel-card.disc-R.selected .disc-sel-type { color: var(--dark); }
+
+/* Difficulty slider */
+.difficulty-row {
+  display: flex;
+  gap: 8px;
+}
+
+.diff-card {
+  flex: 1;
+  padding: 12px 10px;
+  border-radius: var(--radius);
+  border: 2px solid var(--border);
+  background: white;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.diff-card .diff-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  display: block;
+}
+
+.diff-card .diff-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.diff-card.d1.selected { border-color: var(--green); background: #f0fae4; }
+.diff-card.d2.selected { border-color: var(--i-color); background: #fef9ec; }
+.diff-card.d3.selected { border-color: var(--d-color); background: #fdf0f0; }
+
+/* Toggle */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: white;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+}
+
+.toggle-row label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toggle-row .toggle-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle input { opacity: 0; width: 0; height: 0; }
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 24px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.toggle-slider:before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+input:checked + .toggle-slider { background: var(--green); }
+input:checked + .toggle-slider:before { transform: translateX(20px); }
+
+/* Generate button */
+.gen-btn {
+  width: 100%;
+  padding: 18px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'Oswald', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 28px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.gen-btn:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
+.gen-btn:active:not(:disabled) { transform: translateY(0); }
+.gen-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.gen-btn .btn-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Spinner */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Generated scenario card */
+.scenario-card {
+  margin-top: 24px;
+  background: var(--dark);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.scenario-header {
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.scenario-header h3 {
+  color: white;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.disc-badge {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.disc-badge.D { background: var(--d-color); color: white; }
+.disc-badge.I { background: var(--i-color); color: var(--dark); }
+.disc-badge.S { background: var(--s-color); color: white; }
+.disc-badge.C { background: var(--c-color); color: white; }
+
+.scenario-preview {
+  padding: 20px;
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.scenario-names {
+  font-family: 'Oswald', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 4px;
+}
+
+.scenario-meta {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 16px;
+}
+
+.scenario-backstory {
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.65;
+  border-left: 3px solid var(--green);
+  margin-bottom: 16px;
+}
+
+.scenario-objs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.obj-tag {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+
+/* Share section */
+.share-section {
+  padding: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.share-url {
+  flex: 1;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.share-btn {
+  padding: 10px 16px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.share-btn:hover { background: var(--green-dark); }
+.share-btn.copied { background: var(--blue); }
+
+#qr-container {
+  display: flex;
+  justify-content: center;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+#qr-container canvas {
+  border-radius: 8px;
+  padding: 12px;
+  background: white;
+}
+
+/* ── GM INTERFACE ───────────────────────────────── */
+#view-gm {
+  background: var(--gm-bg);
+  min-height: 100vh;
+  color: var(--gm-text);
+}
+
+.gm-header {
+  padding: 16px 16px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--gm-border);
+  position: sticky;
+  top: 0;
+  background: var(--gm-bg);
+  z-index: 10;
+}
+
+.gm-logo-mark {
+  width: 28px;
+  height: 28px;
+  background: var(--green);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--dark);
+  flex-shrink: 0;
+}
+
+.gm-header-text h2 {
+  font-family: 'Oswald', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.gm-header-text p {
+  font-size: 11px;
+  color: var(--gm-muted);
+}
+
+.gm-disc-badge {
+  margin-left: auto;
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+/* GM Sections */
+.gm-section {
+  padding: 0 16px;
+  margin-top: 20px;
+}
+
+.gm-section-title {
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gm-muted);
+  margin-bottom: 10px;
+}
+
+/* Character card */
+.character-card {
+  background: var(--gm-card);
+  border: 1px solid var(--gm-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.char-identity {
+  padding: 16px;
+  border-bottom: 1px solid var(--gm-border);
+}
+
+.char-names {
+  font-family: 'Oswald', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.char-jobs {
+  font-size: 13px;
+  color: var(--blue);
+  margin-bottom: 12px;
+}
+
+.char-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.meta-chip {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.meta-chip.bill { color: var(--i-color); border-color: rgba(245,166,35,0.3); background: rgba(245,166,35,0.08); }
+.meta-chip.grid { color: var(--green); border-color: rgba(120,200,50,0.3); background: rgba(120,200,50,0.08); }
+
+.char-backstory {
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: rgba(255,255,255,0.7);
+  border-bottom: 1px solid var(--gm-border);
+}
+
+.char-disposition {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.disposition-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.disposition-warm .disposition-dot { background: var(--green); }
+.disposition-curious .disposition-dot { background: var(--blue); }
+.disposition-skeptical .disposition-dot { background: var(--i-color); }
+.disposition-rushed .disposition-dot { background: var(--d-color); }
+
+.disposition-label {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.disposition-text { color: var(--gm-muted); }
+
+/* DISC behavior card */
+.disc-card {
+  background: var(--gm-card);
+  border: 1px solid var(--gm-border);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.disc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.disc-type-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.disc-rule {
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.6;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--gm-border);
+}
+
+.disc-rule:last-child { border-bottom: none; padding-bottom: 0; }
+.disc-rule:first-of-type { padding-top: 0; }
+
+.disc-rule strong {
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+/* Reactive guide */
+.guide-card {
+  background: var(--gm-card);
+  border: 1px solid var(--gm-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.guide-entry {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gm-border);
+  position: relative;
+}
+
+.guide-entry:last-child { border-bottom: none; }
+
+.guide-trigger {
+  font-size: 12px;
+  color: var(--gm-muted);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.guide-trigger::before {
+  content: 'IF';
+  font-family: 'Oswald', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.guide-action {
+  font-size: 14px;
+  color: white;
+  line-height: 1.55;
+  margin-bottom: 6px;
+}
+
+.guide-note {
+  font-size: 11px;
+  color: var(--blue);
+  font-style: italic;
+}
+
+.buying-signal-indicator {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--dark);
+  flex-shrink: 0;
+}
+
+/* Objection cards */
+.obj-card {
+  background: var(--gm-card);
+  border: 1px solid var(--gm-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.obj-card-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.obj-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(232,64,64,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.obj-header-text {
+  flex: 1;
+}
+
+.obj-label {
+  font-size: 11px;
+  color: var(--gm-muted);
+  margin-bottom: 3px;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.obj-statement {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  line-height: 1.4;
+}
+
+.obj-chevron {
+  color: var(--gm-muted);
+  font-size: 12px;
+  margin-top: 4px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.obj-card.expanded .obj-chevron { transform: rotate(180deg); }
+
+.obj-details {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--gm-border);
+  padding-top: 14px;
+}
+
+.obj-card.expanded .obj-details { display: block; }
+
+.obj-detail-row {
+  margin-bottom: 12px;
+}
+
+.obj-detail-label {
+  font-size: 10px;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gm-muted);
+  margin-bottom: 4px;
+}
+
+.obj-detail-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.75);
+}
+
+.obj-release {
+  background: rgba(120,200,50,0.08);
+  border: 1px solid rgba(120,200,50,0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--green);
+  line-height: 1.55;
+}
+
+/* Buying signals checklist */
+.checklist {
+  background: var(--gm-card);
+  border: 1px solid var(--gm-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.checklist-item {
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  border-bottom: 1px solid var(--gm-border);
+  cursor: pointer;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.checklist-item:last-child { border-bottom: none; }
+.checklist-item:active { background: rgba(255,255,255,0.03); }
+
+.check-box {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--gm-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  transition: all 0.15s;
+}
+
+.checklist-item.checked .check-box {
+  background: var(--green);
+  border-color: var(--green);
+}
+
+.check-mark {
+  opacity: 0;
+  font-size: 12px;
+  color: white;
+  font-weight: 700;
+  transition: opacity 0.15s;
+}
+
+.checklist-item.checked .check-mark { opacity: 1; }
+
+.check-text {
+  flex: 1;
+}
+
+.check-description {
+  font-size: 14px;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.4;
+  margin-bottom: 3px;
+}
+
+.checklist-item.checked .check-description {
+  color: var(--green);
+}
+
+.check-trigger {
+  font-size: 11px;
+  color: var(--gm-muted);
+}
+
+/* Outcomes */
+.outcomes-card {
+  background: var(--gm-card);
+  border: 1px solid var(--gm-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.outcome-row {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--gm-border);
+}
+
+.outcome-row:last-child { border-bottom: none; }
+
+.outcome-label {
+  font-size: 10px;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.outcome-row.nothing .outcome-label { color: var(--d-color); }
+.outcome-row.everything .outcome-label { color: var(--green); }
+
+.outcome-text {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+}
+
+/* Score bar */
+.score-bar {
+  margin: 20px 16px 8px;
+  background: var(--gm-card);
+  border: 1px solid var(--gm-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.score-count {
+  font-family: 'Oswald', sans-serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.score-total {
+  font-size: 16px;
+  color: var(--gm-muted);
+  font-weight: 400;
+}
+
+.score-label {
+  font-size: 12px;
+  color: var(--gm-muted);
+  margin-top: 2px;
+}
+
+.score-track {
+  flex: 1;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* End session button */
+.end-btn {
+  width: calc(100% - 32px);
+  margin: 16px;
+  padding: 16px;
+  background: transparent;
+  border: 1.5px solid var(--gm-border);
+  color: var(--gm-muted);
+  border-radius: var(--radius);
+  font-family: 'Oswald', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.end-btn:hover { border-color: var(--green); color: var(--green); }
+
+/* Bottom spacer */
+.spacer { height: 40px; }
+
+/* Loading state */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,22,35,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 100;
+}
+
+.loading-overlay.active { display: flex; }
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(120,200,50,0.2);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Error toast */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--d-color);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 200;
+  display: none;
+  white-space: nowrap;
+}
+
+.toast.active { display: block; }
+
+/* Responsive */
+@media (min-width: 600px) {
+  .gen-body { padding: 24px; }
+  .gm-section { padding: 0 20px; }
+  .score-bar { margin-left: 20px; margin-right: 20px; }
+  .end-btn { width: calc(100% - 40px); margin: 16px 20px; }
+  #qr-container canvas { width: 160px !important; height: 160px !important; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Building Scenario...</div>
+</div>
+
+<!-- Error toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- GENERATOR VIEW                             -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view" id="view-generate">
+
+  <div class="gen-header">
+    <div class="gen-logo">
+      <div class="logo-mark">T</div>
+      <h1>Sales Roleplay Simulator</h1>
+    </div>
+    <p>Trinity Total Home · CT Traditional</p>
+  </div>
+
+  <div class="gen-body">
+
+    <div class="section-label">Product Focus</div>
+    <div class="pill-group" id="product-group">
+      <div class="pill selected" data-value="Solar">Solar</div>
+      <div class="pill" data-value="Roofing">Roofing</div>
+      <div class="pill" data-value="Battery">Battery</div>
+      <div class="pill" data-value="Solar+Battery">Solar + Battery</div>
+      <div class="pill" data-value="Full Suite">Full Suite</div>
+    </div>
+
+    <div class="section-label">Skill Target</div>
+    <div class="pill-group" id="skill-group">
+      <div class="pill selected" data-value="Discovery Quality">Discovery</div>
+      <div class="pill" data-value="Objection Handling">Objection Handling</div>
+      <div class="pill" data-value="Urgency Creation">Urgency</div>
+      <div class="pill" data-value="Both Decision-Makers Present">Decision Makers</div>
+      <div class="pill" data-value="Follow-Up Plan Quality">Follow-Up Plan</div>
+      <div class="pill" data-value="Motivation Identification">Motivation ID</div>
+      <div class="pill" data-value="Needs to Think About It Diagnostic">Think About It</div>
+    </div>
+
+    <div class="section-label">Difficulty</div>
+    <div class="difficulty-row">
+      <div class="diff-card d1 selected" data-value="1">
+        <span class="diff-label">Warm</span>
+        <span class="diff-sub">1 objection · friendly</span>
+      </div>
+      <div class="diff-card d2" data-value="2">
+        <span class="diff-label">Neutral</span>
+        <span class="diff-sub">2 objections · measured</span>
+      </div>
+      <div class="diff-card d3" data-value="3">
+        <span class="diff-label">Resistant</span>
+        <span class="diff-sub">3 objections · skeptical</span>
+      </div>
+    </div>
+
+    <div class="section-label">Homeowner DISC Type</div>
+    <div class="disc-card-group" id="disc-group">
+      <div class="disc-sel-card disc-D" data-value="D">
+        <div class="disc-sel-type">D</div>
+        <div class="disc-sel-label">Driver</div>
+        <div class="disc-sel-desc">Direct, decisive, bottom-line focused. States objections bluntly.</div>
+      </div>
+      <div class="disc-sel-card disc-I" data-value="I">
+        <div class="disc-sel-type">I</div>
+        <div class="disc-sel-label">Expressive</div>
+        <div class="disc-sel-desc">Warm, enthusiastic, social. Won't object directly — watch for energy shifts.</div>
+      </div>
+      <div class="disc-sel-card disc-S selected" data-value="S">
+        <div class="disc-sel-type">S</div>
+        <div class="disc-sel-label">Amiable</div>
+        <div class="disc-sel-desc">Patient, conflict-averse, loyal. Uses absent spouse as a shield.</div>
+      </div>
+      <div class="disc-sel-card disc-C" data-value="C">
+        <div class="disc-sel-type">C</div>
+        <div class="disc-sel-label">Analytical</div>
+        <div class="disc-sel-desc">Data-driven, precise, researched. Will challenge your numbers.</div>
+      </div>
+      <div class="disc-sel-card disc-R" data-value="Random">
+        <div class="disc-sel-type">?</div>
+        <div class="disc-sel-label">Random</div>
+        <div class="disc-sel-desc">System picks — good for keeping reps on their toes.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Scenario Modifiers</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div class="toggle-row">
+        <div>
+          <label>One-Legger</label>
+          <div class="toggle-sub">Only one spouse present</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-onelegger">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <button class="gen-btn" id="gen-btn" onclick="generateScenario()">
+      <div class="btn-inner">
+        <span>Generate Scenario</span>
+      </div>
+    </button>
+
+    <!-- Generated scenario preview -->
+    <div class="scenario-card" id="scenario-card" style="display:none;">
+      <div class="scenario-header">
+        <h3>Scenario Ready</h3>
+        <div class="disc-badge" id="preview-disc-badge"></div>
+      </div>
+      <div class="scenario-preview">
+        <div class="scenario-names" id="preview-names"></div>
+        <div class="scenario-meta" id="preview-meta"></div>
+        <div class="scenario-backstory" id="preview-backstory"></div>
+        <div class="scenario-objs" id="preview-objs"></div>
+      </div>
+      <div id="qr-container"></div>
+      <div class="share-section">
+        <div class="share-url" id="share-url"></div>
+        <button class="share-btn" id="share-btn" onclick="copyShareUrl()">Copy Link</button>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════ -->
+<!-- GM INTERFACE VIEW                          -->
+<!-- ══════════════════════════════════════════ -->
+<div class="view" id="view-gm">
+
+  <div class="gm-header">
+    <div class="gm-logo-mark">T</div>
+    <div class="gm-header-text">
+      <h2>Homeowner Brief</h2>
+      <p id="gm-session-meta">Loading...</p>
+    </div>
+    <div class="disc-badge gm-disc-badge" id="gm-disc-badge"></div>
+  </div>
+
+  <!-- Character -->
+  <div class="gm-section">
+    <div class="gm-section-title">Your Character</div>
+    <div class="character-card">
+      <div class="char-identity">
+        <div class="char-names" id="gm-names"></div>
+        <div class="char-jobs" id="gm-jobs"></div>
+        <div class="char-meta" id="gm-meta"></div>
+      </div>
+      <div class="char-backstory" id="gm-backstory"></div>
+      <div class="char-disposition" id="gm-disposition"></div>
+    </div>
+  </div>
+
+  <!-- DISC Behavior -->
+  <div class="gm-section">
+    <div class="gm-section-title">How to Play This Character</div>
+    <div class="disc-card" id="gm-disc-card"></div>
+  </div>
+
+  <!-- Reactive Guide -->
+  <div class="gm-section">
+    <div class="gm-section-title">Reactive Guide — Follow the Rep's Lead</div>
+    <div class="guide-card" id="gm-guide"></div>
+  </div>
+
+  <!-- Objection Cards -->
+  <div class="gm-section">
+    <div class="gm-section-title">Objection Cards — Deploy When Cued</div>
+    <div id="gm-objections"></div>
+  </div>
+
+  <!-- Outcomes -->
+  <div class="gm-section">
+    <div class="gm-section-title">How This Ends</div>
+    <div class="outcomes-card" id="gm-outcomes"></div>
+  </div>
+
+  <!-- Buying Signal Checklist -->
+  <div class="gm-section">
+    <div class="gm-section-title">Buying Signal Checklist — Mark When Earned</div>
+    <div class="checklist" id="gm-checklist"></div>
+  </div>
+
+  <!-- Score -->
+  <div class="score-bar" id="score-bar">
+    <div>
+      <div>
+        <span class="score-count" id="score-count">0</span>
+        <span class="score-total" id="score-total">/0</span>
+      </div>
+      <div class="score-label">signals earned</div>
+    </div>
+    <div class="score-track">
+      <div class="score-fill" id="score-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <button class="end-btn" onclick="endSession()">End Session & Submit</button>
+
+  <div class="spacer"></div>
+</div>
+
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co'
+const SUPABASE_ANON_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2'
+const EDGE_FN_URL = `${SUPABASE_URL}/functions/v1/generate-scenario`
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+// ── STATE ─────────────────────────────────────────────────────
+let currentScenario = null
+let currentScenarioId = null
+let checkedSignals = new Set()
+
+// ── ROUTING ───────────────────────────────────────────────────
+function router() {
+  const params = new URLSearchParams(location.search)
+  const sessionId = params.get('session')
+
+  if (sessionId) {
+    showView('gm')
+    loadGMView(sessionId)
+  } else {
+    showView('generate')
+  }
+}
+
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'))
+  document.getElementById(`view-${name}`).classList.add('active')
+}
+
+// ── PILL SELECTORS ────────────────────────────────────────────
+function initPillGroups() {
+  document.querySelectorAll('.pill-group').forEach(group => {
+    group.addEventListener('click', e => {
+      const pill = e.target.closest('.pill')
+      if (!pill) return
+      group.querySelectorAll('.pill').forEach(p => p.classList.remove('selected'))
+      pill.classList.add('selected')
+    })
+  })
+
+  document.querySelectorAll(".disc-card-group").forEach(group => {
+    group.addEventListener("click", e => {
+      const card = e.target.closest(".disc-sel-card")
+      if (!card) return
+      group.querySelectorAll(".disc-sel-card").forEach(c => c.classList.remove("selected"))
+      card.classList.add("selected")
+    })
+  })
+
+  document.querySelectorAll('.difficulty-row').forEach(row => {
+    row.addEventListener('click', e => {
+      const card = e.target.closest('.diff-card')
+      if (!card) return
+      row.querySelectorAll('.diff-card').forEach(c => c.classList.remove('selected'))
+      card.classList.add('selected')
+    })
+  })
+}
+
+function getSelected(groupId) {
+  const el = document.querySelector(`#${groupId} .selected`)
+  return el?.dataset.value || null
+}
+
+function getDifficulty() {
+  const el = document.querySelector('.diff-card.selected')
+  return parseInt(el?.dataset.value || '1')
+}
+
+// ── GENERATE ──────────────────────────────────────────────────
+async function generateScenario() {
+  const btn = document.getElementById('gen-btn')
+  const loading = document.getElementById('loading-overlay')
+
+  const params = {
+    product_focus: getSelected('product-group'),
+    skill_target: getSelected('skill-group'),
+    difficulty: getDifficulty(),
+    disc_profile: getSelected('disc-group'),
+    one_legger: document.getElementById('toggle-onelegger').checked,
+    special_conditions: [],
+    created_by: 'manager'
+  }
+
+  if (!params.product_focus || !params.skill_target || !params.disc_profile) {
+    showToast('Please select all parameters')
+    return
+  }
+
+  btn.disabled = true
+  btn.innerHTML = '<div class="btn-inner"><div class="spinner"></div><span>Building...</span></div>'
+  loading.classList.add('active')
+
+  try {
+    const { data: { session } } = await sb.auth.getSession()
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+    }
+    if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+
+    const res = await fetch(EDGE_FN_URL, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params)
+    })
+
+    if (!res.ok) throw new Error(`Server error: ${res.status}`)
+
+    const data = await res.json()
+    if (data.error) throw new Error(data.error)
+
+    currentScenario = data.scenario
+    currentScenarioId = data.id
+
+    renderScenarioPreview(data.scenario, data.id)
+
+  } catch (err) {
+    console.error(err)
+    showToast(err.message || 'Generation failed — check console')
+  } finally {
+    btn.disabled = false
+    btn.innerHTML = '<div class="btn-inner"><span>Generate Another</span></div>'
+    loading.classList.remove('active')
+  }
+}
+
+function renderScenarioPreview(s, id) {
+  const card = document.getElementById('scenario-card')
+  card.style.display = 'block'
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+
+  // DISC badge
+  const badge = document.getElementById('preview-disc-badge')
+  badge.textContent = `${s.disc_type} — ${discLabel(s.disc_type)}`
+  badge.className = `disc-badge ${s.disc_type}`
+
+  // Names
+  const names = s.homeowner_name_2
+    ? `${s.homeowner_name_1} & ${s.homeowner_name_2}`
+    : s.homeowner_name_1
+  document.getElementById('preview-names').textContent = names
+
+  // Meta
+  const meta = [s.town, s.utility, s.monthly_bill + '/mo'].join(' · ')
+  document.getElementById('preview-meta').textContent = meta
+
+  // Backstory
+  document.getElementById('preview-backstory').textContent = s.persona_backstory
+
+  // Objection tags
+  const objsEl = document.getElementById('preview-objs')
+  objsEl.innerHTML = ''
+  if (s.objection_cards) {
+    s.objection_cards.forEach(o => {
+      const tag = document.createElement('div')
+      tag.className = 'obj-tag'
+      tag.textContent = o.surface_statement?.slice(0, 40) + '...'
+      objsEl.appendChild(tag)
+    })
+  }
+
+  // QR code
+  const qrContainer = document.getElementById('qr-container')
+  qrContainer.innerHTML = '<canvas id="qr-canvas"></canvas>'
+  const shareUrl = buildShareUrl(id)
+  QRCode.toCanvas(document.getElementById('qr-canvas'), shareUrl, {
+    width: 140,
+    margin: 0,
+    color: { dark: '#1C2B2B', light: '#ffffff' }
+  })
+
+  // URL display
+  document.getElementById('share-url').textContent = shareUrl
+}
+
+function buildShareUrl(id) {
+  const base = location.href.split('?')[0]
+  return `${base}?session=${id}`
+}
+
+function copyShareUrl() {
+  const url = buildShareUrl(currentScenarioId)
+  navigator.clipboard?.writeText(url).then(() => {
+    const btn = document.getElementById('share-btn')
+    btn.textContent = 'Copied!'
+    btn.classList.add('copied')
+    setTimeout(() => {
+      btn.textContent = 'Copy Link'
+      btn.classList.remove('copied')
+    }, 2000)
+  })
+}
+
+// ── GM VIEW ───────────────────────────────────────────────────
+async function loadGMView(sessionId) {
+  currentScenarioId = sessionId
+
+  try {
+    const { data, error } = await sb
+      .from('scenarios')
+      .select('*')
+      .eq('id', sessionId)
+      .single()
+
+    if (error || !data) {
+      showToast('Scenario not found')
+      return
+    }
+
+    currentScenario = data
+    renderGMInterface(data)
+
+  } catch (err) {
+    showToast('Could not load scenario')
+    console.error(err)
+  }
+}
+
+function renderGMInterface(s) {
+  const gmData = typeof s.gm_instructions === 'string'
+    ? JSON.parse(s.gm_instructions)
+    : s.gm_instructions
+
+  // Header meta
+  document.getElementById('gm-session-meta').textContent =
+    `${s.product_focus} · ${s.skill_target} · Difficulty ${s.difficulty}/3`
+
+  // DISC badge
+  const badge = document.getElementById('gm-disc-badge')
+  badge.textContent = s.disc_profile || s.disc_type
+  badge.className = `disc-badge gm-disc-badge ${s.disc_profile || s.disc_type}`
+
+  // Character identity
+  const names = s.homeowner_name_2
+    ? `${s.homeowner_name_1} &\n${s.homeowner_name_2}`
+    : s.homeowner_name_1
+  document.getElementById('gm-names').textContent = names
+
+  const jobs = [s.homeowner_occupation_1, s.homeowner_occupation_2].filter(Boolean).join('\n')
+  document.getElementById('gm-jobs').textContent = jobs
+
+  // Meta chips
+  const meta = document.getElementById('gm-meta')
+  meta.innerHTML = ''
+  const chips = [
+    { text: s.town + ', CT', cls: '' },
+    { text: s.utility, cls: '' },
+    { text: s.monthly_bill + '/mo avg', cls: 'bill' },
+    s.grid_edge ? { text: 'Grid Edge ⚡', cls: 'grid' } : null,
+    { text: s.roof_condition + ' roof', cls: '' },
+  ].filter(Boolean)
+  chips.forEach(c => {
+    const chip = document.createElement('div')
+    chip.className = `meta-chip ${c.cls}`
+    chip.textContent = c.text
+    meta.appendChild(chip)
+  })
+
+  // Backstory
+  document.getElementById('gm-backstory').textContent = s.life_context || gmData.character_brief
+
+  // Disposition
+  const disp = s.opening_disposition || 'neutral'
+  const dispEl = document.getElementById('gm-disposition')
+  dispEl.className = `char-disposition disposition-${disp}`
+  dispEl.innerHTML = `
+    <div class="disposition-dot"></div>
+    <div>
+      <span class="disposition-label">${disp}</span>
+      <span class="disposition-text"> — opening energy when the rep arrives</span>
+    </div>
+  `
+
+  // DISC behavior card
+  renderDISCCard(s.disc_profile || s.disc_type, s.disc_rapport_response, s.disc_objection_style)
+
+  // Reactive guide
+  if (gmData.reactive_guide) {
+    const guide = document.getElementById('gm-guide')
+    guide.innerHTML = gmData.reactive_guide.map((entry, i) => `
+      <div class="guide-entry">
+        ${entry.buying_signal_id ? `<div class="buying-signal-indicator">${entry.buying_signal_id.replace('bs','')}</div>` : ''}
+        <div class="guide-trigger">${entry.trigger}</div>
+        <div class="guide-action">${entry.action}</div>
+        ${entry.gm_note ? `<div class="guide-note">${entry.gm_note}</div>` : ''}
+      </div>
+    `).join('')
+  }
+
+  // Objection cards
+  if (gmData.objection_cards) {
+    const objContainer = document.getElementById('gm-objections')
+    objContainer.innerHTML = gmData.objection_cards.map((o, i) => `
+      <div class="obj-card" id="obj-card-${i}">
+        <div class="obj-card-header" onclick="toggleObj(${i})">
+          <div class="obj-icon">⚠️</div>
+          <div class="obj-header-text">
+            <div class="obj-label">Deploy When: ${o.deploy_trigger || 'See details'}</div>
+            <div class="obj-statement">"${o.surface_statement}"</div>
+          </div>
+          <div class="obj-chevron">▼</div>
+        </div>
+        <div class="obj-details">
+          <div class="obj-detail-row">
+            <div class="obj-detail-label">Deploy When</div>
+            <div class="obj-detail-text">${o.deploy_trigger}</div>
+          </div>
+          <div class="obj-detail-row">
+            <div class="obj-detail-label">Hold until the rep...</div>
+            <div class="obj-release">${o.hold_instruction}</div>
+          </div>
+          ${o.gm_note ? `
+          <div class="obj-detail-row">
+            <div class="obj-detail-label">Acting Note</div>
+            <div class="obj-detail-text" style="color:var(--blue);font-style:italic;">${o.gm_note}</div>
+          </div>` : ''}
+        </div>
+      </div>
+    `).join('')
+  }
+
+  // Outcomes
+  document.getElementById('gm-outcomes').innerHTML = `
+    <div class="outcome-row nothing">
+      <div class="outcome-label">If the rep earns nothing</div>
+      <div class="outcome-text">${s.outcome_if_rep_earns_nothing}</div>
+    </div>
+    <div class="outcome-row everything">
+      <div class="outcome-label">If the rep earns everything</div>
+      <div class="outcome-text">${s.outcome_if_rep_earns_everything}</div>
+    </div>
+  `
+
+  // Buying signal checklist
+  if (s.buying_signals) {
+    const signals = Array.isArray(s.buying_signals) ? s.buying_signals : []
+    const checklist = document.getElementById('gm-checklist')
+    checklist.innerHTML = signals.map((sig, i) => `
+      <div class="checklist-item" id="check-${sig.id || i}" onclick="toggleSignal('${sig.id || i}', ${signals.length})">
+        <div class="check-box">
+          <span class="check-mark">✓</span>
+        </div>
+        <div class="check-text">
+          <div class="check-description">${sig.description}</div>
+          <div class="check-trigger">Earned when: ${sig.triggered_by}</div>
+        </div>
+      </div>
+    `).join('')
+
+    document.getElementById('score-total').textContent = `/${signals.length}`
+    updateScore(signals.length)
+  }
+}
+
+function renderDISCCard(type, rapportResponse, objectionStyle) {
+  const configs = {
+    D: {
+      rules: [
+        { label: 'Opening Energy', text: 'Direct and purposeful. Gets to business fast. Shakes hand firmly.' },
+        { label: 'Small Talk', text: 'Tolerate 60 seconds max, then redirect. "Alright, what have you got?"' },
+        { label: 'Objection Style', text: 'States concerns bluntly. No softening. Expects direct answers — not emotional appeals.' },
+        { label: 'Buying Signal', text: 'Asks a closing question themselves. Leans forward. Stops looking at phone.' },
+        { label: 'If Pressured', text: 'Goes cold. Ends the conversation. Never be manipulative with a D type.' },
+      ]
+    },
+    I: {
+      rules: [
+        { label: 'Opening Energy', text: 'Warm and chatty immediately. May offer coffee. Enthusiastic.' },
+        { label: 'Small Talk', text: 'Generous — shares stories, talks about neighbors. Let it breathe.' },
+        { label: 'Objection Style', text: 'Never direct. Energy shifts. Changes subject or jokes. Watch for the drop.' },
+        { label: 'Buying Signal', text: 'Gets excited about the idea. Starts imagining it. This is the close moment — rep must act.' },
+        { label: 'If Pressured', text: 'Gets vague. "Yeah definitely." Smile stays but engagement drops.' },
+      ]
+    },
+    S: {
+      rules: [
+        { label: 'Opening Energy', text: 'Polite and welcoming. "Please come in." Warm and unhurried.' },
+        { label: 'Small Talk', text: 'Very comfortable. Will share life context naturally if asked good questions.' },
+        { label: 'Objection Style', text: 'Never direct. "Let me think about it." "I want to talk to my spouse." Real concern usually unstated.' },
+        { label: 'Buying Signal', text: 'Asks what happens next. Imagines the timeline. Consistent warm engagement.' },
+        { label: 'If Pressured', text: 'Very polite, very vague. Smiles a lot. Will not end the meeting — no conflict.' },
+      ]
+    },
+    C: {
+      rules: [
+        { label: 'Opening Energy', text: 'Measured. Has done research. Observes before committing to the conversation.' },
+        { label: 'Small Talk', text: 'Reserved. Engages when rep demonstrates knowledge. Respects accuracy.' },
+        { label: 'Objection Style', text: '"The numbers don\'t work as presented." "I read that degradation is higher." Expects data back.' },
+        { label: 'Buying Signal', text: 'Asks specific next-step questions. "What\'s the permit timeline?" Green lights — they\'re verifying.' },
+        { label: 'If Pressured', text: 'Polite withdrawal. Will research independently and potentially come back on their own.' },
+      ]
+    },
+  }
+
+  const config = configs[type] || configs.S
+  const card = document.getElementById('gm-disc-card')
+
+  const discColor = `var(--${type.toLowerCase()}-color)`
+
+  card.innerHTML = `
+    <div class="disc-card-header">
+      <div class="disc-badge ${type}" style="width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">${type}</div>
+      <div class="disc-type-label">${discLabel(type)} Type</div>
+    </div>
+    ${config.rules.map(r => `
+      <div class="disc-rule">
+        <strong>${r.label}</strong>
+        ${r.text}
+      </div>
+    `).join('')}
+  `
+}
+
+function toggleObj(i) {
+  const card = document.getElementById(`obj-card-${i}`)
+  card.classList.toggle('expanded')
+}
+
+function toggleSignal(sigId, total) {
+  const item = document.getElementById(`check-${sigId}`)
+  if (checkedSignals.has(sigId)) {
+    checkedSignals.delete(sigId)
+    item.classList.remove('checked')
+  } else {
+    checkedSignals.add(sigId)
+    item.classList.add('checked')
+  }
+  updateScore(total)
+}
+
+function updateScore(total) {
+  const count = checkedSignals.size
+  document.getElementById('score-count').textContent = count
+  document.getElementById('score-total').textContent = `/${total}`
+  const pct = total > 0 ? (count / total) * 100 : 0
+  document.getElementById('score-fill').style.width = `${pct}%`
+}
+
+async function endSession() {
+  if (!currentScenarioId || !currentScenario) return
+
+  const repName = prompt('Rep name (for the session record):')
+  if (!repName) return
+
+  const signals = Array.isArray(currentScenario.buying_signals)
+    ? currentScenario.buying_signals
+    : []
+
+  const signalResults = signals.map(sig => ({
+    id: sig.id,
+    description: sig.description,
+    hit: checkedSignals.has(sig.id)
+  }))
+
+  const score = checkedSignals.size
+  const total = signals.length
+  let outcome = 'No Sale'
+  if (score === total && total > 0) outcome = 'Contract'
+  else if (score >= Math.floor(total * 0.7)) outcome = 'Go-Back (Strong)'
+  else if (score >= Math.floor(total * 0.4)) outcome = 'Go-Back (Weak)'
+
+  try {
+    await sb.from('sessions').insert({
+      scenario_id: currentScenarioId,
+      rep_name: repName,
+      buying_signals_hit: signalResults,
+      buying_signals_score: score,
+      simulated_outcome: outcome,
+      session_date: new Date().toISOString().split('T')[0]
+    })
+
+    // Update scenario usage count
+    await sb.from('scenarios')
+      .update({ times_used: (currentScenario.times_used || 0) + 1, last_used_at: new Date().toISOString() })
+      .eq('id', currentScenarioId)
+
+    alert(`Session logged.\n\n${repName} earned ${score}/${total} buying signals.\nSimulated outcome: ${outcome}`)
+
+  } catch (err) {
+    showToast('Could not save session')
+    console.error(err)
+  }
+}
+
+// ── UTILS ─────────────────────────────────────────────────────
+function discLabel(type) {
+  return { D: 'Driver', I: 'Expressive', S: 'Amiable', C: 'Analytical' }[type] || type
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast')
+  toast.textContent = msg
+  toast.classList.add('active')
+  setTimeout(() => toast.classList.remove('active'), 3000)
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+initPillGroups()
+router()
+</script>
+</body>
+</html>
