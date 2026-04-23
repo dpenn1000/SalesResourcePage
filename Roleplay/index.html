@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
 <style>
 /* ── TOKENS ─────────────────────────────────────── */
@@ -1361,15 +1361,40 @@ let checkedSignals = new Set()
 // ── ROUTING ───────────────────────────────────────────────────
 function router() {
   const params = new URLSearchParams(location.search)
+  const localKey = params.get('local')
   const inlineData = params.get('data')
   const sessionId = params.get('session')
 
-  if (inlineData) {
-    // Decode scenario from URL — no DB needed
+  if (localKey) {
+    showView('gm')
+    try {
+      const raw = sessionStorage.getItem(`scenario_${localKey}`)
+      if (!raw) { showToast('Scenario expired — generate a new one'); showView('generate'); return }
+      const scenario = JSON.parse(raw)
+      const shaped = {
+        ...scenario,
+        product_focus: scenario.product_focus || 'Solar',
+        skill_target: scenario.skill_target || '',
+        difficulty: scenario.difficulty || 2,
+        disc_profile: scenario.disc_type,
+        life_context: scenario.persona_backstory,
+        disc_opening_behavior: scenario.character_brief,
+        gm_instructions: JSON.stringify({
+          character_brief: scenario.character_brief,
+          reactive_guide: scenario.reactive_guide,
+          objection_cards: scenario.objection_cards,
+        })
+      }
+      currentScenario = shaped
+      renderGMInterface(shaped)
+    } catch(e) {
+      showToast('Could not load scenario')
+      console.error(e)
+    }
+  } else if (inlineData) {
     showView('gm')
     try {
       const scenario = JSON.parse(decodeURIComponent(atob(inlineData)))
-      // Shape it to match what renderGMInterface expects
       const shaped = {
         ...scenario,
         product_focus: scenario.product_focus || 'Solar',
@@ -1388,7 +1413,6 @@ function router() {
       renderGMInterface(shaped)
     } catch(e) {
       showToast('Could not load scenario from link')
-      console.error(e)
     }
   } else if (sessionId) {
     showView('gm')
@@ -1724,12 +1748,15 @@ function renderScenarioPreview(s, id) {
 
   // QR code
   const qrContainer = document.getElementById('qr-container')
-  qrContainer.innerHTML = '<canvas id="qr-canvas"></canvas>'
-  const shareUrl = buildShareUrl(id)
-  QRCode.toCanvas(document.getElementById('qr-canvas'), shareUrl, {
+  qrContainer.innerHTML = '<div id="qr-canvas"></div>'
+  const shareUrl = buildShareUrl(currentScenarioId)
+  new QRCode(document.getElementById('qr-canvas'), {
+    text: shareUrl,
     width: 140,
-    margin: 0,
-    color: { dark: '#1C2B2B', light: '#ffffff' }
+    height: 140,
+    colorDark: '#1C2B2B',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M
   })
 
   // URL display
@@ -1737,13 +1764,12 @@ function renderScenarioPreview(s, id) {
 }
 
 function buildShareUrl(id) {
-  // Encode the full scenario into the URL so GM screen works without DB
   const base = location.href.split('?')[0]
   if (currentScenario) {
-    try {
-      const compressed = btoa(encodeURIComponent(JSON.stringify(currentScenario)))
-      return `${base}?data=${compressed}`
-    } catch(e) {}
+    // Store scenario in sessionStorage with a short key for QR sharing
+    const key = id.slice(0, 8)
+    try { sessionStorage.setItem(`scenario_${key}`, JSON.stringify(currentScenario)) } catch(e) {}
+    return `${base}?local=${key}`
   }
   return `${base}?session=${id}`
 }
