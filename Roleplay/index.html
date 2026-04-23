@@ -1582,7 +1582,9 @@ Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything spec
     }
 
     const claudeData = await res.json()
-    const scenario = JSON.parse(claudeData.content[0].text.trim())
+    let raw = claudeData.content[0].text.trim()
+    raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '')
+    const scenario = JSON.parse(raw)
 
     // Store in Supabase
     const { data: stored, error } = await sb.from('scenarios').insert({
