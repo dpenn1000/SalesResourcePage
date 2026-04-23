@@ -1588,8 +1588,15 @@ Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything spec
     if (!jsonMatch) throw new Error('No JSON object found in Claude response')
     const scenario = JSON.parse(jsonMatch[0])
 
-    // Store in Supabase
-    const { data: stored, error } = await sb.from('scenarios').insert({
+    // Generate client-side UUID immediately so the scenario renders now
+    const scenarioId = crypto.randomUUID()
+    currentScenario = scenario
+    currentScenarioId = scenarioId
+    renderScenarioPreview(scenario, scenarioId)
+
+    // Save to Supabase in the background — non-blocking
+    sb.from('scenarios').insert({
+      id: scenarioId,
       created_by: 'manager',
       product_focus: params.product_focus,
       skill_target: params.skill_target,
@@ -1611,7 +1618,6 @@ Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything spec
       special_features: scenario.special_features,
       life_context: scenario.persona_backstory,
       opening_disposition: scenario.opening_disposition,
-      disc_profile: disc?.type,
       disc_opening_behavior: scenario.character_brief,
       disc_rapport_response: disc?.rapport_response,
       disc_objection_style: disc?.objection_style,
@@ -1626,13 +1632,10 @@ Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything spec
       buying_signals: scenario.buying_signals,
       outcome_if_rep_earns_nothing: scenario.outcome_if_rep_earns_nothing,
       outcome_if_rep_earns_everything: scenario.outcome_if_rep_earns_everything,
-    }).select('id').single()
-
-    if (error) throw new Error(error.message)
-
-    currentScenario = scenario
-    currentScenarioId = stored.id
-    renderScenarioPreview(scenario, stored.id)
+    }).then(({ error }) => {
+      if (error) console.warn('Scenario save failed (non-critical):', error.message)
+      else console.log('Scenario saved:', scenarioId)
+    })
 
   } catch (err) {
     console.error(err)
