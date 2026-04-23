@@ -1361,9 +1361,36 @@ let checkedSignals = new Set()
 // ── ROUTING ───────────────────────────────────────────────────
 function router() {
   const params = new URLSearchParams(location.search)
+  const inlineData = params.get('data')
   const sessionId = params.get('session')
 
-  if (sessionId) {
+  if (inlineData) {
+    // Decode scenario from URL — no DB needed
+    showView('gm')
+    try {
+      const scenario = JSON.parse(decodeURIComponent(atob(inlineData)))
+      // Shape it to match what renderGMInterface expects
+      const shaped = {
+        ...scenario,
+        product_focus: scenario.product_focus || 'Solar',
+        skill_target: scenario.skill_target || '',
+        difficulty: scenario.difficulty || 2,
+        disc_profile: scenario.disc_type,
+        life_context: scenario.persona_backstory,
+        disc_opening_behavior: scenario.character_brief,
+        gm_instructions: JSON.stringify({
+          character_brief: scenario.character_brief,
+          reactive_guide: scenario.reactive_guide,
+          objection_cards: scenario.objection_cards,
+        })
+      }
+      currentScenario = shaped
+      renderGMInterface(shaped)
+    } catch(e) {
+      showToast('Could not load scenario from link')
+      console.error(e)
+    }
+  } else if (sessionId) {
     showView('gm')
     loadGMView(sessionId)
   } else {
@@ -1590,6 +1617,10 @@ Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything spec
 
     // Generate client-side UUID immediately so the scenario renders now
     const scenarioId = crypto.randomUUID()
+    // Attach generation params to scenario for GM header
+    scenario.product_focus = params.product_focus
+    scenario.skill_target = params.skill_target
+    scenario.difficulty = params.difficulty
     currentScenario = scenario
     currentScenarioId = scenarioId
     renderScenarioPreview(scenario, scenarioId)
@@ -1706,7 +1737,14 @@ function renderScenarioPreview(s, id) {
 }
 
 function buildShareUrl(id) {
+  // Encode the full scenario into the URL so GM screen works without DB
   const base = location.href.split('?')[0]
+  if (currentScenario) {
+    try {
+      const compressed = btoa(encodeURIComponent(JSON.stringify(currentScenario)))
+      return `${base}?data=${compressed}`
+    } catch(e) {}
+  }
   return `${base}?session=${id}`
 }
 
