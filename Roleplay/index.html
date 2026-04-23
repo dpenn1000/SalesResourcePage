@@ -1222,22 +1222,6 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
       </div>
     </div>
 
-    <div class="section-label" style="margin-top:24px;">Anthropic API Key</div>
-    <div class="api-key-row">
-      <input
-        type="password"
-        id="api-key-input"
-        placeholder="sk-ant-api03-..."
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-        oninput="saveApiKey()"
-      >
-      <button class="key-toggle" onclick="toggleKeyVisible()" id="key-toggle">Show</button>
-    </div>
-    <div class="api-key-hint" id="api-key-hint"></div>
-
     <button class="gen-btn" id="gen-btn" onclick="generateScenario()">
       <div class="btn-inner">
         <span>Generate Scenario</span>
@@ -1467,50 +1451,6 @@ function getDifficulty() {
   return parseInt(el?.dataset.value || '1')
 }
 
-// ── API KEY ───────────────────────────────────────────────────
-function saveApiKey() {
-  const input = document.getElementById('api-key-input')
-  const hint = document.getElementById('api-key-hint')
-  const key = input.value.trim()
-
-  if (!key) {
-    input.className = ''
-    hint.textContent = 'Get your key from console.anthropic.com → API Keys'
-    hint.className = 'api-key-hint'
-    sessionStorage.removeItem('trinity_ak')
-    return
-  }
-
-  if (key.startsWith('sk-ant-')) {
-    input.classList.remove('invalid')
-    input.classList.add('valid')
-    hint.textContent = '✓ Key looks good'
-    hint.className = 'api-key-hint valid'
-    sessionStorage.setItem('trinity_ak', key)
-  } else {
-    input.classList.remove('valid')
-    input.classList.add('invalid')
-    hint.textContent = 'Key should start with sk-ant-...'
-    hint.className = 'api-key-hint invalid'
-  }
-}
-
-function toggleKeyVisible() {
-  const input = document.getElementById('api-key-input')
-  const btn = document.getElementById('key-toggle')
-  if (input.type === 'password') {
-    input.type = 'text'
-    btn.textContent = 'Hide'
-  } else {
-    input.type = 'password'
-    btn.textContent = 'Show'
-  }
-}
-
-function getApiKey() {
-  return sessionStorage.getItem('trinity_ak') || document.getElementById('api-key-input')?.value.trim() || null
-}
-
 // ── GENERATE ──────────────────────────────────────────────────
 async function generateScenario() {
   const btn = document.getElementById('gen-btn')
@@ -1522,6 +1462,7 @@ async function generateScenario() {
     difficulty: getDifficulty(),
     disc_profile: getSelected('disc-group'),
     one_legger: document.getElementById('toggle-onelegger').checked,
+    created_by: 'manager'
   }
 
   if (!params.product_focus || !params.skill_target || !params.disc_profile) {
@@ -1529,180 +1470,36 @@ async function generateScenario() {
     return
   }
 
-  const apiKey = getApiKey()
-  if (!apiKey) { showToast('API key required to generate'); return }
-
   btn.disabled = true
   btn.innerHTML = '<div class="btn-inner"><div class="spinner"></div><span>Building...</span></div>'
   loading.classList.add('active')
 
   try {
-    // Pull seed data from Supabase
-    const [towns, occupations, contexts, homes, discProfiles, objections] = await Promise.all([
-      sb.from('towns').select('*'),
-      sb.from('occupations').select('*'),
-      sb.from('life_contexts').select('*'),
-      sb.from('home_profiles').select('*'),
-      sb.from('disc_profiles').select('*').eq('type', params.disc_profile === 'Random' ? ['D','I','S','C'][Math.floor(Math.random()*4)] : params.disc_profile),
-      sb.from('objections').select('id,surface_statements,root_cause,release_condition,ct_context').eq('active', true).lte('difficulty', params.difficulty + 1)
-    ])
-
-    const pick = arr => arr.data?.[Math.floor(Math.random() * (arr.data?.length || 1))]
-    const shuffle = arr => [...arr].sort(() => Math.random() - 0.5)
-
-    const town = pick(towns)
-    const occ1 = pick(occupations)
-    const occ2 = params.one_legger ? null : pick(occupations)
-    const ctx1 = pick(contexts)
-    const ctx2 = params.difficulty >= 2 ? pick(contexts) : null
-    const home = pick(homes)
-    const disc = discProfiles.data?.[0]
-    const pickedObjs = shuffle(objections.data || []).slice(0, params.difficulty === 1 ? 1 : params.difficulty === 2 ? 2 : 3)
-
-    const { data: market } = await sb.from('ct_market_data').select('key,value').eq('display_to_reps', true)
-    const mkt = {}
-    market?.forEach(r => { mkt[r.key] = r.value })
-
-    // Build Claude prompt
-    const prompt = `Generate a realistic homeowner roleplay scenario for Trinity Solar CT sales training.
-
-PARAMETERS:
-- Product: ${params.product_focus} | Skill target: ${params.skill_target}
-- Difficulty: ${params.difficulty}/3 | DISC: ${disc?.type} — ${disc?.label}
-- One-legger: ${params.one_legger}
-
-SEED:
-Town: ${town?.name}, CT | Utility: ${town?.utility} | Grid edge: ${town?.grid_edge} | Character: ${town?.character}
-Occupation 1: ${occ1?.title} (${occ1?.typical_income_range}) | Bill sensitivity: ${occ1?.bill_sensitivity}
-Occupation 2: ${occ2 ? `${occ2.title} (${occ2.typical_income_range})` : 'N/A — one-legger'}
-Home: ${home?.label} | Age: ${home?.home_age_range} | Roof: ${home?.roof_age_range} (${home?.roof_condition}) | Bill: ${home?.monthly_bill_range}
-Life context 1: ${ctx1?.label} — ${ctx1?.description}
-Life context 2: ${ctx2 ? `${ctx2.label} — ${ctx2.description}` : 'None'}
-DISC: ${disc?.opening_energy} | Objection style: ${disc?.objection_style}
-GM instructions: ${disc?.gm_instructions}
-Objections to embed: ${pickedObjs.map((o,i) => `${i+1}. [${o.id}] "${o.surface_statements?.[0]}" — Release: ${o.release_condition}`).join(' | ')}
-CT market: PPA target ${mkt.trinity_target_ppa_rate}/kWh vs Eversource ~${mkt.eversource_rate_may2026}/kWh | Non-bypassable: ${mkt.non_bypassable_charge_rate}/kWh
-
-RULES: Names must feel like real CT homeowners. Life context woven naturally into backstory. Reactive guide reads like acting notes, not a script. Buying signals specific to this household. Return valid JSON only, no markdown.
-
-JSON structure:
-{
-  "homeowner_name_1": "first name",
-  "homeowner_name_2": "first name or null",
-  "homeowner_occupation_1": "specific title",
-  "homeowner_occupation_2": "specific title or null",
-  "town": "${town?.name}",
-  "utility": "${town?.utility}",
-  "grid_edge": ${town?.grid_edge},
-  "home_age": "year built",
-  "roof_age": "X years",
-  "roof_condition": "${home?.roof_condition}",
-  "monthly_bill": "$XXX/month",
-  "special_features": ["array"],
-  "persona_backstory": "2-3 sentences. Cast the household for an actor.",
-  "opening_disposition": "warm|curious|skeptical|rushed",
-  "disc_type": "${disc?.type}",
-  "character_brief": "3-4 sentence casting note about how these people interact.",
-  "reactive_guide": [{"trigger":"If rep does X","action":"Homeowner does/says Y","gm_note":"One acting reminder","buying_signal_id":"bs1 or null"}],
-  "objection_cards": [{"objection_id":"OBJ-XX","surface_statement":"exact phrase","deploy_trigger":"when to deploy","hold_instruction":"what it takes to soften","gm_note":"acting note"}],
-  "buying_signals": [{"id":"bs1","description":"Rep did X specific to this customer","triggered_by":"Rep says or does Y"}],
-  "outcome_if_rep_earns_nothing": "1-2 sentences",
-  "outcome_if_rep_earns_everything": "1-2 sentences"
-}
-
-Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything specific to this exact household.`
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(EDGE_FN_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify(params)
     })
 
     if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error?.message || `API error ${res.status}`)
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error || `Server error ${res.status}`)
     }
 
-    const claudeData = await res.json()
-    let raw = claudeData.content[0].text.trim()
-    // Extract JSON object — handles code fences and any surrounding text
-    const jsonMatch = raw.match(/\{[\s\S]*\}/)
-    if (!jsonMatch) throw new Error('No JSON object found in Claude response')
-    const scenario = JSON.parse(jsonMatch[0])
+    const data = await res.json()
+    if (data.error) throw new Error(data.error)
 
-    // Generate client-side UUID immediately so the scenario renders now
-    const scenarioId = crypto.randomUUID()
-    // Attach generation params to scenario for GM header
-    scenario.product_focus = params.product_focus
-    scenario.skill_target = params.skill_target
-    scenario.difficulty = params.difficulty
-    currentScenario = scenario
-    currentScenarioId = scenarioId
-
-    // Save to Supabase via RPC — wait for it so QR encodes the real UUID
-    const savePayload = {
-      id: scenarioId,
-      created_by: 'manager',
-      product_focus: params.product_focus,
-      skill_target: params.skill_target,
-      difficulty: String(params.difficulty),
-      disc_profile: disc?.type || params.disc_profile,
-      one_legger: String(params.one_legger),
-      homeowner_name_1: scenario.homeowner_name_1,
-      homeowner_name_2: scenario.homeowner_name_2 || '',
-      homeowner_occupation_1: scenario.homeowner_occupation_1,
-      homeowner_occupation_2: scenario.homeowner_occupation_2 || '',
-      town: scenario.town,
-      utility: scenario.utility,
-      grid_edge: String(scenario.grid_edge),
-      home_age: scenario.home_age,
-      roof_age: scenario.roof_age,
-      roof_condition: scenario.roof_condition,
-      monthly_bill: scenario.monthly_bill,
-      life_context: scenario.persona_backstory,
-      opening_disposition: scenario.opening_disposition,
-      disc_opening_behavior: scenario.character_brief,
-      disc_rapport_response: disc?.rapport_response || '',
-      disc_objection_style: disc?.objection_style || '',
-      gm_instructions: JSON.stringify({
-        character_brief: scenario.character_brief,
-        reactive_guide: scenario.reactive_guide,
-        objection_cards: scenario.objection_cards,
-      }),
-      primary_objection_id: pickedObjs[0]?.id || '',
-      secondary_objection_id: pickedObjs[1]?.id || '',
-      tertiary_objection_id: pickedObjs[2]?.id || '',
-      buying_signals: scenario.buying_signals,
-      outcome_if_rep_earns_nothing: scenario.outcome_if_rep_earns_nothing,
-      outcome_if_rep_earns_everything: scenario.outcome_if_rep_earns_everything,
-    }
-
-    const { error: saveError } = await sb.rpc('save_scenario', { scenario_data: savePayload })
-    if (saveError) console.warn('DB save failed — QR will use local fallback:', saveError.message)
-
-    renderScenarioPreview(scenario, scenarioId, !saveError)
+    currentScenario = data.scenario
+    currentScenarioId = data.id
+    renderScenarioPreview(data.scenario, data.id, true)
 
   } catch (err) {
     console.error(err)
-    if (err.message?.includes('401') || err.message?.includes('authentication')) {
-      sessionStorage.removeItem('trinity_ak')
-      const input = document.getElementById('api-key-input')
-      if (input) { input.value = ''; input.className = ''; }
-      const hint = document.getElementById('api-key-hint')
-      if (hint) { hint.textContent = 'Key was rejected — paste it again'; hint.className = 'api-key-hint invalid'; }
-      showToast('Invalid API key — check and re-enter')
-    } else {
-      showToast(err.message || 'Generation failed')
-    }
+    showToast(err.message || 'Generation failed — check console')
   } finally {
     btn.disabled = false
     btn.innerHTML = '<div class="btn-inner"><span>Generate Another</span></div>'
@@ -2094,13 +1891,6 @@ function showToast(msg) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-// Pre-populate API key field if already in session
-const savedKey = sessionStorage.getItem('trinity_ak')
-if (savedKey) {
-  const input = document.getElementById('api-key-input')
-  if (input) { input.value = savedKey; saveApiKey(); }
-}
-
 initPillGroups()
 router()
 </script>
