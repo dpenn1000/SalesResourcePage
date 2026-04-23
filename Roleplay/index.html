@@ -290,6 +290,53 @@ body {
 input:checked + .toggle-slider { background: var(--green); }
 input:checked + .toggle-slider:before { transform: translateX(20px); }
 
+/* API key input */
+.api-key-row {
+  display: flex;
+  gap: 8px;
+}
+
+.api-key-row input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 14px;
+  font-family: monospace;
+  color: var(--dark);
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+
+.api-key-row input:focus { border-color: var(--green); }
+.api-key-row input.valid { border-color: var(--green); }
+.api-key-row input.invalid { border-color: var(--d-color); }
+
+.key-toggle {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: white;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.api-key-hint {
+  font-size: 11px;
+  margin-top: 6px;
+  min-height: 16px;
+  color: var(--muted);
+}
+
+.api-key-hint.valid { color: var(--green-dark); }
+.api-key-hint.invalid { color: var(--d-color); }
+
 /* Generate button */
 .gen-btn {
   width: 100%;
@@ -1175,6 +1222,22 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
       </div>
     </div>
 
+    <div class="section-label" style="margin-top:24px;">Anthropic API Key</div>
+    <div class="api-key-row">
+      <input
+        type="password"
+        id="api-key-input"
+        placeholder="sk-ant-api03-..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        oninput="saveApiKey()"
+      >
+      <button class="key-toggle" onclick="toggleKeyVisible()" id="key-toggle">Show</button>
+    </div>
+    <div class="api-key-hint" id="api-key-hint"></div>
+
     <button class="gen-btn" id="gen-btn" onclick="generateScenario()">
       <div class="btn-inner">
         <span>Generate Scenario</span>
@@ -1353,14 +1416,48 @@ function getDifficulty() {
   return parseInt(el?.dataset.value || '1')
 }
 
-// ── API KEY (session only — never stored or committed) ────────
-function getApiKey() {
-  let key = sessionStorage.getItem('trinity_ak')
+// ── API KEY ───────────────────────────────────────────────────
+function saveApiKey() {
+  const input = document.getElementById('api-key-input')
+  const hint = document.getElementById('api-key-hint')
+  const key = input.value.trim()
+
   if (!key) {
-    key = prompt('Enter your Anthropic API key to generate scenarios.\nThis is held in memory only and cleared when you close the tab.')
-    if (key) sessionStorage.setItem('trinity_ak', key.trim())
+    input.className = ''
+    hint.textContent = 'Get your key from console.anthropic.com → API Keys'
+    hint.className = 'api-key-hint'
+    sessionStorage.removeItem('trinity_ak')
+    return
   }
-  return key
+
+  if (key.startsWith('sk-ant-')) {
+    input.classList.remove('invalid')
+    input.classList.add('valid')
+    hint.textContent = '✓ Key looks good'
+    hint.className = 'api-key-hint valid'
+    sessionStorage.setItem('trinity_ak', key)
+  } else {
+    input.classList.remove('valid')
+    input.classList.add('invalid')
+    hint.textContent = 'Key should start with sk-ant-...'
+    hint.className = 'api-key-hint invalid'
+  }
+}
+
+function toggleKeyVisible() {
+  const input = document.getElementById('api-key-input')
+  const btn = document.getElementById('key-toggle')
+  if (input.type === 'password') {
+    input.type = 'text'
+    btn.textContent = 'Hide'
+  } else {
+    input.type = 'password'
+    btn.textContent = 'Show'
+  }
+}
+
+function getApiKey() {
+  return sessionStorage.getItem('trinity_ak') || document.getElementById('api-key-input')?.value.trim() || null
 }
 
 // ── GENERATE ──────────────────────────────────────────────────
@@ -1535,9 +1632,13 @@ Generate 5-7 reactive guide entries and 4-6 buying signals. Make everything spec
 
   } catch (err) {
     console.error(err)
-    if (err.message?.includes('401')) {
+    if (err.message?.includes('401') || err.message?.includes('authentication')) {
       sessionStorage.removeItem('trinity_ak')
-      showToast('Invalid API key — cleared. Try again.')
+      const input = document.getElementById('api-key-input')
+      if (input) { input.value = ''; input.className = ''; }
+      const hint = document.getElementById('api-key-hint')
+      if (hint) { hint.textContent = 'Key was rejected — paste it again'; hint.className = 'api-key-hint invalid'; }
+      showToast('Invalid API key — check and re-enter')
     } else {
       showToast(err.message || 'Generation failed')
     }
@@ -1919,6 +2020,13 @@ function showToast(msg) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
+// Pre-populate API key field if already in session
+const savedKey = sessionStorage.getItem('trinity_ak')
+if (savedKey) {
+  const input = document.getElementById('api-key-input')
+  if (input) { input.value = savedKey; saveApiKey(); }
+}
+
 initPillGroups()
 router()
 </script>
