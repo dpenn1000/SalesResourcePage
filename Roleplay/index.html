@@ -1660,172 +1660,176 @@ function fallbackCopy(url) {
 // ── GM VIEW ───────────────────────────────────────────────────
 async function loadGMView(sessionId) {
   currentScenarioId = sessionId
-  document.getElementById('gm-session-meta').textContent = 'Loading scenario...'
-
-  // 10 second timeout
-  const timeout = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('Load timed out')), 10000)
-  )
+  document.getElementById('gm-session-meta').textContent = 'Loading...'
 
   try {
-    const result = await Promise.race([
-      sb.rpc('get_scenario', { scenario_id: sessionId }),
-      timeout
-    ]) as { data: unknown; error: unknown }
+    const { data, error } = await sb.rpc('get_scenario', { scenario_id: sessionId })
 
-    const { data, error } = result
+    if (error) {
+      document.getElementById('gm-session-meta').textContent = 'Load error — ' + error.message
+      showToast('Could not load: ' + error.message)
+      return
+    }
 
-    if (error || !data) {
-      showToast('Scenario not found — ask manager to reshare')
+    if (!data) {
       document.getElementById('gm-session-meta').textContent = 'Scenario not found'
+      showToast('Scenario not found — ask manager to reshare')
       return
     }
 
     currentScenario = data
-    renderGMInterface(data as Record<string, unknown>)
+    renderGMInterface(data)
 
   } catch (err) {
-    showToast('Could not load — check connection and try again')
-    document.getElementById('gm-session-meta').textContent = 'Load failed'
+    document.getElementById('gm-session-meta').textContent = 'Load failed: ' + err.message
+    showToast('Load failed: ' + err.message)
     console.error(err)
   }
 }
 
 function renderGMInterface(s) {
-  const gmData = typeof s.gm_instructions === 'string'
-    ? JSON.parse(s.gm_instructions)
-    : s.gm_instructions
+  try {
+    const gmData = typeof s.gm_instructions === 'string'
+      ? JSON.parse(s.gm_instructions)
+      : (s.gm_instructions || {})
 
-  // Header meta
-  document.getElementById('gm-session-meta').textContent =
-    `${s.product_focus} · ${s.skill_target} · Difficulty ${s.difficulty}/3`
+    // Header meta
+    document.getElementById('gm-session-meta').textContent =
+      [s.product_focus, s.skill_target, `Difficulty ${s.difficulty}/3`].filter(Boolean).join(' · ')
 
-  // DISC badge
-  const badge = document.getElementById('gm-disc-badge')
-  badge.textContent = s.disc_profile || s.disc_type
-  badge.className = `disc-badge gm-disc-badge ${s.disc_profile || s.disc_type}`
+    // DISC badge
+    const discType = s.disc_profile || s.disc_type || 'S'
+    const badge = document.getElementById('gm-disc-badge')
+    badge.textContent = discType
+    badge.className = `disc-badge gm-disc-badge ${discType}`
 
-  // Character identity
-  const names = s.homeowner_name_2
-    ? `${s.homeowner_name_1} &\n${s.homeowner_name_2}`
-    : s.homeowner_name_1
-  document.getElementById('gm-names').textContent = names
+    // Names
+    const names = s.homeowner_name_2
+      ? `${s.homeowner_name_1} & ${s.homeowner_name_2}`
+      : (s.homeowner_name_1 || 'Unknown')
+    document.getElementById('gm-names').textContent = names
 
-  const jobs = [s.homeowner_occupation_1, s.homeowner_occupation_2].filter(Boolean).join('\n')
-  document.getElementById('gm-jobs').textContent = jobs
+    const jobs = [s.homeowner_occupation_1, s.homeowner_occupation_2].filter(Boolean).join(' · ')
+    document.getElementById('gm-jobs').textContent = jobs
 
-  // Meta chips
-  const meta = document.getElementById('gm-meta')
-  meta.innerHTML = ''
-  const chips = [
-    { text: s.town + ', CT', cls: '' },
-    { text: s.utility, cls: '' },
-    { text: s.monthly_bill + '/mo avg', cls: 'bill' },
-    s.grid_edge ? { text: 'Grid Edge ⚡', cls: 'grid' } : null,
-    { text: s.roof_condition + ' roof', cls: '' },
-  ].filter(Boolean)
-  chips.forEach(c => {
-    const chip = document.createElement('div')
-    chip.className = `meta-chip ${c.cls}`
-    chip.textContent = c.text
-    meta.appendChild(chip)
-  })
+    // Meta chips
+    const meta = document.getElementById('gm-meta')
+    meta.innerHTML = ''
+    const chips = [
+      s.town ? { text: s.town + ', CT', cls: '' } : null,
+      s.utility ? { text: s.utility, cls: '' } : null,
+      s.monthly_bill ? { text: s.monthly_bill + ' avg', cls: 'bill' } : null,
+      s.grid_edge === true || s.grid_edge === 'true' ? { text: 'Grid Edge', cls: 'grid' } : null,
+      s.roof_condition ? { text: s.roof_condition + ' roof', cls: '' } : null,
+    ].filter(Boolean)
+    chips.forEach(c => {
+      const chip = document.createElement('div')
+      chip.className = `meta-chip ${c.cls}`
+      chip.textContent = c.text
+      meta.appendChild(chip)
+    })
 
-  // Backstory
-  document.getElementById('gm-backstory').textContent = s.life_context || gmData.character_brief
+    // Backstory
+    document.getElementById('gm-backstory').textContent =
+      s.life_context || gmData.character_brief || s.persona_backstory || ''
 
-  // Disposition
-  const disp = s.opening_disposition || 'neutral'
-  const dispEl = document.getElementById('gm-disposition')
-  dispEl.className = `char-disposition disposition-${disp}`
-  dispEl.innerHTML = `
-    <div class="disposition-dot"></div>
-    <div>
-      <span class="disposition-label">${disp}</span>
-      <span class="disposition-text"> — opening energy when the rep arrives</span>
-    </div>
-  `
+    // Disposition
+    const disp = s.opening_disposition || 'curious'
+    const dispEl = document.getElementById('gm-disposition')
+    dispEl.className = `char-disposition disposition-${disp}`
+    dispEl.innerHTML = `
+      <div class="disposition-dot"></div>
+      <div>
+        <span class="disposition-label">${disp}</span>
+        <span class="disposition-text"> — opening energy when the rep arrives</span>
+      </div>
+    `
 
-  // DISC behavior card
-  renderDISCCard(s.disc_profile || s.disc_type, s.disc_rapport_response, s.disc_objection_style)
+    // DISC behavior card
+    renderDISCCard(discType, s.disc_rapport_response, s.disc_objection_style)
 
-  // Reactive guide
-  if (gmData.reactive_guide) {
+    // Reactive guide
     const guide = document.getElementById('gm-guide')
-    guide.innerHTML = gmData.reactive_guide.map((entry, i) => `
-      <div class="guide-entry">
-        ${entry.buying_signal_id ? `<div class="buying-signal-indicator">${entry.buying_signal_id.replace('bs','')}</div>` : ''}
-        <div class="guide-trigger">${entry.trigger}</div>
-        <div class="guide-action">${entry.action}</div>
-        ${entry.gm_note ? `<div class="guide-note">${entry.gm_note}</div>` : ''}
-      </div>
-    `).join('')
-  }
+    const reactiveGuide = gmData.reactive_guide || []
+    if (reactiveGuide.length) {
+      guide.innerHTML = reactiveGuide.map((entry) => `
+        <div class="guide-entry">
+          ${entry.buying_signal_id ? `<div class="buying-signal-indicator">${String(entry.buying_signal_id).replace('bs','')}</div>` : ''}
+          <div class="guide-trigger">${entry.trigger || ''}</div>
+          <div class="guide-action">${entry.action || ''}</div>
+          ${entry.gm_note ? `<div class="guide-note">${entry.gm_note}</div>` : ''}
+        </div>
+      `).join('')
+    } else {
+      guide.innerHTML = '<div class="guide-entry"><div class="guide-action">No reactive guide available</div></div>'
+    }
 
-  // Objection cards
-  if (gmData.objection_cards) {
+    // Objection cards
     const objContainer = document.getElementById('gm-objections')
-    objContainer.innerHTML = gmData.objection_cards.map((o, i) => `
-      <div class="obj-card" id="obj-card-${i}">
-        <div class="obj-card-header" onclick="toggleObj(${i})">
-          <div class="obj-icon">⚠️</div>
-          <div class="obj-header-text">
-            <div class="obj-label">Deploy When: ${o.deploy_trigger || 'See details'}</div>
-            <div class="obj-statement">"${o.surface_statement}"</div>
+    const objCards = gmData.objection_cards || []
+    if (objCards.length) {
+      objContainer.innerHTML = objCards.map((o, i) => `
+        <div class="obj-card" id="obj-card-${i}">
+          <div class="obj-card-header" onclick="toggleObj(${i})">
+            <div class="obj-icon">⚠️</div>
+            <div class="obj-header-text">
+              <div class="obj-label">Deploy when: ${o.deploy_trigger || ''}</div>
+              <div class="obj-statement">"${o.surface_statement || ''}"</div>
+            </div>
+            <div class="obj-chevron">▼</div>
           </div>
-          <div class="obj-chevron">▼</div>
+          <div class="obj-details">
+            <div class="obj-detail-row">
+              <div class="obj-detail-label">Deploy when</div>
+              <div class="obj-detail-text">${o.deploy_trigger || ''}</div>
+            </div>
+            <div class="obj-detail-row">
+              <div class="obj-detail-label">Hold until the rep...</div>
+              <div class="obj-release">${o.hold_instruction || ''}</div>
+            </div>
+            ${o.gm_note ? `<div class="obj-detail-row"><div class="obj-detail-label">Acting note</div><div class="obj-detail-text" style="color:var(--blue);font-style:italic;">${o.gm_note}</div></div>` : ''}
+          </div>
         </div>
-        <div class="obj-details">
-          <div class="obj-detail-row">
-            <div class="obj-detail-label">Deploy When</div>
-            <div class="obj-detail-text">${o.deploy_trigger}</div>
-          </div>
-          <div class="obj-detail-row">
-            <div class="obj-detail-label">Hold until the rep...</div>
-            <div class="obj-release">${o.hold_instruction}</div>
-          </div>
-          ${o.gm_note ? `
-          <div class="obj-detail-row">
-            <div class="obj-detail-label">Acting Note</div>
-            <div class="obj-detail-text" style="color:var(--blue);font-style:italic;">${o.gm_note}</div>
-          </div>` : ''}
-        </div>
+      `).join('')
+    } else {
+      objContainer.innerHTML = ''
+    }
+
+    // Outcomes
+    document.getElementById('gm-outcomes').innerHTML = `
+      <div class="outcome-row nothing">
+        <div class="outcome-label">If the rep earns nothing</div>
+        <div class="outcome-text">${s.outcome_if_rep_earns_nothing || ''}</div>
       </div>
-    `).join('')
-  }
+      <div class="outcome-row everything">
+        <div class="outcome-label">If the rep earns everything</div>
+        <div class="outcome-text">${s.outcome_if_rep_earns_everything || ''}</div>
+      </div>
+    `
 
-  // Outcomes
-  document.getElementById('gm-outcomes').innerHTML = `
-    <div class="outcome-row nothing">
-      <div class="outcome-label">If the rep earns nothing</div>
-      <div class="outcome-text">${s.outcome_if_rep_earns_nothing}</div>
-    </div>
-    <div class="outcome-row everything">
-      <div class="outcome-label">If the rep earns everything</div>
-      <div class="outcome-text">${s.outcome_if_rep_earns_everything}</div>
-    </div>
-  `
-
-  // Buying signal checklist
-  if (s.buying_signals) {
+    // Buying signal checklist
     const signals = Array.isArray(s.buying_signals) ? s.buying_signals : []
     const checklist = document.getElementById('gm-checklist')
-    checklist.innerHTML = signals.map((sig, i) => `
-      <div class="checklist-item" id="check-${sig.id || i}" onclick="toggleSignal('${sig.id || i}', ${signals.length})">
-        <div class="check-box">
-          <span class="check-mark">✓</span>
+    if (signals.length) {
+      checklist.innerHTML = signals.map((sig, i) => `
+        <div class="checklist-item" id="check-${sig.id || i}" onclick="toggleSignal('${sig.id || i}', ${signals.length})">
+          <div class="check-box"><span class="check-mark">✓</span></div>
+          <div class="check-text">
+            <div class="check-description">${sig.description || ''}</div>
+            <div class="check-trigger">Earned when: ${sig.triggered_by || ''}</div>
+          </div>
         </div>
-        <div class="check-text">
-          <div class="check-description">${sig.description}</div>
-          <div class="check-trigger">Earned when: ${sig.triggered_by}</div>
-        </div>
-      </div>
-    `).join('')
+      `).join('')
+      document.getElementById('score-total').textContent = `/${signals.length}`
+      updateScore(signals.length)
+    }
 
-    document.getElementById('score-total').textContent = `/${signals.length}`
-    updateScore(signals.length)
+  } catch (err) {
+    document.getElementById('gm-session-meta').textContent = 'Render error: ' + err.message
+    console.error('renderGMInterface error:', err)
   }
 }
+
 
 function renderDISCCard(type, rapportResponse, objectionStyle) {
   const configs = {
