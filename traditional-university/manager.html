@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traditional Sales University — Manager Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --solar-green: #78C832; --solar-green-dark: #5FA520;
+  --totalhome-blue: #29A9E1; --totalhome-blue-dark: #1E8BBC;
+  --ink: #0F2038; --ink-soft: #1A2942;
+  --text: #1A1F2E; --text-muted: #5B6576; --text-subtle: #8B94A3;
+  --surface: #EFF1EC; --surface-raised: #FAFBF7; --surface-white: #FFFFFF;
+  --hairline: #D8DBD4; --hairline-soft: #E5E8E0;
+  --accent-warm: #E9A648; --accent-rose: #C94F5A;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px;
+  --s-5:24px; --s-6:32px; --s-7:48px; --s-8:64px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px; line-height: 1.6; color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: 1.5rem; font-weight: 500; }
+h2 { font-size: 1.75rem; margin-bottom: var(--s-4); font-variation-settings: "opsz" 72; }
+h3 { font-size: 1.125rem; font-weight: 600; margin-bottom: var(--s-2); }
+p { margin-bottom: var(--s-3); }
+.eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 var(--s-5); }
+
+/* HEADER */
+.page-header {
+  background: var(--ink); color: #FFFFFF;
+  padding: var(--s-5) 0;
+  border-bottom: 3px solid var(--solar-green);
+}
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); flex-wrap: wrap; }
+.page-header .title-block .eyebrow { color: rgba(255,255,255,0.6); display: block; margin-bottom: 2px; }
+.page-header .title-block h1 { color: #FFFFFF; }
+.page-header .user { display: flex; align-items: center; gap: var(--s-3); font-size: 0.875rem; color: rgba(255,255,255,0.85); }
+.page-header .user .name { font-weight: 600; color: #FFFFFF; }
+.page-header .user button {
+  background: transparent; color: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.25); padding: 6px 12px;
+  border-radius: var(--r-sm); cursor: pointer; font-family: inherit;
+  font-size: 0.8125rem; font-weight: 500;
+}
+.page-header .user button:hover { background: rgba(255,255,255,0.08); color: #FFFFFF; }
+
+/* TABS */
+.tabs {
+  background: var(--surface-raised);
+  border-bottom: 1px solid var(--hairline);
+  position: sticky; top: 0; z-index: 10;
+  backdrop-filter: blur(6px); background: rgba(250,251,247,0.94);
+}
+.tabs .wrap { display: flex; gap: var(--s-5); flex-wrap: wrap; align-items: center; }
+.tabs button {
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 0.875rem; font-weight: 500;
+  color: var(--text-muted); padding: var(--s-4) 0;
+  border-bottom: 2px solid transparent; transition: color 0.15s, border-color 0.15s;
+  display: inline-flex; align-items: center; gap: var(--s-2);
+}
+.tabs button:hover { color: var(--ink); }
+.tabs button.active { color: var(--ink); border-bottom-color: var(--solar-green); font-weight: 600; }
+.tabs button .count {
+  background: var(--accent-rose); color: #FFFFFF;
+  font-size: 0.6875rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 999px; min-width: 20px; text-align: center;
+}
+
+main { padding: var(--s-7) 0 var(--s-8); min-height: 70vh; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* SIGN-IN */
+.signin-wrap { min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: var(--s-5); }
+.signin-card {
+  background: var(--surface-white); border: 1px solid var(--hairline);
+  border-radius: var(--r-lg); padding: var(--s-7);
+  max-width: 440px; width: 100%; box-shadow: var(--shadow-md);
+}
+.signin-card .logo-row { display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-5); }
+.signin-card .logo-row .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--solar-green); }
+.signin-card .logo-row span { font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+.signin-card h2 { font-size: 1.5rem; margin-bottom: var(--s-2); }
+.signin-card .subtitle { color: var(--text-muted); font-size: 0.9375rem; margin-bottom: var(--s-5); }
+.signin-tabs { display: flex; gap: 0; margin-bottom: var(--s-5); border-bottom: 1px solid var(--hairline); }
+.signin-tabs button {
+  flex: 1; background: none; border: none; padding: var(--s-3) 0; cursor: pointer;
+  font-family: inherit; font-size: 0.875rem; font-weight: 500;
+  color: var(--text-muted); border-bottom: 2px solid transparent;
+}
+.signin-tabs button.active { color: var(--ink); border-bottom-color: var(--solar-green); font-weight: 600; }
+
+/* FORMS */
+.form-group { margin-bottom: var(--s-4); }
+.form-group label { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--ink); margin-bottom: var(--s-2); }
+.form-group input, .form-group textarea, .form-group select {
+  width: 100%; padding: 10px 12px;
+  font-family: inherit; font-size: 0.9375rem; color: var(--text);
+  background: var(--surface-white); border: 1px solid var(--hairline);
+  border-radius: var(--r-sm); transition: border-color 0.15s;
+}
+.form-group textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: var(--totalhome-blue); }
+.form-group .hint { font-size: 0.75rem; color: var(--text-subtle); margin-top: 4px; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--r-sm);
+  font-family: inherit; font-size: 0.9375rem; font-weight: 600;
+  text-decoration: none; border: none; cursor: pointer; transition: all 0.15s;
+}
+.btn-primary { background: var(--solar-green); color: var(--ink); }
+.btn-primary:hover { background: var(--solar-green-dark); color: #FFFFFF; }
+.btn-secondary { background: var(--totalhome-blue); color: #FFFFFF; }
+.btn-secondary:hover { background: var(--totalhome-blue-dark); }
+.btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--hairline); }
+.btn-ghost:hover { border-color: var(--ink); background: var(--surface-raised); }
+.btn-danger { background: var(--accent-rose); color: #FFFFFF; }
+.btn-danger:hover { background: #AE424C; }
+.btn-sm { padding: 6px 12px; font-size: 0.8125rem; }
+.btn-full { width: 100%; justify-content: center; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.msg { padding: var(--s-3) var(--s-4); border-radius: var(--r-sm); font-size: 0.875rem; margin-bottom: var(--s-3); }
+.msg-info { background: #E8F4FB; color: var(--totalhome-blue-dark); border-left: 3px solid var(--totalhome-blue); }
+.msg-error { background: #FBE8EA; color: var(--accent-rose); border-left: 3px solid var(--accent-rose); }
+.msg-success { background: #EFF8E5; color: var(--solar-green-dark); border-left: 3px solid var(--solar-green); }
+
+/* PANELS */
+.panel {
+  background: var(--surface-white); border: 1px solid var(--hairline);
+  border-radius: var(--r-lg); padding: var(--s-5);
+  box-shadow: var(--shadow-sm); margin-bottom: var(--s-4);
+}
+.panel .panel-head { margin-bottom: var(--s-4); display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-4); flex-wrap: wrap; }
+.panel .panel-head .titles h3 { margin-bottom: 2px; }
+.panel .panel-head .titles p { color: var(--text-muted); font-size: 0.875rem; margin: 0; }
+
+/* REVIEW QUEUE ITEMS */
+.queue-item {
+  background: var(--surface-white); border: 1px solid var(--hairline);
+  border-left: 3px solid var(--accent-warm);
+  border-radius: var(--r-md); padding: var(--s-4);
+  margin-bottom: var(--s-3);
+}
+.queue-item.shadow { border-left-color: var(--totalhome-blue); }
+.queue-item.help { border-left-color: var(--accent-rose); }
+.queue-item .head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-3); margin-bottom: var(--s-3); flex-wrap: wrap; }
+.queue-item .head .title { font-weight: 600; color: var(--ink); }
+.queue-item .head .meta { font-size: 0.8125rem; color: var(--text-muted); margin-top: 2px; }
+.queue-item .head .type-chip {
+  font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 3px 10px; border-radius: 999px;
+  background: #FEF3DC; color: #8A5E15;
+}
+.queue-item.shadow .type-chip { background: #E8F4FB; color: var(--totalhome-blue-dark); }
+.queue-item.help .type-chip { background: #FBE8EA; color: var(--accent-rose); }
+.queue-item .body { font-size: 0.9375rem; color: var(--text); margin-bottom: var(--s-3); }
+.queue-item .actions { display: flex; gap: var(--s-2); flex-wrap: wrap; align-items: center; }
+.queue-item .detail-block {
+  background: var(--surface-raised); border: 1px solid var(--hairline-soft);
+  border-radius: var(--r-sm); padding: var(--s-3); margin: var(--s-3) 0;
+  font-size: 0.875rem;
+}
+.queue-item .detail-block .label { font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle); margin-bottom: 4px; }
+
+/* TABLE */
+table.data { width: 100%; border-collapse: collapse; background: var(--surface-white); border: 1px solid var(--hairline); border-radius: var(--r-md); overflow: hidden; font-size: 0.875rem; }
+table.data thead { background: var(--ink); color: #FFFFFF; }
+table.data th { padding: var(--s-3) var(--s-4); text-align: left; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
+table.data td { padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--hairline-soft); vertical-align: middle; }
+table.data tbody tr:last-child td { border-bottom: none; }
+table.data tbody tr:nth-child(even) { background: var(--surface); }
+table.data tbody tr:hover { background: #F5F7F0; }
+
+.mini-bar {
+  display: inline-block; width: 80px; height: 6px;
+  background: var(--hairline-soft); border-radius: 999px; overflow: hidden;
+  vertical-align: middle; margin-right: 6px;
+}
+.mini-bar .fill { height: 100%; background: var(--solar-green); }
+.mini-bar.s2 .fill { background: var(--totalhome-blue); }
+
+/* STATUS BADGES */
+.status-badge {
+  font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; padding: 3px 10px; border-radius: 999px; display: inline-block;
+}
+.status-not-started { background: var(--hairline-soft); color: var(--text-muted); }
+.status-in-progress { background: #FEF3DC; color: #8A5E15; }
+.status-pending     { background: #E8F4FB; color: var(--totalhome-blue-dark); }
+.status-approved    { background: #EFF8E5; color: var(--solar-green-dark); }
+.status-retake      { background: #FBE8EA; color: var(--accent-rose); }
+
+/* MODAL */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(15,32,56,0.5); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--s-4); z-index: 100;
+}
+.modal {
+  background: var(--surface-white); border-radius: var(--r-lg);
+  max-width: 720px; width: 100%; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 14px 40px rgba(15,32,56,0.3);
+}
+.modal .modal-head {
+  padding: var(--s-5); border-bottom: 1px solid var(--hairline);
+  display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-3);
+}
+.modal .modal-head h3 { margin-bottom: 4px; }
+.modal .modal-head .meta { font-size: 0.8125rem; color: var(--text-muted); }
+.modal .modal-head .close {
+  background: none; border: none; cursor: pointer; font-size: 1.5rem;
+  color: var(--text-muted); line-height: 1; padding: 0;
+}
+.modal .modal-body { padding: var(--s-5); }
+.modal .modal-foot {
+  padding: var(--s-4) var(--s-5); border-top: 1px solid var(--hairline);
+  background: var(--surface-raised);
+  display: flex; gap: var(--s-2); justify-content: flex-end; flex-wrap: wrap;
+}
+
+.response-item {
+  padding: var(--s-4); border-bottom: 1px solid var(--hairline-soft);
+}
+.response-item:last-child { border-bottom: none; }
+.response-item .q-line { font-weight: 500; color: var(--ink); margin-bottom: 6px; }
+.response-item .q-tag { font-size: 0.6875rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.response-item .answer {
+  background: var(--surface-raised); border: 1px solid var(--hairline-soft);
+  border-radius: var(--r-sm); padding: var(--s-3); margin-top: var(--s-2);
+  font-size: 0.9375rem;
+}
+.response-item .verdict-row { margin-top: var(--s-2); display: flex; gap: var(--s-2); align-items: center; font-size: 0.8125rem; }
+.response-item .verdict-row label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+
+.empty {
+  text-align: center; padding: var(--s-6) var(--s-4);
+  color: var(--text-muted); font-size: 0.9375rem;
+  background: var(--surface-raised); border: 1px dashed var(--hairline);
+  border-radius: var(--r-md);
+}
+
+.filter-row {
+  display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap;
+  margin-bottom: var(--s-4);
+}
+.filter-row .chip {
+  padding: 6px 14px; border: 1px solid var(--hairline);
+  border-radius: 999px; background: var(--surface-white);
+  font-size: 0.8125rem; color: var(--text-muted); cursor: pointer;
+  font-weight: 500; transition: all 0.15s;
+}
+.filter-row .chip.active { background: var(--ink); color: #FFFFFF; border-color: var(--ink); }
+
+.page-footer { background: var(--ink); color: rgba(255,255,255,0.7); padding: var(--s-5) 0; text-align: center; font-size: 0.8125rem; }
+
+@media (max-width: 720px) {
+  table.data thead { display: none; }
+  table.data, table.data tbody, table.data tr, table.data td { display: block; width: 100%; }
+  table.data tr { border-bottom: 1px solid var(--hairline); padding: var(--s-3) 0; }
+  table.data td { padding: 4px var(--s-4); border: none; }
+  table.data td::before { content: attr(data-label); font-weight: 600; display: inline-block; width: 120px; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIGN-IN -->
+<div id="signin-view" class="signin-wrap">
+  <div class="signin-card">
+    <div class="logo-row">
+      <span class="dot"></span>
+      <span>CT Traditional · Manager Access</span>
+    </div>
+    <h2>Manager Portal</h2>
+    <p class="subtitle">Sign in with your manager email.</p>
+
+    <div class="signin-tabs">
+      <button id="tab-magic" class="active" onclick="setAuthMode('magic')">Magic link</button>
+      <button id="tab-password" onclick="setAuthMode('password')">Password</button>
+    </div>
+
+    <div id="signin-msg"></div>
+
+    <form id="signin-form" onsubmit="handleSignin(event)">
+      <div class="form-group">
+        <label for="si-email">Email</label>
+        <input type="email" id="si-email" required autocomplete="email">
+      </div>
+      <div class="form-group" id="password-group" style="display:none;">
+        <label for="si-password">Password</label>
+        <input type="password" id="si-password" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-full" id="signin-btn">Send magic link</button>
+    </form>
+  </div>
+</div>
+
+<!-- SHELL -->
+<div id="app-shell" style="display:none;">
+
+<header class="page-header">
+  <div class="wrap">
+    <div class="title-block">
+      <span class="eyebrow">CT Traditional · Manager Access</span>
+      <h1>Traditional Sales University</h1>
+    </div>
+    <div class="user">
+      <span>Signed in as <span class="name" id="header-name">...</span></span>
+      <button onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="active" data-tab="queue" onclick="setTab('queue')">
+      Review Queue <span class="count" id="queue-count" style="display:none;">0</span>
+    </button>
+    <button data-tab="reps" onclick="setTab('reps')">Reps</button>
+    <button data-tab="assignments" onclick="setTab('assignments')">Assignments</button>
+    <button data-tab="shadows" onclick="setTab('shadows')">Shadow Logs</button>
+    <button data-tab="help" onclick="setTab('help')">Help Requests</button>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <!-- QUEUE -->
+    <div id="view-queue" class="view active">
+      <h2>Review Queue</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Everything that needs your attention. Quiz attempts, shadow logs, and open help requests.
+      </p>
+      <div id="queue-body"></div>
+    </div>
+
+    <!-- REPS -->
+    <div id="view-reps" class="view">
+      <h2>Reps</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Your team, their progress, and their cohort status.
+      </p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3>Add a rep</h3>
+            <p>Creates a rep record. Rep signs in with their email to activate.</p>
+          </div>
+        </div>
+        <form onsubmit="addRep(event)">
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap: var(--s-3); align-items: end;">
+            <div class="form-group" style="margin:0;">
+              <label>Name</label>
+              <input type="text" id="rep-name" required>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Email</label>
+              <input type="email" id="rep-email" required>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Cohort start</label>
+              <input type="date" id="rep-cohort">
+            </div>
+            <button type="submit" class="btn btn-primary">Add rep</button>
+          </div>
+          <div id="add-rep-msg" style="margin-top: var(--s-3);"></div>
+        </form>
+      </div>
+
+      <div id="reps-table-wrap"></div>
+    </div>
+
+    <!-- ASSIGNMENTS -->
+    <div id="view-assignments" class="view">
+      <h2>Assignments</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Assign certifications to reps. Unassigned certs aren't visible to the rep.
+      </p>
+      <div id="assignments-body"></div>
+    </div>
+
+    <!-- SHADOW LOGS -->
+    <div id="view-shadows" class="view">
+      <h2>Shadow Logs</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Every shadow every rep has logged. Approve or flag.
+      </p>
+      <div class="filter-row">
+        <span style="font-size: 0.8125rem; color: var(--text-muted); font-weight: 600;">Filter:</span>
+        <button class="chip active" data-filter="all" onclick="filterShadows('all')">All</button>
+        <button class="chip" data-filter="pending" onclick="filterShadows('pending')">Pending</button>
+        <button class="chip" data-filter="approved" onclick="filterShadows('approved')">Approved</button>
+        <button class="chip" data-filter="denied" onclick="filterShadows('denied')">Denied</button>
+      </div>
+      <div id="shadows-list"></div>
+    </div>
+
+    <!-- HELP -->
+    <div id="view-help" class="view">
+      <h2>Help Requests</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Messages from reps asking for help or flagging blockers.
+      </p>
+      <div class="filter-row">
+        <span style="font-size: 0.8125rem; color: var(--text-muted); font-weight: 600;">Filter:</span>
+        <button class="chip active" data-filter="all" onclick="filterHelp('all')">All</button>
+        <button class="chip" data-filter="open" onclick="filterHelp('open')">Open</button>
+        <button class="chip" data-filter="resolved" onclick="filterHelp('resolved')">Resolved</button>
+      </div>
+      <div id="help-list"></div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="page-footer">
+  <div class="wrap">
+    <p>Trinity Solar · CT Traditional · Traditional Sales University</p>
+  </div>
+</footer>
+
+</div><!-- /shell -->
+
+<div id="modal-root"></div>
+
+<script>
+// ===================== CONFIG =====================
+const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let state = {
+  session: null,
+  manager: null,
+  reps: [],
+  certs: [],
+  assignments: [],
+  pendingAttempts: [], // with rep + cert joined
+  shadows: [],
+  help: [],
+  authMode: 'magic',
+  activeTab: 'queue',
+  shadowFilter: 'all',
+  helpFilter: 'all',
+};
+
+// ===================== AUTH =====================
+function setAuthMode(mode) {
+  state.authMode = mode;
+  document.getElementById('tab-magic').classList.toggle('active', mode === 'magic');
+  document.getElementById('tab-password').classList.toggle('active', mode === 'password');
+  document.getElementById('password-group').style.display = mode === 'password' ? 'block' : 'none';
+  document.getElementById('signin-btn').textContent = mode === 'magic' ? 'Send magic link' : 'Sign in';
+}
+
+async function handleSignin(e) {
+  e.preventDefault();
+  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const msg = document.getElementById('signin-msg');
+  const btn = document.getElementById('signin-btn');
+  msg.innerHTML = ''; btn.disabled = true;
+  try {
+    if (state.authMode === 'magic') {
+      const { error } = await supa.auth.signInWithOtp({
+        email, options: { emailRedirectTo: window.location.href }
+      });
+      if (error) throw error;
+      msg.innerHTML = '<div class="msg msg-success">Check your email.</div>';
+    } else {
+      const password = document.getElementById('si-password').value;
+      const { error } = await supa.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      await init();
+    }
+  } catch (err) {
+    msg.innerHTML = `<div class="msg msg-error">${err.message || 'Sign-in failed.'}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function signOut() { await supa.auth.signOut(); window.location.reload(); }
+
+// ===================== INIT =====================
+async function init() {
+  const { data: { session } } = await supa.auth.getSession();
+  state.session = session;
+  if (!session) {
+    document.getElementById('signin-view').style.display = 'flex';
+    document.getElementById('app-shell').style.display = 'none';
+    return;
+  }
+
+  // Manager record
+  let { data: mgr } = await supa.from('managers').select('*').eq('auth_user_id', session.user.id).maybeSingle();
+  if (!mgr) {
+    // Try link by email
+    const { data: byEmail } = await supa.from('managers').select('*').eq('email', session.user.email.toLowerCase()).maybeSingle();
+    if (byEmail && !byEmail.auth_user_id) {
+      await supa.from('managers').update({ auth_user_id: session.user.id }).eq('id', byEmail.id);
+      mgr = { ...byEmail, auth_user_id: session.user.id };
+    }
+  }
+  if (!mgr) {
+    document.getElementById('signin-view').style.display = 'flex';
+    document.getElementById('app-shell').style.display = 'none';
+    document.getElementById('signin-msg').innerHTML =
+      '<div class="msg msg-error">This email is not registered as a manager. Contact an admin.</div>';
+    await supa.auth.signOut();
+    return;
+  }
+  state.manager = mgr;
+
+  document.getElementById('signin-view').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'block';
+  document.getElementById('header-name').textContent = mgr.name;
+
+  await loadAll();
+  renderQueue();
+  renderReps();
+  renderAssignments();
+  renderShadows();
+  renderHelp();
+}
+
+async function loadAll() {
+  const [repsRes, certsRes, assignsRes, attemptsRes, shadowsRes, helpRes] = await Promise.all([
+    supa.from('reps').select('*').order('created_at', { ascending: false }),
+    supa.from('certs').select('*').order('order_index'),
+    supa.from('cert_assignments').select('*'),
+    supa.from('quiz_attempts').select('*').in('status', ['pending_review']).order('submitted_at'),
+    supa.from('shadow_logs').select('*').order('shadow_date', { ascending: false }),
+    supa.from('help_requests').select('*').order('created_at', { ascending: false }),
+  ]);
+  state.reps = repsRes.data || [];
+  state.certs = certsRes.data || [];
+  state.assignments = assignsRes.data || [];
+  state.pendingAttempts = attemptsRes.data || [];
+  state.shadows = shadowsRes.data || [];
+  state.help = helpRes.data || [];
+
+  const total = state.pendingAttempts.length +
+                state.shadows.filter(s => s.status === 'pending').length +
+                state.help.filter(h => h.status === 'open').length;
+  const badge = document.getElementById('queue-count');
+  badge.textContent = total;
+  badge.style.display = total > 0 ? 'inline-block' : 'none';
+}
+
+// ===================== TABS =====================
+function setTab(tab) {
+  state.activeTab = tab;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + tab).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== QUEUE =====================
+function renderQueue() {
+  const body = document.getElementById('queue-body');
+  const items = [];
+
+  state.pendingAttempts.forEach(a => {
+    const rep = state.reps.find(r => r.id === a.rep_id);
+    const cert = state.certs.find(c => c.id === a.cert_id);
+    items.push({
+      kind: 'quiz', date: a.submitted_at, rep, cert, attempt: a,
+    });
+  });
+  state.shadows.filter(s => s.status === 'pending').forEach(s => {
+    const rep = state.reps.find(r => r.id === s.rep_id);
+    items.push({ kind: 'shadow', date: s.created_at, rep, shadow: s });
+  });
+  state.help.filter(h => h.status === 'open').forEach(h => {
+    const rep = state.reps.find(r => r.id === h.rep_id);
+    items.push({ kind: 'help', date: h.created_at, rep, help: h });
+  });
+
+  items.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  if (!items.length) {
+    body.innerHTML = `<div class="empty">Queue is clear. Nothing pending.</div>`;
+    return;
+  }
+
+  body.innerHTML = items.map(item => {
+    if (item.kind === 'quiz') return renderQuizQueueItem(item);
+    if (item.kind === 'shadow') return renderShadowQueueItem(item);
+    if (item.kind === 'help') return renderHelpQueueItem(item);
+  }).join('');
+}
+
+function renderQuizQueueItem({ rep, cert, attempt, date }) {
+  return `
+    <div class="queue-item">
+      <div class="head">
+        <div>
+          <div class="title">${escapeHtml(rep?.name || 'Unknown rep')} · ${cert?.icon || ''} ${escapeHtml(cert?.name || 'Cert')}</div>
+          <div class="meta">Submitted ${formatDate(date)} · Auto-score ${attempt.auto_score ?? 0} / ${attempt.auto_max ?? 0}</div>
+        </div>
+        <span class="type-chip">Quiz review</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary btn-sm" onclick="openQuizReview('${attempt.id}')">Review answers</button>
+      </div>
+    </div>`;
+}
+
+function renderShadowQueueItem({ rep, shadow, date }) {
+  return `
+    <div class="queue-item shadow">
+      <div class="head">
+        <div>
+          <div class="title">${escapeHtml(rep?.name || 'Unknown')} shadowed ${escapeHtml(shadow.shadowed_rep_name)}</div>
+          <div class="meta">${formatDate(shadow.shadow_date)}${shadow.duration_minutes ? ` · ${shadow.duration_minutes} min` : ''} · Submitted ${formatDate(date)}</div>
+        </div>
+        <span class="type-chip">Shadow</span>
+      </div>
+      ${shadow.notes ? `<div class="detail-block"><div class="label">Notes</div>${escapeHtml(shadow.notes)}</div>` : ''}
+      <div class="actions">
+        <button class="btn btn-primary btn-sm" onclick="approveShadow('${shadow.id}')">Approve</button>
+        <button class="btn btn-danger btn-sm" onclick="denyShadow('${shadow.id}')">Deny</button>
+      </div>
+    </div>`;
+}
+
+function renderHelpQueueItem({ rep, help, date }) {
+  return `
+    <div class="queue-item help">
+      <div class="head">
+        <div>
+          <div class="title">${escapeHtml(rep?.name || 'Unknown')} · Help request</div>
+          <div class="meta">${formatDate(date)}</div>
+        </div>
+        <span class="type-chip">Help</span>
+      </div>
+      <div class="detail-block"><div class="label">Message</div>${escapeHtml(help.message)}</div>
+      <div class="actions">
+        <button class="btn btn-primary btn-sm" onclick="respondHelp('${help.id}')">Respond &amp; resolve</button>
+      </div>
+    </div>`;
+}
+
+// ===================== QUIZ REVIEW =====================
+async function openQuizReview(attemptId) {
+  const attempt = state.pendingAttempts.find(a => a.id === attemptId);
+  const rep = state.reps.find(r => r.id === attempt.rep_id);
+  const cert = state.certs.find(c => c.id === attempt.cert_id);
+
+  const { data: responses } = await supa
+    .from('quiz_responses')
+    .select('*, quiz_questions(*)')
+    .eq('attempt_id', attemptId);
+
+  // Sort by question order_index
+  responses.sort((a, b) => a.quiz_questions.order_index - b.quiz_questions.order_index);
+
+  const textVerdicts = {};
+  responses.forEach(r => {
+    if (r.quiz_questions.question_type === 'text') {
+      textVerdicts[r.id] = r.manager_verdict || null;
+    }
+  });
+
+  const body = `
+    <div class="modal-head">
+      <div>
+        <h3>${cert.icon || ''} ${cert.name}</h3>
+        <div class="meta">${rep.name} · Submitted ${formatDate(attempt.submitted_at)} · Auto-score ${attempt.auto_score ?? 0} / ${attempt.auto_max ?? 0}</div>
+      </div>
+      <button class="close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      ${responses.map((r, i) => {
+        const q = r.quiz_questions;
+        const isMcTf = q.question_type !== 'text';
+        let answerHtml;
+        if (q.question_type === 'mc') {
+          const opts = q.options_json || [];
+          const chosen = opts.find(o => o.key === r.response_option);
+          const correct = opts.find(o => o.key === q.correct_answer);
+          answerHtml = `
+            <div><strong>Rep answered:</strong> ${r.response_option?.toUpperCase() || '—'}. ${escapeHtml(chosen?.text || '')}
+              ${r.is_correct ? '<span class="status-badge status-approved" style="margin-left:8px;">Correct</span>' : '<span class="status-badge status-retake" style="margin-left:8px;">Incorrect</span>'}
+            </div>
+            ${!r.is_correct ? `<div style="margin-top:6px; color: var(--text-muted);"><strong>Correct:</strong> ${q.correct_answer?.toUpperCase()}. ${escapeHtml(correct?.text || '')}</div>` : ''}`;
+        } else if (q.question_type === 'tf') {
+          answerHtml = `
+            <div><strong>Rep answered:</strong> ${r.response_option}
+              ${r.is_correct ? '<span class="status-badge status-approved" style="margin-left:8px;">Correct</span>' : '<span class="status-badge status-retake" style="margin-left:8px;">Incorrect</span>'}
+            </div>
+            ${!r.is_correct ? `<div style="margin-top:6px; color: var(--text-muted);"><strong>Correct:</strong> ${q.correct_answer}</div>` : ''}`;
+        } else {
+          answerHtml = `<div>${escapeHtml(r.response_text || '—')}</div>
+            <div class="verdict-row">
+              <strong style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle);">Your verdict:</strong>
+              <label><input type="radio" name="verdict-${r.id}" value="pass" ${r.manager_verdict === 'pass' ? 'checked' : ''} onchange="setVerdict('${r.id}','pass')"> Pass</label>
+              <label><input type="radio" name="verdict-${r.id}" value="fail" ${r.manager_verdict === 'fail' ? 'checked' : ''} onchange="setVerdict('${r.id}','fail')"> Fail</label>
+            </div>`;
+        }
+        return `
+          <div class="response-item">
+            <div class="q-tag">Q${i+1} · ${q.question_type.toUpperCase()}</div>
+            <div class="q-line">${escapeHtml(q.prompt)}</div>
+            <div class="answer">${answerHtml}</div>
+          </div>`;
+      }).join('')}
+      <div class="form-group" style="margin-top: var(--s-4);">
+        <label>Manager notes to rep (optional)</label>
+        <textarea id="mgr-notes" placeholder="Feedback, coaching points, or reason for retake..."></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="finalizeAttempt('${attemptId}','retake')">Request retake</button>
+      <button class="btn btn-primary" onclick="finalizeAttempt('${attemptId}','approved')">Approve cert</button>
+    </div>
+  `;
+  openModal(body);
+  window.__textVerdicts = textVerdicts;
+  window.__attemptResponses = responses;
+}
+
+function setVerdict(responseId, verdict) {
+  window.__textVerdicts[responseId] = verdict;
+}
+
+async function finalizeAttempt(attemptId, decision) {
+  const notes = document.getElementById('mgr-notes').value.trim() || null;
+
+  // Save text verdicts
+  const updates = Object.entries(window.__textVerdicts || {}).map(([id, verdict]) =>
+    supa.from('quiz_responses').update({ manager_verdict: verdict }).eq('id', id)
+  );
+  await Promise.all(updates);
+
+  // Update attempt
+  const { error } = await supa.from('quiz_attempts').update({
+    status: decision,
+    manager_notes: notes,
+    approved_by: state.manager.id,
+    approved_at: new Date().toISOString(),
+  }).eq('id', attemptId);
+  if (error) { alert(error.message); return; }
+
+  // Update cert_assignment if approved
+  if (decision === 'approved') {
+    const attempt = state.pendingAttempts.find(a => a.id === attemptId);
+    const existing = state.assignments.find(
+      a => a.rep_id === attempt.rep_id && a.cert_id === attempt.cert_id
+    );
+    if (existing) {
+      await supa.from('cert_assignments').update({
+        status: 'approved',
+        completed_at: new Date().toISOString()
+      }).eq('id', existing.id);
+    }
+  }
+
+  closeModal();
+  await loadAll();
+  renderQueue();
+  renderReps();
+  renderAssignments();
+}
+
+// ===================== SHADOWS =====================
+async function approveShadow(id) {
+  const note = prompt('Optional note to rep (leave blank to skip):') || null;
+  await supa.from('shadow_logs').update({
+    status: 'approved',
+    approved_by: state.manager.id,
+    approved_at: new Date().toISOString(),
+    manager_note: note,
+  }).eq('id', id);
+  await loadAll();
+  renderQueue();
+  renderShadows();
+}
+
+async function denyShadow(id) {
+  const note = prompt('Reason for denial (shown to rep):');
+  if (note === null) return;
+  await supa.from('shadow_logs').update({
+    status: 'denied',
+    approved_by: state.manager.id,
+    approved_at: new Date().toISOString(),
+    manager_note: note || null,
+  }).eq('id', id);
+  await loadAll();
+  renderQueue();
+  renderShadows();
+}
+
+function filterShadows(f) {
+  state.shadowFilter = f;
+  document.querySelectorAll('#view-shadows .chip').forEach(c => c.classList.toggle('active', c.dataset.filter === f));
+  renderShadows();
+}
+
+function renderShadows() {
+  const list = document.getElementById('shadows-list');
+  const filtered = state.shadowFilter === 'all'
+    ? state.shadows
+    : state.shadows.filter(s => s.status === state.shadowFilter);
+  if (!filtered.length) { list.innerHTML = `<div class="empty">No shadow logs in this view.</div>`; return; }
+  list.innerHTML = filtered.map(s => {
+    const rep = state.reps.find(r => r.id === s.rep_id);
+    const statusClass = s.status === 'approved' ? 'status-approved' : s.status === 'denied' ? 'status-retake' : 'status-pending';
+    return `
+      <div class="queue-item shadow">
+        <div class="head">
+          <div>
+            <div class="title">${escapeHtml(rep?.name || '—')} shadowed ${escapeHtml(s.shadowed_rep_name)}</div>
+            <div class="meta">${formatDate(s.shadow_date)}${s.duration_minutes ? ` · ${s.duration_minutes} min` : ''}</div>
+          </div>
+          <span class="status-badge ${statusClass}">${s.status}</span>
+        </div>
+        ${s.notes ? `<div class="detail-block"><div class="label">Rep notes</div>${escapeHtml(s.notes)}</div>` : ''}
+        ${s.manager_note ? `<div class="detail-block"><div class="label">Your note</div>${escapeHtml(s.manager_note)}</div>` : ''}
+        ${s.status === 'pending' ? `
+          <div class="actions">
+            <button class="btn btn-primary btn-sm" onclick="approveShadow('${s.id}')">Approve</button>
+            <button class="btn btn-danger btn-sm" onclick="denyShadow('${s.id}')">Deny</button>
+          </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// ===================== HELP =====================
+async function respondHelp(id) {
+  const note = prompt('Your response to the rep:');
+  if (!note) return;
+  await supa.from('help_requests').update({
+    status: 'resolved',
+    manager_note: note,
+    resolved_by: state.manager.id,
+    resolved_at: new Date().toISOString(),
+  }).eq('id', id);
+  await loadAll();
+  renderQueue();
+  renderHelp();
+}
+
+function filterHelp(f) {
+  state.helpFilter = f;
+  document.querySelectorAll('#view-help .chip').forEach(c => c.classList.toggle('active', c.dataset.filter === f));
+  renderHelp();
+}
+
+function renderHelp() {
+  const list = document.getElementById('help-list');
+  const filtered = state.helpFilter === 'all'
+    ? state.help
+    : state.help.filter(h => h.status === state.helpFilter);
+  if (!filtered.length) { list.innerHTML = `<div class="empty">No requests in this view.</div>`; return; }
+  list.innerHTML = filtered.map(h => {
+    const rep = state.reps.find(r => r.id === h.rep_id);
+    return `
+      <div class="queue-item help">
+        <div class="head">
+          <div>
+            <div class="title">${escapeHtml(rep?.name || '—')}</div>
+            <div class="meta">${formatDate(h.created_at)}</div>
+          </div>
+          <span class="status-badge ${h.status === 'resolved' ? 'status-approved' : 'status-pending'}">${h.status}</span>
+        </div>
+        <div class="detail-block"><div class="label">Message</div>${escapeHtml(h.message)}</div>
+        ${h.manager_note ? `<div class="detail-block"><div class="label">Your response</div>${escapeHtml(h.manager_note)}</div>` : ''}
+        ${h.status === 'open' ? `
+          <div class="actions">
+            <button class="btn btn-primary btn-sm" onclick="respondHelp('${h.id}')">Respond &amp; resolve</button>
+          </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// ===================== REPS =====================
+async function addRep(e) {
+  e.preventDefault();
+  const name = document.getElementById('rep-name').value.trim();
+  const email = document.getElementById('rep-email').value.trim().toLowerCase();
+  const cohort = document.getElementById('rep-cohort').value || null;
+  const msg = document.getElementById('add-rep-msg');
+  const { error } = await supa.from('reps').insert({
+    name, email, cohort_start_date: cohort, manager_id: state.manager.id
+  });
+  if (error) { msg.innerHTML = `<div class="msg msg-error">${error.message}</div>`; return; }
+  msg.innerHTML = `<div class="msg msg-success">Rep added. Send them this link to sign in: ${window.location.origin}${window.location.pathname.replace(/manager\.html$/, '')}</div>`;
+  e.target.reset();
+  await loadAll();
+  renderReps();
+  renderAssignments();
+}
+
+function renderReps() {
+  const wrap = document.getElementById('reps-table-wrap');
+  if (!state.reps.length) { wrap.innerHTML = `<div class="empty">No reps yet. Add one above.</div>`; return; }
+
+  const s1Certs = state.certs.filter(c => c.stage === 1);
+  const s2Certs = state.certs.filter(c => c.stage === 2);
+
+  wrap.innerHTML = `
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Name</th><th>Email</th><th>Cohort day</th>
+          <th>Stage 1</th><th>Stage 2</th><th>Linked</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.reps.map(rep => {
+          const s1Done = state.assignments.filter(a =>
+            a.rep_id === rep.id && a.status === 'approved' && s1Certs.some(c => c.id === a.cert_id)
+          ).length;
+          const s2Done = state.assignments.filter(a =>
+            a.rep_id === rep.id && a.status === 'approved' && s2Certs.some(c => c.id === a.cert_id)
+          ).length;
+          const day = rep.cohort_start_date ? daysSince(rep.cohort_start_date) : '—';
+          return `
+            <tr>
+              <td data-label="Name"><strong>${escapeHtml(rep.name)}</strong></td>
+              <td data-label="Email">${escapeHtml(rep.email)}</td>
+              <td data-label="Cohort day">${day === '—' ? '—' : `Day ${day}`}</td>
+              <td data-label="Stage 1">
+                <span class="mini-bar"><span class="fill" style="width:${(s1Done/s1Certs.length)*100}%"></span></span>
+                <span style="font-family: 'SF Mono', monospace; font-size: 0.8125rem; color: var(--text-muted);">${s1Done}/${s1Certs.length}</span>
+              </td>
+              <td data-label="Stage 2">
+                <span class="mini-bar s2"><span class="fill" style="width:${(s2Done/Math.max(s2Certs.length,1))*100}%"></span></span>
+                <span style="font-family: 'SF Mono', monospace; font-size: 0.8125rem; color: var(--text-muted);">${s2Done}/${s2Certs.length}</span>
+              </td>
+              <td data-label="Linked">${rep.auth_user_id ? '<span class="status-badge status-approved">Yes</span>' : '<span class="status-badge status-not-started">No</span>'}</td>
+            </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ===================== ASSIGNMENTS =====================
+function renderAssignments() {
+  const body = document.getElementById('assignments-body');
+  if (!state.reps.length) { body.innerHTML = `<div class="empty">Add a rep first.</div>`; return; }
+
+  body.innerHTML = state.reps.map(rep => {
+    const repAssigns = state.assignments.filter(a => a.rep_id === rep.id);
+    return `
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3>${escapeHtml(rep.name)}</h3>
+            <p>${escapeHtml(rep.email)}</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="bulkAssign('${rep.id}', 1)">Assign all Stage 1</button>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-3);">
+          ${state.certs.map(c => {
+            const assigned = repAssigns.find(a => a.cert_id === c.id);
+            const completed = assigned && assigned.status === 'approved';
+            return `
+              <div style="padding: var(--s-3); border: 1px solid var(--hairline); border-radius: var(--r-sm); background: ${assigned ? 'var(--surface-raised)' : 'var(--surface-white)'};">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                  <div>
+                    <div style="font-size: 0.875rem; font-weight: 600;">${c.icon || ''} ${escapeHtml(c.name)}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px;">Stage ${c.stage} · ${c.core}</div>
+                  </div>
+                  <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <input type="checkbox" ${assigned ? 'checked' : ''} ${completed ? 'disabled' : ''}
+                           onchange="toggleAssign('${rep.id}', '${c.id}', this.checked)">
+                  </label>
+                </div>
+                ${assigned ? `<div style="margin-top: 6px;"><span class="status-badge status-${assigned.status === 'approved' ? 'approved' : assigned.status === 'pending_review' ? 'pending' : assigned.status === 'retake' ? 'retake' : 'in-progress'}">${assigned.status.replace('_', ' ')}</span></div>` : ''}
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function toggleAssign(repId, certId, assign) {
+  if (assign) {
+    const { error } = await supa.from('cert_assignments').insert({
+      rep_id: repId, cert_id: certId, assigned_by: state.manager.id,
+    });
+    if (error && !error.message.includes('duplicate')) { alert(error.message); return; }
+  } else {
+    const existing = state.assignments.find(a => a.rep_id === repId && a.cert_id === certId);
+    if (existing && existing.status !== 'approved') {
+      await supa.from('cert_assignments').delete().eq('id', existing.id);
+    }
+  }
+  await loadAll();
+  renderAssignments();
+  renderReps();
+}
+
+async function bulkAssign(repId, stage) {
+  const certsInStage = state.certs.filter(c => c.stage === stage);
+  const existing = state.assignments.filter(a => a.rep_id === repId).map(a => a.cert_id);
+  const rows = certsInStage
+    .filter(c => !existing.includes(c.id))
+    .map(c => ({ rep_id: repId, cert_id: c.id, assigned_by: state.manager.id }));
+  if (!rows.length) return;
+  const { error } = await supa.from('cert_assignments').insert(rows);
+  if (error) { alert(error.message); return; }
+  await loadAll();
+  renderAssignments();
+  renderReps();
+}
+
+// ===================== MODAL =====================
+function openModal(html) {
+  document.getElementById('modal-root').innerHTML = `<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`;
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal-root').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+// ===================== UTILS =====================
+function formatDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function daysSince(d) {
+  if (!d) return 0;
+  return Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 86400000));
+}
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[m]));
+}
+
+// ===================== BOOT =====================
+supa.auth.onAuthStateChange((_event, session) => {
+  if (session && !state.session) {
+    state.session = session;
+    init();
+  }
+});
+init();
+</script>
+</body>
+</html>
