@@ -345,6 +345,47 @@ strong { font-weight: 700; }
   .tool-grid { grid-template-columns: repeat(2, 1fr); }
   .stage-card .stage-header .cert-badge { display: none; }
 }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: var(--r-md);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn-primary {
+  background: var(--solar-green);
+  color: var(--ink);
+  box-shadow: 0 4px 14px rgba(120,200,50,0.35);
+}
+.btn-primary:hover {
+  background: var(--solar-green-dark);
+  box-shadow: 0 6px 20px rgba(120,200,50,0.45);
+}
+.btn-secondary {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.2);
+}
+@media (max-width: 640px) {
+  #portal-cta [style*="grid-template-columns"] {
+    grid-template-columns: 1fr;
+  }
+  #portal-cta .btn { width: 100%; justify-content: center; }
+}
 </style>
 </head>
 <body>
@@ -555,6 +596,12 @@ strong { font-weight: 700; }
       font-weight: 800;
       border-bottom-color: var(--solar-green);
     }
+    .gantt-ruler-cell.zone-field {
+      background: rgba(45,197,162,0.12);
+      color: #0e5e4e;
+      font-weight: 800;
+      border-bottom-color: #2DC5A2;
+    }
     .gantt-ruler-cell.zone-s2 {
       background: rgba(41,169,225,0.08);
       color: var(--totalhome-blue-dark);
@@ -584,8 +631,14 @@ strong { font-weight: 700; }
       color: var(--solar-green-dark);
       border-radius: 0 0 4px 4px;
     }
+    .stage-label-cell.field {
+      grid-column: 6 / 8;
+      background: rgba(45,197,162,0.12);
+      color: #0e5e4e;
+      border-radius: 0 0 4px 4px;
+    }
     .stage-label-cell.s2 {
-      grid-column: 6 / 15;
+      grid-column: 8 / 15;
       background: rgba(41,169,225,0.08);
       color: var(--totalhome-blue-dark);
       border-radius: 0 0 4px 4px;
@@ -703,6 +756,7 @@ strong { font-weight: 700; }
     .gb-green-lite { background: rgba(120,200,50,0.2); color: var(--solar-green-dark); border: 1px solid rgba(120,200,50,0.4); }
     .gb-blue-lite  { background: rgba(41,169,225,0.18); color: var(--totalhome-blue-dark); border: 1px solid rgba(41,169,225,0.3); }
     .gb-gold-lite  { background: rgba(233,166,72,0.25); color: #7a4d00; border: 1px solid rgba(233,166,72,0.4); }
+    .gb-field { background: linear-gradient(90deg, #2DC5A2, #1E9E82); color: #fff; }
 
     /* short bar: show a pill dot + tooltip */
     .gbar.short { padding: 0; justify-content: center; min-width: 12px; }
@@ -1089,6 +1143,7 @@ strong { font-weight: 700; }
         <div class="rm-legend-item"><div class="rm-legend-dot" style="background:var(--totalhome-blue)"></div>Roofing</div>
         <div class="rm-legend-item"><div class="rm-legend-dot" style="background:var(--accent-warm)"></div>Sales</div>
         <div class="rm-legend-item"><div class="rm-legend-dot" style="background:var(--ink)"></div>Tech / Field</div>
+        <div class="rm-legend-item"><div class="rm-legend-dot" style="background:#2DC5A2"></div>Field Practice</div>
         <span class="rm-legend-hint">Hover short bars to read label &nbsp;·&nbsp; Each column = 1 week</span>
       </div>
 
@@ -1100,6 +1155,7 @@ strong { font-weight: 700; }
         <div class="gantt-stage-labels">
           <div style="position:sticky;left:0;z-index:6;background:var(--surface-white);"></div>
           <div class="stage-label-cell s1">— Stage 1 Academy —</div>
+          <div class="stage-label-cell field">— Field Practice —</div>
           <div class="stage-label-cell s2">— Stage 2 · Full Production —</div>
         </div>
 
@@ -1111,8 +1167,8 @@ strong { font-weight: 700; }
           <div class="gantt-ruler-cell zone-s1">Wk 2</div>
           <div class="gantt-ruler-cell zone-s1" style="font-weight:900;">Wk 3 ★</div>
           <div class="gantt-ruler-cell zone-s1">Wk 4</div>
-          <div class="gantt-ruler-cell zone-s2" style="border-left:2px solid var(--totalhome-blue);">Wk 5</div>
-          <div class="gantt-ruler-cell zone-s2">Wk 6</div>
+          <div class="gantt-ruler-cell zone-field" style="border-left:2px solid #2DC5A2;">Wk 5</div>
+          <div class="gantt-ruler-cell zone-field">Wk 6</div>
           <div class="gantt-ruler-cell zone-s2">Wk 7</div>
           <div class="gantt-ruler-cell zone-s2">Wk 8</div>
           <div class="gantt-ruler-cell zone-s2" style="font-weight:900;">Wk 9 ★</div>
@@ -1127,6 +1183,7 @@ strong { font-weight: 700; }
           <div class="gantt-track">
             <div class="gbar gb-gold short" data-tip="Pre-Work: PPA review, pitch script, 10 names" style="left:0%;width:calc(100%/13)"><span>Pre-Work</span></div>
             <div class="gbar gb-green" data-tip="Week 1 & 2 Academy: Tools, product, pitch, objections" style="left:calc(100%/13);width:calc(200%/13)"><span>Wk 1–2 Academy</span></div>
+            <div class="gbar gb-blue short" data-tip="Stage 2 Classroom Return (Wk 7): Advanced content, DISC, combo deals, competitive strategy" style="left:calc(700%/13);width:calc(100%/13)"><span>Stage 2 Return</span></div>
           </div>
         </div>
         <div class="gantt-row-spacer"></div>
@@ -1136,7 +1193,7 @@ strong { font-weight: 700; }
           <div class="gantt-row-label">Solar Core</div>
           <div class="gantt-track">
             <div class="gbar gb-green short" data-tip="Solar 101: How solar works, net metering, PPA, elevator pitch, system design" style="left:calc(100%/13);width:calc(100%/13)"><span>Solar 101</span></div>
-            <div class="gbar gb-green-lite" data-tip="Solar 201: 1-touch selling, DISC, advanced objections, add-ons, multifamily" style="left:calc(500%/13);width:calc(800%/13)"><span>Solar 201 — Advanced</span></div>
+            <div class="gbar gb-green-lite" data-tip="Solar 201: 1-touch selling, DISC, advanced objections, add-ons, multifamily" style="left:calc(700%/13);width:calc(600%/13)"><span>Solar 201 — Advanced</span></div>
           </div>
         </div>
         <div class="gantt-row-spacer"></div>
@@ -1146,7 +1203,7 @@ strong { font-weight: 700; }
           <div class="gantt-row-label">Roof Core</div>
           <div class="gantt-track">
             <div class="gbar gb-blue short" data-tip="Roof 101: IKO Dynasty, how to start the conversation, two warranties, combo opportunity" style="left:calc(100%/13);width:calc(100%/13)"><span>Roof 101</span></div>
-            <div class="gbar gb-blue-lite" data-tip="Roof 201: ArmourZone, IKO vs. GAF vs. OC, competitive strategy, custom pricing" style="left:calc(500%/13);width:calc(800%/13)"><span>Roof 201 — Advanced</span></div>
+            <div class="gbar gb-blue-lite" data-tip="Roof 201: ArmourZone, IKO vs. GAF vs. OC, competitive strategy, custom pricing" style="left:calc(700%/13);width:calc(600%/13)"><span>Roof 201 — Advanced</span></div>
           </div>
         </div>
         <div class="gantt-row-spacer"></div>
@@ -1156,7 +1213,7 @@ strong { font-weight: 700; }
           <div class="gantt-row-label">Sales Core</div>
           <div class="gantt-track">
             <div class="gbar gb-gold short" data-tip="Sales 101: 10-step process, concept vs. closing sale, objection handling, mock pitch" style="left:calc(200%/13);width:calc(100%/13)"><span>Sales 101</span></div>
-            <div class="gbar gb-gold-lite" data-tip="Sales 201: KPIs, Cobra dashboard, goal setting, DISC-adapted closes, pipeline discipline" style="left:calc(500%/13);width:calc(800%/13)"><span>Sales 201 — Advanced</span></div>
+            <div class="gbar gb-gold-lite" data-tip="Sales 201: KPIs, Cobra dashboard, goal setting, DISC-adapted closes, pipeline discipline" style="left:calc(700%/13);width:calc(600%/13)"><span>Sales 201 — Advanced</span></div>
           </div>
         </div>
         <div class="gantt-row-spacer"></div>
@@ -1166,7 +1223,7 @@ strong { font-weight: 700; }
           <div class="gantt-row-label">Tech Core</div>
           <div class="gantt-track">
             <div class="gbar gb-ink short" data-tip="Tech 101: Salesforce, OneButton, SiteCapture, Skedulo, HIS License" style="left:calc(100%/13);width:calc(100%/13)"><span>Tech 101</span></div>
-            <div class="gbar gb-muted" data-tip="Tech 201: Pipeline audit, action items, OnePay/Paycom, Constant Contact" style="left:calc(500%/13);width:calc(800%/13)"><span>Tech 201 — Advanced</span></div>
+            <div class="gbar gb-muted" data-tip="Tech 201: Pipeline audit, action items, OnePay/Paycom, Constant Contact" style="left:calc(700%/13);width:calc(600%/13)"><span>Tech 201 — Advanced</span></div>
           </div>
         </div>
         <div class="gantt-row-spacer"></div>
@@ -1177,7 +1234,8 @@ strong { font-weight: 700; }
           <div class="gantt-track">
             <div class="gbar gb-muted" data-tip="Rides & shadows from approved rep list — 10 required for certification" style="left:calc(100%/13);width:calc(300%/13)"><span>Rides &amp; Shadows — Wks 1–3</span></div>
             <div class="gbar gb-green" data-tip="Stage 1 live appointments — manager QC on every call" style="left:calc(300%/13);width:calc(200%/13)"><span>Stage 1 — Live Appts</span></div>
-            <div class="gbar gb-blue" data-tip="Stage 2 full production — all products, full independence building" style="left:calc(500%/13);width:calc(800%/13)"><span>Stage 2 — Full Production</span></div>
+            <div class="gbar gb-field" data-tip="Field Practice Window: run leads, absorb Stage 1 training, build pipeline before Stage 2 classroom return" style="left:calc(500%/13);width:calc(200%/13)"><span>Field Practice</span></div>
+            <div class="gbar gb-blue" data-tip="Stage 2 full production — all products, full independence building" style="left:calc(700%/13);width:calc(600%/13)"><span>Stage 2 — Full Production</span></div>
           </div>
         </div>
         <div class="gantt-row-spacer"></div>
@@ -1262,6 +1320,36 @@ strong { font-weight: 700; }
       </div><!-- /gantt-scroll -->
       </div><!-- /gantt-scroll-wrap -->
     </div><!-- /rm-body -->
+
+    <!-- FIELD PRACTICE WINDOW NARRATIVE -->
+    <div style="background:rgba(45,197,162,0.06);border:1px solid rgba(45,197,162,0.25);border-left:4px solid #2DC5A2;border-radius:var(--r-md);padding:var(--s-4) var(--s-5);margin-top:var(--s-4);margin-bottom:var(--s-5);">
+      <div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3);">
+        <span style="font-size:1.25rem;">🌱</span>
+        <div>
+          <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:#0e5e4e;margin-bottom:2px;">Weeks 5–6 &nbsp;·&nbsp; Field Practice Window</div>
+          <div style="font-family:'Fraunces',serif;font-size:1rem;font-weight:500;color:var(--ink);">Between Stage 1 and Stage 2: Time to Practice What You've Learned</div>
+        </div>
+      </div>
+      <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:var(--s-3);">After graduating Stage 1, you don't go straight into Stage 2 classroom. You go into the field for two weeks -- running real appointments with real leads, under manager QC, with the fundamentals you've built. This is intentional.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--s-3);">
+        <div style="background:var(--surface-white);border:1px solid var(--hairline);border-radius:var(--r-sm);padding:var(--s-3);">
+          <div style="font-size:0.7rem;font-weight:800;color:#0e5e4e;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">What you're doing</div>
+          <div style="font-size:0.8125rem;color:var(--text-muted);">Running live appointments. Setting self-gen leads. Logging shadows. Building early pipeline. Asking for referrals.</div>
+        </div>
+        <div style="background:var(--surface-white);border:1px solid var(--hairline);border-radius:var(--r-sm);padding:var(--s-3);">
+          <div style="font-size:0.7rem;font-weight:800;color:#0e5e4e;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">What you're building</div>
+          <div style="font-size:0.8125rem;color:var(--text-muted);">Muscle memory for the pitch. Confidence handling objections live. A pipeline to work when Stage 2 starts. Real questions for the classroom.</div>
+        </div>
+        <div style="background:var(--surface-white);border:1px solid var(--hairline);border-radius:var(--r-sm);padding:var(--s-3);">
+          <div style="font-size:0.7rem;font-weight:800;color:#0e5e4e;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">What managers are watching</div>
+          <div style="font-size:0.8125rem;color:var(--text-muted);">Activity levels. Appointment quality via QC calls. How well Stage 1 fundamentals transferred. Whether the rep is ready to absorb Stage 2 material.</div>
+        </div>
+        <div style="background:var(--surface-white);border:1px solid var(--hairline);border-radius:var(--r-sm);padding:var(--s-3);">
+          <div style="font-size:0.7rem;font-weight:800;color:#0e5e4e;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">When Stage 2 starts</div>
+          <div style="font-size:0.8125rem;color:var(--text-muted);">Week 7. You return to the classroom with real field experience. The advanced material -- DISC, 1-touch selling, combo deals -- lands differently when you've already been in homes.</div>
+        </div>
+      </div>
+    </div>
 
     <!-- BOTTOM PANELS: MICRO-CERTS + GRADUATION -->
     <div class="rm-panels">
@@ -2811,6 +2899,36 @@ strong { font-weight: 700; }
 
 
 <!-- 1. TRAINING STRUCTURE -->
+
+
+<!-- PORTAL CTA -->
+<section id="portal-cta" style="padding: var(--s-7) 0; background: var(--surface);">
+  <div class="wrap">
+    <div style="
+      background: var(--ink);
+      border-radius: var(--r-lg);
+      padding: var(--s-6);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: var(--s-5);
+      color: #FFFFFF;
+      box-shadow: var(--shadow-lg);
+      border-bottom: 3px solid var(--solar-green);
+    ">
+      <div>
+        <span style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--solar-green);">Rep Portal</span>
+        <h2 style="color: #FFFFFF; margin: var(--s-2) 0 var(--s-3); font-size: clamp(1.5rem, 2.5vw, 2rem);">Track your certifications.</h2>
+        <p style="color: rgba(255,255,255,0.75); margin: 0; max-width: 560px;">
+          Take micro-cert quizzes, log your shadows, upload your evidence, and see exactly where you are against graduation. Signed off by your manager.
+        </p>
+      </div>
+      <a href="/traditional-university/" class="btn btn-primary" style="white-space: nowrap; font-size: 1rem;">
+        Open the portal &rarr;
+      </a>
+    </div>
+  </div>
+</section>
 
 <footer class="page-footer">
   <strong>CT Traditional · Trinity Solar</strong> &nbsp;|&nbsp; Traditional Sales University &nbsp;|&nbsp; Internal Use Only
