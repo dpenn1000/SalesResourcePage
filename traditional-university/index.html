@@ -593,7 +593,7 @@ let state = {
 };
 
 // ===================== AUTH =====================
-const SYNTHETIC_DOMAIN = 'auth.ct-resource-page.com';
+const SYNTHETIC_DOMAIN = 'ct-resource-page.com';
 const nickToEmail = n => `${String(n || '').trim().toLowerCase()}@${SYNTHETIC_DOMAIN}`;
 const emailToNick = e => (e || '').split('@')[0];
 const validNick = n => /^[a-zA-Z0-9_-]{3,30}$/.test(n || '');
