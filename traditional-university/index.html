@@ -357,7 +357,7 @@ main { padding: var(--s-7) 0 var(--s-8); min-height: 70vh; }
     <form id="signin-form" onsubmit="handleSignin(event)">
       <div class="form-group">
         <label for="si-nickname">Nickname</label>
-        <input type="text" id="si-nickname" required autocomplete="username" placeholder="e.g., dpenn" pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 characters. Letters, numbers, underscore, hyphen.">
+        <input type="text" id="si-nickname" required autocomplete="username" placeholder="e.g., dpenn" pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 characters. Letters, numbers, underscore, hyphen.">
         <div class="hint">The handle your manager set you up with.</div>
       </div>
       <div class="form-group">
@@ -593,7 +593,7 @@ let state = {
 };
 
 // ===================== AUTH =====================
-const SYNTHETIC_DOMAIN = 'ct-portal.local';
+const SYNTHETIC_DOMAIN = 'auth.ct-resource-page.com';
 const nickToEmail = n => `${String(n || '').trim().toLowerCase()}@${SYNTHETIC_DOMAIN}`;
 const emailToNick = e => (e || '').split('@')[0];
 const validNick = n => /^[a-zA-Z0-9_-]{3,30}$/.test(n || '');
