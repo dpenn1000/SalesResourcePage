@@ -350,27 +350,28 @@ main { padding: var(--s-7) 0 var(--s-8); min-height: 70vh; }
       <span>CT Traditional · Trinity Solar</span>
     </div>
     <h2>Rep Portal</h2>
-    <p class="subtitle">Sign in with the email your manager set up for you.</p>
-
-    <div class="signin-tabs">
-      <button id="tab-magic" class="active" onclick="setAuthMode('magic')">Magic link</button>
-      <button id="tab-password" onclick="setAuthMode('password')">Password</button>
-    </div>
+    <p class="subtitle">Pick a nickname, set a password, and you're in. No email needed.</p>
 
     <div id="signin-msg"></div>
 
     <form id="signin-form" onsubmit="handleSignin(event)">
       <div class="form-group">
-        <label for="si-email">Email</label>
-        <input type="email" id="si-email" required autocomplete="email" placeholder="you@example.com">
+        <label for="si-nickname">Nickname</label>
+        <input type="text" id="si-nickname" required autocomplete="username" placeholder="e.g., dpenn" pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 characters. Letters, numbers, underscore, hyphen.">
+        <div class="hint">The handle your manager set you up with.</div>
       </div>
-      <div class="form-group" id="password-group" style="display:none;">
+      <div class="form-group">
         <label for="si-password">Password</label>
-        <input type="password" id="si-password" autocomplete="current-password">
-        <div class="hint">New here? Set a password by signing in with a magic link first, then set one in your account.</div>
+        <input type="password" id="si-password" required autocomplete="current-password">
+        <div class="hint" id="pw-hint">At least 6 characters.</div>
       </div>
-      <button type="submit" class="btn btn-primary btn-full" id="signin-btn">Send magic link</button>
+      <button type="submit" class="btn btn-primary btn-full" id="signin-btn">Sign in</button>
     </form>
+
+    <div style="text-align: center; margin-top: var(--s-4); font-size: 0.875rem; color: var(--text-muted);">
+      <span id="auth-toggle-text">First time here?</span>
+      <a href="#" onclick="toggleSignupMode(event)" id="auth-toggle-link" style="color: var(--totalhome-blue); font-weight: 600; text-decoration: none; margin-left: 4px;">Create account</a>
+    </div>
   </div>
 </div>
 
@@ -586,40 +587,63 @@ let state = {
   shadows: [],
   uploads: [],
   help: [],
-  authMode: 'magic',
+  authMode: 'signin',
   activeTab: 'dashboard',
   activeQuiz: null, // { cert, attempt, questions, responses }
 };
 
 // ===================== AUTH =====================
-function setAuthMode(mode) {
-  state.authMode = mode;
-  document.getElementById('tab-magic').classList.toggle('active', mode === 'magic');
-  document.getElementById('tab-password').classList.toggle('active', mode === 'password');
-  document.getElementById('password-group').style.display = mode === 'password' ? 'block' : 'none';
-  document.getElementById('signin-btn').textContent = mode === 'magic' ? 'Send magic link' : 'Sign in';
+const SYNTHETIC_DOMAIN = 'ct-portal.local';
+const nickToEmail = n => `${String(n || '').trim().toLowerCase()}@${SYNTHETIC_DOMAIN}`;
+const emailToNick = e => (e || '').split('@')[0];
+const validNick = n => /^[a-zA-Z0-9_-]{3,30}$/.test(n || '');
+
+function toggleSignupMode(e) {
+  if (e) e.preventDefault();
+  state.authMode = state.authMode === 'signup' ? 'signin' : 'signup';
+  const isSignup = state.authMode === 'signup';
+  document.getElementById('signin-btn').textContent = isSignup ? 'Create account' : 'Sign in';
+  document.getElementById('auth-toggle-text').textContent = isSignup ? 'Already have an account?' : 'First time here?';
+  document.getElementById('auth-toggle-link').textContent = isSignup ? 'Sign in' : 'Create account';
+  document.getElementById('si-password').autocomplete = isSignup ? 'new-password' : 'current-password';
+  document.getElementById('pw-hint').textContent = isSignup
+    ? 'Pick something at least 6 characters. You\'ll use this to sign in from now on.'
+    : 'At least 6 characters.';
+  document.getElementById('signin-msg').innerHTML = '';
 }
 
 async function handleSignin(e) {
   e.preventDefault();
-  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const nickname = document.getElementById('si-nickname').value.trim().toLowerCase();
+  const password = document.getElementById('si-password').value;
   const msg = document.getElementById('signin-msg');
   const btn = document.getElementById('signin-btn');
   msg.innerHTML = '';
+
+  if (!validNick(nickname)) {
+    msg.innerHTML = '<div class="msg msg-error">Nickname must be 3-30 characters. Letters, numbers, underscore, or hyphen only.</div>';
+    return;
+  }
+
   btn.disabled = true;
+  const syntheticEmail = nickToEmail(nickname);
 
   try {
-    if (state.authMode === 'magic') {
-      const { error } = await supa.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: window.location.href }
-      });
+    if (state.authMode === 'signup') {
+      const { data, error } = await supa.auth.signUp({ email: syntheticEmail, password });
       if (error) throw error;
-      msg.innerHTML = '<div class="msg msg-success">Check your email for a sign-in link.</div>';
+      if (!data.session) {
+        msg.innerHTML = '<div class="msg msg-error">Account created, but email confirmation is still enabled in Supabase. Ask your admin to turn off "Confirm email" in Authentication settings.</div>';
+        return;
+      }
+      await init();
     } else {
-      const password = document.getElementById('si-password').value;
-      const { error } = await supa.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const { error } = await supa.auth.signInWithPassword({ email: syntheticEmail, password });
+      if (error) {
+        const cleaned = /invalid login credentials/i.test(error.message)
+          ? 'Nickname or password is incorrect.' : error.message;
+        throw new Error(cleaned);
+      }
       await init();
     }
   } catch (err) {
@@ -653,22 +677,29 @@ async function init() {
     .maybeSingle();
 
   if (error || !rep) {
-    // Not yet linked. Check by email and force re-link attempt.
-    const email = session.user.email;
-    const { data: repByEmail } = await supa
-      .from('reps')
-      .select('*')
-      .eq('email', email.toLowerCase())
-      .maybeSingle();
+    // Not linked yet. Figure out whether this is a synthetic-email signup
+    // (extract nickname) or a legacy real-email signup.
+    const authEmail = session.user.email || '';
+    const isSynthetic = authEmail.endsWith('@' + SYNTHETIC_DOMAIN);
+    let repByLookup = null;
 
-    if (repByEmail && !repByEmail.auth_user_id) {
-      await supa.from('reps').update({ auth_user_id: session.user.id }).eq('id', repByEmail.id);
-      state.rep = { ...repByEmail, auth_user_id: session.user.id };
+    if (isSynthetic) {
+      const nick = emailToNick(authEmail).toLowerCase();
+      const r = await supa.from('reps').select('*').ilike('nickname', nick).maybeSingle();
+      repByLookup = r.data;
+    } else {
+      const r = await supa.from('reps').select('*').eq('email', authEmail.toLowerCase()).maybeSingle();
+      repByLookup = r.data;
+    }
+
+    if (repByLookup && !repByLookup.auth_user_id) {
+      await supa.from('reps').update({ auth_user_id: session.user.id }).eq('id', repByLookup.id);
+      state.rep = { ...repByLookup, auth_user_id: session.user.id };
     } else {
       document.getElementById('signin-view').style.display = 'flex';
       document.getElementById('app-shell').style.display = 'none';
       document.getElementById('signin-msg').innerHTML =
-        '<div class="msg msg-error">No rep account found for this email. Ask your manager to add you to the portal first.</div>';
+        '<div class="msg msg-error">No rep account found with that nickname. Ask your manager to add you to the portal first.</div>';
       await supa.auth.signOut();
       return;
     }
