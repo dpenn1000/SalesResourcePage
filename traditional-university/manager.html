@@ -291,26 +291,27 @@ table.data tbody tr:hover { background: #F5F7F0; }
       <span>CT Traditional · Manager Access</span>
     </div>
     <h2>Manager Portal</h2>
-    <p class="subtitle">Sign in with your manager email.</p>
-
-    <div class="signin-tabs">
-      <button id="tab-magic" class="active" onclick="setAuthMode('magic')">Magic link</button>
-      <button id="tab-password" onclick="setAuthMode('password')">Password</button>
-    </div>
+    <p class="subtitle">Sign in with your manager nickname.</p>
 
     <div id="signin-msg"></div>
 
     <form id="signin-form" onsubmit="handleSignin(event)">
       <div class="form-group">
-        <label for="si-email">Email</label>
-        <input type="email" id="si-email" required autocomplete="email">
+        <label for="si-nickname">Nickname</label>
+        <input type="text" id="si-nickname" required autocomplete="username" pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 characters. Letters, numbers, underscore, hyphen.">
       </div>
-      <div class="form-group" id="password-group" style="display:none;">
+      <div class="form-group">
         <label for="si-password">Password</label>
-        <input type="password" id="si-password" autocomplete="current-password">
+        <input type="password" id="si-password" required autocomplete="current-password">
+        <div class="hint" id="pw-hint">At least 6 characters.</div>
       </div>
-      <button type="submit" class="btn btn-primary btn-full" id="signin-btn">Send magic link</button>
+      <button type="submit" class="btn btn-primary btn-full" id="signin-btn">Sign in</button>
     </form>
+
+    <div style="text-align: center; margin-top: var(--s-4); font-size: 0.875rem; color: var(--text-muted);">
+      <span id="auth-toggle-text">First time here?</span>
+      <a href="#" onclick="toggleSignupMode(event)" id="auth-toggle-link" style="color: var(--totalhome-blue); font-weight: 600; text-decoration: none; margin-left: 4px;">Create account</a>
+    </div>
   </div>
 </div>
 
@@ -338,6 +339,7 @@ table.data tbody tr:hover { background: #F5F7F0; }
     <button data-tab="reps" onclick="setTab('reps')">Reps</button>
     <button data-tab="assignments" onclick="setTab('assignments')">Assignments</button>
     <button data-tab="shadows" onclick="setTab('shadows')">Shadow Logs</button>
+    <button data-tab="managers" onclick="setTab('managers')">Managers</button>
     <button data-tab="help" onclick="setTab('help')">Help Requests</button>
   </div>
 </nav>
@@ -369,14 +371,18 @@ table.data tbody tr:hover { background: #F5F7F0; }
           </div>
         </div>
         <form onsubmit="addRep(event)">
-          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr auto; gap: var(--s-3); align-items: end;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: var(--s-3); align-items: end;">
             <div class="form-group" style="margin:0;">
               <label>Name</label>
-              <input type="text" id="rep-name" required>
+              <input type="text" id="rep-name" required placeholder="Full name">
             </div>
             <div class="form-group" style="margin:0;">
-              <label>Email</label>
-              <input type="email" id="rep-email" required>
+              <label>Nickname <span style="color: var(--accent-rose);">*</span></label>
+              <input type="text" id="rep-nickname" required pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen." placeholder="e.g., janer">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+              <input type="email" id="rep-email" placeholder="optional">
             </div>
             <div class="form-group" style="margin:0;">
               <label>Cohort start</label>
@@ -414,6 +420,48 @@ table.data tbody tr:hover { background: #F5F7F0; }
         <button class="chip" data-filter="denied" onclick="filterShadows('denied')">Denied</button>
       </div>
       <div id="shadows-list"></div>
+    </div>
+
+    <!-- MANAGERS -->
+    <div id="view-managers" class="view">
+      <h2>Managers</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Add, edit, or remove managers. Any manager here can manage the list.
+      </p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3>Add a manager</h3>
+            <p>They'll sign in at this portal with the email you set.</p>
+          </div>
+        </div>
+        <form onsubmit="addManager(event)">
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr auto auto; gap: var(--s-3); align-items: end;">
+            <div class="form-group" style="margin:0;">
+              <label>Name</label>
+              <input type="text" id="mgr-name" required>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Nickname <span style="color: var(--accent-rose);">*</span></label>
+              <input type="text" id="mgr-nickname" required pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen." placeholder="e.g., dpenn">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+              <input type="email" id="mgr-email" placeholder="optional">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label style="display:flex; align-items:center; gap:6px; padding-bottom: 6px;">
+                <input type="checkbox" id="mgr-admin" style="width:auto;"> Admin
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Add manager</button>
+          </div>
+          <div id="add-mgr-msg" style="margin-top: var(--s-3);"></div>
+        </form>
+      </div>
+
+      <div id="managers-table-wrap"></div>
     </div>
 
     <!-- HELP -->
@@ -454,43 +502,70 @@ let state = {
   session: null,
   manager: null,
   reps: [],
+  managers: [],
   certs: [],
   assignments: [],
   pendingAttempts: [], // with rep + cert joined
   shadows: [],
   help: [],
-  authMode: 'magic',
+  authMode: 'signin',
   activeTab: 'queue',
   shadowFilter: 'all',
   helpFilter: 'all',
 };
 
 // ===================== AUTH =====================
-function setAuthMode(mode) {
-  state.authMode = mode;
-  document.getElementById('tab-magic').classList.toggle('active', mode === 'magic');
-  document.getElementById('tab-password').classList.toggle('active', mode === 'password');
-  document.getElementById('password-group').style.display = mode === 'password' ? 'block' : 'none';
-  document.getElementById('signin-btn').textContent = mode === 'magic' ? 'Send magic link' : 'Sign in';
+const SYNTHETIC_DOMAIN = 'ct-portal.local';
+const nickToEmail = n => `${String(n || '').trim().toLowerCase()}@${SYNTHETIC_DOMAIN}`;
+const emailToNick = e => (e || '').split('@')[0];
+const validNick = n => /^[a-zA-Z0-9_-]{3,30}$/.test(n || '');
+
+function toggleSignupMode(e) {
+  if (e) e.preventDefault();
+  state.authMode = state.authMode === 'signup' ? 'signin' : 'signup';
+  const isSignup = state.authMode === 'signup';
+  document.getElementById('signin-btn').textContent = isSignup ? 'Create account' : 'Sign in';
+  document.getElementById('auth-toggle-text').textContent = isSignup ? 'Already have an account?' : 'First time here?';
+  document.getElementById('auth-toggle-link').textContent = isSignup ? 'Sign in' : 'Create account';
+  document.getElementById('si-password').autocomplete = isSignup ? 'new-password' : 'current-password';
+  document.getElementById('pw-hint').textContent = isSignup
+    ? 'Pick something at least 6 characters. You\'ll use this to sign in from now on.'
+    : 'At least 6 characters.';
+  document.getElementById('signin-msg').innerHTML = '';
 }
 
 async function handleSignin(e) {
   e.preventDefault();
-  const email = document.getElementById('si-email').value.trim().toLowerCase();
+  const nickname = document.getElementById('si-nickname').value.trim().toLowerCase();
+  const password = document.getElementById('si-password').value;
   const msg = document.getElementById('signin-msg');
   const btn = document.getElementById('signin-btn');
-  msg.innerHTML = ''; btn.disabled = true;
+  msg.innerHTML = '';
+
+  if (!validNick(nickname)) {
+    msg.innerHTML = '<div class="msg msg-error">Nickname must be 3-30 characters. Letters, numbers, underscore, or hyphen only.</div>';
+    return;
+  }
+
+  btn.disabled = true;
+  const syntheticEmail = nickToEmail(nickname);
+
   try {
-    if (state.authMode === 'magic') {
-      const { error } = await supa.auth.signInWithOtp({
-        email, options: { emailRedirectTo: window.location.href }
-      });
+    if (state.authMode === 'signup') {
+      const { data, error } = await supa.auth.signUp({ email: syntheticEmail, password });
       if (error) throw error;
-      msg.innerHTML = '<div class="msg msg-success">Check your email.</div>';
+      if (!data.session) {
+        msg.innerHTML = '<div class="msg msg-error">Account created, but email confirmation is still enabled in Supabase. Turn off "Confirm email" in Authentication settings.</div>';
+        return;
+      }
+      await init();
     } else {
-      const password = document.getElementById('si-password').value;
-      const { error } = await supa.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      const { error } = await supa.auth.signInWithPassword({ email: syntheticEmail, password });
+      if (error) {
+        const cleaned = /invalid login credentials/i.test(error.message)
+          ? 'Nickname or password is incorrect.' : error.message;
+        throw new Error(cleaned);
+      }
       await init();
     }
   } catch (err) {
@@ -515,18 +590,28 @@ async function init() {
   // Manager record
   let { data: mgr } = await supa.from('managers').select('*').eq('auth_user_id', session.user.id).maybeSingle();
   if (!mgr) {
-    // Try link by email
-    const { data: byEmail } = await supa.from('managers').select('*').eq('email', session.user.email.toLowerCase()).maybeSingle();
-    if (byEmail && !byEmail.auth_user_id) {
-      await supa.from('managers').update({ auth_user_id: session.user.id }).eq('id', byEmail.id);
-      mgr = { ...byEmail, auth_user_id: session.user.id };
+    // Not yet linked. Figure out path based on email format.
+    const authEmail = session.user.email || '';
+    const isSynthetic = authEmail.endsWith('@' + SYNTHETIC_DOMAIN);
+    let lookup = null;
+    if (isSynthetic) {
+      const nick = emailToNick(authEmail).toLowerCase();
+      const r = await supa.from('managers').select('*').ilike('nickname', nick).maybeSingle();
+      lookup = r.data;
+    } else {
+      const r = await supa.from('managers').select('*').eq('email', authEmail.toLowerCase()).maybeSingle();
+      lookup = r.data;
+    }
+    if (lookup && !lookup.auth_user_id) {
+      await supa.from('managers').update({ auth_user_id: session.user.id }).eq('id', lookup.id);
+      mgr = { ...lookup, auth_user_id: session.user.id };
     }
   }
   if (!mgr) {
     document.getElementById('signin-view').style.display = 'flex';
     document.getElementById('app-shell').style.display = 'none';
     document.getElementById('signin-msg').innerHTML =
-      '<div class="msg msg-error">This email is not registered as a manager. Contact an admin.</div>';
+      '<div class="msg msg-error">No manager account found with that nickname. Contact an existing manager.</div>';
     await supa.auth.signOut();
     return;
   }
@@ -539,14 +624,16 @@ async function init() {
   await loadAll();
   renderQueue();
   renderReps();
+  renderManagers();
   renderAssignments();
   renderShadows();
   renderHelp();
 }
 
 async function loadAll() {
-  const [repsRes, certsRes, assignsRes, attemptsRes, shadowsRes, helpRes] = await Promise.all([
+  const [repsRes, mgrsRes, certsRes, assignsRes, attemptsRes, shadowsRes, helpRes] = await Promise.all([
     supa.from('reps').select('*').order('created_at', { ascending: false }),
+    supa.from('managers').select('*').order('created_at', { ascending: false }),
     supa.from('certs').select('*').order('order_index'),
     supa.from('cert_assignments').select('*'),
     supa.from('quiz_attempts').select('*').in('status', ['pending_review']).order('submitted_at'),
@@ -554,6 +641,7 @@ async function loadAll() {
     supa.from('help_requests').select('*').order('created_at', { ascending: false }),
   ]);
   state.reps = repsRes.data || [];
+  state.managers = mgrsRes.data || [];
   state.certs = certsRes.data || [];
   state.assignments = assignsRes.data || [];
   state.pendingAttempts = attemptsRes.data || [];
@@ -901,14 +989,24 @@ function renderHelp() {
 async function addRep(e) {
   e.preventDefault();
   const name = document.getElementById('rep-name').value.trim();
-  const email = document.getElementById('rep-email').value.trim().toLowerCase();
+  const nickname = document.getElementById('rep-nickname').value.trim().toLowerCase();
+  const email = document.getElementById('rep-email').value.trim().toLowerCase() || null;
   const cohort = document.getElementById('rep-cohort').value || null;
   const msg = document.getElementById('add-rep-msg');
+  if (!validNick(nickname)) {
+    msg.innerHTML = `<div class="msg msg-error">Nickname must be 3-30 chars. Letters, numbers, underscore, hyphen only.</div>`;
+    return;
+  }
   const { error } = await supa.from('reps').insert({
-    name, email, cohort_start_date: cohort, manager_id: state.manager.id
+    name, nickname, email, cohort_start_date: cohort, manager_id: state.manager.id
   });
-  if (error) { msg.innerHTML = `<div class="msg msg-error">${error.message}</div>`; return; }
-  msg.innerHTML = `<div class="msg msg-success">Rep added. Send them this link to sign in: ${window.location.origin}${window.location.pathname.replace(/manager\.html$/, '')}</div>`;
+  if (error) {
+    const clean = /duplicate key/i.test(error.message) ? 'That nickname is already taken. Pick another.' : error.message;
+    msg.innerHTML = `<div class="msg msg-error">${clean}</div>`;
+    return;
+  }
+  const portalUrl = `${window.location.origin}${window.location.pathname.replace(/manager\.html$/, '')}`;
+  msg.innerHTML = `<div class="msg msg-success">Rep added. Send them to <strong>${portalUrl}</strong> and have them create an account with nickname <strong>${escapeHtml(nickname)}</strong>.</div>`;
   e.target.reset();
   await loadAll();
   renderReps();
@@ -926,8 +1024,8 @@ function renderReps() {
     <table class="data">
       <thead>
         <tr>
-          <th>Name</th><th>Email</th><th>Cohort day</th>
-          <th>Stage 1</th><th>Stage 2</th><th>Linked</th>
+          <th>Name</th><th>Nickname</th><th>Email</th><th>Cohort day</th>
+          <th>Stage 1</th><th>Stage 2</th><th>Linked</th><th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -942,7 +1040,8 @@ function renderReps() {
           return `
             <tr>
               <td data-label="Name"><strong>${escapeHtml(rep.name)}</strong></td>
-              <td data-label="Email">${escapeHtml(rep.email)}</td>
+              <td data-label="Nickname"><code style="background: var(--hairline-soft); padding: 2px 6px; border-radius: 4px; font-size: 0.8125rem;">${escapeHtml(rep.nickname || '—')}</code></td>
+              <td data-label="Email">${escapeHtml(rep.email || '—')}</td>
               <td data-label="Cohort day">${day === '—' ? '—' : `Day ${day}`}</td>
               <td data-label="Stage 1">
                 <span class="mini-bar"><span class="fill" style="width:${(s1Done/s1Certs.length)*100}%"></span></span>
@@ -953,10 +1052,246 @@ function renderReps() {
                 <span style="font-family: 'SF Mono', monospace; font-size: 0.8125rem; color: var(--text-muted);">${s2Done}/${s2Certs.length}</span>
               </td>
               <td data-label="Linked">${rep.auth_user_id ? '<span class="status-badge status-approved">Yes</span>' : '<span class="status-badge status-not-started">No</span>'}</td>
+              <td data-label="Actions">
+                <button class="btn btn-ghost btn-sm" onclick="editRep('${rep.id}')">Edit</button>
+              </td>
             </tr>`;
         }).join('')}
       </tbody>
     </table>`;
+}
+
+// ===================== REP EDIT / DELETE =====================
+function editRep(id) {
+  const rep = state.reps.find(r => r.id === id);
+  if (!rep) return;
+  const linkedWarning = rep.auth_user_id
+    ? `<div class="msg msg-info" style="margin-bottom: var(--s-3);">This rep has already signed in. Changing their nickname will break their sign-in until they create a new account with the new nickname.</div>`
+    : '';
+  const body = `
+    <div class="modal-head">
+      <div>
+        <h3>Edit rep</h3>
+        <div class="meta">${escapeHtml(rep.name)}</div>
+      </div>
+      <button class="close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      ${linkedWarning}
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="edit-rep-name" value="${escapeHtml(rep.name)}">
+      </div>
+      <div class="form-group">
+        <label>Nickname</label>
+        <input type="text" id="edit-rep-nickname" value="${escapeHtml(rep.nickname || '')}" pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen.">
+        <div class="hint">Changing this will also change how they sign in.</div>
+      </div>
+      <div class="form-group">
+        <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+        <input type="email" id="edit-rep-email" value="${escapeHtml(rep.email || '')}">
+      </div>
+      <div class="form-group">
+        <label>Cohort start date</label>
+        <input type="date" id="edit-rep-cohort" value="${rep.cohort_start_date || ''}">
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="edit-rep-status">
+          <option value="active" ${rep.status === 'active' ? 'selected' : ''}>Active</option>
+          <option value="paused" ${rep.status === 'paused' ? 'selected' : ''}>Paused</option>
+          <option value="completed" ${rep.status === 'completed' ? 'selected' : ''}>Completed</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" onclick="deleteRep('${rep.id}')">Delete rep</button>
+      <div style="flex: 1;"></div>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveRep('${rep.id}')">Save</button>
+    </div>
+  `;
+  openModal(body);
+}
+
+async function saveRep(id) {
+  const name = document.getElementById('edit-rep-name').value.trim();
+  const nickname = document.getElementById('edit-rep-nickname').value.trim().toLowerCase();
+  const email = document.getElementById('edit-rep-email').value.trim().toLowerCase() || null;
+  const cohort = document.getElementById('edit-rep-cohort').value || null;
+  const status = document.getElementById('edit-rep-status').value;
+  if (!name) { alert('Name is required.'); return; }
+  if (nickname && !validNick(nickname)) { alert('Nickname must be 3-30 chars. Letters, numbers, underscore, hyphen.'); return; }
+  const { error } = await supa.from('reps').update({
+    name, nickname: nickname || null, email, cohort_start_date: cohort, status
+  }).eq('id', id);
+  if (error) {
+    const clean = /duplicate key/i.test(error.message) ? 'That nickname is already taken.' : error.message;
+    alert(clean);
+    return;
+  }
+  closeModal();
+  await loadAll();
+  renderReps();
+  renderQueue();
+  renderAssignments();
+}
+
+async function deleteRep(id) {
+  const rep = state.reps.find(r => r.id === id);
+  if (!confirm(`Permanently delete ${rep?.name}? This removes ALL of their training history: quiz attempts, shadow logs, uploads, and help messages. This cannot be undone.`)) return;
+  const { error } = await supa.from('reps').delete().eq('id', id);
+  if (error) { alert(error.message); return; }
+  closeModal();
+  await loadAll();
+  renderReps();
+  renderQueue();
+  renderAssignments();
+}
+
+// ===================== MANAGERS =====================
+function renderManagers() {
+  const wrap = document.getElementById('managers-table-wrap');
+  if (!state.managers.length) {
+    wrap.innerHTML = `<div class="empty">No managers yet.</div>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="data">
+      <thead>
+        <tr>
+          <th>Name</th><th>Nickname</th><th>Email</th><th>Role</th><th>Linked</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${state.managers.map(m => {
+          const isSelf = m.id === state.manager.id;
+          return `
+            <tr>
+              <td data-label="Name"><strong>${escapeHtml(m.name)}</strong>${isSelf ? ' <span style="font-size:0.75rem; color: var(--text-subtle);">(you)</span>' : ''}</td>
+              <td data-label="Nickname"><code style="background: var(--hairline-soft); padding: 2px 6px; border-radius: 4px; font-size: 0.8125rem;">${escapeHtml(m.nickname || '—')}</code></td>
+              <td data-label="Email">${escapeHtml(m.email || '—')}</td>
+              <td data-label="Role">${m.is_admin ? '<span class="status-badge status-approved">Admin</span>' : '<span class="status-badge status-not-started">Manager</span>'}</td>
+              <td data-label="Linked">${m.auth_user_id ? '<span class="status-badge status-approved">Yes</span>' : '<span class="status-badge status-not-started">No</span>'}</td>
+              <td data-label="Actions">
+                <button class="btn btn-ghost btn-sm" onclick="editManager('${m.id}')">Edit</button>
+              </td>
+            </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function addManager(e) {
+  e.preventDefault();
+  const name = document.getElementById('mgr-name').value.trim();
+  const nickname = document.getElementById('mgr-nickname').value.trim().toLowerCase();
+  const email = document.getElementById('mgr-email').value.trim().toLowerCase() || null;
+  const isAdmin = document.getElementById('mgr-admin').checked;
+  const msg = document.getElementById('add-mgr-msg');
+  msg.innerHTML = '';
+  if (!validNick(nickname)) {
+    msg.innerHTML = `<div class="msg msg-error">Nickname must be 3-30 chars. Letters, numbers, underscore, hyphen only.</div>`;
+    return;
+  }
+  const { error } = await supa.from('managers').insert({
+    name, nickname, email, is_admin: isAdmin
+  });
+  if (error) {
+    const clean = /duplicate key/i.test(error.message) ? 'That nickname is already taken.' : error.message;
+    msg.innerHTML = `<div class="msg msg-error">${clean}</div>`;
+    return;
+  }
+  msg.innerHTML = `<div class="msg msg-success">Manager added. They sign in with nickname <strong>${escapeHtml(nickname)}</strong> and a password they pick.</div>`;
+  e.target.reset();
+  await loadAll();
+  renderManagers();
+}
+
+function editManager(id) {
+  const mgr = state.managers.find(m => m.id === id);
+  if (!mgr) return;
+  const isSelf = mgr.id === state.manager.id;
+  const linkedWarning = mgr.auth_user_id
+    ? `<div class="msg msg-info" style="margin-bottom: var(--s-3);">This manager has already signed in. Changing their nickname will break their sign-in until they create a new account with the new nickname.</div>`
+    : '';
+  const body = `
+    <div class="modal-head">
+      <div>
+        <h3>Edit manager</h3>
+        <div class="meta">${escapeHtml(mgr.name)}${isSelf ? ' (you)' : ''}</div>
+      </div>
+      <button class="close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      ${linkedWarning}
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="edit-mgr-name" value="${escapeHtml(mgr.name)}">
+      </div>
+      <div class="form-group">
+        <label>Nickname</label>
+        <input type="text" id="edit-mgr-nickname" value="${escapeHtml(mgr.nickname || '')}" pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen.">
+      </div>
+      <div class="form-group">
+        <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+        <input type="email" id="edit-mgr-email" value="${escapeHtml(mgr.email || '')}">
+      </div>
+      <div class="form-group">
+        <label style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="edit-mgr-admin" ${mgr.is_admin ? 'checked' : ''} style="width:auto;">
+          <span>Admin role</span>
+        </label>
+        <div class="hint">Admin is informational only in this build. All managers have the same permissions.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      ${isSelf
+        ? '<div style="flex:1; font-size: 0.8125rem; color: var(--text-muted);">You can\'t remove yourself.</div>'
+        : `<button class="btn btn-danger" onclick="deleteManager('${mgr.id}')">Remove manager</button><div style="flex:1;"></div>`}
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveManager('${mgr.id}')">Save</button>
+    </div>
+  `;
+  openModal(body);
+}
+
+async function saveManager(id) {
+  const name = document.getElementById('edit-mgr-name').value.trim();
+  const nickname = document.getElementById('edit-mgr-nickname').value.trim().toLowerCase();
+  const email = document.getElementById('edit-mgr-email').value.trim().toLowerCase() || null;
+  const isAdmin = document.getElementById('edit-mgr-admin').checked;
+  if (!name) { alert('Name is required.'); return; }
+  if (nickname && !validNick(nickname)) { alert('Nickname must be 3-30 chars. Letters, numbers, underscore, hyphen.'); return; }
+  const { error } = await supa.from('managers').update({
+    name, nickname: nickname || null, email, is_admin: isAdmin
+  }).eq('id', id);
+  if (error) {
+    const clean = /duplicate key/i.test(error.message) ? 'That nickname is already taken.' : error.message;
+    alert(clean);
+    return;
+  }
+  closeModal();
+  await loadAll();
+  renderManagers();
+  if (id === state.manager.id) {
+    state.manager.name = name;
+    state.manager.nickname = nickname || null;
+    state.manager.email = email;
+    state.manager.is_admin = isAdmin;
+    document.getElementById('header-name').textContent = name;
+  }
+}
+
+async function deleteManager(id) {
+  if (id === state.manager.id) { alert("You can't remove yourself."); return; }
+  const mgr = state.managers.find(m => m.id === id);
+  if (!confirm(`Remove ${mgr?.name} as a manager? They'll lose access to this portal.`)) return;
+  const { error } = await supa.from('managers').delete().eq('id', id);
+  if (error) { alert(error.message); return; }
+  closeModal();
+  await loadAll();
+  renderManagers();
 }
 
 // ===================== ASSIGNMENTS =====================
