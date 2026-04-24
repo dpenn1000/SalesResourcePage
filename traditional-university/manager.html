@@ -298,7 +298,7 @@ table.data tbody tr:hover { background: #F5F7F0; }
     <form id="signin-form" onsubmit="handleSignin(event)">
       <div class="form-group">
         <label for="si-nickname">Nickname</label>
-        <input type="text" id="si-nickname" required autocomplete="username" pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 characters. Letters, numbers, underscore, hyphen.">
+        <input type="text" id="si-nickname" required autocomplete="username" pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 characters. Letters, numbers, underscore, hyphen.">
       </div>
       <div class="form-group">
         <label for="si-password">Password</label>
@@ -378,7 +378,7 @@ table.data tbody tr:hover { background: #F5F7F0; }
             </div>
             <div class="form-group" style="margin:0;">
               <label>Nickname <span style="color: var(--accent-rose);">*</span></label>
-              <input type="text" id="rep-nickname" required pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen." placeholder="e.g., janer">
+              <input type="text" id="rep-nickname" required pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen." placeholder="e.g., janer">
             </div>
             <div class="form-group" style="margin:0;">
               <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
@@ -444,7 +444,7 @@ table.data tbody tr:hover { background: #F5F7F0; }
             </div>
             <div class="form-group" style="margin:0;">
               <label>Nickname <span style="color: var(--accent-rose);">*</span></label>
-              <input type="text" id="mgr-nickname" required pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen." placeholder="e.g., dpenn">
+              <input type="text" id="mgr-nickname" required pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen." placeholder="e.g., dpenn">
             </div>
             <div class="form-group" style="margin:0;">
               <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
@@ -515,7 +515,7 @@ let state = {
 };
 
 // ===================== AUTH =====================
-const SYNTHETIC_DOMAIN = 'ct-portal.local';
+const SYNTHETIC_DOMAIN = 'auth.ct-resource-page.com';
 const nickToEmail = n => `${String(n || '').trim().toLowerCase()}@${SYNTHETIC_DOMAIN}`;
 const emailToNick = e => (e || '').split('@')[0];
 const validNick = n => /^[a-zA-Z0-9_-]{3,30}$/.test(n || '');
@@ -1084,7 +1084,7 @@ function editRep(id) {
       </div>
       <div class="form-group">
         <label>Nickname</label>
-        <input type="text" id="edit-rep-nickname" value="${escapeHtml(rep.nickname || '')}" pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen.">
+        <input type="text" id="edit-rep-nickname" value="${escapeHtml(rep.nickname || '')}" pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen.">
         <div class="hint">Changing this will also change how they sign in.</div>
       </div>
       <div class="form-group">
@@ -1231,7 +1231,7 @@ function editManager(id) {
       </div>
       <div class="form-group">
         <label>Nickname</label>
-        <input type="text" id="edit-mgr-nickname" value="${escapeHtml(mgr.nickname || '')}" pattern="[a-zA-Z0-9_-]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen.">
+        <input type="text" id="edit-mgr-nickname" value="${escapeHtml(mgr.nickname || '')}" pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen.">
       </div>
       <div class="form-group">
         <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
