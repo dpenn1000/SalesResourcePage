@@ -290,53 +290,6 @@ body {
 input:checked + .toggle-slider { background: var(--green); }
 input:checked + .toggle-slider:before { transform: translateX(20px); }
 
-/* API key input */
-.api-key-row {
-  display: flex;
-  gap: 8px;
-}
-
-.api-key-row input {
-  flex: 1;
-  padding: 12px 14px;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--border);
-  background: white;
-  font-size: 14px;
-  font-family: monospace;
-  color: var(--dark);
-  outline: none;
-  transition: border-color 0.15s;
-  min-width: 0;
-}
-
-.api-key-row input:focus { border-color: var(--green); }
-.api-key-row input.valid { border-color: var(--green); }
-.api-key-row input.invalid { border-color: var(--d-color); }
-
-.key-toggle {
-  padding: 12px 14px;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--border);
-  background: white;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.api-key-hint {
-  font-size: 11px;
-  margin-top: 6px;
-  min-height: 16px;
-  color: var(--muted);
-}
-
-.api-key-hint.valid { color: var(--green-dark); }
-.api-key-hint.invalid { color: var(--d-color); }
-
 /* Generate button */
 .gen-btn {
   width: 100%;
@@ -648,6 +601,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   line-height: 1.65;
   color: rgba(255,255,255,0.7);
   border-bottom: 1px solid var(--gm-border);
+  white-space: pre-line;
 }
 
 .char-disposition {
@@ -1367,6 +1321,7 @@ function router() {
           character_brief: scenario.character_brief,
           reactive_guide: scenario.reactive_guide,
           objection_cards: scenario.objection_cards,
+          absent_spouse: scenario.absent_spouse || null,
         })
       }
       currentScenario = shaped
@@ -1391,6 +1346,7 @@ function router() {
           character_brief: scenario.character_brief,
           reactive_guide: scenario.reactive_guide,
           objection_cards: scenario.objection_cards,
+          absent_spouse: scenario.absent_spouse || null,
         })
       }
       currentScenario = shaped
@@ -1496,12 +1452,11 @@ async function generateScenario() {
     const scenario = data.scenario
     const scenarioId = data.id
 
-    // Attach params for GM header
     scenario.product_focus = params.product_focus
     scenario.skill_target = params.skill_target
     scenario.difficulty = params.difficulty
 
-    // Save from frontend as insurance in case Edge Function save failed
+    // Frontend save as insurance in case Edge Function save failed
     const { error: saveError } = await sb.rpc('save_scenario', {
       scenario_data: {
         id: scenarioId,
@@ -1531,6 +1486,7 @@ async function generateScenario() {
           character_brief: scenario.character_brief,
           reactive_guide: scenario.reactive_guide,
           objection_cards: scenario.objection_cards,
+          absent_spouse: scenario.absent_spouse || null,
         }),
         primary_objection_id: '',
         secondary_objection_id: '',
@@ -1562,25 +1518,20 @@ function renderScenarioPreview(s, id, saved = false) {
   card.style.display = 'block'
   card.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 
-  // DISC badge
   const badge = document.getElementById('preview-disc-badge')
   badge.textContent = `${s.disc_type} — ${discLabel(s.disc_type)}`
   badge.className = `disc-badge ${s.disc_type}`
 
-  // Names
   const names = s.homeowner_name_2
     ? `${s.homeowner_name_1} & ${s.homeowner_name_2}`
     : s.homeowner_name_1
   document.getElementById('preview-names').textContent = names
 
-  // Meta
-  const meta = [s.town, s.utility, s.monthly_bill + '/mo'].join(' · ')
-  document.getElementById('preview-meta').textContent = meta
+  document.getElementById('preview-meta').textContent =
+    [s.town, s.utility, s.monthly_bill + '/mo'].join(' · ')
 
-  // Backstory
   document.getElementById('preview-backstory').textContent = s.persona_backstory
 
-  // Objection tags
   const objsEl = document.getElementById('preview-objs')
   objsEl.innerHTML = ''
   if (s.objection_cards) {
@@ -1592,7 +1543,6 @@ function renderScenarioPreview(s, id, saved = false) {
     })
   }
 
-  // QR code
   const qrContainer = document.getElementById('qr-container')
   qrContainer.innerHTML = '<div id="qr-canvas"></div>'
   const base = location.href.split('?')[0]
@@ -1600,7 +1550,6 @@ function renderScenarioPreview(s, id, saved = false) {
   if (saved) {
     shareUrl = `${base}?session=${id}`
   } else {
-    // Fallback: store in sessionStorage for same-device use
     const key = id.slice(0, 8)
     try { sessionStorage.setItem(`scenario_${key}`, JSON.stringify(s)) } catch(e) {}
     shareUrl = `${base}?local=${key}`
@@ -1614,17 +1563,6 @@ function renderScenarioPreview(s, id, saved = false) {
     correctLevel: QRCode.CorrectLevel.M
   })
   document.getElementById('share-url').textContent = shareUrl
-}
-
-function buildShareUrl(id) {
-  const base = location.href.split('?')[0]
-  if (currentScenario) {
-    // Store scenario in sessionStorage with a short key for QR sharing
-    const key = id.slice(0, 8)
-    try { sessionStorage.setItem(`scenario_${key}`, JSON.stringify(currentScenario)) } catch(e) {}
-    return `${base}?local=${key}`
-  }
-  return `${base}?session=${id}`
 }
 
 function copyShareUrl() {
@@ -1703,14 +1641,9 @@ function renderGMInterface(s) {
     badge.textContent = discType
     badge.className = `disc-badge gm-disc-badge ${discType}`
 
-    // Names
-    const names = s.homeowner_name_2
-      ? `${s.homeowner_name_1} & ${s.homeowner_name_2}`
-      : (s.homeowner_name_1 || 'Unknown')
-    document.getElementById('gm-names').textContent = names
-
-    const jobs = [s.homeowner_occupation_1, s.homeowner_occupation_2].filter(Boolean).join(' · ')
-    document.getElementById('gm-jobs').textContent = jobs
+    // Names — present spouse only in header; absent spouse surfaces in backstory
+    document.getElementById('gm-names').textContent = s.homeowner_name_1 || 'Unknown'
+    document.getElementById('gm-jobs').textContent = s.homeowner_occupation_1 || ''
 
     // Meta chips
     const meta = document.getElementById('gm-meta')
@@ -1729,9 +1662,16 @@ function renderGMInterface(s) {
       meta.appendChild(chip)
     })
 
-    // Backstory
-    document.getElementById('gm-backstory').textContent =
-      s.life_context || gmData.character_brief || s.persona_backstory || ''
+    // Backstory — absent spouse appended naturally as character flavor if one-legger
+    const absentSpouse = gmData.absent_spouse || null
+    let backstoryText = s.life_context || gmData.character_brief || s.persona_backstory || ''
+    if (absentSpouse) {
+      const reachable = absentSpouse.reachable
+        ? `${absentSpouse.name} can be reached by phone if the rep asks.`
+        : `${absentSpouse.name} isn't easily reachable right now.`
+      backstoryText += `\n\nYour ${absentSpouse.relation} ${absentSpouse.name} — ${absentSpouse.occupation} — is out right now: ${absentSpouse.away_reason}. If asked about ${absentSpouse.name}, you'd describe them as ${absentSpouse.presumed_stance}. ${reachable}`
+    }
+    document.getElementById('gm-backstory').textContent = backstoryText
 
     // Disposition
     const disp = s.opening_disposition || 'curious'
@@ -1746,7 +1686,7 @@ function renderGMInterface(s) {
     `
 
     // DISC behavior card
-    renderDISCCard(discType, s.disc_rapport_response, s.disc_objection_style)
+    renderDISCCard(discType)
 
     // Reactive guide
     const guide = document.getElementById('gm-guide')
@@ -1830,8 +1770,7 @@ function renderGMInterface(s) {
   }
 }
 
-
-function renderDISCCard(type, rapportResponse, objectionStyle) {
+function renderDISCCard(type) {
   const configs = {
     D: {
       rules: [
@@ -1874,8 +1813,6 @@ function renderDISCCard(type, rapportResponse, objectionStyle) {
   const config = configs[type] || configs.S
   const card = document.getElementById('gm-disc-card')
 
-  const discColor = `var(--${type.toLowerCase()}-color)`
-
   card.innerHTML = `
     <div class="disc-card-header">
       <div class="disc-badge ${type}" style="width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;">${type}</div>
@@ -1891,8 +1828,7 @@ function renderDISCCard(type, rapportResponse, objectionStyle) {
 }
 
 function toggleObj(i) {
-  const card = document.getElementById(`obj-card-${i}`)
-  card.classList.toggle('expanded')
+  document.getElementById(`obj-card-${i}`).classList.toggle('expanded')
 }
 
 function toggleSignal(sigId, total) {
@@ -1911,8 +1847,7 @@ function updateScore(total) {
   const count = checkedSignals.size
   document.getElementById('score-count').textContent = count
   document.getElementById('score-total').textContent = `/${total}`
-  const pct = total > 0 ? (count / total) * 100 : 0
-  document.getElementById('score-fill').style.width = `${pct}%`
+  document.getElementById('score-fill').style.width = `${total > 0 ? (count / total) * 100 : 0}%`
 }
 
 async function endSession() {
@@ -1948,7 +1883,6 @@ async function endSession() {
       session_date: new Date().toISOString().split('T')[0]
     })
 
-    // Update scenario usage count
     await sb.from('scenarios')
       .update({ times_used: (currentScenario.times_used || 0) + 1, last_used_at: new Date().toISOString() })
       .eq('id', currentScenarioId)
