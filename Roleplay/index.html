@@ -28,12 +28,12 @@
   --s-color: #78C832;
   --c-color: #29A9E1;
 
-  /* GM dark theme */
-  --gm-bg: #0F1623;
-  --gm-card: #1a2235;
-  --gm-border: #2a3550;
-  --gm-text: #e8edf5;
-  --gm-muted: #6b7a99;
+  /* GM cream theme */
+  --gm-bg: #F7F3EE;
+  --gm-card: #FFFFFF;
+  --gm-border: #E4DDD4;
+  --gm-text: #2A2218;
+  --gm-muted: #9A8A78;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -566,14 +566,14 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   font-family: 'Oswald', sans-serif;
   font-size: 26px;
   font-weight: 700;
-  color: white;
+  color: var(--gm-text);
   line-height: 1.1;
   margin-bottom: 4px;
 }
 
 .char-jobs {
   font-size: 13px;
-  color: var(--blue);
+  color: var(--green-dark);
   margin-bottom: 12px;
 }
 
@@ -587,9 +587,9 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   font-size: 11px;
   padding: 4px 10px;
   border-radius: 20px;
-  background: rgba(255,255,255,0.07);
-  color: rgba(255,255,255,0.6);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: #F0EBE4;
+  color: #7A6A5E;
+  border: 1px solid var(--gm-border);
 }
 
 .meta-chip.bill { color: var(--i-color); border-color: rgba(245,166,35,0.3); background: rgba(245,166,35,0.08); }
@@ -599,7 +599,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   padding: 16px;
   font-size: 13px;
   line-height: 1.65;
-  color: rgba(255,255,255,0.7);
+  color: #5A4E44;
   border-bottom: 1px solid var(--gm-border);
   white-space: pre-line;
 }
@@ -654,7 +654,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
 .disc-rule {
   font-size: 13px;
-  color: rgba(255,255,255,0.65);
+  color: #5A4E44;
   line-height: 1.6;
   padding: 10px 0;
   border-bottom: 1px solid var(--gm-border);
@@ -664,7 +664,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .disc-rule:first-of-type { padding-top: 0; }
 
 .disc-rule strong {
-  color: rgba(255,255,255,0.9);
+  color: var(--gm-text);
   font-weight: 600;
   display: block;
   font-size: 11px;
@@ -703,7 +703,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   font-family: 'Oswald', sans-serif;
   font-size: 10px;
   font-weight: 700;
-  background: rgba(255,255,255,0.08);
+  background: #EDE7DF;
   padding: 1px 5px;
   border-radius: 3px;
   letter-spacing: 0.5px;
@@ -712,7 +712,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
 .guide-action {
   font-size: 14px;
-  color: white;
+  color: var(--gm-text);
   line-height: 1.55;
   margin-bottom: 6px;
 }
@@ -785,7 +785,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .obj-statement {
   font-size: 14px;
   font-weight: 500;
-  color: white;
+  color: var(--gm-text);
   line-height: 1.4;
 }
 
@@ -824,7 +824,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .obj-detail-text {
   font-size: 13px;
   line-height: 1.6;
-  color: rgba(255,255,255,0.75);
+  color: #5A4E44;
 }
 
 .obj-release {
@@ -857,7 +857,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 }
 
 .checklist-item:last-child { border-bottom: none; }
-.checklist-item:active { background: rgba(255,255,255,0.03); }
+.checklist-item:active { background: rgba(0,0,0,0.02); }
 
 .check-box {
   width: 22px;
@@ -893,7 +893,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
 .check-description {
   font-size: 14px;
-  color: rgba(255,255,255,0.85);
+  color: var(--gm-text);
   line-height: 1.4;
   margin-bottom: 3px;
 }
@@ -935,7 +935,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
 .outcome-text {
   font-size: 13px;
-  color: rgba(255,255,255,0.7);
+  color: #5A4E44;
   line-height: 1.6;
 }
 
@@ -955,7 +955,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   font-family: 'Oswald', sans-serif;
   font-size: 36px;
   font-weight: 700;
-  color: white;
+  color: var(--gm-text);
   line-height: 1;
 }
 
@@ -974,7 +974,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 .score-track {
   flex: 1;
   height: 6px;
-  background: rgba(255,255,255,0.08);
+  background: var(--gm-border);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -1102,19 +1102,19 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
       <div class="pill selected" data-value="Solar">Solar</div>
       <div class="pill" data-value="Roofing">Roofing</div>
       <div class="pill" data-value="Battery">Battery</div>
-      <div class="pill" data-value="Solar+Battery">Solar + Battery</div>
-      <div class="pill" data-value="Full Suite">Full Suite</div>
     </div>
 
     <div class="section-label">Skill Target</div>
     <div class="pill-group" id="skill-group">
-      <div class="pill selected" data-value="Discovery Quality">Discovery</div>
+      <div class="pill selected" data-value="Rapport Building">Rapport</div>
+      <div class="pill" data-value="Discovery Quality">Discovery</div>
+      <div class="pill" data-value="Motivation Identification">Motivation ID</div>
       <div class="pill" data-value="Objection Handling">Objection Handling</div>
       <div class="pill" data-value="Urgency Creation">Urgency</div>
       <div class="pill" data-value="Both Decision-Makers Present">Decision Makers</div>
       <div class="pill" data-value="Follow-Up Plan Quality">Follow-Up Plan</div>
-      <div class="pill" data-value="Motivation Identification">Motivation ID</div>
-      <div class="pill" data-value="Needs to Think About It Diagnostic">Think About It</div>
+      <div class="pill" data-value="Think About It Diagnostic">Think About It</div>
+      <div class="pill" data-value="Why Trinity / Why You">Why Trinity</div>
     </div>
 
     <div class="section-label">Difficulty</div>
@@ -1155,7 +1155,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
         <div class="disc-sel-label">Analytical</div>
         <div class="disc-sel-desc">Data-driven, precise, researched. Will challenge your numbers.</div>
       </div>
-      <div class="disc-sel-card disc-R" data-value="Random">
+      <div class="disc-sel-card disc-R" data-value="Random" style="grid-column: span 2;">
         <div class="disc-sel-type">?</div>
         <div class="disc-sel-label">Random</div>
         <div class="disc-sel-desc">System picks — good for keeping reps on their toes.</div>
@@ -1369,7 +1369,16 @@ function showView(name) {
 
 // ── PILL SELECTORS ────────────────────────────────────────────
 function initPillGroups() {
-  document.querySelectorAll('.pill-group').forEach(group => {
+  // Product group — multi-select
+  const productGroup = document.getElementById('product-group')
+  productGroup.addEventListener('click', e => {
+    const pill = e.target.closest('.pill')
+    if (!pill) return
+    pill.classList.toggle('selected')
+  })
+
+  // Skill group — single-select
+  document.querySelectorAll('.pill-group:not(#product-group)').forEach(group => {
     group.addEventListener('click', e => {
       const pill = e.target.closest('.pill')
       if (!pill) return
@@ -1397,6 +1406,10 @@ function initPillGroups() {
   })
 }
 
+function getSelectedProducts() {
+  return [...document.querySelectorAll('#product-group .selected')].map(el => el.dataset.value)
+}
+
 function getSelected(groupId) {
   const el = document.querySelector(`#${groupId} .selected`)
   return el?.dataset.value || null
@@ -1412,8 +1425,9 @@ async function generateScenario() {
   const btn = document.getElementById('gen-btn')
   const loading = document.getElementById('loading-overlay')
 
+  const products = getSelectedProducts()
   const params = {
-    product_focus: getSelected('product-group'),
+    product_focus: products.length === 1 ? products[0] : products.join('+'),
     skill_target: getSelected('skill-group'),
     difficulty: getDifficulty(),
     disc_profile: getSelected('disc-group'),
@@ -1421,7 +1435,7 @@ async function generateScenario() {
     created_by: 'manager'
   }
 
-  if (!params.product_focus || !params.skill_target || !params.disc_profile) {
+  if (!products.length || !params.skill_target || !params.disc_profile) {
     showToast('Please select all parameters')
     return
   }
