@@ -1197,6 +1197,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
       <div id="qr-container"></div>
       <div class="share-section">
         <div class="share-url" id="share-url"></div>
+        <button class="share-btn" id="open-btn" onclick="openBrief()">Open Brief</button>
         <button class="share-btn" id="share-btn" onclick="copyShareUrl()">Copy Link</button>
       </div>
     </div>
@@ -1577,6 +1578,12 @@ function renderScenarioPreview(s, id, saved = false) {
     correctLevel: QRCode.CorrectLevel.M
   })
   document.getElementById('share-url').textContent = shareUrl
+}
+
+function openBrief() {
+  const url = document.getElementById('share-url').textContent
+  if (!url) { showToast('No brief to open'); return }
+  window.open(url, '_blank')
 }
 
 function copyShareUrl() {
