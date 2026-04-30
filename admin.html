@@ -944,7 +944,10 @@ function showForm(row) {
   if (itype === 'custom' && row?.image_url) {
     const img = document.getElementById('customPreviewImg'); img.src = row.image_url; img.style.display = 'block';
   }
-  if (row?.url) refreshFaviconPreview();
+  // Only refresh the favicon preview when favicon is the active source --
+  // otherwise it overwrites pendingImageUrl with the linked site's icon and
+  // silently replaces saved custom/OG/PDF/XLSX images on next save.
+  if (itype === 'favicon') refreshFaviconPreview();
 }
 
 function hideForm() {
