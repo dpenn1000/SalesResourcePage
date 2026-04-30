@@ -18,6 +18,7 @@
       --orange:  #E8863A;
       --purple:  #8B5CF6;
       --pink:    #C4457A;
+      --teal:    #0E9B8A;
       --text:    #1A2332;
       --text2:   #6B7280;
       --border:  #DFE2DA;
@@ -100,8 +101,8 @@
     .cat-btn[data-cat="Solar"].active    { border-bottom-color: var(--green); }
     .cat-btn[data-cat="Battery"].active  { border-bottom-color: var(--blue); }
     .cat-btn[data-cat="Roofing"].active  { border-bottom-color: var(--orange); }
-    .cat-btn[data-cat="Training"].active { border-bottom-color: var(--purple); }
-    .cat-btn[data-cat="Sales Psychology"].active { border-bottom-color: var(--pink); }
+    .cat-btn[data-cat="Sales Fundamentals"].active { border-bottom-color: var(--pink); }
+    .cat-btn[data-cat="University"].active { border-bottom-color: var(--teal); }
 
     .cat-count {
       background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.5);
@@ -138,10 +139,51 @@
     /* Training banner */
     .training-banner {
       background: var(--header); border-radius: var(--radius);
-      padding: 16px 20px; margin-bottom: 22px;
-      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; margin-bottom: 22px;
       border-left: 4px solid var(--purple);
       animation: fadeUp 0.4s ease forwards;
+    }
+    .training-banner-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; padding: 0 4px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 12px;
+    }
+    .training-banner-header .week-badge { margin: 0; }
+    .training-banner-header .header-note {
+      font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: 0.04em;
+    }
+    .training-banner-grid {
+      display: grid; gap: 10px;
+    }
+    .training-banner-grid.cols-1 { grid-template-columns: 1fr; }
+    .training-banner-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .training-banner-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .training-banner-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    @media (max-width: 720px) {
+      .training-banner-grid.cols-3, .training-banner-grid.cols-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .training-banner-grid { grid-template-columns: 1fr; }
+    }
+    .training-banner-tile {
+      background: rgba(255,255,255,0.04); border-radius: 8px; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.15s, border-color 0.15s;
+      text-decoration: none; color: inherit;
+    }
+    .training-banner-tile:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.14); }
+    .training-banner-tile .tile-name {
+      font-size: 13px; font-weight: 700; color: #fff; line-height: 1.3;
+    }
+    .training-banner-tile .tile-desc {
+      font-size: 11px; color: rgba(255,255,255,0.6); line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .training-banner-tile .tile-cta {
+      font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85);
+      letter-spacing: 0.04em; text-transform: uppercase; margin-top: auto;
     }
     .week-badge {
       background: var(--purple); color: #fff; font-size: 9px; font-weight: 700;
@@ -301,20 +343,19 @@
       <button class="cat-btn"        data-cat="Solar"    onclick="setCat('Solar')">&#9728; Solar <span class="cat-count" id="cnt-Solar"></span></button>
       <button class="cat-btn"        data-cat="Roofing"  onclick="setCat('Roofing')">&#127968; Roofing <span class="cat-count" id="cnt-Roofing"></span></button>
       <button class="cat-btn"        data-cat="Battery"  onclick="setCat('Battery')">&#128267; Battery <span class="cat-count" id="cnt-Battery"></span></button>
-      <button class="cat-btn"        data-cat="Training" onclick="setCat('Training')">&#128218; Current Homework <span class="cat-count" id="cnt-Training"></span></button>
-      <button class="cat-btn"        data-cat="Sales Psychology" onclick="setCat('Sales Psychology')">&#129504; Sales Psychology <span class="cat-count" id="cnt-Sales-Psychology"></span></button>
+      <button class="cat-btn"        data-cat="Sales Fundamentals" onclick="setCat('Sales Fundamentals')">&#129504; Sales Fundamentals <span class="cat-count" id="cnt-Sales-Fundamentals"></span></button>
+      <button class="cat-btn"        data-cat="University" onclick="setCat('University')">&#127891; University <span class="cat-count" id="cnt-University"></span></button>
     </div>
   </div>
 </header>
 
 <main>
   <div id="trainingBanner" style="display:none" class="training-banner">
-    <div class="week-badge">Current Homework</div>
-    <div class="training-info">
-      <div class="training-name" id="trainingName"></div>
-      <div class="training-desc" id="trainingDesc"></div>
+    <div class="training-banner-header">
+      <div class="week-badge">Current Homework</div>
+      <div class="header-note" id="trainingHeaderNote"></div>
     </div>
-    <a href="#" class="training-cta" id="trainingLink" target="_blank" rel="noopener">Open Deck &rarr;</a>
+    <div id="trainingBannerGrid" class="training-banner-grid"></div>
   </div>
 
   <div class="filter-bar" id="filterBar" style="display:none">
@@ -350,8 +391,8 @@ const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const CAT_ORDER  = ['Solar', 'Roofing', 'Battery', 'Training', 'Sales Psychology'];
-const CAT_COLOR  = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', Training: '#8B5CF6', 'Sales Psychology': '#C4457A' };
+const CAT_ORDER  = ['Solar', 'Roofing', 'Battery', 'Sales Fundamentals', 'University'];
+const CAT_COLOR  = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', 'Sales Fundamentals': '#C4457A', University: '#0E9B8A' };
 const TYPE_EMOJI = {
   'Calculator': '&#129518;', 'Map Tool': '&#128506;', 'Reference Portal': '&#128279;',
   'Reference Doc': '&#128196;', 'Form': '&#128203;', 'Document': '&#128209;',
@@ -373,6 +414,12 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') clearSearch();
 });
 
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 async function init() {
   const { data, error } = await sb.from('resources').select('*')
     .eq('active', true).order('sort_order').order('name');
@@ -387,12 +434,22 @@ async function init() {
     const el = document.getElementById('cnt-' + cat.replace(/ /g, '-'));
     if (el) el.textContent = all.filter(r => r.category === cat).length;
   });
-  const cur = all.find(r => r.category === 'Training' && r.is_current);
-  if (cur) {
-    document.getElementById('trainingName').textContent = cur.name;
-    document.getElementById('trainingDesc').textContent = cur.description || '';
-    document.getElementById('trainingLink').href = cur.url;
-    document.getElementById('trainingBanner').style.display = 'flex';
+  const currentItems = all.filter(r => r.is_current).slice(0, 4);
+  if (currentItems.length > 0) {
+    const grid = document.getElementById('trainingBannerGrid');
+    grid.className = 'training-banner-grid cols-' + currentItems.length;
+    grid.innerHTML = currentItems.map(r => {
+      const desc = r.description ? `<div class="tile-desc">${escapeHtml(r.description)}</div>` : '';
+      return `<a class="training-banner-tile" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">
+        <div class="tile-name">${escapeHtml(r.name)}</div>
+        ${desc}
+        <div class="tile-cta">Open &rarr;</div>
+      </a>`;
+    }).join('');
+    document.getElementById('trainingHeaderNote').textContent =
+      currentItems.length === 1 ? 'Featured this week'
+                                 : `${currentItems.length} items featured this week`;
+    document.getElementById('trainingBanner').style.display = 'block';
   }
   render();
 }
