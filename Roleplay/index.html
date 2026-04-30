@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trinity Roleplay — Sales Sim</title>
+<title>Trinity Roleplay -- Sales Sim</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1143,7 +1143,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
       <div class="disc-sel-card disc-I" data-value="I">
         <div class="disc-sel-type">I</div>
         <div class="disc-sel-label">Expressive</div>
-        <div class="disc-sel-desc">Warm, enthusiastic, social. Won't object directly — watch for energy shifts.</div>
+        <div class="disc-sel-desc">Warm, enthusiastic, social. Won't object directly -- watch for energy shifts.</div>
       </div>
       <div class="disc-sel-card disc-S selected" data-value="S">
         <div class="disc-sel-type">S</div>
@@ -1158,7 +1158,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
       <div class="disc-sel-card disc-R" data-value="Random" style="grid-column: span 2;">
         <div class="disc-sel-type">?</div>
         <div class="disc-sel-label">Random</div>
-        <div class="disc-sel-desc">System picks — good for keeping reps on their toes.</div>
+        <div class="disc-sel-desc">System picks -- good for keeping reps on their toes.</div>
       </div>
     </div>
 
@@ -1242,13 +1242,13 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
   <!-- Reactive Guide -->
   <div class="gm-section">
-    <div class="gm-section-title">Reactive Guide — Follow the Rep's Lead</div>
+    <div class="gm-section-title">Reactive Guide -- Follow the Rep's Lead</div>
     <div class="guide-card" id="gm-guide"></div>
   </div>
 
   <!-- Objection Cards -->
   <div class="gm-section">
-    <div class="gm-section-title">Objection Cards — Deploy When Cued</div>
+    <div class="gm-section-title">Objection Cards -- Deploy When Cued</div>
     <div id="gm-objections"></div>
   </div>
 
@@ -1260,7 +1260,7 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
 
   <!-- Buying Signal Checklist -->
   <div class="gm-section">
-    <div class="gm-section-title">Buying Signal Checklist — Mark When Earned</div>
+    <div class="gm-section-title">Buying Signal Checklist -- Mark When Earned</div>
     <div class="checklist" id="gm-checklist"></div>
   </div>
 
@@ -1308,7 +1308,7 @@ function router() {
     showView('gm')
     try {
       const raw = sessionStorage.getItem(`scenario_${localKey}`)
-      if (!raw) { showToast('Scenario expired — generate a new one'); showView('generate'); return }
+      if (!raw) { showToast('Scenario expired -- generate a new one'); showView('generate'); return }
       const scenario = JSON.parse(raw)
       const shaped = {
         ...scenario,
@@ -1370,7 +1370,7 @@ function showView(name) {
 
 // ── PILL SELECTORS ────────────────────────────────────────────
 function initPillGroups() {
-  // Product group — multi-select
+  // Product group -- multi-select
   const productGroup = document.getElementById('product-group')
   productGroup.addEventListener('click', e => {
     const pill = e.target.closest('.pill')
@@ -1378,7 +1378,7 @@ function initPillGroups() {
     pill.classList.toggle('selected')
   })
 
-  // Skill group — single-select
+  // Skill group -- single-select
   document.querySelectorAll('.pill-group:not(#product-group)').forEach(group => {
     group.addEventListener('click', e => {
       const pill = e.target.closest('.pill')
@@ -1520,7 +1520,7 @@ async function generateScenario() {
 
   } catch (err) {
     console.error(err)
-    showToast(err.message || 'Generation failed — check console')
+    showToast(err.message || 'Generation failed -- check console')
   } finally {
     btn.disabled = false
     btn.innerHTML = '<div class="btn-inner"><span>Generate Another</span></div>'
@@ -1534,7 +1534,7 @@ function renderScenarioPreview(s, id, saved = false) {
   card.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 
   const badge = document.getElementById('preview-disc-badge')
-  badge.textContent = `${s.disc_type} — ${discLabel(s.disc_type)}`
+  badge.textContent = `${s.disc_type} -- ${discLabel(s.disc_type)}`
   badge.className = `disc-badge ${s.disc_type}`
 
   const names = s.homeowner_name_2
@@ -1625,14 +1625,14 @@ async function loadGMView(sessionId) {
     const { data, error } = await sb.rpc('get_scenario', { scenario_id: sessionId })
 
     if (error) {
-      document.getElementById('gm-session-meta').textContent = 'Load error — ' + error.message
+      document.getElementById('gm-session-meta').textContent = 'Load error -- ' + error.message
       showToast('Could not load: ' + error.message)
       return
     }
 
     if (!data) {
       document.getElementById('gm-session-meta').textContent = 'Scenario not found'
-      showToast('Scenario not found — ask manager to reshare')
+      showToast('Scenario not found -- ask manager to reshare')
       return
     }
 
@@ -1662,7 +1662,7 @@ function renderGMInterface(s) {
     badge.textContent = discType
     badge.className = `disc-badge gm-disc-badge ${discType}`
 
-    // Names — present spouse only in header; absent spouse surfaces in backstory
+    // Names -- present spouse only in header; absent spouse surfaces in backstory
     document.getElementById('gm-names').textContent = s.homeowner_name_1 || 'Unknown'
     document.getElementById('gm-jobs').textContent = s.homeowner_occupation_1 || ''
 
@@ -1683,14 +1683,14 @@ function renderGMInterface(s) {
       meta.appendChild(chip)
     })
 
-    // Backstory — absent spouse appended naturally as character flavor if one-legger
+    // Backstory -- absent spouse appended naturally as character flavor if one-legger
     const absentSpouse = gmData.absent_spouse || null
     let backstoryText = s.life_context || gmData.character_brief || s.persona_backstory || ''
     if (absentSpouse) {
       const reachable = absentSpouse.reachable
         ? `${absentSpouse.name} can be reached by phone if the rep asks.`
         : `${absentSpouse.name} isn't easily reachable right now.`
-      backstoryText += `\n\nYour ${absentSpouse.relation} ${absentSpouse.name} — ${absentSpouse.occupation} — is out right now: ${absentSpouse.away_reason}. If asked about ${absentSpouse.name}, you'd describe them as ${absentSpouse.presumed_stance}. ${reachable}`
+      backstoryText += `\n\nYour ${absentSpouse.relation} ${absentSpouse.name} -- ${absentSpouse.occupation} -- is out right now: ${absentSpouse.away_reason}. If asked about ${absentSpouse.name}, you'd describe them as ${absentSpouse.presumed_stance}. ${reachable}`
     }
     document.getElementById('gm-backstory').textContent = backstoryText
 
@@ -1702,7 +1702,7 @@ function renderGMInterface(s) {
       <div class="disposition-dot"></div>
       <div>
         <span class="disposition-label">${disp}</span>
-        <span class="disposition-text"> — opening energy when the rep arrives</span>
+        <span class="disposition-text"> -- opening energy when the rep arrives</span>
       </div>
     `
 
@@ -1797,7 +1797,7 @@ function renderDISCCard(type) {
       rules: [
         { label: 'Opening Energy', text: 'Direct and purposeful. Gets to business fast. Shakes hand firmly.' },
         { label: 'Small Talk', text: 'Tolerate 60 seconds max, then redirect. "Alright, what have you got?"' },
-        { label: 'Objection Style', text: 'States concerns bluntly. No softening. Expects direct answers — not emotional appeals.' },
+        { label: 'Objection Style', text: 'States concerns bluntly. No softening. Expects direct answers -- not emotional appeals.' },
         { label: 'Buying Signal', text: 'Asks a closing question themselves. Leans forward. Stops looking at phone.' },
         { label: 'If Pressured', text: 'Goes cold. Ends the conversation. Never be manipulative with a D type.' },
       ]
@@ -1805,9 +1805,9 @@ function renderDISCCard(type) {
     I: {
       rules: [
         { label: 'Opening Energy', text: 'Warm and chatty immediately. May offer coffee. Enthusiastic.' },
-        { label: 'Small Talk', text: 'Generous — shares stories, talks about neighbors. Let it breathe.' },
+        { label: 'Small Talk', text: 'Generous -- shares stories, talks about neighbors. Let it breathe.' },
         { label: 'Objection Style', text: 'Never direct. Energy shifts. Changes subject or jokes. Watch for the drop.' },
-        { label: 'Buying Signal', text: 'Gets excited about the idea. Starts imagining it. This is the close moment — rep must act.' },
+        { label: 'Buying Signal', text: 'Gets excited about the idea. Starts imagining it. This is the close moment -- rep must act.' },
         { label: 'If Pressured', text: 'Gets vague. "Yeah definitely." Smile stays but engagement drops.' },
       ]
     },
@@ -1817,7 +1817,7 @@ function renderDISCCard(type) {
         { label: 'Small Talk', text: 'Very comfortable. Will share life context naturally if asked good questions.' },
         { label: 'Objection Style', text: 'Never direct. "Let me think about it." "I want to talk to my spouse." Real concern usually unstated.' },
         { label: 'Buying Signal', text: 'Asks what happens next. Imagines the timeline. Consistent warm engagement.' },
-        { label: 'If Pressured', text: 'Very polite, very vague. Smiles a lot. Will not end the meeting — no conflict.' },
+        { label: 'If Pressured', text: 'Very polite, very vague. Smiles a lot. Will not end the meeting -- no conflict.' },
       ]
     },
     C: {
@@ -1825,7 +1825,7 @@ function renderDISCCard(type) {
         { label: 'Opening Energy', text: 'Measured. Has done research. Observes before committing to the conversation.' },
         { label: 'Small Talk', text: 'Reserved. Engages when rep demonstrates knowledge. Respects accuracy.' },
         { label: 'Objection Style', text: '"The numbers don\'t work as presented." "I read that degradation is higher." Expects data back.' },
-        { label: 'Buying Signal', text: 'Asks specific next-step questions. "What\'s the permit timeline?" Green lights — they\'re verifying.' },
+        { label: 'Buying Signal', text: 'Asks specific next-step questions. "What\'s the permit timeline?" Green lights -- they\'re verifying.' },
         { label: 'If Pressured', text: 'Polite withdrawal. Will research independently and potentially come back on their own.' },
       ]
     },

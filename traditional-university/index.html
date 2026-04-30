@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Traditional Sales University — Rep Portal</title>
+<title>Traditional Sales University -- Rep Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -519,7 +519,7 @@ main { padding: var(--s-7) 0 var(--s-8); min-height: 70vh; }
           <div class="form-group">
             <label>Related cert (optional)</label>
             <select id="up-cert">
-              <option value="">— None —</option>
+              <option value="">-- None --</option>
             </select>
           </div>
           <div class="form-group">
@@ -1230,7 +1230,7 @@ function renderUploads() {
 
 function populateCertDropdown() {
   const sel = document.getElementById('up-cert');
-  sel.innerHTML = '<option value="">— None —</option>' +
+  sel.innerHTML = '<option value="">-- None --</option>' +
     state.certs.map(c => `<option value="${c.id}">${c.icon || ''} ${c.name} (Stage ${c.stage})</option>`).join('');
 }
 

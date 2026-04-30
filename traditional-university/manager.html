@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Traditional Sales University — Manager Portal</title>
+<title>Traditional Sales University -- Manager Portal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -790,7 +790,7 @@ async function openQuizReview(attemptId) {
           const chosen = opts.find(o => o.key === r.response_option);
           const correct = opts.find(o => o.key === q.correct_answer);
           answerHtml = `
-            <div><strong>Rep answered:</strong> ${r.response_option?.toUpperCase() || '—'}. ${escapeHtml(chosen?.text || '')}
+            <div><strong>Rep answered:</strong> ${r.response_option?.toUpperCase() || '--'}. ${escapeHtml(chosen?.text || '')}
               ${r.is_correct ? '<span class="status-badge status-approved" style="margin-left:8px;">Correct</span>' : '<span class="status-badge status-retake" style="margin-left:8px;">Incorrect</span>'}
             </div>
             ${!r.is_correct ? `<div style="margin-top:6px; color: var(--text-muted);"><strong>Correct:</strong> ${q.correct_answer?.toUpperCase()}. ${escapeHtml(correct?.text || '')}</div>` : ''}`;
@@ -801,7 +801,7 @@ async function openQuizReview(attemptId) {
             </div>
             ${!r.is_correct ? `<div style="margin-top:6px; color: var(--text-muted);"><strong>Correct:</strong> ${q.correct_answer}</div>` : ''}`;
         } else {
-          answerHtml = `<div>${escapeHtml(r.response_text || '—')}</div>
+          answerHtml = `<div>${escapeHtml(r.response_text || '--')}</div>
             <div class="verdict-row">
               <strong style="font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-subtle);">Your verdict:</strong>
               <label><input type="radio" name="verdict-${r.id}" value="pass" ${r.manager_verdict === 'pass' ? 'checked' : ''} onchange="setVerdict('${r.id}','pass')"> Pass</label>
@@ -921,7 +921,7 @@ function renderShadows() {
       <div class="queue-item shadow">
         <div class="head">
           <div>
-            <div class="title">${escapeHtml(rep?.name || '—')} shadowed ${escapeHtml(s.shadowed_rep_name)}</div>
+            <div class="title">${escapeHtml(rep?.name || '--')} shadowed ${escapeHtml(s.shadowed_rep_name)}</div>
             <div class="meta">${formatDate(s.shadow_date)}${s.duration_minutes ? ` · ${s.duration_minutes} min` : ''}</div>
           </div>
           <span class="status-badge ${statusClass}">${s.status}</span>
@@ -970,7 +970,7 @@ function renderHelp() {
       <div class="queue-item help">
         <div class="head">
           <div>
-            <div class="title">${escapeHtml(rep?.name || '—')}</div>
+            <div class="title">${escapeHtml(rep?.name || '--')}</div>
             <div class="meta">${formatDate(h.created_at)}</div>
           </div>
           <span class="status-badge ${h.status === 'resolved' ? 'status-approved' : 'status-pending'}">${h.status}</span>
@@ -1036,13 +1036,13 @@ function renderReps() {
           const s2Done = state.assignments.filter(a =>
             a.rep_id === rep.id && a.status === 'approved' && s2Certs.some(c => c.id === a.cert_id)
           ).length;
-          const day = rep.cohort_start_date ? daysSince(rep.cohort_start_date) : '—';
+          const day = rep.cohort_start_date ? daysSince(rep.cohort_start_date) : '--';
           return `
             <tr>
               <td data-label="Name"><strong>${escapeHtml(rep.name)}</strong></td>
-              <td data-label="Nickname"><code style="background: var(--hairline-soft); padding: 2px 6px; border-radius: 4px; font-size: 0.8125rem;">${escapeHtml(rep.nickname || '—')}</code></td>
-              <td data-label="Email">${escapeHtml(rep.email || '—')}</td>
-              <td data-label="Cohort day">${day === '—' ? '—' : `Day ${day}`}</td>
+              <td data-label="Nickname"><code style="background: var(--hairline-soft); padding: 2px 6px; border-radius: 4px; font-size: 0.8125rem;">${escapeHtml(rep.nickname || '--')}</code></td>
+              <td data-label="Email">${escapeHtml(rep.email || '--')}</td>
+              <td data-label="Cohort day">${day === '--' ? '--' : `Day ${day}`}</td>
               <td data-label="Stage 1">
                 <span class="mini-bar"><span class="fill" style="width:${(s1Done/s1Certs.length)*100}%"></span></span>
                 <span style="font-family: 'SF Mono', monospace; font-size: 0.8125rem; color: var(--text-muted);">${s1Done}/${s1Certs.length}</span>
@@ -1169,8 +1169,8 @@ function renderManagers() {
           return `
             <tr>
               <td data-label="Name"><strong>${escapeHtml(m.name)}</strong>${isSelf ? ' <span style="font-size:0.75rem; color: var(--text-subtle);">(you)</span>' : ''}</td>
-              <td data-label="Nickname"><code style="background: var(--hairline-soft); padding: 2px 6px; border-radius: 4px; font-size: 0.8125rem;">${escapeHtml(m.nickname || '—')}</code></td>
-              <td data-label="Email">${escapeHtml(m.email || '—')}</td>
+              <td data-label="Nickname"><code style="background: var(--hairline-soft); padding: 2px 6px; border-radius: 4px; font-size: 0.8125rem;">${escapeHtml(m.nickname || '--')}</code></td>
+              <td data-label="Email">${escapeHtml(m.email || '--')}</td>
               <td data-label="Role">${m.is_admin ? '<span class="status-badge status-approved">Admin</span>' : '<span class="status-badge status-not-started">Manager</span>'}</td>
               <td data-label="Linked">${m.auth_user_id ? '<span class="status-badge status-approved">Yes</span>' : '<span class="status-badge status-not-started">No</span>'}</td>
               <td data-label="Actions">
