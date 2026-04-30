@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selling the Rate with Conviction · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --surface: #F7F8F4;
+  --warm: #FAFBF7;
+  --white: #FFFFFF;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --warn: #E9A648;
+  --red: #C84545;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); font-variation-settings: "opsz" 144; line-height: 1.05; font-weight: 400; }
+h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-variation-settings: "opsz" 72; line-height: 1.15; font-weight: 500; margin-bottom: 14px; }
+h3 { font-size: 1.2rem; font-weight: 600; line-height: 1.3; margin-bottom: 10px; }
+h4 { font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; color: var(--ink); }
+p { margin-bottom: 12px; color: var(--text); }
+ul, ol { padding-left: 22px; margin-bottom: 12px; }
+li { margin-bottom: 6px; color: var(--text); }
+strong { font-weight: 700; color: var(--ink); }
+em { font-style: italic; }
+a { color: var(--blue-dk); text-decoration: none; }
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 10px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+
+/* HEADER */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 0;
+  border-bottom: 3px solid var(--green);
+}
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .logo {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem; font-weight: 600;
+  color: #fff; letter-spacing: 0.02em;
+}
+.brand .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.2); }
+.brand .team { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.7); }
+.page-title { font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* TOC NAV */
+.toc-nav {
+  background: linear-gradient(to bottom, #fff 0%, var(--warm) 100%);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 4px 12px rgba(15,32,56,0.05);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.toc-nav::-webkit-scrollbar { display: none; }
+.toc-nav .wrap { display: flex; gap: 0; align-items: stretch; }
+.toc-nav a {
+  font-size: 0.8125rem; font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 13px 16px;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.toc-nav a .num {
+  font-size: 0.66rem; font-weight: 800;
+  background: var(--line); color: var(--muted);
+  border-radius: 999px; padding: 1px 7px; line-height: 1.45;
+}
+.toc-nav a:hover { color: var(--ink); border-bottom-color: var(--green); }
+.toc-nav a.active { color: var(--ink); border-bottom-color: var(--green); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+  color: #fff;
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 40% at 20% 50%, rgba(41,169,225,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 50%, rgba(120,200,50,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero .wrap { position: relative; z-index: 1; }
+.hero .eyebrow { color: var(--green); }
+.hero h1 { color: #fff; max-width: 820px; margin-bottom: 22px; }
+.hero h1 em { font-style: italic; background: linear-gradient(135deg, var(--blue), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .lede {
+  font-size: 1.15rem; line-height: 1.55;
+  color: rgba(255,255,255,0.78);
+  max-width: 620px;
+}
+.hero .lede strong { color: #fff; font-weight: 600; }
+
+/* PRINCIPLE STRIP */
+.principles {
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+.principles .wrap {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+}
+.principle {
+  padding: 28px 18px;
+  text-align: center;
+  border-right: 1px solid var(--line-soft);
+  position: relative;
+}
+.principle:last-child { border-right: none; }
+.principle .num {
+  font-family: 'Fraunces', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--green);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.principle .num.alt { color: var(--blue); }
+.principle .label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.principle .sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+@media (max-width: 720px) {
+  .principles .wrap { grid-template-columns: repeat(2, 1fr); }
+  .principle { border-right: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+  .principle:nth-child(2n) { border-right: none; }
+  .principle:last-child { grid-column: span 2; border-right: none; border-bottom: none; }
+}
+
+/* SECTIONS */
+.section { padding: 64px 0; border-bottom: 1px solid var(--line); }
+.section.alt { background: var(--warm); }
+.section-header { margin-bottom: 32px; max-width: 720px; }
+.section-header p {
+  color: var(--muted);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* CARDS */
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.card.green-left { border-left: 4px solid var(--green); }
+.card.blue-left { border-left: 4px solid var(--blue); }
+.card.ink-left { border-left: 4px solid var(--ink); }
+.card.warm-left { border-left: 4px solid var(--warn); }
+.card h3 { margin-bottom: 10px; }
+.card .lede {
+  font-size: 1.02rem;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+/* GRID LAYOUTS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .three-col { grid-template-columns: 1fr; } }
+
+/* COMPARE CARD */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+}
+.compare > div { padding: 22px 24px; background: var(--white); }
+.compare .left {
+  background: rgba(200,69,69,0.04);
+  border-right: 1px solid var(--line);
+}
+.compare .right { background: rgba(120,200,50,0.06); }
+.compare h4 { margin-bottom: 10px; }
+.compare .left h4 { color: var(--red); }
+.compare .right h4 { color: var(--green-dk); }
+.compare ul { padding-left: 18px; margin: 0; }
+.compare li { font-size: 0.94rem; margin-bottom: 6px; }
+@media (max-width: 720px) {
+  .compare { grid-template-columns: 1fr; }
+  .compare .left { border-right: none; border-bottom: 1px solid var(--line); }
+}
+
+/* PULL QUOTE */
+.pullquote {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--ink);
+  padding: 30px 36px;
+  border-left: 4px solid var(--green);
+  background: var(--warm);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin: 24px 0;
+}
+.pullquote .attr {
+  display: block;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 14px;
+}
+
+/* TIP STRIP */
+.tip {
+  background: linear-gradient(135deg, rgba(120,200,50,0.08), rgba(41,169,225,0.06));
+  border: 1px solid rgba(120,200,50,0.25);
+  border-radius: var(--r-md);
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  margin: 14px 0;
+}
+.tip strong { color: var(--green-dk); }
+
+/* OBJECTION CARDS */
+.obj-list { display: grid; gap: 14px; }
+.obj-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.obj-card .obj-q {
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 18px;
+  font-weight: 700; font-size: 0.95rem;
+}
+.obj-card .obj-a {
+  padding: 14px 18px 6px;
+  font-size: 0.95rem;
+}
+.obj-card .obj-a .label {
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  display: inline-block;
+}
+.obj-card .obj-a .label.do { background: rgba(120,200,50,0.15); color: var(--green-dk); }
+.obj-card .obj-a .label.dont { background: rgba(200,69,69,0.12); color: var(--red); }
+
+/* SCRIPT BLOCK */
+.script {
+  background: rgba(41,169,225,0.06);
+  border-left: 3px solid var(--blue);
+  padding: 12px 18px;
+  margin: 10px 0;
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+/* NUMBERED STEPS */
+.steps { display: grid; gap: 14px; }
+.step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  align-items: start;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.step .num {
+  font-family: 'Fraunces', serif;
+  font-size: 2.1rem;
+  font-weight: 400;
+  color: var(--green);
+  line-height: 1;
+}
+.step .body h4 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.step .body p { margin: 0; font-size: 0.95rem; color: var(--text); }
+
+/* CLOSER STRIP */
+.closer {
+  background: var(--ink);
+  color: #fff;
+  padding: 60px 0;
+  text-align: center;
+}
+.closer h2 { color: #fff; margin-bottom: 28px; }
+.closer .one-liners {
+  display: grid;
+  gap: 12px;
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: left;
+}
+.closer .one {
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--green);
+  padding: 12px 22px;
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.92);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.closer .signoff {
+  margin-top: 36px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* FOOTER */
+.foot {
+  padding: 30px 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: var(--warm);
+}
+
+/* MISC */
+.kicker {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+.divider-rule {
+  height: 2px;
+  background: linear-gradient(to right, var(--green), var(--blue));
+  border: none;
+  margin: 30px 0;
+  opacity: 0.4;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">Sales Resource · Rate Mastery</div>
+    </div>
+  </div>
+
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#mindset"><span class="num">1</span> Mindset</a>
+      <a href="#discovery"><span class="num">2</span> Discovery</a>
+      <a href="#reveal"><span class="num">3</span> Reveal</a>
+      <a href="#math"><span class="num">4</span> The Math</a>
+      <a href="#reframes"><span class="num">5</span> Reframes</a>
+      <a href="#trust"><span class="num">6</span> Trust</a>
+      <a href="#objections"><span class="num">7</span> Objections</a>
+      <a href="#discipline"><span class="num">8</span> Discipline</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">CT Traditional · Sales Resource</span>
+    <h1>Selling the Rate <em>with Conviction</em></h1>
+    <p class="lede">
+      The rate is not the problem. The way we present it is.
+      <br><br>
+      <strong>Confidence is not pressure — it's the highest form of service.</strong>
+      Information is not integrity. The customer will never be more convinced than you are.
+    </p>
+  </div>
+</section>
+
+<!-- 5 PRINCIPLES STRIP -->
+<section class="principles">
+  <div class="wrap">
+    <div class="principle">
+      <div class="num">01</div>
+      <div class="label">Believe</div>
+      <div class="sub">Your conviction transfers</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">02</div>
+      <div class="label">Earn It</div>
+      <div class="sub">Discovery before price</div>
+    </div>
+    <div class="principle">
+      <div class="num">03</div>
+      <div class="label">Own It</div>
+      <div class="sub">Bring up the rate first</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">04</div>
+      <div class="label">Show the Math</div>
+      <div class="sub">25-year side-by-side</div>
+    </div>
+    <div class="principle">
+      <div class="num">05</div>
+      <div class="label">Reframe</div>
+      <div class="sub">Rate = protection, not cost</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: MINDSET -->
+<section class="section" id="mindset">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 1 · The Foundation</span>
+      <h2>Mindset — Where It All Starts</h2>
+      <p>Belief is upstream of every technique. If you treat the rate as a problem, it becomes one. If you believe what you're selling, the customer follows.</p>
+    </div>
+
+    <div class="pullquote">
+      "The customer will never be more convinced than you are. Their confidence is a direct mirror of yours."
+      <span class="attr">The Mirror Effect</span>
+    </div>
+
+    <div class="card green-left">
+      <h3>Five rules that change everything</h3>
+      <ul>
+        <li><strong>Your conviction transfers.</strong> Treat the rate as a problem and it becomes one. State it as fact, move on.</li>
+        <li><strong>Don't apologize.</strong> Hesitation creates a flag the customer wasn't going to raise. Subconscious apologies kill deals.</li>
+        <li><strong>Don't bend.</strong> When you hit resistance, make your case stronger — never drop the rate. Reducing it confirms their instinct that something was off.</li>
+        <li><strong>Don't create the objection.</strong> Full belief means rate concerns rarely surface unprompted.</li>
+        <li><strong>It's a problem when you make it a problem.</strong> It's not a problem when you don't.</li>
+      </ul>
+    </div>
+
+    <div class="compare">
+      <div class="left">
+        <h4>Presenting from Fear</h4>
+        <ul>
+          <li>You're unsure they're truly convinced</li>
+          <li>You go lower hoping the number saves it</li>
+          <li>Body language shows hesitation</li>
+          <li>You signal the price wasn't fully justified</li>
+          <li>Your nervousness becomes their nervousness</li>
+        </ul>
+      </div>
+      <div class="right">
+        <h4>Presenting from Conviction</h4>
+        <ul>
+          <li>You built real value in discovery</li>
+          <li>You know solar is the right answer for them</li>
+          <li>You believe in the long-term picture</li>
+          <li>You present with calm confidence</li>
+          <li>The customer feels it's fair and earned</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card blue-left">
+      <h3>The Premium-Brand Rule</h3>
+      <p>A Mercedes salesperson never apologizes for not being a Toyota. And they never sell a Mercedes at a Toyota price — because that signals <em>"you're not really a Mercedes."</em></p>
+      <p style="margin: 0;">Trinity is the premium brand. If we offered 0%, something would be wrong somewhere. Our transparent rate <em>is</em> our credibility.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: DISCOVERY -->
+<section class="section alt" id="discovery">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 2 · Earn the Right</span>
+      <h2>Discovery — Earn the Rate Conversation</h2>
+      <p>The rate conversation is won or lost before you ever say "2.99." If discovery is thin, the rate becomes the headline. If discovery is deep, the rate is the final piece.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>The Five Pillars of Discovery</h3>
+      <p>If you can't answer all five before you present, you haven't earned the right to prescribe.</p>
+      <ul>
+        <li><strong>The Pain</strong> — what do they hate about the bill?</li>
+        <li><strong>The Fear</strong> — what are they protecting against?</li>
+        <li><strong>The Vision</strong> — what does the solution feel like?</li>
+        <li><strong>The Timeline</strong> — how long do they plan to stay? What's the urgency?</li>
+        <li><strong>The Decision</strong> — who makes it, and are they here?</li>
+      </ul>
+    </div>
+
+    <div class="card blue-left">
+      <h3>Pain-Anchoring Questions That Do the Work</h3>
+      <div class="script">"How long have you been frustrated with your Eversource bill?"</div>
+      <div class="script">"What's your highest electric bill in the last year?"</div>
+      <div class="script">"Where do you think your bill will be in 10–15 years?"</div>
+      <div class="script">"If rates doubled again in the next 10 years, how would that impact your household?"</div>
+      <div class="script">"What would it mean to have a predictable, fixed energy cost each month?"</div>
+    </div>
+
+    <div class="card warm-left">
+      <h3>Translate Their Language Before Solar Comes Up</h3>
+      <p>Most customers haven't told you they were worried about rate. We focused them there. Get them fluent in <strong>big percentages</strong> on every other rising cost <em>first</em>.</p>
+      <ul>
+        <li>They say "double" → echo back <strong>"100% increase"</strong></li>
+        <li>They say "triple" → <strong>"200% increase"</strong></li>
+        <li>They say "quadruple" → <strong>"300% increase"</strong></li>
+      </ul>
+      <p style="margin:0;">Now when you reach the rate conversation, the language is already theirs. Big percentages feel concrete. The 2.9% cap feels small.</p>
+    </div>
+
+    <div class="tip">
+      <strong>Make small numbers big and big numbers small.</strong> Most customers fixate on the rate because we put it in front of them too early. Build the pain on the bill — the rate becomes the answer, not the problem.
+    </div>
+
+    <div class="card ink-left">
+      <h3>Timing — When the Rate Comes Up</h3>
+      <p>The rate should not enter the conversation until the customer has mentally said yes to:</p>
+      <ul>
+        <li>The equipment</li>
+        <li>The service model</li>
+        <li>Trinity as the company</li>
+        <li>The decision-making framework</li>
+      </ul>
+      <p style="margin:0;">If the rate comes up before they've said yes to those — you've handed them a stall. By the time you get there, if you've done the job, they're not buying the rate. <strong>They're buying Trinity.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: REVEAL -->
+<section class="section" id="reveal">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 3 · The Moment of Truth</span>
+      <h2>How You Reveal the Rate</h2>
+      <p>Control the narrative. Don't let them discover it as a surprise. The way you say the number determines how they hear it.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>Bring it up before they do</h3>
+      <p>Pause. Look at them. Then own it.</p>
+      <div class="script">"I want to be upfront with you about something. Our rate is not 0%. The reason I'm bringing it up is because I believe in it and I can explain it to you."</div>
+      <p style="margin:0;">By proactively raising it, you control the narrative. They feel you're being honest — not hiding something. <strong>That's where credibility comes from.</strong></p>
+    </div>
+
+    <div class="card blue-left">
+      <h3>Anchor high before the number lands</h3>
+      <p>Reference equipment quality, the warranty, service history, total cost of ownership — <em>before</em> the rate appears. Properly anchored, the 2.9% feels like a bargain.</p>
+      <p style="margin:0;">Anchoring is the most powerful move in your toolkit. The first number a customer hears becomes the reference point for every number that follows.</p>
+    </div>
+
+    <div class="card warm-left">
+      <h3>Vocabulary discipline — words matter</h3>
+      <p>Don't say "escalator." That word implies <em>going up</em>.</p>
+      <p>Say <strong>"capped at 2.9% — half a penny a year."</strong></p>
+      <p style="margin:0;">Frame the cap as <em>protection</em>, not as an increase. You're not asking them to accept a rate that climbs. You're offering them a ceiling no other utility provides.</p>
+    </div>
+
+    <div class="card ink-left">
+      <h3>Reframe the rate as a qualification</h3>
+      <p>During the credit step, build it up. When credit comes back clean, celebrate it.</p>
+      <div class="script">"You qualified for the 2.9% — not the 3.9 or the 4.9. You must have great credit, or this must be a really good site. Congratulations."</div>
+      <p style="margin:0;">High-five. Fist-bump. Sign. The rate is no longer a price tag — it's a status they earned.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>Prescribe one solution — not a menu</h3>
+      <p>The rate becomes negotiable when there are three options to compare. <strong>One prescribed solution removes the comparison entirely.</strong></p>
+      <div class="script">"Based on everything you've shared — your usage, your goals, your timeline — I'm going to recommend the best solution for you and your family."</div>
+      <div class="script">"Not every homeowner qualifies for this program. For your situation, it's the right call."</div>
+      <div class="script">"I'd be doing you a disservice giving you a bunch of options to sort through tonight."</div>
+      <p style="margin:0;">Information is not integrity. Confidence is. If <em>we</em> don't know what's best for them after our training, how can they know after a 30-minute consult?</p>
+    </div>
+
+    <div class="compare">
+      <div class="left">
+        <h4>Don't Over-Explain the Rate</h4>
+        <ul>
+          <li>Three minutes on financing</li>
+          <li>Defending the number</li>
+          <li>Justifying every basis point</li>
+          <li>Talking yourself into objections</li>
+        </ul>
+      </div>
+      <div class="right">
+        <h4>One Sentence, Then Payment</h4>
+        <ul>
+          <li>Name the rate as fact</li>
+          <li>Move directly to monthly payment</li>
+          <li>Payment is what they live with</li>
+          <li>Rate is just how we got there</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Two valid delivery modes:</strong> matter-of-fact (no tone change, just present it) or celebratory (lean in, get excited). Both work. What kills you is hesitation in between.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: THE MATH -->
+<section class="section alt" id="math">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 4 · Proof on Paper</span>
+      <h2>The Math Wins When You Show It</h2>
+      <p>Numbers actually win when you put them on paper in front of the customer. Don't tell them — show them.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>"Where does the 0% come from?"</h3>
+      <p>This is the most powerful single question in a competitive situation. Either ask it for them, or hand them the question to ask the competitor.</p>
+      <div class="script">"That's a great question — you should ask. If a company is offering 0%, the financing cost is baked into a higher system price. The customer is paying it either way; one company is just hiding where it lives."</div>
+    </div>
+
+    <div class="card blue-left">
+      <h3>The 25-year side-by-side</h3>
+      <p>Trinity at 2.9% versus competitor at 0% — over 25 years, on total dollar outlay, we win almost every time. Especially in NJ and CT. The math doesn't lie.</p>
+      <p style="margin:0;">Pull out the system cost. Pull out the loan amount. Pull out the year-25 total. Lay them side by side. Let the numbers do the work.</p>
+    </div>
+
+    <div class="card warm-left">
+      <h3>Napkin Math — Draw It Live</h3>
+      <p>Line down the middle of a notepad. Left side: a generic 0% competitor. Right side: Trinity at 2.9%.</p>
+      <p>Fill in <strong>system cost · loan amount · monthly payment · year-25 total</strong> — in front of them, with your own pen.</p>
+      <p style="margin:0;">Watching you write it builds trust no pre-loaded slide can match. <em>It's not a graphic. It's live math happening in their kitchen.</em></p>
+    </div>
+
+    <div class="card ink-left">
+      <h3>Zoom out to total cost of ownership</h3>
+      <p>Frame against doing-nothing — the utility cost over 25 years. Now the rate becomes one variable in a much bigger picture, instead of the headline.</p>
+      <p style="margin:0;">When zoomed out, the Trinity number is almost always lower than the do-nothing number. Sometimes <em>dramatically</em> lower. The rate becomes almost irrelevant — they're saving money either way.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>Fixed vs. Escalator — End-State Equivalence</h3>
+      <p>If the customer is comparing fixed vs. escalator pricing, give them the secret:</p>
+      <div class="script">"At year 25, it's all the same. You spend the same money either way. So the question is — do you want to front-load it or not?"</div>
+      <p style="margin:0;">That single line defuses the entire fixed-vs-escalator debate.</p>
+    </div>
+
+    <div class="pullquote">
+      "Why are you scared to sell the rate? Know your fixed price and your escalator price cold — both make money. The rate is only a problem if you make it one."
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: REFRAMES -->
+<section class="section" id="reframes">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 5 · The Language</span>
+      <h2>Reframes &amp; Analogies</h2>
+      <p>Translate the rate into language homeowners already understand. The right analogy makes the number disappear.</p>
+    </div>
+
+    <div class="three-col">
+      <div class="card green-left">
+        <h3>Insurance Policy</h3>
+        <p style="margin:0;">0% means cost is hidden somewhere — cheaper equipment, padded system price, or a company on thin margins. Our 2.9% <em>is</em> the insurance that we'll be there in year 15 when your system needs service.</p>
+      </div>
+      <div class="card blue-left">
+        <h3>Long-Term Investment</h3>
+        <p style="margin:0;">The cheapest stock or the cheapest house is rarely the best investment. Quality always comes with a premium. Solar is the most important energy decision they'll make for 25 years — frame it like one.</p>
+      </div>
+      <div class="card warm-left">
+        <h3>Locked-In Rate</h3>
+        <p style="margin:0;">Utility rates rise. Yours doesn't move for the life of the loan. The predictability <em>is</em> the product. They're not buying solar — they're buying control.</p>
+      </div>
+    </div>
+
+    <div class="three-col" style="margin-top: 16px;">
+      <div class="card ink-left">
+        <h3>Cup of Coffee</h3>
+        <p style="margin:0;">"Do you want an $80–$90 utility increase next year, or a $6 increase that costs the same as your daily coffee?" Translates the abstract number into something everyone understands.</p>
+      </div>
+      <div class="card green-left">
+        <h3>Rate-Protection Urgency</h3>
+        <p style="margin:0;">Trinity's own rates have moved before. Locking in <em>today's</em> rate protects them against the next Trinity rate change too. Real urgency, real lever.</p>
+      </div>
+      <div class="card blue-left">
+        <h3>The First-Home Anchor</h3>
+        <p style="margin:0;">For older customers who don't believe rates will rise: <em>"What did you pay for your first house?"</em> The shock unlocks their own life experience as proof that prices climb relentlessly.</p>
+      </div>
+    </div>
+
+    <hr class="divider-rule">
+
+    <div class="pullquote">
+      "Solar is your customer's personal utility. Simple. Predictable. Theirs. The utility company is exposed to 12+ external volatility factors — your solar system isn't exposed to any of them."
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: TRUST -->
+<section class="section alt" id="trust">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 6 · The Real Fear</span>
+      <h2>Trinity Is the Real Insurance Policy</h2>
+      <p>Customers fear making a <em>bad decision</em> far more than they fear a higher rate. The rate objection is almost always a trust objection in disguise.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>Reframe rate → risk</h3>
+      <p>The customer's biggest fear is not the rate. It's that they're going to choose the wrong company.</p>
+      <p style="margin:0;"><strong>Move the conversation from "rate" to "risk and peace of mind."</strong> Now you're competing on something no 0% offer can match.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="card blue-left">
+        <h3>32 Years &amp; Counting</h3>
+        <p>"We were here before a lot of these companies existed, and we'll be here after a lot of them are gone."</p>
+        <p style="margin:0;">Many competitors haven't even outlived their own equipment warranty. Trinity has.</p>
+      </div>
+      <div class="card warm-left">
+        <h3>Healthy Margins = Service in Year 15</h3>
+        <p>A company at 0% with no margin can't be there when the system needs work. <em>Our rate is what funds our ability to show up.</em></p>
+        <p style="margin:0;">"I just ran into a rep last Sunday who left Trinity for a 0% competitor. They've had two rounds of layoffs this year. He wishes he never left."</p>
+      </div>
+    </div>
+
+    <div class="card ink-left">
+      <h3>Third-Party Credibility</h3>
+      <p>When a customer is anxious about choosing the wrong company, hand them <strong>independent</strong> proof.</p>
+      <ul style="margin: 0;">
+        <li>BBB accreditation — A+ rating</li>
+        <li>4.8 stars on Google with thousands of reviews</li>
+        <li>Decades in business through every market cycle</li>
+      </ul>
+    </div>
+
+    <div class="pullquote">
+      "Yes, we cost a little more. And here's exactly why that extra cost is worth it. We're not just selling solar — we're selling the company that will still be here in year 25."
+    </div>
+
+    <div class="tip">
+      <strong>The real value isn't saving money.</strong> It's control. Predictability. The guarantee that the $500 summer bill won't become a $1,000 summer bill that crushes the family. Sell <em>that</em>, not pennies per kWh.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: OBJECTIONS -->
+<section class="section" id="objections">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 7 · When Push Comes</span>
+      <h2>Objection Handling</h2>
+      <p>Respond with questions, not rebuttals. Curiosity, not defense. The objection contains the answer.</p>
+    </div>
+
+    <div class="obj-list">
+      <div class="obj-card">
+        <div class="obj-q">"Your rate is too high."</div>
+        <div class="obj-a">
+          <p><span class="label dont">Don't</span> Drop the rate immediately. Defend the number.</p>
+          <p style="margin:0;"><span class="label do">Do</span> Respond with curiosity. <em>"That's a fair concern — can you help me understand what you're comparing it to?"</em> Most of the time, they don't actually know — or it's a 0% offer you can dismantle in 90 seconds.</p>
+        </div>
+      </div>
+
+      <div class="obj-card">
+        <div class="obj-q">"I need to think about it."</div>
+        <div class="obj-a">
+          <p><span class="label dont">Don't</span> "No problem, take your time." (Then leave with no plan.)</p>
+          <p style="margin:0;"><span class="label do">Do</span> "Think about it" is rarely about time — it's unresolved doubt. <em>"I hear you. Help me understand — what's the main thing on your mind?"</em> or <em>"What would need to be true for you to feel confident moving forward today?"</em></p>
+        </div>
+      </div>
+
+      <div class="obj-card">
+        <div class="obj-q">"What if rates go down?"</div>
+        <div class="obj-a">
+          <p><span class="label dont">Don't</span> "They probably won't." (Dismissive, confrontational.)</p>
+          <p style="margin:0;"><span class="label do">Do</span> <em>"That's a fair question — and exactly what we should explore. Where do you think rates will be in 15 years? Let's look at what the utilities themselves are saying."</em> Get them to answer it themselves.</p>
+        </div>
+      </div>
+
+      <div class="obj-card">
+        <div class="obj-q">"Another company quoted me less."</div>
+        <div class="obj-a">
+          <p><span class="label dont">Don't</span> "I'll match it" or "they're cutting corners."</p>
+          <p style="margin:0;"><span class="label do">Do</span> <em>"Every project is unique. What I'd like to do is walk the home with you, get photos of your meter, panel, and attic — make sure we have an accurate picture. Then I'll call my manager and we'll see what we can do."</em> Earn the right to revisit. Don't drop reflexively.</p>
+        </div>
+      </div>
+
+      <div class="obj-card">
+        <div class="obj-q">"This feels like a lot."</div>
+        <div class="obj-a">
+          <p><span class="label do">Do</span> <em>"What would make you feel comfortable?"</em></p>
+          <p style="margin:0;">This single question shifts the burden to them. They have to articulate what it would take. Most of the time they don't have a great answer — and they talk themselves out of the objection.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider-rule">
+
+    <div class="card green-left">
+      <h3>The Concept-Not-Negotiation Reframe</h3>
+      <p>When a customer pushes back with a competitor's number, don't negotiate. Reframe to a <em>concept</em> conversation.</p>
+      <div class="script">"Once I figure out your exact production and put it into the system, it'll tell me what your price would be today. I'm just trying to make sure the concept makes sense to you."</div>
+      <p>If they say "another company offered me 27¢":</p>
+      <div class="script">"Yep, that's possible. It depends on your site. I have to put all that into the computer. Based on your site's performance, it'll tell me what price you can get."</div>
+      <p style="margin:0;">You're not negotiating — you're educating. The site/production unknown defuses every counter.</p>
+    </div>
+
+    <div class="card blue-left">
+      <h3>Counter the Escalator Competitor</h3>
+      <p>If the homeowner has a quote with a fixed-rate competitor:</p>
+      <div class="script">"Same equipment, same EPC — just 4 cents difference whether escalator or fixed. I'll offer you the same program 2 cents less than they did. Would you rather save this year, or save next year?"</div>
+      <p style="margin:0;">Often this lets you write a higher EPC than the competitor — because they revealed their price first.</p>
+    </div>
+
+    <div class="card warm-left">
+      <h3>The Trust Check</h3>
+      <p>When resistance feels personal — when the rate objection is too heavy for what's actually being asked — pause. Ask directly.</p>
+      <div class="script">"Do you feel like Trinity is a company you can trust?"</div>
+      <p style="margin:0;">This often surfaces the real objection. The rate was a proxy for "I'm not sure about your company." Address <em>that</em>, and the rate dissolves.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: DISCIPLINE -->
+<section class="section alt" id="discipline">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 8 · Holding the Line</span>
+      <h2>Negotiation Discipline</h2>
+      <p>What you negotiate matters as much as whether you negotiate. The lever is the kWh rate, not the financing rate.</p>
+    </div>
+
+    <div class="compare">
+      <div class="left">
+        <h4>Wrong Move</h4>
+        <ul>
+          <li>Open below your floor</li>
+          <li>Drop the financing rate</li>
+          <li>Discount because the customer pushed</li>
+          <li>Race competitors to the bottom</li>
+        </ul>
+      </div>
+      <div class="right">
+        <h4>Right Move</h4>
+        <ul>
+          <li>Hold the kWh rate at the open</li>
+          <li>If you need flexibility, move the kWh rate</li>
+          <li>Keep the 2.9% financing intact</li>
+          <li>Earn the discount through site/walk-around</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card ink-left">
+      <h3>Why this matters for the whole team</h3>
+      <p>Underselling at the open eliminates margin and trains the customer base to expect lower numbers. The next rep who knocks that street has been undercut — by you.</p>
+      <p style="margin: 0;"><strong>"You're hurting everybody around you, not just yourself."</strong></p>
+    </div>
+
+    <div class="card green-left">
+      <h3>The Walk-Around Close</h3>
+      <p>When a competitor comes in lower, don't drop the price. <strong>Earn the right to revisit it.</strong></p>
+      <div class="steps" style="margin-top: 14px;">
+        <div class="step">
+          <div class="num">1</div>
+          <div class="body">
+            <h4>Acknowledge</h4>
+            <p>"I understand you've received another quote. Every project is unique, and pricing depends on factors specific to your home. I can't speak to what another company may or may not be including in their number."</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">2</div>
+          <div class="body">
+            <h4>Differentiate</h4>
+            <p>"What I can tell you is that we prioritize transparency. We don't want to call you three months from now saying we found a structural issue and the price has to go up. That's not how we operate."</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">3</div>
+          <div class="body">
+            <h4>Inspect</h4>
+            <p>"Let's walk your home together right now to get photos of the meter, main panel, and attic structure. If I'm confident there won't be additional scope, I'll get my manager on the phone and see what we can do."</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">4</div>
+          <div class="body">
+            <h4>Reframe</h4>
+            <p>"This gives us both confidence. If the home qualifies cleanly, there may be flexibility. But I'd rather be honest with you now than promise a price and come back with problems. That's what integrity looks like."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>Reframe the competition entirely.</strong> Compete on expertise, transparency, and risk reduction — not dollars per watt. The moment you compete on price, solar becomes a commodity and you lose your differentiation.
+    </div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section class="closer">
+  <div class="wrap">
+    <span class="eyebrow" style="color: var(--green);">The Field Manual</span>
+    <h2>One-Sentence Reminders</h2>
+    <div class="one-liners">
+      <div class="one">Believe in the rate. Your conviction transfers.</div>
+      <div class="one">Discovery earns the rate conversation. Pain first, priorities on record, then price.</div>
+      <div class="one">Own the rate before they discover it.</div>
+      <div class="one">Show the math. The math wins.</div>
+      <div class="one">They're not afraid of the rate — they're afraid of the wrong company.</div>
+      <div class="one">Handle objections with curiosity, not defense.</div>
+      <div class="one">Move the kWh rate, not the financing rate.</div>
+      <div class="one">It's a problem when you make it a problem.</div>
+      <div class="one">Confidence is not pressure. It's the highest form of service.</div>
+    </div>
+    <div class="signoff">CT Traditional · Trinity Solar · Built for the field</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Distilled from <em>Selling With Conviction</em>, <em>One-Touch Close</em>, and <em>Coffee with Closers</em> field sessions.
+  </div>
+</footer>
+
+<script>
+// Active section highlighting in sticky nav
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.toc-nav a');
+
+function highlightActiveSection() {
+  let current = '';
+  const scrollPos = window.scrollY + 200;
+  sections.forEach(section => {
+    const top = section.offsetTop;
+    const height = section.offsetHeight;
+    if (scrollPos >= top && scrollPos < top + height) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) {
+      link.classList.add('active');
+    }
+  });
+}
+
+window.addEventListener('scroll', highlightActiveSection);
+window.addEventListener('load', highlightActiveSection);
+</script>
+
+</body>
+</html>
