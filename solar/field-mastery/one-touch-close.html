@@ -36,6 +36,7 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 140px; } /* clears sticky header on TOC jumps */
 body {
   font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
   font-size: 16px;
@@ -464,7 +465,98 @@ a { color: var(--blue-dk); text-decoration: none; }
 }
 .pillar .q { font-size: 0.86rem; color: var(--muted); line-height: 1.4; }
 
-/* BRIGHT SPOTS */
+/* DATASET STRIP */
+.dataset-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 22px;
+}
+.ds-cell {
+  padding: 18px 16px;
+  text-align: center;
+  border-right: 1px solid var(--line-soft);
+}
+.ds-cell:last-child { border-right: none; }
+.ds-big {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: var(--gold-dk);
+  line-height: 1.05;
+  margin-bottom: 4px;
+}
+.ds-lab {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+@media (max-width: 720px) {
+  .dataset-strip { grid-template-columns: repeat(2, 1fr); }
+  .ds-cell:nth-child(2) { border-right: none; }
+  .ds-cell:nth-child(1), .ds-cell:nth-child(2) { border-bottom: 1px solid var(--line-soft); }
+}
+
+/* PATTERN CARDS (Bright Spots) */
+.pattern-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .pattern-grid { grid-template-columns: 1fr; } }
+.pattern-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--green);
+  border-radius: var(--r-md);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  gap: 14px;
+}
+.pattern-card .pat-num {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green-dk);
+}
+.pattern-card .pat-title {
+  font-family: 'Fraunces', serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.pattern-card .pat-note {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  background: rgba(120,200,50,0.07);
+  border-left: 3px solid var(--green);
+  padding: 12px 14px;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  color: var(--ink-soft);
+  font-style: normal;
+}
+.pattern-card .pat-why { font-size: 0.93rem; }
+.pattern-card .pat-why strong {
+  display: block;
+  margin-bottom: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 800;
+}
+.pattern-card .pat-why ul { margin: 0; padding-left: 18px; }
+.pattern-card .pat-why li { margin-bottom: 4px; font-size: 0.92rem; }
+
+/* BRIGHT SPOTS (legacy class kept for any sibling page) */
 .bright-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 @media (max-width: 720px) { .bright-grid { grid-template-columns: 1fr; } }
 .bright {
@@ -826,9 +918,9 @@ a { color: var(--blue-dk); text-decoration: none; }
           <h4>What closes</h4>
           <ul>
             <li>"Based on everything you told me, the PPA is the right fit for your family."</li>
-            <li>"PPA LR. HD one touch."</li>
-            <li>"LR PPA SIGNED... no issues."</li>
-            <li>"Customer signed contract with LR."</li>
+            <li>"PPA LR signed -- HD one touch. Both on title."</li>
+            <li>"LR PPA signed. No issues. Discovery: fixed-income retirement, two-grandkid summer bills."</li>
+            <li>"Light reach PPA signed. Concept confirmed at the table."</li>
           </ul>
         </div>
       </div>
@@ -1145,43 +1237,82 @@ a { color: var(--blue-dk); text-decoration: none; }
 <section class="section alt" id="bright">
   <div class="wrap">
     <div class="section-header">
-      <span class="eyebrow">Part 8 · It's Already Happening</span>
-      <h2>Bright Spots -- One-Touch Close in Your Own Data</h2>
-      <p>This is not a theoretical pitch. It is happening at CT kitchen tables right now -- by your peers, on the same leads, in the same rate environment. The notes from these wins all share the same DNA: <em>one product, deep discovery, both deciders, conviction at the close.</em></p>
+      <span class="eyebrow">Part 8 · The DNA</span>
+      <h2>Four Patterns Behind Every One-Touch Close</h2>
+      <p>Pull the notes from any 25-day window of CT appointments. Roughly 1,500 sits, ~130 contracts signed. The signed deals don't read alike -- but their <em>structure</em> is identical. Four patterns, over and over. The leads were the same. The rate was the same. The difference was the rep.</p>
     </div>
 
-    <div class="bright-grid">
-      <div class="bright">
-        <div class="rep">Anthony Venditto</div>
-        <div class="name">Charles, Brian</div>
-        <div class="tag">PPA LR -- HD one touch</div>
-        <p class="desc">One product identified. No options presented. Discovery notes show full picture of homeowner needs. Decision made at the table.</p>
+    <div class="dataset-strip">
+      <div class="ds-cell"><span class="ds-big">~1,500</span><span class="ds-lab">CT sits in a 25-day window</span></div>
+      <div class="ds-cell"><span class="ds-big">~130</span><span class="ds-lab">contracts signed</span></div>
+      <div class="ds-cell"><span class="ds-big">4</span><span class="ds-lab">DNA patterns the signed notes cluster into</span></div>
+      <div class="ds-cell"><span class="ds-big">3</span><span class="ds-lab">stall patterns the unsigned notes cluster into</span></div>
+    </div>
+
+    <div class="pattern-grid">
+      <div class="pattern-card">
+        <div class="pat-num">Pattern 01</div>
+        <div class="pat-title">The Clean Prescription</div>
+        <div class="pat-note">"LR PPA signed. HD one touch. Both on title. Discovery: 28&cent;/kWh, fixed-income retirement, summer bills crushing the budget."</div>
+        <div class="pat-why">
+          <strong>Why it works</strong>
+          <ul>
+            <li>One product decided <em>before</em> walking in</li>
+            <li>No menu offered at the table</li>
+            <li>Both deciders present</li>
+            <li>Discovery anchored on the bill, not the technology</li>
+          </ul>
+        </div>
       </div>
 
-      <div class="bright">
-        <div class="rep">Anthony Venditto</div>
-        <div class="name">Morrison, Glenn</div>
-        <div class="tag">Go-back was to SIGN, not to decide</div>
-        <p class="desc">PPA identified on first visit. Go-back scheduled with a specific purpose. Notes show both decision-makers engaged.</p>
+      <div class="pattern-card">
+        <div class="pat-num">Pattern 02</div>
+        <div class="pat-title">Go-Back to Sign, Not to Decide</div>
+        <div class="pat-note">"Both deciders sat. PPA prescribed -- not presented as one of three. Adult daughter wants to verify roof age over the weekend. Go-back Sat 9am to sign. Coached homeowner on exactly what to share."</div>
+        <div class="pat-why">
+          <strong>Why it works</strong>
+          <ul>
+            <li>The follow-up has a <em>specific</em> agenda, not "let's keep talking"</li>
+            <li>A real time on the calendar, not "next week sometime"</li>
+            <li>The absent stakeholder was primed, not surprised</li>
+            <li>Rep owns the next step</li>
+          </ul>
+        </div>
       </div>
 
-      <div class="bright">
-        <div class="rep">Jhonatan Rodriguez-Perez</div>
-        <div class="name">Pinol, Joel</div>
-        <div class="tag">Customer called to reschedule -- and signed</div>
-        <p class="desc">When the rep prescribes with conviction, the customer closes themselves. The reschedule was to sign -- not to reconsider.</p>
+      <div class="pattern-card">
+        <div class="pat-num">Pattern 03</div>
+        <div class="pat-title">The Walk-Around Flip</div>
+        <div class="pat-note">"Had a quote from a competitor at 0%. Walked the 25-year math live on a notepad -- PPA fixed-rate beats their loan total at year 25. Inspected meter, panel, attic. Found scope room to revisit pricing. Signed before the competitor's installer call."</div>
+        <div class="pat-why">
+          <strong>Why it works</strong>
+          <ul>
+            <li>Didn't reflexively drop the rate</li>
+            <li>Earned the right to walk the home before negotiating</li>
+            <li>Reframed from headline rate to total cost of ownership</li>
+            <li>Confidence in our value beat their headline number</li>
+          </ul>
+        </div>
       </div>
 
-      <div class="bright">
-        <div class="rep">Ryan Blinderman</div>
-        <div class="name">Patel, Sheel</div>
-        <div class="tag">Go-back to sign, same time next week</div>
-        <p class="desc">Strong family discovery. Understood the decision-making unit. Go-back set with clear purpose and all parties committed.</p>
+      <div class="pattern-card">
+        <div class="pat-num">Pattern 04</div>
+        <div class="pat-title">Trust &gt; Price -- The Redemption Close</div>
+        <div class="pat-note">"Burned by previous solar company -- aggressive sales, broken promises, contract they regretted. Trust gap, not price gap. First 30 minutes was listening, not pitching. Built case for Trinity's 32 years and the support model. Signed PPA. Asked for a referral on the way out."</div>
+        <div class="pat-why">
+          <strong>Why it works</strong>
+          <ul>
+            <li>Diagnosed the real objection -- risk, not rate</li>
+            <li>Reframed from "another company" to "the right company"</li>
+            <li>Used Trinity's longevity and service model as the differentiator</li>
+            <li>Listened before prescribing</li>
+          </ul>
+        </div>
       </div>
     </div>
 
     <div class="tip" style="margin-top: 22px;">
-      <strong>The pattern repeats.</strong> Every one-touch in our data shows discovery you can <em>feel</em> in the notes, one prescribed product, both deciders engaged, and a next step that was a signature -- not a sales conversation.
+      <strong>What about the stalls?</strong> The 30-40% of qualifying sits that ended in "I need to think about it" cluster into three repeating shapes: a <em>menu of options</em> instead of a prescription, a <em>missing decision-maker</em> the rep tried to work around, and a <em>go-back with no agenda</em> that was really a polite goodbye. Read your own notes from this week. If you wrote "Na", "cc reviewed", or "will follow up with wife" -- you wrote one of the three.
     </div>
   </div>
 </section>
