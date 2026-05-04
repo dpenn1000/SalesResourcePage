@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>One-Touch Close · From Presentation to Prescription · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --gold: #F5A623;
+  --gold-dk: #C8851A;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --surface: #F7F8F4;
+  --warm: #FAFBF7;
+  --white: #FFFFFF;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --warn: #E9A648;
+  --red: #C84545;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); font-variation-settings: "opsz" 144; line-height: 1.05; font-weight: 400; }
+h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-variation-settings: "opsz" 72; line-height: 1.15; font-weight: 500; margin-bottom: 14px; }
+h3 { font-size: 1.2rem; font-weight: 600; line-height: 1.3; margin-bottom: 10px; }
+h4 { font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; color: var(--ink); }
+p { margin-bottom: 12px; color: var(--text); }
+ul, ol { padding-left: 22px; margin-bottom: 12px; }
+li { margin-bottom: 6px; color: var(--text); }
+strong { font-weight: 700; color: var(--ink); }
+em { font-style: italic; }
+a { color: var(--blue-dk); text-decoration: none; }
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 10px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+
+/* HEADER */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 0;
+  border-bottom: 3px solid var(--gold);
+}
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .logo {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem; font-weight: 600;
+  color: #fff; letter-spacing: 0.02em;
+}
+.brand .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.2); }
+.brand .team { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.7); }
+.page-title { font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* TOC NAV */
+.toc-nav {
+  background: linear-gradient(to bottom, #fff 0%, var(--warm) 100%);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 4px 12px rgba(15,32,56,0.05);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.toc-nav::-webkit-scrollbar { display: none; }
+.toc-nav .wrap { display: flex; gap: 0; align-items: stretch; }
+.toc-nav a {
+  font-size: 0.8125rem; font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 13px 16px;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.toc-nav a .num {
+  font-size: 0.66rem; font-weight: 800;
+  background: var(--line); color: var(--muted);
+  border-radius: 999px; padding: 1px 7px; line-height: 1.45;
+}
+.toc-nav a:hover { color: var(--ink); border-bottom-color: var(--gold); }
+.toc-nav a.active { color: var(--ink); border-bottom-color: var(--gold); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+  color: #fff;
+  padding: 80px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 40% at 18% 50%, rgba(245,166,35,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 82% 50%, rgba(120,200,50,0.16) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero .wrap { position: relative; z-index: 1; }
+.hero .eyebrow { color: var(--gold); }
+.hero h1 { color: #fff; max-width: 820px; margin-bottom: 22px; }
+.hero h1 em { font-style: italic; background: linear-gradient(135deg, var(--gold), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .lede {
+  font-size: 1.15rem; line-height: 1.55;
+  color: rgba(255,255,255,0.78);
+  max-width: 640px;
+}
+.hero .lede strong { color: #fff; font-weight: 600; }
+.hero-creed {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 14px 22px;
+  border-left: 3px solid var(--gold);
+  background: rgba(255,255,255,0.04);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-family: 'Fraunces', serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.92);
+}
+.hero-creed .one { display: block; }
+.hero-creed .one.gold { color: var(--gold); font-weight: 600; }
+.hero-creed .one.green { color: var(--green); font-weight: 600; }
+
+/* PRINCIPLE STRIP */
+.principles {
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+.principles .wrap {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+}
+.principle {
+  padding: 28px 18px;
+  text-align: center;
+  border-right: 1px solid var(--line-soft);
+  position: relative;
+}
+.principle:last-child { border-right: none; }
+.principle .num {
+  font-family: 'Fraunces', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.principle .num.alt { color: var(--green); }
+.principle .label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.principle .sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+@media (max-width: 720px) {
+  .principles .wrap { grid-template-columns: repeat(2, 1fr); }
+  .principle { border-right: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+  .principle:nth-child(2n) { border-right: none; }
+  .principle:last-child { grid-column: span 2; border-right: none; border-bottom: none; }
+}
+
+/* SECTIONS */
+.section { padding: 64px 0; border-bottom: 1px solid var(--line); }
+.section.alt { background: var(--warm); }
+.section-header { margin-bottom: 32px; max-width: 720px; }
+.section-header p {
+  color: var(--muted);
+  font-size: 1.05rem;
+  margin: 0;
+}
+
+/* CARDS */
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.card.green-left { border-left: 4px solid var(--green); }
+.card.blue-left { border-left: 4px solid var(--blue); }
+.card.ink-left { border-left: 4px solid var(--ink); }
+.card.warm-left { border-left: 4px solid var(--warn); }
+.card.gold-left { border-left: 4px solid var(--gold); }
+.card.red-left { border-left: 4px solid var(--red); }
+.card h3 { margin-bottom: 10px; }
+.card .lede { font-size: 1.02rem; color: var(--text); margin-bottom: 8px; }
+
+/* GRID LAYOUTS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .three-col { grid-template-columns: 1fr; } }
+
+/* THE GAP -- STAT GRID */
+.gap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 22px;
+  box-shadow: var(--shadow-md);
+}
+.gap-cell {
+  padding: 36px 24px;
+  text-align: center;
+  color: #fff;
+}
+.gap-cell.now { background: var(--red); }
+.gap-cell.target { background: var(--gold); color: var(--ink); }
+.gap-cell.stall { background: var(--ink); }
+.gap-cell .big {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(2.6rem, 6vw, 4rem);
+  font-weight: 400;
+  line-height: 1;
+  margin-bottom: 12px;
+  display: block;
+}
+.gap-cell.target .big { color: var(--ink); font-weight: 600; }
+.gap-cell .lab {
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.gap-cell.now .lab, .gap-cell.stall .lab { color: rgba(255,255,255,0.9); }
+.gap-cell.target .lab { color: var(--ink); }
+@media (max-width: 720px) { .gap-grid { grid-template-columns: 1fr; } }
+
+.gap-math {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 22px 26px;
+  box-shadow: var(--shadow-sm);
+}
+.gap-math .row {
+  display: grid;
+  grid-template-columns: 130px 1fr 130px;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 0.96rem;
+}
+.gap-math .row:last-child { border-bottom: none; }
+.gap-math .cnt { font-weight: 700; color: var(--ink); }
+.gap-math .out { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600; text-align: right; color: var(--green-dk); }
+.gap-math .out.dim { color: var(--muted); }
+
+/* COMPARE CARD */
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+}
+.compare > div { padding: 22px 24px; background: var(--white); }
+.compare .left { background: rgba(200,69,69,0.04); border-right: 1px solid var(--line); }
+.compare .right { background: rgba(120,200,50,0.06); }
+.compare h4 { margin-bottom: 10px; }
+.compare .left h4 { color: var(--red); }
+.compare .right h4 { color: var(--green-dk); }
+.compare ul { padding-left: 18px; margin: 0; }
+.compare li { font-size: 0.94rem; margin-bottom: 6px; }
+@media (max-width: 720px) {
+  .compare { grid-template-columns: 1fr; }
+  .compare .left { border-right: none; border-bottom: 1px solid var(--line); }
+}
+
+/* THREE-COLUMN COMPARE (think-about-it) */
+.tri-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line);
+  margin: 18px 0;
+}
+.tri-compare > div { padding: 22px 22px; background: var(--white); border-right: 1px solid var(--line); }
+.tri-compare > div:last-child { border-right: none; }
+.tri-compare .signal { background: rgba(200,69,69,0.04); }
+.tri-compare .dont { background: rgba(91,101,118,0.04); }
+.tri-compare .do { background: rgba(120,200,50,0.06); }
+.tri-compare h4 { margin-bottom: 12px; }
+.tri-compare .signal h4 { color: var(--red); }
+.tri-compare .dont h4 { color: var(--muted); }
+.tri-compare .do h4 { color: var(--green-dk); }
+.tri-compare ul { padding-left: 0; margin: 0; list-style: none; }
+.tri-compare li { font-size: 0.93rem; margin-bottom: 8px; padding: 8px 12px; background: var(--white); border-radius: var(--r-sm); border: 1px solid var(--line-soft); }
+.tri-compare .do li { border-color: rgba(120,200,50,0.3); background: rgba(120,200,50,0.05); font-style: italic; }
+.tri-compare .signal li { font-style: italic; color: var(--text); }
+.tri-compare .dont li { font-style: italic; color: var(--muted); }
+@media (max-width: 900px) {
+  .tri-compare { grid-template-columns: 1fr; }
+  .tri-compare > div { border-right: none; border-bottom: 1px solid var(--line); }
+  .tri-compare > div:last-child { border-bottom: none; }
+}
+
+/* PULL QUOTE */
+.pullquote {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--ink);
+  padding: 30px 36px;
+  border-left: 4px solid var(--gold);
+  background: var(--warm);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin: 24px 0;
+}
+.pullquote .attr {
+  display: block;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 14px;
+}
+
+/* TIP STRIP */
+.tip {
+  background: linear-gradient(135deg, rgba(245,166,35,0.10), rgba(120,200,50,0.06));
+  border: 1px solid rgba(245,166,35,0.28);
+  border-radius: var(--r-md);
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  margin: 14px 0;
+}
+.tip strong { color: var(--gold-dk); }
+
+/* SCRIPT BLOCK */
+.script {
+  background: rgba(41,169,225,0.06);
+  border-left: 3px solid var(--blue);
+  padding: 12px 18px;
+  margin: 10px 0;
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.script.gold { background: rgba(245,166,35,0.07); border-left-color: var(--gold); }
+
+/* DEAL FRAMEWORK */
+.deal-grid { display: grid; gap: 14px; }
+.deal-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  align-items: stretch;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.deal-letter {
+  font-family: 'Fraunces', serif;
+  font-size: 3.2rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.deal-row.r2 .deal-letter { background: var(--blue); color: #fff; }
+.deal-row.r3 .deal-letter { background: var(--green); color: var(--ink); }
+.deal-row.r4 .deal-letter { background: var(--ink); color: var(--gold); }
+.deal-body { padding: 18px 22px; }
+.deal-body h4 {
+  font-family: 'Fraunces', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.deal-body p { margin: 0; font-size: 0.97rem; color: var(--text); }
+.deal-body .ex {
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+/* PILLARS */
+.pillars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+@media (max-width: 900px) { .pillars { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .pillars { grid-template-columns: 1fr; } }
+.pillar {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--gold);
+  border-radius: var(--r-md);
+  padding: 18px 16px;
+  text-align: center;
+}
+.pillar:nth-child(2) { border-top-color: var(--red); }
+.pillar:nth-child(3) { border-top-color: var(--blue); }
+.pillar:nth-child(4) { border-top-color: var(--green); }
+.pillar:nth-child(5) { border-top-color: var(--ink); }
+.pillar .name {
+  font-family: 'Fraunces', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+.pillar .q { font-size: 0.86rem; color: var(--muted); line-height: 1.4; }
+
+/* BRIGHT SPOTS */
+.bright-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 720px) { .bright-grid { grid-template-columns: 1fr; } }
+.bright {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--green);
+  border-radius: var(--r-md);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.bright .rep {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.bright .name {
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+.bright .tag {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--green-dk);
+  background: rgba(120,200,50,0.12);
+  border: 1px solid rgba(120,200,50,0.28);
+  border-radius: var(--r-sm);
+  padding: 4px 10px;
+  margin-bottom: 10px;
+}
+.bright .desc { font-size: 0.94rem; color: var(--text); margin: 0; }
+
+/* PRESCRIPTION SCRIPT GRID */
+.rx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 720px) { .rx-grid { grid-template-columns: 1fr; } }
+.rx-block {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.rx-block.dig { border-left: 4px solid var(--red); }
+.rx-block.rx { border-left: 4px solid var(--gold); background: rgba(245,166,35,0.04); }
+.rx-block h3 { margin-bottom: 4px; }
+.rx-block .sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 12px; }
+.rx-block .qline {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 0.97rem;
+  color: var(--ink-soft);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  border-left: 2px solid var(--line);
+  background: var(--surface);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.rx-block.rx .qline { border-left-color: var(--gold); background: rgba(255,255,255,0.7); }
+
+/* PROOF STRIP (research) */
+.proof-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+@media (max-width: 720px) { .proof-strip { grid-template-columns: 1fr; } }
+.proof-cell {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+}
+.proof-cell .big {
+  font-family: 'Fraunces', serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--gold-dk);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.proof-cell .lab {
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+.proof-cell .src {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+}
+
+/* CLOSER STRIP */
+.closer {
+  background: var(--ink);
+  color: #fff;
+  padding: 60px 0;
+  text-align: center;
+}
+.closer h2 { color: #fff; margin-bottom: 28px; }
+.closer .one-liners {
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: left;
+}
+.closer .one {
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--gold);
+  padding: 12px 22px;
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.92);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.closer .one.green { border-left-color: var(--green); }
+.closer .signoff {
+  margin-top: 36px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* CREED */
+.creed-section {
+  background: linear-gradient(135deg, var(--ink) 0%, #060d1c 100%);
+  color: #fff;
+  padding: 70px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.creed-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(245,166,35,0.10) 0%, transparent 70%);
+  pointer-events: none;
+}
+.creed-section .wrap { position: relative; z-index: 1; max-width: 760px; }
+.creed-section .question {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  font-weight: 400;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.88);
+  margin-bottom: 36px;
+}
+.creed-section hr {
+  width: 80px;
+  height: 2px;
+  background: var(--gold);
+  border: none;
+  margin: 0 auto 30px;
+}
+.creed-section .three {
+  font-family: 'Fraunces', serif;
+  font-size: 1.4rem;
+  line-height: 1.55;
+}
+.creed-section .three .l1 { color: var(--gold); font-weight: 600; display: block; margin-bottom: 4px; }
+.creed-section .three .l2 { color: #ff9244; font-weight: 600; display: block; margin-bottom: 4px; }
+.creed-section .three .l3 { color: #fff; font-weight: 500; display: block; }
+
+/* FOOTER */
+.foot {
+  padding: 30px 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: var(--warm);
+}
+
+/* MISC */
+.divider-rule {
+  height: 2px;
+  background: linear-gradient(to right, var(--gold), var(--green));
+  border: none;
+  margin: 30px 0;
+  opacity: 0.4;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">Sales Resource · One-Touch Close</div>
+    </div>
+  </div>
+
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#gap"><span class="num">1</span> The Gap</a>
+      <a href="#causes"><span class="num">2</span> Root Causes</a>
+      <a href="#deal"><span class="num">3</span> D.E.A.L.</a>
+      <a href="#discovery"><span class="num">4</span> Discovery</a>
+      <a href="#prescription"><span class="num">5</span> Prescription</a>
+      <a href="#language"><span class="num">6</span> Language</a>
+      <a href="#think"><span class="num">7</span> "Think About It"</a>
+      <a href="#bright"><span class="num">8</span> Bright Spots</a>
+      <a href="#path"><span class="num">9</span> The Path</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">CT Traditional · All Hands · Sales Training</span>
+    <h1>One-Touch Close -- From Presentation <em>to Prescription</em></h1>
+    <p class="lede">
+      The customer is not buying a product. They are buying a <strong>recommendation from someone who knows what they're doing</strong>.
+      <br><br>
+      We have the training, the data, and the experience. They have a 30-minute window. If we leave the kitchen table without a clear prescription, we have asked the homeowner to do our job for us.
+    </p>
+    <div class="hero-creed">
+      <span class="one gold">Information is not integrity.</span>
+      <span class="one">Confidence is not pressure.</span>
+      <span class="one green">It's the highest form of service.</span>
+    </div>
+  </div>
+</section>
+
+<!-- 5 PRINCIPLES STRIP -->
+<section class="principles">
+  <div class="wrap">
+    <div class="principle">
+      <div class="num">01</div>
+      <div class="label">One Solution</div>
+      <div class="sub">No menu. One prescription.</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">02</div>
+      <div class="label">Both Deciders</div>
+      <div class="sub">Or it's not a real sit</div>
+    </div>
+    <div class="principle">
+      <div class="num">03</div>
+      <div class="label">Build the Pain</div>
+      <div class="sub">Discover before present</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">04</div>
+      <div class="label">Prescribe</div>
+      <div class="sub">Lead, don't list options</div>
+    </div>
+    <div class="principle">
+      <div class="num">05</div>
+      <div class="label">Lock Today</div>
+      <div class="sub">Make inaction visible</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: THE GAP -->
+<section class="section" id="gap">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 1 · The Stakes</span>
+      <h2>The Gap -- Where We Are vs. Where We Need to Be</h2>
+      <p>Our company close rate this month is 25.4%. The benchmark of excellence is 30%+. About 40% of our qualifying sits ended in <em>"think about it."</em> Every percentage point is real revenue earned on the same leads we already have.</p>
+    </div>
+
+    <div class="gap-grid">
+      <div class="gap-cell now">
+        <span class="big">25.4%</span>
+        <span class="lab">Current company close rate</span>
+      </div>
+      <div class="gap-cell target">
+        <span class="big">30%+</span>
+        <span class="lab">Benchmark of excellence</span>
+      </div>
+      <div class="gap-cell stall">
+        <span class="big">~40%</span>
+        <span class="lab">Qualifying sits ending in "think about it"</span>
+      </div>
+    </div>
+
+    <div class="gap-math">
+      <h3 style="margin-bottom: 10px;">Same leads. Better execution.</h3>
+      <p style="margin-bottom: 14px; color: var(--muted); font-size: 0.95rem;">No more leads. No more reps. No more hours. Just better execution at the kitchen table.</p>
+      <div class="row">
+        <div class="cnt">10 Leads</div>
+        <div>= 2 Sales (20%)</div>
+        <div class="out dim">≈ $6,330</div>
+      </div>
+      <div class="row">
+        <div class="cnt">10 Leads</div>
+        <div>= 3 Sales (30%)</div>
+        <div class="out">≈ $9,495</div>
+      </div>
+      <div class="row">
+        <div class="cnt">10 Leads</div>
+        <div>= 4 Sales (40%)</div>
+        <div class="out">≈ $12,660</div>
+      </div>
+    </div>
+
+    <div class="card ink-left" style="margin-top: 22px;">
+      <h3>"Not making a decision is itself a decision."</h3>
+      <p>While the homeowner waits, the meter still runs. Connecticut just stepped into another rate environment most homeowners don't know about yet:</p>
+      <ul>
+        <li><strong>+13% jump</strong> on the Eversource standard service supply rate effective <strong>January 1, 2026</strong> -- to roughly <strong>12.64¢/kWh on supply alone</strong>.</li>
+        <li>That's about <strong>$20/month more</strong> on the average 700 kWh residential bill -- roughly $240 a year.</li>
+        <li>All-in delivered CT rate sits near <strong>28-29¢/kWh</strong> -- almost double the national average.</li>
+        <li>State programs (RRES, the ESS battery incentive) are under active political pressure. The window we sell into today may not exist for the next homeowner who calls.</li>
+      </ul>
+      <p style="margin: 0;"><strong>Every month of "let me think about it" is $300-$800 of avoidable cost</strong> paid to the utility, plus a shrinking incentive landscape and a moving rate-lock target. Inaction is not neutral. It's expensive.</p>
+    </div>
+
+    <div class="tip"><strong>Make this concrete at the table.</strong> Pull their last bill. Multiply their kWh by the new January rate. Show them the line that just got bigger. Then show them yours doesn't move.</div>
+  </div>
+</section>
+
+<!-- SECTION 2: ROOT CAUSES -->
+<section class="section alt" id="causes">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 2 · The Diagnosis</span>
+      <h2>Three Root Causes Behind Every "Think About It"</h2>
+      <p>Pull the notes from any month and the pattern is the same. Three things, over and over. Fix these three and 25% becomes 30% -- without working harder.</p>
+    </div>
+
+    <!-- ROOT CAUSE 1 -->
+    <div class="card red-left">
+      <h3>Root Cause 1 -- A menu instead of a prescription</h3>
+      <p>When a rep leaves three financing options on the table, the customer's brain stops evaluating <em>solar vs. utility</em> and starts evaluating <em>option A vs. option B vs. option C</em>. That's three decisions to make, and the easy fourth choice is "let me think about it."</p>
+
+      <div class="compare" style="margin-top: 14px;">
+        <div class="left">
+          <h4>What we say that stalls</h4>
+          <ul>
+            <li>"Here are your options: PPA, loan, or cash..."</li>
+            <li>"Quoted solar, battery, and a 22-square roof. Needs time to think."</li>
+            <li>"SAC roof vs. loan. PPA solar. Two Powerwalls. Need time to decide."</li>
+            <li>"Cash, finance, HELOC rough numbers..."</li>
+          </ul>
+        </div>
+        <div class="right">
+          <h4>What closes</h4>
+          <ul>
+            <li>"Based on everything you told me, the PPA is the right fit for your family."</li>
+            <li>"PPA LR. HD one touch."</li>
+            <li>"LR PPA SIGNED... no issues."</li>
+            <li>"Customer signed contract with LR."</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="proof-strip">
+        <div class="proof-cell">
+          <div class="big">3% → 30%</div>
+          <div class="lab">Iyengar &amp; Lepper "jam study" -- converting browsers to buyers when choices dropped from 24 to 6.</div>
+          <div class="src">Stanford / Columbia, 2000</div>
+        </div>
+        <div class="proof-cell">
+          <div class="big">+58%</div>
+          <div class="lab">Conversion lift when a Dr. Scholl's email featured 3 products instead of 5.</div>
+          <div class="src">A/B test, retail email</div>
+        </div>
+        <div class="proof-cell">
+          <div class="big">+112%</div>
+          <div class="lab">HubSpot's conversion lift after consolidating pricing tiers and simplifying feature comparisons.</div>
+          <div class="src">Pricing-page experiment</div>
+        </div>
+      </div>
+
+      <div class="tip" style="margin-top: 18px;">
+        <strong>The research is not subtle.</strong> Fewer choices, more decisions. When you put a menu in front of a homeowner, you have engineered the stall before they say a word.
+      </div>
+    </div>
+
+    <!-- ROOT CAUSE 2 -->
+    <div class="card warm-left">
+      <h3>Root Cause 2 -- Thin discovery means no prescription authority</h3>
+      <p>You can't prescribe with conviction what you didn't earn the right to know. Notes that show up as <em>"interested,"</em> <em>"no,"</em> <em>"met outside, didn't want to sit,"</em> or <em>"entire meeting at the front door -- info only"</em> aren't appointments. They're transactions of facts. A prescription requires <strong>permission and depth</strong>, and depth requires sitting down, asking, listening, and asking again.</p>
+
+      <div class="card green-left" style="margin-top: 12px; margin-bottom: 0;">
+        <h4 style="font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink); margin-bottom: 10px;">Discovery must uncover all five.</h4>
+        <ul style="margin: 0;">
+          <li><strong>The PAIN</strong> -- what do they hate about the bill?</li>
+          <li><strong>The FEAR</strong> -- what are they protecting against?</li>
+          <li><strong>The VISION</strong> -- what does the solution feel like?</li>
+          <li><strong>The TIMELINE</strong> -- how long do they plan to stay? What's their urgency?</li>
+          <li><strong>The DECISION</strong> -- who makes it, and are they here?</li>
+        </ul>
+      </div>
+
+      <p style="margin: 14px 0 0;"><strong>If you can't answer all five -- you haven't earned the right to prescribe.</strong> Confidence at the close is a downstream effect of depth in discovery. You prescribe because <em>you know</em>. Not because you guessed.</p>
+    </div>
+
+    <!-- ROOT CAUSE 3 -->
+    <div class="card blue-left">
+      <h3>Root Cause 3 -- Proceeding without all decision-makers</h3>
+      <p>"Wife wasn't home." "Girlfriend owns the house and I couldn't meet her." "Only one of them was home -- they said they'd tell the other." Every one of these is a 90-minute consultation that cannot result in a signature, run by a rep who hoped the present spouse would sell the absent one for them.</p>
+
+      <div class="three-col" style="margin-top: 12px;">
+        <div class="card warm-left" style="margin: 0;">
+          <h4 style="font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--red); margin-bottom: 8px;">Why it happens</h4>
+          <ul style="margin: 0; padding-left: 18px; font-size: 0.92rem;">
+            <li>We didn't confirm both will be present before the sit</li>
+            <li>We treat the appointment as the close instead of a chance to find a way</li>
+            <li>We accept "I'll tell them" as a close plan</li>
+            <li>The schedule says "go" so we go</li>
+          </ul>
+        </div>
+        <div class="card ink-left" style="margin: 0;">
+          <h4 style="font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink); margin-bottom: 8px;">The rule</h4>
+          <ul style="margin: 0; padding-left: 18px; font-size: 0.92rem;">
+            <li>Confirm both decision-makers <strong>before</strong> the sit</li>
+            <li>If one is missing, do not run the full appointment -- concept only</li>
+            <li>Reschedule. Make them <em>need</em> the follow-up to get the solution</li>
+            <li>Exception: documented sole decision-maker</li>
+          </ul>
+        </div>
+        <div class="card green-left" style="margin: 0;">
+          <h4 style="font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--green-dk); margin-bottom: 8px;">Concept vs. solution</h4>
+          <p style="font-size: 0.92rem; margin: 0;">Walking the <em>concept</em> of solar with the present spouse is fine -- and often correct. <strong>Presenting a specific solution</strong> -- system size, pricing, PPW, financing terms -- without both deciders present is not. Coach the present homeowner on exactly what to say, and lock the go-back at a time both will be there.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SECTION 3: D.E.A.L. FRAMEWORK -->
+<section class="section" id="deal">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 3 · The Framework</span>
+      <h2>The D.E.A.L. Framework</h2>
+      <p>Four steps that earn the right to close on the first appointment. Run them in this order. Don't skip ahead.</p>
+    </div>
+
+    <div class="deal-grid">
+      <div class="deal-row">
+        <div class="deal-letter">D</div>
+        <div class="deal-body">
+          <h4>Discover -- pain &amp; emotion</h4>
+          <p>What do they hate? What keeps them up at night? What does cost control mean for their family? Your notes after the sit must show <strong>emotional content, discovery information, and a follow-up plan</strong> -- not a parts list.</p>
+          <div class="ex">"They're worried about retirement on a fixed income. The next rate hike scares them. Daughter is moving back in -- bill is going up either way."</div>
+        </div>
+      </div>
+
+      <div class="deal-row r2">
+        <div class="deal-letter">E</div>
+        <div class="deal-body">
+          <h4>Eliminate options -- proactively</h4>
+          <p>You make the product decision <em>before</em> the conversation. Moving in three years? PPA. Long horizon and explicit cash request? Walk through ownership discovery. <strong>One option only</strong> -- never a side-by-side menu at the table.</p>
+          <div class="ex">"Twenty-year horizon, cash on hand, asked about ownership unprompted, comfortable with the no-ITC tradeoff -- okay, we walk loan/cash. Otherwise, PPA."</div>
+        </div>
+      </div>
+
+      <div class="deal-row r3">
+        <div class="deal-letter">A</div>
+        <div class="deal-body">
+          <h4>Assert your authority</h4>
+          <p>You have months -- years -- of training in this. They have thirty minutes. Speak with the conviction that earned position deserves.</p>
+          <div class="ex">"Based on everything you've shared, the PPA is the right fit for your family. I'd be doing you a disservice recommending anything else."</div>
+        </div>
+      </div>
+
+      <div class="deal-row r4">
+        <div class="deal-letter">L</div>
+        <div class="deal-body">
+          <h4>Lock the decision today</h4>
+          <p>Make inaction visible. The default narrative of "I'll think about it" assumes that waiting costs nothing. <strong>Show them what waiting costs.</strong></p>
+          <div class="ex">"Every month you wait at Eversource's rate is roughly $X more. We can lock yours today. What's holding us back from moving forward?"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pullquote">
+      "Confidence at the close is a downstream effect of depth in discovery. You prescribe because you <em>know</em> -- not because you guessed."
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: DISCOVERY -->
+<section class="section alt" id="discovery">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 4 · Earn the Right</span>
+      <h2>Five Pillars of Discovery</h2>
+      <p>Every appointment, every time. If your notes don't speak to all five, you walked out with information -- not a relationship.</p>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="name">Pain</div>
+        <div class="q">What do they <em>hate</em> about the bill -- specifically?</div>
+      </div>
+      <div class="pillar">
+        <div class="name">Fear</div>
+        <div class="q">What are they protecting against -- fixed income, kids' tuition, retirement?</div>
+      </div>
+      <div class="pillar">
+        <div class="name">Vision</div>
+        <div class="q">What does the solution <em>feel</em> like to live with?</div>
+      </div>
+      <div class="pillar">
+        <div class="name">Timeline</div>
+        <div class="q">How long do they plan to stay? What's their urgency?</div>
+      </div>
+      <div class="pillar">
+        <div class="name">Decision</div>
+        <div class="q">Who makes it -- and are they here right now?</div>
+      </div>
+    </div>
+
+    <div class="card gold-left" style="margin-top: 22px;">
+      <h3>Anchor questions that build the pain together</h3>
+      <p style="font-size: 0.95rem; color: var(--muted); margin-bottom: 14px;">Ask them. Pause. Then ask the <em>following question</em>. Don't move on after the first answer -- the second answer is where the truth lives.</p>
+      <div class="script">"How long have you been frustrated with your Eversource bill?"</div>
+      <div class="script">"What would you do with that money if you could hold on to more of your after-tax dollars?"</div>
+      <div class="script">"How does it feel knowing rates have gone up every year -- and just went up again January 1st?"</div>
+      <div class="script">"If nothing changes, where's your bill in five years? Ten?"</div>
+      <div class="script">"What's the cost of waiting another six months at your current rate?"</div>
+    </div>
+
+    <div class="tip">
+      <strong>The Following Questions Rule.</strong> A rookie asks a question, gets an answer, and moves on. A pro asks the next question after the answer -- and the next one after that -- until they actually understand. Listening is not waiting for your turn to talk.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: THE PRESCRIPTION -->
+<section class="section" id="prescription">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 5 · The Product Rule</span>
+      <h2>PPA Is the Default Prescription</h2>
+      <p>In a no-ITC environment for owned residential systems, the math has shifted. The PPA is the right answer for almost every CT homeowner -- and the way we talk about it has to catch up.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="card gold-left" style="margin: 0;">
+        <h3>Why the PPA wins now</h3>
+        <ul style="margin: 0;">
+          <li><strong>No upfront cost</strong> -- no financial barrier to entry</li>
+          <li><strong>Fixed rate</strong> in a rising-rate environment that just jumped 13% on supply</li>
+          <li><strong>The only product where ITC value still flows through</strong> -- at the provider level -- to keep pricing competitive in a no-ITC world for owned systems</li>
+          <li><strong>Transfers with the home</strong> -- adds marketability at no cost</li>
+          <li><strong>The simplest decision</strong> for the homeowner to make today</li>
+        </ul>
+      </div>
+      <div class="card ink-left" style="margin: 0;">
+        <h3>Cash or loan -- only when</h3>
+        <ul style="margin: 0;">
+          <li>The customer <strong>explicitly asks</strong> for it</li>
+          <li>Discovery confirms a long horizon, real liquidity, and an honest understanding that cost goes up without ITC on owned systems</li>
+          <li>You've built the emotional case for ownership <em>after</em> confirming the logistics actually work</li>
+          <li>It genuinely serves <em>them</em> -- not just their stated preference</li>
+        </ul>
+        <div class="tip" style="margin-top: 12px;"><strong>Compliance line:</strong> Do not cite the federal residential ITC as a benefit on cash or loan systems to homeowners. It is gone for owned systems. Talk PPA economics.</div>
+      </div>
+    </div>
+
+    <div class="card green-left" style="margin-top: 18px;">
+      <h3>The Rule</h3>
+      <p style="margin: 0;">You decide which product to present <strong>before you walk through the door</strong>. PPA is the default. Cash and loan are the exception, earned through discovery -- not displayed as Door #2 on the table.</p>
+    </div>
+
+    <div class="pullquote">
+      "Make them feel exclusive. Commit to it."
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: PRESCRIPTION LANGUAGE -->
+<section class="section alt" id="language">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 6 · The Language</span>
+      <h2>The Exclusive Prescription</h2>
+      <p>Build the pain first. Then make them feel <em>chosen</em>, not <em>sold</em>. The language matters -- switch out a few words and the same recommendation lands as a privilege instead of a pitch.</p>
+    </div>
+
+    <div class="rx-grid">
+      <div class="rx-block dig">
+        <h3>Anchor the cost of staying</h3>
+        <div class="sub">Build the pain together -- questions that earn the prescription.</div>
+        <div class="qline">"How long have you been frustrated with your Eversource bill?"</div>
+        <div class="qline">"What would you do with the money if you could hold on to more of your after-tax dollars?"</div>
+        <div class="qline">"How do you feel knowing rates went up every year -- and just jumped again on January 1st?"</div>
+        <div class="qline">"If nothing changes, where's your bill in five years?"</div>
+      </div>
+
+      <div class="rx-block rx">
+        <h3>Prescribe with authority</h3>
+        <div class="sub">Language that makes them feel <em>chosen</em>, not sold.</div>
+        <div class="qline">"I've looked at everything you've shared -- your usage, your goals, your timeline -- and I'm going to recommend the best solution for you and your family."</div>
+        <div class="qline">"Not every homeowner qualifies for this program. It looks like you're a solid candidate."</div>
+        <div class="qline">"Most people I sit with, I wouldn't put on this program. For your situation, it's the right call."</div>
+        <div class="qline">"I'd be doing you a disservice giving you a bunch of options to sort through tonight."</div>
+      </div>
+    </div>
+
+    <div class="tip" style="margin-top: 18px;">
+      <strong>One delivery rule:</strong> deliver the prescription <em>matter-of-fact</em> or <em>celebratory</em> -- both work. What kills you is hesitation in between. Hesitation reads as doubt, and doubt reads as "you should think about it."
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 7: THINK ABOUT IT -->
+<section class="section" id="think">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 7 · The Decoder</span>
+      <h2>"I Need to Think About It" -- What It Actually Means</h2>
+      <p><strong>"Think about it" is almost never about time.</strong> It's about unresolved doubt. The customer is not asking for hours -- they're telling you something is still in the way. Your job is to find what.</p>
+    </div>
+
+    <div class="tri-compare">
+      <div class="signal">
+        <h4>What it usually signals</h4>
+        <ul>
+          <li>You didn't uncover the real objection</li>
+          <li>They don't feel you understand their situation</li>
+          <li>They're comparing you to another company</li>
+          <li>You gave them too many options to decide between</li>
+        </ul>
+      </div>
+      <div class="dont">
+        <h4>What not to say</h4>
+        <ul>
+          <li>"No problem, take your time!"</li>
+          <li>"I'll call you next week."</li>
+          <li>"Here's my card if you have questions."</li>
+          <li>"Let me know when you're ready."</li>
+        </ul>
+      </div>
+      <div class="do">
+        <h4>What to say instead</h4>
+        <ul>
+          <li>"I hear you. Help me understand -- what's the main thing on your mind?"</li>
+          <li>"Is it the program itself, or something I haven't addressed?"</li>
+          <li>"What would need to be true for you to feel confident moving forward today?"</li>
+          <li>"What's the cost of waiting another six months at your current rate?"</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card ink-left">
+      <h3>Diagnose the category</h3>
+      <p>Once they tell you what's actually in the way, treat it correctly. Misdiagnosing the category is the most common closing mistake.</p>
+      <ul style="margin: 0;">
+        <li><strong>Trust gap</strong> -- "I've heard bad things," "I need another quote." Address with specifics, transparency, and proof -- not a louder pitch.</li>
+        <li><strong>Information gap</strong> -- "I want to do more research." Surface the <em>specific</em> unresolved question before you leave. Don't just reschedule.</li>
+        <li><strong>Stakeholder gap</strong> -- "Spouse not home." Don't run the solution. Run the concept and lock the go-back.</li>
+        <li><strong>Financial framing</strong> -- "That's a lot of money." Do not negotiate. Reframe as concept and site-specific math: <em>"Once I run your exact production through the system, it'll tell me your number -- I just want to make sure the concept makes sense to you."</em></li>
+        <li><strong>Timing</strong> -- "Maybe next year." Reframe as cost-of-waiting at the new January rate.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 8: BRIGHT SPOTS -->
+<section class="section alt" id="bright">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 8 · It's Already Happening</span>
+      <h2>Bright Spots -- One-Touch Close in Your Own Data</h2>
+      <p>This is not a theoretical pitch. It is happening at CT kitchen tables right now -- by your peers, on the same leads, in the same rate environment. The notes from these wins all share the same DNA: <em>one product, deep discovery, both deciders, conviction at the close.</em></p>
+    </div>
+
+    <div class="bright-grid">
+      <div class="bright">
+        <div class="rep">Anthony Venditto</div>
+        <div class="name">Charles, Brian</div>
+        <div class="tag">PPA LR -- HD one touch</div>
+        <p class="desc">One product identified. No options presented. Discovery notes show full picture of homeowner needs. Decision made at the table.</p>
+      </div>
+
+      <div class="bright">
+        <div class="rep">Anthony Venditto</div>
+        <div class="name">Morrison, Glenn</div>
+        <div class="tag">Go-back was to SIGN, not to decide</div>
+        <p class="desc">PPA identified on first visit. Go-back scheduled with a specific purpose. Notes show both decision-makers engaged.</p>
+      </div>
+
+      <div class="bright">
+        <div class="rep">Jhonatan Rodriguez-Perez</div>
+        <div class="name">Pinol, Joel</div>
+        <div class="tag">Customer called to reschedule -- and signed</div>
+        <p class="desc">When the rep prescribes with conviction, the customer closes themselves. The reschedule was to sign -- not to reconsider.</p>
+      </div>
+
+      <div class="bright">
+        <div class="rep">Ryan Blinderman</div>
+        <div class="name">Patel, Sheel</div>
+        <div class="tag">Go-back to sign, same time next week</div>
+        <p class="desc">Strong family discovery. Understood the decision-making unit. Go-back set with clear purpose and all parties committed.</p>
+      </div>
+    </div>
+
+    <div class="tip" style="margin-top: 22px;">
+      <strong>The pattern repeats.</strong> Every one-touch in our data shows discovery you can <em>feel</em> in the notes, one prescribed product, both deciders engaged, and a next step that was a signature -- not a sales conversation.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 9: PATH TO 30 -->
+<section class="section" id="path">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 9 · The Commitment</span>
+      <h2>The Path to 30%+</h2>
+      <p>Three commitments. Starting with your next appointment. None of them require working harder, knocking more, or carrying more leads.</p>
+    </div>
+
+    <div class="card gold-left">
+      <h3>01 · One solution only</h3>
+      <p style="margin: 0;">Before every appointment, decide the product. PPA is default. Cash or loan only if discovery clearly supports it. <strong>Never present more than one financing option at the table.</strong></p>
+    </div>
+
+    <div class="card blue-left">
+      <h3>02 · Both decision-makers -- or reschedule</h3>
+      <p style="margin: 0;">Confirm before you go. If the spouse is not present, do not run the full appointment. Stay concept-level. Coach the present homeowner. Reschedule and protect your time and theirs.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>03 · Build the pain before the solution</h3>
+      <p style="margin: 0;">Spend the first half of every consultation discovering -- not presenting. Your notes after the sit should show <em>what they feel</em>, not just what they owe. If you wrote "interested" or "no" -- you didn't actually run an appointment.</p>
+    </div>
+
+    <div class="pullquote" style="margin-top: 26px;">
+      25% → 30%+ is not about working harder. It's about having a plan, cool confidence, and leading your customer to the solution.
+    </div>
+  </div>
+</section>
+
+<!-- CREED SECTION -->
+<section class="creed-section">
+  <div class="wrap">
+    <p class="question">If <em>we</em> don't know, with our months and years of training, what is best for them -- how can <em>they</em> be expected to know after a thirty-minute consult?</p>
+    <hr>
+    <div class="three">
+      <span class="l1">Information is not integrity.</span>
+      <span class="l2">Confidence is not pressure.</span>
+      <span class="l3">It's the highest form of service.</span>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section class="closer">
+  <div class="wrap">
+    <span class="eyebrow" style="color: var(--gold);">The Field Manual</span>
+    <h2>One-Sentence Reminders</h2>
+    <div class="one-liners">
+      <div class="one">Decide the product before you walk through the door.</div>
+      <div class="one green">PPA is the default. Cash and loan are exceptions, earned through discovery.</div>
+      <div class="one">Five pillars before you prescribe -- Pain, Fear, Vision, Timeline, Decision.</div>
+      <div class="one green">Both decision-makers, or it's a concept conversation only.</div>
+      <div class="one">Build the pain together, then make them feel exclusive.</div>
+      <div class="one green">Hesitation reads as doubt. Deliver matter-of-fact, or celebratory -- but never timid.</div>
+      <div class="one">"Think about it" is unresolved doubt, not a request for time.</div>
+      <div class="one green">Make inaction visible. Show what waiting costs at the new January rate.</div>
+      <div class="one">A 90-minute sit without a decision-maker is a wasted appointment.</div>
+      <div class="one green">Information is not integrity. Confidence is not pressure. It's the highest form of service.</div>
+    </div>
+    <div class="signoff">CT Traditional · Trinity Solar · Built for the field</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Distilled from <em>One-Touch Close: From Presentation to Prescription</em> (CT Region All Hands 2026), the appointment-notes coaching record, and the field experience of the reps closing one-touch right now.
+  </div>
+</footer>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.toc-nav a');
+
+function highlightActiveSection() {
+  let current = '';
+  const scrollPos = window.scrollY + 200;
+  sections.forEach(section => {
+    const top = section.offsetTop;
+    const height = section.offsetHeight;
+    if (scrollPos >= top && scrollPos < top + height) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) {
+      link.classList.add('active');
+    }
+  });
+}
+
+window.addEventListener('scroll', highlightActiveSection);
+window.addEventListener('load', highlightActiveSection);
+</script>
+
+</body>
+</html>
