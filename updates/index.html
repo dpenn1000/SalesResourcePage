@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10/dist/html2pdf.bundle.min.js"></script>
 <style>
 :root {
   --green: #78C832;
@@ -320,13 +321,48 @@ main { padding: 32px 0 80px; }
 .empty-state p { max-width: 420px; margin: 0 auto; }
 
 /* DETAIL VIEW */
+.detail-actions {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
 .detail-back {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 0.85rem; font-weight: 600;
-  color: var(--muted);
-  margin-bottom: 18px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 7px 14px;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
 }
-.detail-back:hover { color: var(--ink); text-decoration: none; }
+.detail-back:hover { background: var(--surface); border-color: var(--ink); text-decoration: none; }
+.detail-pdf {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.85rem; font-weight: 700;
+  color: #fff;
+  background: var(--gold-dk);
+  border: 1px solid var(--gold-dk);
+  border-radius: var(--r-sm);
+  padding: 7px 14px;
+  cursor: pointer;
+  margin-left: auto;
+  transition: background 0.15s;
+  font-family: 'Manrope', sans-serif;
+}
+.detail-pdf:hover { background: var(--gold); }
+
+.bc-just-live {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.7rem; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--red);
+  background: rgba(200,69,69,0.10);
+  border: 1px solid rgba(200,69,69,0.25);
+  border-radius: 999px;
+  padding: 2px 8px;
+}
 .detail-card {
   background: var(--white);
   border: 1px solid var(--line);
@@ -558,6 +594,20 @@ function isImage(att) { return att && att.type && att.type.startsWith('image/');
 function isPdf(att)   { return att && att.type === 'application/pdf'; }
 function isVideo(att) { return att && att.type && att.type.startsWith('video/'); }
 
+function effectivePublishAt(b) {
+  return b.publish_at || b.posted_at;
+}
+function isLive(b) {
+  const t = effectivePublishAt(b);
+  return !t || new Date(t) <= new Date();
+}
+function isJustLive(b) {
+  const t = effectivePublishAt(b);
+  if (!t) return false;
+  const ms = Date.now() - new Date(t).getTime();
+  return ms >= 0 && ms < 24 * 60 * 60 * 1000; // last 24h
+}
+
 let ALL_BULLETINS = [];
 let activeType = 'all';
 let searchQuery = '';
@@ -629,7 +679,7 @@ function renderFeed() {
   filtered.sort((a, b) => {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
     if (a.priority !== b.priority) return (b.priority||0) - (a.priority||0);
-    return new Date(b.posted_at) - new Date(a.posted_at);
+    return new Date(effectivePublishAt(b)) - new Date(effectivePublishAt(a));
   });
 
   const pinned = filtered.filter(b => b.pinned);
@@ -718,7 +768,8 @@ function cardHtml(b) {
       <div class="bc-body">
         <div class="bc-meta">
           <span class="bc-type-tag"><span class="dot"></span>${escapeHtml(TYPE_LABEL[b.type] || b.type)}</span>
-          <span>${escapeHtml(fmtDate(b.posted_at))}</span>
+          <span>${escapeHtml(fmtDate(effectivePublishAt(b)))}</span>
+          ${isJustLive(b) ? '<span class="bc-just-live">&#128308; Just live</span>' : ''}
           ${b.pinned ? '<span class="bc-pin">&#128204; Pinned</span>' : ''}
         </div>
         <div class="bc-title">${escapeHtml(b.title)}</div>
@@ -754,11 +805,15 @@ function renderDetail(slug) {
   const otherAtts = attaches.filter(a => !isImage(a) && !isPdf(a) && !isVideo(a));
 
   let html = `
-    <a href="/updates/" class="detail-back">&larr; All updates</a>
-    <article class="detail-card" data-type="${escapeHtml(b.type)}">
+    <div class="detail-actions">
+      <a href="/updates/" class="detail-back">&larr; All updates</a>
+      <button type="button" class="detail-pdf" onclick="downloadCurrentBulletinAsPdf()" title="Download as PDF">&#128229; Download PDF</button>
+    </div>
+    <article id="detailArticle" class="detail-card" data-type="${escapeHtml(b.type)}">
       <div class="detail-meta">
         <span class="bc-type-tag"><span class="dot"></span>${escapeHtml(TYPE_LABEL[b.type] || b.type)}</span>
-        <span>Posted ${escapeHtml(fmtDate(b.posted_at))}</span>
+        <span>Posted ${escapeHtml(fmtDate(effectivePublishAt(b)))}</span>
+        ${isJustLive(b) ? '<span class="bc-just-live">&#128308; Just live</span>' : ''}
         ${b.pinned ? '<span class="bc-pin">&#128204; Pinned</span>' : ''}
         ${b.author_email ? `<span>by ${escapeHtml(b.author_email)}</span>` : ''}
       </div>
@@ -818,6 +873,28 @@ function renderDetail(slug) {
   } catch (e) {}
 }
 
+function downloadCurrentBulletinAsPdf() {
+  const slug = getSlugFromUrl();
+  if (!slug) return;
+  const b = ALL_BULLETINS.find(x => x.slug === slug);
+  if (!b) return;
+  const node = document.getElementById('detailArticle');
+  if (!node || !window.html2pdf) {
+    alert('PDF library not loaded yet. Try again in a moment.');
+    return;
+  }
+  const filename = (b.slug || 'update') + '.pdf';
+  const opt = {
+    margin:       [0.5, 0.5, 0.5, 0.5],
+    filename:     filename,
+    image:        { type: 'jpeg', quality: 0.95 },
+    html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+  html2pdf().set(opt).from(node).save();
+}
+
 function navigateTo(slug) {
   if (slug) {
     history.pushState({ slug }, '', '/updates/?b=' + encodeURIComponent(slug));
@@ -875,9 +952,11 @@ async function loadAndRender() {
       return;
     }
 
-    ALL_BULLETINS = (data || []).filter(b =>
-      !b.expires_at || new Date(b.expires_at) > new Date()
-    );
+    ALL_BULLETINS = (data || []).filter(b => {
+      if (b.expires_at && new Date(b.expires_at) <= new Date()) return false;
+      if (b.publish_at && new Date(b.publish_at) > new Date()) return false;
+      return true;
+    });
 
     const slug = getSlugFromUrl();
     if (slug) renderDetail(slug); else renderFeed();

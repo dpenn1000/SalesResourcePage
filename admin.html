@@ -436,8 +436,14 @@
           </label>
         </div>
         <div>
+          <label>Goes live</label>
+          <input type="datetime-local" id="updatePublishAt">
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;">Leave empty to publish now. Future = scheduled (hidden from public until then).</div>
+        </div>
+        <div>
           <label>Expires (optional)</label>
           <input type="datetime-local" id="updateExpires">
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;">Auto-hides from public after this time.</div>
         </div>
 
         <div class="form-full">
@@ -1470,6 +1476,7 @@ function ensureQuill() {
         container: [
           [{ header: [2, 3, false] }],
           ['bold', 'italic', 'underline', 'strike'],
+          [{ color: [] }, { background: [] }],
           [{ list: 'ordered' }, { list: 'bullet' }],
           ['blockquote', 'link', 'image'],
           ['clean']
@@ -1515,6 +1522,7 @@ function showUpdateForm() {
   document.getElementById('updateSlug').value = '';
   document.getElementById('updateSlug').dataset.touched = '';
   document.getElementById('updatePinned').checked = false;
+  document.getElementById('updatePublishAt').value = '';
   document.getElementById('updateExpires').value = '';
   quill.setContents([]);
   document.getElementById('slugPreview').textContent = '/updates/?b=...';
@@ -1558,16 +1566,23 @@ async function loadUpdates() {
     'coming-soon': '#0E9B8A', 'action-required': '#C84545'
   };
 
+  const now = new Date();
   tbody.innerHTML = UPDATES.map(u => {
-    const expired = u.expires_at && new Date(u.expires_at) < new Date();
-    const status = !u.active ? 'Inactive' : expired ? 'Expired' : u.pinned ? 'Pinned' : 'Active';
-    const dt = new Date(u.posted_at);
+    const expired   = u.expires_at && new Date(u.expires_at) < now;
+    const scheduled = u.publish_at && new Date(u.publish_at) > now;
+    let statusHtml;
+    if (!u.active)      statusHtml = 'Inactive';
+    else if (scheduled) statusHtml = `<span style="color:#0E9B8A;font-weight:700;">&#128197; Scheduled<div style="font-size:10px;font-weight:500;color:var(--text2);margin-top:2px;">${new Date(u.publish_at).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</div></span>`;
+    else if (expired)   statusHtml = 'Expired';
+    else if (u.pinned)  statusHtml = '<span style="color:#C8851A;font-weight:700;">&#128204; Pinned</span>';
+    else                statusHtml = '<span style="color:#5FA520;font-weight:700;">&#9679; Live</span>';
+    const liveAt = u.publish_at ? new Date(u.publish_at) : new Date(u.posted_at);
     return `
       <tr>
         <td><span style="display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:${TYPE_COLOR[u.type]}22;color:${TYPE_COLOR[u.type]};">${TYPE_LABEL[u.type] || u.type}</span></td>
         <td style="font-weight:600;">${escapeHtml(u.title)}<div style="font-size:11px;color:var(--text2);font-weight:400;margin-top:2px;font-family:monospace;">/updates/?b=${escapeHtml(u.slug)}</div></td>
-        <td>${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</td>
-        <td>${u.pinned ? '<span style="color:#C8851A;font-weight:700;">&#128204; Pinned</span>' : status}</td>
+        <td>${liveAt.toLocaleDateString()} ${liveAt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</td>
+        <td>${statusHtml}</td>
         <td>
           <button class="btn-edit" onclick="editUpdate('${u.id}')">Edit</button>
           <button class="btn-edit" onclick="togglePinUpdate('${u.id}')" style="background:#FFF7E5;color:#C8851A;">${u.pinned ? 'Unpin' : 'Pin'}</button>
@@ -1588,6 +1603,7 @@ function editUpdate(id) {
   document.getElementById('updateSlug').value = u.slug;
   document.getElementById('updateSlug').dataset.touched = '1';
   document.getElementById('updatePinned').checked = !!u.pinned;
+  document.getElementById('updatePublishAt').value = u.publish_at ? u.publish_at.slice(0, 16) : '';
   document.getElementById('updateExpires').value = u.expires_at ? u.expires_at.slice(0, 16) : '';
   ensureQuill();
   quill.clipboard.dangerouslyPasteHTML(u.body_html || '');
@@ -1625,6 +1641,7 @@ async function saveUpdate() {
   const session = (await sb.auth.getSession()).data.session;
   const author_email = session?.user?.email || null;
 
+  const publishRaw = document.getElementById('updatePublishAt').value;
   const expiresRaw = document.getElementById('updateExpires').value;
   const rawHtml = quill ? quill.root.innerHTML : '';
   const cleanHtml = DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['target', 'rel'] });
@@ -1634,6 +1651,7 @@ async function saveUpdate() {
     type: document.getElementById('updateType').value,
     body_html: cleanHtml,
     pinned: document.getElementById('updatePinned').checked,
+    publish_at: publishRaw ? new Date(publishRaw).toISOString() : new Date().toISOString(),
     expires_at: expiresRaw ? new Date(expiresRaw).toISOString() : null,
     attachments: pendingAttachments,
     author_email,
