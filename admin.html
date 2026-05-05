@@ -129,6 +129,18 @@
     .td-url a { color: var(--blue); text-decoration: none; font-size: 12px; }
 
     .cat-pill { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+    .page-tab-badge {
+      display: inline-block; min-width: 18px; height: 18px; line-height: 18px;
+      padding: 0 6px; margin-left: 6px;
+      background: #c92020; color: #fff; border-radius: 999px;
+      font-size: 11px; font-weight: 700; text-align: center; vertical-align: middle;
+    }
+    .filter-select {
+      padding: 6px 10px; font-size: 13px; font-family: inherit;
+      border: 1px solid #DFE2DA; border-radius: 6px; background: #fff; color: #1A2332;
+      cursor: pointer;
+    }
+    .filter-select:focus { outline: none; border-color: #78C832; box-shadow: 0 0 0 3px rgba(120,200,50,0.15); }
     .cat-Solar    { background: #EDFAD6; color: #4A8A14; }
     .cat-Battery  { background: #DCF0FB; color: #1375A0; }
     .cat-Roofing  { background: #FDEEDD; color: #A05415; }
@@ -217,6 +229,7 @@
     <div class="page-tabs-inner">
       <button class="page-tab active" onclick="switchTab('resources')">Resources</button>
       <button class="page-tab"        onclick="switchTab('updates')">Updates</button>
+      <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
       <button class="page-tab"        onclick="switchTab('team')">Team</button>
     </div>
   </div>
@@ -490,6 +503,68 @@
           <tr><td colspan="5" class="empty-table">Loading...</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Feedback section -->
+  <div id="tabFeedback" class="admin-inner" style="display:none">
+    <div class="panel-header">
+      <h2 id="feedbackCount">Feedback</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <select id="ffStatus" class="filter-select" onchange="renderFeedback()">
+          <option value="open">Open (new + triaged + in progress)</option>
+          <option value="">All statuses</option>
+          <option value="new">New</option>
+          <option value="triaged">Triaged</option>
+          <option value="in_progress">In progress</option>
+          <option value="done">Done</option>
+          <option value="declined">Declined</option>
+        </select>
+        <select id="ffType" class="filter-select" onchange="renderFeedback()">
+          <option value="">All types</option>
+          <option value="improvement">Improvement</option>
+          <option value="content_request">Content</option>
+          <option value="bug">Bug</option>
+          <option value="other">Other</option>
+        </select>
+        <select id="ffPriority" class="filter-select" onchange="renderFeedback()">
+          <option value="">Any priority</option>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="normal">Normal</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="resource-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:90px;">When</th>
+            <th style="width:100px;">Type</th>
+            <th>Summary</th>
+            <th style="width:160px;">Page</th>
+            <th style="width:90px;">Priority</th>
+            <th style="width:110px;">Status</th>
+            <th style="width:110px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="feedbackTableBody">
+          <tr><td colspan="7" class="team-empty">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Feedback detail modal -->
+  <div id="feedbackModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:600;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:#fff;border-radius:12px;width:100%;max-width:780px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+      <div style="background:#1A2332;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;">
+        <span id="feedbackModalTitle" style="font-size:15px;font-weight:700;color:#fff;">Feedback detail</span>
+        <button onclick="closeFeedbackModal()" style="background:none;border:none;color:rgba(255,255,255,0.55);font-size:22px;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+      <div id="feedbackModalBody" style="padding:22px;"></div>
     </div>
   </div>
 
@@ -1465,14 +1540,16 @@ document.getElementById('bulkModal').addEventListener('click', e => {
 });
 
 function switchTab(tab) {
-  const order = ['resources', 'updates', 'team'];
+  const order = ['resources', 'updates', 'feedback', 'team'];
   document.querySelectorAll('.page-tab').forEach((t, i) =>
     t.classList.toggle('active', order[i] === tab));
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
   document.getElementById('tabUpdates').style.display   = tab === 'updates'   ? 'block' : 'none';
+  document.getElementById('tabFeedback').style.display  = tab === 'feedback'  ? 'block' : 'none';
   document.getElementById('tabTeam').style.display      = tab === 'team'      ? 'block' : 'none';
   if (tab === 'team') loadTeam();
   if (tab === 'updates') loadUpdates();
+  if (tab === 'feedback') loadFeedback();
 }
 
 // ── Updates (Bulletins) ───────────────────────────
@@ -2052,6 +2129,264 @@ function copyCredentials(email, password, btn) {
     setTimeout(() => { btn.textContent = 'Copy credentials'; }, 2200);
   });
 }
+
+// ── Feedback queue ────────────────────────────────
+let FEEDBACK = [];
+
+const FB_TYPE_LABEL = {
+  improvement: 'Improvement',
+  content_request: 'Content',
+  bug: 'Bug',
+  other: 'Other',
+};
+const FB_STATUS_LABEL = {
+  new: 'New',
+  triaged: 'Triaged',
+  in_progress: 'In progress',
+  done: 'Done',
+  declined: 'Declined',
+};
+const FB_STATUS_COLOR = {
+  new: '#29A9E1',
+  triaged: '#F5A623',
+  in_progress: '#F5A623',
+  done: '#5eba28',
+  declined: '#6b7a90',
+};
+const FB_PRIORITY_COLOR = {
+  urgent: '#c92020',
+  high: '#d99a1f',
+  normal: '#6b7a90',
+  low: '#9aa6b8',
+};
+
+async function loadFeedback() {
+  const tbody = document.getElementById('feedbackTableBody');
+  tbody.innerHTML = '<tr><td colspan="7" class="team-empty">Loading...</td></tr>';
+  const { data, error } = await sb.from('feedback_items')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) {
+    tbody.innerHTML = '<tr><td colspan="7" class="team-empty" style="color:#c92020;">'
+      + 'Error loading feedback: ' + escapeHtml(error.message)
+      + (/relation .* does not exist/i.test(error.message) ? ' &mdash; the feedback_items table may not have been migrated yet (run admin-scripts/migrations/0004_feedback_items.sql).' : '')
+      + '</td></tr>';
+    return;
+  }
+  FEEDBACK = data || [];
+  updateFeedbackBadge();
+  renderFeedback();
+}
+
+function updateFeedbackBadge() {
+  const open = FEEDBACK.filter(f => f.status === 'new' || f.status === 'triaged' || f.status === 'in_progress').length;
+  const badge = document.getElementById('feedbackBadge');
+  if (open > 0) {
+    badge.textContent = open;
+    badge.style.display = 'inline-block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function renderFeedback() {
+  const tbody = document.getElementById('feedbackTableBody');
+  const fStatus = document.getElementById('ffStatus').value;
+  const fType = document.getElementById('ffType').value;
+  const fPriority = document.getElementById('ffPriority').value;
+
+  let rows = FEEDBACK.slice();
+  if (fStatus === 'open') rows = rows.filter(r => r.status !== 'done' && r.status !== 'declined');
+  else if (fStatus) rows = rows.filter(r => r.status === fStatus);
+  if (fType) rows = rows.filter(r => r.type === fType);
+  if (fPriority) rows = rows.filter(r => r.priority === fPriority);
+
+  document.getElementById('feedbackCount').textContent = 'Feedback (' + rows.length + ')';
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="team-empty">No feedback matches.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = rows.map(r => {
+    const summary = (r.title || r.body || '').slice(0, 120) + (((r.title || r.body || '').length > 120) ? '...' : '');
+    const when = relativeTime(r.created_at);
+    let pageLabel = '';
+    try {
+      pageLabel = r.page_url ? new URL(r.page_url).pathname : '';
+    } catch { pageLabel = r.page_url || ''; }
+    if (pageLabel.length > 28) pageLabel = '...' + pageLabel.slice(-25);
+    return `
+      <tr style="cursor:pointer" onclick="showFeedbackDetail('${r.id}')">
+        <td><span title="${escapeHtml(r.created_at)}" style="font-size:12px;color:#6b7a90;">${escapeHtml(when)}</span></td>
+        <td><span class="cat-pill" style="background:#EFF1EC;color:#1A2332;">${escapeHtml(FB_TYPE_LABEL[r.type] || r.type)}</span></td>
+        <td>${escapeHtml(summary || '(no summary)')}</td>
+        <td><code style="font-size:11px;color:#6b7a90;">${escapeHtml(pageLabel)}</code></td>
+        <td><span style="color:${FB_PRIORITY_COLOR[r.priority] || '#6b7a90'};font-weight:600;font-size:12px;">${escapeHtml((r.priority || 'normal').toUpperCase())}</span></td>
+        <td><span style="background:${FB_STATUS_COLOR[r.status] || '#6b7a90'};color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;">${escapeHtml(FB_STATUS_LABEL[r.status] || r.status)}</span></td>
+        <td onclick="event.stopPropagation()">
+          <button class="btn-edit" onclick="showFeedbackDetail('${r.id}')">Open</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function relativeTime(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const sec = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (sec < 60) return sec + 's ago';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return min + 'm ago';
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return hr + 'h ago';
+  const days = Math.floor(hr / 24);
+  if (days < 7) return days + 'd ago';
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function showFeedbackDetail(id) {
+  const r = FEEDBACK.find(x => x.id === id);
+  if (!r) return;
+  const modal = document.getElementById('feedbackModal');
+  modal.style.display = 'flex';
+  const title = document.getElementById('feedbackModalTitle');
+  title.textContent = (FB_TYPE_LABEL[r.type] || r.type) + ' -- ' + (r.title || '(no title)').slice(0, 80);
+
+  const body = document.getElementById('feedbackModalBody');
+  const di = r.device_info || {};
+  const vp = di.viewport || {};
+  const sc = di.screen || {};
+  const cn = di.connection || {};
+
+  // attachments
+  const atts = (r.attachments || []).map(a => {
+    const isImg = (a.type || '').startsWith('image/');
+    return isImg
+      ? `<a href="${escapeAttr(a.url)}" target="_blank" rel="noopener" style="display:inline-block;margin:4px;"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name)}" style="max-width:240px;max-height:160px;border:1px solid #DFE2DA;border-radius:6px;display:block;"></a>`
+      : `<a href="${escapeAttr(a.url)}" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;font-size:13px;">📎 ${escapeHtml(a.name)} (${(a.size/1024).toFixed(0)} KB)</a>`;
+  }).join('');
+
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;font-size:13px;">
+      <div><strong>Type:</strong> ${escapeHtml(FB_TYPE_LABEL[r.type] || r.type)}</div>
+      <div><strong>Priority:</strong>
+        <select id="fbPriorityIn" style="font-size:13px;padding:3px 6px;">
+          ${['low','normal','high','urgent'].map(p => `<option value="${p}" ${p===r.priority?'selected':''}>${p}</option>`).join('')}
+        </select>
+      </div>
+      <div><strong>Status:</strong>
+        <span style="background:${FB_STATUS_COLOR[r.status] || '#6b7a90'};color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;">${escapeHtml(FB_STATUS_LABEL[r.status] || r.status)}</span>
+      </div>
+      <div><strong>Submitted:</strong> ${escapeHtml(new Date(r.created_at).toLocaleString())}</div>
+      <div style="grid-column:1/-1;"><strong>From:</strong> ${r.submitter_email ? escapeHtml(r.submitter_email) : '<span style="color:#6b7a90;">(anonymous)</span>'} ${r.submitter_name ? '&nbsp;-- ' + escapeHtml(r.submitter_name) : ''}</div>
+      <div style="grid-column:1/-1;"><strong>Page:</strong> <a href="${escapeAttr(r.page_url || '#')}" target="_blank" rel="noopener">${escapeHtml(r.page_url || '(none)')}</a> ${r.referrer ? '<br><span style="color:#6b7a90;font-size:12px;">via ' + escapeHtml(r.referrer) + '</span>' : ''}</div>
+    </div>
+
+    ${r.title ? `<div style="margin-bottom:12px;"><strong>Summary</strong><div style="background:#EFF1EC;padding:9px 12px;border-radius:6px;margin-top:4px;">${escapeHtml(r.title)}</div></div>` : ''}
+    ${r.body ? `<div style="margin-bottom:12px;"><strong>Details</strong><div style="background:#EFF1EC;padding:9px 12px;border-radius:6px;margin-top:4px;white-space:pre-wrap;">${escapeHtml(r.body)}</div></div>` : ''}
+
+    ${atts ? `<div style="margin-bottom:12px;"><strong>Attachments</strong><div style="margin-top:4px;">${atts}</div></div>` : ''}
+
+    <details style="margin-bottom:14px;">
+      <summary style="cursor:pointer;font-weight:600;color:#1A2332;">Browser / device snapshot</summary>
+      <table style="width:100%;font-size:12px;margin-top:8px;border-collapse:collapse;">
+        <tbody>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">User agent</td><td style="padding:3px 8px;font-family:monospace;font-size:11px;">${escapeHtml(di.user_agent || '')}</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">Platform / vendor</td><td style="padding:3px 8px;">${escapeHtml(di.platform || '')} / ${escapeHtml(di.vendor || '')}</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">Viewport</td><td style="padding:3px 8px;font-family:monospace;font-size:12px;">${vp.w}x${vp.h} @ ${vp.dpr}x</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">Screen</td><td style="padding:3px 8px;font-family:monospace;font-size:12px;">${sc.w}x${sc.h} (avail ${sc.avail_w}x${sc.avail_h}, ${sc.color_depth}-bit, ${escapeHtml(sc.orientation || '')})</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">Language</td><td style="padding:3px 8px;">${escapeHtml(di.language || '')} ${di.languages ? '(' + escapeHtml((di.languages || []).join(', ')) + ')' : ''}</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">Timezone</td><td style="padding:3px 8px;">${escapeHtml(di.timezone || '')} (offset ${di.timezone_offset_min ?? '?'} min)</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">Theme / motion</td><td style="padding:3px 8px;">${escapeHtml(di.prefers_color_scheme || '')} / ${di.prefers_reduced_motion ? 'reduced' : 'normal'}</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">Connection</td><td style="padding:3px 8px;font-family:monospace;font-size:12px;">${escapeHtml(cn.effective_type || '?')} ${cn.downlink ? cn.downlink + ' Mbps' : ''} ${cn.rtt ? '/ ' + cn.rtt + ' ms' : ''}</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;">CPU / RAM / touch</td><td style="padding:3px 8px;font-family:monospace;font-size:12px;">${di.hardware_concurrency || '?'} cores, ${di.device_memory || '?'} GB, ${di.max_touch_points || 0} touch pts</td></tr>
+          <tr><td style="padding:3px 8px;color:#6b7a90;vertical-align:top;">Raw JSON</td><td style="padding:3px 8px;"><pre style="background:#f1f3ee;padding:6px;border-radius:4px;font-size:10.5px;line-height:1.4;max-height:160px;overflow:auto;margin:0;">${escapeHtml(JSON.stringify(di, null, 2))}</pre></td></tr>
+        </tbody>
+      </table>
+    </details>
+
+    ${r.triage_note ? `<div style="margin-bottom:12px;background:rgba(41,169,225,0.06);border-left:3px solid #29A9E1;padding:10px 12px;border-radius:0 6px 6px 0;font-size:13px;"><strong>Triage note:</strong> <span style="white-space:pre-wrap;">${escapeHtml(r.triage_note)}</span><div style="font-size:11px;color:#6b7a90;margin-top:4px;">${escapeHtml(r.triaged_by || '')} ${r.triaged_at ? '&middot; ' + escapeHtml(new Date(r.triaged_at).toLocaleString()) : ''}</div></div>` : ''}
+
+    <div style="margin-bottom:12px;">
+      <label style="display:block;font-weight:600;font-size:13px;color:#1A2332;margin-bottom:4px;">Triage / resolution note (optional)</label>
+      <textarea id="fbTriageNote" placeholder="What did you decide? What did you do?" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #DFE2DA;border-radius:6px;font-family:inherit;font-size:13px;min-height:60px;">${escapeHtml(r.triage_note || '')}</textarea>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid #DFE2DA;padding-top:12px;">
+      <button class="btn-edit" onclick="triageFeedback('${r.id}', 'triaged')">Acknowledge</button>
+      <button class="btn-edit" onclick="triageFeedback('${r.id}', 'in_progress')">In progress</button>
+      <button class="btn-edit" onclick="triageFeedback('${r.id}', 'done')" style="background:#5eba28;color:#fff;">Mark done</button>
+      <button class="btn-edit" onclick="triageFeedback('${r.id}', 'declined')" style="background:#6b7a90;color:#fff;">Decline</button>
+      <button class="btn-edit" onclick="triageFeedback('${r.id}', 'new')" style="background:transparent;border:1px solid #DFE2DA;">Re-open as new</button>
+      <span style="flex:1;"></span>
+      <button class="btn-delete" onclick="deleteFeedback('${r.id}')" style="background:#fbe1e1;color:#843636;">Delete</button>
+    </div>
+  `;
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'none';
+}
+
+document.getElementById('feedbackModal').addEventListener('click', e => {
+  if (e.target.id === 'feedbackModal') closeFeedbackModal();
+});
+
+async function triageFeedback(id, status) {
+  const note = document.getElementById('fbTriageNote')?.value.trim() || null;
+  const priority = document.getElementById('fbPriorityIn')?.value || null;
+  if (status === 'declined' && (!note || note.length < 5)) {
+    toast('Decline requires a note (5+ chars).');
+    return;
+  }
+  const session = (await sb.auth.getSession()).data.session;
+  const triagedBy = session?.user?.email || null;
+  const patch = {
+    status,
+    triage_note: note,
+    triaged_by: triagedBy,
+    triaged_at: new Date().toISOString(),
+  };
+  if (priority) patch.priority = priority;
+  if (status === 'done' || status === 'declined') patch.resolved_at = new Date().toISOString();
+  else patch.resolved_at = null;
+
+  const { error } = await sb.from('feedback_items').update(patch).eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  closeFeedbackModal();
+  toast('Marked ' + (FB_STATUS_LABEL[status] || status));
+  loadFeedback();
+}
+
+async function deleteFeedback(id) {
+  if (!confirm('Delete this feedback item? This cannot be undone.')) return;
+  const { error } = await sb.from('feedback_items').delete().eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  closeFeedbackModal();
+  toast('Deleted');
+  loadFeedback();
+}
+
+// Update the badge whenever the admin loads (regardless of which tab is active),
+// so the count is visible right after sign-in.
+(async function preloadFeedbackBadge() {
+  // tiny delay to let sb get initialized + auth session
+  setTimeout(async () => {
+    try {
+      const { data, error } = await sb.from('feedback_items')
+        .select('id,status', { count: 'exact', head: false })
+        .or('status.eq.new,status.eq.triaged,status.eq.in_progress');
+      if (!error && data) {
+        const badge = document.getElementById('feedbackBadge');
+        if (data.length > 0) {
+          badge.textContent = data.length;
+          badge.style.display = 'inline-block';
+        }
+      }
+    } catch {}
+  }, 1500);
+})();
 </script>
 
 </body>
