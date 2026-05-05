@@ -5,8 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CT Traditional | Admin</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/quill@2/dist/quill.min.js"></script>
+  <style>
+    /* Quill tweaks to match admin look */
+    .ql-toolbar.ql-snow { border-color: var(--border); border-top-left-radius: 6px; border-top-right-radius: 6px; background: #FAFBF7; }
+    .ql-container.ql-snow { border-color: var(--border); border-bottom-left-radius: 6px; border-bottom-right-radius: 6px; min-height: 240px; font-size: 14px; line-height: 1.6; }
+    .ql-editor { min-height: 240px; max-height: 520px; }
+    .ql-editor img { max-width: 100%; height: auto; border-radius: 4px; }
+  </style>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -433,14 +441,9 @@
         </div>
 
         <div class="form-full">
-          <label>Body (Markdown supported)</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-            <textarea id="updateBody" rows="14" oninput="renderUpdatePreview()"
-              placeholder="Use **bold**, *italic*, ## headings, - bullets, [link](url), &gt; quotes..."
-              style="font-family:ui-monospace,Consolas,monospace;font-size:13px;line-height:1.55;resize:vertical;"></textarea>
-            <div id="updatePreview" style="background:#FAFBF7;border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-size:13px;line-height:1.6;color:var(--ink);min-height:200px;overflow-y:auto;max-height:400px;"></div>
-          </div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Live preview on the right. Markdown sanitized on render.</div>
+          <label>Body</label>
+          <div id="updateBody" style="background:#fff;min-height:240px;font-family:'Manrope',-apple-system,sans-serif;font-size:14px;"></div>
+          <div style="font-size:11px;color:var(--text2);margin-top:4px;">Use the toolbar to format. Pasted images upload to Supabase automatically.</div>
         </div>
 
         <div class="form-full">
@@ -1418,6 +1421,15 @@ function switchTab(tab) {
 // ── Updates (Bulletins) ───────────────────────────
 let UPDATES = [];
 let pendingAttachments = []; // {name, url, size, type} -- already uploaded
+let quill = null; // initialized lazily on first form open
+
+const TYPE_LABEL = {
+  'announcement': 'Announcement',
+  'heads-up': 'Heads-up',
+  'regional': 'Regional Message',
+  'coming-soon': 'Coming Soon',
+  'action-required': 'Action Required'
+};
 
 function slugify(s) {
   return (s || '').toLowerCase()
@@ -1429,7 +1441,6 @@ function slugify(s) {
 function autoSlug() {
   const slugInput = document.getElementById('updateSlug');
   const titleInput = document.getElementById('updateTitle');
-  // Only auto-fill the slug if user hasn't manually edited it
   if (!slugInput.dataset.touched) {
     slugInput.value = slugify(titleInput.value);
   }
@@ -1449,14 +1460,54 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function renderUpdatePreview() {
-  const md = document.getElementById('updateBody').value;
-  const html = md ? DOMPurify.sanitize(marked.parse(md, { breaks: true, gfm: true })) : '<em style="color:#9CA3AF;">Live preview...</em>';
-  document.getElementById('updatePreview').innerHTML = html;
+function ensureQuill() {
+  if (quill) return quill;
+  quill = new Quill('#updateBody', {
+    theme: 'snow',
+    placeholder: 'Write the announcement... use the toolbar to format. Pasted/inserted images upload automatically.',
+    modules: {
+      toolbar: {
+        container: [
+          [{ header: [2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['blockquote', 'link', 'image'],
+          ['clean']
+        ],
+        handlers: {
+          image: quillImageHandler
+        }
+      }
+    }
+  });
+  return quill;
+}
+
+async function quillImageHandler() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async () => {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    if (file.size > 25 * 1024 * 1024) { toast('Image too large (max 25MB)'); return; }
+    toast('Uploading image...');
+    const path = Date.now() + '_' + (file.name || 'image').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const { error } = await sb.storage.from('bulletin-attachments').upload(path, file, {
+      cacheControl: '3600', upsert: false, contentType: file.type || 'image/png'
+    });
+    if (error) { toast('Upload error: ' + error.message); return; }
+    const { data } = sb.storage.from('bulletin-attachments').getPublicUrl(path);
+    const range = quill.getSelection(true) || { index: quill.getLength() };
+    quill.insertEmbed(range.index, 'image', data.publicUrl, 'user');
+    quill.setSelection(range.index + 1);
+  };
+  input.click();
 }
 
 function showUpdateForm() {
   document.getElementById('updateFormCard').style.display = 'block';
+  ensureQuill();
   document.getElementById('updateFormTitle').textContent = 'Post Update';
   document.getElementById('updateEditId').value = '';
   document.getElementById('updateTitle').value = '';
@@ -1465,11 +1516,10 @@ function showUpdateForm() {
   document.getElementById('updateSlug').dataset.touched = '';
   document.getElementById('updatePinned').checked = false;
   document.getElementById('updateExpires').value = '';
-  document.getElementById('updateBody').value = '';
+  quill.setContents([]);
   document.getElementById('slugPreview').textContent = '/updates/?b=...';
   pendingAttachments = [];
   renderAttachList();
-  renderUpdatePreview();
   document.getElementById('updateFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1503,10 +1553,6 @@ async function loadUpdates() {
     return;
   }
 
-  const TYPE_LABEL = {
-    'announcement': 'Announcement', 'heads-up': 'Heads-up', 'regional': 'Regional',
-    'coming-soon': 'Coming Soon', 'action-required': 'Action Required'
-  };
   const TYPE_COLOR = {
     'announcement': '#1E8BBC', 'heads-up': '#C8851A', 'regional': '#C4457A',
     'coming-soon': '#0E9B8A', 'action-required': '#C84545'
@@ -1543,11 +1589,11 @@ function editUpdate(id) {
   document.getElementById('updateSlug').dataset.touched = '1';
   document.getElementById('updatePinned').checked = !!u.pinned;
   document.getElementById('updateExpires').value = u.expires_at ? u.expires_at.slice(0, 16) : '';
-  document.getElementById('updateBody').value = u.body_markdown || '';
+  ensureQuill();
+  quill.clipboard.dangerouslyPasteHTML(u.body_html || '');
   document.getElementById('slugPreview').textContent = '/updates/?b=' + u.slug;
   pendingAttachments = Array.isArray(u.attachments) ? [...u.attachments] : [];
   renderAttachList();
-  renderUpdatePreview();
 }
 
 async function togglePinUpdate(id) {
@@ -1580,11 +1626,13 @@ async function saveUpdate() {
   const author_email = session?.user?.email || null;
 
   const expiresRaw = document.getElementById('updateExpires').value;
+  const rawHtml = quill ? quill.root.innerHTML : '';
+  const cleanHtml = DOMPurify.sanitize(rawHtml, { ADD_ATTR: ['target', 'rel'] });
   const payload = {
     title,
     slug,
     type: document.getElementById('updateType').value,
-    body_markdown: document.getElementById('updateBody').value,
+    body_html: cleanHtml,
     pinned: document.getElementById('updatePinned').checked,
     expires_at: expiresRaw ? new Date(expiresRaw).toISOString() : null,
     attachments: pendingAttachments,

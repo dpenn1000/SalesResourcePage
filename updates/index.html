@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 <style>
 :root {
@@ -179,11 +178,71 @@ main { padding: 32px 0 80px; }
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
-  padding: 20px 22px;
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.05s;
   border-left: 4px solid var(--muted);
+  overflow: hidden;
+}
+.bulletin-card .bc-body { padding: 20px 22px; }
+
+/* Inline media on cards */
+.bc-media {
+  position: relative;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-height: 240px;
+  overflow: hidden;
+}
+.bc-media img {
+  width: 100%;
+  height: auto;
+  max-height: 240px;
+  object-fit: cover;
+  display: block;
+}
+.bc-media-count {
+  position: absolute;
+  bottom: 8px; right: 10px;
+  background: rgba(15,32,56,0.78);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.bc-media-pdf {
+  background: linear-gradient(135deg, rgba(245,166,35,0.12), rgba(120,200,50,0.06));
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-height: none;
+  justify-content: flex-start;
+}
+.bc-media-pdf .pdf-icon,
+.media-pdf .pdf-icon,
+.bc-media-pdf .pdf-name {
+  /* see shared pdf-icon below */
+}
+.pdf-icon {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 38px; height: 44px;
+  background: var(--red);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.bc-media-pdf .pdf-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
 }
 .bulletin-card:hover { border-color: var(--ink); box-shadow: var(--shadow-md); }
 .bulletin-card:active { transform: translateY(1px); }
@@ -326,6 +385,71 @@ main { padding: 32px 0 80px; }
 }
 .detail-body a { color: var(--blue-dk); text-decoration: underline; }
 
+/* Detail-view inline media */
+.media-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-top: 22px;
+}
+.media-image {
+  display: block;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #000;
+}
+.media-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 480px;
+  object-fit: contain;
+  background: #000;
+}
+.media-video {
+  width: 100%;
+  margin-top: 22px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: #000;
+  max-height: 540px;
+}
+.media-pdf {
+  margin-top: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: #fff;
+}
+.media-pdf-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+.media-pdf-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--ink);
+}
+.media-pdf-open {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--blue-dk);
+  text-decoration: none;
+}
+.media-pdf-open:hover { text-decoration: underline; }
+.media-pdf iframe {
+  width: 100%;
+  height: 600px;
+  border: 0;
+  display: block;
+}
+
 .attach-list {
   margin-top: 28px;
   padding-top: 22px;
@@ -425,10 +549,14 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const TYPE_LABEL = {
   'announcement': 'Announcement',
   'heads-up': 'Heads-up',
-  'regional': 'Regional',
+  'regional': 'Regional Message',
   'coming-soon': 'Coming Soon',
   'action-required': 'Action Required'
 };
+
+function isImage(att) { return att && att.type && att.type.startsWith('image/'); }
+function isPdf(att)   { return att && att.type === 'application/pdf'; }
+function isVideo(att) { return att && att.type && att.type.startsWith('video/'); }
 
 let ALL_BULLETINS = [];
 let activeType = 'all';
@@ -464,15 +592,17 @@ function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function renderMarkdown(md) {
-  if (!md) return '';
-  const html = marked.parse(md, { breaks: true, gfm: true });
-  return DOMPurify.sanitize(html);
+function renderHtml(html) {
+  if (!html) return '';
+  return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel'] });
 }
 
-function excerpt(md, max = 220) {
-  if (!md) return '';
-  const text = md.replace(/[#*_`~\->[\]()]+/g, ' ').replace(/\s+/g, ' ').trim();
+function excerpt(html, max = 220) {
+  if (!html) return '';
+  // Strip tags for plain-text excerpt
+  const tmp = document.createElement('div');
+  tmp.innerHTML = DOMPurify.sanitize(html);
+  const text = (tmp.textContent || '').replace(/\s+/g, ' ').trim();
   return text.length > max ? text.slice(0, max).trim() + '…' : text;
 }
 
@@ -490,7 +620,7 @@ function renderFeed() {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       if (!(b.title.toLowerCase().includes(q) ||
-            (b.body_markdown || '').toLowerCase().includes(q) ||
+            excerpt(b.body_html || '').toLowerCase().includes(q) ||
             (TYPE_LABEL[b.type] || '').toLowerCase().includes(q))) return false;
     }
     return true;
@@ -567,19 +697,36 @@ function renderFeed() {
 }
 
 function cardHtml(b) {
-  const attachCount = Array.isArray(b.attachments) ? b.attachments.length : 0;
+  const atts = Array.isArray(b.attachments) ? b.attachments : [];
+  const images = atts.filter(isImage);
+  const pdfs = atts.filter(isPdf);
+  const others = atts.filter(a => !isImage(a) && !isPdf(a) && !isVideo(a));
+  const otherCount = atts.length - images.length;
+
+  // Inline image preview at top of card (first image only)
+  let mediaHtml = '';
+  if (images.length) {
+    const img = images[0];
+    mediaHtml = `<div class="bc-media"><img src="${escapeHtml(img.url)}" alt="${escapeHtml(img.name || '')}" loading="lazy">${images.length > 1 ? `<span class="bc-media-count">+${images.length - 1}</span>` : ''}</div>`;
+  } else if (pdfs.length) {
+    mediaHtml = `<div class="bc-media bc-media-pdf"><span class="pdf-icon">PDF</span><span class="pdf-name">${escapeHtml(pdfs[0].name)}</span></div>`;
+  }
+
   return `
     <article class="bulletin-card" data-type="${escapeHtml(b.type)}" data-slug="${escapeHtml(b.slug)}">
-      <div class="bc-meta">
-        <span class="bc-type-tag"><span class="dot"></span>${escapeHtml(TYPE_LABEL[b.type] || b.type)}</span>
-        <span>${escapeHtml(fmtDate(b.posted_at))}</span>
-        ${b.pinned ? '<span class="bc-pin">&#128204; Pinned</span>' : ''}
-      </div>
-      <div class="bc-title">${escapeHtml(b.title)}</div>
-      <div class="bc-excerpt">${escapeHtml(excerpt(b.body_markdown))}</div>
-      <div class="bc-foot">
-        ${attachCount ? `<span class="bc-attach">&#128206; ${attachCount} attachment${attachCount === 1 ? '' : 's'}</span>` : ''}
-        <span style="margin-left:auto">Read more &rarr;</span>
+      ${mediaHtml}
+      <div class="bc-body">
+        <div class="bc-meta">
+          <span class="bc-type-tag"><span class="dot"></span>${escapeHtml(TYPE_LABEL[b.type] || b.type)}</span>
+          <span>${escapeHtml(fmtDate(b.posted_at))}</span>
+          ${b.pinned ? '<span class="bc-pin">&#128204; Pinned</span>' : ''}
+        </div>
+        <div class="bc-title">${escapeHtml(b.title)}</div>
+        <div class="bc-excerpt">${escapeHtml(excerpt(b.body_html))}</div>
+        <div class="bc-foot">
+          ${otherCount ? `<span class="bc-attach">&#128206; ${otherCount} attachment${otherCount === 1 ? '' : 's'}</span>` : ''}
+          <span style="margin-left:auto">Read more &rarr;</span>
+        </div>
       </div>
     </article>
   `;
@@ -601,6 +748,11 @@ function renderDetail(slug) {
   }
 
   const attaches = Array.isArray(b.attachments) ? b.attachments : [];
+  const imageAtts = attaches.filter(isImage);
+  const pdfAtts   = attaches.filter(isPdf);
+  const videoAtts = attaches.filter(isVideo);
+  const otherAtts = attaches.filter(a => !isImage(a) && !isPdf(a) && !isVideo(a));
+
   let html = `
     <a href="/updates/" class="detail-back">&larr; All updates</a>
     <article class="detail-card" data-type="${escapeHtml(b.type)}">
@@ -611,15 +763,40 @@ function renderDetail(slug) {
         ${b.author_email ? `<span>by ${escapeHtml(b.author_email)}</span>` : ''}
       </div>
       <h1>${escapeHtml(b.title)}</h1>
-      <div class="detail-body">${renderMarkdown(b.body_markdown)}</div>
+      <div class="detail-body">${renderHtml(b.body_html)}</div>
   `;
 
-  if (attaches.length) {
+  // Inline media: images, PDFs, videos
+  if (imageAtts.length) {
+    html += `<div class="media-grid">` + imageAtts.map(a => `
+      <a class="media-image" href="${escapeHtml(a.url)}" target="_blank" rel="noopener" title="Open full size">
+        <img src="${escapeHtml(a.url)}" alt="${escapeHtml(a.name || '')}" loading="lazy">
+      </a>`).join('') + `</div>`;
+  }
+  if (videoAtts.length) {
+    html += videoAtts.map(a => `
+      <video class="media-video" controls preload="metadata" src="${escapeHtml(a.url)}"></video>
+    `).join('');
+  }
+  if (pdfAtts.length) {
+    html += pdfAtts.map(a => `
+      <div class="media-pdf">
+        <div class="media-pdf-head">
+          <span class="pdf-icon">PDF</span>
+          <span class="media-pdf-name">${escapeHtml(a.name)}</span>
+          <a class="media-pdf-open" href="${escapeHtml(a.url)}" target="_blank" rel="noopener">Open in new tab &nearr;</a>
+        </div>
+        <iframe src="${escapeHtml(a.url)}#view=FitH" loading="lazy"></iframe>
+      </div>
+    `).join('');
+  }
+
+  if (otherAtts.length) {
     html += `
       <div class="attach-list">
-        <h3>Attachments</h3>
+        <h3>Files</h3>
         <div class="attach-grid">
-          ${attaches.map(a => `
+          ${otherAtts.map(a => `
             <a class="attach-item" href="${escapeHtml(a.url)}" target="_blank" rel="noopener">
               <span class="attach-icon">${escapeHtml(fileExtBadge(a.name, a.type))}</span>
               <span class="attach-name">${escapeHtml(a.name)}</span>
