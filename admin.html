@@ -2288,6 +2288,41 @@ function showFeedbackDetail(id) {
 
     ${atts ? `<div style="margin-bottom:12px;"><strong>Attachments</strong><div style="margin-top:4px;">${atts}</div></div>` : ''}
 
+    ${(di.errors && di.errors.length) ? `
+    <div style="margin-bottom:14px;border:1px solid #e09a9a;background:#fbe1e1;border-radius:8px;padding:10px 12px;">
+      <strong style="color:#843636;">Captured errors / console output (${di.errors.length})</strong>
+      <div style="margin-top:8px;display:grid;gap:6px;max-height:280px;overflow:auto;">
+        ${di.errors.map(e => {
+          const t = e.t ? new Date(e.t).toLocaleTimeString([], {hour12:false}) : '';
+          let body = '';
+          if (e.kind === 'error') {
+            body = `<div><b>${escapeHtml(e.message || '(no message)')}</b></div>`
+              + (e.source ? `<div style="color:#843636;font-size:11px;">at ${escapeHtml(e.source)}:${e.line}:${e.col}</div>` : '')
+              + (e.stack ? `<pre style="margin:4px 0 0;font-size:10.5px;background:#fff;padding:6px;border-radius:4px;white-space:pre-wrap;color:#333;">${escapeHtml(e.stack)}</pre>` : '');
+          } else if (e.kind === 'unhandledrejection') {
+            body = `<div><b>Unhandled rejection:</b> ${escapeHtml(e.reason || '')}</div>`
+              + (e.stack ? `<pre style="margin:4px 0 0;font-size:10.5px;background:#fff;padding:6px;border-radius:4px;white-space:pre-wrap;color:#333;">${escapeHtml(e.stack)}</pre>` : '');
+          } else if (e.kind && e.kind.startsWith('console.')) {
+            body = `<div style="font-family:'DM Mono',monospace;font-size:11.5px;">${escapeHtml((e.args || []).join(' '))}</div>`;
+          } else {
+            body = `<pre style="margin:0;font-size:11px;">${escapeHtml(JSON.stringify(e))}</pre>`;
+          }
+          const tag = e.kind === 'error' ? '#c92020'
+                    : e.kind === 'unhandledrejection' ? '#c92020'
+                    : e.kind === 'console.error' ? '#c92020'
+                    : e.kind === 'console.warn' ? '#d99a1f'
+                    : '#6b7a90';
+          return `<div style="border-left:3px solid ${tag};padding:6px 10px;background:#fff;border-radius:0 6px 6px 0;font-size:12.5px;">
+            <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:${tag};text-transform:uppercase;letter-spacing:0.05em;">${escapeHtml((e.kind || '').replace('console.', ''))}</span>
+              <span style="font-size:10.5px;color:#6b7a90;font-family:'DM Mono',monospace;">${escapeHtml(t)}</span>
+            </div>
+            ${body}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+
     <details style="margin-bottom:14px;">
       <summary style="cursor:pointer;font-weight:600;color:#1A2332;">Browser / device snapshot</summary>
       <table style="width:100%;font-size:12px;margin-top:8px;border-collapse:collapse;">

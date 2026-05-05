@@ -33,6 +33,59 @@
   if (window.__dialecta_feedback_loaded__) return;
   window.__dialecta_feedback_loaded__ = true;
 
+  // --- error ring buffer ---
+  // Captures window errors, unhandled promise rejections, and console.error
+  // / console.warn calls for the lifetime of the page. Always on (small
+  // overhead). Attached to every submission as device_info.errors so the
+  // admin detail modal can surface them. Only catches things that happen
+  // AFTER this widget loads (defer); earlier errors are missed unless we
+  // ship an inline bootstrap in <head>.
+  const ERROR_LOG_MAX = 50;
+  const errorLog = [];
+  function pushErr(entry) {
+    entry.t = Date.now();
+    errorLog.push(entry);
+    if (errorLog.length > ERROR_LOG_MAX) errorLog.shift();
+  }
+  function safeStr(x, max = 500) {
+    try {
+      if (x == null) return String(x);
+      if (typeof x === 'string') return x.slice(0, max);
+      if (typeof x === 'object') return JSON.stringify(x).slice(0, max);
+      return String(x).slice(0, max);
+    } catch { return '[unserializable]'; }
+  }
+  window.addEventListener('error', function (e) {
+    pushErr({
+      kind: 'error',
+      message: safeStr(e.message),
+      source: e.filename || null,
+      line: e.lineno || null,
+      col: e.colno || null,
+      stack: (e.error && e.error.stack) ? safeStr(e.error.stack, 1500) : null,
+    });
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    const r = e.reason;
+    pushErr({
+      kind: 'unhandledrejection',
+      reason: safeStr(r && r.message ? r.message : r),
+      stack: (r && r.stack) ? safeStr(r.stack, 1500) : null,
+    });
+  });
+  // Lightweight console.error / console.warn wrap. Preserves original output
+  // so other tooling still sees them.
+  ['error', 'warn'].forEach(function (level) {
+    const orig = console[level];
+    console[level] = function () {
+      try {
+        const args = Array.prototype.slice.call(arguments).map(a => safeStr(a, 400));
+        pushErr({ kind: 'console.' + level, args });
+      } catch {}
+      return orig.apply(console, arguments);
+    };
+  });
+
   // --- styles ---
   const css = `
   .fbw-fab {
@@ -243,6 +296,10 @@
       referrer: document.referrer || null,
       submitted_at_iso: new Date().toISOString(),
       build_version: document.querySelector('meta[name="build-version"]')?.content || null,
+      // Snapshot the error ring buffer (last 50 entries since page load).
+      // Empty array if the page is healthy. Truncated entries are already
+      // safe-stringified by safeStr().
+      errors: errorLog.slice(-ERROR_LOG_MAX),
     };
   }
 
