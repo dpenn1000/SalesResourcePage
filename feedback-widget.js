@@ -586,7 +586,7 @@
         success.innerHTML = `
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
           <h2>Got it -- thank you</h2>
-          <p>Your note is in the queue. ${email ? 'We\\'ll follow up at <b>' + email.replace(/[<>"]/g, '') + '</b> if there\\'s anything to share.' : 'You can reach back out anytime.'}</p>
+          <p>Your note is in the queue. ${email ? 'We will follow up at <b>' + email.replace(/[<>"]/g, '') + '</b> if there is anything to share.' : 'You can reach back out anytime.'}</p>
           <button class="fbw-btn fbw-btn-cancel" data-fbw-close style="margin-top:16px;">Close</button>
         `;
         overlay.querySelector('.fbw-modal').appendChild(success);
