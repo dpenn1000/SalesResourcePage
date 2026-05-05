@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CT Traditional | Admin</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -206,6 +208,7 @@
   <div class="page-tabs">
     <div class="page-tabs-inner">
       <button class="page-tab active" onclick="switchTab('resources')">Resources</button>
+      <button class="page-tab"        onclick="switchTab('updates')">Updates</button>
       <button class="page-tab"        onclick="switchTab('team')">Team</button>
     </div>
   </div>
@@ -382,6 +385,99 @@
         </thead>
         <tbody id="tableBody">
           <tr><td colspan="8" class="empty-table">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Updates section -->
+  <div id="tabUpdates" class="admin-inner" style="display:none">
+    <div class="panel-header">
+      <h2 id="updatesCount">Updates</h2>
+      <button class="btn-add" onclick="showUpdateForm()">+ Post Update</button>
+    </div>
+
+    <div id="updateFormCard" style="display:none;background:#fff;border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:16px;">
+      <h3 id="updateFormTitle" style="margin:0 0 14px;font-size:16px;font-weight:700;color:var(--ink);">Post Update</h3>
+      <input type="hidden" id="updateEditId">
+
+      <div class="form-grid">
+        <div class="form-full">
+          <label>Title *</label>
+          <input type="text" id="updateTitle" placeholder="e.g., Eversource winter rate hike" oninput="autoSlug()">
+        </div>
+        <div>
+          <label>Type *</label>
+          <select id="updateType">
+            <option value="announcement">Announcement</option>
+            <option value="heads-up">Heads-up</option>
+            <option value="regional">Regional</option>
+            <option value="coming-soon">Coming Soon</option>
+            <option value="action-required">Action Required</option>
+          </select>
+        </div>
+        <div>
+          <label>Slug (URL) *</label>
+          <input type="text" id="updateSlug" placeholder="auto-generated-from-title">
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Permalink: <span id="slugPreview" style="font-family:monospace;color:var(--ink-soft);">/updates/?b=...</span></div>
+        </div>
+        <div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="updatePinned" style="width:auto;margin:0;">
+            Pinned (floats to top)
+          </label>
+        </div>
+        <div>
+          <label>Expires (optional)</label>
+          <input type="datetime-local" id="updateExpires">
+        </div>
+
+        <div class="form-full">
+          <label>Body (Markdown supported)</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <textarea id="updateBody" rows="14" oninput="renderUpdatePreview()"
+              placeholder="Use **bold**, *italic*, ## headings, - bullets, [link](url), &gt; quotes..."
+              style="font-family:ui-monospace,Consolas,monospace;font-size:13px;line-height:1.55;resize:vertical;"></textarea>
+            <div id="updatePreview" style="background:#FAFBF7;border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-size:13px;line-height:1.6;color:var(--ink);min-height:200px;overflow-y:auto;max-height:400px;"></div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">Live preview on the right. Markdown sanitized on render.</div>
+        </div>
+
+        <div class="form-full">
+          <label>Attachments</label>
+          <div id="attachDropZone" style="border:2px dashed var(--border);border-radius:8px;padding:18px;text-align:center;cursor:pointer;transition:border-color 0.15s;"
+               onclick="document.getElementById('attachInput').click()"
+               ondragover="event.preventDefault();this.style.borderColor='#78C832'"
+               ondragleave="this.style.borderColor='var(--border)'"
+               ondrop="handleAttachDrop(event)">
+            <div style="font-size:22px;margin-bottom:6px;">&#128206;</div>
+            <div style="font-size:12px;font-weight:600;color:var(--ink);">Drop files here or click to browse</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px;">PDF, images, Excel, anything &leq; 25MB</div>
+            <input type="file" id="attachInput" multiple style="display:none" onchange="handleAttachFiles(this.files)">
+          </div>
+          <div id="attachList" style="margin-top:10px;display:grid;gap:6px;"></div>
+        </div>
+      </div>
+
+      <div class="form-actions" style="margin-top:14px;">
+        <button class="btn-cancel" onclick="hideUpdateForm()">Cancel</button>
+        <button class="btn-save" onclick="saveUpdate()">Save</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Posted</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="updatesTableBody">
+          <tr><td colspan="5" class="empty-table">Loading...</td></tr>
         </tbody>
       </table>
     </div>
@@ -1309,11 +1405,278 @@ document.getElementById('bulkModal').addEventListener('click', e => {
 });
 
 function switchTab(tab) {
+  const order = ['resources', 'updates', 'team'];
   document.querySelectorAll('.page-tab').forEach((t, i) =>
-    t.classList.toggle('active', (i === 0 && tab === 'resources') || (i === 1 && tab === 'team')));
+    t.classList.toggle('active', order[i] === tab));
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
+  document.getElementById('tabUpdates').style.display   = tab === 'updates'   ? 'block' : 'none';
   document.getElementById('tabTeam').style.display      = tab === 'team'      ? 'block' : 'none';
   if (tab === 'team') loadTeam();
+  if (tab === 'updates') loadUpdates();
+}
+
+// ── Updates (Bulletins) ───────────────────────────
+let UPDATES = [];
+let pendingAttachments = []; // {name, url, size, type} -- already uploaded
+
+function slugify(s) {
+  return (s || '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+function autoSlug() {
+  const slugInput = document.getElementById('updateSlug');
+  const titleInput = document.getElementById('updateTitle');
+  // Only auto-fill the slug if user hasn't manually edited it
+  if (!slugInput.dataset.touched) {
+    slugInput.value = slugify(titleInput.value);
+  }
+  document.getElementById('slugPreview').textContent =
+    '/updates/?b=' + (slugInput.value || '...');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const slugInput = document.getElementById('updateSlug');
+  if (slugInput) {
+    slugInput.addEventListener('input', () => {
+      slugInput.dataset.touched = '1';
+      slugInput.value = slugify(slugInput.value);
+      document.getElementById('slugPreview').textContent =
+        '/updates/?b=' + (slugInput.value || '...');
+    });
+  }
+});
+
+function renderUpdatePreview() {
+  const md = document.getElementById('updateBody').value;
+  const html = md ? DOMPurify.sanitize(marked.parse(md, { breaks: true, gfm: true })) : '<em style="color:#9CA3AF;">Live preview...</em>';
+  document.getElementById('updatePreview').innerHTML = html;
+}
+
+function showUpdateForm() {
+  document.getElementById('updateFormCard').style.display = 'block';
+  document.getElementById('updateFormTitle').textContent = 'Post Update';
+  document.getElementById('updateEditId').value = '';
+  document.getElementById('updateTitle').value = '';
+  document.getElementById('updateType').value = 'announcement';
+  document.getElementById('updateSlug').value = '';
+  document.getElementById('updateSlug').dataset.touched = '';
+  document.getElementById('updatePinned').checked = false;
+  document.getElementById('updateExpires').value = '';
+  document.getElementById('updateBody').value = '';
+  document.getElementById('slugPreview').textContent = '/updates/?b=...';
+  pendingAttachments = [];
+  renderAttachList();
+  renderUpdatePreview();
+  document.getElementById('updateFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideUpdateForm() {
+  document.getElementById('updateFormCard').style.display = 'none';
+}
+
+async function loadUpdates() {
+  const tbody = document.getElementById('updatesTableBody');
+  tbody.innerHTML = '<tr><td colspan="5" class="empty-table">Loading...</td></tr>';
+  const { data, error } = await sb
+    .from('bulletins')
+    .select('*')
+    .order('posted_at', { ascending: false });
+
+  if (error) {
+    if (/relation .* does not exist/i.test(error.message || '')) {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-table">
+        Bulletins table not created yet. Apply admin-scripts/migrations/0001_bulletins.sql in the Supabase SQL editor first.
+      </td></tr>`;
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" class="empty-table">Error: ${error.message}</td></tr>`;
+    }
+    return;
+  }
+  UPDATES = data || [];
+  document.getElementById('updatesCount').textContent = `Updates (${UPDATES.length})`;
+
+  if (!UPDATES.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-table">No updates posted yet. Click + Post Update to create the first one.</td></tr>';
+    return;
+  }
+
+  const TYPE_LABEL = {
+    'announcement': 'Announcement', 'heads-up': 'Heads-up', 'regional': 'Regional',
+    'coming-soon': 'Coming Soon', 'action-required': 'Action Required'
+  };
+  const TYPE_COLOR = {
+    'announcement': '#1E8BBC', 'heads-up': '#C8851A', 'regional': '#C4457A',
+    'coming-soon': '#0E9B8A', 'action-required': '#C84545'
+  };
+
+  tbody.innerHTML = UPDATES.map(u => {
+    const expired = u.expires_at && new Date(u.expires_at) < new Date();
+    const status = !u.active ? 'Inactive' : expired ? 'Expired' : u.pinned ? 'Pinned' : 'Active';
+    const dt = new Date(u.posted_at);
+    return `
+      <tr>
+        <td><span style="display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;background:${TYPE_COLOR[u.type]}22;color:${TYPE_COLOR[u.type]};">${TYPE_LABEL[u.type] || u.type}</span></td>
+        <td style="font-weight:600;">${escapeHtml(u.title)}<div style="font-size:11px;color:var(--text2);font-weight:400;margin-top:2px;font-family:monospace;">/updates/?b=${escapeHtml(u.slug)}</div></td>
+        <td>${dt.toLocaleDateString()} ${dt.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'})}</td>
+        <td>${u.pinned ? '<span style="color:#C8851A;font-weight:700;">&#128204; Pinned</span>' : status}</td>
+        <td>
+          <button class="btn-edit" onclick="editUpdate('${u.id}')">Edit</button>
+          <button class="btn-edit" onclick="togglePinUpdate('${u.id}')" style="background:#FFF7E5;color:#C8851A;">${u.pinned ? 'Unpin' : 'Pin'}</button>
+          <button class="btn-delete" onclick="deleteUpdate('${u.id}')">Delete</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function editUpdate(id) {
+  const u = UPDATES.find(x => x.id === id);
+  if (!u) return;
+  showUpdateForm();
+  document.getElementById('updateFormTitle').textContent = 'Edit Update';
+  document.getElementById('updateEditId').value = u.id;
+  document.getElementById('updateTitle').value = u.title;
+  document.getElementById('updateType').value = u.type;
+  document.getElementById('updateSlug').value = u.slug;
+  document.getElementById('updateSlug').dataset.touched = '1';
+  document.getElementById('updatePinned').checked = !!u.pinned;
+  document.getElementById('updateExpires').value = u.expires_at ? u.expires_at.slice(0, 16) : '';
+  document.getElementById('updateBody').value = u.body_markdown || '';
+  document.getElementById('slugPreview').textContent = '/updates/?b=' + u.slug;
+  pendingAttachments = Array.isArray(u.attachments) ? [...u.attachments] : [];
+  renderAttachList();
+  renderUpdatePreview();
+}
+
+async function togglePinUpdate(id) {
+  const u = UPDATES.find(x => x.id === id);
+  if (!u) return;
+  const { error } = await sb.from('bulletins').update({ pinned: !u.pinned }).eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  toast(u.pinned ? 'Unpinned' : 'Pinned');
+  loadUpdates();
+}
+
+async function deleteUpdate(id) {
+  const u = UPDATES.find(x => x.id === id);
+  if (!u) return;
+  if (!confirm('Delete "' + u.title + '"? This cannot be undone.')) return;
+  const { error } = await sb.from('bulletins').delete().eq('id', id);
+  if (error) { toast('Error: ' + error.message); return; }
+  toast('Deleted');
+  loadUpdates();
+}
+
+async function saveUpdate() {
+  const id = document.getElementById('updateEditId').value;
+  const title = document.getElementById('updateTitle').value.trim();
+  const slug = document.getElementById('updateSlug').value.trim();
+  if (!title) { toast('Title required'); return; }
+  if (!slug)  { toast('Slug required'); return; }
+
+  const session = (await sb.auth.getSession()).data.session;
+  const author_email = session?.user?.email || null;
+
+  const expiresRaw = document.getElementById('updateExpires').value;
+  const payload = {
+    title,
+    slug,
+    type: document.getElementById('updateType').value,
+    body_markdown: document.getElementById('updateBody').value,
+    pinned: document.getElementById('updatePinned').checked,
+    expires_at: expiresRaw ? new Date(expiresRaw).toISOString() : null,
+    attachments: pendingAttachments,
+    author_email,
+    active: true
+  };
+
+  let error;
+  if (id) {
+    ({ error } = await sb.from('bulletins').update(payload).eq('id', id));
+  } else {
+    ({ error } = await sb.from('bulletins').insert(payload));
+  }
+  if (error) {
+    if (/duplicate key/i.test(error.message || '')) {
+      toast('Slug already in use -- pick a different one');
+    } else {
+      toast('Error: ' + error.message);
+    }
+    return;
+  }
+  toast(id ? 'Updated' : 'Posted');
+  hideUpdateForm();
+  loadUpdates();
+}
+
+// ── Attachments ──────────────────────────────────
+function handleAttachDrop(e) {
+  e.preventDefault();
+  e.currentTarget.style.borderColor = 'var(--border)';
+  const files = e.dataTransfer.files;
+  if (files && files.length) handleAttachFiles(files);
+}
+
+async function handleAttachFiles(files) {
+  for (const file of files) {
+    if (file.size > 25 * 1024 * 1024) {
+      toast(`${file.name}: too large (max 25MB)`);
+      continue;
+    }
+    await uploadAttachment(file);
+  }
+  document.getElementById('attachInput').value = '';
+}
+
+async function uploadAttachment(file) {
+  const path = Date.now() + '_' + (file.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+  toast('Uploading ' + file.name + '...');
+  const { error } = await sb.storage.from('bulletin-attachments').upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+    contentType: file.type || 'application/octet-stream'
+  });
+  if (error) { toast('Upload error: ' + error.message); return; }
+  const { data } = sb.storage.from('bulletin-attachments').getPublicUrl(path);
+  pendingAttachments.push({
+    name: file.name,
+    url: data.publicUrl,
+    size: file.size,
+    type: file.type || ''
+  });
+  renderAttachList();
+  toast('Uploaded ' + file.name);
+}
+
+function removeAttachment(idx) {
+  pendingAttachments.splice(idx, 1);
+  renderAttachList();
+}
+
+function renderAttachList() {
+  const wrap = document.getElementById('attachList');
+  if (!pendingAttachments.length) {
+    wrap.innerHTML = '<div style="font-size:11px;color:var(--text2);font-style:italic;">No attachments yet.</div>';
+    return;
+  }
+  wrap.innerHTML = pendingAttachments.map((a, i) => {
+    const ext = (a.name.split('.').pop() || a.type.split('/').pop() || 'FILE').toUpperCase().slice(0, 4);
+    const sz = a.size ? (a.size < 1024*1024 ? (a.size/1024).toFixed(1)+' KB' : (a.size/1024/1024).toFixed(1)+' MB') : '';
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:#FAFBF7;border:1px solid var(--border);border-radius:6px;font-size:12px;">
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(245,166,35,0.12);color:#C8851A;border-radius:4px;font-weight:700;font-size:10px;">${escapeHtml(ext)}</span>
+        <span style="flex:1;font-weight:600;color:var(--ink);">${escapeHtml(a.name)}</span>
+        <span style="color:var(--text2);">${sz}</span>
+        <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--blue);">View</a>
+        <button onclick="removeAttachment(${i})" style="background:none;border:none;color:#C84545;cursor:pointer;font-size:14px;">&times;</button>
+      </div>`;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 // ── Edge Function ─────────────────────────────────

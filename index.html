@@ -367,6 +367,16 @@
 </header>
 
 <main>
+  <a id="updatesBridge" href="/updates/" style="display:none;align-items:center;gap:12px;padding:11px 18px;margin:0 auto 16px;max-width:1200px;background:linear-gradient(135deg,rgba(245,166,35,0.10),rgba(120,200,50,0.06));border:1px solid rgba(245,166,35,0.28);border-radius:8px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s,background 0.15s;"
+     onmouseover="this.style.borderColor='#C8851A';"
+     onmouseout="this.style.borderColor='rgba(245,166,35,0.28)';">
+    <span style="font-size:18px;line-height:1;">&#128226;</span>
+    <span id="bridgeBadge" style="display:none;background:#C8851A;color:#fff;font-weight:800;font-size:10px;padding:2px 8px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase;">0 new</span>
+    <span style="font-weight:700;color:#1A2332;">Updates</span>
+    <span id="bridgeLatest" style="color:#5B6576;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+    <span style="color:#1E8BBC;font-weight:700;font-size:12px;">View all &rarr;</span>
+  </a>
+
   <div id="trainingBanner" style="display:none" class="training-banner">
     <div class="training-banner-header">
       <div class="week-badge">Current Homework</div>
@@ -633,6 +643,40 @@ function toast(msg) {
 }
 
 init();
+
+// ── Updates bridge: fetch latest bulletin + unread count ──
+async function loadUpdatesBridge() {
+  try {
+    const { data, error } = await sb
+      .from('bulletins')
+      .select('title,slug,posted_at,pinned,expires_at,active')
+      .eq('active', true)
+      .order('posted_at', { ascending: false })
+      .limit(20);
+    if (error || !data || !data.length) return;
+    const now = Date.now();
+    const live = data.filter(b => !b.expires_at || new Date(b.expires_at).getTime() > now);
+    if (!live.length) return;
+    live.sort((a, b) => {
+      if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+      return new Date(b.posted_at) - new Date(a.posted_at);
+    });
+    const latest = live[0];
+    const lastSeen = +(localStorage.getItem('ctrp_lastSeenUpdatesAt') || 0);
+    const unread = live.filter(b => +new Date(b.posted_at) > lastSeen).length;
+    const bridge = document.getElementById('updatesBridge');
+    document.getElementById('bridgeLatest').textContent = '· ' + latest.title;
+    if (unread > 0) {
+      const badge = document.getElementById('bridgeBadge');
+      badge.textContent = unread + ' new';
+      badge.style.display = '';
+    }
+    bridge.style.display = 'flex';
+  } catch (e) {
+    // Silently no-op if bulletins table doesn't exist yet
+  }
+}
+loadUpdatesBridge();
 </script>
 </body>
 </html>
