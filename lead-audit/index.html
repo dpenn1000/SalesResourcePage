@@ -201,13 +201,15 @@ tbody tr.row { cursor: pointer; }
 tbody tr.row td { border-top: 2px solid var(--border-row); }
 tbody tr.row:hover { background: var(--bg-row-hover); }
 tbody tr.row:hover td { background: var(--bg-row-hover); }
-/* Expanded HEADER row -- green tint, clear top border */
+/* Expanded HEADER row -- green tint, clear top border + left/right corners */
 tbody tr.row.expanded td {
   border-top: 3px solid var(--green);
   background: var(--bg-row-expanded);
   font-weight: 500;
 }
-/* Expanded BODY (note row) -- card-color background; green left border ties it to header */
+tbody tr.row.expanded td:first-child { border-left: 3px solid var(--green); }
+tbody tr.row.expanded td:last-child  { border-right: 3px solid var(--green); }
+/* Expanded BODY (note row) -- card-color background; green frame on left + right + bottom closes the box */
 tr.note-row td {
   padding: 12px 16px 16px;
   background: var(--bg-note-row);
@@ -215,7 +217,8 @@ tr.note-row td {
   color: var(--slate);
   border-top: none;
   border-left: 3px solid var(--green);
-  border-bottom: 2px solid var(--green);
+  border-right: 3px solid var(--green);
+  border-bottom: 3px solid var(--green);
   /* Ensure long notes wrap inside the visible card width */
   word-wrap: break-word;
   overflow-wrap: break-word;
