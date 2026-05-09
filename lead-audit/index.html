@@ -36,6 +36,7 @@
   --border-row: #d4d8c8;
   --border-strong: #c5cab8;
   --tab-compliance-color: #b91c1c;
+  --bg-tag-compliance: #991b1b;
   --header-text: #ffffff;
 }
 
@@ -69,6 +70,7 @@
   --border-row: #2a2f37;
   --border-strong: #353a44;
   --tab-compliance-color: #f87171;
+  --bg-tag-compliance: #7f1818;
   --header-text: #ffffff;
 }
 body {
@@ -231,9 +233,9 @@ tr.note-row .meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .severity-review { color: var(--orange); font-weight: 500; }
 .severity-watch { color: var(--slate); }
 .compliance-tag {
-  display: inline-block; padding: 1px 6px; background: var(--red);
+  display: inline-block; padding: 2px 8px; background: var(--bg-tag-compliance);
   color: white; border-radius: 3px; font-size: 10px; letter-spacing: 0.5px;
-  text-transform: uppercase; font-weight: 500;
+  text-transform: uppercase; font-weight: 600;
 }
 .bar-chart { padding: 14px 16px; }
 .bar-row { display: flex; align-items: center; margin-bottom: 6px; font-size: 13px; }
