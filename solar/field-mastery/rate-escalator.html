@@ -283,6 +283,25 @@ blockquote.script::after { content: "\201D"; font-size: 1.6rem; color: var(--blu
   font-family: 'Manrope', sans-serif; font-weight: 500;
   font-size: 0.7rem; color: var(--muted); margin-left: 2px;
 }
+.esc-tiers {
+  display: inline-flex; gap: 4px;
+  background: var(--white); padding: 3px;
+  border: 1px solid var(--line); border-radius: 6px;
+  box-shadow: inset 0 1px 2px rgba(15,32,56,0.03);
+}
+.esc-tier {
+  border: none; background: transparent;
+  padding: 6px 11px; border-radius: 4px; cursor: pointer;
+  font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 700;
+  color: var(--muted); letter-spacing: 0.01em;
+  transition: all 0.12s;
+}
+.esc-tier:hover:not(.active) { background: rgba(120,200,50,0.10); color: var(--green-dk); }
+.esc-tier.active {
+  background: var(--green-dk); color: #fff;
+  box-shadow: 0 1px 3px rgba(95,165,32,0.30);
+}
+
 .offer-toggle {
   background: var(--green-dk); color: #fff; border: none;
   padding: 8px 14px; border-radius: 5px; cursor: pointer;
@@ -465,8 +484,12 @@ blockquote.script::after { content: "\201D"; font-size: 1.6rem; color: var(--blu
       </div>
       <div class="offer-slider">
         <span class="lbl">Escalator</span>
-        <input type="range" id="offerEsc" min="0" max="3" step="0.05" value="1.99">
-        <span class="offer-readout"><span id="offerEscVal">1.99</span><small>%/yr</small></span>
+        <div class="esc-tiers" role="group" aria-label="Escalator">
+          <button type="button" class="esc-tier"        data-esc="0">0%</button>
+          <button type="button" class="esc-tier"        data-esc="0.99">0.99%</button>
+          <button type="button" class="esc-tier active" data-esc="1.99">1.99%</button>
+          <button type="button" class="esc-tier"        data-esc="2.99">2.99%</button>
+        </div>
       </div>
       <button type="button" class="offer-toggle" id="btnOfferOn" onclick="toggleOffer()">Showing</button>
     </div>
@@ -1026,25 +1049,31 @@ function toggleEvt()    { showEvt    = !showEvt;    document.getElementById('btn
 function toggleEsc()    { showEsc    = !showEsc;    document.getElementById('btnEsc').classList.toggle('active', showEsc);       chart.data.datasets[5].hidden = !showEsc;    chart.update(); }
 function toggleNE()     { showNE     = !showNE;     document.getElementById('btnNE').classList.toggle('active', showNE);         chart.data.datasets[2].hidden = !showNE;     chart.update(); }
 
-// "Your Offer" controls (sliders + show/hide toggle)
+// "Your Offer" controls (entry-rate slider + escalator tier buttons + show/hide)
 const offerRateInput = document.getElementById('offerRate');
-const offerEscInput  = document.getElementById('offerEsc');
 const offerRateVal   = document.getElementById('offerRateVal');
-const offerEscVal    = document.getElementById('offerEscVal');
 const offerToggleBtn = document.getElementById('btnOfferOn');
+const escTierBtns    = document.querySelectorAll('.esc-tier');
 
 function recomputeOffer() {
   offerRate = parseFloat(offerRateInput.value);
-  offerEsc  = parseFloat(offerEscInput.value) / 100;
   offerRateVal.textContent = offerRate.toFixed(2);
-  offerEscVal.textContent  = (offerEsc * 100).toFixed(2);
+  const escPct = (offerEsc * 100).toFixed(2);
   const data = proj(offerRate, offerEsc);
   chart.data.datasets[9].data = data;
-  chart.data.datasets[9].label = `Your Offer (${offerRate.toFixed(2)}¢ + ${(offerEsc*100).toFixed(2)}%/yr)`;
+  chart.data.datasets[9].label = `Your Offer (${offerRate.toFixed(2)}¢ + ${escPct}%/yr)`;
   chart.update('none');
 }
 offerRateInput.addEventListener('input', recomputeOffer);
-offerEscInput.addEventListener('input', recomputeOffer);
+
+escTierBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    escTierBtns.forEach(b => b.classList.toggle('active', b === btn));
+    offerEsc = parseFloat(btn.dataset.esc) / 100;
+    recomputeOffer();
+  });
+});
+
 recomputeOffer();
 
 function toggleOffer() {
