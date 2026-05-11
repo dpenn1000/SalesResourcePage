@@ -283,24 +283,18 @@ blockquote.script::after { content: "\201D"; font-size: 1.6rem; color: var(--blu
   font-family: 'Manrope', sans-serif; font-weight: 500;
   font-size: 0.7rem; color: var(--muted); margin-left: 2px;
 }
-.esc-tiers {
-  display: inline-flex; gap: 4px;
-  background: var(--white); padding: 3px;
-  border: 1px solid var(--line); border-radius: 6px;
-  box-shadow: inset 0 1px 2px rgba(15,32,56,0.03);
+.esc-slider-wrap {
+  display: flex; flex-direction: column; gap: 4px; min-width: 180px;
 }
-.esc-tier {
-  border: none; background: transparent;
-  padding: 6px 11px; border-radius: 4px; cursor: pointer;
-  font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 700;
-  color: var(--muted); letter-spacing: 0.01em;
-  transition: all 0.12s;
+.esc-ticks {
+  display: flex; justify-content: space-between;
+  font-family: 'Manrope', sans-serif; font-size: 0.65rem; font-weight: 700;
+  color: var(--subtle); letter-spacing: 0.02em;
+  padding: 0 6px; user-select: none;
 }
-.esc-tier:hover:not(.active) { background: rgba(120,200,50,0.10); color: var(--green-dk); }
-.esc-tier.active {
-  background: var(--green-dk); color: #fff;
-  box-shadow: 0 1px 3px rgba(95,165,32,0.30);
-}
+.esc-ticks span { cursor: pointer; transition: color 0.12s; }
+.esc-ticks span:hover { color: var(--green-dk); }
+.esc-ticks span.active { color: var(--green-dk); }
 
 .offer-toggle {
   background: var(--green-dk); color: #fff; border: none;
@@ -484,12 +478,22 @@ blockquote.script::after { content: "\201D"; font-size: 1.6rem; color: var(--blu
       </div>
       <div class="offer-slider">
         <span class="lbl">Escalator</span>
-        <div class="esc-tiers" role="group" aria-label="Escalator">
-          <button type="button" class="esc-tier"        data-esc="0">0%</button>
-          <button type="button" class="esc-tier"        data-esc="0.99">0.99%</button>
-          <button type="button" class="esc-tier active" data-esc="1.99">1.99%</button>
-          <button type="button" class="esc-tier"        data-esc="2.99">2.99%</button>
+        <div class="esc-slider-wrap">
+          <input type="range" id="offerEsc" min="0" max="3" step="1" value="2" list="escTicks">
+          <datalist id="escTicks">
+            <option value="0"></option>
+            <option value="1"></option>
+            <option value="2"></option>
+            <option value="3"></option>
+          </datalist>
+          <div class="esc-ticks">
+            <span data-i="0">0%</span>
+            <span data-i="1">0.99%</span>
+            <span data-i="2">1.99%</span>
+            <span data-i="3">2.99%</span>
+          </div>
         </div>
+        <span class="offer-readout"><span id="offerEscVal">1.99</span><small>%/yr</small></span>
       </div>
       <button type="button" class="offer-toggle" id="btnOfferOn" onclick="toggleOffer()">Showing</button>
     </div>
@@ -1049,27 +1053,40 @@ function toggleEvt()    { showEvt    = !showEvt;    document.getElementById('btn
 function toggleEsc()    { showEsc    = !showEsc;    document.getElementById('btnEsc').classList.toggle('active', showEsc);       chart.data.datasets[5].hidden = !showEsc;    chart.update(); }
 function toggleNE()     { showNE     = !showNE;     document.getElementById('btnNE').classList.toggle('active', showNE);         chart.data.datasets[2].hidden = !showNE;     chart.update(); }
 
-// "Your Offer" controls (entry-rate slider + escalator tier buttons + show/hide)
+// "Your Offer" controls. Entry rate is a continuous slider; escalator
+// is a 4-position slider that snaps to the only valid product tiers.
+const ESC_VALUES = [0, 0.0099, 0.0199, 0.0299];
 const offerRateInput = document.getElementById('offerRate');
+const offerEscInput  = document.getElementById('offerEsc');
 const offerRateVal   = document.getElementById('offerRateVal');
+const offerEscVal    = document.getElementById('offerEscVal');
 const offerToggleBtn = document.getElementById('btnOfferOn');
-const escTierBtns    = document.querySelectorAll('.esc-tier');
+const escTickLabels  = document.querySelectorAll('.esc-ticks span');
+
+function syncEscTicks(idx) {
+  escTickLabels.forEach(s => s.classList.toggle('active', parseInt(s.dataset.i, 10) === idx));
+}
 
 function recomputeOffer() {
   offerRate = parseFloat(offerRateInput.value);
+  const idx = parseInt(offerEscInput.value, 10);
+  offerEsc = ESC_VALUES[idx];
   offerRateVal.textContent = offerRate.toFixed(2);
-  const escPct = (offerEsc * 100).toFixed(2);
+  offerEscVal.textContent  = (offerEsc * 100).toFixed(2);
+  syncEscTicks(idx);
   const data = proj(offerRate, offerEsc);
   chart.data.datasets[9].data = data;
-  chart.data.datasets[9].label = `Your Offer (${offerRate.toFixed(2)}¢ + ${escPct}%/yr)`;
+  chart.data.datasets[9].label = `Your Offer (${offerRate.toFixed(2)}¢ + ${(offerEsc*100).toFixed(2)}%/yr)`;
   chart.update('none');
 }
-offerRateInput.addEventListener('input', recomputeOffer);
 
-escTierBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    escTierBtns.forEach(b => b.classList.toggle('active', b === btn));
-    offerEsc = parseFloat(btn.dataset.esc) / 100;
+offerRateInput.addEventListener('input', recomputeOffer);
+offerEscInput.addEventListener('input', recomputeOffer);
+
+// Tick labels are clickable shortcuts to each tier
+escTickLabels.forEach(s => {
+  s.addEventListener('click', () => {
+    offerEscInput.value = s.dataset.i;
     recomputeOffer();
   });
 });
