@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>The Rate Escalator -- CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --surface: #F7F8F4;
+  --warm: #FAFBF7;
+  --white: #FFFFFF;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --warn: #E9A648;
+  --red: #C84545;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 96px; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); font-variation-settings: "opsz" 144; line-height: 1.05; font-weight: 400; }
+h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-variation-settings: "opsz" 72; line-height: 1.15; font-weight: 500; margin-bottom: 14px; }
+h3 { font-size: 1.2rem; font-weight: 600; line-height: 1.3; margin-bottom: 10px; }
+h4 { font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; color: var(--ink); }
+p { margin-bottom: 12px; color: var(--text); }
+ul, ol { padding-left: 22px; margin-bottom: 12px; }
+li { margin-bottom: 6px; color: var(--text); }
+strong { font-weight: 700; color: var(--ink); }
+em { font-style: italic; }
+a { color: var(--blue-dk); text-decoration: none; }
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 10px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+.wrap-wide { max-width: 1280px; margin: 0 auto; padding: 0 22px; }
+
+/* HEADER */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 0;
+  border-bottom: 3px solid var(--green);
+}
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .logo { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+.brand .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.2); }
+.brand .team { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.7); }
+.page-title { font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* TOC NAV */
+.toc-nav {
+  background: linear-gradient(to bottom, #fff 0%, var(--warm) 100%);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 4px 12px rgba(15,32,56,0.05);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.toc-nav::-webkit-scrollbar { display: none; }
+.toc-nav .wrap { display: flex; gap: 0; align-items: stretch; }
+.toc-nav a {
+  font-size: 0.8125rem; font-weight: 600;
+  color: var(--muted); text-decoration: none;
+  padding: 13px 16px;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.toc-nav a .num {
+  font-size: 0.66rem; font-weight: 800;
+  background: var(--line); color: var(--muted);
+  border-radius: 999px; padding: 1px 7px; line-height: 1.45;
+}
+.toc-nav a:hover { color: var(--ink); border-bottom-color: var(--green); }
+.toc-nav a.active { color: var(--ink); border-bottom-color: var(--green); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+  color: #fff;
+  padding: 28px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 50% 40% at 20% 50%, rgba(41,169,225,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 50%, rgba(120,200,50,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero .wrap { position: relative; z-index: 1; }
+.hero .eyebrow { color: var(--green); }
+.hero h1 { color: #fff; max-width: 820px; margin-bottom: 22px; }
+.hero h1 em { font-style: italic; background: linear-gradient(135deg, var(--blue), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .lede { font-size: 1.15rem; line-height: 1.55; color: rgba(255,255,255,0.78); max-width: 700px; }
+.hero .lede strong { color: #fff; font-weight: 600; }
+
+/* PRINCIPLE STRIP */
+.principles { background: var(--white); border-bottom: 1px solid var(--line); }
+.principles .wrap { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+.principle { padding: 28px 18px; text-align: center; border-right: 1px solid var(--line-soft); position: relative; }
+.principle:last-child { border-right: none; }
+.principle .num {
+  font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 400;
+  color: var(--green); line-height: 1; margin-bottom: 8px;
+}
+.principle .num.alt { color: var(--blue); }
+.principle .label { font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.principle .sub { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+@media (max-width: 720px) {
+  .principles .wrap { grid-template-columns: repeat(2, 1fr); }
+  .principle { border-right: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+  .principle:nth-child(2n) { border-right: none; }
+  .principle:last-child { grid-column: span 2; border-right: none; border-bottom: none; }
+}
+
+/* SECTIONS */
+.section { padding: 28px 0 64px; border-bottom: 1px solid var(--line); }
+.section.alt { background: var(--warm); }
+.section-header { margin-bottom: 32px; max-width: 720px; }
+.section-header p { color: var(--muted); font-size: 1.05rem; margin: 0; }
+
+/* CARDS */
+.card {
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: var(--r-lg); padding: 24px 28px;
+  box-shadow: var(--shadow-sm); margin-bottom: 16px;
+}
+.card.green-left { border-left: 4px solid var(--green); }
+.card.blue-left  { border-left: 4px solid var(--blue); }
+.card.ink-left   { border-left: 4px solid var(--ink); }
+.card.warm-left  { border-left: 4px solid var(--warn); }
+.card.red-left   { border-left: 4px solid var(--red); }
+.card h3 { margin-bottom: 10px; }
+.card .lede { font-size: 1.02rem; color: var(--text); margin-bottom: 8px; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .three-col { grid-template-columns: 1fr; } }
+
+/* PILL */
+.pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.pill.green { background: rgba(120,200,50,0.13); color: var(--green-dk); }
+.pill.blue  { background: rgba(41,169,225,0.13); color: var(--blue-dk); }
+.pill.warn  { background: rgba(233,166,72,0.15); color: #a3741f; }
+.pill.red   { background: rgba(200,69,69,0.10); color: var(--red); }
+
+/* QUOTE / SCRIPT BLOCKS */
+blockquote.script {
+  background: var(--white); border-left: 4px solid var(--blue);
+  padding: 18px 22px; border-radius: 0 var(--r-md) var(--r-md) 0;
+  font-family: 'Fraunces', Georgia, serif; font-size: 1.05rem; font-style: italic;
+  color: var(--ink-soft); margin: 12px 0; box-shadow: var(--shadow-sm);
+}
+blockquote.script::before { content: "\201C"; font-size: 1.6rem; color: var(--blue); margin-right: 4px; vertical-align: -6px; }
+blockquote.script::after { content: "\201D"; font-size: 1.6rem; color: var(--blue); margin-left: 2px; vertical-align: -6px; }
+
+/* CHART SECTION */
+.chart-section { padding: 32px 0 56px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, var(--warm) 0%, var(--white) 100%); }
+.chart-wrap {
+  background: #ffffff; border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 18px 22px 14px; box-shadow: var(--shadow-md);
+  max-width: 1240px; margin: 0 auto;
+}
+.chart-controls { display: flex; flex-direction: column; gap: 8px; align-items: center; margin-bottom: 14px; }
+.chart-ctrl-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center; }
+.chart-ctrl-label {
+  font-size: 0.68rem; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.07em; margin-right: 4px; font-weight: 700;
+}
+.chart-btn {
+  background: var(--white); border: 1px solid var(--line); color: var(--muted);
+  padding: 6px 13px; border-radius: 5px; cursor: pointer; font-size: 0.76rem;
+  font-family: inherit; font-weight: 500; transition: all 0.15s;
+}
+.chart-btn:hover { border-color: var(--blue-dk); color: var(--blue-dk); }
+.chart-btn.active { border-color: var(--c, var(--blue-dk)); background: var(--cbg, rgba(41,169,225,0.10)); color: var(--c, var(--blue-dk)); font-weight: 700; }
+.chart-btn.export {
+  background: var(--ink); border-color: var(--ink); color: #fff; font-weight: 700; margin-left: 12px;
+}
+.chart-btn.export:hover { background: var(--ink-soft); border-color: var(--ink-soft); color: #fff; }
+.chart-footnote {
+  text-align: center; font-size: 0.7rem; color: var(--subtle);
+  max-width: 1000px; margin: 14px auto 0; line-height: 1.65;
+}
+.chart-footnote strong { color: var(--muted); font-weight: 700; }
+
+.chart-callouts {
+  max-width: 1080px; margin: 18px auto 0;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+@media (max-width: 900px) { .chart-callouts { grid-template-columns: 1fr; } }
+.callout {
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 14px 16px; font-size: 0.88rem;
+}
+.callout .num {
+  font-family: 'Fraunces', serif; font-size: 1.4rem; font-weight: 600;
+  color: var(--ink); display: block; margin-bottom: 2px;
+}
+.callout.green .num { color: var(--green-dk); }
+.callout.blue  .num { color: var(--blue-dk); }
+.callout.red   .num { color: var(--red); }
+.callout .lbl { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 6px; display: block; }
+.callout .body { color: var(--text); line-height: 1.5; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 28px; border-left: 2px solid var(--line); margin: 12px 0; }
+.timeline-item { margin-bottom: 18px; position: relative; }
+.timeline-item::before {
+  content: ''; position: absolute; left: -35px; top: 6px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--green); border: 2px solid var(--white); box-shadow: 0 0 0 2px var(--green);
+}
+.timeline-item.red::before { background: var(--red); box-shadow: 0 0 0 2px var(--red); }
+.timeline-item.blue::before { background: var(--blue); box-shadow: 0 0 0 2px var(--blue); }
+.timeline-item .yr { font-family: 'Fraunces', serif; font-weight: 600; color: var(--ink); font-size: 1.05rem; margin-bottom: 2px; }
+.timeline-item .body { font-size: 0.95rem; color: var(--text); line-height: 1.55; }
+
+/* PLAYBOOK STEP */
+.step {
+  display: grid; grid-template-columns: 56px 1fr; gap: 18px;
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg);
+  padding: 20px 22px; margin-bottom: 12px; box-shadow: var(--shadow-sm);
+}
+.step .step-num {
+  font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 400; color: var(--green);
+  line-height: 1; text-align: center;
+}
+.step .step-body h3 { margin-bottom: 6px; }
+.step .step-body p { margin-bottom: 6px; color: var(--text); }
+
+/* ANTI-PATTERN */
+.anti {
+  background: rgba(200,69,69,0.04); border: 1px solid rgba(200,69,69,0.20);
+  border-left: 4px solid var(--red); border-radius: var(--r-md);
+  padding: 14px 18px; margin-bottom: 12px;
+}
+.anti .head { font-size: 0.78rem; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.anti .said { font-family: 'Fraunces', Georgia, serif; font-style: italic; color: var(--ink-soft); margin-bottom: 8px; font-size: 1rem; }
+.anti .fix  { font-size: 0.92rem; color: var(--text); }
+
+/* CLOSER */
+.closer {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+  color: #fff; padding: 56px 0; text-align: center; position: relative; overflow: hidden;
+}
+.closer::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(120,200,50,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.closer .wrap { position: relative; z-index: 1; }
+.closer h2 { color: #fff; max-width: 740px; margin: 0 auto 14px; }
+.closer h2 em { color: var(--green); font-style: italic; }
+.closer p { color: rgba(255,255,255,0.72); font-size: 1.05rem; max-width: 660px; margin: 0 auto; }
+
+/* FOOTER */
+.foot {
+  background: var(--ink); color: rgba(255,255,255,0.55);
+  padding: 28px 0; text-align: center; font-size: 0.8rem;
+}
+.foot strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+.foot a { color: rgba(255,255,255,0.7); }
+
+@media print {
+  @page { size: landscape; margin: 10mm; }
+  .toc-nav, .chart-controls, .anti .fix::before { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">Field Mastery &middot; Rate History</div>
+    </div>
+  </div>
+
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#chart"     data-section="chart"><span class="num">01</span> The Chart</a>
+      <a href="#story"     data-section="story"><span class="num">02</span> 40-Year Story</a>
+      <a href="#drivers"   data-section="drivers"><span class="num">03</span> Real Drivers</a>
+      <a href="#solar"     data-section="solar"><span class="num">04</span> Where Solar Fits</a>
+      <a href="#playbook"  data-section="playbook"><span class="num">05</span> Kitchen-Table Playbook</a>
+      <a href="#antipatterns" data-section="antipatterns"><span class="num">06</span> Anti-Patterns</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">SALES RESOURCE &middot; RATE MASTERY</span>
+    <h1>The Rate <em>Escalator</em></h1>
+    <p class="lede">
+      Forty years of Connecticut electricity rates in one chart, the structural forces driving them up, and the field-ready way to use it.
+      <strong>Every year your customer waits, their unlocked rate goes up. The escalator only moves one direction.</strong>
+    </p>
+  </div>
+</section>
+
+<section class="principles">
+  <div class="wrap">
+    <div class="principle">
+      <div class="num">01</div>
+      <div class="label">It's Been Climbing</div>
+      <div class="sub">CT rates have nearly tripled since 1990</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">02</div>
+      <div class="label">Not Solar's Fault</div>
+      <div class="sub">CT had ~4% solar penetration through 2024</div>
+    </div>
+    <div class="principle">
+      <div class="num">03</div>
+      <div class="label">Gas + Wires + Math</div>
+      <div class="sub">Three structural drivers, none going away</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">04</div>
+      <div class="label">The Baseline Moves</div>
+      <div class="sub">Every year of waiting raises the lock-in price</div>
+    </div>
+    <div class="principle">
+      <div class="num">05</div>
+      <div class="label">Solar is the Hedge</div>
+      <div class="sub">One of the few forces pushing back</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CHART ─────────────────────────────────────────────────────────────── -->
+<section class="chart-section" id="chart">
+  <div class="wrap">
+    <span class="eyebrow">01 &middot; THE CHART</span>
+    <h2>Connecticut residential electricity rates, 1990&ndash;2050</h2>
+    <p style="color:var(--muted);max-width:780px;font-size:1.05rem;margin-bottom:22px;">
+      Historical actuals through 2025, three forward scenarios, and solar lock-in lines for comparison. Toggle anything on or off; export a JPG to attach in a follow-up.
+    </p>
+  </div>
+
+  <div class="chart-wrap wrap-wide">
+    <div class="chart-controls">
+      <div class="chart-ctrl-row">
+        <span class="chart-ctrl-label">Scenarios:</span>
+        <button class="chart-btn active" id="btnHigh"   onclick="toggleHigh()"   style="--c:#dc2626;--cbg:rgba(220,38,38,0.10)">CT High (~4%/yr)</button>
+        <button class="chart-btn active" id="btnBase"   onclick="toggleBase()"   style="--c:#1E8BBC;--cbg:rgba(41,169,225,0.10)">CT Base (~2.5%/yr)</button>
+        <button class="chart-btn active" id="btnSol299" onclick="toggleSol299()" style="--c:#5FA520;--cbg:rgba(120,200,50,0.12)">Solar 2.99% (EVS 17&cent;)</button>
+        <button class="chart-btn active" id="btnSol199" onclick="toggleSol199()" style="--c:#5FA520;--cbg:rgba(120,200,50,0.12)">Solar 1.99% (EVS 18.35&cent;)</button>
+        <button class="chart-btn active" id="btnSol099" onclick="toggleSol099()" style="--c:#5FA520;--cbg:rgba(120,200,50,0.12)">Solar 0.99% (EVS 19.68&cent;)</button>
+      </div>
+      <div class="chart-ctrl-row">
+        <span class="chart-ctrl-label">Overlays:</span>
+        <button class="chart-btn active" id="btnEvt" onclick="toggleEvt()" style="--c:#b45309;--cbg:rgba(180,83,9,0.10)">Key Events</button>
+        <button class="chart-btn active" id="btnEsc" onclick="toggleEsc()" style="--c:#ca8a04;--cbg:rgba(202,138,4,0.10)">1.99% Escalator</button>
+        <button class="chart-btn"        id="btnNE"  onclick="toggleNE()"  style="--c:#0d9488;--cbg:rgba(13,148,136,0.10)">New England Avg</button>
+        <button class="chart-btn export"             onclick="exportJPG()">&darr; Export JPG</button>
+      </div>
+    </div>
+
+    <canvas id="rc"></canvas>
+
+    <div class="chart-footnote">
+      <strong>Historical:</strong> EIA Form 861 monthly series and EIA Table 9.8 annual data (1990&ndash;2025).
+      2025 reflects PURA interim rate decision (April 2026) reducing the standard offer ~4.3&cent;/kWh.
+      &nbsp;|&nbsp;
+      <strong>Projections (2026&ndash;2050):</strong> High &asymp; 4%/yr (rate case + electrification + data centers + nuclear PPA risk);
+      Base &asymp; 2.5%/yr (normal cost recovery); Moderation &asymp; 1%/yr (best plausible outcome requiring sustained regulatory intervention).
+      Shaded band shows realistic year-to-year volatility range (spikes &asymp; +20%, dips &asymp; &minus;8%).
+      &nbsp;|&nbsp;
+      <strong>1.99% Escalator:</strong> Hypothetical steady-state index anchored at the 1990 U.S. national average (7.8&cent;), compounding at 1.99%/yr through 2050. CT has substantially exceeded this trajectory.
+    </div>
+  </div>
+
+  <div class="chart-callouts">
+    <div class="callout green">
+      <span class="lbl">1990 baseline</span>
+      <span class="num">10.7&cent;</span>
+      <div class="body">Where CT residential rates started, when the cost-shift argument did not exist yet.</div>
+    </div>
+    <div class="callout red">
+      <span class="lbl">2024 actual</span>
+      <span class="num">28.2&cent;</span>
+      <div class="body">Roughly <strong>2.6&times;</strong> the 1990 rate. Through 2024, CT had ~4% solar penetration.</div>
+    </div>
+    <div class="callout blue">
+      <span class="lbl">CT premium over US</span>
+      <span class="num">~74%</span>
+      <div class="body">In 2025, CT residential rates ran ~74% above the U.S. national average. In 1990 the gap was ~24%.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 40-YEAR STORY ─────────────────────────────────────────────────────── -->
+<section class="section alt" id="story">
+  <div class="wrap">
+    <span class="eyebrow">02 &middot; THE 40-YEAR STORY</span>
+    <div class="section-header">
+      <h2>What actually happened</h2>
+      <p>The cost-shift narrative against solar succeeds because the public has no historical baseline. Here is the baseline. Every notch on this timeline predates or is unrelated to residential solar.</p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="yr">1990 &middot; CT pays ~10.7&cent;/kWh</div>
+        <div class="body">~24% premium over the U.S. average. New England already runs hot on rates because of fuel mix and capital intensity. No residential solar to blame.</div>
+      </div>
+      <div class="timeline-item blue">
+        <div class="yr">1998 &middot; Deregulation (PA 98-28)</div>
+        <div class="body">CL&amp;P and UI divest generation, standard offer set at 10% below 1996 levels. Brief reprieve through 2003. The competitive market that replaces it ends up clearing on the marginal cost of natural gas.</div>
+      </div>
+      <div class="timeline-item red">
+        <div class="yr">2005 &middot; Katrina/Rita gas spike</div>
+        <div class="body">Henry Hub averages ~$8.69/MMBtu. CT rates jump from 13.0&cent; to 17.0&cent; in a single year. Eversource's internal history flags 2005 as one of the two biggest step-ups on record.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="yr">2008&ndash;2012 &middot; Shale era</div>
+        <div class="body">Gas prices collapse. CT rates stabilize in the high teens. The wholesale market shifts decisively to gas-fired generation as coal and oil exit (40% of NE supply in 2000, less than 0.5% by 2023).</div>
+      </div>
+      <div class="timeline-item red">
+        <div class="yr">2014 &middot; Polar vortex</div>
+        <div class="body">Pipeline constraints into New England drive winter spot gas prices to $100+/MMBtu at the burner tip. CT ratepayers absorb it through the supply component.</div>
+      </div>
+      <div class="timeline-item red">
+        <div class="yr">2022 &middot; Ukraine war &amp; LNG shock</div>
+        <div class="body">Global gas exports tighten. CT rates surge to 25.1&cent; in 2022, 26.8&cent; in 2023, 28.2&cent; in 2024. The same period sees the most aggressive cost-shift messaging against solar &mdash; not because solar caused it, but because someone had to be blamed.</div>
+      </div>
+      <div class="timeline-item blue">
+        <div class="yr">April 2026 &middot; PURA interim relief</div>
+        <div class="body">PURA's interim decision reduces the standard offer by ~4.3&cent;/kWh through at least September, mostly via Millstone/Seabrook contract savings. The relief is real but temporary; the structural drivers underneath are unchanged.</div>
+      </div>
+      <div class="timeline-item red">
+        <div class="yr">2026+ &middot; Rate case + electrification + data centers</div>
+        <div class="body">Eversource's pending rate case, EV and heat-pump load growth, and AI data center demand all point the same direction. ISO-NE forecasts and DEEP planning documents are consistent: load is going up faster than supply.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── REAL DRIVERS ─────────────────────────────────────────────────────── -->
+<section class="section" id="drivers">
+  <div class="wrap">
+    <span class="eyebrow">03 &middot; REAL DRIVERS</span>
+    <div class="section-header">
+      <h2>What's actually pushing rates up</h2>
+      <p>Three structural forces. None of them are solar. All of them keep pushing one way.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>1. Natural gas dominance &amp; pipeline constraints</h3>
+      <p>54% of New England's electricity in 2025 was produced by gas-fired generators. Because ISO-NE clears at the marginal price of the most expensive unit needed in each hour, and that unit is almost always gas, every wholesale electron in the market is priced as if it came from gas.</p>
+      <p>Connecticut sits at the end of the interstate pipeline system. When gas demand spikes in winter, prices at New England city gates diverge sharply from Henry Hub &mdash; sometimes by an order of magnitude. CT ratepayers absorb that through the supply component of their bill.</p>
+      <p><strong>What this means at the table:</strong> "Your rate moves with the price of natural gas, not the price of solar. The last forty years of your bill is mostly the gas market and the pipelines into New England."</p>
+    </div>
+
+    <div class="card blue-left">
+      <h3>2. Transmission &amp; distribution capex</h3>
+      <p>The wires are a regulated monopoly. Under cost-of-service ratemaking, utilities earn a regulated return on every dollar of capital they put into the rate base. Storm hardening, asset condition projects, smart-meter rollouts, EV chargers, transmission build-outs &mdash; every dollar invested is recovered from ratepayers with a return on top.</p>
+      <p>This part of the bill grows on its own schedule, independent of generation prices. It is why delivery charges keep climbing even when supply prices fall.</p>
+      <p><strong>What this means at the table:</strong> "About 40% of your bill is delivery and transmission. That number goes up when the utility builds anything &mdash; and they always build."</p>
+    </div>
+
+    <div class="card ink-left">
+      <h3>3. The cost-of-service ratchet</h3>
+      <p>Cost-of-service ratemaking is structurally biased upward. When a utility's costs go up, they file a rate case and get them back. When costs go down, those savings are often passed back slowly, partially, or only at the next rate case. The mechanism does not symmetrically push prices down.</p>
+      <p>It is why the only periods of meaningful rate relief in CT's history are policy interventions (the 2025 PURA decision) or commodity windfalls (the post-2008 shale glut). Neither is a market mechanism.</p>
+      <p><strong>What this means at the table:</strong> "The system is designed to recover utility costs from you. It is not designed to keep your bill flat. The way you get flat is by stepping outside the system."</p>
+    </div>
+
+    <div class="card warm-left">
+      <h3>What the Public Benefits Charge actually is</h3>
+      <p>The PBC is &asymp;20% of the bill. It is not primarily a solar subsidy. It funds (in rough order): the Millstone and Seabrook nuclear contracts, transmission siting, low-income assistance, energy efficiency programs, and a smaller tail of renewable procurement. From May 2026 through at least September it is a credit (not a charge) because of PA 25-173 and the Millstone PPA savings.</p>
+      <p><strong>What this means at the table:</strong> Reps will get questions about the PBC. The honest answer is "it is not solar, it is mostly nuclear contracts and grid programs, and right now it is actually a credit." Don't bluff.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── WHERE SOLAR FITS ─────────────────────────────────────────────────── -->
+<section class="section alt" id="solar">
+  <div class="wrap">
+    <span class="eyebrow">04 &middot; WHERE SOLAR FITS</span>
+    <div class="section-header">
+      <h2>The three green lines on the chart</h2>
+      <p>Three solar lock-in rates with three escalators &mdash; all three sit well below CT High by 2050, two of them sit below CT Base.</p>
+    </div>
+
+    <div class="three-col">
+      <div class="card green-left">
+        <span class="pill green">Solar 2.99%</span>
+        <h3 style="margin-top:8px;">EVS 17&cent; &middot; 2.99%/yr</h3>
+        <p>The lowest entry rate, highest annual increase. By 2050 it lands around 36&cent;/kWh.</p>
+        <p><strong>Still beats CT High</strong> by a meaningful margin and sits roughly at CT Base.</p>
+      </div>
+      <div class="card green-left">
+        <span class="pill green">Solar 1.99%</span>
+        <h3 style="margin-top:8px;">EVS 18.35&cent; &middot; 1.99%/yr</h3>
+        <p>The middle option. By 2050 it lands around 30&cent;/kWh.</p>
+        <p><strong>Sits below CT Base</strong> for most of the projection window.</p>
+      </div>
+      <div class="card green-left">
+        <span class="pill green">Solar 0.99%</span>
+        <h3 style="margin-top:8px;">EVS 19.68&cent; &middot; 0.99%/yr</h3>
+        <p>Highest entry rate, lowest annual increase. By 2050 it lands around 25&cent;/kWh.</p>
+        <p><strong>Decisively below CT Base</strong> for the entire window.</p>
+      </div>
+    </div>
+
+    <div class="card blue-left" style="margin-top:18px;">
+      <h3>The trade-off, said plainly</h3>
+      <p>Pick a higher escalator to start at a lower rate. Pick a lower escalator to start higher but compound slower. There is no &quot;best&quot; option in the abstract &mdash; only the option that fits how long the customer plans to be in the home and how much volatility they're willing to absorb.</p>
+      <p>What's <em>not</em> a trade-off: the choice between any of these and CT's actual trajectory. <strong>All three solar lines are below CT High by 2050. Two are below CT Base.</strong> The customer is buying out of the cost-of-service ratchet at one of three speeds.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PLAYBOOK ─────────────────────────────────────────────────────────── -->
+<section class="section" id="playbook">
+  <div class="wrap">
+    <span class="eyebrow">05 &middot; KITCHEN-TABLE PLAYBOOK</span>
+    <div class="section-header">
+      <h2>How to use this in the room</h2>
+      <p>The chart is not a closing tool. It is a reframe tool. Open with it; do not pitch with it.</p>
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h3>Open with the customer's bill, not the chart</h3>
+        <p>Ask what they're paying per kWh on their last bill. Get it from them, do not tell them. Then mark it on the chart. <em>Their dot</em> is now on the page.</p>
+        <blockquote class="script">What's the rate on the supply side of your last Eversource bill? &hellip; Okay, you're right here. That's about 27&cent;. Let me show you where that's been heading.</blockquote>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h3>Walk the historical line, not the projection</h3>
+        <p>Trace 1990 to 2025 first. The story is what already happened, not what might. Hit the 2005, 2014, 2022 events so the customer can match their own memory to the spikes.</p>
+        <blockquote class="script">Remember the polar vortex? That's this dot. Remember when the Ukraine war started and your bill suddenly went up? That's this one. None of those things had anything to do with solar.</blockquote>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h3>Name the structural drivers without lecturing</h3>
+        <p>Two sentences, maximum. Gas. Wires. The customer doesn't need the cost-of-service ratemaking explainer; they need the takeaway.</p>
+        <blockquote class="script">Your bill goes up for three reasons: natural gas prices, which we can't control; transmission and distribution investment, which the utility passes through to you; and the way the regulation actually works, which means costs go up faster than they come down.</blockquote>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h3>Show the solar line at <em>their</em> rate</h3>
+        <p>Toggle off the scenarios they don't need. Show one solar line that matches what you're about to offer. Don't bury them in three options at once.</p>
+        <blockquote class="script">If we lock you in here, at 18.35&cent;, with a 1.99% increase each year, this is your line. Notice it doesn't follow theirs.</blockquote>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h3>End on the baseline, not the projection</h3>
+        <p>The customer doesn't have to believe the projection to make the decision. They have to believe the <em>history</em>. The projection is a reasonable extrapolation, but the history is fact.</p>
+        <blockquote class="script">You don't have to take my word for the next twenty years. You already lived the last twenty. The question is whether you want to keep riding that line, or step off it.</blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── ANTI-PATTERNS ────────────────────────────────────────────────────── -->
+<section class="section alt" id="antipatterns">
+  <div class="wrap">
+    <span class="eyebrow">06 &middot; ANTI-PATTERNS</span>
+    <div class="section-header">
+      <h2>What not to say</h2>
+      <p>This chart is credible because the data is sourced and the projections are defensible. It stops being credible the moment you treat it like a magic wand.</p>
+    </div>
+
+    <div class="anti">
+      <div class="head">Anti-pattern 01 &middot; Promising a specific 2050 rate</div>
+      <div class="said">&quot;Eversource will be at 75&cent; in 2050. It's right here on the chart.&quot;</div>
+      <div class="fix"><strong>Fix:</strong> The chart shows scenarios, not promises. Say "if the last 35 years keep going, you're looking at something in this range." Sell the trajectory, not the endpoint.</div>
+    </div>
+
+    <div class="anti">
+      <div class="head">Anti-pattern 02 &middot; Blaming politicians or specific companies by name</div>
+      <div class="said">&quot;Eversource is screwing you. The governor is screwing you.&quot;</div>
+      <div class="fix"><strong>Fix:</strong> Talk about the system, not the actors. The customer's opinion of Eversource is not yours to set. The structural drivers do the work without you picking sides.</div>
+    </div>
+
+    <div class="anti">
+      <div class="head">Anti-pattern 03 &middot; Claiming solar caused or fixed CT's rates</div>
+      <div class="said">&quot;Solar would have prevented the 2022 spike.&quot;</div>
+      <div class="fix"><strong>Fix:</strong> Solar is one of the few forces pushing back, but at ~4% penetration through 2024 it cannot move the regional market. The honest claim is that <em>their</em> bill stops being exposed to it, not that the state's bill does.</div>
+    </div>
+
+    <div class="anti">
+      <div class="head">Anti-pattern 04 &middot; Hiding the PBC</div>
+      <div class="said">&quot;The Public Benefits Charge is the solar tax.&quot;</div>
+      <div class="fix"><strong>Fix:</strong> The PBC is mostly nuclear contracts, efficiency programs, and low-income assistance. From May 2026 onward it's currently a credit. If the customer raises it, give them the honest decomposition and move on.</div>
+    </div>
+
+    <div class="anti">
+      <div class="head">Anti-pattern 05 &middot; Overusing the chart</div>
+      <div class="said">&quot;Let me walk you through every line on this chart.&quot;</div>
+      <div class="fix"><strong>Fix:</strong> The chart is a 90-second tool. If you're still on it after 4 minutes, you've lost the room. Toggle most lines off. Show the customer's number, the historical trajectory, and the one solar line you're offering.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CLOSER ───────────────────────────────────────────────────────────── -->
+<section class="closer">
+  <div class="wrap">
+    <h2>The escalator only moves <em>one way</em>.</h2>
+    <p>You don't have to forecast the next thirty years to make today's decision. The last thirty already happened. Help the customer see the line they're standing on, and offer them an honest way off it.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <p><strong>Trinity Solar &middot; CT Traditional</strong> &middot; Field Mastery Series</p>
+    <p style="margin-top:8px;font-size:0.72rem;">
+      Historical: EIA Form 861 + Table 9.8. Projections: rate-case filings, ISO-NE forecasts, DEEP planning docs.
+      Live model recalibrated May 2026.
+      Spotted an error? Use the Feedback button bottom-right.
+    </p>
+  </div>
+</footer>
+
+<script>
+// ─── Chart data (CT 1990-2025 actuals + scenarios) ──────────────────────────
+const N = 61;
+const labels = Array.from({length: N}, (_, i) => 1990 + i);
+const pad = Array(N - 36).fill(null);
+
+const ctHist = [
+  10.7,10.3,10.5,11.1,11.2,11.5,11.9,12.0,11.9,11.9,
+  12.4,12.9,12.7,12.3,13.0,13.7,17.0,19.2,19.6,20.4,
+  19.3,18.2,17.5,17.7,19.8,21.0,20.1,20.4,21.3,22.7,
+  22.4,22.7,25.1,26.8,28.2,24.5,
+  ...pad
+];
+const usHist = [
+   7.8, 8.0, 7.9, 8.2, 8.1, 8.4, 8.4, 8.4, 8.3, 8.2,
+   8.2, 8.6, 8.4, 8.7, 8.9, 9.5,10.4,10.7,11.3,11.5,
+  11.5,11.7,11.9,12.1,12.5,12.7,12.6,12.9,13.0,13.0,
+  13.2,13.7,16.0,16.4,16.2,15.8,
+  ...pad
+];
+const neHist = [
+   9.8,10.1,10.3,10.5,10.7,11.0,11.2,11.5,11.7,11.8,
+  11.9,12.0,11.9,11.5,12.1,13.4,16.0,17.0,17.5,17.9,
+  16.8,15.9,15.5,16.1,17.8,19.4,18.8,19.4,20.4,21.1,
+  23.6,23.8,24.9,25.2,25.8,23.0,
+  ...pad
+];
+
+function proj(start, rate) {
+  const out = Array(35).fill(null);
+  for (let i = 0; i <= 25; i++) out.push(parseFloat((start * Math.pow(1 + rate, i)).toFixed(2)));
+  return out;
+}
+
+const ctHigh = proj(24.5, 0.040);
+const ctBase = proj(24.5, 0.025);
+const sol299 = proj(17.00, 0.0299);
+const sol199 = proj(18.35, 0.0199);
+const sol099 = proj(19.68, 0.0099);
+const escalator = Array.from({length: N}, (_, i) => parseFloat((7.8 * Math.pow(1.0199, i)).toFixed(2)));
+
+const SLOPE = -Math.PI / 10;
+const events = [
+  { yr:1998, lbl:'Deregulation',  yF:0.64 },
+  { yr:2005, lbl:'Gas spike',     yF:0.57 },
+  { yr:2009, lbl:'Shale era',     yF:0.70 },
+  { yr:2014, lbl:'Polar vortex',  yF:0.62 },
+  { yr:2022, lbl:'Ukraine war',   yF:0.58 },
+  { yr:2025, lbl:'PURA relief',   yF:0.52 },
+  { yr:2026, lbl:'Rate case ↑', yF:0.76, red:true },
+];
+
+let showEvt    = true;
+let showNE     = false;
+let showEsc    = true;
+let showHigh   = true;
+let showBase   = true;
+let showSol299 = true;
+let showSol199 = true;
+let showSol099 = true;
+
+// White canvas fill (for JPG export)
+const whiteBg = {
+  id: 'wb',
+  beforeDraw(c) { c.ctx.save(); c.ctx.fillStyle = 'white'; c.ctx.fillRect(0, 0, c.width, c.height); c.ctx.restore(); }
+};
+
+// Shaded projection zone
+const projPlugin = {
+  id: 'projBg',
+  beforeDraw(chart) {
+    const { ctx, chartArea, scales } = chart;
+    if (!chartArea) return;
+    const x2025 = scales.x.getPixelForValue(35);
+    ctx.save();
+    ctx.fillStyle = 'rgba(15,32,56,0.03)';
+    ctx.fillRect(x2025, chartArea.top, chartArea.right - x2025, chartArea.bottom - chartArea.top);
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = 'rgba(15,32,56,0.18)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x2025, chartArea.top);
+    ctx.lineTo(x2025, chartArea.bottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(15,32,56,0.35)';
+    ctx.font = '10px Manrope, Segoe UI, Arial';
+    ctx.textAlign = 'right';
+    ctx.fillText('← Historical', x2025 - 6, chartArea.top + 13);
+    ctx.textAlign = 'left';
+    ctx.fillText('Projections →', x2025 + 6, chartArea.top + 13);
+    ctx.restore();
+  }
+};
+
+// Volatility band around base case
+const bandPlugin = {
+  id: 'band',
+  beforeDatasetsDraw(chart) {
+    if (!showBase) return;
+    const { ctx, scales } = chart;
+    const startIdx = 35, endIdx = 60;
+    ctx.save();
+    ctx.beginPath();
+    for (let i = startIdx; i <= endIdx; i++) {
+      const n = i - startIdx;
+      const val = 24.5 * 1.20 * Math.pow(1.025, n);
+      const x = scales.x.getPixelForValue(i);
+      const y = scales.y.getPixelForValue(val);
+      i === startIdx ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    for (let i = endIdx; i >= startIdx; i--) {
+      const n = i - startIdx;
+      const val = 24.5 * 0.92 * Math.pow(1.025, n);
+      const x = scales.x.getPixelForValue(i);
+      const y = scales.y.getPixelForValue(val);
+      ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(30,139,188,0.09)';
+    ctx.fill();
+    ctx.restore();
+  }
+};
+
+// CT premium fill
+const premPlugin = {
+  id: 'premFill',
+  beforeDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const meta0 = chart.getDatasetMeta(0);
+    const meta1 = chart.getDatasetMeta(1);
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i < 36; i++) {
+      const pt = meta0.data[i];
+      i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+    }
+    for (let i = 35; i >= 0; i--) {
+      const pt = meta1.data[i];
+      ctx.lineTo(pt.x, pt.y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(41,169,225,0.10)';
+    ctx.fill();
+    ctx.restore();
+  }
+};
+
+// Event markers
+const evtPlugin = {
+  id: 'evtLines',
+  afterDraw(chart) {
+    if (!showEvt) return;
+    const { ctx, chartArea, scales } = chart;
+    ctx.save();
+    events.forEach(ev => {
+      const idx = ev.yr - 1990;
+      const x = scales.x.getPixelForValue(idx);
+      const labelY = chartArea.top + (chartArea.bottom - chartArea.top) * ev.yF;
+      ctx.setLineDash([3, 4]);
+      ctx.strokeStyle = ev.red ? 'rgba(200,69,69,0.60)' : 'rgba(180,140,20,0.60)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, chartArea.top + 20);
+      ctx.lineTo(x, chartArea.bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.save();
+      ctx.translate(x + 5, labelY);
+      ctx.rotate(SLOPE);
+      ctx.fillStyle = ev.red ? 'rgba(200,69,69,0.92)' : 'rgba(140,105,10,0.92)';
+      ctx.font = '10px Manrope, Segoe UI, Arial';
+      ctx.textAlign = 'left';
+      ctx.fillText(ev.lbl, 0, 0);
+      ctx.restore();
+    });
+    ctx.restore();
+  }
+};
+
+const cfg = {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      { label: 'CT Residential (actual)',     data: ctHist, borderColor: '#0F2038', borderWidth: 2.5, pointRadius: 0, tension: 0.35, fill: false },
+      { label: 'US National Average',         data: usHist, borderColor: '#8B94A3', borderWidth: 2,   pointRadius: 0, tension: 0.35, fill: false },
+      { label: 'New England Average',         data: neHist, borderColor: '#0d9488', borderWidth: 1.5, pointRadius: 0, tension: 0.35, fill: false, hidden: true },
+      { label: 'CT High (~4%/yr)',            data: ctHigh, borderColor: '#dc2626', borderWidth: 1.8, borderDash: [7, 4], pointRadius: 0, tension: 0.2, fill: false },
+      { label: 'CT Base (~2.5%/yr)',          data: ctBase, borderColor: '#1E8BBC', borderWidth: 1.8, borderDash: [7, 4], pointRadius: 0, tension: 0.2, fill: false },
+      { label: '1.99% Escalator (US 1990 base)', data: escalator, borderColor: '#ca8a04', borderWidth: 1.5, borderDash: [5, 4], pointRadius: 0, tension: 0.2, fill: false },
+      { label: 'Solar EVS 17¢ + 2.99%/yr',  data: sol299, borderColor: '#5FA520', borderWidth: 2, borderDash: [6, 3], pointRadius: 0, tension: 0.2, fill: false },
+      { label: 'Solar EVS 18.35¢ + 1.99%/yr', data: sol199, borderColor: '#78C832', borderWidth: 2, borderDash: [6, 3], pointRadius: 0, tension: 0.2, fill: false },
+      { label: 'Solar EVS 19.68¢ + 0.99%/yr', data: sol099, borderColor: '#aedc7a', borderWidth: 2, borderDash: [6, 3], pointRadius: 0, tension: 0.2, fill: false }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 2.4,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        labels: {
+          color: '#334155',
+          font: { size: 11, family: 'Manrope' },
+          boxWidth: 24, padding: 14,
+          filter: (item, data) => !data.datasets[item.datasetIndex].hidden
+        }
+      },
+      tooltip: {
+        backgroundColor: '#0F2038',
+        titleColor: '#f1f5f9',
+        bodyColor: '#cbd5e1',
+        borderColor: '#1A2942',
+        borderWidth: 1,
+        callbacks: {
+          label: ctx => ctx.raw != null ? `  ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}¢` : null
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: '#5B6576',
+          font: { size: 10.5, family: 'Manrope' },
+          callback: (v, i) => (1990 + i) % 5 === 0 ? (1990 + i) : ''
+        },
+        grid: { color: 'rgba(15,32,56,0.05)' }
+      },
+      y: {
+        min: 5,
+        max: 70,
+        ticks: {
+          color: '#5B6576',
+          font: { size: 10.5, family: 'Manrope' },
+          callback: v => v + '¢'
+        },
+        grid: { color: 'rgba(15,32,56,0.07)' },
+        title: { display: true, text: '¢ per kWh', color: '#5B6576', font: { size: 11, family: 'Manrope' } }
+      }
+    }
+  },
+  plugins: [whiteBg, projPlugin, bandPlugin, premPlugin, evtPlugin]
+};
+
+const chart = new Chart(document.getElementById('rc'), cfg);
+
+function toggleHigh()   { showHigh   = !showHigh;   document.getElementById('btnHigh').classList.toggle('active', showHigh);     chart.data.datasets[3].hidden = !showHigh;   chart.update(); }
+function toggleBase()   { showBase   = !showBase;   document.getElementById('btnBase').classList.toggle('active', showBase);     chart.data.datasets[4].hidden = !showBase;   chart.update(); }
+function toggleSol299() { showSol299 = !showSol299; document.getElementById('btnSol299').classList.toggle('active', showSol299); chart.data.datasets[6].hidden = !showSol299; chart.update(); }
+function toggleSol199() { showSol199 = !showSol199; document.getElementById('btnSol199').classList.toggle('active', showSol199); chart.data.datasets[7].hidden = !showSol199; chart.update(); }
+function toggleSol099() { showSol099 = !showSol099; document.getElementById('btnSol099').classList.toggle('active', showSol099); chart.data.datasets[8].hidden = !showSol099; chart.update(); }
+function toggleEvt()    { showEvt    = !showEvt;    document.getElementById('btnEvt').classList.toggle('active', showEvt);       chart.update(); }
+function toggleEsc()    { showEsc    = !showEsc;    document.getElementById('btnEsc').classList.toggle('active', showEsc);       chart.data.datasets[5].hidden = !showEsc;    chart.update(); }
+function toggleNE()     { showNE     = !showNE;     document.getElementById('btnNE').classList.toggle('active', showNE);         chart.data.datasets[2].hidden = !showNE;     chart.update(); }
+
+function exportJPG() {
+  const src = document.getElementById('rc');
+  const exp = document.createElement('canvas');
+  exp.width = src.width * 2;
+  exp.height = src.height * 2;
+  const ectx = exp.getContext('2d');
+  ectx.scale(2, 2);
+  ectx.fillStyle = 'white';
+  ectx.fillRect(0, 0, src.width, src.height);
+  ectx.drawImage(src, 0, 0);
+  const a = document.createElement('a');
+  a.download = 'CT_Rate_Escalator_2050.jpg';
+  a.href = exp.toDataURL('image/jpeg', 0.96);
+  a.click();
+}
+
+// TOC active section tracking
+const tocLinks = document.querySelectorAll('.toc-nav a');
+const sections = ['chart', 'story', 'drivers', 'solar', 'playbook', 'antipatterns'].map(id => document.getElementById(id));
+function syncToc() {
+  const y = window.scrollY + 120;
+  let active = sections[0];
+  for (const s of sections) {
+    if (s && s.offsetTop <= y) active = s;
+  }
+  tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + (active ? active.id : '')));
+}
+window.addEventListener('scroll', syncToc, { passive: true });
+syncToc();
+</script>
+
+<script src="/feedback-widget.js" defer></script>
+</body>
+</html>
