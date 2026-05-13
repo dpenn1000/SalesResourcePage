@@ -61,7 +61,7 @@
     box-shadow: var(--shadow);
   }
   .header-inner {
-    max-width: 720px;
+    max-width: 1400px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -127,12 +127,12 @@
   .filter-bar {
     background: var(--header);
     border-bottom: 1px solid var(--border);
-    padding: 10px 20px;
+    padding: 10px 24px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
   .filter-inner {
-    max-width: 720px;
+    max-width: 1400px;
     margin: 0 auto;
     display: flex;
     gap: 6px;
@@ -155,17 +155,32 @@
   .filter-pill.active { background: var(--green); border-color: var(--green); color: var(--logo-text); }
 
   /* ── Main ── */
-  .main { max-width: 720px; margin: 0 auto; padding: 16px 16px 80px; }
+  .main { max-width: 1400px; margin: 0 auto; padding: 20px 20px 80px; }
+
+  /* ── Card grid -- 1 col mobile, 2 col tablet, 3 col desktop ── */
+  #list-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  @media (min-width: 680px) {
+    #list-container { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1100px) {
+    #list-container { grid-template-columns: repeat(3, 1fr); }
+  }
 
   /* ── Lead card ── */
   .lead-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    margin-bottom: 12px;
     overflow: hidden;
     box-shadow: var(--shadow);
     transition: border-color 0.15s;
+    display: flex;
+    flex-direction: column;
   }
   .lead-card-top {
     padding: 14px 16px 12px;
@@ -235,6 +250,10 @@
   [data-theme="dark"] .chip-voicemail { color: var(--accent); }
   [data-theme="dark"] .chip-noanswer  { color: #ff5c5c; border-color: rgba(255,92,92,0.3); }
 
+  /* push card footer to bottom when cards are equal height in grid */
+  .lead-card-top   { flex: 0 0 auto; }
+  .history-strip   { flex: 1 1 auto; align-content: flex-start; }
+
   /* ── Log button ── */
   .card-footer {
     border-top: 1px solid var(--border);
@@ -243,6 +262,8 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
+    flex-shrink: 0;
+    margin-top: auto;
   }
   .next-step-text {
     font-size: 12px;
@@ -274,6 +295,7 @@
     padding: 60px 20px;
     color: var(--muted);
     font-size: 14px;
+    grid-column: 1 / -1;
   }
   .spinner {
     width: 28px; height: 28px;
@@ -656,24 +678,4 @@ function renderModalHistory() {
           ${e.next_step ? `<div style="font-size:12px;color:var(--accent);">Next: ${e.next_step}</div>` : ''}
           ${e.follow_up_date ? `<div style="font-size:12px;color:var(--muted);">Follow-up: ${e.follow_up_date}</div>` : ''}
         </div>
-        <button class="entry-delete" onclick="deleteEntry(${e.id})" title="Delete">&times;</button>
-      </div>`).join('');
-}
-
-async function deleteEntry(entryId) {
-  if (!confirm('Delete this entry?')) return;
-  try {
-    const r = await fetch(`${SB_URL}/rest/v1/contact_log?id=eq.${entryId}`, { method:'DELETE', headers: HDR });
-    if (r.ok) {
-      if (contactMap[modalOppId]) {
-        contactMap[modalOppId] = contactMap[modalOppId].filter(e => e.id !== entryId);
-      }
-      renderModalHistory();
-      reRenderCard(modalOppId);
-    }
-  } catch(err) { alert('Error: ' + err); }
-}
-
-async function saveContact() {
-  const outcomeEl = document.querySelector('input[name="outcome"]:checked');
-  const contactedAt = document.getElementById('cl
+        <button class="entry-delete" onclick="deleteEntry(${e.id})" title="Delete">&times;</
