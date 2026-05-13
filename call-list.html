@@ -298,9 +298,12 @@
 <div id="modal-overlay">
   <div id="modal">
     <div id="modal-header">
-      <div>
+      <div style="flex:1;min-width:0;">
         <div id="modal-opp-name"></div>
-        <div id="modal-sub">Contact Log</div>
+        <div id="modal-phone-row" style="margin-top:5px;display:none;">
+          <a id="modal-phone-link" href="#" style="font-size:17px;font-weight:700;color:var(--green);text-decoration:none;letter-spacing:0.3px;"></a>
+        </div>
+        <div id="modal-meta" style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;"></div>
       </div>
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
@@ -460,6 +463,28 @@ document.querySelectorAll('.filter-pill').forEach(btn => {
 function openModal(oppId, oppName) {
   modalOppId = oppId; modalOppName = oppName;
   document.getElementById('modal-opp-name').textContent = oppName || 'Unknown';
+
+  // Populate lead details in modal header
+  const lead = allLeads.find(l => l.opportunity_id === oppId);
+  const phoneRow  = document.getElementById('modal-phone-row');
+  const phoneLink = document.getElementById('modal-phone-link');
+  const metaEl    = document.getElementById('modal-meta');
+  if (lead && lead.dl_number) {
+    phoneLink.textContent = lead.dl_number;
+    phoneLink.href = `tel:${lead.dl_number.replace(/\D/g, '')}`;
+    phoneRow.style.display = 'block';
+  } else {
+    phoneRow.style.display = 'none';
+  }
+  const metaParts = [];
+  if (lead?.address)     metaParts.push(lead.address);
+  if (lead?.lead_source) metaParts.push(lead.lead_source);
+  if (lead?.state) {
+    const ss = stateStyle(lead.state);
+    metaParts.push(`<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:${ss.bg};color:${ss.color};border:1px solid ${ss.border};">${ss.label}</span>`);
+  }
+  metaEl.innerHTML = metaParts.join(' &middot; ');
+
   document.getElementById('modal-overlay').classList.add('open');
   const now = new Date(); now.setSeconds(0, 0);
   const pad = n => String(n).padStart(2, '0');
