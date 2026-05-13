@@ -476,14 +476,14 @@ function openModal(oppId, oppName) {
   } else {
     phoneRow.style.display = 'none';
   }
-  const metaParts = [];
-  if (lead?.address)     metaParts.push(lead.address);
-  if (lead?.lead_source) metaParts.push(lead.lead_source);
+  let metaHtml = '';
+  if (lead?.address)     metaHtml += `<div>${lead.address}</div>`;
+  if (lead?.lead_source) metaHtml += `<div>${lead.lead_source}</div>`;
   if (lead?.state) {
     const ss = stateStyle(lead.state);
-    metaParts.push(`<span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:${ss.bg};color:${ss.color};border:1px solid ${ss.border};">${ss.label}</span>`);
+    metaHtml += `<div style="margin-top:5px;"><span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:4px;white-space:nowrap;background:${ss.bg};color:${ss.color};border:1px solid ${ss.border};">${ss.label}</span></div>`;
   }
-  metaEl.innerHTML = metaParts.join(' &middot; ');
+  metaEl.innerHTML = metaHtml;
 
   document.getElementById('modal-overlay').classList.add('open');
   const now = new Date(); now.setSeconds(0, 0);
