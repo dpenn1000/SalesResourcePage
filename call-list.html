@@ -10,31 +10,55 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* ── Light theme (default) ── */
   :root {
-    --green:   #78C832;
-    --navy:    #1A2332;
-    --navy2:   #0f1820;
-    --surface: #1e2c3d;
-    --border:  #2e3f52;
-    --text:    #e8edf2;
-    --muted:   #7a8fa6;
-    --accent:  #29A9E1;
-    --amber:   #ffb347;
-    --red:     #ff5c5c;
-    --radius:  10px;
+    --green:      #78C832;
+    --accent:     #29A9E1;
+    --red:        #d63030;
+    --radius:     10px;
+
+    --bg:         #EFF1EC;
+    --surface:    #ffffff;
+    --header:     #ffffff;
+    --border:     #DFE2DA;
+    --text:       #1A2332;
+    --muted:      #6b7a8d;
+    --logo-text:  #0b1120;
+    --form-bg:    #f4f6f1;
+    --input-bg:   #ffffff;
+    --entry-bg:   #f7f8f4;
+    --ghost-bg:   #e8ebe3;
+    --shadow:     0 1px 3px rgba(0,0,0,0.08);
   }
 
-  html { background: var(--navy2); color: var(--text); font-family: 'Manrope', sans-serif; }
+  /* ── Dark theme (charcoal/black) ── */
+  [data-theme="dark"] {
+    --bg:         #111111;
+    --surface:    #1c1c1c;
+    --header:     #171717;
+    --border:     #2e2e2e;
+    --text:       #e8e8e6;
+    --muted:      #888884;
+    --logo-text:  #111111;
+    --form-bg:    rgba(255,255,255,0.03);
+    --input-bg:   rgba(255,255,255,0.06);
+    --entry-bg:   rgba(255,255,255,0.04);
+    --ghost-bg:   rgba(255,255,255,0.08);
+    --shadow:     0 1px 6px rgba(0,0,0,0.4);
+  }
+
+  html { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; }
   body { min-height: 100vh; }
 
   /* ── Header ── */
   .page-header {
-    background: var(--navy);
+    background: var(--header);
     border-bottom: 1px solid var(--border);
-    padding: 16px 20px;
+    padding: 14px 20px;
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: var(--shadow);
   }
   .header-inner {
     max-width: 720px;
@@ -56,7 +80,7 @@
     display: flex; align-items: center; justify-content: center;
     font-family: 'Fraunces', serif;
     font-size: 16px; font-weight: 700;
-    color: var(--navy2);
+    color: var(--logo-text);
     flex-shrink: 0;
   }
   .header-title {
@@ -70,15 +94,38 @@
     color: var(--muted);
     margin-top: 1px;
   }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
   #lead-count {
     font-size: 12px;
     color: var(--muted);
     white-space: nowrap;
   }
 
+  /* ── Theme toggle ── */
+  #theme-toggle {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    color: var(--muted);
+    transition: border-color 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  #theme-toggle:hover { border-color: var(--green); color: var(--text); }
+
   /* ── Filter bar ── */
   .filter-bar {
-    background: var(--navy);
+    background: var(--header);
     border-bottom: 1px solid var(--border);
     padding: 10px 20px;
     overflow-x: auto;
@@ -105,7 +152,7 @@
     transition: all 0.15s;
   }
   .filter-pill:hover { border-color: var(--green); color: var(--text); }
-  .filter-pill.active { background: var(--green); border-color: var(--green); color: var(--navy2); }
+  .filter-pill.active { background: var(--green); border-color: var(--green); color: var(--logo-text); }
 
   /* ── Main ── */
   .main { max-width: 720px; margin: 0 auto; padding: 16px 16px 80px; }
@@ -117,6 +164,7 @@
     border-radius: var(--radius);
     margin-bottom: 12px;
     overflow: hidden;
+    box-shadow: var(--shadow);
     transition: border-color 0.15s;
   }
   .lead-card-top {
@@ -180,9 +228,12 @@
     border-radius: 4px;
     border: 1px solid;
   }
-  .chip-reached   { background: rgba(120,200,50,0.12);  color: var(--green); border-color: rgba(120,200,50,0.3);  }
-  .chip-voicemail { background: rgba(41,169,225,0.12);  color: var(--accent); border-color: rgba(41,169,225,0.3); }
-  .chip-noanswer  { background: rgba(255,92,92,0.12);   color: var(--red);   border-color: rgba(255,92,92,0.3);   }
+  .chip-reached   { background: rgba(120,200,50,0.12);  color: #52961a; border-color: rgba(120,200,50,0.35);  }
+  .chip-voicemail { background: rgba(41,169,225,0.12);  color: #1580b0; border-color: rgba(41,169,225,0.35); }
+  .chip-noanswer  { background: rgba(214,48,48,0.08);   color: #b02020; border-color: rgba(214,48,48,0.3);   }
+  [data-theme="dark"] .chip-reached   { color: var(--green); }
+  [data-theme="dark"] .chip-voicemail { color: var(--accent); }
+  [data-theme="dark"] .chip-noanswer  { color: #ff5c5c; border-color: rgba(255,92,92,0.3); }
 
   /* ── Log button ── */
   .card-footer {
@@ -210,7 +261,7 @@
     border-radius: 7px;
     border: none;
     background: var(--green);
-    color: var(--navy2);
+    color: var(--logo-text);
     cursor: pointer;
     flex-shrink: 0;
     transition: opacity 0.15s;
@@ -237,7 +288,7 @@
   /* ── Modal ── */
   #modal-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.7); z-index: 500;
+    background: rgba(0,0,0,0.55); z-index: 500;
     align-items: flex-end; justify-content: center;
   }
   @media (min-width: 500px) {
@@ -252,8 +303,9 @@
     max-height: 90vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+    box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
   }
+  [data-theme="dark"] #modal { box-shadow: 0 -8px 40px rgba(0,0,0,0.6); }
   @media (min-width: 500px) {
     #modal { border-radius: 14px; width: min(520px, 96vw); max-height: 85vh; }
   }
@@ -273,7 +325,7 @@
     text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
   }
   .history-entry {
-    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    background: var(--entry-bg); border: 1px solid var(--border);
     border-radius: 7px; padding: 10px 12px; margin-bottom: 8px;
     display: flex; align-items: flex-start; gap: 10px;
   }
@@ -286,18 +338,18 @@
 
   /* Form */
   .form-section {
-    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    background: var(--form-bg); border: 1px solid var(--border);
     border-radius: 8px; padding: 14px 16px;
   }
   .form-row { margin-bottom: 12px; }
   .form-row:last-child { margin-bottom: 0; }
   .form-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; display: block; }
   .form-input, .form-textarea {
-    width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border);
     border-radius: 6px; color: var(--text); font-family: 'Manrope', sans-serif;
     font-size: 14px; padding: 8px 11px; outline: none;
   }
-  .form-input:focus, .form-textarea:focus { border-color: rgba(120,200,50,0.5); }
+  .form-input:focus, .form-textarea:focus { border-color: rgba(120,200,50,0.6); }
   .form-textarea { resize: vertical; min-height: 72px; }
   .radio-group { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
   .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
@@ -310,8 +362,8 @@
   }
   .btn { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; transition: opacity 0.15s; }
   .btn:hover { opacity: 0.88; }
-  .btn-primary { background: var(--green); color: var(--navy2); }
-  .btn-ghost   { background: rgba(255,255,255,0.08); color: var(--text); }
+  .btn-primary { background: var(--green); color: var(--logo-text); }
+  .btn-ghost   { background: var(--ghost-bg); color: var(--text); }
 </style>
 </head>
 <body>
@@ -325,7 +377,12 @@
         <div class="header-sub">Trinity Solar CT</div>
       </div>
     </div>
-    <div id="lead-count">Loading...</div>
+    <div class="header-right">
+      <span id="lead-count">Loading...</span>
+      <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode" title="Toggle dark/light mode">
+        <span id="theme-icon">&#9788;</span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -619,53 +676,4 @@ async function deleteEntry(entryId) {
 
 async function saveContact() {
   const outcomeEl = document.querySelector('input[name="outcome"]:checked');
-  const contactedAt = document.getElementById('cl-contacted-at').value;
-  if (!outcomeEl) { alert('Please select an outcome.'); return; }
-  if (!contactedAt) { alert('Please set a date/time.'); return; }
-
-  const body = {
-    opportunity_id: modalOppId,
-    opp_name:       modalOppName,
-    contacted_at:   contactedAt,
-    outcome:        outcomeEl.value,
-    notes:          document.getElementById('cl-notes').value.trim() || null,
-    next_step:      document.getElementById('cl-next-step').value.trim() || null,
-    follow_up_date: document.getElementById('cl-follow-up-date').value || null,
-  };
-
-  try {
-    const r = await fetch(`${SB_URL}/rest/v1/contact_log`, {
-      method: 'POST',
-      headers: { ...HDR, 'Prefer': 'return=representation' },
-      body: JSON.stringify(body),
-    });
-    if (r.ok) {
-      const rows = await r.json();
-      const newEntry = Array.isArray(rows) ? rows[0] : null;
-      if (newEntry) {
-        if (!contactMap[modalOppId]) contactMap[modalOppId] = [];
-        contactMap[modalOppId].unshift(newEntry);
-      }
-      renderModalHistory();
-      reRenderCard(modalOppId);
-      // Reset form
-      document.querySelectorAll('input[name="outcome"]').forEach(r => { r.checked = r.value === 'Reached'; });
-      document.getElementById('cl-notes').value          = '';
-      document.getElementById('cl-next-step').value      = '';
-      document.getElementById('cl-follow-up-date').value = '';
-    } else {
-      alert('Save failed (status ' + r.status + ')');
-    }
-  } catch(err) { alert('Error: ' + err); }
-}
-
-// Re-render just one card in place (no full page reload)
-function reRenderCard(oppId) {
-  const lead = allLeads.find(l => l.opportunity_id === oppId);
-  if (!lead) return;
-  const el = document.getElementById(`card-${oppId}`);
-  if (el) el.outerHTML = leadCard(lead);
-}
-</script>
-</body>
-</html>
+  const contactedAt = document.getElementById('cl
