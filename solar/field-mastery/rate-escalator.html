@@ -255,11 +255,22 @@ blockquote.script::after { content: "\201D"; font-size: 1.6rem; color: var(--blu
   text-transform: uppercase; letter-spacing: 0.06em;
   white-space: nowrap;
 }
+/* Cross-browser range styling. Input height matches thumb height so
+   the bounding box contains the knob; track + thumb are both styled
+   as pseudo-elements so the knob sits centered on the track without
+   spilling above or below. */
 .offer-slider input[type=range] {
   -webkit-appearance: none; appearance: none;
-  width: 100%; height: 6px;
+  width: 100%; height: 20px;
+  background: transparent;
+  outline: none; cursor: pointer;
+  margin: 0; padding: 0;
+}
+/* WebKit / Blink */
+.offer-slider input[type=range]::-webkit-slider-runnable-track {
+  height: 6px; border-radius: 3px;
   background: linear-gradient(90deg, var(--green) 0%, var(--blue) 100%);
-  border-radius: 3px; outline: none; cursor: pointer;
+  border: none;
 }
 .offer-slider input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none; appearance: none;
@@ -267,12 +278,25 @@ blockquote.script::after { content: "\201D"; font-size: 1.6rem; color: var(--blu
   background: var(--white); border: 2px solid var(--green-dk);
   box-shadow: 0 1px 4px rgba(15,32,56,0.15);
   cursor: pointer;
+  margin-top: -6px;  /* (track-height - thumb-height) / 2 = (6-18)/2 = -6 */
+}
+.offer-slider input[type=range]:focus::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px rgba(120,200,50,0.20), 0 1px 4px rgba(15,32,56,0.20);
+}
+/* Firefox */
+.offer-slider input[type=range]::-moz-range-track {
+  height: 6px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--green) 0%, var(--blue) 100%);
+  border: none;
 }
 .offer-slider input[type=range]::-moz-range-thumb {
   width: 18px; height: 18px; border-radius: 50%;
   background: var(--white); border: 2px solid var(--green-dk);
   box-shadow: 0 1px 4px rgba(15,32,56,0.15);
   cursor: pointer;
+}
+.offer-slider input[type=range]:focus::-moz-range-thumb {
+  box-shadow: 0 0 0 4px rgba(120,200,50,0.20), 0 1px 4px rgba(15,32,56,0.20);
 }
 .offer-readout {
   font-family: 'Fraunces', Georgia, serif;
@@ -284,13 +308,14 @@ blockquote.script::after { content: "\201D"; font-size: 1.6rem; color: var(--blu
   font-size: 0.7rem; color: var(--muted); margin-left: 2px;
 }
 .esc-slider-wrap {
-  display: flex; flex-direction: column; gap: 4px; min-width: 180px;
+  display: flex; flex-direction: column; gap: 2px; min-width: 200px;
 }
 .esc-ticks {
   display: flex; justify-content: space-between;
   font-family: 'Manrope', sans-serif; font-size: 0.65rem; font-weight: 700;
   color: var(--subtle); letter-spacing: 0.02em;
-  padding: 0 6px; user-select: none;
+  padding: 0 4px; user-select: none;
+  margin-top: 2px;
 }
 .esc-ticks span { cursor: pointer; transition: color 0.12s; }
 .esc-ticks span:hover { color: var(--green-dk); }
