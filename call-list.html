@@ -598,18 +598,41 @@ sb.auth.onAuthStateChange((_e, session) => {
     // Defer the role lookup out of the auth state machine -- awaiting Supabase
     // calls inside this callback deadlocks the SDK.
     setTimeout(async () => {
+      // Try managers first, then reps. Both tables follow the same shape:
+      // status (active/inactive) and must_change_password.
+      let profile = null;
       const { data: mgr } = await sb.from('managers')
-        .select('is_admin, name, must_change_password')
+        .select('name, is_admin, status, must_change_password')
         .eq('auth_user_id', session.user.id)
         .maybeSingle();
-      if (!mgr) {
-        const errEl = document.getElementById('loginError');
+      if (mgr) {
+        profile = { kind: 'manager', name: mgr.name, is_admin: !!mgr.is_admin,
+                    status: mgr.status, must_change_password: !!mgr.must_change_password };
+      } else {
+        const { data: rep } = await sb.from('reps')
+          .select('name, status, must_change_password')
+          .eq('auth_user_id', session.user.id)
+          .maybeSingle();
+        if (rep) {
+          profile = { kind: 'rep', name: rep.name, is_admin: false,
+                      status: rep.status, must_change_password: !!rep.must_change_password };
+        }
+      }
+
+      const errEl = document.getElementById('loginError');
+      if (!profile) {
         errEl.textContent = 'Your account is signed in but not authorized for this app. Contact Dan if you need access.';
         errEl.style.display = 'block';
         await sb.auth.signOut();
         return;
       }
-      if (mgr.must_change_password) {
+      if (profile.status !== 'active') {
+        errEl.textContent = 'Your account has been deactivated. Contact Dan if this is in error.';
+        errEl.style.display = 'block';
+        await sb.auth.signOut();
+        return;
+      }
+      if (profile.must_change_password) {
         showOnly('changePasswordScreen');
         return;
       }
@@ -620,8 +643,11 @@ sb.auth.onAuthStateChange((_e, session) => {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
       };
+      window.IS_ADMIN = profile.is_admin;
+      window.IS_MANAGER = profile.kind === 'manager';
+      window.IS_REP = profile.kind === 'rep';
       showOnly('appWrap');
-      document.getElementById('userLabel').textContent = mgr.name || '';
+      document.getElementById('userLabel').textContent = profile.name || '';
       if (!appStarted) {
         appStarted = true;
         initApp();
@@ -684,16 +710,12 @@ async function changePassword() {
     return;
   }
   const { data: { user } } = await sb.auth.getUser();
-  const { error: flagErr } = await sb.from('managers')
-    .update({ must_change_password: false })
-    .eq('auth_user_id', user.id);
+  // Clear the flag on whichever table the user belongs to. The eq filter
+  // makes the wrong-table update a no-op.
+  await sb.from('managers').update({ must_change_password: false }).eq('auth_user_id', user.id);
+  await sb.from('reps').update({ must_change_password: false }).eq('auth_user_id', user.id);
   btn.disabled = false;
   btn.textContent = 'Update Password';
-  if (flagErr) {
-    errEl.textContent = 'Password updated, but flag clear failed: ' + flagErr.message + '. Contact Dan.';
-    errEl.style.display = 'block';
-    return;
-  }
   // Hard reload so the auth listener re-evaluates with the cleared flag.
   window.location.reload();
 }
