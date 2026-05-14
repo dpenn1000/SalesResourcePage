@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trinity Solar Communities Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #78C832;
+    --green-deep: #5eba28;
+    --blue: #29A9E1;
+    --ink: #1A2332;
+    --ink-soft: #3A4555;
+    --surface: #EFF1EC;
+    --border: #DFE2DA;
+    --paper: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--surface); color: var(--ink); font-family: 'Manrope', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body { padding: 32px 24px; }
+  .page { max-width: 1180px; margin: 0 auto; background: var(--paper); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(26,35,50,0.04), 0 12px 40px rgba(26,35,50,0.06); }
+  .display { font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -0.01em; }
+
+  /* Header */
+  .header { padding: 32px 80px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark { width: 38px; height: 38px; border-radius: 10px; background: var(--ink); color: var(--green); display: grid; place-items: center; font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; }
+  .brand-name { font-weight: 700; font-size: 15px; letter-spacing: 0.02em; }
+  .brand-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .header-meta { font-size: 12px; color: var(--ink-soft); text-align: right; }
+
+  /* Hero */
+  .hero { padding: 80px 80px 64px; background: linear-gradient(180deg, var(--paper) 0%, #F6F8F2 100%); border-bottom: 1px solid var(--border); }
+  .hero-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-deep); background: rgba(120, 200, 50, 0.12); padding: 6px 12px; border-radius: 999px; margin-bottom: 22px; }
+  .hero-title { font-size: 56px; line-height: 1.05; max-width: 880px; }
+  .hero-title .accent { color: var(--green-deep); }
+  .hero-sub { font-size: 19px; line-height: 1.5; color: var(--ink-soft); max-width: 720px; margin-top: 22px; }
+
+  /* Stat grid */
+  .stats { padding: 48px 80px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-bottom: 1px solid var(--border); }
+  .stat { padding: 8px 28px; border-right: 1px solid var(--border); }
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child { border-right: none; padding-right: 0; }
+  .stat-num { font-family: 'Fraunces', serif; font-weight: 600; font-size: 44px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+  .stat-label { font-size: 13px; color: var(--ink-soft); margin-top: 10px; line-height: 1.45; }
+
+  /* Section */
+  .section { padding: 72px 80px; border-bottom: 1px solid var(--border); }
+  .section-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; }
+  .section-title { font-size: 32px; line-height: 1.15; max-width: 720px; }
+  .section-lead { font-size: 16px; color: var(--ink-soft); margin-top: 14px; max-width: 680px; }
+
+  /* How it works */
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+  .how-card { background: var(--surface); border-radius: 14px; padding: 36px 32px; position: relative; }
+  .how-num { font-family: 'Fraunces', serif; font-weight: 600; font-size: 36px; color: var(--green-deep); line-height: 1; }
+  .how-title { font-weight: 700; font-size: 17px; margin-top: 16px; }
+  .how-body { font-size: 14.5px; color: var(--ink-soft); margin-top: 10px; line-height: 1.6; }
+
+  /* Partners grid */
+  .partners { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--border); }
+  .partner { padding: 20px 28px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .partner:first-child, .partner:nth-child(3n+1) { padding-left: 0; }
+  .partner:nth-child(3n) { border-right: none; padding-right: 0; }
+  .partner-name { font-size: 14px; font-weight: 600; color: var(--ink); flex: 1; line-height: 1.4; }
+  .partner-amt { font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px; color: var(--green-deep); white-space: nowrap; }
+
+  /* Categories */
+  .cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 40px; }
+  .cat { background: var(--paper); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: left; }
+  .cat-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(120, 200, 50, 0.15); color: var(--green-deep); display: grid; place-items: center; font-weight: 700; font-size: 16px; margin-bottom: 16px; }
+  .cat-name { font-weight: 700; font-size: 14px; }
+  .cat-desc { font-size: 12.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.55; }
+
+  /* Cumulative chart */
+  .chart-block { background: var(--ink); color: var(--paper); padding: 72px 80px; }
+  .chart-block .section-eyebrow { color: var(--green); }
+  .chart-block .section-title, .chart-block .section-lead { color: var(--paper); }
+  .chart-block .section-lead { opacity: 0.78; }
+  .chart { margin-top: 44px; }
+  .chart-row { display: grid; grid-template-columns: 70px 1fr 150px; align-items: center; gap: 20px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .chart-row:last-child { border-bottom: none; }
+  .chart-year { font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px; opacity: 0.9; }
+  .chart-bar-track { height: 14px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+  .chart-bar { height: 100%; background: linear-gradient(90deg, var(--green) 0%, var(--blue) 100%); border-radius: 999px; }
+  .chart-val { font-family: 'Fraunces', serif; font-weight: 600; font-size: 16px; text-align: right; }
+
+  /* Why it works */
+  .why { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 48px; margin-top: 36px; }
+  .why-item { display: flex; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--border); }
+  .why-check { width: 22px; height: 22px; border-radius: 50%; background: var(--green); color: var(--paper); display: grid; place-items: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .why-text strong { font-size: 15px; font-weight: 700; display: block; margin-bottom: 6px; }
+  .why-text span { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* CTA */
+  .cta { padding: 80px; text-align: center; background: linear-gradient(135deg, var(--green) 0%, var(--green-deep) 100%); color: var(--paper); }
+  .cta-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 36px; line-height: 1.15; }
+  .cta-sub { font-size: 17px; margin-top: 16px; opacity: 0.92; max-width: 540px; margin-left: auto; margin-right: auto; line-height: 1.55; }
+  .cta-action { margin-top: 32px; display: inline-block; background: var(--ink); color: var(--paper); padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.02em; text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .cta-action:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+
+  /* Footer */
+  .footer { padding: 28px 80px; font-size: 12px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 24px; }
+
+  @media print {
+    body { background: white; }
+    .page { max-width: none; }
+    .section, .hero, .chart-block, .cta { page-break-inside: avoid; }
+  }
+  @media (max-width: 900px) {
+    body { padding: 16px; }
+    .hero-title { font-size: 36px; }
+    .stats, .how-grid, .partners, .cats, .why { grid-template-columns: 1fr 1fr; }
+    .cats { grid-template-columns: 1fr 1fr; }
+    .header, .hero, .section, .stats, .chart-block, .cta, .footer { padding-left: 32px; padding-right: 32px; }
+    .stat { padding: 16px 20px !important; border-right: 1px solid var(--border) !important; border-bottom: 1px solid var(--border); }
+    .partner { padding: 18px 20px !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <div class="brand">
+      <div class="brand-mark">T</div>
+      <div>
+        <div class="brand-name">TRINITY SOLAR</div>
+        <div class="brand-sub">Communities Program</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      Program data through May 2026<br>
+      Reporting period: Feb 2018 -- present
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="hero-eyebrow">A funding stream that builds itself</span>
+    <h1 class="display hero-title">Your members go solar.<br><span class="accent">Your organization gets funded.</span></h1>
+    <p class="hero-sub">The Trinity Solar Communities Program has paid <strong>$836,150</strong> to 222 partner organizations since 2018. No event to plan. No volunteers to recruit. The money comes from members who were already thinking about solar.</p>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-num">$836,150</div>
+      <div class="stat-label">Paid to partner organizations since program launch</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">222</div>
+      <div class="stat-label">Organizations currently or previously on the program</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2,022</div>
+      <div class="stat-label">Member households who went solar through a referral</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">148</div>
+      <div class="stat-label">Partners who have earned $1,000 or more</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">How it works</div>
+    <h2 class="display section-title">Three steps. Nothing to install on your end.</h2>
+    <div class="how-grid">
+      <div class="how-card">
+        <div class="how-num">01</div>
+        <div class="how-title">A member names your organization.</div>
+        <div class="how-body">When a member of your community asks Trinity Solar for a quote, they tell us who sent them. That is the whole referral.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">02</div>
+        <div class="how-title">Trinity does the work.</div>
+        <div class="how-body">Custom proposal, design, permits, install, paperwork, warranty. Your member saves on their electric bill. You stay out of it.</div>
+      </div>
+      <div class="how-card">
+        <div class="how-num">03</div>
+        <div class="how-title">Your organization gets paid.</div>
+        <div class="how-body">A check arrives when the appointment happens, and again when the install closes. The top partners on the program have collected $80,000 or more.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">Partners on the program</div>
+    <h2 class="display section-title">222 organizations and counting.</h2>
+    <p class="section-lead">Scouting councils. Churches. PBA chapters. Schools. Community centers. The list keeps growing because the program keeps paying.</p>
+    <div class="partners">
+      <div class="partner"><span class="partner-name">Jersey Shore Council</span><span class="partner-amt">$87,900</span></div>
+      <div class="partner"><span class="partner-name">NJ State PBA</span><span class="partner-amt">$60,600</span></div>
+      <div class="partner"><span class="partner-name">Operation Hope</span><span class="partner-amt">$30,200</span></div>
+      <div class="partner"><span class="partner-name">Minsi Trails Council BSA</span><span class="partner-amt">$30,000</span></div>
+      <div class="partner"><span class="partner-name">Saint James R.C. Church</span><span class="partner-amt">$20,000</span></div>
+      <div class="partner"><span class="partner-name">Unitarian Universalist Society East</span><span class="partner-amt">$16,700</span></div>
+      <div class="partner"><span class="partner-name">Greater Hudson Valley BSA</span><span class="partner-amt">$16,600</span></div>
+      <div class="partner"><span class="partner-name">Somos Green Innovations</span><span class="partner-amt">$15,600</span></div>
+      <div class="partner"><span class="partner-name">Faith Community UMC</span><span class="partner-amt">$13,600</span></div>
+      <div class="partner"><span class="partner-name">Green Eco Warriors</span><span class="partner-amt">$12,300</span></div>
+      <div class="partner"><span class="partner-name">CT Rivers Council BSA</span><span class="partner-amt">$12,200</span></div>
+      <div class="partner"><span class="partner-name">UU Society of Fairhaven</span><span class="partner-amt">$12,200</span></div>
+      <div class="partner"><span class="partner-name">CT Yankee Council BSA</span><span class="partner-amt">$11,300</span></div>
+      <div class="partner"><span class="partner-name">ALR Chapter 101</span><span class="partner-amt">$10,700</span></div>
+      <div class="partner"><span class="partner-name">Sterling House Community Center</span><span class="partner-amt">$10,400</span></div>
+      <div class="partner"><span class="partner-name">Special Olympics Connecticut</span><span class="partner-amt">$9,200</span></div>
+      <div class="partner"><span class="partner-name">Hopewell Baptist Church</span><span class="partner-amt">$9,200</span></div>
+      <div class="partner"><span class="partner-name">+ 205 more organizations</span><span class="partner-amt">&nbsp;</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">Who joins</div>
+    <h2 class="display section-title">Five kinds of organizations make up most of the program.</h2>
+    <div class="cats">
+      <div class="cat">
+        <div class="cat-icon">SC</div>
+        <div class="cat-name">Scouting Councils</div>
+        <div class="cat-desc">BSA councils across CT, NJ, NY, MA, and PA. Among the longest-running partners.</div>
+      </div>
+      <div class="cat">
+        <div class="cat-icon">FC</div>
+        <div class="cat-name">Faith Communities</div>
+        <div class="cat-desc">Churches, parishes, congregations. Catholic, Baptist, Methodist, Unitarian, Greek Orthodox, and more.</div>
+      </div>
+      <div class="cat">
+        <div class="cat-icon">VF</div>
+        <div class="cat-name">Veterans &amp; First Responders</div>
+        <div class="cat-desc">PBA chapters, American Legion, veterans foundations. Members give a lot. The program gives back.</div>
+      </div>
+      <div class="cat">
+        <div class="cat-icon">SE</div>
+        <div class="cat-name">Schools &amp; Education</div>
+        <div class="cat-desc">Booster clubs, science learning centers, environmental ed nonprofits.</div>
+      </div>
+      <div class="cat">
+        <div class="cat-icon">CV</div>
+        <div class="cat-name">Civic &amp; Community</div>
+        <div class="cat-desc">Community centers, civic associations, social clubs, service nonprofits.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chart-block">
+    <div class="section-eyebrow">Eight years on</div>
+    <h2 class="display section-title">Every year, the program puts more money in your community.</h2>
+    <p class="section-lead">Total paid to all partner organizations, cumulative through each year. The line goes one direction.</p>
+    <div class="chart">
+      <div class="chart-row"><div class="chart-year">2018</div><div class="chart-bar-track"><div class="chart-bar" style="width: 14%"></div></div><div class="chart-val">$116,950</div></div>
+      <div class="chart-row"><div class="chart-year">2019</div><div class="chart-bar-track"><div class="chart-bar" style="width: 32%"></div></div><div class="chart-val">$265,650</div></div>
+      <div class="chart-row"><div class="chart-year">2020</div><div class="chart-bar-track"><div class="chart-bar" style="width: 47%"></div></div><div class="chart-val">$388,950</div></div>
+      <div class="chart-row"><div class="chart-year">2021</div><div class="chart-bar-track"><div class="chart-bar" style="width: 60%"></div></div><div class="chart-val">$502,050</div></div>
+      <div class="chart-row"><div class="chart-year">2022</div><div class="chart-bar-track"><div class="chart-bar" style="width: 69%"></div></div><div class="chart-val">$576,850</div></div>
+      <div class="chart-row"><div class="chart-year">2023</div><div class="chart-bar-track"><div class="chart-bar" style="width: 81%"></div></div><div class="chart-val">$677,550</div></div>
+      <div class="chart-row"><div class="chart-year">2024</div><div class="chart-bar-track"><div class="chart-bar" style="width: 88%"></div></div><div class="chart-val">$733,550</div></div>
+      <div class="chart-row"><div class="chart-year">2025</div><div class="chart-bar-track"><div class="chart-bar" style="width: 97%"></div></div><div class="chart-val">$813,550</div></div>
+      <div class="chart-row"><div class="chart-year">2026</div><div class="chart-bar-track"><div class="chart-bar" style="width: 100%"></div></div><div class="chart-val">$836,150</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">Why partners stay</div>
+    <h2 class="display section-title">The program asks for nothing the organization has to spend.</h2>
+    <div class="why">
+      <div class="why-item">
+        <div class="why-check">&check;</div>
+        <div class="why-text"><strong>No cost to join.</strong><span>No setup fee, no contract, no minimum. If no one refers, no one is out anything.</span></div>
+      </div>
+      <div class="why-item">
+        <div class="why-check">&check;</div>
+        <div class="why-text"><strong>No fundraising event to run.</strong><span>The donations come from regular member purchases, not from a gala or a 5K.</span></div>
+      </div>
+      <div class="why-item">
+        <div class="why-check">&check;</div>
+        <div class="why-text"><strong>Payments arrive after each install.</strong><span>You see money throughout the year, not in one lump at the end of a campaign.</span></div>
+      </div>
+      <div class="why-item">
+        <div class="why-check">&check;</div>
+        <div class="why-text"><strong>Trinity is the one being judged.</strong><span>Your members work with a 30-year-old regional installer. We carry the warranty.</span></div>
+      </div>
+      <div class="why-item">
+        <div class="why-check">&check;</div>
+        <div class="why-text"><strong>It compounds.</strong><span>Partners who hit five-figure totals all started with one member, one quote.</span></div>
+      </div>
+      <div class="why-item">
+        <div class="why-check">&check;</div>
+        <div class="why-text"><strong>Members win too.</strong><span>The same homeowner who funded your check is the one saving on their electric bill for the next 25 years.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2 class="cta-title">Add your organization.</h2>
+    <p class="cta-sub">One conversation, no paperwork before the call. We confirm the payee account, get you the materials, and you can mention it to members the same week.</p>
+    <a class="cta-action" href="https://trinity-solar.com/community-partners/get-started/" target="_blank" rel="noopener">Talk to a Trinity Solar Communities Coordinator</a>
+  </section>
+
+  <footer class="footer">
+    <div>Trinity Solar Communities Program &nbsp;&middot;&nbsp; Program totals as of May 14, 2026</div>
+    <div>Source: Trinity Solar internal payments ledger</div>
+  </footer>
+
+</div>
+</body>
+</html>
