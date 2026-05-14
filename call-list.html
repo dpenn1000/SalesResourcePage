@@ -106,7 +106,7 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-  .filter-inner { max-width: 1400px; margin: 0 auto; display: flex; gap: 6px; align-items: center; }
+  .filter-inner { max-width: 1400px; margin: 0 auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
   .filter-pill {
     font-family: 'Manrope', sans-serif;
     font-size: 12px; font-weight: 600;
@@ -117,6 +117,7 @@
   }
   .filter-pill:hover { border-color: var(--green); color: var(--text); }
   .filter-pill.active { background: var(--green); border-color: var(--green); color: var(--logo-text); }
+  .filter-divider { width: 1px; height: 18px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
 
   /* ── Main ── */
   .main { max-width: 1400px; margin: 0 auto; padding: 20px 20px 80px; }
@@ -141,16 +142,22 @@
     display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
     flex: 0 0 auto;
   }
-  .lead-name { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .lead-meta { font-size: 13px; color: var(--muted); line-height: 1.6; }
-  .lead-phone {
-    font-size: 17px; font-weight: 700; color: var(--green);
+  .lead-name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+  .lead-dl-link {
+    font-size: 12px; font-weight: 700; color: var(--accent);
     text-decoration: none; letter-spacing: 0.3px; display: inline-block; margin-bottom: 4px;
   }
-  .lead-phone:hover { opacity: 0.85; }
+  .lead-dl-link:hover { opacity: 0.8; text-decoration: underline; }
+  .lead-dl-nolink { font-size: 12px; color: var(--muted); display: inline-block; margin-bottom: 4px; }
+  .lead-meta { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .lead-phone { font-size: 14px; font-weight: 700; color: var(--green); display: inline-block; margin-bottom: 2px; }
   .state-badge {
     font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-    padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+    padding: 3px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; display: inline-block;
+  }
+  .status-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 4px; white-space: nowrap; display: inline-block; margin-top: 5px;
   }
 
   /* ── History strip ── */
@@ -212,17 +219,77 @@
     box-shadow: 0 -8px 40px rgba(0,0,0,0.18);
   }
   [data-theme="dark"] #modal { box-shadow: 0 -8px 40px rgba(0,0,0,0.6); }
-  @media (min-width: 500px) { #modal { border-radius: 14px; width: min(520px, 96vw); max-height: 85vh; } }
+  @media (min-width: 500px) { #modal { border-radius: 14px; width: min(540px, 96vw); max-height: 88vh; } }
+
+  /* ── Modal header ── */
   #modal-header {
     padding: 16px 18px 12px; border-bottom: 1px solid var(--border);
     display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-shrink: 0;
   }
-  #modal-opp-name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
-  #modal-sub { font-size: 12px; color: var(--muted); }
-  .modal-close { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0; }
+  #modal-opp-name { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+  #modal-dl-row { margin-bottom: 4px; }
+  #modal-dl-link {
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    text-decoration: none; letter-spacing: 0.3px;
+  }
+  #modal-dl-link:hover { opacity: 0.8; text-decoration: underline; }
+  #modal-meta { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .modal-close { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 0 4px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+
+  /* ── Modal body ── */
   #modal-body { flex: 1; overflow-y: auto; padding: 16px 18px; }
+
+  /* ── Section label ── */
+  .modal-section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px;
+  }
+
+  /* ── Contact info section ── */
+  #modal-contact-info { margin-bottom: 18px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  @media (max-width: 420px) { .info-grid { grid-template-columns: 1fr; } }
+  .info-field { display: flex; flex-direction: column; gap: 4px; }
+  .info-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .info-input {
+    width: 100%; background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: 'Manrope', sans-serif;
+    font-size: 14px; padding: 7px 10px; outline: none;
+  }
+  .info-input:focus { border-color: rgba(120,200,50,0.6); }
+  .info-status-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .status-select {
+    background: var(--input-bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text); font-family: 'Manrope', sans-serif;
+    font-size: 13px; padding: 7px 10px; outline: none; cursor: pointer; flex: 1; min-width: 140px;
+  }
+  .status-select:focus { border-color: rgba(120,200,50,0.6); }
+  .save-info-btn {
+    font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 700;
+    padding: 7px 16px; border-radius: 7px; border: 1px solid var(--green);
+    background: transparent; color: var(--green);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .save-info-btn:hover { background: var(--green); color: var(--logo-text); }
+  .save-info-btn.saved { background: var(--green); color: var(--logo-text); border-color: var(--green); }
+  #save-info-msg { font-size: 12px; color: var(--green); display: none; }
+
+  /* ── Appointment context ── */
+  #modal-appt-info { margin-bottom: 18px; }
+  .appt-row {
+    display: flex; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border);
+  }
+  .appt-row:last-child { border-bottom: none; }
+  .appt-row-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--muted); min-width: 70px; padding-top: 1px; flex-shrink: 0;
+  }
+  .appt-row-value { font-size: 13px; color: var(--text); flex: 1; line-height: 1.45; }
+  .sf-link { color: var(--accent); text-decoration: none; font-size: 13px; }
+  .sf-link:hover { text-decoration: underline; }
+
+  /* ── Contact history ── */
   #modal-history { margin-bottom: 18px; }
-  .modal-section-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
   .history-entry {
     background: var(--entry-bg); border: 1px solid var(--border);
     border-radius: 7px; padding: 10px 12px; margin-bottom: 8px;
@@ -232,7 +299,7 @@
   .outcome-badge { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; display: inline-block; }
   .entry-delete { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; padding: 2px 4px; flex-shrink: 0; line-height: 1; }
 
-  /* ── Form ── */
+  /* ── Log form ── */
   .form-section { background: var(--form-bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
   .form-row { margin-bottom: 12px; }
   .form-row:last-child { margin-bottom: 0; }
@@ -246,6 +313,8 @@
   .form-textarea { resize: vertical; min-height: 72px; }
   .radio-group { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
   .radio-label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
+
+  /* ── Modal footer ── */
   #modal-footer {
     padding: 12px 18px; border-top: 1px solid var(--border);
     display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0;
@@ -278,11 +347,18 @@
 
 <div class="filter-bar">
   <div class="filter-inner">
-    <button class="filter-pill active" data-filter="">All</button>
-    <button class="filter-pill" data-filter="noshow">No Show</button>
-    <button class="filter-pill" data-filter="cancel">Cancelled</button>
-    <button class="filter-pill" data-filter="goback">Go Back</button>
-    <button class="filter-pill" data-filter="nosale">No Sale</button>
+    <button class="filter-pill active" data-filter-type="state" data-filter="">All</button>
+    <button class="filter-pill" data-filter-type="state" data-filter="noshow">No Show</button>
+    <button class="filter-pill" data-filter-type="state" data-filter="cancel">Cancelled</button>
+    <button class="filter-pill" data-filter-type="state" data-filter="goback">Go Back</button>
+    <button class="filter-pill" data-filter-type="state" data-filter="nosale">No Sale</button>
+    <div class="filter-divider"></div>
+    <button class="filter-pill" data-filter-type="status" data-filter="">Any Status</button>
+    <button class="filter-pill" data-filter-type="status" data-filter="pending">Pending</button>
+    <button class="filter-pill" data-filter-type="status" data-filter="in_progress">In Progress</button>
+    <button class="filter-pill" data-filter-type="status" data-filter="reached">Reached</button>
+    <button class="filter-pill" data-filter-type="status" data-filter="resolved">Resolved</button>
+    <button class="filter-pill" data-filter-type="status" data-filter="do_not_call">DNC</button>
   </div>
 </div>
 
@@ -295,20 +371,55 @@
   </div>
 </main>
 
+<!-- ── Modal ── -->
 <div id="modal-overlay">
   <div id="modal">
     <div id="modal-header">
       <div style="flex:1;min-width:0;">
         <div id="modal-opp-name"></div>
-        <div id="modal-phone-row" style="margin-top:5px;display:none;">
-          <a id="modal-phone-link" href="#" style="font-size:17px;font-weight:700;color:var(--green);text-decoration:none;letter-spacing:0.3px;"></a>
+        <div id="modal-dl-row">
+          <a id="modal-dl-link" href="#" target="_blank" rel="noopener"></a>
         </div>
-        <div id="modal-meta" style="font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;"></div>
+        <div id="modal-meta"></div>
       </div>
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
     <div id="modal-body">
+
+      <!-- Contact Info (editable) -->
+      <div id="modal-contact-info">
+        <div class="modal-section-label">Lead Contact Info</div>
+        <div class="info-grid">
+          <div class="info-field">
+            <label class="info-label" for="cl-phone">Phone</label>
+            <input type="tel" id="cl-phone" class="info-input" placeholder="Copy from SF Direct Lead">
+          </div>
+          <div class="info-field">
+            <label class="info-label" for="cl-email">Email</label>
+            <input type="email" id="cl-email" class="info-input" placeholder="Enter email address">
+          </div>
+        </div>
+        <div class="info-status-row">
+          <div class="info-label" style="white-space:nowrap;">Status</div>
+          <select id="cl-status" class="status-select">
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="reached">Reached</option>
+            <option value="resolved">Resolved</option>
+            <option value="do_not_call">Do Not Call</option>
+          </select>
+          <button class="save-info-btn" onclick="saveLeadInfo()" id="save-info-btn">Save Info</button>
+        </div>
+        <div id="save-info-msg" style="margin-top:6px;">Saved</div>
+      </div>
+
+      <!-- Last Appointment (read-only from parser) -->
+      <div id="modal-appt-info" style="display:none;margin-bottom:18px;"></div>
+
+      <!-- Contact history -->
       <div id="modal-history"></div>
+
+      <!-- Log new contact -->
       <div class="form-section">
         <div class="modal-section-label" style="margin-bottom:14px;">Log New Contact</div>
         <div class="form-row">
@@ -339,7 +450,7 @@
     </div>
     <div id="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveContact()">Save Contact</button>
+      <button class="btn btn-primary" onclick="saveContact()">Log Contact</button>
     </div>
   </div>
 </div>
@@ -349,7 +460,9 @@ const SB_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqY296c2t5b3BldHZpZ2pobG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDU0MTQsImV4cCI6MjA5MjE4MTQxNH0.IXvvXIYdfFNaQSrnwmKvNJEOHLq9wq6NZfE0SUB5NfE';
 const HDR = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
 
-let allLeads = [], contactMap = {}, activeFilter = '', modalOppId = null, modalOppName = null;
+let allLeads = [], contactMap = {};
+let activeStateFilter = '', activeStatusFilter = '';
+let modalOppId = null, modalOppName = null;
 
 (async () => {
   await Promise.all([loadLeads(), loadAllContacts()]);
@@ -377,7 +490,9 @@ async function loadAllContacts() {
 }
 
 function render() {
-  const leads = activeFilter ? allLeads.filter(l => l.state === activeFilter) : allLeads;
+  let leads = allLeads;
+  if (activeStateFilter)  leads = leads.filter(l => l.state === activeStateFilter);
+  if (activeStatusFilter) leads = leads.filter(l => (l.status || 'pending') === activeStatusFilter);
   document.getElementById('lead-count').textContent = leads.length + ' lead' + (leads.length !== 1 ? 's' : '');
   const container = document.getElementById('list-container');
   if (!leads.length) {
@@ -387,6 +502,7 @@ function render() {
   container.innerHTML = leads.map(leadCard).join('');
 }
 
+/* ── Style helpers ── */
 function stateStyle(state) {
   const map = {
     noshow: { bg:'rgba(255,92,92,0.1)',  color:'#d63030', border:'rgba(255,92,92,0.3)',   label:'No Show' },
@@ -395,6 +511,17 @@ function stateStyle(state) {
     nosale: { bg:'rgba(150,100,0,0.08)', color:'#7a5000', border:'rgba(150,100,0,0.25)', label:'No Sale' },
   };
   return map[state] || { bg:'rgba(0,0,0,0.05)', color:'#6b7a8d', border:'rgba(0,0,0,0.12)', label: state || 'Unknown' };
+}
+
+function statusStyle(status) {
+  const map = {
+    pending:     { bg:'rgba(107,122,141,0.1)',  color:'#5a6a7d', border:'rgba(107,122,141,0.3)', label:'Pending' },
+    in_progress: { bg:'rgba(41,169,225,0.1)',   color:'#1580b0', border:'rgba(41,169,225,0.35)', label:'In Progress' },
+    reached:     { bg:'rgba(120,200,50,0.12)',  color:'#52961a', border:'rgba(120,200,50,0.35)', label:'Reached' },
+    resolved:    { bg:'rgba(120,200,50,0.2)',   color:'#3a7010', border:'rgba(120,200,50,0.5)',  label:'Resolved' },
+    do_not_call: { bg:'rgba(214,48,48,0.08)',   color:'#b02020', border:'rgba(214,48,48,0.3)',   label:'DNC' },
+  };
+  return map[status] || map['pending'];
 }
 
 function outcomeStyle(outcome) {
@@ -410,11 +537,33 @@ function fmtDatetime(iso) {
   catch { return iso; }
 }
 
+function fmtDate(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }); }
+  catch { return iso; }
+}
+
+/* ── Lead card ── */
 function leadCard(lead) {
   const ss = stateStyle(lead.state);
+  const st = statusStyle(lead.status || 'pending');
   const contacts = contactMap[lead.opportunity_id] || [];
   const latest = contacts[0] || null;
-  const phone = lead.dl_number || '';
+
+  // DL number -- link if we have a URL, otherwise plain text
+  let dlHtml = '';
+  if (lead.dl_number) {
+    if (lead.dl_url) {
+      dlHtml = `<a class="lead-dl-link" href="${lead.dl_url}" target="_blank" rel="noopener">${lead.dl_number} &#8599;</a>`;
+    } else {
+      dlHtml = `<span class="lead-dl-nolink">${lead.dl_number}</span>`;
+    }
+  }
+
+  // Stored phone (entered by rep)
+  const phoneHtml = lead.phone
+    ? `<div class="lead-phone">${lead.phone}</div>`
+    : '';
 
   let historyHtml = '';
   if (contacts.length) {
@@ -428,19 +577,21 @@ function leadCard(lead) {
   }
 
   const nextStep = latest?.next_step || '';
-  const safeId = (lead.opportunity_id || '').replace(/'/g, "\\'");
+  const safeId   = (lead.opportunity_id || '').replace(/'/g, "\\'");
   const safeName = (lead.opp_name || '').replace(/'/g, "\\'");
 
   return `<div class="lead-card" id="card-${lead.opportunity_id}">
     <div class="lead-card-top">
       <div style="min-width:0;flex:1;">
         <div class="lead-name">${lead.opp_name || 'Unknown'}</div>
-        ${phone ? `<a href="tel:${phone.replace(/\D/g,'')}" class="lead-phone">${phone}</a>` : ''}
-        <div class="lead-meta">${lead.address ? lead.address + '<br>' : ''}${lead.lead_source || ''}</div>
+        ${dlHtml}
+        ${phoneHtml}
+        <div class="lead-meta">${lead.address ? lead.address : ''}${lead.lead_source ? (lead.address ? '<br>' : '') + lead.lead_source : ''}</div>
       </div>
       <div style="text-align:right;flex-shrink:0;">
         <span class="state-badge" style="background:${ss.bg};color:${ss.color};border:1px solid ${ss.border};">${ss.label}</span>
-        ${contacts.length ? `<div style="margin-top:6px;font-size:11px;color:var(--muted);">${contacts.length} contact${contacts.length!==1?'s':''}</div>` : ''}
+        <div><span class="status-badge" style="background:${st.bg};color:${st.color};border:1px solid ${st.border};">${st.label}</span></div>
+        ${contacts.length ? `<div style="margin-top:5px;font-size:11px;color:var(--muted);">${contacts.length} contact${contacts.length!==1?'s':''}</div>` : ''}
       </div>
     </div>
     ${historyHtml}
@@ -451,40 +602,90 @@ function leadCard(lead) {
   </div>`;
 }
 
+/* ── Filter pills ── */
 document.querySelectorAll('.filter-pill').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+    const type = btn.dataset.filterType;
+    // Deactivate pills of same type
+    document.querySelectorAll(`.filter-pill[data-filter-type="${type}"]`).forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    activeFilter = btn.dataset.filter;
+    if (type === 'state')  activeStateFilter  = btn.dataset.filter;
+    if (type === 'status') activeStatusFilter = btn.dataset.filter;
     render();
   });
 });
 
+/* ── Modal open ── */
 function openModal(oppId, oppName) {
   modalOppId = oppId; modalOppName = oppName;
+  const lead = allLeads.find(l => l.opportunity_id === oppId);
+
+  // Header
   document.getElementById('modal-opp-name').textContent = oppName || 'Unknown';
 
-  // Populate lead details in modal header
-  const lead = allLeads.find(l => l.opportunity_id === oppId);
-  const phoneRow  = document.getElementById('modal-phone-row');
-  const phoneLink = document.getElementById('modal-phone-link');
-  const metaEl    = document.getElementById('modal-meta');
+  // DL link
+  const dlRow  = document.getElementById('modal-dl-row');
+  const dlLink = document.getElementById('modal-dl-link');
   if (lead && lead.dl_number) {
-    phoneLink.textContent = lead.dl_number;
-    phoneLink.href = `tel:${lead.dl_number.replace(/\D/g, '')}`;
-    phoneRow.style.display = 'block';
+    dlLink.textContent = lead.dl_number + (lead.dl_url ? ' ↗' : '');
+    if (lead.dl_url) {
+      dlLink.href = lead.dl_url;
+      dlLink.style.color = 'var(--accent)';
+    } else {
+      dlLink.removeAttribute('href');
+      dlLink.style.color = 'var(--muted)';
+    }
+    dlRow.style.display = 'block';
   } else {
-    phoneRow.style.display = 'none';
+    dlRow.style.display = 'none';
   }
+
+  // Meta (address, lead source, state badge)
+  const metaEl = document.getElementById('modal-meta');
   let metaHtml = '';
   if (lead?.address)     metaHtml += `<div>${lead.address}</div>`;
   if (lead?.lead_source) metaHtml += `<div>${lead.lead_source}</div>`;
   if (lead?.state) {
     const ss = stateStyle(lead.state);
-    metaHtml += `<div style="margin-top:5px;"><span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:4px;white-space:nowrap;background:${ss.bg};color:${ss.color};border:1px solid ${ss.border};">${ss.label}</span></div>`;
+    const st = statusStyle(lead.status || 'pending');
+    metaHtml += `<div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;">
+      <span class="state-badge" style="background:${ss.bg};color:${ss.color};border:1px solid ${ss.border};">${ss.label}</span>
+      <span class="status-badge" style="background:${st.bg};color:${st.color};border:1px solid ${st.border};">${st.label}</span>
+    </div>`;
   }
   metaEl.innerHTML = metaHtml;
 
+  // Pre-fill contact info fields
+  document.getElementById('cl-phone').value  = lead?.phone  || '';
+  document.getElementById('cl-email').value  = lead?.email  || '';
+  document.getElementById('cl-status').value = lead?.status || 'pending';
+  const btn = document.getElementById('save-info-btn');
+  btn.textContent = 'Save Info'; btn.classList.remove('saved');
+  document.getElementById('save-info-msg').style.display = 'none';
+
+  // Appointment context block
+  const apptInfo = document.getElementById('modal-appt-info');
+  const hasAppt  = lead && (lead.rep_name || lead.appt_setter || lead.appt_date || lead.outcome_notes || lead.sf_url);
+  if (hasAppt) {
+    const apptDate = lead.appt_date ? fmtDate(lead.appt_date) : '';
+    const sfLink   = lead.sf_url
+      ? `<a class="sf-link" href="${lead.sf_url}" target="_blank" rel="noopener">Open Opportunity in Salesforce &#8599;</a>`
+      : '';
+    let rows = '';
+    if (lead.rep_name)    rows += apptRowHtml('Rep',    lead.rep_name);
+    if (lead.appt_setter) rows += apptRowHtml('Setter', lead.appt_setter);
+    if (apptDate)         rows += apptRowHtml('Date',   apptDate);
+    if (lead.outcome_notes) rows += `<div class="appt-row"><div class="appt-row-label">Notes</div><div class="appt-row-value">${lead.outcome_notes}</div></div>`;
+    if (sfLink)           rows += `<div class="appt-row"><div class="appt-row-label">SF</div><div class="appt-row-value">${sfLink}</div></div>`;
+    apptInfo.style.display = 'block';
+    apptInfo.innerHTML = `<div class="modal-section-label">Last Appointment</div>
+      <div style="background:var(--entry-bg);border:1px solid var(--border);border-radius:8px;padding:4px 12px;">${rows}</div>`;
+  } else {
+    apptInfo.style.display = 'none';
+    apptInfo.innerHTML = '';
+  }
+
+  // Reset log form
   document.getElementById('modal-overlay').classList.add('open');
   const now = new Date(); now.setSeconds(0, 0);
   const pad = n => String(n).padStart(2, '0');
@@ -497,6 +698,10 @@ function openModal(oppId, oppName) {
   renderModalHistory();
 }
 
+function apptRowHtml(label, value) {
+  return `<div class="appt-row"><div class="appt-row-label">${label}</div><div class="appt-row-value">${value}</div></div>`;
+}
+
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   modalOppId = modalOppName = null;
@@ -506,8 +711,54 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 });
 
+/* ── Save lead contact info (phone, email, status) ── */
+async function saveLeadInfo() {
+  const phone  = document.getElementById('cl-phone').value.trim();
+  const email  = document.getElementById('cl-email').value.trim();
+  const status = document.getElementById('cl-status').value;
+  const btn    = document.getElementById('save-info-btn');
+  const msg    = document.getElementById('save-info-msg');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try {
+    const r = await fetch(
+      `${SB_URL}/rest/v1/call_list?opportunity_id=eq.${encodeURIComponent(modalOppId)}`,
+      { method: 'PATCH', headers: { ...HDR, 'Prefer': 'return=minimal' }, body: JSON.stringify({ phone, email, status }) }
+    );
+    if (r.ok) {
+      // Update local cache
+      const lead = allLeads.find(l => l.opportunity_id === modalOppId);
+      if (lead) { lead.phone = phone; lead.email = email; lead.status = status; }
+      btn.textContent = 'Saved'; btn.classList.add('saved');
+      msg.style.display = 'inline';
+      // Refresh the card badge
+      reRenderCard(modalOppId);
+      // Update modal header badges
+      const metaEl = document.getElementById('modal-meta');
+      const lead2 = allLeads.find(l => l.opportunity_id === modalOppId);
+      if (lead2?.state) {
+        const ss = stateStyle(lead2.state);
+        const st = statusStyle(lead2.status || 'pending');
+        const addrHtml = lead2.address ? `<div>${lead2.address}</div>` : '';
+        const srcHtml  = lead2.lead_source ? `<div>${lead2.lead_source}</div>` : '';
+        metaEl.innerHTML = addrHtml + srcHtml + `<div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;">
+          <span class="state-badge" style="background:${ss.bg};color:${ss.color};border:1px solid ${ss.border};">${ss.label}</span>
+          <span class="status-badge" style="background:${st.bg};color:${st.color};border:1px solid ${st.border};">${st.label}</span>
+        </div>`;
+      }
+    } else {
+      btn.textContent = 'Error'; btn.disabled = false;
+      console.error('saveLeadInfo failed', r.status);
+    }
+  } catch(e) {
+    btn.textContent = 'Error'; btn.disabled = false;
+    console.error('saveLeadInfo:', e);
+  }
+  setTimeout(() => { btn.textContent = 'Save Info'; btn.disabled = false; }, 3000);
+}
+
+/* ── Contact history in modal ── */
 function renderModalHistory() {
-  const hist = document.getElementById('modal-history');
+  const hist    = document.getElementById('modal-history');
   const entries = contactMap[modalOppId] || [];
   if (!entries.length) {
     hist.innerHTML = `<p style="font-size:13px;color:var(--muted);font-style:italic;margin-bottom:16px;">No contacts logged yet.</p>`;
@@ -529,7 +780,7 @@ function renderModalHistory() {
 }
 
 async function deleteEntry(entryId) {
-  if (!confirm('Delete this entry?')) return;
+  if (!confirm('Delete this contact entry?')) return;
   try {
     const r = await fetch(`${SB_URL}/rest/v1/contact_log?id=eq.${entryId}`, { method:'DELETE', headers: HDR });
     if (r.ok) {
@@ -540,6 +791,7 @@ async function deleteEntry(entryId) {
   } catch(err) { alert('Error: ' + err); }
 }
 
+/* ── Log new contact attempt ── */
 async function saveContact() {
   const outcomeEl = document.querySelector('input[name="outcome"]:checked');
   const contactedAt = document.getElementById('cl-contacted-at').value;
@@ -548,16 +800,16 @@ async function saveContact() {
   const body = {
     opportunity_id: modalOppId, opp_name: modalOppName, contacted_at: contactedAt,
     outcome: outcomeEl.value,
-    notes: document.getElementById('cl-notes').value.trim() || null,
-    next_step: document.getElementById('cl-next-step').value.trim() || null,
-    follow_up_date: document.getElementById('cl-follow-up-date').value || null,
+    notes:          document.getElementById('cl-notes').value.trim()         || null,
+    next_step:      document.getElementById('cl-next-step').value.trim()     || null,
+    follow_up_date: document.getElementById('cl-follow-up-date').value       || null,
   };
   try {
     const r = await fetch(`${SB_URL}/rest/v1/contact_log`, {
       method: 'POST', headers: { ...HDR, 'Prefer': 'return=representation' }, body: JSON.stringify(body),
     });
     if (r.ok) {
-      const rows = await r.json();
+      const rows     = await r.json();
       const newEntry = Array.isArray(rows) ? rows[0] : null;
       if (newEntry) {
         if (!contactMap[modalOppId]) contactMap[modalOppId] = [];
@@ -566,8 +818,8 @@ async function saveContact() {
       renderModalHistory();
       reRenderCard(modalOppId);
       document.querySelectorAll('input[name="outcome"]').forEach(r => { r.checked = r.value === 'Reached'; });
-      document.getElementById('cl-notes').value = '';
-      document.getElementById('cl-next-step').value = '';
+      document.getElementById('cl-notes').value       = '';
+      document.getElementById('cl-next-step').value   = '';
       document.getElementById('cl-follow-up-date').value = '';
     } else { alert('Save failed (status ' + r.status + ')'); }
   } catch(err) { alert('Error: ' + err); }
@@ -580,6 +832,7 @@ function reRenderCard(oppId) {
   if (el) el.outerHTML = leadCard(lead);
 }
 
+/* ── Theme ── */
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀' : '☽';
