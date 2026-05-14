@@ -535,8 +535,43 @@ footer {
 }
 footer a { color: var(--blue-dk); }
 </style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="/auth-gate.js"></script>
 </head>
 <body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
 
 <header class="site-header">
   <div class="page-header">
@@ -578,9 +613,9 @@ footer a { color: var(--blue-dk); }
 </footer>
 
 <script>
-const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Supabase client comes from /auth-gate.js as window.sb. Page no longer
+// creates its own -- two clients fight over the same session.
+const sb = window.sb;
 
 const TYPE_LABEL = {
   'announcement': 'Announcement',
@@ -970,8 +1005,13 @@ async function loadAndRender() {
   }
 }
 
-loadAndRender();
+// Invoked by /auth-gate.js after sign-in + role check pass.
+function initApp(profile, session) {
+  loadAndRender();
+}
 </script>
+
+</div><!-- /#appWrap -->
 
 </body>
 </html>

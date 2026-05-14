@@ -1069,9 +1069,44 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
   #qr-container canvas { width: 160px !important; height: 160px !important; }
 }
 </style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="/auth-gate.js"></script>
 </head>
 
 <body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Sales Roleplay</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
 
 <!-- Loading overlay -->
 <div class="loading-overlay" id="loading-overlay">
@@ -1290,7 +1325,8 @@ const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2'
 const EDGE_FN_URL = `${SUPABASE_URL}/functions/v1/generate-scenario`
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+// Supabase client comes from /auth-gate.js as window.sb. Don't create another.
+const sb = window.sb
 
 // ── STATE ─────────────────────────────────────────────────────
 let currentScenario = null
@@ -1929,8 +1965,14 @@ function showToast(msg) {
 }
 
 // ── INIT ──────────────────────────────────────────────────────
-initPillGroups()
-router()
+// Invoked by /auth-gate.js once the user is signed in and authorized.
+function initApp(profile, session) {
+  initPillGroups()
+  router()
+}
 </script>
+
+</div><!-- /#appWrap -->
+
 </body>
 </html>
