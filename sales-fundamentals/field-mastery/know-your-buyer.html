@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Know Your Buyer -- Sales Personality Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --navy:   #0b1220;
+    --navy2:  #131e30;
+    --navy3:  #1a2840;
+    --solar:  #f5a623;
+    --solar2: #ffc84a;
+    --green:  #2ecc71;
+    --red:    #e74c3c;
+    --blue:   #3498db;
+    --text:   #d8e4f0;
+    --muted:  #6b8aab;
+    --border: rgba(245,166,35,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0b1220 0%, #1a2840 50%, #0f1e35 100%);
+    border-bottom: 3px solid var(--solar);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(245,166,35,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--solar);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 8vw, 96px);
+    letter-spacing: 2px;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--solar); }
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto 32px;
+  }
+  .hero-tags {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .tag {
+    background: rgba(245,166,35,0.12);
+    border: 1px solid var(--border);
+    color: var(--solar);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 2px;
+  }
+
+  /* ── NAV ── */
+  .nav-bar {
+    background: var(--navy2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-bar a {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 16px;
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav-bar a:hover, .nav-bar a.active {
+    color: var(--solar);
+    border-bottom-color: var(--solar);
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 940px; margin: 0 auto; padding: 0 24px; }
+
+  section {
+    padding: 60px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--solar);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(32px, 5vw, 52px);
+    letter-spacing: 1px;
+    color: #fff;
+    margin-bottom: 16px;
+    line-height: 1.05;
+  }
+  .section-intro {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 680px;
+    margin-bottom: 40px;
+    border-left: 3px solid var(--solar);
+    padding-left: 16px;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--navy2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  /* ── PERSONALITY TYPE CARDS ── */
+  .personality-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  @media(max-width:640px){ .personality-grid { grid-template-columns: 1fr; } }
+
+  .p-card {
+    background: var(--navy2);
+    border-radius: 4px;
+    border-top: 4px solid;
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .p-card:hover { transform: translateY(-2px); }
+  .p-card::after {
+    content: attr(data-icon);
+    position: absolute;
+    right: 20px; top: 16px;
+    font-size: 36px;
+    opacity: 0.15;
+  }
+  .p-card.assertive { border-color: var(--red); }
+  .p-card.analytical { border-color: var(--blue); }
+  .p-card.amiable   { border-color: var(--green); }
+  .p-card.expressive { border-color: var(--solar); }
+
+  .p-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .assertive  .p-label { color: var(--red); }
+  .analytical .p-label { color: var(--blue); }
+  .amiable    .p-label { color: var(--green); }
+  .expressive .p-label { color: var(--solar); }
+
+  .p-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+  .p-desc { font-size: 13.5px; color: var(--muted); margin-bottom: 16px; }
+
+  .trait-list { list-style: none; }
+  .trait-list li {
+    font-size: 13px;
+    padding: 4px 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--text);
+  }
+  .trait-list li::before {
+    content: '--';
+    color: var(--solar);
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── SIGNALS ── */
+  .signals-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  .signals-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--solar);
+    text-align: left;
+    padding: 10px 14px;
+    background: rgba(245,166,35,0.06);
+    border-bottom: 1px solid var(--border);
+  }
+  .signals-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+  }
+  .signals-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .type-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+  .badge-a  { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+  .badge-an { background: rgba(52,152,219,0.15); color: #3498db; }
+  .badge-am { background: rgba(46,204,113,0.15); color: #2ecc71; }
+  .badge-ex { background: rgba(245,166,35,0.15); color: #f5a623; }
+
+  /* ── SCRIPT BLOCKS ── */
+  .script-block {
+    margin-bottom: 36px;
+  }
+  .script-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .script-type {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+  }
+  .script-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+
+  .script-box {
+    background: #0d1826;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-left: 4px solid;
+    border-radius: 0 4px 4px 0;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .script-box.assertive  { border-left-color: var(--red); }
+  .script-box.analytical { border-left-color: var(--blue); }
+  .script-box.amiable    { border-left-color: var(--green); }
+  .script-box.expressive { border-left-color: var(--solar); }
+
+  .script-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--solar);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .script-line {
+    font-size: 14px;
+    color: #c8daf0;
+    font-style: italic;
+    line-height: 1.75;
+  }
+  .script-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    font-style: normal;
+  }
+
+  /* ── DO / DONT ── */
+  .do-dont {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media(max-width:520px){ .do-dont { grid-template-columns: 1fr; } }
+
+  .do-box, .dont-box {
+    border-radius: 4px;
+    padding: 16px 20px;
+  }
+  .do-box {
+    background: rgba(46,204,113,0.07);
+    border: 1px solid rgba(46,204,113,0.2);
+  }
+  .dont-box {
+    background: rgba(231,76,60,0.07);
+    border: 1px solid rgba(231,76,60,0.2);
+  }
+  .do-dont-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .do-box .do-dont-label { color: var(--green); }
+  .dont-box .do-dont-label { color: var(--red); }
+  .do-dont ul { list-style: none; }
+  .do-dont li {
+    font-size: 13px;
+    padding: 3px 0;
+    display: flex;
+    gap: 8px;
+    color: var(--text);
+  }
+  .do-box li::before { content: '✓'; color: var(--green); font-weight: 700; }
+  .dont-box li::before { content: '✗'; color: var(--red); font-weight: 700; }
+
+  /* ── OBJECTION HANDLER ── */
+  .objection {
+    background: var(--navy2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .obj-question {
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    user-select: none;
+  }
+  .obj-question:hover { background: rgba(255,255,255,0.03); }
+  .obj-arrow {
+    color: var(--solar);
+    font-size: 16px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .objection.open .obj-arrow { transform: rotate(90deg); }
+  .obj-answer {
+    display: none;
+    padding: 0 20px 16px;
+  }
+  .objection.open .obj-answer { display: block; }
+  .obj-type-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .obj-response {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .obj-response strong { color: var(--text); }
+  .obj-script {
+    font-size: 13px;
+    color: #b8ccdf;
+    font-style: italic;
+    background: #0d1826;
+    padding: 10px 14px;
+    border-radius: 3px;
+    margin-top: 6px;
+    border-left: 3px solid var(--solar);
+  }
+
+  /* ── ROLEPLAY ── */
+  .roleplay-card {
+    background: var(--navy2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 4px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .roleplay-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--solar);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .roleplay-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: #fff;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .roleplay-setup {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: rgba(245,166,35,0.05);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+  .roleplay-setup strong { color: var(--solar); }
+  .dialogue { margin-top: 12px; }
+  .dialogue-line {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .speaker {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .speaker.buyer  { background: rgba(255,255,255,0.08); color: var(--text); }
+  .speaker.rep    { background: rgba(245,166,35,0.15);  color: var(--solar); }
+  .dialogue-text { font-size: 13.5px; color: var(--text); }
+  .dialogue-note {
+    font-size: 12px;
+    color: var(--muted);
+    font-style: italic;
+    display: block;
+    margin-top: 3px;
+  }
+
+  /* ── CHEAT SHEET ── */
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media(max-width:600px){ .cheat-grid { grid-template-columns: 1fr; } }
+  .cheat-card {
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+  .cheat-header {
+    padding: 12px 18px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+  .cheat-card.assertive  .cheat-header { background: rgba(231,76,60,0.15);  color: #e74c3c; }
+  .cheat-card.analytical .cheat-header { background: rgba(52,152,219,0.15); color: #3498db; }
+  .cheat-card.amiable    .cheat-header { background: rgba(46,204,113,0.15); color: #2ecc71; }
+  .cheat-card.expressive .cheat-header { background: rgba(245,166,35,0.15); color: #f5a623; }
+  .cheat-body {
+    background: var(--navy2);
+    padding: 14px 18px;
+  }
+  .cheat-row {
+    display: flex;
+    gap: 8px;
+    font-size: 12.5px;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  .cheat-row:last-child { border-bottom: none; }
+  .cheat-key {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--solar);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    width: 60px;
+    margin-top: 2px;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: rgba(245,166,35,0.08);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin: 24px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .callout-text { font-size: 14px; color: var(--text); line-height: 1.65; }
+  .callout-text strong { color: var(--solar); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 32px 0;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--navy2);
+    border-top: 1px solid var(--border);
+    padding: 32px 24px;
+    text-align: center;
+  }
+  .footer p {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    .nav-bar { display: none; }
+    section { page-break-inside: avoid; }
+    body { background: #fff; color: #000; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+  <div class="hero-eyebrow">Sales Training Program</div>
+  <h1>Know Your <span>Buyer</span></h1>
+  <p class="hero-sub">Selling to personality types in solar, roofing, and battery storage. Read them fast. Adapt your pitch. Close the deal.</p>
+  <p class="hero-sub" style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--solar);margin-top:18px;margin-bottom:0">DISC &nbsp;|&nbsp; Dominance &middot; Influence &middot; Steadiness &middot; Conscientiousness</p>
+  <div class="hero-tags">
+    <span class="tag">Solar</span>
+    <span class="tag">Roofing</span>
+    <span class="tag">Battery Storage</span>
+    <span class="tag">D2D & Appointment</span>
+  </div>
+</div>
+
+<!-- ══ NAV ══ -->
+<nav class="nav-bar">
+  <a href="#why">Why It Matters</a>
+  <a href="#types">The 4 Types</a>
+  <a href="#knowthyself">Know Thyself</a>
+  <a href="#signals">Read the Room</a>
+  <a href="#scripts">Scripts</a>
+  <a href="#objections">Objections</a>
+  <a href="#roleplay">Roleplay</a>
+  <a href="#cheatsheet">Cheat Sheet</a>
+</nav>
+
+<!-- ══════════════════════════════════ -->
+<!-- SECTION 1: WHY IT MATTERS         -->
+<!-- ══════════════════════════════════ -->
+<section id="why">
+<div class="container">
+  <div class="section-num">Section 01</div>
+  <h2 class="section-title">Why Personality Matters<br>in Home Services Sales</h2>
+  <p class="section-intro">Most reps pitch the same way to every prospect. That's the fastest way to lose three out of four buyers before the conversation has even started.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">The Core Problem</div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.75">
+      Two homeowners. Same neighborhood. Same electric bill. Same roofline. You knock both doors and give the same pitch. One signs. One shuts the door. The product is identical. The communication is the difference. Solar, roofing, and battery storage are big decisions with long time horizons, and buyers process them in fundamentally different ways. A data-driven engineer and a community-minded parent are not motivated by the same thing. If you can't adapt, you lose deals you should be winning.
+    </p>
+  </div>
+
+  <div class="callout">
+    <div class="callout-icon">⚡</div>
+    <div class="callout-text"><strong>Why this matters:</strong> Reps who match their approach to the buyer's personality close at meaningfully higher rates than reps who run one pitch for everyone. In a category where the average ticket runs $15,000 to $50,000, the gap is real money on every appointment.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">The Platinum Rule</div>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:12px">
+      The Golden Rule says treat others the way you want to be treated. In sales, that's how you lose deals.
+    </p>
+    <p style="color:var(--text);font-size:15px;font-style:italic;border-left:3px solid var(--solar);padding-left:16px;">
+      "Treat others the way <em>they</em> want to be treated."<br>
+      <span style="font-size:13px;color:var(--muted);font-style:normal">-- The Platinum Rule</span>
+    </p>
+    <p style="color:var(--muted);font-size:14px;margin-top:12px">
+      If you're naturally assertive and direct, you'll kill the rapport-first buyer by leading with ROI before they trust you. If you're naturally empathetic, you'll bore the decisive driver who just wants the bottom line. The work is straightforward. Shut off your default. Switch into theirs.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">What This Training Covers</div>
+    <ul class="trait-list" style="margin-top:8px">
+      <li>The four core buyer personality types and what drives them</li>
+      <li>How to identify which type you're talking to within the first 5 minutes</li>
+      <li>Word-for-word opening, discovery, and closing scripts for each type in solar, roofing, and battery contexts</li>
+      <li>How to handle objections differently depending on personality</li>
+      <li>Roleplay scenarios with annotated coaching notes</li>
+      <li>A one-page field cheat sheet you can reference before every appointment</li>
+    </ul>
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════ -->
+<!-- SECTION 2: THE FOUR TYPES         -->
+<!-- ══════════════════════════════════ -->
+<section id="types">
+<div class="container">
+  <div class="section-num">Section 02</div>
+  <h2 class="section-title">The Four Buyer Types</h2>
+  <p class="section-intro">Four types, one framework. Behavioral psychology calls it DISC, short for Dominance, Influence, Steadiness, and Conscientiousness. Sales trainers usually call the same four people Driver, Expressive, Amiable, and Analytical. Same buyers, different labels. This training uses both, so it lines up with the Roleplay app and with any DISC material you've seen before. No one is purely one type. Everyone has a dominant mode, and that's the one you need to read.</p>
+
+  <div class="card" style="margin-bottom:32px">
+    <div class="card-title" style="color:var(--solar)">DISC at a Glance</div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:18px">Each DISC letter names a behavior tendency. Each tendency lines up with the Social Styles name you'll see in the Roleplay app, and with the nickname this training uses.</p>
+
+    <div style="display:grid;grid-template-columns:48px 1fr;gap:14px 16px;align-items:baseline">
+
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--red);line-height:1">D</div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:2px">Dominance</div>
+        <div style="color:var(--text);font-size:14px"><strong>The Driver</strong> &middot; <span style="color:var(--muted)">"Driver" in the Roleplay app</span></div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px">Decisive. Direct. Wants the bottom line.</div>
+      </div>
+
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--solar);line-height:1">I</div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--solar);text-transform:uppercase;margin-bottom:2px">Influence</div>
+        <div style="color:var(--text);font-size:14px"><strong>The Visionary</strong> &middot; <span style="color:var(--muted)">"Expressive" in the Roleplay app</span></div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px">Energetic. Big-picture. Lives in the story.</div>
+      </div>
+
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green);line-height:1">S</div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--green);text-transform:uppercase;margin-bottom:2px">Steadiness</div>
+        <div style="color:var(--text);font-size:14px"><strong>The Connector</strong> &middot; <span style="color:var(--muted)">"Amiable" in the Roleplay app</span></div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px">Relationship-first. Patient. Needs to feel safe.</div>
+      </div>
+
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--blue);line-height:1">C</div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--blue);text-transform:uppercase;margin-bottom:2px">Conscientiousness</div>
+        <div style="color:var(--text);font-size:14px"><strong>The Researcher</strong> &middot; <span style="color:var(--muted)">"Analytical" in the Roleplay app</span></div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px">Data-driven. Methodical. Wants proof.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="personality-grid">
+
+    <!-- ASSERTIVE -->
+    <div class="p-card assertive" data-icon="🎯">
+      <div class="p-label">D &middot; Dominance</div>
+      <div class="p-name">The Driver</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">"Driver" in the Roleplay app</div>
+      <div class="p-desc">Goal-oriented, decisive, competitive. Cares about results. Doesn't need to like you. Just needs to trust that you'll deliver.</div>
+      <ul class="trait-list">
+        <li>Speaks in statements, not questions</li>
+        <li>Impatient with small talk or buildup</li>
+        <li>Wants the bottom line upfront</li>
+        <li>Sees themselves as a leader or winner</li>
+        <li>Responds to competition and outcomes</li>
+        <li>Gets frustrated by wishy-washy answers</li>
+      </ul>
+    </div>
+
+    <!-- ANALYTICAL -->
+    <div class="p-card analytical" data-icon="📊">
+      <div class="p-label">C &middot; Conscientiousness</div>
+      <div class="p-name">The Researcher</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">"Analytical" in the Roleplay app</div>
+      <div class="p-desc">Data-driven, cautious, thorough. Has probably already researched your product before you showed up. Needs facts, not feelings.</div>
+      <ul class="trait-list">
+        <li>Asks detailed, specific questions</li>
+        <li>Slow, methodical decision-making process</li>
+        <li>Skeptical of hype or big claims</li>
+        <li>Already did their homework</li>
+        <li>Needs proof, not promises</li>
+        <li>Uncomfortable with pressure</li>
+      </ul>
+    </div>
+
+    <!-- AMIABLE -->
+    <div class="p-card amiable" data-icon="🤝">
+      <div class="p-label">S &middot; Steadiness</div>
+      <div class="p-name">The Connector</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">"Amiable" in the Roleplay app</div>
+      <div class="p-desc">Relationship-first. Won't buy until they trust you as a person. Warm and patient. Slow to commit without confidence.</div>
+      <ul class="trait-list">
+        <li>Asks personal questions, not just product ones</li>
+        <li>Warm, conversational tone</li>
+        <li>Doesn't like conflict or pressure</li>
+        <li>Needs to feel safe before signing</li>
+        <li>Often needs to "check with spouse"</li>
+        <li>Motivated by community and peace of mind</li>
+      </ul>
+    </div>
+
+    <!-- EXPRESSIVE -->
+    <div class="p-card expressive" data-icon="🌟">
+      <div class="p-label">I &middot; Influence</div>
+      <div class="p-name">The Visionary</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">"Expressive" in the Roleplay app</div>
+      <div class="p-desc">Enthusiastic, big-picture, relationship-oriented. Gets excited fast. Bored by specs. Needs the story and the vision.</div>
+      <ul class="trait-list">
+        <li>Animated, high-energy in conversation</li>
+        <li>Jumps around topics quickly</li>
+        <li>Wants to feel like they're getting something special</li>
+        <li>Responds to enthusiasm and storytelling</li>
+        <li>Can make fast decisions when excited</li>
+        <li>May lose interest if it becomes transactional</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="callout">
+    <div class="callout-icon">📌</div>
+    <div class="callout-text"><strong>Trainer note:</strong> Pause here and ask the team, "Which type are you?" Most salespeople default to selling the way they buy. Knowing your own type helps you catch the moment you're sliding into your comfort zone instead of adapting to the buyer.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">How Types Show Up at the Door</div>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:16px">The same patterns that show up in corporate B2B sales show up on your appointments. Here's the translation:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <p style="font-size:12px;font-family:'DM Mono',monospace;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">D &middot; The Driver</p>
+        <p style="font-size:13px;color:var(--muted)">The landlord with multiple properties. The business owner. The homeowner who opens the door and asks "what does it cost?" before you've said three words.</p>
+      </div>
+      <div>
+        <p style="font-size:12px;font-family:'DM Mono',monospace;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">C &middot; The Researcher</p>
+        <p style="font-size:13px;color:var(--muted)">The engineer or accountant who meets you with a printout of competitor quotes. They've been on EnergySage for two weeks. They want your spec sheets.</p>
+      </div>
+      <div>
+        <p style="font-size:12px;font-family:'DM Mono',monospace;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">S &middot; The Connector</p>
+        <p style="font-size:13px;color:var(--muted)">The homeowner who offers you water, asks how your day is going, and tells you about the neighbor who just went solar. Won't sign without their partner in the room.</p>
+      </div>
+      <div>
+        <p style="font-size:12px;font-family:'DM Mono',monospace;color:var(--solar);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">I &middot; The Visionary</p>
+        <p style="font-size:13px;color:var(--muted)">The homeowner who lights up the moment you mention energy independence or sticking it to the utility company. They're in. They'll stay in, until you slow them down with a 40-slide proposal.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════ -->
+<!-- SECTION 3: KNOW THYSELF           -->
+<!-- ══════════════════════════════════ -->
+<section id="knowthyself">
+<div class="container">
+  <div class="section-num">Section 03</div>
+  <h2 class="section-title">Know Thyself</h2>
+  <p class="section-intro">Before you can adapt to someone else's personality, you have to understand your own. Your natural style isn't just a preference. It's a lens that shapes every conversation you're in, whether you notice or not.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">Your Default Mode Is Always Running</div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.75;margin-bottom:12px">
+      Every rep has a default style. It's the mode they slip into automatically, especially under pressure or when they stop paying attention. That default almost always mirrors their own personality type. The Driver rushes to the close. The Analytical over-explains the specs. The Amiable builds so much rapport they never actually ask for the sale. The Expressive keeps the energy so high the buyer never gets space to commit.
+    </p>
+    <p style="color:var(--muted);font-size:14px;line-height:1.75">
+      Here's the trap. Your default works great on buyers who share your type. It feels like you're crushing it. What's actually happening is you're closing the quarter of the market that thinks like you, and fumbling the other three quarters.
+    </p>
+  </div>
+
+  <div class="callout">
+    <div class="callout-icon">🪞</div>
+    <div class="callout-text"><strong>The mirror problem.</strong> Most reps don't know they're doing this. They genuinely believe their pitch is good, because sometimes it is. The issue is they're unconsciously sorting their leads. They follow up with the people who responded to their style and quietly give up on the ones who didn't. Self-awareness is what breaks the cycle.</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#fff;margin-bottom:8px">The Four Rep Types and Their Blind Spots</h3>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:28px">Each type brings a real strength to a sales role. Each also carries a shadow, a pattern that undercuts performance when it goes unchecked.</p>
+
+  <div class="personality-grid">
+
+    <div class="p-card assertive" data-icon="🎯">
+      <div class="p-label">D &middot; The Driver Rep</div>
+      <div class="p-name">Strength: Momentum</div>
+      <div class="p-desc">Drives conversations forward. Closes with confidence. Doesn't fear rejection. Buyers who want a decisive expert love working with this rep.</div>
+      <ul class="trait-list">
+        <li><strong style="color:var(--text)">Blind spot:</strong> Runs over the Amiable and Analytical buyer. Pushes when they need to pause. Reads hesitation as a problem to overcome instead of a signal to slow down.</li>
+        <li><strong style="color:var(--text)">Watch for:</strong> Talking more than listening. Answering objections before they're fully stated. Filling silence the buyer needed to think.</li>
+        <li><strong style="color:var(--text)">The fix:</strong> Build in deliberate pauses. Ask one question and stay quiet until the buyer is completely finished.</li>
+      </ul>
+    </div>
+
+    <div class="p-card analytical" data-icon="📊">
+      <div class="p-label">C &middot; The Researcher Rep</div>
+      <div class="p-name">Strength: Credibility</div>
+      <div class="p-desc">Knows the product cold. Earns trust through detail and accuracy. Handles technical objections without breaking stride. Buyers who want certainty feel safe with this rep.</div>
+      <ul class="trait-list">
+        <li><strong style="color:var(--text)">Blind spot:</strong> Over-prepares and under-closes. Gives the Expressive and Driver buyer more information than they want, and loses them in the specs.</li>
+        <li><strong style="color:var(--text)">Watch for:</strong> Presenting when it's time to close. Treating every question as a request for more data. Avoiding the ask because it feels pushy.</li>
+        <li><strong style="color:var(--text)">The fix:</strong> Cap how long the pitch runs. Close after the third positive signal, not after the full presentation.</li>
+      </ul>
+    </div>
+
+    <div class="p-card amiable" data-icon="🤝">
+      <div class="p-label">S &middot; The Connector Rep</div>
+      <div class="p-name">Strength: Trust</div>
+      <div class="p-desc">Builds rapport fast and genuinely. Buyers feel heard and safe. Especially strong in referral and repeat business, because people enjoy working with this rep.</div>
+      <ul class="trait-list">
+        <li><strong style="color:var(--text)">Blind spot:</strong> Avoids the close to preserve the relationship. Prioritizes being liked over being effective. Loses the Driver buyer who reads warmth as weakness.</li>
+        <li><strong style="color:var(--text)">Watch for:</strong> Conversations that feel great but don't advance. Asks softened to the point where they aren't really asks. Accepting "I'll think about it" with no follow-up plan.</li>
+        <li><strong style="color:var(--text)">The fix:</strong> Asking for the sale isn't conflict. It's service. A buyer who wants the product and doesn't get there is not well-served by a rep who didn't push.</li>
+      </ul>
+    </div>
+
+    <div class="p-card expressive" data-icon="🌟">
+      <div class="p-label">I &middot; The Visionary Rep</div>
+      <div class="p-name">Strength: Energy</div>
+      <div class="p-desc">Infectious enthusiasm that pulls buyers along. Creates excitement and momentum naturally. Thrives in high-volume D2D where energy is everything.</div>
+      <ul class="trait-list">
+        <li><strong style="color:var(--text)">Blind spot:</strong> Scares off the Analytical and overwhelms the Amiable. Comes across as overselling. Talks past the close when the buyer is already there.</li>
+        <li><strong style="color:var(--text)">Watch for:</strong> Pitching when the buyer has already decided. Injecting excitement into a moment that calls for quiet confidence. Making the conversation about themselves.</li>
+        <li><strong style="color:var(--text)">The fix:</strong> Read buying signals. A buyer who goes quiet and nods is usually ready. Stop pitching the moment you see it.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#fff;margin-bottom:8px">Why Self-Awareness Is the Foundation</h3>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Knowing your type isn't about excusing your defaults. It's about creating enough distance between stimulus and response that you can choose your behavior instead of just reacting.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">The Gap Between Stimulus and Response</div>
+    <p style="color:var(--muted);font-size:14px;line-height:1.75;margin-bottom:12px">
+      Viktor Frankl, writing from his experience in the Nazi concentration camps, named one of the most cited principles in behavioral psychology. Between stimulus and response, there is a space. In that space lies our freedom and our ability to choose our response.
+    </p>
+    <p style="color:var(--muted);font-size:14px;line-height:1.75;margin-bottom:12px">
+      In sales, that space is where adaptation happens. An unskilled rep hears "I need to think about it" and immediately fires a closing counter. That's a reflex, not a choice. A self-aware rep hears the same line and asks: who is this person, what do they actually need right now, and what's the best response for them?
+    </p>
+    <p style="color:var(--text);font-size:15px;font-style:italic;border-left:3px solid var(--solar);padding-left:16px;">
+      You can't adapt to someone else's style until you're no longer on autopilot with your own.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">How Awareness Translates to Performance</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:4px">
+      <div>
+        <p style="font-size:12px;font-family:'DM Mono',monospace;color:var(--solar);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Without Self-Awareness</p>
+        <ul class="trait-list">
+          <li>You pitch the same way to everyone</li>
+          <li>You explain lost deals by blaming the buyer</li>
+          <li>Your close rate runs in streaks and droughts</li>
+          <li>You follow up selectively without realizing it</li>
+          <li>You improve slowly, because you can't see the pattern</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:12px;font-family:'DM Mono',monospace;color:var(--solar);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">With Self-Awareness</p>
+        <ul class="trait-list">
+          <li>You catch your default activating and redirect</li>
+          <li>You diagnose communication misfires in real time</li>
+          <li>Your close rate evens out across buyer types</li>
+          <li>You recover mid-conversation instead of post-mortem</li>
+          <li>Every lost deal teaches you something specific</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h3 style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:#fff;margin-bottom:8px">The Self-Assessment Exercise</h3>
+  <p style="color:var(--muted);font-size:14px;margin-bottom:24px">Run this with the team before moving to Section 04. Each rep answers honestly. There are no right or wrong answers.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">10 Questions to Find Your Default</div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px">For each question, pick the answer that best reflects what you naturally do, not what you think you should do.</p>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+
+      <div style="background:#0d1826;border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:16px 20px">
+        <p style="font-size:13.5px;color:var(--text);margin-bottom:8px"><strong>1.</strong> A prospect answers the door looking impatient. Your first instinct is to:</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--red);font-family:'DM Mono',monospace;font-size:11px">A</span> -- Cut straight to the value proposition, no warmup.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--blue);font-family:'DM Mono',monospace;font-size:11px">B</span> -- Ask what they already know so you can tailor the info.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--green);font-family:'DM Mono',monospace;font-size:11px">C</span> -- Try to warm them up with a genuine compliment or question first.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--solar);font-family:'DM Mono',monospace;font-size:11px">D</span> -- Lead with something surprising or unexpected to shift the energy.</li>
+        </ul>
+      </div>
+
+      <div style="background:#0d1826;border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:16px 20px">
+        <p style="font-size:13.5px;color:var(--text);margin-bottom:8px"><strong>2.</strong> A prospect asks a technical question you don't know the answer to. You:</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--red);font-family:'DM Mono',monospace;font-size:11px">A</span> -- Give your best confident answer and follow up later if needed.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--blue);font-family:'DM Mono',monospace;font-size:11px">B</span> -- Tell them honestly and commit to getting the exact answer before follow-up.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--green);font-family:'DM Mono',monospace;font-size:11px">C</span> -- Redirect to what you do know and apologize that you'll have to check.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--solar);font-family:'DM Mono',monospace;font-size:11px">D</span> -- Pivot to a story about a similar situation and keep the energy going.</li>
+        </ul>
+      </div>
+
+      <div style="background:#0d1826;border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:16px 20px">
+        <p style="font-size:13.5px;color:var(--text);margin-bottom:8px"><strong>3.</strong> After a great 45-minute conversation, the prospect says "I'll think about it." You:</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--red);font-family:'DM Mono',monospace;font-size:11px">A</span> -- Ask directly what's holding them back and try to close before you leave.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--blue);font-family:'DM Mono',monospace;font-size:11px">B</span> -- Leave a detailed proposal and schedule a specific follow-up call.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--green);font-family:'DM Mono',monospace;font-size:11px">C</span> -- Thank them, say you'll check back, and feel relieved you didn't push.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--solar);font-family:'DM Mono',monospace;font-size:11px">D</span> -- Re-energize the vision one more time, then ask what it would take to move today.</li>
+        </ul>
+      </div>
+
+      <div style="background:#0d1826;border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:16px 20px">
+        <p style="font-size:13.5px;color:var(--text);margin-bottom:8px"><strong>4.</strong> You're in a slump. Your instinct to break out of it is to:</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--red);font-family:'DM Mono',monospace;font-size:11px">A</span> -- Hit more doors, more calls. Volume fixes slumps.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--blue);font-family:'DM Mono',monospace;font-size:11px">B</span> -- Review your lost deals and look for a pattern in what went wrong.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--green);font-family:'DM Mono',monospace;font-size:11px">C</span> -- Call past customers to reconnect and rebuild your confidence.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--solar);font-family:'DM Mono',monospace;font-size:11px">D</span> -- Find a hype playlist, reset the mindset, go out and make something happen.</li>
+        </ul>
+      </div>
+
+      <div style="background:#0d1826;border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:16px 20px">
+        <p style="font-size:13.5px;color:var(--text);margin-bottom:8px"><strong>5.</strong> A prospect shares a long personal story unrelated to solar. You:</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:4px">
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--red);font-family:'DM Mono',monospace;font-size:11px">A</span> -- Listen politely but look for the first moment to redirect to business.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--blue);font-family:'DM Mono',monospace;font-size:11px">B</span> -- Listen and try to find any useful information embedded in the story.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--green);font-family:'DM Mono',monospace;font-size:11px">C</span> -- Lean in, ask follow-up questions. This is how trust gets built.</li>
+          <li style="font-size:13px;color:var(--muted)"><span style="color:var(--solar);font-family:'DM Mono',monospace;font-size:11px">D</span> -- Connect it to your own story and match the energy of the conversation.</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px;padding:16px 20px;background:rgba(245,166,35,0.06);border:1px solid var(--border);border-radius:4px">
+      <p style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--solar);text-transform:uppercase;margin-bottom:8px">Scoring</p>
+      <p style="font-size:13px;color:var(--muted)">Mostly <strong style="color:var(--red)">A</strong> = D / Driver rep. Mostly <strong style="color:var(--blue)">B</strong> = C / Researcher rep. Mostly <strong style="color:var(--green)">C</strong> = S / Connector rep. Mostly <strong style="color:var(--solar)">D</strong> = I / Visionary rep. A mix is normal. Note your top two, and treat the dominant one as your default. That's the mode you'll slip into when you're not paying attention.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">The Three Shifts That Change Everything</div>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Self-awareness isn't passive. It has to trigger concrete behavior changes. These are the three shifts reps need to internalize before the skill becomes real.</p>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;gap:16px;align-items:flex-start">
+        <div style="background:rgba(245,166,35,0.15);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--solar)">1</div>
+        <div>
+          <p style="font-size:14px;color:#fff;font-weight:500;margin-bottom:4px">From "What do I want to say?" to "What does this person need to hear?"</p>
+          <p style="font-size:13px;color:var(--muted)">Most reps plan their pitch. Great reps plan their listening. The question isn't "how do I present this?" It's "who am I about to talk to, and how do they make decisions?"</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start">
+        <div style="background:rgba(245,166,35,0.15);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--solar)">2</div>
+        <div>
+          <p style="font-size:14px;color:#fff;font-weight:500;margin-bottom:4px">From "They're being difficult" to "I'm speaking the wrong language."</p>
+          <p style="font-size:13px;color:var(--muted)">Resistance is almost never about the product. It's usually about a communication mismatch. When a conversation stalls, the self-aware rep asks: am I pitching to myself right now? Then they adjust.</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:flex-start">
+        <div style="background:rgba(245,166,35,0.15);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--solar)">3</div>
+        <div>
+          <p style="font-size:14px;color:#fff;font-weight:500;margin-bottom:4px">From reviewing outcomes to reviewing behaviors.</p>
+          <p style="font-size:13px;color:var(--muted)">Most reps debrief by asking "did I close?" The self-aware rep asks "did I read them correctly? Did I adapt? Where did I default?" The outcome is a lagging indicator. The behavior is what you can actually change.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-text"><strong>Trainer exercise:</strong> After scoring the self-assessment, pair reps with someone whose dominant type is different from their own. Have them each describe how they personally would want to be sold a $25,000 solar system. The contrast is usually immediate, and it makes the Platinum Rule concrete instead of theoretical.</div>
+  </div>
+
+</div>
+</section>
+
+<!-- ══════════════════════════════════ -->
+<!-- SECTION 4: READ THE ROOM          -->
+<!-- ══════════════════════════════════ -->
+<section id="signals">
+<div class="container">
+  <div class="section-num">Section 04</div>
+  <h2 class="section-title">Read the Room in 5 Minutes</h2>
+  <p class="section-intro">You don't have 30 minutes to figure out who you're talking to. These are the signals to watch and listen for from the moment the door opens or the call starts.</p>
+
+  <div class="callout">
+    <div class="callout-icon">🔑</div>
+    <div class="callout-text"><strong>The 3 diagnostic questions.</strong> Early in any interaction, work these in naturally:<br>
+    1. "Have you looked into solar/roofing/batteries before?"<br>
+    2. "What's most important to you in making a decision like this?"<br>
+    3. "Who else would be involved in a decision like this?"<br><br>
+    Their answers, and <em>how</em> they answer, tell you almost everything.</div>
+  </div>
+
+  <table class="signals-table">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>They Say…</th>
+        <th>They Do…</th>
+        <th>They Ask…</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="type-badge badge-a">D &middot; Driver</span></td>
+        <td style="font-size:13px;color:var(--muted)">"Just give me the short version." / "I've heard this before. What makes you different?"</td>
+        <td style="font-size:13px;color:var(--muted)">Crosses arms, checks watch, stands rather than invites you in</td>
+        <td style="font-size:13px;color:var(--muted)">"What's the payback period?" / "Who else are you working with in the area?"</td>
+      </tr>
+      <tr>
+        <td><span class="type-badge badge-an">C &middot; Analytical</span></td>
+        <td style="font-size:13px;color:var(--muted)">"I've been researching this." / "I have a quote from [competitor]. How do you compare?"</td>
+        <td style="font-size:13px;color:var(--muted)">Takes notes, may pull out a document, asks follow-up questions that build on each answer</td>
+        <td style="font-size:13px;color:var(--muted)">"What panel brand do you use, and what's the degradation rate?" / "Can I see the warranty terms?"</td>
+      </tr>
+      <tr>
+        <td><span class="type-badge badge-am">S &middot; Amiable</span></td>
+        <td style="font-size:13px;color:var(--muted)">"My neighbor just did this. Do you know them?" / "Can I get you something to drink?"</td>
+        <td style="font-size:13px;color:var(--muted)">Makes eye contact, smiles, invites you inside, introduces you to their spouse or family</td>
+        <td style="font-size:13px;color:var(--muted)">"How long has your company been around?" / "Do you have any customers I could talk to?"</td>
+      </tr>
+      <tr>
+        <td><span class="type-badge badge-ex">I &middot; Expressive</span></td>
+        <td style="font-size:13px;color:var(--muted)">"I've been wanting to do this!" / "My brother-in-law has panels and loves it."</td>
+        <td style="font-size:13px;color:var(--muted)">Talks fast, jumps topics, gestures, finishes your sentences, brings up unrelated stories</td>
+        <td style="font-size:13px;color:var(--muted)">"Is this the newest technology?" / "So we'd basically be energy independent?"</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">Body Language Quick-Reference</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-top:12px">
+      <div>
+        <p style="font-size:11px;font-family:'DM Mono',monospace;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">D &middot; Driver</p>
+        <ul class="trait-list">
+          <li>Firm, fast handshake</li>
+          <li>Direct eye contact</li>
+          <li>Forward lean or standing posture</li>
+          <li>Keeps physical distance, respects space</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:11px;font-family:'DM Mono',monospace;color:var(--blue);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">C &middot; Analytical</p>
+        <ul class="trait-list">
+          <li>Reserved body language</li>
+          <li>Looks down or sideways when thinking</li>
+          <li>Speaks slowly and deliberately</li>
+          <li>May not maintain steady eye contact</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:11px;font-family:'DM Mono',monospace;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">S &middot; Amiable</p>
+        <ul class="trait-list">
+          <li>Soft handshake, warm smile</li>
+          <li>Relaxed, open posture</li>
+          <li>Nods while you talk</li>
+          <li>Invites you further into their space</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:11px;font-family:'DM Mono',monospace;color:var(--solar);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">I &middot; Expressive</p>
+        <ul class="trait-list">
+          <li>Animated gestures</li>
+          <li>Leans in when excited</li>
+          <li>Speaks loudly and quickly</li>
+          <li>Lots of facial expressions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════ -->
+<!-- SECTION 5: SCRIPTS                -->
+<!-- ══════════════════════════════════ -->
+<section id="scripts">
+<div class="container">
+  <div class="section-num">Section 05</div>
+  <h2 class="section-title">Word-for-Word Scripts</h2>
+  <p class="section-intro">These are adaptable scripts, not rigid lines. Practice the intent behind each phrase (why it works for that personality) and you'll be able to improvise within the framework.</p>
+
+  <!-- ── DRIVER ── -->
+  <div class="script-block">
+    <div class="script-header">
+      <span class="script-type" style="color:var(--red)">D &middot; Dominance &middot; The Driver</span>
+      <span class="script-tag" style="background:rgba(231,76,60,0.15);color:var(--red)">Get to the Point</span>
+    </div>
+
+    <div class="script-box assertive">
+      <div class="script-label">Door Knock / Cold Open</div>
+      <div class="script-line">"Hi, I'll keep this quick. I'm [Name] with [Company]. We're working with homeowners in this area to cut energy costs and protect against rate increases. Based on your roof's exposure, you may qualify for a pretty significant payback. Two minutes to check. Worth it?"</div>
+      <div class="script-note">Why it works: respects their time, leads with outcomes (cut costs, protect against rates), asks a yes/no close immediately. No fluff.</div>
+    </div>
+
+    <div class="script-box assertive">
+      <div class="script-label">Discovery</div>
+      <div class="script-line">"Before I show you anything, quick question. What's your biggest frustration with your current energy situation? Rate increases? Reliability? I want to make sure what I put in front of you is actually relevant."</div>
+      <div class="script-note">Why it works: Drivers respect efficiency. Asking before presenting tells them you're not wasting their time with a generic pitch.</div>
+    </div>
+
+    <div class="script-box assertive">
+      <div class="script-label">Solar Pitch Anchor</div>
+      <div class="script-line">"Based on what I'm seeing, a system like this puts around $400 to $600 back in your pocket every month. Over a 25-year panel lifespan, that's roughly [X]. Payback is typically 6 to 8 years, then it's pure margin for you. You'd also lock in your rate, so whatever the utility does, you're insulated."</div>
+      <div class="script-note">Lead with numbers. Use "margin" language. Drivers think like business owners.</div>
+    </div>
+
+    <div class="script-box assertive">
+      <div class="script-label">Roofing Pitch Anchor</div>
+      <div class="script-line">"Here's the thing about your roof. Every month you wait, you're increasing your liability and your cost. A compromised roof drives up your insurance premiums and your energy bills. We can lock in pricing today. Materials are volatile. This is the decision that protects everything under it."</div>
+      <div class="script-note">Urgency and protection of assets. That's their language.</div>
+    </div>
+
+    <div class="script-box assertive">
+      <div class="script-label">Battery / Storage Pitch</div>
+      <div class="script-line">"A battery means you're not at the mercy of the grid. Outage happens, you don't feel it. Rates spike, you've already stored your energy cheaper. It's control. You're not paying for power, you're owning it."</div>
+      <div class="script-note">Frame the battery as control and independence. Drivers hate dependency.</div>
+    </div>
+
+    <div class="script-box assertive">
+      <div class="script-label">Close</div>
+      <div class="script-line">"I'll be straight with you. The incentives we're looking at right now are at a high point. I'm not in the business of fake urgency, but the federal tax credit and the net metering structure in your utility territory are legitimately better today than they will be in 12 to 18 months. The numbers work. What's stopping you from moving forward today?"</div>
+      <div class="script-note">Be direct with the close. Drivers respect candor. Don't soften it.</div>
+    </div>
+
+    <div class="do-dont">
+      <div class="do-box">
+        <div class="do-dont-label">Do</div>
+        <ul>
+          <li>Get to the point fast</li>
+          <li>Use data and ROI language</li>
+          <li>Be direct and confident</li>
+          <li>Acknowledge their time constraints</li>
+          <li>Appeal to competition and winning</li>
+        </ul>
+      </div>
+      <div class="dont-box">
+        <div class="do-dont-label">Don't</div>
+        <ul>
+          <li>Start with small talk</li>
+          <li>Over-explain or repeat yourself</li>
+          <li>Be vague or hedge your claims</li>
+          <li>Ask too many rapport questions early</li>
+          <li>Appear uncertain or unprepared</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── ANALYTICAL ── -->
+  <div class="script-block">
+    <div class="script-header">
+      <span class="script-type" style="color:var(--blue)">C &middot; Conscientiousness &middot; The Researcher</span>
+      <span class="script-tag" style="background:rgba(52,152,219,0.15);color:var(--blue)">Earn the Trust with Data</span>
+    </div>
+
+    <div class="script-box analytical">
+      <div class="script-label">Door Knock / Cold Open</div>
+      <div class="script-line">"Hi, I'm [Name] with [Company]. We specialize in solar in this area, and I know most people have done some research before they talk to someone. I'm happy to be a resource. I'm not here to pitch you, I'm here to compare notes. Do you have a few minutes?"</div>
+      <div class="script-note">You're positioning yourself as a peer, not a salesperson. Analyticals distrust the pitch. They trust the informed conversation.</div>
+    </div>
+
+    <div class="script-box analytical">
+      <div class="script-label">Discovery</div>
+      <div class="script-line">"Can I ask, have you looked at this before? I'd love to know what you found. It helps me skip what you already know and go deeper on what you're still figuring out."</div>
+      <div class="script-note">This earns serious points. It shows you respect their research and won't insult them by starting at zero.</div>
+    </div>
+
+    <div class="script-box analytical">
+      <div class="script-label">Solar Pitch Anchor</div>
+      <div class="script-line">"We use [Panel Brand]. [X]% efficiency rating, [Y]-year performance warranty, degradation guarantee of no more than 0.5% per year. The inverter is [Brand], with a [X]-year warranty and real-time monitoring built in. I can pull your 12-month utility data and run a production model that shows your estimated output by month. You're not relying on my estimate. You can verify it."</div>
+      <div class="script-note">Specificity is your currency. "You can verify it" is one of the most powerful things you can say to an Analytical.</div>
+    </div>
+
+    <div class="script-box analytical">
+      <div class="script-label">Roofing Pitch Anchor</div>
+      <div class="script-line">"I want to show you what we found on the inspection. I'll walk you through it image by image. This shingle here shows [specific damage type]. This is your flashing at the ridge. There's lifting on three points. These aren't cosmetic issues, they're entry points for moisture. I can give you a life expectancy estimate based on the current wear patterns if that's useful."</div>
+      <div class="script-note">Photos, technical terms, step-by-step walkthrough. Analyticals want to see the evidence, not just hear the conclusion.</div>
+    </div>
+
+    <div class="script-box analytical">
+      <div class="script-label">Battery / Storage Pitch</div>
+      <div class="script-line">"The [Battery Brand] system has a 10-year warranty with a guaranteed 70% capacity retention. Usable storage is [X] kWh. Based on your average daily consumption, that covers you for approximately [Y] hours of full-home backup. I can show you the load analysis if you want to walk through which circuits are prioritized."</div>
+      <div class="script-note">Load analysis, kWh numbers, specific warranties. Let them engage with the technical detail. They enjoy it.</div>
+    </div>
+
+    <div class="script-box analytical">
+      <div class="script-label">Close</div>
+      <div class="script-line">"I don't want you to rush this. What I'd like to do is leave you the full proposal, including the production estimates, the warranty documents, and the financing terms, and schedule a follow-up in a few days once you've had a chance to review. What questions do you want me to make sure I've answered before I go?"</div>
+      <div class="script-note">Give them space and a process. Pressure closes destroy the Analytical relationship permanently. The follow-up is your close.</div>
+    </div>
+
+    <div class="do-dont">
+      <div class="do-box">
+        <div class="do-dont-label">Do</div>
+        <ul>
+          <li>Bring spec sheets and data</li>
+          <li>Acknowledge their research</li>
+          <li>Speak in specifics, not generalities</li>
+          <li>Give them time to decide</li>
+          <li>Welcome detailed questions</li>
+        </ul>
+      </div>
+      <div class="dont-box">
+        <div class="do-dont-label">Don't</div>
+        <ul>
+          <li>Overstate or exaggerate claims</li>
+          <li>Rush the process</li>
+          <li>Use vague phrases like "industry-leading"</li>
+          <li>Apply pressure or urgency tactics</li>
+          <li>Be defensive about competitor questions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── AMIABLE ── -->
+  <div class="script-block">
+    <div class="script-header">
+      <span class="script-type" style="color:var(--green)">S &middot; Steadiness &middot; The Connector</span>
+      <span class="script-tag" style="background:rgba(46,204,113,0.15);color:var(--green)">Build the Relationship First</span>
+    </div>
+
+    <div class="script-box amiable">
+      <div class="script-label">Door Knock / Cold Open</div>
+      <div class="script-line">"Hi! I'm [Name]. I was just over at [Neighbor's Name]'s house two doors down. They finished their solar install with us, and I wanted to introduce myself to the neighborhood while I was here. How long have you been in this area?"</div>
+      <div class="script-note">Lead with community and social proof. The neighbor connection is gold. Amiables want to know you're already trusted by people they know.</div>
+    </div>
+
+    <div class="script-box amiable">
+      <div class="script-label">Discovery</div>
+      <div class="script-line">"Before I get into anything, what's the story with your home? How long have you been here? I ask because where you are in the ownership timeline actually matters a lot for which solution fits best, and I'd rather understand your situation than just hand you a brochure."</div>
+      <div class="script-note">Personal questions first. Amiables feel valued when you're curious about them, not just the sale.</div>
+    </div>
+
+    <div class="script-box amiable">
+      <div class="script-label">Solar Pitch Anchor</div>
+      <div class="script-line">"A lot of families we work with tell us the thing they appreciate most isn't just the savings. It's the peace of mind. Knowing your bill isn't going to spike. Knowing if there's an outage, your home keeps going. The family down the street, [story], they said it was one of the best decisions they made for their household. That kind of stability matters."</div>
+      <div class="script-note">Stories and outcomes over specs. "Peace of mind" and "stability" are Amiable trigger words.</div>
+    </div>
+
+    <div class="script-box amiable">
+      <div class="script-label">Roofing Pitch Anchor</div>
+      <div class="script-line">"I think about roofing the same way you probably think about your home overall. It's protection. Everything you've built inside, everything your family does in that space, the roof is what keeps all of it safe. We take that seriously. Our crew treats your home like they'd treat their own. We'd love to earn your trust on this."</div>
+      <div class="script-note">Emotional framing, protection of family, trust language. Avoid clinical talk about shingles and flashing until after you've built rapport.</div>
+    </div>
+
+    <div class="script-box amiable">
+      <div class="script-label">Battery / Storage Pitch</div>
+      <div class="script-line">"One thing a lot of families love about adding a battery is that it covers you when things go sideways. Storms, grid issues, whatever. Your fridge stays on, the lights stay on, the kids' routines don't get disrupted. It's one less thing to worry about. Given what's been happening with grid reliability around here lately, it's not a hypothetical anymore."</div>
+      <div class="script-note">Family continuity, worry reduction, reliability. That's Amiable language. Make it real and personal.</div>
+    </div>
+
+    <div class="script-box amiable">
+      <div class="script-label">Close</div>
+      <div class="script-line">"It sounds like this is something you'd want to talk through with [partner/spouse] before moving forward, which makes total sense. Can I set up a time to come back when you're both available? I'd love to walk through everything together. A decision like this is a lot easier when everyone's on the same page, and I want you both to feel good about it."</div>
+      <div class="script-note">Never pressure an Amiable. Suggest the joint appointment. It removes their main stall and keeps you in the driver's seat.</div>
+    </div>
+
+    <div class="do-dont">
+      <div class="do-box">
+        <div class="do-dont-label">Do</div>
+        <ul>
+          <li>Take time to build rapport genuinely</li>
+          <li>Use stories and testimonials</li>
+          <li>Include their partner in the process</li>
+          <li>Frame around family and peace of mind</li>
+          <li>Be patient and warm throughout</li>
+        </ul>
+      </div>
+      <div class="dont-box">
+        <div class="do-dont-label">Don't</div>
+        <ul>
+          <li>Apply any pressure or urgency</li>
+          <li>Lead with specs or numbers</li>
+          <li>Try to close before trust is built</li>
+          <li>Dismiss the "need to talk to spouse" stall</li>
+          <li>Rush past their personal questions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── EXPRESSIVE ── -->
+  <div class="script-block">
+    <div class="script-header">
+      <span class="script-type" style="color:var(--solar)">I &middot; Influence &middot; The Visionary</span>
+      <span class="script-tag" style="background:rgba(245,166,35,0.15);color:var(--solar)">Sell the Vision</span>
+    </div>
+
+    <div class="script-box expressive">
+      <div class="script-label">Door Knock / Cold Open</div>
+      <div class="script-line">"Hey! So your neighbor just made a really interesting move. They went fully energy independent. I was walking by and honestly your roof looks like it'd be perfect for the same setup. Have you ever thought about cutting the utility company completely out of the picture?"</div>
+      <div class="script-note">Energy and excitement match theirs. "Interesting" and "cutting out the utility" plays to the rebellious angle Expressives love.</div>
+    </div>
+
+    <div class="script-box expressive">
+      <div class="script-label">Discovery</div>
+      <div class="script-line">"Okay, tell me, what got you interested in solar in the first place? Because everyone's story is a little different, and honestly those are the best conversations. Was it the environmental piece? The bills? Just fed up with the utility company?"</div>
+      <div class="script-note">Let them talk. Expressives love telling their story. Your job in discovery is mostly to listen and reflect the enthusiasm back.</div>
+    </div>
+
+    <div class="script-box expressive">
+      <div class="script-label">Solar Pitch Anchor</div>
+      <div class="script-line">"Imagine it's the first really sunny day after a storm knocked out the grid for three days. Everyone's scrambling. And you're sitting at home with the lights on, the AC running, coffee in hand, completely unaffected. That's what this looks like in real life. You're not just saving money. You're opting out of the whole broken system."</div>
+      <div class="script-note">Vivid, visual storytelling. They want to picture themselves in the outcome, not read a spec sheet.</div>
+    </div>
+
+    <div class="script-box expressive">
+      <div class="script-label">Roofing Pitch Anchor</div>
+      <div class="script-line">"Here's what I love about what we do. We're not just replacing a roof. We're giving your house a whole new chapter. New protection, better curb appeal, and if you pair it with solar at the same time, you're looking at a completely transformed home. A lot of our clients say it's the best they've felt about their house in years."</div>
+      <div class="script-note">Transformation language. "New chapter." Emotional satisfaction. Expressives buy identity upgrades.</div>
+    </div>
+
+    <div class="script-box expressive">
+      <div class="script-label">Battery / Storage Pitch</div>
+      <div class="script-line">"The battery is honestly the part most people get the most excited about once they have it. It's like, you realize you've been dependent on something you had zero control over your whole life, and now you're just not. That shift feels amazing. And when you wake up, check the app, and see your house ran all night on energy you generated yourself? People love that."</div>
+      <div class="script-note">Focus on the feeling and the identity shift. The app angle works great. Expressives love being able to show people.</div>
+    </div>
+
+    <div class="script-box expressive">
+      <div class="script-label">Close</div>
+      <div class="script-line">"Honestly, everything about your situation is a fit. The roof, the sun exposure, the utility rate you're on. The people I've seen get the most out of this are the ones who pull the trigger while the momentum is there. You've got that right now. What do you say we lock in the design today and get you on the schedule?"</div>
+      <div class="script-note">Create momentum and ride the excitement. Expressives can make fast decisions. Don't let them cool off. Keep energy high through the paperwork.</div>
+    </div>
+
+    <div class="do-dont">
+      <div class="do-box">
+        <div class="do-dont-label">Do</div>
+        <ul>
+          <li>Match their energy level</li>
+          <li>Use storytelling and vivid language</li>
+          <li>Focus on the big picture vision</li>
+          <li>Close while excitement is high</li>
+          <li>Make them feel special or exclusive</li>
+        </ul>
+      </div>
+      <div class="dont-box">
+        <div class="do-dont-label">Don't</div>
+        <ul>
+          <li>Slow down with too much data</li>
+          <li>Make it feel transactional</li>
+          <li>Give them time to lose enthusiasm</li>
+          <li>Get into technical weeds unprompted</li>
+          <li>Be flat or low-energy in delivery</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ══════════════════════════════════ -->
+<!-- SECTION 6: OBJECTIONS             -->
+<!-- ══════════════════════════════════ -->
+<section id="objections">
+<div class="container">
+  <div class="section-num">Section 06</div>
+  <h2 class="section-title">Objection Handling by Type</h2>
+  <p class="section-intro">The same objection means different things from different types. "I need to think about it" from a Driver is not the same as "I need to think about it" from an Amiable. Tap each objection to expand the response strategy.</p>
+
+  <!-- Objection 1 -->
+  <div class="objection" onclick="toggleObj(this)">
+    <div class="obj-question">
+      <span>"I need to think about it."</span>
+      <span class="obj-arrow">▶</span>
+    </div>
+    <div class="obj-answer">
+      <div class="obj-type-row">
+        <span class="type-badge badge-a">D &middot; Driver</span>
+        <span class="type-badge badge-an">C &middot; Analytical</span>
+        <span class="type-badge badge-am">S &middot; Amiable</span>
+        <span class="type-badge badge-ex">I &middot; Expressive</span>
+      </div>
+      <p class="obj-response"><strong>Driver:</strong> They usually mean "convince me faster or give me a better reason." Get direct about what's holding them back.</p>
+      <div class="obj-script">"Totally fair. What specifically is the sticking point? Is it the numbers, the timing, or something about our company? I'd rather just address it directly."</div>
+      <p class="obj-response" style="margin-top:12px"><strong>Analytical:</strong> They need time and they mean it. Give them a structured path forward.</p>
+      <div class="obj-script">"That makes sense. This is a big decision. Let me leave you the full proposal and warranty docs. Can we schedule a follow-up Thursday so I can answer anything that comes up when you review?"</div>
+      <p class="obj-response" style="margin-top:12px"><strong>Amiable:</strong> They're waiting to check with their partner. Offer the solution before they say it.</p>
+      <div class="obj-script">"I figured you'd want to loop in [spouse/partner]. That's honestly the right call. When are you both free? I'll come back and walk through it together. Makes the whole thing easier."</div>
+      <p class="obj-response" style="margin-top:12px"><strong>Expressive:</strong> They may be cooling off. Re-engage the excitement.</p>
+      <div class="obj-script">"The main thing I'd hate for you to lose is the momentum, and honestly the incentive window. What part is giving you pause? Let's talk through it right now."</div>
+    </div>
+  </div>
+
+  <!-- Objection 2 -->
+  <div class="objection" onclick="toggleObj(this)">
+    <div class="obj-question">
+      <span>"It's too expensive." / "I can't afford it right now."</span>
+      <span class="obj-arrow">▶</span>
+    </div>
+    <div class="obj-answer">
+      <div class="obj-type-row">
+        <span class="type-badge badge-a">D &middot; Driver</span>
+        <span class="type-badge badge-an">C &middot; Analytical</span>
+        <span class="type-badge badge-am">S &middot; Amiable</span>
+        <span class="type-badge badge-ex">I &middot; Expressive</span>
+      </div>
+      <p class="obj-response"><strong>Driver:</strong> Reframe as a financial move, not a cost.</p>
+      <div class="obj-script">"I hear you. Let's look at what you're already paying. You're spending $[X]/month with zero return. This converts that into an asset with a payback period. It's not a cost. It's a position."</div>
+      <p class="obj-response" style="margin-top:12px"><strong>Analytical:</strong> Show the math in detail.</p>
+      <div class="obj-script">"Let me break down the financing so you can compare apples to apples. After the tax credit and your monthly production, your net out of pocket is actually [X]. Here's the full spreadsheet. I want you to verify the numbers yourself."</div>
+      <p class="obj-response" style="margin-top:12px"><strong>Amiable:</strong> Reduce perceived risk and obligation.</p>
+      <div class="obj-script">"A lot of families worry about that up front. The good news is most of our customers put $0 down. Your monthly payment ends up less than your current bill. You're not spending more, you're just redirecting it."</div>
+      <p class="obj-response" style="margin-top:12px"><strong>Expressive:</strong> Make it feel like an opportunity they don't want to miss.</p>
+      <div class="obj-script">"Here's the thing. With how the financing is structured right now, most people are cash flow positive from month one. You're not really spending money. You're trading your utility bill for a lower payment that goes toward something you own."</div>
+    </div>
+  </div>
+
+  <!-- Objection 3 -->
+  <div class="objection" onclick="toggleObj(this)">
+    <div class="obj-question">
+      <span>"We're planning to move in a few years."</span>
+      <span class="obj-arrow">▶</span>
+    </div>
+    <div class="obj-answer">
+      <div class="obj-type-row">
+        <span class="type-badge badge-a">D &middot; Driver</span>
+        <span class="type-badge badge-an">C &middot; Analytical</span>
+        <span class="type-badge badge-am">S &middot; Amiable</span>
+        <span class="type-badge badge-ex">I &middot; Expressive</span>
+      </div>
+      <p class="obj-response"><strong>Driver/Analytical:</strong> Use data on home value.</p>
+      <div class="obj-script">"National studies show solar adds an average of 4% to resale value, and in high-rate markets like this one, it's often higher. You're not locked in. You're improving your sale position. Buyers know exactly what they're getting with a solar home."</div>
+      <p class="obj-response" style="margin-top:12px"><strong>Amiable/Expressive:</strong> Frame around the story of the sale.</p>
+      <div class="obj-script">"Imagine being the seller who offers a home that costs the buyer $40/month in energy instead of $250. That's a conversation-stopper in any market. Your home stands out, and the solar basically sells it for you."</div>
+    </div>
+  </div>
+
+  <!-- Objection 4 -->
+  <div class="objection" onclick="toggleObj(this)">
+    <div class="obj-question">
+      <span>"I've heard the company goes out of business and you're stuck."</span>
+      <span class="obj-arrow">▶</span>
+    </div>
+    <div class="obj-answer">
+      <div class="obj-type-row">
+        <span class="type-badge badge-an">C &middot; Analytical</span>
+        <span class="type-badge badge-am">S &middot; Amiable</span>
+      </div>
+      <p class="obj-response"><strong>Analytical:</strong> Address the mechanism directly.</p>
+      <div class="obj-script">"That's a real concern and a fair one. Here's the structure: the panel manufacturer warranty and the inverter warranty are separate from the installer. Our workmanship warranty is backed by [X], and we've been operating [Y] years with [Z] installs. I can show you our financials and our licensing if that helps."</div>
+      <p class="obj-response" style="margin-top:12px"><strong>Amiable:</strong> Reassure through relationships and track record.</p>
+      <div class="obj-script">"I want you to feel completely comfortable with this. Here's what I'd love to do. I can connect you with a couple of our customers who've had systems for five or more years. Talk to them directly. Nothing I say is going to be more reassuring than hearing from real people who've been through it."</div>
+    </div>
+  </div>
+
+  <!-- Objection 5 -->
+  <div class="objection" onclick="toggleObj(this)">
+    <div class="obj-question">
+      <span>"My roof is old. I was told I need a new one first."</span>
+      <span class="obj-arrow">▶</span>
+    </div>
+    <div class="obj-answer">
+      <div class="obj-type-row">
+        <span class="type-badge badge-a">D &middot; Driver</span>
+        <span class="type-badge badge-an">C &middot; Analytical</span>
+        <span class="type-badge badge-am">S &middot; Amiable</span>
+        <span class="type-badge badge-ex">I &middot; Expressive</span>
+      </div>
+      <p class="obj-response"><strong>All types. This is a positioning opportunity for roofing + solar bundling:</strong></p>
+      <div class="obj-script">"That's actually perfect timing, not a problem. When you bundle a roof replacement and solar together, you get one crew, one project timeline, one warranty, and one financing structure. We do this regularly and it almost always comes out cheaper than doing them separately, because the roof gets replaced at cost before the solar goes on top. Let me show you how that pencils out."</div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ══════════════════════════════════ -->
+<!-- SECTION 7: ROLEPLAY               -->
+<!-- ══════════════════════════════════ -->
+<section id="roleplay">
+<div class="container">
+  <div class="section-num">Section 07</div>
+  <h2 class="section-title">Roleplay Scenarios</h2>
+  <p class="section-intro">Run these with your team. One person plays the buyer, one plays the rep. Trainer watches for personality mismatches and calls them out in real time. After each scenario, debrief: what went right, where did the rep slip into their default mode?</p>
+
+  <!-- ROLEPLAY 1 -->
+  <div class="roleplay-card">
+    <div class="roleplay-num">Scenario 01 / Driver</div>
+    <div class="roleplay-title">The Busy Landlord</div>
+    <div class="roleplay-setup">
+      <strong>Setup:</strong> D2D knock. The prospect owns this home as a rental property and is here doing maintenance. He answers the door in work clothes, doesn't invite you in, arms crossed. He's got three other properties and no patience. Product: Solar.
+    </div>
+    <div class="dialogue">
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"Yeah? What is it?"</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"I'll keep it short. I'm [Name] with [Company]. We've been installing solar on rental properties in this area. Owners are cutting operating costs and adding property value at the same time. With a rental, you don't even use the power yourself. It goes straight to reducing expenses and improving the asset. Two minutes. Worth it?"</div>
+        <span class="dialogue-note">Coach note: Lead with the investment angle immediately. No small talk. The property owner frame separates this from a residential pitch.</span>
+        </div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"How much does it cost and what's the payback?"</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"Depends on the system size. I'd need your last bill to run it exactly. But on a property like this, typically $18,000 to $22,000 net of the federal credit, with a payback of 6 to 8 years. After that you're collecting pure margin on a 25-year system. Can I grab your utility account number real quick, or do you have a bill handy?"</div>
+        <span class="dialogue-note">Coach note: Give the number range confidently. Drivers hate "it depends" with no anchor. Then immediately move to action.</span>
+        </div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"I don't have it on me. What's the catch? Why wouldn't everyone do this?"</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"Honestly? Most people don't do the math, or they get a bad pitch from someone who oversells it. The catch is that it only makes sense if your roof has the right exposure and your bill is high enough for the offset to pencil out. On this property, based on what I can see, the exposure looks good. That's why I stopped. Can I text you a link to schedule a formal assessment? Takes 20 minutes."</div>
+        <span class="dialogue-note">Coach note: Answer their skepticism directly and honestly. Drivers respect the rep who doesn't over-promise. End with a specific, simple next step.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLEPLAY 2 -->
+  <div class="roleplay-card">
+    <div class="roleplay-num">Scenario 02 / Analytical</div>
+    <div class="roleplay-title">The Engineer with Competitor Quotes</div>
+    <div class="roleplay-setup">
+      <strong>Setup:</strong> Scheduled appointment. The prospect is a software engineer. He meets you at the door with a printed spreadsheet comparing three solar companies, including yours. He wants to know why your price is higher. Product: Solar + Battery bundle.
+    </div>
+    <div class="dialogue">
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"I've been comparing you against two others. Your price is about $4,000 higher on the solar side. I need to understand why before we go any further."</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"I appreciate that, and I'd love to go line by line with you on it. Can I see the quotes? Because the price difference almost always comes down to either the panel brand, the inverter, the warranty structure, or what the company is using for installation labor. A $4,000 gap often closes completely once you're comparing identical spec."</div>
+        <span class="dialogue-note">Coach note: Don't get defensive. Welcome the comparison. Analyticals respect the rep who goes toward the data, not away from it.</span>
+        </div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"They're using [panel brand]. You're using [different brand]. Are yours actually better or are you just saying that?"</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"Fair challenge. Both are tier-one manufacturers. Here's the difference I'd point you to. Our panel has a 0.45% annual degradation guarantee versus their 0.55%. Over 25 years, that's a measurable difference in total output, and I can show you the calculation. The other piece is our inverter warranty: 12 years versus their 10, with remote monitoring included at no extra cost. So the $4,000 delta. Part of it is genuinely the spec. Part of it is labor quality, which is harder to quantify, but I can give you references from installs in the past 12 months."</div>
+        <span class="dialogue-note">Coach note: Specific numbers, specific claims, references. This is how you win an Analytical. Not by asserting you're better. By proving it.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLEPLAY 3 -->
+  <div class="roleplay-card">
+    <div class="roleplay-num">Scenario 03 / Amiable</div>
+    <div class="roleplay-title">The Couple Who Needs to Decide Together</div>
+    <div class="roleplay-setup">
+      <strong>Setup:</strong> D2D. A woman answers the door, warm and friendly. She's interested but keeps saying "I'd have to talk to my husband." He's not home. Product: Roofing + Solar bundle after storm damage.
+    </div>
+    <div class="dialogue">
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"Oh, it does look pretty bad up there. We noticed some of the shingles after the storm. I'd definitely be interested, but my husband handles all this stuff, and he's at work right now."</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"That makes complete sense. This is a big decision and you'd both want to be comfortable with it. Honestly, the best thing I can do today is just get you the information, so when he's home, you're ready to have the conversation. Can I do a quick visual inspection of the roof and put together a free damage report? That way you've got something concrete to show him. Not just my word for it."</div>
+        <span class="dialogue-note">Coach note: Don't fight the stall. Use it. Getting permission for the inspection advances the sale without pressuring her into a commitment.</span>
+        </div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"Sure, yeah, that would actually be really helpful. I took some photos but I don't really know what I'm looking at."</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"Perfect. I'll walk the roof and put together a photo report with what I find. No cost, no obligation. Then, when would be a good time for both of you to sit down and go over it? Even 30 minutes over the weekend? I'd love to walk you through everything together."</div>
+        <span class="dialogue-note">Coach note: The joint appointment is the close. Get it on the calendar before you leave. Amiables will not pressure their spouse. You have to make it easy for that conversation to happen with you in the room.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLEPLAY 4 -->
+  <div class="roleplay-card">
+    <div class="roleplay-num">Scenario 04 / Expressive</div>
+    <div class="roleplay-title">The Enthusiastic Early Adopter Who Gets Distracted</div>
+    <div class="roleplay-setup">
+      <strong>Setup:</strong> Inbound appointment. They requested a quote online. They open the door excited, talking before you finish introducing yourself, jumping between topics: the environment, their neighbor's Tesla, their electricity bill, their cousin in Germany who has a cool setup. Product: Solar + Battery.
+    </div>
+    <div class="dialogue">
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"Yes! Come in! We've been wanting to do this for like two years. My neighbor has panels and she loves it. I've been watching my bill go up like crazy. And with everything happening with the environment, we've got kids, you know? We want to do the right thing. Also I saw this thing about batteries. Is that something you do too?"</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"I love all of that. And yes, we do batteries too, and honestly the full setup is where it gets really exciting. You've got the right instincts. Let me ask you. If I could show you a setup where you're basically opting out of the utility company entirely, using your own energy, and your kids grow up in a house that generates its own power, is that the direction you're thinking?"</div>
+        <span class="dialogue-note">Coach note: Match the energy. Reflect their excitement back. Use "your kids" and the future vision. They just handed you the emotional hook.</span>
+        </div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"Yes! That's exactly it. What would that look like for our house?"</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"Okay, based on what I can see and your address, you've got great south exposure. I'm going to design something specific for your home right now. Can we sit down for ten minutes? I want to show you what full energy independence actually looks like in numbers for this house, because I think you're going to love it."</div>
+        <span class="dialogue-note">Coach note: Channel the energy into action. Get them seated and focused. Expressives can make fast decisions when excited. Don't let the momentum scatter. Keep them in the moment.</span>
+        </div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker buyer">Buyer</span>
+        <div><div class="dialogue-text">"[After seeing the proposal] This looks amazing. I need to show my wife. She's not home but I want to do this."</div></div>
+      </div>
+      <div class="dialogue-line">
+        <span class="speaker rep">Rep</span>
+        <div><div class="dialogue-text">"I love the enthusiasm. Here's what I'd suggest. Let's get your spot on the installation schedule locked in, because our timeline is booking out and I don't want you to lose a good slot while you're waiting to connect with her. We can do a 24-hour review window. If she hates it, you cancel, no issue. But if you wait and the timeline shifts, that's real. Does that work?"</div>
+        <span class="dialogue-note">Coach note: Expressives lose steam fast. The 24-hour review window reduces risk perception without letting the momentum die. Use it carefully and honestly.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-icon">🎯</div>
+    <div class="callout-text"><strong>Debrief questions to use after each roleplay:</strong><br>
+    1. What type was the buyer? What signals told you?<br>
+    2. Did the rep adapt, or default to their own personality?<br>
+    3. What's one thing the rep could have done better at each stage: open, discovery, pitch, close?<br>
+    4. What was the best single line the rep used? Why did it work for that type?</div>
+  </div>
+
+</div>
+</section>
+
+<!-- ══════════════════════════════════ -->
+<!-- SECTION 8: CHEAT SHEET            -->
+<!-- ══════════════════════════════════ -->
+<section id="cheatsheet">
+<div class="container">
+  <div class="section-num">Section 08</div>
+  <h2 class="section-title">Field Cheat Sheet</h2>
+  <p class="section-intro">Screenshot this or print it. Review it before every appointment. The goal is to make this second nature. Until it is, use the reference.</p>
+
+  <div class="cheat-grid">
+
+    <div class="cheat-card assertive">
+      <div class="cheat-header">🎯 D &middot; Dominance &middot; Driver</div>
+      <div class="cheat-body">
+        <div class="cheat-row"><span class="cheat-key">SPOT</span>Declarative sentences, checks watch, asks "what's the cost" immediately</div>
+        <div class="cheat-row"><span class="cheat-key">OPEN</span>Lead with outcomes and ROI, skip the warmup</div>
+        <div class="cheat-row"><span class="cheat-key">PITCH</span>Numbers, payback period, competitive advantage</div>
+        <div class="cheat-row"><span class="cheat-key">CLOSE</span>Be direct. Ask for the decision. Don't soften it.</div>
+        <div class="cheat-row"><span class="cheat-key">AVOID</span>Small talk, repetition, vague claims, wishy-washy answers</div>
+        <div class="cheat-row"><span class="cheat-key">WORDS</span>"Bottom line." "Protect." "Margin." "Control." "Win."</div>
+      </div>
+    </div>
+
+    <div class="cheat-card analytical">
+      <div class="cheat-header">📊 C &middot; Conscientiousness &middot; Analytical</div>
+      <div class="cheat-body">
+        <div class="cheat-row"><span class="cheat-key">SPOT</span>Takes notes, references research, asks specific technical questions</div>
+        <div class="cheat-row"><span class="cheat-key">OPEN</span>Acknowledge their research. Position yourself as a peer.</div>
+        <div class="cheat-row"><span class="cheat-key">PITCH</span>Specs, warranties, data, independent verification</div>
+        <div class="cheat-row"><span class="cheat-key">CLOSE</span>Leave proposal. Schedule a follow-up. Never pressure.</div>
+        <div class="cheat-row"><span class="cheat-key">AVOID</span>Big claims, urgency tactics, vague language, impatience</div>
+        <div class="cheat-row"><span class="cheat-key">WORDS</span>"Verify." "Guaranteed." "Specifically." "Data shows." "Warranty."</div>
+      </div>
+    </div>
+
+    <div class="cheat-card amiable">
+      <div class="cheat-header">🤝 S &middot; Steadiness &middot; Amiable</div>
+      <div class="cheat-body">
+        <div class="cheat-row"><span class="cheat-key">SPOT</span>Offers coffee, asks personal questions, mentions neighbor or spouse</div>
+        <div class="cheat-row"><span class="cheat-key">OPEN</span>Social proof, neighborhood connection, warmth first</div>
+        <div class="cheat-row"><span class="cheat-key">PITCH</span>Stories, testimonials, peace of mind, family outcomes</div>
+        <div class="cheat-row"><span class="cheat-key">CLOSE</span>Propose joint appointment with partner. Get it scheduled.</div>
+        <div class="cheat-row"><span class="cheat-key">AVOID</span>Pressure, stats overload, trying to close before trust is built</div>
+        <div class="cheat-row"><span class="cheat-key">WORDS</span>"Peace of mind." "Family." "Trust." "Protection." "Together."</div>
+      </div>
+    </div>
+
+    <div class="cheat-card expressive">
+      <div class="cheat-header">🌟 I &middot; Influence &middot; Expressive</div>
+      <div class="cheat-body">
+        <div class="cheat-row"><span class="cheat-key">SPOT</span>High energy, jumps topics, enthusiastic, finishes your sentences</div>
+        <div class="cheat-row"><span class="cheat-key">OPEN</span>Match energy. Use the rebellious or visionary frame.</div>
+        <div class="cheat-row"><span class="cheat-key">PITCH</span>Storytelling, vivid outcomes, identity and transformation</div>
+        <div class="cheat-row"><span class="cheat-key">CLOSE</span>Ride the excitement. Close while momentum is high.</div>
+        <div class="cheat-row"><span class="cheat-key">AVOID</span>Tech details, slow delivery, letting them cool off</div>
+        <div class="cheat-row"><span class="cheat-key">WORDS</span>"Imagine." "Independent." "Opt out." "Future." "First."</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--solar)">The 3 Universal Rules</div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:16px">These apply regardless of type.</p>
+    <ul class="trait-list">
+      <li><strong style="color:var(--text)">You can't fake it.</strong> Personality adaptation only works if you actually listen. Reps who perform a type without genuinely adjusting come across as manipulative. The goal is real empathy, not a script.</li>
+      <li><strong style="color:var(--text)">Most people are a blend.</strong> You'll rarely get a pure type. Watch for the dominant mode and adjust, but stay flexible as the conversation develops.</li>
+      <li><strong style="color:var(--text)">Your type is your blind spot.</strong> If every conversation feels the same, you're probably not adapting. You're pitching to yourself. Keep asking, "What does this specific person need from me right now?"</li>
+    </ul>
+  </div>
+
+</div>
+</section>
+
+<div class="footer">
+  <p>Know Your Buyer &nbsp;|&nbsp; Sales Personality Training &nbsp;|&nbsp; Solar · Roofing · Battery Storage</p>
+</div>
+
+<script>
+  function toggleObj(el) {
+    el.classList.toggle('open');
+  }
+
+  // Smooth scroll nav + active state
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-bar a');
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('active');
+          }
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => observer.observe(s));
+
+  navLinks.forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Fade-in on scroll
+  const cards = document.querySelectorAll('.p-card, .card, .roleplay-card, .script-box, .cheat-card');
+  const fadeObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        fadeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  cards.forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(16px)';
+    card.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    fadeObserver.observe(card);
+  });
+</script>
+</body>
+</html>
