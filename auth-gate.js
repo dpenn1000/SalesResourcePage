@@ -9,8 +9,8 @@
  * The page must provide three DOM elements -- the gate switches their
  * visibility based on auth state:
  *
- *   <div id="loginScreen"> ...login form, see auth-gate.css recipe... </div>
- *   <div id="changePasswordScreen" style="display:none"> ...change-pw form... </div>
+ *   <div id="loginScreen"> ...login form... </div>
+ *   <div id="changePasswordScreen" style="display:none"> ...form... </div>
  *   <div id="appWrap"> ...all real page content... </div>
  *
  * And define a global initApp(profile, session) function. The gate calls
@@ -28,7 +28,20 @@
  *   window.AUTH_PROFILE  -- the full profile object
  *   window.AUTH_SESSION  -- the Supabase session (JWT lives on .access_token)
  *
- * Buttons in the page can call window.signOut() to log out.
+ * Activity tracking globals:
+ *
+ *   window.trackEvent(type, metadata?)
+ *     Manually log an activity event. type must be one of:
+ *     'sign_in', 'sign_out', 'page_view', 'download', 'external_link',
+ *     'session_end'.
+ *
+ * Auto-tracking (no page code required):
+ *   - sign_in fires on SIGNED_IN event with a fresh role check pass
+ *   - page_view fires once on initApp
+ *   - sign_out fires when window.signOut() is called
+ *   - download / external_link fire via click delegation:
+ *     - download: href matches \.(pdf|docx?|xlsx?|pptx?|zip|csv)$ OR has [download] attr
+ *     - external_link: target=_blank or href starts with http(s) (and not download)
  */
 
 (function () {
@@ -74,7 +87,6 @@
   }
 
   async function loadProfile(session) {
-    // Check managers table first; reps fall through.
     const { data: mgr } = await sb.from('managers')
       .select('name, is_admin, status, must_change_password')
       .eq('auth_user_id', session.user.id)
@@ -104,7 +116,94 @@
     return null;
   }
 
-  sb.auth.onAuthStateChange((_e, session) => {
+  // ── Activity tracking ─────────────────────────────────────────────────
+  // Fire-and-forget. Tracking failures never block the user.
+
+  const UA_TRUNCATED = (navigator.userAgent || '').slice(0, 500);
+  const VALID_EVENTS = new Set([
+    'sign_in', 'sign_out', 'page_view', 'download', 'external_link', 'session_end'
+  ]);
+
+  async function trackEvent(eventType, metadata) {
+    try {
+      if (!VALID_EVENTS.has(eventType)) {
+        console.warn('[auth-gate] unknown event type:', eventType);
+        return;
+      }
+      const session = window.AUTH_SESSION;
+      if (!session || !session.user) return;
+      const payload = {
+        auth_user_id: session.user.id,
+        event_type: eventType,
+        page_url: window.location.pathname + window.location.search,
+        metadata: metadata || {},
+        user_agent: UA_TRUNCATED
+      };
+      // Don't await -- fire and forget. Errors logged but ignored.
+      sb.from('user_activity').insert(payload).then(({ error }) => {
+        if (error) console.warn('[auth-gate] trackEvent error:', error.message);
+      });
+    } catch (e) {
+      console.warn('[auth-gate] trackEvent threw:', e);
+    }
+  }
+  window.trackEvent = trackEvent;
+
+  // Click delegation -- auto-track downloads and external links once a
+  // user is signed in. No per-link instrumentation needed in pages.
+  document.addEventListener('click', (e) => {
+    if (!window.AUTH_PROFILE) return; // not signed in yet
+    const a = e.target.closest && e.target.closest('a');
+    if (!a) return;
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    const label = (a.textContent || '').trim().slice(0, 200);
+    const isDownload =
+      a.hasAttribute('download') ||
+      /\.(pdf|docx?|xlsx?|pptx?|zip|csv|txt|jpg|jpeg|png)$/i.test(href);
+    if (isDownload) {
+      trackEvent('download', { url: href, label });
+      return;
+    }
+    const isExternal =
+      a.target === '_blank' ||
+      /^https?:\/\//i.test(href) && !href.startsWith(window.location.origin);
+    if (isExternal) {
+      trackEvent('external_link', { url: href, label });
+    }
+  }, true);
+
+  // Best-effort session_end on tab close -- uses sendBeacon-style approach
+  // via the Supabase REST endpoint. The fetch is keepalive so it survives
+  // the page unload.
+  window.addEventListener('beforeunload', () => {
+    const session = window.AUTH_SESSION;
+    if (!session || !session.user) return;
+    try {
+      const body = JSON.stringify({
+        auth_user_id: session.user.id,
+        event_type: 'session_end',
+        page_url: window.location.pathname,
+        metadata: {},
+        user_agent: UA_TRUNCATED
+      });
+      fetch(SUPABASE_URL + '/rest/v1/user_activity', {
+        method: 'POST',
+        keepalive: true,
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + session.access_token,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body
+      });
+    } catch {}
+  });
+
+  // ── Auth state machine ───────────────────────────────────────────────
+
+  sb.auth.onAuthStateChange((event, session) => {
     if (!session) {
       showOnly('loginScreen');
       return;
@@ -133,8 +232,17 @@
       window.AUTH_PROFILE = profile;
       window.AUTH_SESSION = session;
       showOnly('appWrap');
+
+      // Track sign_in only on the actual SIGNED_IN event, not every
+      // TOKEN_REFRESHED tick. Track page_view on each fresh page load.
+      if (event === 'SIGNED_IN') {
+        trackEvent('sign_in', { kind: profile.kind, is_admin: profile.is_admin });
+      }
+
       if (!appStarted) {
         appStarted = true;
+        // Log the initial page view for this session/page.
+        trackEvent('page_view', { kind: profile.kind, name: profile.name });
         if (typeof window.initApp === 'function') {
           window.initApp(profile, session);
         }
@@ -161,6 +269,11 @@
   };
 
   window.signOut = async function signOut() {
+    // Track BEFORE we sign out, while we still have a valid session
+    await trackEvent('sign_out', {});
+    // tiny delay to let the insert flush (the request was fired sync but
+    // may not have hit the wire yet)
+    await new Promise(r => setTimeout(r, 50));
     await sb.auth.signOut();
   };
 
@@ -187,13 +300,8 @@
       return;
     }
     const { data: { user } } = await sb.auth.getUser();
-    // The flag lives on whichever table the user belongs to. Clearing both is
-    // safe -- the one they don't belong to no-ops via the eq filter.
     await sb.from('managers').update({ must_change_password: false }).eq('auth_user_id', user.id);
     await sb.from('reps').update({ must_change_password: false }).eq('auth_user_id', user.id);
-    // Hard reload to avoid the race between USER_UPDATED firing and the
-    // flag-clear completing. On reload the auth listener sees the cleared
-    // flag and lands the user in the app cleanly.
     window.location.reload();
   };
 })();
