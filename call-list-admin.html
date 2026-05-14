@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Call List Admin -- Trinity Solar CT</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --green:   #78C832; --accent: #29A9E1;
+  --ink:     #1A2332; --muted:  #6b7a8d;
+  --border:  #DFE2DA; --bg:     #EFF1EC;
+  --surface: #ffffff; --radius: 8px;
+  --shadow:  0 1px 4px rgba(0,0,0,0.07);
+}
+html { background: var(--bg); color: var(--ink); font-family: 'Manrope', sans-serif; font-size: 15px; }
+body { min-height: 100vh; }
+
+/* ── Auth screens ── */
+.auth-wrap { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
+.login-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 32px 36px; width: 100%; max-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.login-card h2 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+.login-card p  { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+.login-card label { display:block; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:5px; margin-top:14px; }
+.login-card input {
+  width:100%; border:1px solid var(--border); border-radius:7px;
+  padding:9px 12px; font-family:'Manrope',sans-serif; font-size:14px;
+  color:var(--ink); background:var(--surface); outline:none;
+}
+.login-card input:focus { border-color: rgba(120,200,50,0.6); }
+.error-msg { font-size:13px; color:#c0392b; background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); border-radius:6px; padding:8px 12px; margin-top:12px; }
+.btn-primary {
+  width:100%; margin-top:20px; padding:10px; background:var(--green);
+  border:none; border-radius:8px; color:#0b1120; font-family:'Manrope',sans-serif;
+  font-size:14px; font-weight:700; cursor:pointer; transition:opacity 0.15s;
+}
+.btn-primary:hover { opacity:0.88; }
+.btn-primary:disabled { opacity:0.55; cursor:default; }
+
+/* ── App shell ── */
+#appWrap { display:none; min-height:100vh; flex-direction:column; }
+
+/* ── Header ── */
+.admin-header {
+  background: var(--ink); color: white;
+  padding: 0 24px;
+  position: sticky; top: 0; z-index: 200;
+  display: flex; align-items: stretch;
+}
+.header-brand { display:flex; align-items:center; gap:10px; padding:14px 20px 14px 0; border-right:1px solid rgba(255,255,255,0.1); margin-right:4px; flex-shrink:0; }
+.logo-mark { width:30px; height:30px; background:var(--green); border-radius:6px; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-size:15px; font-weight:700; color:#0b1120; flex-shrink:0; }
+.brand-text { font-family:'Fraunces',serif; font-size:16px; font-weight:700; color:white; line-height:1.2; }
+.brand-sub { font-size:11px; color:rgba(255,255,255,0.5); }
+.nav-tabs { display:flex; align-items:stretch; flex:1; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.nav-tab {
+  padding:0 16px; cursor:pointer; font-size:13px; font-weight:600;
+  color:rgba(255,255,255,0.55); border-bottom:3px solid transparent;
+  display:flex; align-items:center; white-space:nowrap; transition:all 0.15s;
+}
+.nav-tab:hover { color:rgba(255,255,255,0.85); }
+.nav-tab.active { color:white; border-bottom-color:var(--green); }
+.header-user { display:flex; align-items:center; gap:10px; padding-left:16px; border-left:1px solid rgba(255,255,255,0.1); flex-shrink:0; }
+.user-name { font-size:13px; color:rgba(255,255,255,0.7); }
+.sign-out-btn { font-size:12px; font-weight:600; color:rgba(255,255,255,0.45); background:none; border:none; cursor:pointer; padding:4px 8px; }
+.sign-out-btn:hover { color:white; }
+
+/* ── Content area ── */
+.content { max-width:1400px; margin:0 auto; padding:28px 24px 80px; width:100%; }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; }
+
+/* ── Stat cards ── */
+.stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:28px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px 18px; box-shadow:var(--shadow);
+}
+.stat-label { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.stat-value { font-family:'Fraunces',serif; font-size:28px; font-weight:700; color:var(--ink); line-height:1; }
+.stat-sub { font-size:12px; color:var(--muted); margin-top:4px; }
+
+/* ── Section headers ── */
+.section-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+.section-title { font-size:13px; font-weight:700; color:var(--ink); }
+.section-muted { font-size:12px; color:var(--muted); }
+
+/* ── Filter bar ── */
+.filter-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:16px; }
+.filter-select, .filter-search {
+  background:var(--surface); border:1px solid var(--border); border-radius:7px;
+  padding:7px 11px; font-family:'Manrope',sans-serif; font-size:13px; color:var(--ink); outline:none;
+}
+.filter-select:focus, .filter-search:focus { border-color:rgba(120,200,50,0.5); }
+.filter-search { min-width:200px; flex:1; }
+.filter-btn {
+  font-size:12px; font-weight:600; padding:7px 14px; border-radius:7px;
+  border:1px solid var(--border); background:transparent; color:var(--muted);
+  cursor:pointer; transition:all 0.15s; white-space:nowrap;
+}
+.filter-btn:hover, .filter-btn.active { border-color:var(--green); color:var(--ink); background:rgba(120,200,50,0.08); }
+.filter-btn.action { background:var(--green); border-color:var(--green); color:#0b1120; }
+.filter-btn.action:hover { opacity:0.88; }
+
+/* ── Table ── */
+.table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); overflow:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { padding:10px 14px; text-align:left; font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); white-space:nowrap; background:var(--surface); position:sticky; top:0; z-index:1; }
+td { padding:10px 14px; border-bottom:1px solid var(--border); vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:rgba(0,0,0,0.02); }
+.td-name { font-weight:600; color:var(--ink); max-width:200px; }
+.td-muted { color:var(--muted); font-size:12px; }
+.td-link { color:var(--accent); text-decoration:none; font-size:12px; font-weight:600; }
+.td-link:hover { opacity:0.8; }
+
+/* ── Badges ── */
+.badge { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; padding:2px 8px; border-radius:4px; white-space:nowrap; display:inline-block; }
+.state-noshow  { background:rgba(255,92,92,0.1);  color:#d63030; border:1px solid rgba(255,92,92,0.3); }
+.state-cancel  { background:rgba(224,48,48,0.08); color:#b82020; border:1px solid rgba(224,48,48,0.25); }
+.state-goback  { background:rgba(200,140,0,0.1);  color:#8a6000; border:1px solid rgba(200,140,0,0.3); }
+.state-nosale  { background:rgba(150,100,0,0.08); color:#7a5000; border:1px solid rgba(150,100,0,0.25); }
+.status-pending    { background:rgba(107,122,141,0.1);  color:#5a6a7d; border:1px solid rgba(107,122,141,0.3); }
+.status-in_progress{ background:rgba(41,169,225,0.1);   color:#1580b0; border:1px solid rgba(41,169,225,0.3); }
+.status-reached    { background:rgba(120,200,50,0.12);  color:#52961a; border:1px solid rgba(120,200,50,0.35); }
+.status-resolved   { background:rgba(120,200,50,0.22);  color:#3a7010; border:1px solid rgba(120,200,50,0.5); }
+.status-do_not_call{ background:rgba(214,48,48,0.08);   color:#b02020; border:1px solid rgba(214,48,48,0.3); }
+.outcome-Reached   { background:rgba(120,200,50,0.12);  color:#52961a; border:1px solid rgba(120,200,50,0.35); }
+.outcome-Voicemail { background:rgba(41,169,225,0.12);  color:#1580b0; border:1px solid rgba(41,169,225,0.35); }
+.outcome-No\ Answer{ background:rgba(214,48,48,0.08);   color:#b02020; border:1px solid rgba(214,48,48,0.3); }
+
+/* ── Inline select ── */
+.inline-select {
+  font-size:12px; padding:3px 7px; border-radius:5px;
+  border:1px solid var(--border); background:var(--bg);
+  color:var(--ink); font-family:'Manrope',sans-serif; cursor:pointer; outline:none;
+}
+.inline-select:focus { border-color:rgba(120,200,50,0.5); }
+
+/* ── Two-col dashboard layout ── */
+.dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:800px) { .dash-grid { grid-template-columns:1fr; } }
+.dash-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; box-shadow:var(--shadow); }
+.dash-card-title { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+
+/* ── Progress bar ── */
+.prog-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.prog-label { font-size:12px; width:90px; flex-shrink:0; color:var(--ink); }
+.prog-bar-wrap { flex:1; background:var(--bg); border-radius:4px; height:10px; overflow:hidden; }
+.prog-bar { height:100%; border-radius:4px; transition:width 0.4s; }
+.prog-count { font-size:12px; color:var(--muted); width:30px; text-align:right; flex-shrink:0; }
+
+/* ── Rep pipeline ── */
+.rep-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; margin-bottom:24px; }
+.rep-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); cursor:pointer; transition:border-color 0.15s; }
+.rep-card:hover, .rep-card.selected { border-color:var(--green); }
+.rep-card-name { font-weight:700; font-size:15px; color:var(--ink); margin-bottom:8px; }
+.rep-mini-stat { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:3px; }
+.rep-mini-stat span:last-child { font-weight:600; color:var(--ink); }
+
+/* ── Manual load form ── */
+.load-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 24px; box-shadow:var(--shadow); max-width:640px; }
+.form-row { margin-bottom:14px; }
+.form-label { display:block; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+.form-input, .form-select {
+  width:100%; border:1px solid var(--border); border-radius:7px;
+  padding:8px 11px; font-family:'Manrope',sans-serif; font-size:14px;
+  color:var(--ink); background:var(--surface); outline:none;
+}
+.form-input:focus, .form-select:focus { border-color:rgba(120,200,50,0.6); }
+.form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.submit-btn {
+  padding:10px 24px; background:var(--green); border:none; border-radius:8px;
+  color:#0b1120; font-family:'Manrope',sans-serif; font-size:14px; font-weight:700;
+  cursor:pointer; transition:opacity 0.15s;
+}
+.submit-btn:hover { opacity:0.88; }
+.submit-btn:disabled { opacity:0.5; cursor:default; }
+
+/* ── Empty / loading states ── */
+.empty-msg { text-align:center; padding:48px 20px; color:var(--muted); font-size:14px; }
+.spinner { width:24px; height:24px; border:3px solid var(--border); border-top-color:var(--green); border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 12px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── Feedback toast ── */
+#toast { position:fixed; bottom:24px; right:24px; background:var(--ink); color:white; font-size:13px; padding:10px 18px; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.2); opacity:0; transition:opacity 0.25s; pointer-events:none; z-index:999; }
+#toast.show { opacity:1; }
+
+/* ── Overdue highlight ── */
+.overdue { color:#c0392b; font-weight:600; }
+</style>
+</head>
+<body>
+
+<!-- ── Login ── -->
+<div id="loginScreen" style="display:none;">
+  <div class="auth-wrap">
+    <div class="login-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div class="logo-mark">T</div>
+        <div><div class="brand-text">Call List Admin</div><div style="font-size:12px;color:var(--muted);">Trinity Solar CT</div></div>
+      </div>
+      <h2>Manager Sign In</h2>
+      <p>Use your CT Tools username and password.</p>
+      <div id="loginError" class="error-msg" style="display:none;"></div>
+      <form onsubmit="event.preventDefault();signIn()">
+        <label>Username</label>
+        <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+        <label>Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" required>
+        <button type="submit" id="loginBtn" class="btn-primary">Sign In</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── Change password ── -->
+<div id="changePasswordScreen" style="display:none;">
+  <div class="auth-wrap">
+    <div class="login-card">
+      <h2>Set a new password</h2>
+      <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+      <div id="cpError" class="error-msg" style="display:none;"></div>
+      <form onsubmit="event.preventDefault();changePassword()">
+        <label>New password</label>
+        <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+        <label>Confirm new password</label>
+        <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+        <button type="submit" id="cpBtn" class="btn-primary">Update Password</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── App ── -->
+<div id="appWrap" style="display:none;flex-direction:column;">
+
+  <header class="admin-header">
+    <div class="header-brand">
+      <div class="logo-mark">T</div>
+      <div style="margin-left:10px;">
+        <div class="brand-text">Call List Admin</div>
+        <div class="brand-sub">Trinity Solar CT</div>
+      </div>
+    </div>
+    <nav class="nav-tabs">
+      <div class="nav-tab active" data-tab="dashboard">Dashboard</div>
+      <div class="nav-tab" data-tab="leads">Leads</div>
+      <div class="nav-tab" data-tab="activity">Activity</div>
+      <div class="nav-tab" data-tab="followups">Follow-ups</div>
+      <div class="nav-tab" data-tab="pipeline">Rep Pipeline</div>
+      <div class="nav-tab" data-tab="load">Load List</div>
+    </nav>
+    <div class="header-user">
+      <span class="user-name" id="userName"></span>
+      <button class="sign-out-btn" onclick="signOut()">Sign out</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ── Dashboard ── -->
+    <div id="tab-dashboard" class="tab-panel active">
+      <div id="dash-loading" class="empty-msg"><div class="spinner"></div>Loading...</div>
+      <div id="dash-content" style="display:none;">
+        <div class="stat-grid" id="stat-grid"></div>
+        <div class="dash-grid">
+          <div class="dash-card">
+            <div class="dash-card-title">By State</div>
+            <div id="state-breakdown"></div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">By Status</div>
+            <div id="status-breakdown"></div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">Recent Activity (last 7 days)</div>
+            <div id="recent-activity"></div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">Assignment Summary</div>
+            <div id="assignment-summary"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Leads ── -->
+    <div id="tab-leads" class="tab-panel">
+      <div class="filter-bar">
+        <input type="search" class="filter-search" id="lead-search" placeholder="Search name, address, DL#..." oninput="renderLeads()">
+        <select class="filter-select" id="lead-state" onchange="renderLeads()">
+          <option value="">All States</option>
+          <option value="noshow">No Show</option>
+          <option value="cancel">Cancelled</option>
+          <option value="goback">Go Back</option>
+          <option value="nosale">No Sale</option>
+        </select>
+        <select class="filter-select" id="lead-status" onchange="renderLeads()">
+          <option value="">All Statuses</option>
+          <option value="pending">Pending</option>
+          <option value="in_progress">In Progress</option>
+          <option value="reached">Reached</option>
+          <option value="resolved">Resolved</option>
+          <option value="do_not_call">DNC</option>
+        </select>
+        <select class="filter-select" id="lead-assigned" onchange="renderLeads()">
+          <option value="">All Reps</option>
+          <option value="__unassigned__">Unassigned</option>
+        </select>
+        <button class="filter-btn" onclick="clearLeadFilters()">Clear</button>
+      </div>
+      <div class="section-head">
+        <span class="section-title" id="leads-count-label">-- leads</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select class="filter-select" id="bulk-assign-select" style="font-size:12px;">
+            <option value="">Assign selected to...</option>
+          </select>
+          <button class="filter-btn action" onclick="bulkAssign()">Assign</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:32px;"><input type="checkbox" id="select-all" onchange="toggleSelectAll(this)"></th>
+              <th>Customer</th>
+              <th>DL#</th>
+              <th>State</th>
+              <th>Status</th>
+              <th>Assigned To</th>
+              <th>Last Contact</th>
+              <th>Next Step</th>
+              <th>Contacts</th>
+              <th>Phone</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Activity ── -->
+    <div id="tab-activity" class="tab-panel">
+      <div class="filter-bar">
+        <select class="filter-select" id="act-outcome" onchange="renderActivity()">
+          <option value="">All Outcomes</option>
+          <option value="Reached">Reached</option>
+          <option value="Voicemail">Voicemail</option>
+          <option value="No Answer">No Answer</option>
+        </select>
+        <input type="date" class="filter-select" id="act-from" onchange="renderActivity()" title="From date">
+        <input type="date" class="filter-select" id="act-to" onchange="renderActivity()" title="To date">
+        <button class="filter-btn" onclick="clearActivityFilters()">Clear</button>
+      </div>
+      <div class="section-head">
+        <span class="section-title" id="activity-count-label">-- entries</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Lead</th>
+              <th>Outcome</th>
+              <th>Date / Time</th>
+              <th>Notes</th>
+              <th>Next Step</th>
+              <th>Follow-up</th>
+            </tr>
+          </thead>
+          <tbody id="activity-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Follow-ups ── -->
+    <div id="tab-followups" class="tab-panel">
+      <div class="section-head">
+        <span class="section-title" id="fu-count-label">-- items</span>
+        <span class="section-muted">Leads with a follow-up date set and status not resolved or DNC</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Customer</th>
+              <th>State</th>
+              <th>Status</th>
+              <th>Assigned To</th>
+              <th>Follow-up Date</th>
+              <th>Last Contact</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="fu-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── Rep Pipeline ── -->
+    <div id="tab-pipeline" class="tab-panel">
+      <div id="rep-cards" class="rep-grid"></div>
+      <div id="rep-detail" style="display:none;">
+        <div class="section-head" style="margin-bottom:16px;">
+          <span class="section-title" id="rep-detail-name"></span>
+          <button class="filter-btn" onclick="clearRepSelection()">Clear selection</button>
+        </div>
+        <div class="stat-grid" id="rep-stat-grid" style="margin-bottom:20px;"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>State</th>
+                <th>Status</th>
+                <th>Last Contact</th>
+                <th>Next Step</th>
+                <th>Follow-up</th>
+                <th>Phone</th>
+              </tr>
+            </thead>
+            <tbody id="rep-leads-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Load List ── -->
+    <div id="tab-load" class="tab-panel">
+      <div style="max-width:760px;">
+        <div class="dash-card" style="margin-bottom:24px;">
+          <div class="dash-card-title" style="margin-bottom:8px;">How leads get loaded</div>
+          <p style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:10px;">
+            Leads sync automatically every time the Appointment Parser runs on the local dashboard (port 8765). The parser reads all snapshot files, classifies opportunities as No Show, Cancelled, Go Back, or No Sale, and upserts them into Supabase. Once a lead is in Supabase, you can assign it, update its status, and log contacts here.
+          </p>
+          <p style="font-size:14px;color:var(--muted);line-height:1.65;">
+            To add new leads: run the parser from the local Appointment Dashboard, or use the manual form below for one-off entries.
+          </p>
+        </div>
+
+        <div class="load-card">
+          <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:4px;">Add a lead manually</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">Use this for leads that aren't in the parser reports yet.</p>
+          <div id="load-error" class="error-msg" style="display:none;margin-bottom:14px;"></div>
+          <div class="form-row-2">
+            <div class="form-row" style="margin-bottom:0;">
+              <label class="form-label">Customer Name *</label>
+              <input type="text" id="ml-name" class="form-input" placeholder="Last, First">
+            </div>
+            <div class="form-row" style="margin-bottom:0;">
+              <label class="form-label">Opportunity ID (SF) *</label>
+              <input type="text" id="ml-oppid" class="form-input" placeholder="006Pl...">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:12px;">
+            <label class="form-label">Address</label>
+            <input type="text" id="ml-address" class="form-input" placeholder="123 Main St, Anytown CT">
+          </div>
+          <div class="form-row-2" style="margin-top:0;">
+            <div class="form-row" style="margin-bottom:0;">
+              <label class="form-label">DL Number</label>
+              <input type="text" id="ml-dl" class="form-input" placeholder="DL-1234567">
+            </div>
+            <div class="form-row" style="margin-bottom:0;">
+              <label class="form-label">DL URL (SF link)</label>
+              <input type="url" id="ml-dlurl" class="form-input" placeholder="https://trinity-solar...">
+            </div>
+          </div>
+          <div class="form-row-2" style="margin-top:0;">
+            <div class="form-row" style="margin-bottom:0;">
+              <label class="form-label">State *</label>
+              <select id="ml-state" class="form-select">
+                <option value="noshow">No Show</option>
+                <option value="cancel">Cancelled</option>
+                <option value="goback">Go Back</option>
+                <option value="nosale">No Sale</option>
+              </select>
+            </div>
+            <div class="form-row" style="margin-bottom:0;">
+              <label class="form-label">Lead Source</label>
+              <input type="text" id="ml-source" class="form-input" placeholder="Total Home, Door Knock...">
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:12px;">
+            <label class="form-label">Assign To</label>
+            <select id="ml-assign" class="form-select">
+              <option value="">Unassigned</option>
+            </select>
+          </div>
+          <div style="margin-top:18px;display:flex;gap:10px;align-items:center;">
+            <button class="submit-btn" onclick="manualAddLead()" id="ml-submit">Add Lead</button>
+            <span id="ml-msg" style="font-size:13px;color:var(--green);display:none;">Lead added.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let appStarted = false;
+window.IS_ADMIN = false;
+
+let allLeads = [], allContacts = [], allManagers = [], contactMap = {};
+
+/* ── Auth ── */
+function showOnly(id) {
+  for (const s of ['loginScreen','changePasswordScreen','appWrap']) {
+    const el = document.getElementById(s);
+    if (!el) continue;
+    el.style.display = (s === id) ? (s === 'appWrap' ? 'flex' : 'block') : 'none';
+  }
+}
+
+sb.auth.onAuthStateChange((_e, session) => {
+  if (session) {
+    setTimeout(async () => {
+      const { data: mgr } = await sb.from('managers')
+        .select('is_admin, name, must_change_password')
+        .eq('auth_user_id', session.user.id)
+        .maybeSingle();
+      if (!mgr) {
+        const el = document.getElementById('loginError');
+        el.textContent = 'Account not authorized for this tool. Contact Dan.';
+        el.style.display = 'block';
+        await sb.auth.signOut(); return;
+      }
+      if (mgr.must_change_password) { showOnly('changePasswordScreen'); return; }
+      window.IS_ADMIN = !!mgr.is_admin;
+      showOnly('appWrap');
+      document.getElementById('userName').textContent = mgr.name || '';
+      if (!appStarted) { appStarted = true; initApp(); }
+    }, 0);
+  } else { showOnly('loginScreen'); }
+});
+
+async function signIn() {
+  const raw  = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const errEl= document.getElementById('loginError');
+  const btn  = document.getElementById('loginBtn');
+  errEl.style.display = 'none';
+  const email = raw.includes('@') ? raw : `${raw}@ct-resource-page.com`;
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Sign In';
+  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+}
+
+async function signOut() { await sb.auth.signOut(); }
+
+async function changePassword() {
+  const np = document.getElementById('cpNew').value;
+  const cp = document.getElementById('cpConfirm').value;
+  const errEl = document.getElementById('cpError');
+  const btn   = document.getElementById('cpBtn');
+  errEl.style.display = 'none';
+  if (np.length < 8) { errEl.textContent='At least 8 characters.'; errEl.style.display='block'; return; }
+  if (np !== cp)     { errEl.textContent='Passwords do not match.'; errEl.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='Updating...';
+  const { error: pwErr } = await sb.auth.updateUser({ password: np });
+  if (pwErr) { btn.disabled=false; btn.textContent='Update Password'; errEl.textContent=pwErr.message; errEl.style.display='block'; return; }
+  const { data: { user } } = await sb.auth.getUser();
+  await sb.from('managers').update({ must_change_password: false }).eq('auth_user_id', user.id);
+  showOnly('appWrap');
+  if (!appStarted) { appStarted=true; initApp(); }
+}
+
+/* ── App init ── */
+async function initApp() {
+  await Promise.all([loadLeads(), loadContacts(), loadManagers()]);
+  buildContactMap();
+  populateManagerDropdowns();
+  renderDashboard();
+}
+
+async function loadLeads() {
+  const { data } = await sb.from('call_list').select('*').order('added_at', { ascending: false });
+  allLeads = data || [];
+}
+
+async function loadContacts() {
+  const { data } = await sb.from('contact_log').select('*').order('contacted_at', { ascending: false });
+  allContacts = data || [];
+}
+
+async function loadManagers() {
+  const { data } = await sb.from('managers').select('name, username').order('name');
+  allManagers = data || [];
+}
+
+function buildContactMap() {
+  contactMap = {};
+  for (const c of allContacts) {
+    if (!contactMap[c.opportunity_id]) contactMap[c.opportunity_id] = [];
+    contactMap[c.opportunity_id].push(c);
+  }
+}
+
+function populateManagerDropdowns() {
+  const selects = ['lead-assigned','bulk-assign-select','ml-assign','rep-detail-select'];
+  for (const id of selects) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    const existingOptions = Array.from(el.options).map(o => o.value);
+    for (const m of allManagers) {
+      if (!existingOptions.includes(m.name)) {
+        const opt = new Option(m.name, m.name);
+        el.appendChild(opt);
+      }
+    }
+  }
+}
+
+/* ── Tab switching ── */
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    const panel = document.getElementById('tab-' + tab.dataset.tab);
+    if (panel) panel.classList.add('active');
+    // Lazy render
+    if (tab.dataset.tab === 'leads')     renderLeads();
+    if (tab.dataset.tab === 'activity')  renderActivity();
+    if (tab.dataset.tab === 'followups') renderFollowups();
+    if (tab.dataset.tab === 'pipeline')  renderPipeline();
+  });
+});
+
+/* ── Helpers ── */
+function stateBadge(state) {
+  const map = { noshow:'No Show', cancel:'Cancelled', goback:'Go Back', nosale:'No Sale' };
+  const cls = state ? 'state-'+state : '';
+  return `<span class="badge ${cls}">${map[state] || state || '--'}</span>`;
+}
+function statusBadge(status) {
+  const map = { pending:'Pending', in_progress:'In Progress', reached:'Reached', resolved:'Resolved', do_not_call:'DNC' };
+  const s = status || 'pending';
+  return `<span class="badge status-${s}">${map[s] || s}</span>`;
+}
+function fmtDate(iso) {
+  if (!iso) return '--';
+  try { return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+  catch { return iso; }
+}
+function fmtDatetime(iso) {
+  if (!iso) return '--';
+  try { return new Date(iso).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); }
+  catch { return iso; }
+}
+function isOverdue(dateStr) {
+  if (!dateStr) return false;
+  return new Date(dateStr) < new Date();
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ── Dashboard ── */
+function renderDashboard() {
+  document.getElementById('dash-loading').style.display = 'none';
+  document.getElementById('dash-content').style.display = 'block';
+
+  const total    = allLeads.length;
+  const pending  = allLeads.filter(l => !l.status || l.status === 'pending').length;
+  const inProg   = allLeads.filter(l => l.status === 'in_progress').length;
+  const reached  = allLeads.filter(l => l.status === 'reached').length;
+  const resolved = allLeads.filter(l => l.status === 'resolved').length;
+  const dnc      = allLeads.filter(l => l.status === 'do_not_call').length;
+
+  const sevenAgo = new Date(Date.now() - 7 * 864e5);
+  const recentContacts = allContacts.filter(c => new Date(c.contacted_at) > sevenAgo);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayContacts  = allContacts.filter(c => new Date(c.contacted_at) >= today);
+  const fueDue = allLeads.filter(l => {
+    const lastContact = (contactMap[l.opportunity_id] || [])[0];
+    return lastContact?.follow_up_date && isOverdue(lastContact.follow_up_date) && !['resolved','do_not_call'].includes(l.status);
+  }).length;
+
+  document.getElementById('stat-grid').innerHTML = [
+    { label:'Total Leads',   value:total,          sub:'on call list' },
+    { label:'Pending',       value:pending,         sub:'not yet contacted' },
+    { label:'In Progress',   value:inProg,          sub:'being worked' },
+    { label:'Reached',       value:reached,         sub:'contact made' },
+    { label:'Resolved',      value:resolved,        sub:'completed' },
+    { label:'Contacts (7d)', value:recentContacts.length, sub:`${todayContacts.length} today` },
+    { label:'Follow-ups Due',value:fueDue,          sub:'overdue' },
+  ].map(s => `<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value">${s.value}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+
+  // State breakdown
+  const stateMap = { noshow:'No Show', cancel:'Cancelled', goback:'Go Back', nosale:'No Sale' };
+  const stateColors = { noshow:'#d63030', cancel:'#b82020', goback:'#8a6000', nosale:'#7a5000' };
+  let stateHtml = '';
+  for (const [k,label] of Object.entries(stateMap)) {
+    const n = allLeads.filter(l => l.state === k).length;
+    const pct = total ? Math.round(n/total*100) : 0;
+    stateHtml += `<div class="prog-row">
+      <span class="prog-label">${label}</span>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%;background:${stateColors[k]}20;border:1px solid ${stateColors[k]}40;"></div></div>
+      <span class="prog-count">${n}</span>
+    </div>`;
+  }
+  document.getElementById('state-breakdown').innerHTML = stateHtml;
+
+  // Status breakdown
+  const statusMap = { pending:'Pending', in_progress:'In Progress', reached:'Reached', resolved:'Resolved', do_not_call:'DNC' };
+  const statusColors = { pending:'#6b7a8d', in_progress:'#29A9E1', reached:'#78C832', resolved:'#3a7010', do_not_call:'#d63030' };
+  let statusHtml = '';
+  for (const [k,label] of Object.entries(statusMap)) {
+    const n = allLeads.filter(l => (l.status||'pending') === k).length;
+    const pct = total ? Math.round(n/total*100) : 0;
+    statusHtml += `<div class="prog-row">
+      <span class="prog-label">${label}</span>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%;background:${statusColors[k]};opacity:0.5;"></div></div>
+      <span class="prog-count">${n}</span>
+    </div>`;
+  }
+  document.getElementById('status-breakdown').innerHTML = statusHtml;
+
+  // Recent activity
+  const recentRows = recentContacts.slice(0,8).map(c => {
+    const lead = allLeads.find(l => l.opportunity_id === c.opportunity_id);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${lead?.opp_name || c.opp_name || '--'}</span>
+      <span class="badge outcome-${c.outcome}" style="margin:0 8px;">${c.outcome}</span>
+      <span style="color:var(--muted);flex-shrink:0;">${fmtDatetime(c.contacted_at)}</span>
+    </div>`;
+  }).join('') || '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No contacts in the last 7 days.</div>';
+  document.getElementById('recent-activity').innerHTML = recentRows;
+
+  // Assignment summary
+  let assignHtml = '';
+  const unassigned = allLeads.filter(l => !l.assigned_to).length;
+  assignHtml += `<div class="prog-row"><span class="prog-label" style="width:110px;">Unassigned</span><div class="prog-bar-wrap"><div class="prog-bar" style="width:${total?Math.round(unassigned/total*100):0}%;background:var(--muted);opacity:0.3;"></div></div><span class="prog-count">${unassigned}</span></div>`;
+  for (const m of allManagers) {
+    const n = allLeads.filter(l => l.assigned_to === m.name).length;
+    if (n === 0) continue;
+    assignHtml += `<div class="prog-row"><span class="prog-label" style="width:110px;">${m.name.split(' ')[0]}</span><div class="prog-bar-wrap"><div class="prog-bar" style="width:${Math.round(n/total*100)}%;background:var(--green);opacity:0.6;"></div></div><span class="prog-count">${n}</span></div>`;
+  }
+  document.getElementById('assignment-summary').innerHTML = assignHtml || '<div style="color:var(--muted);font-size:13px;">No managers found.</div>';
+}
+
+/* ── Leads tab ── */
+function getFilteredLeads() {
+  const q    = (document.getElementById('lead-search')?.value || '').toLowerCase();
+  const st   = document.getElementById('lead-state')?.value    || '';
+  const ss   = document.getElementById('lead-status')?.value   || '';
+  const asgn = document.getElementById('lead-assigned')?.value || '';
+  return allLeads.filter(l => {
+    if (st && l.state !== st) return false;
+    if (ss && (l.status || 'pending') !== ss) return false;
+    if (asgn === '__unassigned__' && l.assigned_to) return false;
+    if (asgn && asgn !== '__unassigned__' && l.assigned_to !== asgn) return false;
+    if (q) {
+      const hay = [l.opp_name, l.address, l.dl_number, l.phone].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderLeads() {
+  const leads = getFilteredLeads();
+  document.getElementById('leads-count-label').textContent = `${leads.length} lead${leads.length!==1?'s':''}`;
+  const tbody = document.getElementById('leads-tbody');
+  if (!leads.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">No leads match the current filters.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = leads.map(lead => {
+    const contacts = contactMap[lead.opportunity_id] || [];
+    const last = contacts[0] || null;
+    const lastContact = last ? fmtDatetime(last.contacted_at) : '--';
+    const nextStep = last?.next_step || '--';
+    const dlHtml = lead.dl_number
+      ? (lead.dl_url ? `<a class="td-link" href="${lead.dl_url}" target="_blank" rel="noopener">${lead.dl_number} &#8599;</a>` : `<span style="font-size:12px;">${lead.dl_number}</span>`)
+      : '--';
+    return `<tr>
+      <td><input type="checkbox" class="lead-checkbox" data-id="${lead.opportunity_id}"></td>
+      <td class="td-name" title="${lead.opp_name || ''}">${lead.opp_name || '--'}<br><span class="td-muted">${lead.address || ''}</span></td>
+      <td>${dlHtml}</td>
+      <td>${stateBadge(lead.state)}</td>
+      <td>
+        <select class="inline-select" onchange="patchLead('${lead.opportunity_id}','status',this.value)">
+          ${['pending','in_progress','reached','resolved','do_not_call'].map(s =>
+            `<option value="${s}"${(lead.status||'pending')===s?' selected':''}>${{pending:'Pending',in_progress:'In Progress',reached:'Reached',resolved:'Resolved',do_not_call:'DNC'}[s]}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td>
+        <select class="inline-select" onchange="patchLead('${lead.opportunity_id}','assigned_to',this.value||null)">
+          <option value="">--</option>
+          ${allManagers.map(m => `<option value="${m.name}"${lead.assigned_to===m.name?' selected':''}>${m.name}</option>`).join('')}
+        </select>
+      </td>
+      <td class="td-muted">${lastContact}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--accent);">${nextStep}</td>
+      <td style="text-align:center;">${contacts.length || 0}</td>
+      <td style="font-size:12px;">${lead.phone || '--'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function clearLeadFilters() {
+  document.getElementById('lead-search').value = '';
+  document.getElementById('lead-state').value  = '';
+  document.getElementById('lead-status').value = '';
+  document.getElementById('lead-assigned').value = '';
+  renderLeads();
+}
+
+async function patchLead(oppId, field, value) {
+  const { error } = await sb.from('call_list').update({ [field]: value }).eq('opportunity_id', oppId);
+  if (error) { showToast('Error saving -- ' + error.message); return; }
+  const lead = allLeads.find(l => l.opportunity_id === oppId);
+  if (lead) lead[field] = value;
+  showToast('Saved');
+  if (field === 'assigned_to') renderDashboard();
+}
+
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.lead-checkbox').forEach(c => c.checked = cb.checked);
+}
+
+async function bulkAssign() {
+  const sel = document.getElementById('bulk-assign-select').value;
+  if (!sel) { showToast('Choose a rep first.'); return; }
+  const checked = Array.from(document.querySelectorAll('.lead-checkbox:checked')).map(c => c.dataset.id);
+  if (!checked.length) { showToast('Select at least one lead.'); return; }
+  const { error } = await sb.from('call_list').update({ assigned_to: sel }).in('opportunity_id', checked);
+  if (error) { showToast('Error: ' + error.message); return; }
+  checked.forEach(id => {
+    const l = allLeads.find(l => l.opportunity_id === id);
+    if (l) l.assigned_to = sel;
+  });
+  showToast(`Assigned ${checked.length} lead${checked.length!==1?'s':''} to ${sel}`);
+  renderLeads();
+  renderDashboard();
+}
+
+/* ── Activity tab ── */
+function renderActivity() {
+  const outcome = document.getElementById('act-outcome')?.value || '';
+  const from    = document.getElementById('act-from')?.value;
+  const to      = document.getElementById('act-to')?.value;
+  let contacts = allContacts;
+  if (outcome) contacts = contacts.filter(c => c.outcome === outcome);
+  if (from)    contacts = contacts.filter(c => c.contacted_at >= from);
+  if (to)      contacts = contacts.filter(c => c.contacted_at <= to + 'T23:59:59');
+  document.getElementById('activity-count-label').textContent = `${contacts.length} entr${contacts.length!==1?'ies':'y'}`;
+  const tbody = document.getElementById('activity-tbody');
+  if (!contacts.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-msg">No activity matches the filters.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = contacts.slice(0, 200).map(c => {
+    const lead = allLeads.find(l => l.opportunity_id === c.opportunity_id);
+    return `<tr>
+      <td class="td-name">${lead?.opp_name || c.opp_name || '--'}<br><span class="td-muted">${lead?.address || ''}</span></td>
+      <td><span class="badge outcome-${c.outcome}">${c.outcome}</span></td>
+      <td class="td-muted">${fmtDatetime(c.contacted_at)}</td>
+      <td style="font-size:13px;max-width:220px;">${c.notes || '--'}</td>
+      <td style="font-size:12px;color:var(--accent);">${c.next_step || '--'}</td>
+      <td style="font-size:12px;${isOverdue(c.follow_up_date)?'color:#c0392b;font-weight:600;':''}">${c.follow_up_date ? fmtDate(c.follow_up_date) : '--'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function clearActivityFilters() {
+  document.getElementById('act-outcome').value = '';
+  document.getElementById('act-from').value    = '';
+  document.getElementById('act-to').value      = '';
+  renderActivity();
+}
+
+/* ── Follow-ups tab ── */
+function renderFollowups() {
+  const items = [];
+  for (const lead of allLeads) {
+    if (['resolved','do_not_call'].includes(lead.status)) continue;
+    const contacts = contactMap[lead.opportunity_id] || [];
+    const last = contacts[0];
+    if (!last?.follow_up_date) continue;
+    items.push({ lead, last });
+  }
+  items.sort((a,b) => a.last.follow_up_date.localeCompare(b.last.follow_up_date));
+  document.getElementById('fu-count-label').textContent = `${items.length} item${items.length!==1?'s':''}`;
+  const tbody = document.getElementById('fu-tbody');
+  if (!items.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-msg">No pending follow-ups.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = items.map(({ lead, last }) => {
+    const overdue = isOverdue(last.follow_up_date);
+    return `<tr>
+      <td class="td-name">${lead.opp_name || '--'}<br><span class="td-muted">${lead.address || ''}</span></td>
+      <td>${stateBadge(lead.state)}</td>
+      <td>${statusBadge(lead.status)}</td>
+      <td style="font-size:13px;">${lead.assigned_to || '<span style="color:var(--muted);">Unassigned</span>'}</td>
+      <td class="${overdue?'overdue':''}">${fmtDate(last.follow_up_date)}${overdue?' (overdue)':''}</td>
+      <td class="td-muted">${fmtDatetime(last.contacted_at)}</td>
+      <td style="font-size:12px;max-width:180px;">${last.notes || '--'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Rep Pipeline tab ── */
+let selectedRep = null;
+
+function renderPipeline() {
+  const repNames = ['Unassigned', ...allManagers.map(m => m.name)];
+  document.getElementById('rep-cards').innerHTML = repNames.map(name => {
+    const repLeads = name === 'Unassigned'
+      ? allLeads.filter(l => !l.assigned_to)
+      : allLeads.filter(l => l.assigned_to === name);
+    const pending  = repLeads.filter(l => !l.status || l.status === 'pending').length;
+    const inProg   = repLeads.filter(l => l.status === 'in_progress').length;
+    const resolved = repLeads.filter(l => l.status === 'resolved').length;
+    if (name !== 'Unassigned' && repLeads.length === 0) return '';
+    return `<div class="rep-card${selectedRep===name?' selected':''}" onclick="selectRep('${name}')">
+      <div class="rep-card-name">${name}</div>
+      <div class="rep-mini-stat"><span>Total leads</span><span>${repLeads.length}</span></div>
+      <div class="rep-mini-stat"><span>Pending</span><span>${pending}</span></div>
+      <div class="rep-mini-stat"><span>In progress</span><span>${inProg}</span></div>
+      <div class="rep-mini-stat"><span>Resolved</span><span>${resolved}</span></div>
+    </div>`;
+  }).join('');
+
+  if (selectedRep) renderRepDetail(selectedRep);
+}
+
+function selectRep(name) {
+  selectedRep = name;
+  renderPipeline();
+  renderRepDetail(name);
+}
+
+function clearRepSelection() {
+  selectedRep = null;
+  document.getElementById('rep-detail').style.display = 'none';
+  renderPipeline();
+}
+
+function renderRepDetail(name) {
+  const repLeads = name === 'Unassigned'
+    ? allLeads.filter(l => !l.assigned_to)
+    : allLeads.filter(l => l.assigned_to === name);
+
+  document.getElementById('rep-detail-name').textContent = name + ' -- ' + repLeads.length + ' lead' + (repLeads.length!==1?'s':'');
+  document.getElementById('rep-detail').style.display = 'block';
+
+  const pending  = repLeads.filter(l => !l.status || l.status === 'pending').length;
+  const inProg   = repLeads.filter(l => l.status === 'in_progress').length;
+  const reached  = repLeads.filter(l => l.status === 'reached').length;
+  const resolved = repLeads.filter(l => l.status === 'resolved').length;
+  document.getElementById('rep-stat-grid').innerHTML = [
+    {label:'Pending',   value:pending},
+    {label:'In Progress',value:inProg},
+    {label:'Reached',  value:reached},
+    {label:'Resolved', value:resolved},
+  ].map(s => `<div class="stat-card" style="padding:12px 16px;"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:22px;">${s.value}</div></div>`).join('');
+
+  const tbody = document.getElementById('rep-leads-tbody');
+  if (!repLeads.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="empty-msg">No leads assigned.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = repLeads.map(lead => {
+    const contacts = contactMap[lead.opportunity_id] || [];
+    const last = contacts[0] || null;
+    const lastFU = last?.follow_up_date;
+    return `<tr>
+      <td class="td-name">${lead.opp_name || '--'}<br><span class="td-muted">${lead.address || ''}</span></td>
+      <td>${stateBadge(lead.state)}</td>
+      <td>${statusBadge(lead.status)}</td>
+      <td class="td-muted">${last ? fmtDatetime(last.contacted_at) : '--'}</td>
+      <td style="font-size:12px;color:var(--accent);">${last?.next_step || '--'}</td>
+      <td style="font-size:12px;${lastFU&&isOverdue(lastFU)?'color:#c0392b;font-weight:600;':''}">${lastFU ? fmtDate(lastFU) : '--'}</td>
+      <td style="font-size:13px;">${lead.phone || '--'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── Manual lead add ── */
+async function manualAddLead() {
+  const name  = document.getElementById('ml-name').value.trim();
+  const oppid = document.getElementById('ml-oppid').value.trim();
+  const errEl = document.getElementById('load-error');
+  const btn   = document.getElementById('ml-submit');
+  const msg   = document.getElementById('ml-msg');
+  errEl.style.display = 'none'; msg.style.display = 'none';
+  if (!name || !oppid) { errEl.textContent='Customer name and Opportunity ID are required.'; errEl.style.display='block'; return; }
+  const row = {
+    opportunity_id: oppid, opp_name: name,
+    address:  document.getElementById('ml-address').value.trim() || null,
+    dl_number:document.getElementById('ml-dl').value.trim()      || null,
+    dl_url:   document.getElementById('ml-dlurl').value.trim()   || null,
+    lead_source:document.getElementById('ml-source').value.trim()|| null,
+    state:    document.getElementById('ml-state').value,
+    assigned_to:document.getElementById('ml-assign').value       || null,
+    status:   'pending',
+  };
+  btn.disabled=true; btn.textContent='Adding...';
+  const { error } = await sb.from('call_list').upsert(row, { onConflict: 'opportunity_id' });
+  btn.disabled=false; btn.textContent='Add Lead';
+  if (error) { errEl.textContent=error.message; errEl.style.display='block'; return; }
+  // Refresh local data
+  const existing = allLeads.findIndex(l => l.opportunity_id === oppid);
+  if (existing >= 0) allLeads[existing] = { ...allLeads[existing], ...row };
+  else allLeads.unshift(row);
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display='none', 3000);
+  renderDashboard();
+  ['ml-name','ml-oppid','ml-address','ml-dl','ml-dlurl','ml-source'].forEach(id => { document.getElementById(id).value=''; });
+}
+</script>
+</body>
+</html>
