@@ -417,6 +417,21 @@
   </div>
 </div>
 
+<div id="changePasswordScreen" style="display:none;align-items:center;justify-content:center;min-height:100vh;padding:24px;background:var(--bg)">
+  <div class="login-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="error-msg" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" placeholder="New password" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" placeholder="Re-enter new password" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-login">Update Password</button>
+    </form>
+  </div>
+</div>
+
 <div id="appWrap">
 
 <header class="page-header">
@@ -568,13 +583,23 @@ let modalOppId = null, modalOppName = null;
 let appStarted = false;
 
 // ── Auth gate ───────────────────────────────────────────────────────────
+function showOnly(screenId) {
+  for (const id of ['loginScreen', 'changePasswordScreen', 'appWrap']) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.style.display = (id === screenId)
+      ? (id === 'appWrap' ? 'block' : 'flex')
+      : 'none';
+  }
+}
+
 sb.auth.onAuthStateChange((_e, session) => {
   if (session) {
     // Defer the role lookup out of the auth state machine -- awaiting Supabase
     // calls inside this callback deadlocks the SDK.
     setTimeout(async () => {
       const { data: mgr } = await sb.from('managers')
-        .select('is_admin, name')
+        .select('is_admin, name, must_change_password')
         .eq('auth_user_id', session.user.id)
         .maybeSingle();
       if (!mgr) {
@@ -584,6 +609,10 @@ sb.auth.onAuthStateChange((_e, session) => {
         await sb.auth.signOut();
         return;
       }
+      if (mgr.must_change_password) {
+        showOnly('changePasswordScreen');
+        return;
+      }
       // Refresh the request headers with the user's JWT every time the
       // session updates (sign-in, token refresh, etc.).
       HDR = {
@@ -591,8 +620,7 @@ sb.auth.onAuthStateChange((_e, session) => {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
       };
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('appWrap').style.display = 'block';
+      showOnly('appWrap');
       document.getElementById('userLabel').textContent = mgr.name || '';
       if (!appStarted) {
         appStarted = true;
@@ -600,8 +628,7 @@ sb.auth.onAuthStateChange((_e, session) => {
       }
     }, 0);
   } else {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('appWrap').style.display = 'none';
+    showOnly('loginScreen');
   }
 });
 
@@ -629,6 +656,47 @@ async function signIn() {
 }
 
 async function signOut() { await sb.auth.signOut(); }
+
+async function changePassword() {
+  const newPass = document.getElementById('cpNew').value;
+  const confirm = document.getElementById('cpConfirm').value;
+  const errEl   = document.getElementById('cpError');
+  const btn     = document.getElementById('cpBtn');
+  errEl.style.display = 'none';
+  if (newPass.length < 8) {
+    errEl.textContent = 'Password must be at least 8 characters.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (newPass !== confirm) {
+    errEl.textContent = 'Passwords do not match.';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Updating...';
+  const { error: pwErr } = await sb.auth.updateUser({ password: newPass });
+  if (pwErr) {
+    btn.disabled = false;
+    btn.textContent = 'Update Password';
+    errEl.textContent = pwErr.message;
+    errEl.style.display = 'block';
+    return;
+  }
+  const { data: { user } } = await sb.auth.getUser();
+  const { error: flagErr } = await sb.from('managers')
+    .update({ must_change_password: false })
+    .eq('auth_user_id', user.id);
+  btn.disabled = false;
+  btn.textContent = 'Update Password';
+  if (flagErr) {
+    errEl.textContent = 'Password updated, but flag clear failed: ' + flagErr.message + '. Contact Dan.';
+    errEl.style.display = 'block';
+    return;
+  }
+  // Hard reload so the auth listener re-evaluates with the cleared flag.
+  window.location.reload();
+}
 
 // ── App init (fires once per page load, after auth is verified) ─────────
 async function initApp() {
