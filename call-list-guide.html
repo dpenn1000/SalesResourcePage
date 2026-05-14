@@ -22,74 +22,90 @@
     --shadow:  0 1px 4px rgba(0,0,0,0.07);
   }
 
-  html { background: var(--bg); color: var(--ink); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.65; }
+  html { background: var(--bg); color: var(--ink); font-family: 'Manrope', sans-serif; font-size: 16px; line-height: 1.7; }
   body { min-height: 100vh; }
 
   /* ── Header ── */
   .page-header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 16px 24px;
+    padding: 16px 32px;
     position: sticky; top: 0; z-index: 100;
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
   }
-  .header-inner { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .header-inner { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
   .logo-mark {
-    width: 34px; height: 34px; background: var(--green); border-radius: 7px;
+    width: 36px; height: 36px; background: var(--green); border-radius: 7px;
     display: flex; align-items: center; justify-content: center;
-    font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: #0b1120;
+    font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: #0b1120;
     flex-shrink: 0;
   }
   .header-text { flex: 1; min-width: 0; }
-  .header-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.2; }
-  .header-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .header-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+  .header-sub { font-size: 13px; color: var(--muted); margin-top: 1px; }
   .header-link {
-    font-size: 13px; font-weight: 600; color: var(--accent);
+    font-size: 14px; font-weight: 600; color: var(--accent);
     text-decoration: none; white-space: nowrap; flex-shrink: 0;
   }
   .header-link:hover { opacity: 0.8; }
 
   /* ── Layout ── */
-  .main { max-width: 760px; margin: 0 auto; padding: 32px 24px 80px; }
+  .main { max-width: 1200px; margin: 0 auto; padding: 36px 32px 80px; }
 
-  .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
-  .page-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--ink); line-height: 1.25; margin-bottom: 8px; }
-  .page-desc { font-size: 15px; color: var(--muted); margin-bottom: 32px; max-width: 560px; }
+  /* Two-column on wide screens */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  @media (min-width: 900px) {
+    .content-grid {
+      grid-template-columns: 1fr 380px;
+      gap: 40px;
+      align-items: start;
+    }
+  }
+  .col-main { min-width: 0; }
+  .col-side { min-width: 0; }
+
+  .page-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+  .page-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; color: var(--ink); line-height: 1.25; margin-bottom: 10px; }
+  .page-desc { font-size: 16px; color: var(--muted); margin-bottom: 32px; max-width: 640px; }
 
   /* ── Section ── */
-  .section { margin-bottom: 36px; }
+  .section { margin-bottom: 40px; }
   .section-title {
-    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 14px; padding-bottom: 8px;
+    font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 16px; padding-bottom: 10px;
     border-bottom: 1px solid var(--border);
   }
 
   /* ── Steps ── */
-  .steps { display: flex; flex-direction: column; gap: 12px; }
-  .step { display: flex; gap: 14px; }
+  .steps { display: flex; flex-direction: column; gap: 14px; }
+  .step { display: flex; gap: 16px; }
   .step-num {
-    width: 30px; height: 30px; border-radius: 50%;
+    width: 32px; height: 32px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+    font-size: 14px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
   }
   .step-body {
     flex: 1; min-width: 0;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 14px 18px;
+    padding: 16px 20px;
     box-shadow: var(--shadow);
   }
-  .step-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
-  .step-label { font-size: 13px; font-weight: 700; }
-  .step-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.3px; }
+  .step-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .step-label { font-size: 14px; font-weight: 700; }
+  .step-tag { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; }
   .step-script {
-    font-size: 14px; color: var(--ink); line-height: 1.65;
-    border-left: 3px solid var(--border); padding-left: 12px;
-    margin: 0 0 10px; font-style: italic;
+    font-size: 15px; color: var(--ink); line-height: 1.7;
+    border-left: 3px solid var(--border); padding-left: 14px;
+    margin: 0 0 12px; font-style: italic;
   }
-  .step-notes { font-size: 13px; color: var(--muted); padding-left: 16px; }
-  .step-notes li { margin-bottom: 4px; }
+  .step-notes { font-size: 14px; color: var(--muted); padding-left: 18px; }
+  .step-notes li { margin-bottom: 5px; }
   .step-notes li:last-child { margin-bottom: 0; }
 
   /* ── Color sets ── */
@@ -101,11 +117,11 @@
 
   /* ── Objections ── */
   .objection-list { display: flex; flex-direction: column; gap: 10px; }
-  .objection-row { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow); }
-  .obj-trigger { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
-  .obj-resp { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .objection-row { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow); }
+  .obj-trigger { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .obj-resp { font-size: 14px; color: var(--muted); line-height: 1.65; }
   .obj-pill {
-    display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
+    display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 9px;
     border-radius: 20px; background: rgba(0,0,0,0.05); color: var(--muted);
     margin-bottom: 4px;
   }
@@ -113,27 +129,27 @@
   /* ── Log checklist ── */
   .log-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow);
+    border-radius: var(--radius); padding: 20px 22px; box-shadow: var(--shadow);
   }
-  .log-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
+  .log-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; }
   @media (max-width: 520px) { .log-grid { grid-template-columns: 1fr; } }
-  .log-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--ink); }
-  .log-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 5px; }
+  .log-item { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--ink); }
+  .log-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 6px; }
 
   /* ── Tip box ── */
   .tip-box {
     background: rgba(41,169,225,0.07); border: 1px solid rgba(41,169,225,0.25);
-    border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px;
+    border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px;
   }
-  .tip-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
-  .tip-text { font-size: 13px; color: var(--ink); line-height: 1.6; }
+  .tip-label { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .tip-text { font-size: 14px; color: var(--ink); line-height: 1.65; }
 
   /* ── Divider ── */
   .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
 
   /* ── Footer ── */
-  .page-footer { max-width: 760px; margin: 0 auto; padding: 0 24px 40px; }
-  .footer-link { font-size: 13px; color: var(--accent); text-decoration: none; }
+  .page-footer { max-width: 1200px; margin: 0 auto; padding: 0 32px 40px; }
+  .footer-link { font-size: 14px; color: var(--accent); text-decoration: none; }
   .footer-link:hover { opacity: 0.8; }
 </style>
 </head>
@@ -155,6 +171,9 @@
   <div class="page-eyebrow">Call Playbook</div>
   <h1 class="page-title">Your job is QC first, re-engagement second.</h1>
   <p class="page-desc">These are homeowners who showed interest but never met with us. Open as quality control -- it's honest, disarming, and gets you past the hang-up reflex. The sales opportunity surfaces naturally if they're receptive.</p>
+
+  <div class="content-grid">
+  <div class="col-main">
 
   <!-- ── Before you dial ── -->
   <div class="section">
@@ -269,7 +288,8 @@
     </div>
   </div>
 
-  <hr class="divider">
+  </div><!-- /col-main -->
+  <div class="col-side">
 
   <!-- ── Objections ── -->
   <div class="section">
@@ -309,8 +329,6 @@
     </div>
   </div>
 
-  <hr class="divider">
-
   <!-- ── Logging ── -->
   <div class="section">
     <div class="section-title">Log every call before moving on</div>
@@ -324,7 +342,8 @@
         <div class="log-item"><div class="log-dot"></div><div><strong>Follow-up date</strong> -- set one if they asked you to call back later</div></div>
       </div>
     </div>
-  </div>
+  </div><!-- /col-side -->
+  </div><!-- /content-grid -->
 
 </main>
 
