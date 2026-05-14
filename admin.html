@@ -1196,6 +1196,11 @@ async function saveResource() {
     imageUrl = pendingImageUrl;
   }
 
+  // skip_bulletin tells the Postgres trigger fn_post_resource_bulletin whether
+  // to skip the auto-post to /updates/. Edits never post; new rows respect the
+  // checkbox. Bulletin creation itself lives in the trigger -- single source of truth.
+  const skipBulletin = !!id || !document.getElementById('fPostUpdate')?.checked;
+
   const payload = {
     name, url, category: cat, type,
     subcategory: document.getElementById('fSub').value.trim() || 'General',
@@ -1205,9 +1210,8 @@ async function saveResource() {
     is_current:  document.getElementById('fCurrent').checked,
     image_url:   imageUrl || null,
     image_type:  imageType,
+    skip_bulletin: skipBulletin,
   };
-
-  const wantPostUpdate = !id && document.getElementById('fPostUpdate')?.checked;
 
   const { error } = id
     ? await sb.from('resources').update(payload).eq('id', id)
@@ -1216,56 +1220,10 @@ async function saveResource() {
   btn.disabled = false; btn.textContent = 'Save Resource';
   if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; return; }
 
-  // Auto-post a launch bulletin to /updates/ for new resources
-  // (skipped on edit, and skippable via the checkbox).
-  let bulletinNote = '';
-  if (wantPostUpdate) {
-    const bulletinError = await postResourceBulletin(payload);
-    bulletinNote = bulletinError ? ' (bulletin post failed: ' + bulletinError + ')' : ' + posted to Updates feed.';
-  }
-
+  const bulletinNote = (!id && !skipBulletin) ? ' + posted to Updates feed.' : '';
   hideForm(); await loadResources();
   toast((id ? 'Resource updated.' : 'Resource added.') + bulletinNote);
 }
-
-// Post a launch bulletin announcing a newly-added resource. Returns error
-// message string if the insert fails, or null on success.
-async function postResourceBulletin(resourcePayload) {
-  const session = (await sb.auth.getSession()).data.session;
-  const author_email = session?.user?.email || null;
-
-  const baseSlug = slugify('new-' + resourcePayload.name);
-  const datedSlug = baseSlug + '-' + new Date().toISOString().slice(0, 10);
-
-  const linkHtml = `<p>A new resource is now available in the Resource Page: <a href="${escapeAttr(resourcePayload.url)}" target="_blank" rel="noopener">${escapeHtml(resourcePayload.name)}</a>.</p>`;
-  const descHtml = resourcePayload.description
-    ? `<p><em>${escapeHtml(resourcePayload.description)}</em></p>`
-    : '';
-  const catLine = `<p style="font-size:13px;color:#6b7a90;">Category: ${escapeHtml(resourcePayload.category)}${resourcePayload.subcategory ? ' / ' + escapeHtml(resourcePayload.subcategory) : ''}</p>`;
-
-  const payload = {
-    title: 'New: ' + resourcePayload.name,
-    slug: datedSlug,
-    type: 'announcement',
-    body_html: linkHtml + descHtml + catLine,
-    pinned: false,
-    publish_at: new Date().toISOString(),
-    expires_at: null,
-    attachments: [],
-    author_email,
-    active: true,
-  };
-
-  let { error } = await sb.from('bulletins').insert(payload);
-  if (error && /duplicate key/i.test(error.message || '')) {
-    // Slug collision (resource re-added with same name same day) -- append a counter.
-    payload.slug = datedSlug + '-' + Math.floor(Math.random() * 9000 + 1000);
-    ({ error } = await sb.from('bulletins').insert(payload));
-  }
-  return error ? error.message : null;
-}
-
-function escapeAttr(s) { return escapeHtml(s); }
 
 async function deleteRow(id, name) {
   if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -1872,6 +1830,8 @@ function renderAttachList() {
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+
+function escapeAttr(s) { return escapeHtml(s); }
 
 // ── Edge Function ─────────────────────────────────
 const EDGE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-admins';
