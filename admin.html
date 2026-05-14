@@ -54,6 +54,8 @@
     .btn-primary { width: 100%; padding: 10px; background: var(--header); color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
     .btn-primary:hover { opacity: 0.85; }
     .error-msg { background: #FEF2F2; border: 1px solid #FCA5A5; color: #991B1B; font-size: 12px; padding: 9px 12px; border-radius: 6px; margin-bottom: 14px; }
+    .success-msg { background: #F0FDF4; border: 1px solid #86EFAC; color: #166534; font-size: 12px; padding: 9px 12px; border-radius: 6px; margin-bottom: 14px; }
+    .login-hint { margin-top: 16px; font-size: 12px; color: #666; line-height: 1.5; }
 
     #adminPanel { display: none; }
     .admin-inner { max-width: 1100px; margin: 0 auto; padding: 28px 24px 56px; }
@@ -210,15 +212,17 @@
 <div id="loginScreen">
   <div class="login-card">
     <h2>Admin Sign In</h2>
-    <p>Manage resources, images, and training decks for the CT Traditional sales team.</p>
+    <p>Manage resources, updates, feedback, and team for the CT Traditional sales team. Internal use only.</p>
     <div id="loginError" class="error-msg" style="display:none"></div>
+    <div id="loginSuccess" class="success-msg" style="display:none"></div>
     <form onsubmit="event.preventDefault();signIn()">
       <label>Email</label>
-      <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
-      <label>Password</label>
-      <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
-      <button type="submit" class="btn-primary">Sign In</button>
+      <input type="email" id="loginEmail" placeholder="you@trinity-solar.com" autocomplete="email" required>
+      <button type="submit" id="loginBtn" class="btn-primary">Send Magic Link</button>
     </form>
+    <p class="login-hint">
+      You'll get a one-click sign-in link in your email. No password to remember.
+    </p>
   </div>
 </div>
 
@@ -717,11 +721,25 @@ let pdfCanvasReady   = false;
 let xlsxCanvasReady  = false;
 
 // ── Auth ─────────────────────────────────────────
-sb.auth.onAuthStateChange((_e, session) => {
+window.IS_ADMIN = false;
+
+sb.auth.onAuthStateChange(async (_e, session) => {
   if (session) {
+    const { data: mgr } = await sb.from('managers')
+      .select('is_admin, name')
+      .eq('auth_user_id', session.user.id)
+      .maybeSingle();
+    if (!mgr) {
+      const errEl = document.getElementById('loginError');
+      errEl.textContent = 'Your account is signed in but not authorized for this app. Contact Dan if you need access.';
+      errEl.style.display = 'block';
+      await sb.auth.signOut();
+      return;
+    }
+    window.IS_ADMIN = !!mgr.is_admin;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminPanel').style.display  = 'block';
-    document.getElementById('userLabel').textContent = session.user.email;
+    document.getElementById('userLabel').textContent = mgr.name || session.user.email;
     loadResources();
   } else {
     document.getElementById('loginScreen').style.display = 'flex';
@@ -731,11 +749,35 @@ sb.auth.onAuthStateChange((_e, session) => {
 
 async function signIn() {
   const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
   const errEl = document.getElementById('loginError');
+  const okEl  = document.getElementById('loginSuccess');
+  const btn   = document.getElementById('loginBtn');
   errEl.style.display = 'none';
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  if (error) { errEl.textContent = error.message; errEl.style.display = 'block'; }
+  okEl.style.display  = 'none';
+  if (!email) {
+    errEl.textContent = 'Enter your email.';
+    errEl.style.display = 'block';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: {
+      shouldCreateUser: false,
+      emailRedirectTo: window.location.origin + '/admin.html'
+    }
+  });
+  btn.disabled = false;
+  btn.textContent = 'Send Magic Link';
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+    return;
+  }
+  okEl.textContent = 'Check your email for the sign-in link. Clicking it will open the admin panel here.';
+  okEl.style.display = 'block';
+  document.getElementById('loginEmail').disabled = true;
 }
 
 async function signOut() { await sb.auth.signOut(); }
@@ -2129,7 +2171,7 @@ async function loadFeedback() {
   if (error) {
     tbody.innerHTML = '<tr><td colspan="7" class="team-empty" style="color:#c92020;">'
       + 'Error loading feedback: ' + escapeHtml(error.message)
-      + (/relation .* does not exist/i.test(error.message) ? ' &mdash; the feedback_items table may not have been migrated yet (run admin-scripts/migrations/0004_feedback_items.sql).' : '')
+      + (/relation .* does not exist/i.test(error.message) ? ' -- the feedback_items table may not have been migrated yet (run admin-scripts/migrations/0004_feedback_items.sql).' : '')
       + '</td></tr>';
     return;
   }
