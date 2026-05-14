@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Call List Rep Guide -- Trinity Solar CT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:   #78C832;
+    --accent:  #29A9E1;
+    --ink:     #1A2332;
+    --muted:   #6b7a8d;
+    --border:  #DFE2DA;
+    --bg:      #EFF1EC;
+    --surface: #ffffff;
+    --radius:  10px;
+    --shadow:  0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  html { background: var(--bg); color: var(--ink); font-family: 'Manrope', sans-serif; font-size: 15px; line-height: 1.65; }
+  body { min-height: 100vh; }
+
+  /* ── Header ── */
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .header-inner { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .logo-mark {
+    width: 34px; height: 34px; background: var(--green); border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: #0b1120;
+    flex-shrink: 0;
+  }
+  .header-text { flex: 1; min-width: 0; }
+  .header-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .header-link {
+    font-size: 13px; font-weight: 600; color: var(--accent);
+    text-decoration: none; white-space: nowrap; flex-shrink: 0;
+  }
+  .header-link:hover { opacity: 0.8; }
+
+  /* ── Layout ── */
+  .main { max-width: 760px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  .page-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+  .page-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--ink); line-height: 1.25; margin-bottom: 8px; }
+  .page-desc { font-size: 15px; color: var(--muted); margin-bottom: 32px; max-width: 560px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 36px; }
+  .section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Steps ── */
+  .steps { display: flex; flex-direction: column; gap: 12px; }
+  .step { display: flex; gap: 14px; }
+  .step-num {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-body {
+    flex: 1; min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    box-shadow: var(--shadow);
+  }
+  .step-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .step-label { font-size: 13px; font-weight: 700; }
+  .step-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.3px; }
+  .step-script {
+    font-size: 14px; color: var(--ink); line-height: 1.65;
+    border-left: 3px solid var(--border); padding-left: 12px;
+    margin: 0 0 10px; font-style: italic;
+  }
+  .step-notes { font-size: 13px; color: var(--muted); padding-left: 16px; }
+  .step-notes li { margin-bottom: 4px; }
+  .step-notes li:last-child { margin-bottom: 0; }
+
+  /* ── Color sets ── */
+  .c-green  { background: rgba(120,200,50,0.1);  color: #3a7010; }
+  .c-blue   { background: rgba(41,169,225,0.12); color: #1070a0; }
+  .c-amber  { background: rgba(200,140,0,0.1);   color: #8a5800; }
+  .c-purple { background: rgba(100,80,200,0.1);  color: #4a3898; }
+  .c-red    { background: rgba(214,48,48,0.08);  color: #a02020; }
+
+  /* ── Objections ── */
+  .objection-list { display: flex; flex-direction: column; gap: 10px; }
+  .objection-row { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow); }
+  .obj-trigger { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .obj-resp { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .obj-pill {
+    display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; background: rgba(0,0,0,0.05); color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  /* ── Log checklist ── */
+  .log-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow);
+  }
+  .log-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; }
+  @media (max-width: 520px) { .log-grid { grid-template-columns: 1fr; } }
+  .log-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--ink); }
+  .log-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 5px; }
+
+  /* ── Tip box ── */
+  .tip-box {
+    background: rgba(41,169,225,0.07); border: 1px solid rgba(41,169,225,0.25);
+    border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px;
+  }
+  .tip-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .tip-text { font-size: 13px; color: var(--ink); line-height: 1.6; }
+
+  /* ── Divider ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 28px 0; }
+
+  /* ── Footer ── */
+  .page-footer { max-width: 760px; margin: 0 auto; padding: 0 24px 40px; }
+  .footer-link { font-size: 13px; color: var(--accent); text-decoration: none; }
+  .footer-link:hover { opacity: 0.8; }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="header-inner">
+    <div class="logo-mark">T</div>
+    <div class="header-text">
+      <div class="header-title">Call List Rep Guide</div>
+      <div class="header-sub">Trinity Solar CT &middot; QC Re-engagement Calls</div>
+    </div>
+    <a class="header-link" href="/call-list.html">Open Call List &rarr;</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="page-eyebrow">Call Playbook</div>
+  <h1 class="page-title">Your job is QC first, re-engagement second.</h1>
+  <p class="page-desc">These are homeowners who showed interest but never met with us. Open as quality control -- it's honest, disarming, and gets you past the hang-up reflex. The sales opportunity surfaces naturally if they're receptive.</p>
+
+  <!-- ── Before you dial ── -->
+  <div class="section">
+    <div class="section-title">Before you dial</div>
+    <div class="tip-box">
+      <div class="tip-label">Check the card first</div>
+      <div class="tip-text">
+        Open the card in the Call List tool. Note the <strong>lead source</strong> (Total Home, door knock, referral), the <strong>state</strong> (No Show, Cancelled, No Sale), and any <strong>previous contact notes</strong>. Then click the <strong>DL# link</strong> to pull up the Direct Lead in Salesforce -- that's where the homeowner's phone number lives. Save it in the phone field before you dial.
+      </div>
+    </div>
+    <div class="tip-box" style="background:rgba(120,200,50,0.07);border-color:rgba(120,200,50,0.25);">
+      <div class="tip-label" style="color:var(--green);">Lead source changes your opening</div>
+      <div class="tip-text">
+        <strong>Total Home / call center</strong> -- they often don't remember the call. Lead with "someone from our team reached out about solar for your home."<br>
+        <strong>Door knock</strong> -- they remember the rep at the door. "One of our reps came by your neighborhood..."<br>
+        <strong>Referral</strong> -- use the referrer's name if you have it. Instant credibility.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Call Steps ── -->
+  <div class="section">
+    <div class="section-title">The call -- step by step</div>
+    <div class="steps">
+
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="step-num c-green">1</div>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="step-label c-green" style="background:none;padding:0;">Opening</span>
+            <span class="step-tag c-green">Pattern interrupt</span>
+          </div>
+          <p class="step-script">"Hi, is this [Name]? My name is [Your Name] -- I'm with Trinity Solar here in Connecticut. I'm actually not calling to sell you anything today. I'm doing some quality control on behalf of our leadership team and I just had a quick question for you -- do you have 60 seconds?"</p>
+          <ul class="step-notes">
+            <li>"Quality control" and "60 seconds" are both disarming -- use both.</li>
+            <li>If they hesitate: "It's genuinely quick -- just 2-3 questions about your experience with us."</li>
+            <li>If they're busy: "No problem -- is there a better time to reach you?" Log a follow-up date and move on.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="step-num c-blue">2</div>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="step-label c-blue" style="background:none;padding:0;">QC questions</span>
+            <span class="step-tag c-blue">Listen -- don't defend</span>
+          </div>
+          <p class="step-script">"So a while back it looks like someone reached out to you about [solar / roofing / battery storage] for your home -- can you remind me how you first heard about us? Was it through a call, someone who came to your door, or something else?"</p>
+          <ul class="step-notes">
+            <li>Follow up: "Did you get a chance to speak with anyone on our team? How was that experience?"</li>
+            <li>If they had a bad experience: "I really appreciate you telling me that. That's exactly why we do these calls."</li>
+            <li>Log everything they say about the setter, call center, or outreach rep -- it's coaching intel.</li>
+            <li>Do not be defensive. Listen and acknowledge.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="step-num c-amber">3</div>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="step-label c-amber" style="background:none;padding:0;">The bridge</span>
+            <span class="step-tag c-amber">Earn the pivot</span>
+          </div>
+          <p class="step-script">"I appreciate that -- and honestly, with everything going on with Eversource rates right now, I'd hate for that experience to have gotten in the way of you at least seeing your numbers. It looks like we never actually got someone out to your home."</p>
+          <ul class="step-notes">
+            <li>Only use this if they were neutral or positive. Skip to exit if they're hostile.</li>
+            <li>Keep it factual and conversational -- don't oversell the bridge.</li>
+            <li>Adjust the reference: "your numbers" works for solar; for roofing use "what your roof assessment would look like."</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step">
+        <div class="step-num c-purple">4</div>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="step-label c-purple" style="background:none;padding:0;">Re-engagement ask</span>
+            <span class="step-tag c-purple">Soft and specific</span>
+          </div>
+          <p class="step-script">"Would you be open to having one of our guys come by for just 20-30 minutes -- no pressure, no commitment -- just to show you what your home could look like and what your actual savings would be? A lot of homeowners tell us they're glad they at least took the time to see the number."</p>
+          <ul class="step-notes">
+            <li>"20-30 minutes" and "just to know the number" lower the perceived stakes.</li>
+            <li>If yes: get a specific day/time and hand off to your setter or book directly.</li>
+            <li>If maybe: "What would make you feel more comfortable?" -- surface the real objection.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step">
+        <div class="step-num c-red">5</div>
+        <div class="step-body">
+          <div class="step-head">
+            <span class="step-label c-red" style="background:none;padding:0;">Close or exit</span>
+            <span class="step-tag c-red">Leave the door open</span>
+          </div>
+          <p class="step-script">If yes: "Perfect -- I'll have someone reach out to confirm the time. What's the best number to reach you at?"<br><br>If no: "Completely understand -- I really appreciate your time. If anything changes down the road, feel free to reach back out. Take care."</p>
+          <ul class="step-notes">
+            <li>Never argue past a firm no. It poisons future attempts and our reputation.</li>
+            <li>A warm no today can be a yes in 6 months -- log it cleanly so it can be revisited.</li>
+            <li>Confirm or update their phone number in the tool before you close out.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── Objections ── -->
+  <div class="section">
+    <div class="section-title">Common objections</div>
+    <div class="objection-list">
+
+      <div class="objection-row">
+        <div class="obj-trigger">"I'm not interested."</div>
+        <div class="obj-resp">"Totally fair -- can I just ask what made you decide it wasn't the right fit? It helps us understand what we could do better." Then exit gracefully. Log their reason -- it's useful data.</div>
+      </div>
+
+      <div class="objection-row">
+        <div class="obj-trigger">"We rent."</div>
+        <div class="obj-resp">"Got it -- that makes sense. Good luck with everything." Log as resolved. Not a prospect.</div>
+      </div>
+
+      <div class="objection-row">
+        <div class="obj-trigger">"We already went solar."</div>
+        <div class="obj-resp">"Oh great -- good for you! Did roofing or battery storage ever come up as part of that conversation?" Optional angle, light touch.</div>
+      </div>
+
+      <div class="objection-row">
+        <div class="obj-trigger">"We're moving / selling the house."</div>
+        <div class="obj-resp">"Understood -- actually solar can add real value to your asking price if you're listing. But no worries either way." Don't push. Log as resolved if they're firm.</div>
+      </div>
+
+      <div class="objection-row">
+        <div class="obj-trigger">"I already told someone no."</div>
+        <div class="obj-resp">"You're right -- and I'm sorry we weren't able to earn your business at that point. I just wanted to do a quick check-in and make sure we handled everything professionally." Then exit unless they warm up.</div>
+      </div>
+
+      <div class="objection-row" style="border-color:rgba(214,48,48,0.25);">
+        <div class="obj-trigger" style="color:#a02020;">"Put me on your Do Not Call list."</div>
+        <div class="obj-resp">Apologize immediately. Confirm you'll note it. End the call. <strong>Log as DNC in the tool right away.</strong> Do not call again under any circumstances.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── Logging ── -->
+  <div class="section">
+    <div class="section-title">Log every call before moving on</div>
+    <div class="log-card">
+      <div class="log-grid">
+        <div class="log-item"><div class="log-dot"></div><div><strong>Outcome</strong> -- Reached, Voicemail, or No Answer</div></div>
+        <div class="log-item"><div class="log-dot"></div><div><strong>Notes</strong> -- what they said, their mood, lead source feedback</div></div>
+        <div class="log-item"><div class="log-dot"></div><div><strong>Next step</strong> -- callback time, setter handoff, or "resolved"</div></div>
+        <div class="log-item"><div class="log-dot"></div><div><strong>Status</strong> -- update to In Progress, Reached, Resolved, or DNC</div></div>
+        <div class="log-item"><div class="log-dot"></div><div><strong>Phone</strong> -- save it from the SF Direct Lead link if not already there</div></div>
+        <div class="log-item"><div class="log-dot"></div><div><strong>Follow-up date</strong> -- set one if they asked you to call back later</div></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="page-footer">
+  <a class="footer-link" href="/call-list.html">&larr; Back to Call List</a>
+</footer>
+
+</body>
+</html>
