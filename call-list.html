@@ -7,8 +7,83 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── Auth gate ── */
+  #loginScreen {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 24px;
+    background: var(--bg);
+  }
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: var(--shadow);
+  }
+  .login-card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .login-card p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .login-card label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+    margin-top: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .login-card input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+  }
+  .login-card .btn-login {
+    width: 100%;
+    margin-top: 20px;
+    padding: 10px 16px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .login-card .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+  .error-msg {
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    color: #991B1B;
+    font-size: 12px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+  }
+  #appWrap { display: none; }
 
   /* ── Light theme (default) ── */
   :root {
@@ -327,6 +402,23 @@
 </head>
 <body>
 
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>Call List Sign In</h2>
+    <p>Manager access only. Use your CT Tools username and password.</p>
+    <div id="loginError" class="error-msg" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-login">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap">
+
 <header class="page-header">
   <div class="header-inner">
     <div class="header-logo">
@@ -338,9 +430,11 @@
     </div>
     <div class="header-right">
       <span id="lead-count">Loading...</span>
+      <span id="userLabel" style="font-size:12px;color:var(--muted)"></span>
       <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme" title="Toggle dark/light mode">
         <span id="theme-icon">&#9790;</span>
       </button>
+      <button class="btn-ghost" onclick="signOut()" style="padding:6px 12px;font-size:12px;border:none;border-radius:6px;cursor:pointer">Sign out</button>
     </div>
   </div>
 </header>
@@ -455,19 +549,92 @@
   </div>
 </div>
 
+</div><!-- /#appWrap -->
+
 <script>
 const SB_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqY296c2t5b3BldHZpZ2pobG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDU0MTQsImV4cCI6MjA5MjE4MTQxNH0.IXvvXIYdfFNaQSrnwmKvNJEOHLq9wq6NZfE0SUB5NfE';
-const HDR = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
+
+// HDR is mutated by onAuthStateChange: apikey stays the anon key (identifies the
+// project), Authorization becomes the user's JWT (identifies them for RLS).
+// Before sign-in this is null and no fetch is allowed.
+let HDR = null;
+
+const sb = supabase.createClient(SB_URL, SB_KEY);
 
 let allLeads = [], contactMap = {};
 let activeStateFilter = '', activeStatusFilter = '';
 let modalOppId = null, modalOppName = null;
+let appStarted = false;
 
-(async () => {
+// ── Auth gate ───────────────────────────────────────────────────────────
+sb.auth.onAuthStateChange((_e, session) => {
+  if (session) {
+    // Defer the role lookup out of the auth state machine -- awaiting Supabase
+    // calls inside this callback deadlocks the SDK.
+    setTimeout(async () => {
+      const { data: mgr } = await sb.from('managers')
+        .select('is_admin, name')
+        .eq('auth_user_id', session.user.id)
+        .maybeSingle();
+      if (!mgr) {
+        const errEl = document.getElementById('loginError');
+        errEl.textContent = 'Your account is signed in but not authorized for this app. Contact Dan if you need access.';
+        errEl.style.display = 'block';
+        await sb.auth.signOut();
+        return;
+      }
+      // Refresh the request headers with the user's JWT every time the
+      // session updates (sign-in, token refresh, etc.).
+      HDR = {
+        'apikey': SB_KEY,
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
+      };
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('appWrap').style.display = 'block';
+      document.getElementById('userLabel').textContent = mgr.name || '';
+      if (!appStarted) {
+        appStarted = true;
+        initApp();
+      }
+    }, 0);
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appWrap').style.display = 'none';
+  }
+});
+
+async function signIn() {
+  const raw   = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass  = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  const btn   = document.getElementById('loginBtn');
+  errEl.style.display = 'none';
+  if (!raw || !pass) {
+    errEl.textContent = 'Enter your username and password.';
+    errEl.style.display = 'block';
+    return;
+  }
+  const email = raw.includes('@') ? raw : `${raw}@ct-resource-page.com`;
+  btn.disabled = true;
+  btn.textContent = 'Signing in...';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false;
+  btn.textContent = 'Sign In';
+  if (error) {
+    errEl.textContent = error.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function signOut() { await sb.auth.signOut(); }
+
+// ── App init (fires once per page load, after auth is verified) ─────────
+async function initApp() {
   await Promise.all([loadLeads(), loadAllContacts()]);
   render();
-})();
+}
 
 async function loadLeads() {
   try {
