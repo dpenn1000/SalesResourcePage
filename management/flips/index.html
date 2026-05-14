@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Flips Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --bg: #e4e8ee;
+    --surface: #dde1e8;
+    --card: #eaecf0;
+    --border: #cdd2db;
+    --header-bg: #28374a;
+    --accent: #3a6f9e;
+    --accent-dim: #c8daea;
+    --done-bg: #daeee1;
+    --done-bd: #62a87a;
+    --done-text: #265538;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; background: var(--bg); color: #28303e; }
+
+  /* HEADER */
+  .header { background: var(--header-bg); color: #e8ecf0; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 16px; font-weight: 600; }
+  .header .sub { font-size: 11px; color: #8a9fb8; margin-top: 2px; }
+  .header-right { font-size: 11px; color: #8a9fb8; text-align: right; display: flex; align-items: center; gap: 14px; }
+  .user-label { font-size: 11px; color: #8a9fb8; }
+  .btn-hdr { padding: 5px 11px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.18); background: transparent; color: rgba(255,255,255,0.65); transition: background 0.15s; }
+  .btn-hdr:hover { background: rgba(255,255,255,0.1); }
+
+  /* STATS */
+  .stats { display: flex; gap: 10px; padding: 14px 16px; flex-wrap: wrap; }
+  .stat { background: var(--card); border: 1px solid var(--border); border-radius: 7px; padding: 10px 16px; min-width: 110px; box-shadow: none; cursor: pointer; transition: background .15s; }
+  .stat:hover { background: #dde2e9; }
+  .stat .val { font-size: 22px; font-weight: 700; color: #28303e; }
+  .stat .lbl { font-size: 10px; color: #6a7a8e; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+
+  /* TOOLBAR */
+  .toolbar { display: flex; gap: 8px; padding: 0 16px 12px; flex-wrap: wrap; align-items: flex-end; }
+  .toolbar > div { display: flex; flex-direction: column; gap: 3px; }
+  .toolbar label { font-size: 10px; color: #6a7a8e; text-transform: uppercase; letter-spacing: .4px; }
+  .toolbar select, .toolbar input { border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 12px; background: var(--card); color: #28303e; height: 30px; }
+  .btn { border: none; border-radius: 6px; padding: 5px 14px; font-size: 12px; cursor: pointer; font-weight: 600; height: 30px; }
+  .btn-clear { background: var(--surface); color: #556; border: 1px solid var(--border); }
+  .btn-clear:hover { background: #d0d5dd; }
+  .count-badge { background: var(--accent-dim); color: #1e4a6e; border-radius: 10px; padding: 2px 10px; font-size: 11px; font-weight: 600; align-self: center; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; padding: 0 16px 20px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 7px; overflow: hidden; box-shadow: none; border: 1px solid var(--border); font-size: 12px; }
+  thead tr { background: #38506a; color: #dde4ec; }
+  thead th { padding: 9px 10px; text-align: left; font-weight: 600; font-size: 11px; white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th:hover { background: #435e78; }
+  tbody tr { border-bottom: 1px solid var(--border); cursor: pointer; transition: background .1s; }
+  tbody tr:even { background: #e6e9ee; }
+  tbody tr:odd { background: var(--card); }
+  tbody tr:hover { background: var(--accent-dim) !important; }
+  td { padding: 8px 10px; vertical-align: middle; }
+  td.customer { font-weight: 600; min-width: 160px; }
+  td.notes-cell { max-width: 200px; color: #6a7a8e; font-size: 11px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* COMPLETED ROW */
+  tbody tr.row-complete { background: var(--done-bg) !important; border-left: 3px solid var(--done-bd); }
+  tbody tr.row-complete:hover { background: #cce4d4 !important; }
+  tbody tr.row-complete td:not(.customer) { opacity: .80; }
+  tbody tr.row-complete td.customer { color: var(--done-text); }
+
+  /* BADGES */
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+  .target-solar { background: #ede8c4; color: #6a3c08; border: 1px solid #c8ae50; }
+  .target-roof { background: #e8d0d0; color: #781010; border: 1px solid #c88888; }
+  .target-both { background: #ddd8ee; color: #40198a; border: 1px solid #a898d8; }
+  .target-unknown { background: #dde0e4; color: #5a6070; border: 1px dashed #b0b8c4; }
+  .status-pill { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .s-done { background: #c8e4d0; color: #1a4c2e; }
+  .s-ntp { background: #c4d8ec; color: #164466; }
+  .s-need { background: #e8e0bc; color: #6a3c08; }
+  .s-credit { background: #e8cccc; color: #781010; }
+  .s-complete { background: #c4dce8; color: #124260; }
+  .s-other { background: #dde0e4; color: #404858; }
+  .net-pos { color: #1a4c2e; font-weight: 600; }
+  .net-neg { color: #781010; font-weight: 600; }
+
+  /* MODAL OVERLAY */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #e8ebf0; border-radius: 10px; width: 680px; max-width: 96vw; max-height: 90vh; overflow-y: auto; box-shadow: 0 16px 48px rgba(0,0,0,.25); display: flex; flex-direction: column; }
+  .modal-header { background: var(--header-bg); color: #e8ecf0; padding: 16px 20px; border-radius: 10px 10px 0 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .modal-header h2 { font-size: 15px; font-weight: 700; line-height: 1.3; }
+  .modal-header .address { font-size: 11px; color: #8a9fb8; margin-top: 3px; }
+  .modal-close { background: rgba(255,255,255,.12); border: none; color: #e8ecf0; border-radius: 6px; padding: 4px 10px; font-size: 14px; cursor: pointer; flex-shrink: 0; }
+  .modal-close:hover { background: rgba(255,255,255,.22); }
+
+  .modal-body { padding: 20px; flex: 1; }
+  .modal-section { margin-bottom: 18px; }
+  .modal-section-title { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-grid.thirds { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 10px; font-weight: 600; color: #5a6880; text-transform: uppercase; letter-spacing: .4px; }
+  .form-group input, .form-group select, .form-group textarea {
+    border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px;
+    font-size: 12px; font-family: inherit; background: #dde1e8; color: #28303e;
+    transition: border-color .15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(58,111,158,.14);
+  }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+  .form-group .readonly { background: #d4d8e0; color: #5a6880; cursor: default; }
+
+  /* Info panel inside modal */
+  .info-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+  .info-label { color: #7a8898; min-width: 110px; font-size: 11px; }
+  .info-value { color: #28303e; font-weight: 500; }
+
+  .modal-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; align-items: center; background: #dde1e8; border-radius: 0 0 10px 10px; }
+  .btn-save { background: var(--accent); color: #fff; }
+  .btn-save:hover { background: #2a5a80; }
+  .btn-cancel-modal { background: var(--surface); color: #445; border: 1px solid var(--border); }
+  .btn-cancel-modal:hover { background: #d0d5dd; }
+  .save-msg { font-size: 11px; color: #1a4c2e; }
+  .save-err { font-size: 11px; color: #881010; }
+
+  .loading { text-align: center; padding: 40px; color: #7a8898; font-size: 14px; }
+  .error-msg { color: #881010; padding: 16px; background: #ecdcdc; border-radius: 7px; margin: 16px; font-size: 12px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; padding: 0 16px; background: #d8dce4; border-bottom: 2px solid var(--border); margin-bottom: 0; }
+  .tab-btn { background: none; border: none; padding: 10px 20px; font-size: 13px; font-weight: 600; color: #6a7a8e; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color .15s, border-color .15s; }
+  .tab-btn:hover { color: var(--accent); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn .tab-count { display: inline-block; margin-left: 6px; background: #c8d4de; color: #1e4a6e; border-radius: 10px; padding: 1px 8px; font-size: 10px; font-weight: 700; }
+  .tab-btn.active .tab-count { background: var(--accent); color: #fff; }
+  .tab-done-count { background: #b8d8c4; color: var(--done-text); }
+  .tab-btn.active .tab-done-count { background: var(--done-bd); color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Flips Tracker</h1>
+    <div class="sub">Flips Tracker -- Click any row to open and edit</div>
+  </div>
+  <div class="header-right">
+    <span id="last-updated"></span>
+  </div>
+</div>
+
+<div id="appPanel">
+
+<div class="tabs">
+  <button class="tab-btn active" id="tab-active" onclick="switchTab('active')">Active <span class="tab-count" id="tab-active-count">--</span></button>
+  <button class="tab-btn" id="tab-done" onclick="switchTab('done')">Completed <span class="tab-count tab-done-count" id="tab-done-count">--</span></button>
+</div>
+
+<div class="stats">
+  <div class="stat" onclick="filterByStat('')"><div class="val" id="s-total">--</div><div class="lbl">Total</div></div>
+  <div class="stat" onclick="filterByStat('value')"><div class="val" id="s-value">--</div><div class="lbl">OG Value</div></div>
+  <div class="stat" onclick="filterByStat('net')"><div class="val" id="s-netchange">--</div><div class="lbl">Net Change</div></div>
+  <div class="stat" onclick="filterByStat('active')"><div class="val" id="s-active">--</div><div class="lbl">Need to Schedule</div></div>
+  <div class="stat" onclick="filterByStat('done')"><div class="val" id="s-done">--</div><div class="lbl">Done / Complete</div></div>
+  <div class="stat" onclick="setFilter('f-target','Solar')"><div class="val" id="s-solar" style="color:#854d0e">--</div><div class="lbl">Solar Flips</div></div>
+  <div class="stat" onclick="setFilter('f-target','Roof')"><div class="val" id="s-roof" style="color:#991b1b">--</div><div class="lbl">Roof Flips</div></div>
+  <div class="stat" onclick="setFilter('f-target','Both')"><div class="val" id="s-both" style="color:#5b21b6">--</div><div class="lbl">Both</div></div>
+  <div class="stat" onclick="setFilterNull('f-target')"><div class="val" id="s-unknown" style="color:#6b7280">--</div><div class="lbl">Target Unknown</div></div>
+</div>
+
+<div class="toolbar">
+  <div>
+    <label>Rep</label>
+    <select id="f-rep"><option value="">All Reps</option></select>
+  </div>
+  <div>
+    <label>Product</label>
+    <select id="f-product"><option value="">All</option><option value="Solar">Solar</option><option value="Roof">Roof</option><option value="Solar; Roof">Solar + Roof</option></select>
+  </div>
+  <div>
+    <label>Flip Target</label>
+    <select id="f-target"><option value="">All Targets</option><option value="Solar">Solar</option><option value="Roof">Roof</option><option value="Both">Both</option><option value="__null__">Unknown</option></select>
+  </div>
+  <div>
+    <label>Status</label>
+    <select id="f-status"><option value="">All Statuses</option></select>
+  </div>
+  <div>
+    <label>Search</label>
+    <input type="text" id="f-search" placeholder="Name, notes, address..." style="width:180px">
+  </div>
+  <button class="btn btn-clear" onclick="clearFilters()">Clear</button>
+  <span class="count-badge" id="row-count">loading...</span>
+</div>
+
+<div class="table-wrap">
+  <div id="loading" class="loading">Loading flips from Supabase...</div>
+  <div id="error-msg" class="error-msg" style="display:none"></div>
+  <table id="main-table" style="display:none">
+    <thead>
+      <tr>
+        <th onclick="sortBy('customer_name')">Customer &#8597;</th>
+        <th onclick="sortBy('rep')">Rep &#8597;</th>
+        <th onclick="sortBy('flip_target')">Flip Target &#8597;</th>
+        <th onclick="sortBy('flip_status')">Status &#8597;</th>
+        <th>FP Change</th>
+        <th onclick="sortBy('og_epc')">OG EPC &#8597;</th>
+        <th onclick="sortBy('net_change')">Net &#916; &#8597;</th>
+        <th>Notes (preview)</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <h2 id="m-name">--</h2>
+        <div class="address" id="m-address"></div>
+        <div style="margin-top:6px;display:flex;gap:6px" id="m-badges"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#10005; Close</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Customer Contact -->
+      <div class="modal-section">
+        <div class="modal-section-title">Customer Contact</div>
+        <div class="form-grid thirds">
+          <div class="form-group full"><label>Address</label><input type="text" id="m-address-field" placeholder="Street, City, State ZIP"></div>
+          <div class="form-group"><label>Phone</label><input type="tel" id="m-phone" placeholder="(000) 000-0000"></div>
+          <div class="form-group"><label>Email</label><input type="email" id="m-email" placeholder="customer@email.com"></div>
+        </div>
+      </div>
+
+      <!-- Read-only info -->
+      <div class="modal-section">
+        <div class="modal-section-title">Project Info</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Opportunity ID</label><input class="readonly" id="m-oppid" readonly></div>
+          <div class="form-group"><label>Product</label><input class="readonly" id="m-product" readonly></div>
+        </div>
+      </div>
+
+      <!-- Editable fields -->
+      <div class="modal-section">
+        <div class="modal-section-title">Flip Details -- Edit &amp; Save</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Flip Target</label>
+            <select id="m-flip-target">
+              <option value="">Unknown</option>
+              <option value="Solar">Solar</option>
+              <option value="Roof">Roof</option>
+              <option value="Both">Both</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="m-flip-status">
+              <option value="">--</option>
+              <option>DONE</option><option>NTP</option><option>Complete NTP</option>
+              <option>Need to Schedule</option><option>CREDIT FAIL</option>
+              <option>Income Verification</option><option>NEW - NOT STARTED</option>
+              <option>Project Complete</option><option>PTO</option>
+              <option>Final State/Rebate Application</option><option>COC/CA</option>
+              <option>Ready</option><option>Resisting Plywood Adder</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Old Finance Partner</label>
+            <input type="text" id="m-old-fp">
+          </div>
+          <div class="form-group">
+            <label>New Finance Partner</label>
+            <input type="text" id="m-new-fp">
+          </div>
+          <div class="form-group">
+            <label>Action Owner</label>
+            <input type="text" id="m-responsible" placeholder="e.g. Opps, Rep, GoodLeap">
+          </div>
+          <div class="form-group">
+            <label>System Size</label>
+            <input type="text" id="m-system-size">
+          </div>
+        </div>
+      </div>
+
+      <!-- Financials with auto-calc -->
+      <div class="modal-section">
+        <div class="modal-section-title">Financials</div>
+        <div class="form-grid thirds">
+          <div class="form-group">
+            <label>OG EPC ($)</label>
+            <input type="number" id="m-og-epc" placeholder="0.00" oninput="calcNetChange()">
+          </div>
+          <div class="form-group">
+            <label>New EPC ($)</label>
+            <input type="number" id="m-new-epc" placeholder="0.00" oninput="calcNetChange()">
+          </div>
+          <div class="form-group">
+            <label>Expenses ($)</label>
+            <input type="number" id="m-expenses" placeholder="0.00" oninput="calcNetChange()">
+          </div>
+          <div class="form-group">
+            <label>Net Change (auto)</label>
+            <input class="readonly" id="m-net-change" readonly placeholder="Calculated automatically">
+          </div>
+          <div class="form-group"><label>OG Unit ($/W)</label><input type="number" id="m-og-unit" placeholder="0.00" step="0.01"></div>
+          <div class="form-group"><label>New Unit ($/W)</label><input type="number" id="m-new-unit" placeholder="0.00" step="0.01"></div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Milestone Dates</div>
+        <div class="form-grid thirds">
+          <div class="form-group"><label>Contacted</label><input type="text" id="m-contacted" placeholder="YYYY-MM-DD"></div>
+          <div class="form-group"><label>Verbal</label><input type="text" id="m-verbal" placeholder="YYYY-MM-DD"></div>
+          <div class="form-group"><label>Credit</label><input type="text" id="m-credit" placeholder="YYYY-MM-DD"></div>
+          <div class="form-group"><label>NTP</label><input type="text" id="m-ntp" placeholder="YYYY-MM-DD"></div>
+          <div class="form-group"><label>Utility Docs</label><input type="text" id="m-utility-docs"></div>
+          <div class="form-group"><label>Last Contact</label><input type="text" id="m-last-contact" placeholder="YYYY-MM-DD"></div>
+        </div>
+        <div class="form-grid" style="margin-top:10px">
+          <div class="form-group">
+            <label>Method of Contact</label>
+            <input type="text" id="m-method" placeholder="e.g. Txt x2 + VM">
+          </div>
+          <div class="form-group">
+            <label>Re-sign Needed</label>
+            <select id="m-resign">
+              <option value="">--</option>
+              <option>Solar Re-sign Needed</option>
+              <option>Roof Re-sign Needed</option>
+              <option>Roof + Solar Re-sign Needed</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">Notes</div>
+        <div class="form-grid">
+          <div class="form-group full"><label>Notes</label><textarea id="m-notes" rows="3"></textarea></div>
+          <div class="form-group full"><label>Sales Notes</label><textarea id="m-sales-notes" rows="3"></textarea></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <span id="m-save-msg" class="save-msg"></span>
+      <button class="btn btn-split" id="btn-split" onclick="splitRecord()" style="display:none;background:#f0f4ff;color:#2d4fa0;border:1px solid #b0c4f0;margin-right:auto" title="Creates a separate Solar record and a separate Roof record, then removes this combined one">Split into Solar + Roof</button>
+      <button class="btn btn-cancel-modal" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-save" onclick="saveModal()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#appPanel -->
+
+<script>
+// Sales Resource Project (qjcozskyopetvigjhlmh) -- same project as admin.html.
+// Signed-in managers can read/write flips; anon role cannot (RLS).
+const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
+const ANON_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, ANON_KEY);
+
+let allData = [];
+let sortCol = 'customer_name';
+let sortDir = 1;
+let currentRecord = null;
+let currentTab = 'active';
+
+// -- BOOT ---------------------------------------------
+async function loadData() {
+  try {
+    const { data, error } = await sb.from('flips').select('*').order('customer_name', { ascending: true });
+    if (error) throw error;
+    allData = data || [];
+    populateFilters();
+    renderStats();
+    updateTabCounts();
+    renderTable();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-table').style.display = 'table';
+    document.getElementById('last-updated').textContent = 'Loaded ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    const el = document.getElementById('error-msg');
+    el.style.display = 'block';
+    el.textContent = 'Error: ' + (e.message || e);
+  }
+}
+
+// -- FILTERS / RENDER ---------------------------------
+function populateFilters() {
+  const repSel = document.getElementById('f-rep');
+  // reset to just "All Reps" before re-populating (in case loadData is called more than once)
+  repSel.length = 1;
+  const reps = [...new Set(allData.map(r => r.rep).filter(Boolean))].sort();
+  reps.forEach(r => { const o = document.createElement('option'); o.value = r; o.text = r; repSel.appendChild(o); });
+
+  const stSel = document.getElementById('f-status');
+  stSel.length = 1;
+  const statuses = [...new Set(allData.map(r => r.flip_status).filter(Boolean))].sort();
+  statuses.forEach(s => { const o = document.createElement('option'); o.value = s; o.text = s; stSel.appendChild(o); });
+}
+
+function getFiltered() {
+  const rep = document.getElementById('f-rep').value;
+  const prod = document.getElementById('f-product').value;
+  const tgt = document.getElementById('f-target').value;
+  const st = document.getElementById('f-status').value;
+  const q = document.getElementById('f-search').value.toLowerCase();
+  return allData.filter(r => {
+    if (currentTab === 'active' && isComplete(r)) return false;
+    if (currentTab === 'done' && !isComplete(r)) return false;
+    if (rep && r.rep !== rep) return false;
+    if (prod && r.product !== prod) return false;
+    if (tgt === '__null__' && r.flip_target != null) return false;
+    if (tgt && tgt !== '__null__' && r.flip_target !== tgt) return false;
+    if (st && r.flip_status !== st) return false;
+    if (q) {
+      const hay = [r.customer_name, r.notes, r.sales_notes, r.rep, r.address, r.reason].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    let av = a[sortCol] ?? '', bv = b[sortCol] ?? '';
+    if (!isNaN(parseFloat(av)) && !isNaN(parseFloat(bv))) return (parseFloat(av) - parseFloat(bv)) * sortDir;
+    return String(av).localeCompare(String(bv)) * sortDir;
+  });
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-active').classList.toggle('active', tab === 'active');
+  document.getElementById('tab-done').classList.toggle('active', tab === 'done');
+  renderTable();
+}
+
+function updateTabCounts() {
+  const active = allData.filter(r => !isComplete(r)).length;
+  const done = allData.filter(r => isComplete(r)).length;
+  document.getElementById('tab-active-count').textContent = active;
+  document.getElementById('tab-done-count').textContent = done;
+}
+
+function renderStats() {
+  const d = allData;
+  document.getElementById('s-total').textContent = d.length;
+  const val = d.reduce((s, r) => s + (parseFloat(r.og_epc) || 0), 0);
+  document.getElementById('s-value').textContent = '$' + (val / 1000000).toFixed(2) + 'M';
+  const nc = d.reduce((s, r) => s + (parseFloat(r.net_change) || 0), 0);
+  const ncEl = document.getElementById('s-netchange');
+  ncEl.textContent = fmt$(nc);
+  ncEl.style.color = nc >= 0 ? '#166534' : '#991b1b';
+  document.getElementById('s-active').textContent = d.filter(r => r.flip_status?.toLowerCase().includes('need')).length;
+  document.getElementById('s-done').textContent = d.filter(r => r.flip_status?.toLowerCase().includes('done') || r.flip_status?.toLowerCase().includes('complete')).length;
+  document.getElementById('s-solar').textContent = d.filter(r => r.flip_target === 'Solar').length;
+  document.getElementById('s-roof').textContent = d.filter(r => r.flip_target === 'Roof').length;
+  document.getElementById('s-both').textContent = d.filter(r => r.flip_target === 'Both').length;
+  document.getElementById('s-unknown').textContent = d.filter(r => !r.flip_target).length;
+}
+
+function isComplete(r) {
+  if (!r.flip_status) return false;
+  const s = r.flip_status.toLowerCase();
+  return s.includes('done') || s.includes('project complete') || s === 'complete ntp' || s === 'pto' || s === 'final state/rebate application' || s === 'coc/ca';
+}
+
+function renderTable() {
+  const rows = getFiltered();
+  document.getElementById('row-count').textContent = rows.length + ' rows';
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    if (isComplete(r)) tr.classList.add('row-complete');
+    const nc = parseFloat(r.net_change);
+    const ncHtml = r.net_change != null ? `<span class="${nc >= 0 ? 'net-pos' : 'net-neg'}">${fmt$(nc)}</span>` : '--';
+    const fpChange = (r.old_fp || r.new_fp)
+      ? `<span style="color:#666;font-size:11px">${r.old_fp || '?'}</span> <span style="color:#aaa">&rarr;</span> <span style="color:#1e40af;font-weight:600;font-size:11px">${r.new_fp || '?'}</span>`
+      : '--';
+    const notePreview = [r.notes, r.sales_notes].filter(Boolean).join(' | ') || '--';
+    tr.innerHTML = `
+      <td class="customer">
+        ${r.customer_name || '--'}
+        ${r.address ? `<div style="font-weight:400;color:#999;font-size:10px">${r.address}</div>` : ''}
+      </td>
+      <td style="white-space:nowrap">${r.rep || '--'}</td>
+      <td>${targetBadge(r.flip_target)}</td>
+      <td><span class="status-pill ${statusClass(r.flip_status)}">${r.flip_status || '--'}</span></td>
+      <td>${fpChange}</td>
+      <td style="text-align:right">${fmt$(r.og_epc)}</td>
+      <td style="text-align:right">${ncHtml}</td>
+      <td class="notes-cell" title="${notePreview}">${notePreview}</td>
+    `;
+    tr.addEventListener('click', () => openModal(r.id));
+    tbody.appendChild(tr);
+  });
+}
+
+function sortBy(col) {
+  sortDir = (sortCol === col) ? sortDir * -1 : 1;
+  sortCol = col;
+  renderTable();
+}
+
+function clearFilters() {
+  ['f-rep','f-product','f-target','f-status'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-search').value = '';
+  renderTable();
+}
+
+function setFilter(id, val) { document.getElementById(id).value = val; renderTable(); }
+function setFilterNull(id) { document.getElementById(id).value = '__null__'; renderTable(); }
+function filterByStat(type) {
+  clearFilters();
+  if (type === 'active') setFilter('f-status', 'Need to Schedule');
+  if (type === 'done') setFilter('f-status', 'DONE');
+}
+
+// -- MODAL --------------------------------------------
+function openModal(id) {
+  const r = allData.find(x => x.id === id);
+  if (!r) return;
+  currentRecord = r;
+
+  document.getElementById('m-name').textContent = r.customer_name || '--';
+  const contactParts = [r.address, r.phone, r.email].filter(Boolean);
+  document.getElementById('m-address').textContent = contactParts.join(' · ');
+  document.getElementById('m-badges').innerHTML = `
+    ${targetBadge(r.flip_target)}
+    <span class="badge" style="background:#edeef0;color:#495060">${r.product || 'No product'}</span>
+  `;
+
+  // Customer contact
+  document.getElementById('m-address-field').value = r.address || '';
+  document.getElementById('m-phone').value = r.phone || '';
+  document.getElementById('m-email').value = r.email || '';
+
+  // Read-only
+  document.getElementById('m-oppid').value = r.opportunity_id || '';
+  document.getElementById('m-product').value = r.product || '';
+
+  // Financials (editable)
+  document.getElementById('m-og-epc').value = r.og_epc != null ? Number(r.og_epc) : '';
+  document.getElementById('m-new-epc').value = r.new_epc != null ? Number(r.new_epc) : '';
+  document.getElementById('m-expenses').value = r.expenses != null ? Number(r.expenses) : '';
+  document.getElementById('m-og-unit').value = r.og_unit != null ? Number(r.og_unit) : '';
+  document.getElementById('m-new-unit').value = r.new_unit != null ? Number(r.new_unit) : '';
+  calcNetChange();
+
+  // Editable
+  document.getElementById('m-flip-target').value = r.flip_target || '';
+  document.getElementById('m-flip-status').value = r.flip_status || '';
+  document.getElementById('m-old-fp').value = r.old_fp || '';
+  document.getElementById('m-new-fp').value = r.new_fp || '';
+  document.getElementById('m-responsible').value = r.responsible || '';
+  document.getElementById('m-system-size').value = r.system_size || '';
+  document.getElementById('m-contacted').value = r.contacted_date || '';
+  document.getElementById('m-verbal').value = r.verbal_date || '';
+  document.getElementById('m-credit').value = r.credit_date || '';
+  document.getElementById('m-ntp').value = r.ntp_date || '';
+  document.getElementById('m-utility-docs').value = r.utility_docs || '';
+  document.getElementById('m-last-contact').value = r.last_contact_date || '';
+  document.getElementById('m-method').value = r.method_of_contact || '';
+  document.getElementById('m-resign').value = r.re_sign_needed || '';
+  document.getElementById('m-notes').value = r.notes || '';
+  document.getElementById('m-sales-notes').value = r.sales_notes || '';
+  document.getElementById('m-save-msg').textContent = '';
+  document.getElementById('btn-split').style.display = (r.flip_target === 'Both') ? 'inline-flex' : 'none';
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  currentRecord = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+async function saveModal() {
+  if (!currentRecord) return;
+  const msgEl = document.getElementById('m-save-msg');
+  msgEl.textContent = 'Saving...';
+  msgEl.className = 'save-msg';
+
+  const numOrNull = id => { const v = document.getElementById(id).value; return v !== '' ? parseFloat(v) : null; };
+  const og = numOrNull('m-og-epc');
+  const nw = numOrNull('m-new-epc');
+  const ex = numOrNull('m-expenses') || 0;
+  const netChange = (og != null && nw != null) ? (nw - og - ex) : null;
+
+  const fields = {
+    address: document.getElementById('m-address-field').value || null,
+    phone: document.getElementById('m-phone').value || null,
+    email: document.getElementById('m-email').value || null,
+    flip_target: document.getElementById('m-flip-target').value || null,
+    flip_status: document.getElementById('m-flip-status').value || null,
+    old_fp: document.getElementById('m-old-fp').value || null,
+    new_fp: document.getElementById('m-new-fp').value || null,
+    responsible: document.getElementById('m-responsible').value || null,
+    system_size: document.getElementById('m-system-size').value || null,
+    og_epc: og,
+    new_epc: nw,
+    expenses: numOrNull('m-expenses'),
+    net_change: netChange,
+    og_unit: numOrNull('m-og-unit'),
+    new_unit: numOrNull('m-new-unit'),
+    contacted_date: document.getElementById('m-contacted').value || null,
+    verbal_date: document.getElementById('m-verbal').value || null,
+    credit_date: document.getElementById('m-credit').value || null,
+    ntp_date: document.getElementById('m-ntp').value || null,
+    utility_docs: document.getElementById('m-utility-docs').value || null,
+    last_contact_date: document.getElementById('m-last-contact').value || null,
+    method_of_contact: document.getElementById('m-method').value || null,
+    re_sign_needed: document.getElementById('m-resign').value || null,
+    notes: document.getElementById('m-notes').value || null,
+    sales_notes: document.getElementById('m-sales-notes').value || null,
+  };
+
+  try {
+    const { error } = await sb.from('flips').update(fields).eq('id', currentRecord.id);
+    if (error) throw error;
+    Object.assign(currentRecord, fields);
+    renderStats();
+    updateTabCounts();
+    renderTable();
+    msgEl.textContent = 'Saved successfully';
+    setTimeout(() => { if (msgEl.textContent === 'Saved successfully') msgEl.textContent = ''; }, 2500);
+  } catch(e) {
+    msgEl.textContent = 'Error: ' + (e.message || e);
+    msgEl.className = 'save-err';
+  }
+}
+
+// -- SPLIT RECORD -------------------------------------
+async function splitRecord() {
+  if (!currentRecord) return;
+  const r = currentRecord;
+  if (!confirm(`Split "${r.customer_name}" into a Solar record and a Roof record?\n\nFinancials will be cleared on each -- fill them in separately after splitting.`)) return;
+
+  const msgEl = document.getElementById('m-save-msg');
+  msgEl.textContent = 'Splitting...';
+  msgEl.className = 'save-msg';
+
+  // Fields shared by both child records (financials cleared so each can be set independently)
+  const shared = {
+    customer_name: r.customer_name,
+    address: r.address,
+    phone: r.phone,
+    email: r.email,
+    opportunity_id: r.opportunity_id,
+    rep: r.rep,
+    responsible: r.responsible,
+    system_size: r.system_size,
+    old_fp: r.old_fp,
+    new_fp: r.new_fp,
+    flip_status: r.flip_status,
+    re_sign_needed: r.re_sign_needed,
+    contacted_date: r.contacted_date,
+    verbal_date: r.verbal_date,
+    credit_date: r.credit_date,
+    ntp_date: r.ntp_date,
+    utility_docs: r.utility_docs,
+    last_contact_date: r.last_contact_date,
+    method_of_contact: r.method_of_contact,
+    notes: r.notes,
+    sales_notes: r.sales_notes,
+    on_report: r.on_report,
+    og_epc: null, new_epc: null, expenses: null, net_change: null,
+    og_unit: null, new_unit: null,
+  };
+
+  try {
+    const { error: e1 } = await sb.from('flips').insert({ ...shared, product: 'Solar', flip_target: 'Solar' });
+    if (e1) throw new Error('Solar insert failed: ' + e1.message);
+    const { error: e2 } = await sb.from('flips').insert({ ...shared, product: 'Roof', flip_target: 'Roof' });
+    if (e2) throw new Error('Roof insert failed: ' + e2.message);
+    const { error: e3 } = await sb.from('flips').delete().eq('id', r.id);
+    if (e3) throw new Error('Delete failed: ' + e3.message);
+
+    closeModal();
+    await loadData();
+  } catch(e) {
+    msgEl.textContent = 'Error: ' + (e.message || e);
+    msgEl.className = 'save-err';
+  }
+}
+
+// -- NET CHANGE AUTO-CALC -----------------------------
+function calcNetChange() {
+  const og = parseFloat(document.getElementById('m-og-epc').value) || 0;
+  const nw = parseFloat(document.getElementById('m-new-epc').value) || 0;
+  const ex = parseFloat(document.getElementById('m-expenses').value) || 0;
+  const nc = document.getElementById('m-net-change');
+  if (og || nw) {
+    const val = nw - og - ex;
+    nc.value = (val >= 0 ? '+' : '') + '$' + val.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    nc.style.color = val >= 0 ? '#166534' : '#991b1b';
+  } else {
+    nc.value = '';
+    nc.style.color = '';
+  }
+}
+
+// -- HELPERS ------------------------------------------
+function fmt$(n) {
+  if (n == null || n === '') return '--';
+  return '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function targetBadge(t) {
+  if (!t) return `<span class="badge target-unknown">? Unknown</span>`;
+  if (t === 'Solar') return `<span class="badge target-solar">Solar</span>`;
+  if (t === 'Roof') return `<span class="badge target-roof">Roof</span>`;
+  if (t === 'Both') return `<span class="badge target-both">Both</span>`;
+  return `<span class="badge target-unknown">${t}</span>`;
+}
+
+function statusClass(s) {
+  if (!s) return 's-other';
+  const sl = s.toLowerCase();
+  if (sl.includes('done')) return 's-done';
+  if (sl.includes('ntp') || sl.includes('npt')) return 's-ntp';
+  if (sl.includes('need') || sl.includes('schedule')) return 's-need';
+  if (sl.includes('credit')) return 's-credit';
+  if (sl.includes('complete') || sl.includes('pto')) return 's-complete';
+  return 's-other';
+}
+
+['f-rep','f-product','f-target','f-status','f-search'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderTable);
+});
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+loadData();
+</script>
+</body>
+</html>
