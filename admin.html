@@ -213,8 +213,8 @@
     <p>Manage resources, updates, feedback, and team for the CT Traditional sales team. Internal use only.</p>
     <div id="loginError" class="error-msg" style="display:none"></div>
     <form onsubmit="event.preventDefault();signIn()">
-      <label>Email</label>
-      <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email" required>
+      <label>Username</label>
+      <input type="text" id="loginUser" placeholder="username" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
       <label>Password</label>
       <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" required>
       <button type="submit" id="loginBtn" class="btn-primary">Sign In</button>
@@ -744,16 +744,19 @@ sb.auth.onAuthStateChange(async (_e, session) => {
 });
 
 async function signIn() {
-  const email = document.getElementById('loginEmail').value.trim();
+  const raw   = document.getElementById('loginUser').value.trim().toLowerCase();
   const pass  = document.getElementById('loginPass').value;
   const errEl = document.getElementById('loginError');
   const btn   = document.getElementById('loginBtn');
   errEl.style.display = 'none';
-  if (!email || !pass) {
-    errEl.textContent = 'Enter your email and password.';
+  if (!raw || !pass) {
+    errEl.textContent = 'Enter your username and password.';
     errEl.style.display = 'block';
     return;
   }
+  // Bare username gets the @ct-resource-page.com suffix; a full email is used as-is
+  // (the Gmail backdoor signs in by typing the full address).
+  const email = raw.includes('@') ? raw : `${raw}@ct-resource-page.com`;
   btn.disabled = true;
   btn.textContent = 'Signing in...';
   const { error } = await sb.auth.signInWithPassword({ email, password: pass });
