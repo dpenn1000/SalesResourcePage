@@ -205,6 +205,12 @@
 
   sb.auth.onAuthStateChange((event, session) => {
     if (!session) {
+      // Reset appStarted so the next sign-in re-fires initApp. Without this,
+      // a user who signs out and signs back in within the same page lifetime
+      // gets stuck with an empty app (sign_in tracks, initApp does not run).
+      // Incident 2026-05-15: Anthony Venditto + Charles Romanos saw a blank
+      // Flips Tracker because of this gate.
+      appStarted = false;
       showOnly('loginScreen');
       return;
     }

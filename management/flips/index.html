@@ -279,7 +279,10 @@
       <div class="modal-section">
         <div class="modal-section-title">Project Info</div>
         <div class="form-grid">
-          <div class="form-group"><label>Opportunity ID</label><input class="readonly" id="m-oppid" readonly></div>
+          <div class="form-group">
+            <label>Salesforce Link</label>
+            <div id="m-oppid" style="padding:7px 10px;font-size:12px;background:#d4d8e0;border:1px solid var(--border);border-radius:6px;color:#5a6880;min-height:30px;display:flex;align-items:center"></div>
+          </div>
           <div class="form-group"><label>Product</label><input class="readonly" id="m-product" readonly></div>
         </div>
       </div>
@@ -528,9 +531,13 @@ function renderTable() {
       ? `<span style="color:#666;font-size:11px">${r.old_fp || '?'}</span> <span style="color:#aaa">&rarr;</span> <span style="color:#1e40af;font-weight:600;font-size:11px">${r.new_fp || '?'}</span>`
       : '--';
     const notePreview = [r.notes, r.sales_notes].filter(Boolean).join(' | ') || '--';
+    const link = oppLink(r);
+    const linkHtml = link
+      ? ` <a href="${link.href}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="${link.title}" style="color:#3a6f9e;text-decoration:none;font-weight:600;font-size:11px;margin-left:4px">&#8599;</a>`
+      : '';
     tr.innerHTML = `
       <td class="customer">
-        ${r.customer_name || '--'}
+        ${r.customer_name || '--'}${linkHtml}
         ${r.address ? `<div style="font-weight:400;color:#999;font-size:10px">${r.address}</div>` : ''}
       </td>
       <td style="white-space:nowrap">${r.rep || '--'}</td>
@@ -586,8 +593,16 @@ function openModal(id) {
   document.getElementById('m-phone').value = r.phone || '';
   document.getElementById('m-email').value = r.email || '';
 
-  // Read-only
-  document.getElementById('m-oppid').value = r.opportunity_id || '';
+  // Read-only -- render SF link if available, else plain id, else placeholder
+  const oppEl = document.getElementById('m-oppid');
+  const link = oppLink(r);
+  if (link) {
+    oppEl.innerHTML = `<a href="${link.href}" target="_blank" rel="noopener" style="color:#3a6f9e;font-weight:600;text-decoration:none">${link.label} &#8599;</a> <span style="color:#7a8898;font-size:11px;margin-left:8px">Open in Salesforce</span>`;
+  } else if (r.opportunity_id) {
+    oppEl.textContent = r.opportunity_id;
+  } else {
+    oppEl.innerHTML = '<span style="color:#9aa3b0;font-style:italic">No Salesforce link</span>';
+  }
   document.getElementById('m-product').value = r.product || '';
 
   // Financials (editable)
@@ -681,8 +696,7 @@ async function saveModal() {
     renderStats();
     updateTabCounts();
     renderTable();
-    msgEl.textContent = 'Saved successfully';
-    setTimeout(() => { if (msgEl.textContent === 'Saved successfully') msgEl.textContent = ''; }, 2500);
+    closeModal();
   } catch(e) {
     msgEl.textContent = 'Error: ' + (e.message || e);
     msgEl.className = 'save-err';
@@ -772,6 +786,25 @@ function targetBadge(t) {
   if (t === 'Roof') return `<span class="badge target-roof">Roof</span>`;
   if (t === 'Both') return `<span class="badge target-both">Both</span>`;
   return `<span class="badge target-unknown">${t}</span>`;
+}
+
+// Build a SF link object for a row. Prefers DL# (which links to the Direct
+// Lead record) over the Opportunity ID. Returns {href, label, title} or null.
+function oppLink(r) {
+  if (r.dl_url && r.dl_number) {
+    return { href: r.dl_url, label: r.dl_number, title: 'Open Direct Lead in Salesforce' };
+  }
+  if (r.opportunity_id) {
+    const id = String(r.opportunity_id).replace(/^\/+/, '').trim();
+    if (id) {
+      return {
+        href: `https://trinity-solar.lightning.force.com/lightning/r/${id}/view`,
+        label: id,
+        title: 'Open Opportunity in Salesforce',
+      };
+    }
+  }
+  return null;
 }
 
 function statusClass(s) {
