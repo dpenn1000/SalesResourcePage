@@ -343,6 +343,12 @@ tr:hover td { background:rgba(0,0,0,0.02); }
       <div class="section-head">
         <span class="section-title" id="leads-count-label">-- leads</span>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Select first</span>
+          <button class="filter-btn" onclick="selectFirstN(10)">10</button>
+          <button class="filter-btn" onclick="selectFirstN(20)">20</button>
+          <button class="filter-btn" onclick="selectFirstN(60)">60</button>
+          <button class="filter-btn" onclick="selectFirstN(100)">100</button>
+          <span style="width:1px;height:20px;background:var(--border);margin:0 4px;"></span>
           <button class="filter-btn" onclick="openDispatch()" style="border-color:var(--accent);color:var(--accent);">&#9889; Quick Dispatch</button>
           <select class="filter-select" id="bulk-assign-select" style="font-size:12px;">
             <option value="">Assign to...</option>
@@ -639,8 +645,21 @@ async function loadContacts() {
 }
 
 async function loadManagers() {
-  const { data } = await sb.from('managers').select('name, username').order('name');
-  allManagers = data || [];
+  // Variable kept as `allManagers` for backward compat with downstream callers,
+  // but it now holds anyone leads can be dispatched to: managers + reps.
+  // Reps were missing here, which is why Richard Wilkman and friends never
+  // appeared in any of the assignment dropdowns.
+  const [{ data: mgrs }, { data: reps }] = await Promise.all([
+    sb.from('managers').select('name, username').order('name'),
+    sb.from('reps').select('name, username').order('name'),
+  ]);
+  const seen = new Set();
+  const combined = [];
+  for (const p of [...(mgrs || []), ...(reps || [])]) {
+    if (p?.name && !seen.has(p.name)) { seen.add(p.name); combined.push(p); }
+  }
+  combined.sort((a, b) => a.name.localeCompare(b.name));
+  allManagers = combined;
 }
 
 function buildContactMap() {
@@ -877,6 +896,18 @@ async function patchLead(oppId, field, value) {
 
 function toggleSelectAll(cb) {
   document.querySelectorAll('.lead-checkbox').forEach(c => c.checked = cb.checked);
+}
+
+function selectFirstN(n) {
+  const boxes = document.querySelectorAll('.lead-checkbox');
+  boxes.forEach((c, i) => { c.checked = i < n; });
+  const total = boxes.length;
+  const picked = Math.min(n, total);
+  const selectAll = document.getElementById('select-all');
+  if (selectAll) selectAll.checked = picked > 0 && picked === total;
+  showToast(picked
+    ? `Selected first ${picked} of ${total} lead${total!==1?'s':''}.`
+    : 'No leads to select.');
 }
 
 async function bulkAssign() {
