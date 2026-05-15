@@ -164,6 +164,16 @@
     #toast { position: fixed; bottom: 24px; right: 24px; background: var(--header); color: #fff; padding: 11px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(8px); transition: all 0.25s; pointer-events: none; z-index: 999; }
     #toast.show { opacity: 1; transform: translateY(0); }
 
+    /* Tools tab */
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 6px; }
+    .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px 14px; text-decoration: none; color: var(--text); display: flex; flex-direction: column; gap: 8px; transition: all 0.15s; position: relative; }
+    .tool-card:hover { border-color: var(--green); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .tool-icon { font-size: 22px; line-height: 1; }
+    .tool-type { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text2); text-transform: uppercase; }
+    .tool-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .tool-arrow { position: absolute; top: 14px; right: 14px; color: var(--text2); font-size: 14px; transition: color 0.15s; }
+    .tool-card:hover .tool-arrow { color: var(--green); }
+
     /* Page tabs */
     .page-tabs { background: var(--card); border-bottom: 1px solid var(--border); }
     .page-tabs-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; display: flex; gap: 2px; }
@@ -246,6 +256,7 @@
       <button class="page-tab"        onclick="switchTab('updates')">Updates</button>
       <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
       <button class="page-tab"        onclick="switchTab('team')">Team</button>
+      <button class="page-tab"        onclick="switchTab('tools')">Tools</button>
     </div>
   </div>
 
@@ -603,6 +614,40 @@
           <tr><td colspan="3" class="team-empty">Loading...</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Tools section -->
+  <div id="tabTools" class="admin-inner" style="display:none">
+    <div class="panel-header">
+      <h2>Internal Tools</h2>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin:-6px 0 18px;">Quick links to admin and rep-facing pages that aren't surfaced from the main resource grid.</p>
+    <div class="tools-grid">
+      <a class="tool-card" href="/management/flips/" target="_blank" rel="noopener">
+        <div class="tool-icon">&#128260;</div>
+        <span class="tool-type">Internal</span>
+        <div class="tool-name">Flip Deals</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
+      <a class="tool-card" href="/call-list.html" target="_blank" rel="noopener">
+        <div class="tool-icon">&#128222;</div>
+        <span class="tool-type">Reps</span>
+        <div class="tool-name">Call List</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
+      <a class="tool-card" href="/call-list-admin.html" target="_blank" rel="noopener">
+        <div class="tool-icon">&#9881;&#65039;</div>
+        <span class="tool-type">Admin</span>
+        <div class="tool-name">Call List Admin</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
+      <a class="tool-card" href="/lead-audit/" target="_blank" rel="noopener">
+        <div class="tool-icon">&#128269;</div>
+        <span class="tool-type">Internal</span>
+        <div class="tool-name">Lead Audit</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
     </div>
   </div>
 
@@ -1602,13 +1647,14 @@ document.getElementById('bulkModal').addEventListener('click', e => {
 });
 
 function switchTab(tab) {
-  const order = ['resources', 'updates', 'feedback', 'team'];
+  const order = ['resources', 'updates', 'feedback', 'team', 'tools'];
   document.querySelectorAll('.page-tab').forEach((t, i) =>
     t.classList.toggle('active', order[i] === tab));
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
   document.getElementById('tabUpdates').style.display   = tab === 'updates'   ? 'block' : 'none';
   document.getElementById('tabFeedback').style.display  = tab === 'feedback'  ? 'block' : 'none';
   document.getElementById('tabTeam').style.display      = tab === 'team'      ? 'block' : 'none';
+  document.getElementById('tabTools').style.display     = tab === 'tools'     ? 'block' : 'none';
   if (tab === 'team') loadTeam();
   if (tab === 'updates') loadUpdates();
   if (tab === 'feedback') loadFeedback();
