@@ -231,6 +231,14 @@
   <span class="count-badge" id="row-count">loading...</span>
 </div>
 
+<div id="audit-banner" style="display:none;margin:0 16px 12px;padding:10px 14px;background:#fff3cd;border:1px solid #f5c977;border-radius:7px;color:#664d03;font-size:12px;line-height:1.5">
+  <strong>&#9888; Data audit in progress.</strong>
+  <span id="audit-banner-count"></span>
+  records imported from CT_Flips.xlsx have not been verified against Salesforce.
+  Their rep, address, opp_id, and Salesforce link may be incorrect (smoking gun: Cummings' opp_id actually points to L. Smutny in SF).
+  Rows flagged with &#9888; below. Verify each before trusting.
+</div>
+
 <div class="table-wrap">
   <div id="loading" class="loading">Loading flips from Supabase...</div>
   <div id="error-msg" class="error-msg" style="display:none"></div>
@@ -278,6 +286,9 @@
       <!-- Read-only info -->
       <div class="modal-section">
         <div class="modal-section-title">Project Info</div>
+        <div id="m-suspect-banner" style="display:none;margin-bottom:10px;padding:8px 10px;background:#fff3cd;border:1px solid #f5c977;border-radius:6px;color:#664d03;font-size:11px;line-height:1.4">
+          &#9888; <strong>Unverified record.</strong> Imported from CT_Flips.xlsx. The rep, address, opp_id, and Salesforce link below may be wrong. Confirm against Salesforce before trusting.
+        </div>
         <div class="form-grid">
           <div class="form-group">
             <label>Salesforce Link</label>
@@ -429,6 +440,14 @@ async function loadData() {
     renderStats();
     updateTabCounts();
     renderTable();
+    // Audit banner: show count of unverified CT_Flips rows
+    const suspectCount = allData.filter(r => r.source === 'CT_Flips').length;
+    if (suspectCount > 0) {
+      document.getElementById('audit-banner-count').textContent = suspectCount;
+      document.getElementById('audit-banner').style.display = 'block';
+    } else {
+      document.getElementById('audit-banner').style.display = 'none';
+    }
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main-table').style.display = 'table';
     document.getElementById('last-updated').textContent = 'Loaded ' + new Date().toLocaleTimeString();
@@ -535,9 +554,13 @@ function renderTable() {
     const linkHtml = link
       ? ` <a href="${link.href}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="${link.title}" style="color:#3a6f9e;text-decoration:none;font-weight:600;font-size:11px;margin-left:4px">&#8599;</a>`
       : '';
+    const suspect = r.source === 'CT_Flips';
+    const suspectFlag = suspect
+      ? ` <span title="Imported from CT_Flips.xlsx -- rep / address / opp_id NOT verified against Salesforce" style="color:#b8860b;font-size:13px;margin-left:4px;cursor:help">&#9888;</span>`
+      : '';
     tr.innerHTML = `
       <td class="customer">
-        ${r.customer_name || '--'}${linkHtml}
+        ${r.customer_name || '--'}${suspectFlag}${linkHtml}
         ${r.address ? `<div style="font-weight:400;color:#999;font-size:10px">${r.address}</div>` : ''}
       </td>
       <td style="white-space:nowrap">${r.rep || '--'}</td>
@@ -592,6 +615,10 @@ function openModal(id) {
   document.getElementById('m-address-field').value = r.address || '';
   document.getElementById('m-phone').value = r.phone || '';
   document.getElementById('m-email').value = r.email || '';
+
+  // Suspect-record banner inside modal: show when sourced from CT_Flips audit
+  document.getElementById('m-suspect-banner').style.display =
+    r.source === 'CT_Flips' ? 'block' : 'none';
 
   // Read-only -- render SF link if available, else plain id, else placeholder
   const oppEl = document.getElementById('m-oppid');
