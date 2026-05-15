@@ -195,6 +195,12 @@ tr:hover td { background:rgba(0,0,0,0.02); }
 /* ── Overdue highlight ── */
 .overdue { color:#c0392b; font-weight:600; }
 
+/* ── Sortable headers ── */
+th.sortable { cursor:pointer; user-select:none; }
+th.sortable:hover { color:var(--ink); background:rgba(0,0,0,0.03); }
+th.sort-asc::after  { content:' \2191'; color:var(--green); }
+th.sort-desc::after { content:' \2193'; color:var(--green); }
+
 /* ── Dispatch modal ── */
 .modal-overlay { position:fixed; inset:0; background:rgba(10,18,32,0.55); z-index:600; display:flex; align-items:center; justify-content:center; padding:20px; }
 .modal-overlay.hidden { display:none; }
@@ -343,12 +349,11 @@ tr:hover td { background:rgba(0,0,0,0.02); }
       <div class="section-head">
         <span class="section-title" id="leads-count-label">-- leads</span>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Select first</span>
-          <button class="filter-btn" onclick="selectFirstN(10)">10</button>
-          <button class="filter-btn" onclick="selectFirstN(20)">20</button>
-          <button class="filter-btn" onclick="selectFirstN(60)">60</button>
-          <button class="filter-btn" onclick="selectFirstN(100)">100</button>
-          <span style="width:1px;height:20px;background:var(--border);margin:0 4px;"></span>
+          <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;">Select first</span>
+          <input type="number" id="select-first-n" class="filter-select" min="1" max="9999" placeholder="N" style="width:58px;font-size:12px;text-align:center;" title="Enter a number then press Select">
+          <button class="filter-btn" onclick="selectFirstN(parseInt(document.getElementById('select-first-n').value)||10)">Select</button>
+          <button class="filter-btn" onclick="clearSelection()">Clear</button>
+          <span style="width:1px;height:20px;background:var(--border);margin:0 2px;flex-shrink:0;"></span>
           <button class="filter-btn" onclick="openDispatch()" style="border-color:var(--accent);color:var(--accent);">&#9889; Quick Dispatch</button>
           <select class="filter-select" id="bulk-assign-select" style="font-size:12px;">
             <option value="">Assign to...</option>
@@ -363,14 +368,14 @@ tr:hover td { background:rgba(0,0,0,0.02); }
           <thead>
             <tr>
               <th style="width:32px;"><input type="checkbox" id="select-all" onchange="toggleSelectAll(this)"></th>
-              <th>Customer</th>
-              <th>DL#</th>
-              <th>State</th>
-              <th>Status</th>
-              <th>Assigned To</th>
-              <th>Last Contact</th>
+              <th class="sortable" data-sort="opp_name"    onclick="setSort('opp_name')">Customer</th>
+              <th class="sortable" data-sort="dl_number"   onclick="setSort('dl_number')">DL#</th>
+              <th class="sortable" data-sort="state"       onclick="setSort('state')">State</th>
+              <th class="sortable" data-sort="status"      onclick="setSort('status')">Status</th>
+              <th class="sortable" data-sort="assigned_to" onclick="setSort('assigned_to')">Assigned To</th>
+              <th class="sortable" data-sort="last_contact" onclick="setSort('last_contact')">Last Contact</th>
               <th>Next Step</th>
-              <th>Contacts</th>
+              <th class="sortable" data-sort="contact_ct"  onclick="setSort('contact_ct')">Contacts</th>
               <th>Phone</th>
             </tr>
           </thead>
@@ -563,6 +568,7 @@ let appStarted = false;
 window.IS_ADMIN = false;
 
 let allLeads = [], allContacts = [], allManagers = [], contactMap = {};
+let sortCol = null, sortDir = 1; // 1 = asc, -1 = desc
 
 /* ── Auth ── */
 function showOnly(id) {
@@ -817,6 +823,37 @@ function renderDashboard() {
   document.getElementById('assignment-summary').innerHTML = assignHtml || '<div style="color:var(--muted);font-size:13px;">No managers found.</div>';
 }
 
+/* ── Sort ── */
+function setSort(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  document.querySelectorAll('th.sortable').forEach(th => {
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (th.dataset.sort === col) th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+  });
+  renderLeads();
+}
+
+function sortLeads(leads) {
+  if (!sortCol) return leads;
+  return [...leads].sort((a, b) => {
+    let av, bv;
+    if (sortCol === 'last_contact') {
+      av = (contactMap[a.opportunity_id] || [])[0]?.contacted_at || '';
+      bv = (contactMap[b.opportunity_id] || [])[0]?.contacted_at || '';
+    } else if (sortCol === 'contact_ct') {
+      av = (contactMap[a.opportunity_id] || []).length;
+      bv = (contactMap[b.opportunity_id] || []).length;
+    } else {
+      av = (a[sortCol] || '').toString().toLowerCase();
+      bv = (b[sortCol] || '').toString().toLowerCase();
+    }
+    if (av < bv) return -1 * sortDir;
+    if (av > bv) return  1 * sortDir;
+    return 0;
+  });
+}
+
 /* ── Leads tab ── */
 function getFilteredLeads() {
   const q    = (document.getElementById('lead-search')?.value || '').toLowerCase();
@@ -837,7 +874,7 @@ function getFilteredLeads() {
 }
 
 function renderLeads() {
-  const leads = getFilteredLeads();
+  const leads = sortLeads(getFilteredLeads());
   document.getElementById('leads-count-label').textContent = `${leads.length} lead${leads.length!==1?'s':''}`;
   const tbody = document.getElementById('leads-tbody');
   if (!leads.length) {
@@ -899,8 +936,16 @@ function toggleSelectAll(cb) {
   document.querySelectorAll('.lead-checkbox').forEach(c => c.checked = cb.checked);
 }
 
+function clearSelection() {
+  document.querySelectorAll('.lead-checkbox').forEach(c => c.checked = false);
+  const sa = document.getElementById('select-all');
+  if (sa) sa.checked = false;
+  showToast('Selection cleared.');
+}
+
 function selectFirstN(n) {
   const boxes = document.querySelectorAll('.lead-checkbox');
+  if (!n || n < 1) { showToast('Enter a number first.'); return; }
   boxes.forEach((c, i) => { c.checked = i < n; });
   const total = boxes.length;
   const picked = Math.min(n, total);
@@ -1146,9 +1191,13 @@ function renderDispatch() {
       <div class="dispatch-group-head">
         <div>
           <span class="dispatch-group-title">${stateLabels[state]}</span>
-          <span class="dispatch-group-ct">&nbsp;&nbsp;${group.length} lead${group.length !== 1 ? 's' : ''}</span>
+          <span class="dispatch-group-ct">&nbsp;&nbsp;${group.length} unassigned</span>
         </div>
         <div class="dispatch-assign-row">
+          <label style="font-size:11px;color:var(--muted);white-space:nowrap;">First</label>
+          <input type="number" id="dispatch-ct-${state}" min="1" max="${group.length}" value="${group.length}"
+            class="filter-select" style="width:58px;font-size:12px;text-align:center;" title="How many to assign">
+          <label style="font-size:11px;color:var(--muted);">to</label>
           <select class="filter-select" id="dispatch-rep-${state}" style="font-size:12px;">
             <option value="">-- pick rep --</option>
             ${optionsHtml}
@@ -1168,14 +1217,17 @@ async function dispatchAssignGroup(state) {
   if (!sel) { showToast('Choose a rep for this group.'); return; }
   const group = allLeads.filter(l => !l.assigned_to && l.state === state);
   if (!group.length) { showToast('No unassigned leads in this group.'); return; }
-  const ids = group.map(l => l.opportunity_id);
+  const ctInput = document.getElementById(`dispatch-ct-${state}`);
+  const ct = Math.min(parseInt(ctInput?.value || group.length, 10) || group.length, group.length);
+  const ids = group.slice(0, ct).map(l => l.opportunity_id);
   const { error } = await sb.from('call_list').update({ assigned_to: sel }).in('opportunity_id', ids);
   if (error) { showToast('Error: ' + error.message); return; }
   ids.forEach(id => {
     const l = allLeads.find(l => l.opportunity_id === id);
     if (l) l.assigned_to = sel;
   });
-  showToast(`${ids.length} ${state} lead${ids.length !== 1 ? 's' : ''} assigned to ${sel}`);
+  const stateLabel = {noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale'}[state] || state;
+  showToast(`${ids.length} ${stateLabel} lead${ids.length !== 1 ? 's' : ''} assigned to ${sel}`);
   renderDispatch();
   renderDashboard();
   if (document.getElementById('tab-leads').classList.contains('active')) renderLeads();
