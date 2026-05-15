@@ -352,6 +352,7 @@ tr:hover td { background:rgba(0,0,0,0.02); }
           <button class="filter-btn" onclick="openDispatch()" style="border-color:var(--accent);color:var(--accent);">&#9889; Quick Dispatch</button>
           <select class="filter-select" id="bulk-assign-select" style="font-size:12px;">
             <option value="">Assign to...</option>
+            <option value="__UNASSIGN__">-- Clear assignment --</option>
           </select>
           <button class="filter-btn action" onclick="bulkAssign()">Selected</button>
           <button class="filter-btn action" id="assign-all-btn" onclick="assignAllFiltered()" style="background:var(--accent);border-color:var(--accent);">All Filtered</button>
@@ -915,13 +916,18 @@ async function bulkAssign() {
   if (!sel) { showToast('Choose a rep first.'); return; }
   const checked = Array.from(document.querySelectorAll('.lead-checkbox:checked')).map(c => c.dataset.id);
   if (!checked.length) { showToast('Select at least one lead.'); return; }
-  const { error } = await sb.from('call_list').update({ assigned_to: sel }).in('opportunity_id', checked);
+  const isClear = sel === '__UNASSIGN__';
+  if (isClear && !confirm(`Clear assignment on ${checked.length} lead${checked.length!==1?'s':''}? The currently-assigned rep will lose access.`)) return;
+  const newValue = isClear ? null : sel;
+  const { error } = await sb.from('call_list').update({ assigned_to: newValue }).in('opportunity_id', checked);
   if (error) { showToast('Error: ' + error.message); return; }
   checked.forEach(id => {
     const l = allLeads.find(l => l.opportunity_id === id);
-    if (l) l.assigned_to = sel;
+    if (l) l.assigned_to = newValue;
   });
-  showToast(`Assigned ${checked.length} lead${checked.length!==1?'s':''} to ${sel}`);
+  showToast(isClear
+    ? `Cleared assignment on ${checked.length} lead${checked.length!==1?'s':''}.`
+    : `Assigned ${checked.length} lead${checked.length!==1?'s':''} to ${sel}`);
   renderLeads();
   renderDashboard();
 }
@@ -1076,16 +1082,21 @@ async function assignAllFiltered() {
   const leads = getFilteredLeads();
   if (!leads.length) { showToast('No leads match the current filters.'); return; }
   const ids = leads.map(l => l.opportunity_id);
+  const isClear = sel === '__UNASSIGN__';
+  if (isClear && !confirm(`Clear assignment on all ${ids.length} filtered lead${ids.length!==1?'s':''}? Currently-assigned reps will lose access.`)) return;
+  const newValue = isClear ? null : sel;
   const btn = document.getElementById('assign-all-btn');
-  btn.disabled = true; btn.textContent = 'Assigning...';
-  const { error } = await sb.from('call_list').update({ assigned_to: sel }).in('opportunity_id', ids);
+  btn.disabled = true; btn.textContent = isClear ? 'Clearing...' : 'Assigning...';
+  const { error } = await sb.from('call_list').update({ assigned_to: newValue }).in('opportunity_id', ids);
   btn.disabled = false; btn.textContent = 'All Filtered';
   if (error) { showToast('Error: ' + error.message); return; }
   ids.forEach(id => {
     const l = allLeads.find(l => l.opportunity_id === id);
-    if (l) l.assigned_to = sel;
+    if (l) l.assigned_to = newValue;
   });
-  showToast(`Assigned ${ids.length} lead${ids.length !== 1 ? 's' : ''} to ${sel}`);
+  showToast(isClear
+    ? `Cleared assignment on ${ids.length} lead${ids.length!==1?'s':''}.`
+    : `Assigned ${ids.length} lead${ids.length !== 1 ? 's' : ''} to ${sel}`);
   renderLeads();
   renderDashboard();
 }
