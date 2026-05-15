@@ -131,9 +131,10 @@ tr:hover td { background:rgba(0,0,0,0.02); }
 .status-reached    { background:rgba(120,200,50,0.12);  color:#52961a; border:1px solid rgba(120,200,50,0.35); }
 .status-resolved   { background:rgba(120,200,50,0.22);  color:#3a7010; border:1px solid rgba(120,200,50,0.5); }
 .status-do_not_call{ background:rgba(214,48,48,0.08);   color:#b02020; border:1px solid rgba(214,48,48,0.3); }
-.outcome-Reached   { background:rgba(120,200,50,0.12);  color:#52961a; border:1px solid rgba(120,200,50,0.35); }
-.outcome-Voicemail { background:rgba(41,169,225,0.12);  color:#1580b0; border:1px solid rgba(41,169,225,0.35); }
-.outcome-No\ Answer{ background:rgba(214,48,48,0.08);   color:#b02020; border:1px solid rgba(214,48,48,0.3); }
+.outcome-Appointment-Set { background:rgba(56,180,50,0.2);   color:#1a6e14; border:1px solid rgba(56,180,50,0.55); font-weight:700; }
+.outcome-Reached         { background:rgba(120,200,50,0.12); color:#52961a; border:1px solid rgba(120,200,50,0.35); }
+.outcome-Voicemail       { background:rgba(41,169,225,0.12); color:#1580b0; border:1px solid rgba(41,169,225,0.35); }
+.outcome-No-Answer       { background:rgba(214,48,48,0.08);  color:#b02020; border:1px solid rgba(214,48,48,0.3); }
 
 /* ── Inline select ── */
 .inline-select {
@@ -389,6 +390,7 @@ th.sort-desc::after { content:' \2193'; color:var(--green); }
       <div class="filter-bar">
         <select class="filter-select" id="act-outcome" onchange="renderActivity()">
           <option value="">All Outcomes</option>
+          <option value="Appointment Set">Appointment Set</option>
           <option value="Reached">Reached</option>
           <option value="Voicemail">Voicemail</option>
           <option value="No Answer">No Answer</option>
@@ -805,7 +807,7 @@ function renderDashboard() {
     const lead = allLeads.find(l => l.opportunity_id === c.opportunity_id);
     return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${lead?.opp_name || c.opp_name || '--'}</span>
-      <span class="badge outcome-${c.outcome}" style="margin:0 8px;">${c.outcome}</span>
+      <span class="badge outcome-${c.outcome.replace(/\s+/g,'-')}" style="margin:0 8px;">${c.outcome}</span>
       <span style="color:var(--muted);flex-shrink:0;">${fmtDatetime(c.contacted_at)}</span>
     </div>`;
   }).join('') || '<div style="color:var(--muted);font-size:13px;padding:8px 0;">No contacts in the last 7 days.</div>';
@@ -996,7 +998,7 @@ function renderActivity() {
     const lead = allLeads.find(l => l.opportunity_id === c.opportunity_id);
     return `<tr>
       <td class="td-name">${lead?.opp_name || c.opp_name || '--'}<br><span class="td-muted">${lead?.address || ''}</span></td>
-      <td><span class="badge outcome-${c.outcome}">${c.outcome}</span></td>
+      <td><span class="badge outcome-${c.outcome.replace(/\s+/g,'-')}">${c.outcome}</span></td>
       <td class="td-muted">${fmtDatetime(c.contacted_at)}</td>
       <td style="font-size:13px;max-width:220px;">${c.notes || '--'}</td>
       <td style="font-size:12px;color:var(--accent);">${c.next_step || '--'}</td>

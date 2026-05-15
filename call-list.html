@@ -247,9 +247,11 @@
   .chip-reached   { background: rgba(120,200,50,0.12); color: #52961a; border-color: rgba(120,200,50,0.35); }
   .chip-voicemail { background: rgba(41,169,225,0.12); color: #1580b0; border-color: rgba(41,169,225,0.35); }
   .chip-noanswer  { background: rgba(214,48,48,0.08);  color: #b02020; border-color: rgba(214,48,48,0.3);  }
+  .chip-apptset   { background: rgba(56,180,50,0.2);   color: #1a6e14; border-color: rgba(56,180,50,0.55); font-weight: 700; }
   [data-theme="dark"] .chip-reached   { color: var(--green); }
   [data-theme="dark"] .chip-voicemail { color: var(--accent); }
   [data-theme="dark"] .chip-noanswer  { color: #ff5c5c; border-color: rgba(255,92,92,0.3); }
+  [data-theme="dark"] .chip-apptset   { color: #5de055; border-color: rgba(93,224,85,0.45); }
 
   /* ── Card footer ── */
   .card-footer {
@@ -535,6 +537,7 @@
           <label class="form-label">Outcome</label>
           <div class="radio-group">
             <label class="radio-label"><input type="radio" name="outcome" value="Reached" checked> Reached</label>
+            <label class="radio-label"><input type="radio" name="outcome" value="Appointment Set"> Appointment Set</label>
             <label class="radio-label"><input type="radio" name="outcome" value="Voicemail"> Voicemail</label>
             <label class="radio-label"><input type="radio" name="outcome" value="No Answer"> No Answer</label>
           </div>
@@ -782,9 +785,10 @@ function statusStyle(status) {
 }
 
 function outcomeStyle(outcome) {
-  if (outcome === 'Reached')   return 'background:rgba(120,200,50,0.12);color:#52961a;border:1px solid rgba(120,200,50,0.35);';
-  if (outcome === 'Voicemail') return 'background:rgba(41,169,225,0.12);color:#1580b0;border:1px solid rgba(41,169,225,0.35);';
-  if (outcome === 'No Answer') return 'background:rgba(214,48,48,0.08);color:#b02020;border:1px solid rgba(214,48,48,0.3);';
+  if (outcome === 'Appointment Set') return 'background:rgba(56,180,50,0.2);color:#1a6e14;border:1px solid rgba(56,180,50,0.55);font-weight:700;';
+  if (outcome === 'Reached')         return 'background:rgba(120,200,50,0.12);color:#52961a;border:1px solid rgba(120,200,50,0.35);';
+  if (outcome === 'Voicemail')       return 'background:rgba(41,169,225,0.12);color:#1580b0;border:1px solid rgba(41,169,225,0.35);';
+  if (outcome === 'No Answer')       return 'background:rgba(214,48,48,0.08);color:#b02020;border:1px solid rgba(214,48,48,0.3);';
   return 'background:rgba(0,0,0,0.05);color:#6b7a8d;border:1px solid rgba(0,0,0,0.12);';
 }
 
@@ -825,7 +829,7 @@ function leadCard(lead) {
   let historyHtml = '';
   if (contacts.length) {
     const chips = contacts.slice(0, 3).map(c => {
-      const cls = c.outcome === 'Reached' ? 'chip-reached' : c.outcome === 'Voicemail' ? 'chip-voicemail' : 'chip-noanswer';
+      const cls = c.outcome === 'Appointment Set' ? 'chip-apptset' : c.outcome === 'Reached' ? 'chip-reached' : c.outcome === 'Voicemail' ? 'chip-voicemail' : 'chip-noanswer';
       return `<span class="contact-chip ${cls}">${c.outcome} &middot; ${fmtDatetime(c.contacted_at)}</span>`;
     }).join('');
     historyHtml = `<div class="history-strip">${chips}${contacts.length > 3 ? `<span style="font-size:12px;color:var(--muted);">+${contacts.length-3} more</span>` : ''}</div>`;
