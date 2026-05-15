@@ -1673,7 +1673,7 @@ document.getElementById('bulkModal').addEventListener('click', e => {
 });
 
 function switchTab(tab) {
-  const order = ['resources', 'updates', 'feedback', 'team', 'tools'];
+  const order = ['resources', 'updates', 'feedback', 'tools', 'users'];
   document.querySelectorAll('.page-tab').forEach((t, i) =>
     t.classList.toggle('active', order[i] === tab));
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
