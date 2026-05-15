@@ -255,8 +255,8 @@
       <button class="page-tab active" onclick="switchTab('resources')">Resources</button>
       <button class="page-tab"        onclick="switchTab('updates')">Updates</button>
       <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
-      <button class="page-tab"        onclick="switchTab('team')">Team</button>
       <button class="page-tab"        onclick="switchTab('tools')">Tools</button>
+      <button class="page-tab"        onclick="switchTab('users')">Users</button>
     </div>
   </div>
 
@@ -594,27 +594,53 @@
     </div>
   </div>
 
-  <!-- Team section -->
-  <div id="tabTeam" class="admin-inner" style="display:none">
+  <!-- Users section -->
+  <div id="tabUsers" class="admin-inner" style="display:none">
     <div class="team-header">
-      <h2>Team</h2>
-      <button class="btn-add" onclick="showTeamForm()">+ Add Admin</button>
+      <h2>Users</h2>
+      <button class="btn-add" onclick="showAddUserForm()">+ Add User</button>
+    </div>
+
+    <div style="margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <input type="text" id="userFilterQ" placeholder="Search by name or username..." oninput="renderUsersTable()"
+             style="flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px">
+      <select id="userFilterKind" onchange="renderUsersTable()"
+              style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#fff">
+        <option value="">All kinds</option>
+        <option value="manager">Managers</option>
+        <option value="rep">Reps</option>
+      </select>
+      <select id="userFilterStatus" onchange="renderUsersTable()"
+              style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#fff">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+        <option value="">All</option>
+      </select>
     </div>
 
     <div class="team-table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Email</th>
-            <th>Added</th>
+            <th>User</th>
+            <th>Kind</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Last Sign-in</th>
+            <th>Sign-ins</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody id="teamTableBody">
-          <tr><td colspan="3" class="team-empty">Loading...</td></tr>
+        <tbody id="usersTableBody">
+          <tr><td colspan="7" class="team-empty">Loading...</td></tr>
         </tbody>
       </table>
     </div>
+
+    <p style="font-size:11px;color:var(--text2);margin-top:14px">
+      Starter password for new users is <code>Trinity1</code>. They'll be forced to change it on first sign-in.
+      Any password you set later resets the force-change flag too -- treat admin-set passwords as one-time handoffs.
+    </p>
   </div>
 
   <!-- Tools section -->
@@ -1653,9 +1679,9 @@ function switchTab(tab) {
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
   document.getElementById('tabUpdates').style.display   = tab === 'updates'   ? 'block' : 'none';
   document.getElementById('tabFeedback').style.display  = tab === 'feedback'  ? 'block' : 'none';
-  document.getElementById('tabTeam').style.display      = tab === 'team'      ? 'block' : 'none';
   document.getElementById('tabTools').style.display     = tab === 'tools'     ? 'block' : 'none';
-  if (tab === 'team') loadTeam();
+  document.getElementById('tabUsers').style.display     = tab === 'users'     ? 'block' : 'none';
+  if (tab === 'users') loadUsers();
   if (tab === 'updates') loadUpdates();
   if (tab === 'feedback') loadFeedback();
 }
@@ -1983,8 +2009,8 @@ function escapeHtml(s) {
 
 function escapeAttr(s) { return escapeHtml(s); }
 
-// ── Edge Function ─────────────────────────────────
-const EDGE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-admins';
+// ── Edge Function (manage-users) ──────────────────
+const EDGE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-users';
 
 async function callEdge(payload) {
   const { data: { session } } = await sb.auth.getSession();
@@ -1999,44 +2025,81 @@ async function callEdge(payload) {
   return res.json();
 }
 
-// ── Team data ─────────────────────────────────────
-let teamUsers     = [];
+// ── Users data ────────────────────────────────────
+let USERS = [];
 let currentUserId = null;
 
-async function loadTeam() {
+async function loadUsers() {
   currentUserId = (await sb.auth.getSession()).data.session?.user?.id;
-  document.getElementById('teamTableBody').innerHTML =
-    '<tr><td colspan="3" class="team-empty">Loading...</td></tr>';
+  document.getElementById('usersTableBody').innerHTML =
+    '<tr><td colspan="7" class="team-empty">Loading...</td></tr>';
   const result = await callEdge({ action: 'list' });
   if (result.error) { toast('Error: ' + result.error); return; }
-  teamUsers = result.users?.users || [];
-  renderTeamTable();
+  USERS = result.users || [];
+  renderUsersTable();
 }
 
-function renderTeamTable() {
-  if (!teamUsers.length) {
-    document.getElementById('teamTableBody').innerHTML =
-      '<tr><td colspan="3" class="team-empty">No admins found.</td></tr>';
+function renderUsersTable() {
+  const q = (document.getElementById('userFilterQ')?.value || '').toLowerCase();
+  const kindFilter = document.getElementById('userFilterKind')?.value || '';
+  const statusFilter = document.getElementById('userFilterStatus')?.value || '';
+
+  let rows = USERS.filter(u => {
+    if (kindFilter && u.kind !== kindFilter) return false;
+    if (statusFilter && u.status !== statusFilter) return false;
+    if (q) {
+      const hay = `${u.name||''} ${u.username||''} ${u.email||''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  rows.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+
+  if (!rows.length) {
+    document.getElementById('usersTableBody').innerHTML =
+      '<tr><td colspan="7" class="team-empty">No users match.</td></tr>';
     return;
   }
-  document.getElementById('teamTableBody').innerHTML = teamUsers.map(u => `
+
+  document.getElementById('usersTableBody').innerHTML = rows.map(u => {
+    const isYou = u.auth_user_id === currentUserId;
+    const lastSignIn = u.last_sign_in
+      ? new Date(u.last_sign_in).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })
+      : '<span style="color:var(--text2);font-style:italic">Never</span>';
+    const roleBadge = u.kind === 'manager'
+      ? (u.is_admin
+          ? '<span style="display:inline-block;padding:2px 8px;background:#FEF3C7;color:#92400E;border-radius:9px;font-size:11px;font-weight:600">Admin</span>'
+          : '<span style="display:inline-block;padding:2px 8px;background:#DBEAFE;color:#1E40AF;border-radius:9px;font-size:11px;font-weight:600">Manager</span>')
+      : '<span style="display:inline-block;padding:2px 8px;background:#E0E7EF;color:#374151;border-radius:9px;font-size:11px;font-weight:600">Rep</span>';
+    const statusBadge = u.status === 'active'
+      ? '<span style="display:inline-block;padding:2px 8px;background:#D1FAE5;color:#065F46;border-radius:9px;font-size:11px;font-weight:600">Active</span>'
+      : '<span style="display:inline-block;padding:2px 8px;background:#FEE2E2;color:#991B1B;border-radius:9px;font-size:11px;font-weight:600">Inactive</span>';
+    const adminLabel = u.is_admin ? 'Demote admin' : (u.kind === 'manager' ? 'Make admin' : 'Promote to manager');
+
+    return `
     <tr>
-      <td style="font-weight:600">
-        ${u.email}
-        ${u.id === currentUserId ? '<span class="you-badge">You</span>' : ''}
-      </td>
-      <td style="font-size:12px;color:var(--text2)">
-        ${u.created_at ? new Date(u.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}
-      </td>
       <td>
-        ${u.id !== currentUserId
-          ? `<div class="row-actions">
-               <button class="btn-row btn-edit" onclick="openEditModal('${u.id}','${u.email.replace(/'/g,"\\'")}')">Edit</button>
-               <button class="btn-row btn-del"  onclick="openRemoveModal('${u.id}','${u.email.replace(/'/g,"\\'")}')">Remove</button>
-             </div>`
-          : '<span style="font-size:11px;color:var(--text2)">Current account</span>'}
+        <div style="font-weight:600">${escapeHtml(u.name||'')}${isYou ? ' <span class="you-badge">You</span>' : ''}</div>
+        <div style="font-size:11px;color:var(--text2)">@${escapeHtml(u.username||u.email||'')}</div>
       </td>
-    </tr>`).join('');
+      <td style="font-size:12px">${u.kind === 'manager' ? 'Manager' : 'Rep'}</td>
+      <td>${roleBadge}</td>
+      <td>${statusBadge}</td>
+      <td style="font-size:12px;color:var(--text2);white-space:nowrap">${lastSignIn}</td>
+      <td style="font-size:12px">${u.sign_in_count || 0}</td>
+      <td>
+        ${isYou
+          ? '<span style="font-size:11px;color:var(--text2)">Current account</span>'
+          : `<div class="row-actions" style="display:flex;gap:4px;flex-wrap:wrap">
+              <button class="btn-row btn-edit" onclick="showActivityModal('${u.auth_user_id}','${escapeAttr(u.name||'')}')">Activity</button>
+              <button class="btn-row btn-edit" onclick="showSetPasswordModal('${u.auth_user_id}','${escapeAttr(u.name||'')}')">Reset PW</button>
+              <button class="btn-row btn-edit" onclick="toggleAdmin('${u.auth_user_id}', ${u.kind === 'manager'}, ${!!u.is_admin})">${adminLabel}</button>
+              <button class="btn-row btn-edit" onclick="toggleStatus('${u.auth_user_id}','${u.status}','${escapeAttr(u.name||'')}')">${u.status === 'active' ? 'Deactivate' : 'Activate'}</button>
+              <button class="btn-row btn-del" onclick="showDeleteModal('${u.auth_user_id}','${escapeAttr(u.name||'')}')">Delete</button>
+             </div>`}
+      </td>
+    </tr>`;
+  }).join('');
 }
 
 // ── Modal core ────────────────────────────────────
@@ -2073,128 +2136,206 @@ document.getElementById('adminModal').addEventListener('click', e => {
   if (e.target === document.getElementById('adminModal')) closeModal();
 });
 
-// ── Add Admin modal ───────────────────────────────
-function showTeamForm() {
+// ── Add User modal ────────────────────────────────
+function showAddUserForm() {
   openModal(
-    'Add Admin',
+    'Add User',
     `<div style="display:flex;flex-direction:column;gap:12px">
-      <form onsubmit="event.preventDefault();createAdmin()" style="display:contents">
       <div>
-        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">EMAIL *</label>
-        <input type="email" id="mEmail" placeholder="email@example.com" autocomplete="off" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
+        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">FULL NAME *</label>
+        <input type="text" id="uName" placeholder="Jane Smith" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
       </div>
       <div>
-        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">TEMPORARY PASSWORD *</label>
-        <input type="password" id="mPassword" placeholder="Minimum 6 characters" autocomplete="new-password" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
+        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">USERNAME *</label>
+        <input type="text" id="uUsername" placeholder="jsmith" autocapitalize="none" autocorrect="off" spellcheck="false" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
+        <p style="font-size:11px;color:#6B7280;margin-top:5px">Lowercase. Will become &lt;username&gt;@ct-resource-page.com in the auth system.</p>
       </div>
-      <p style="font-size:11px;color:#6B7280;line-height:1.5;margin-top:2px">
-        You will be shown the credentials after creation to share directly with the new admin.
-      </p>
-      </form>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">KIND *</label>
+        <select id="uKind" onchange="document.getElementById('uAdminWrap').style.display = this.value === 'manager' ? 'block' : 'none'" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;background:#fff;font-family:inherit">
+          <option value="rep">Rep</option>
+          <option value="manager">Manager</option>
+        </select>
+      </div>
+      <div id="uAdminWrap" style="display:none">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+          <input type="checkbox" id="uIsAdmin"> Also promote to admin
+        </label>
+        <p style="font-size:11px;color:#6B7280;margin-top:5px">Admins can manage users, edit resources, post bulletins, and see all activity.</p>
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">STARTER PASSWORD</label>
+        <input type="text" id="uPassword" value="Trinity1" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:monospace">
+        <p style="font-size:11px;color:#6B7280;margin-top:5px">User must change on first sign-in. Share via Slack/phone, not email.</p>
+      </div>
     </div>`,
-    'Create Admin',
+    'Create User',
     'background:#78C832;color:#fff;',
-    createAdmin
+    createUser
   );
 }
 
-async function createAdmin() {
-  const email    = document.getElementById('mEmail').value.trim();
-  const password = document.getElementById('mPassword').value;
+async function createUser() {
+  const name     = document.getElementById('uName').value.trim();
+  const username = document.getElementById('uUsername').value.trim().toLowerCase();
+  const kind     = document.getElementById('uKind').value;
+  const is_admin = kind === 'manager' && document.getElementById('uIsAdmin').checked;
+  const password = document.getElementById('uPassword').value || 'Trinity1';
   const btn      = document.getElementById('modalConfirmBtn');
   document.getElementById('modalError').style.display = 'none';
 
-  if (!email || !password) return setModalError('Email and password are required.');
-  if (password.length < 6)  return setModalError('Password must be at least 6 characters.');
+  if (!name || !username) return setModalError('Name and username are required.');
+  if (!/^[a-z0-9_-]+$/.test(username)) return setModalError('Username can only contain lowercase letters, digits, hyphens, and underscores.');
+  if (password.length < 8) return setModalError('Password must be at least 8 characters.');
 
-  setModalLoading(btn, true, 'Create Admin');
-  const result = await callEdge({ action: 'create', email, password });
-  setModalLoading(btn, false, 'Create Admin');
+  setModalLoading(btn, true, 'Create User');
+  const result = await callEdge({ action: 'create', kind, name, username, is_admin, password });
+  setModalLoading(btn, false, 'Create User');
 
   if (result.error) return setModalError(result.error);
 
   closeModal();
-  await loadTeam();
-  showCredentialCard(email, password);
+  await loadUsers();
+  showCredentialCard(username, password);
 }
 
-// ── Edit Admin modal ──────────────────────────────
-function openEditModal(userId, email) {
+// ── Set password modal ────────────────────────────
+function showSetPasswordModal(userId, name) {
   openModal(
-    'Edit Admin',
+    'Reset password: ' + name,
     `<div style="display:flex;flex-direction:column;gap:12px">
       <div>
-        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">EMAIL</label>
-        <input type="email" id="mEditEmail" value="${email}" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
-      </div>
-      <div>
         <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">NEW PASSWORD</label>
-        <input type="password" id="mEditPassword" placeholder="Leave blank to keep current password" autocomplete="new-password" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
+        <input type="text" id="pwField" value="Trinity1" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:monospace">
+        <p style="font-size:11px;color:#6B7280;margin-top:5px">Sets a new password AND forces them to change it on next sign-in. Share via Slack/phone.</p>
       </div>
-      <p style="font-size:11px;color:#6B7280;line-height:1.5">
-        Only fill in the fields you want to change. Leave password blank to keep it unchanged.
-      </p>
     </div>`,
-    'Save Changes',
+    'Set Password',
     'background:#1A2332;color:#fff;',
-    () => saveEdit(userId, email)
+    () => savePassword(userId, name)
   );
 }
 
-async function saveEdit(userId, originalEmail) {
-  const newEmail    = document.getElementById('mEditEmail').value.trim();
-  const newPassword = document.getElementById('mEditPassword').value;
-  const btn         = document.getElementById('modalConfirmBtn');
+async function savePassword(userId, name) {
+  const password = document.getElementById('pwField').value;
+  const btn      = document.getElementById('modalConfirmBtn');
   document.getElementById('modalError').style.display = 'none';
+  if (password.length < 8) return setModalError('Password must be at least 8 chars.');
 
-  if (!newEmail) return setModalError('Email cannot be empty.');
-  if (newPassword && newPassword.length < 6) return setModalError('Password must be at least 6 characters.');
-  if (newEmail === originalEmail && !newPassword) return setModalError('No changes detected.');
-
-  const payload = { action: 'update', userId };
-  if (newEmail !== originalEmail) payload.email    = newEmail;
-  if (newPassword)                payload.password = newPassword;
-
-  setModalLoading(btn, true, 'Save Changes');
-  const result = await callEdge(payload);
-  setModalLoading(btn, false, 'Save Changes');
-
+  setModalLoading(btn, true, 'Set Password');
+  const result = await callEdge({ action: 'set_password', auth_user_id: userId, password });
+  setModalLoading(btn, false, 'Set Password');
   if (result.error) return setModalError(result.error);
 
   closeModal();
-  await loadTeam();
-  toast('Admin updated.');
+  await loadUsers();
+  toast(`Password set for ${name}. Share via Slack: username + new password.`);
 }
 
-// ── Remove Admin modal ────────────────────────────
-function openRemoveModal(userId, email) {
+// ── Toggle admin / promote to manager ─────────────
+async function toggleAdmin(userId, isManager, currentIsAdmin) {
+  if (!isManager) {
+    if (!confirm('Promote this rep to manager? They will gain access to manager-only data.')) return;
+    const result = await callEdge({ action: 'set_kind', auth_user_id: userId, new_kind: 'manager' });
+    if (result.error) { toast('Error: ' + result.error); return; }
+    await loadUsers();
+    toast('Promoted to manager.');
+    return;
+  }
+  const newAdmin = !currentIsAdmin;
+  const verb = newAdmin ? 'promote to admin' : 'demote from admin';
+  if (!confirm(`Are you sure you want to ${verb}?`)) return;
+  const result = await callEdge({ action: 'set_role', auth_user_id: userId, is_admin: newAdmin });
+  if (result.error) { toast('Error: ' + result.error); return; }
+  await loadUsers();
+  toast(newAdmin ? 'Promoted to admin.' : 'Demoted from admin.');
+}
+
+// ── Toggle status (activate / deactivate) ─────────
+async function toggleStatus(userId, currentStatus, name) {
+  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+  const verb = newStatus === 'active' ? 'reactivate' : 'deactivate';
+  const consequence = newStatus === 'active'
+    ? 'They can sign in again.'
+    : 'They will be unable to sign in. Existing sessions expire within an hour.';
+  if (!confirm(`${verb.charAt(0).toUpperCase() + verb.slice(1)} ${name}? ${consequence}`)) return;
+  const result = await callEdge({ action: 'set_status', auth_user_id: userId, status: newStatus });
+  if (result.error) { toast('Error: ' + result.error); return; }
+  await loadUsers();
+  toast(`${name} ${verb}d.`);
+}
+
+// ── Delete modal ──────────────────────────────────
+function showDeleteModal(userId, name) {
   openModal(
-    'Remove Admin',
+    'Delete ' + name + '?',
     `<div style="font-size:13px;line-height:1.6;color:#1A2332">
-      <p>Are you sure you want to remove <strong>${email}</strong> as an admin?</p>
+      <p>Are you sure you want to <strong>permanently delete</strong> ${escapeHtml(name)}?</p>
       <p style="margin-top:10px;color:#6B7280;font-size:12px">
-        This will immediately revoke their access to the admin panel. This action cannot be undone.
+        This removes their auth account, profile, and all activity history. Cannot be undone.
+        If you only want to revoke access, deactivate instead.
       </p>
     </div>`,
-    'Remove Admin',
+    'Delete Permanently',
     'background:#EF4444;color:#fff;',
-    () => confirmRemove(userId, email)
+    () => confirmDelete(userId, name)
   );
 }
 
-async function confirmRemove(userId, email) {
+async function confirmDelete(userId, name) {
   const btn = document.getElementById('modalConfirmBtn');
-  setModalLoading(btn, true, 'Remove Admin');
-  const result = await callEdge({ action: 'delete', userId });
-  setModalLoading(btn, false, 'Remove Admin');
+  setModalLoading(btn, true, 'Delete Permanently');
+  const result = await callEdge({ action: 'delete', auth_user_id: userId });
+  setModalLoading(btn, false, 'Delete Permanently');
   if (result.error) return setModalError(result.error);
   closeModal();
-  await loadTeam();
-  toast(`${email} removed.`);
+  await loadUsers();
+  toast(`${name} deleted.`);
 }
 
-// ── Credential card ───────────────────────────────
-function showCredentialCard(email, password) {
+// ── Activity modal ────────────────────────────────
+async function showActivityModal(userId, name) {
+  openModal(
+    'Activity: ' + name,
+    `<div style="min-width:520px"><p style="font-size:12px;color:#6B7280">Loading...</p></div>`,
+    'Close',
+    'background:#1A2332;color:#fff;',
+    closeModal
+  );
+  const result = await callEdge({ action: 'get_activity', auth_user_id: userId, limit: 100 });
+  if (result.error) {
+    document.getElementById('modalBody').innerHTML = `<p style="color:#991B1B">${escapeHtml(result.error)}</p>`;
+    return;
+  }
+  const summary = result.summary || {};
+  const events = result.events || [];
+  const summaryHtml = Object.entries(summary).map(([type, count]) =>
+    `<span style="display:inline-block;padding:4px 9px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:11px;font-weight:600;margin-right:6px;margin-bottom:6px">${escapeHtml(type)}: ${count}</span>`
+  ).join('') || '<span style="font-size:12px;color:#6B7280">No events yet.</span>';
+  const eventsHtml = events.length
+    ? events.map(e => {
+        const dt = new Date(e.created_at);
+        const dateStr = dt.toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+        const url = e.page_url || '';
+        const metaStr = e.metadata && Object.keys(e.metadata).length
+          ? ` <span style="color:#6B7280">${escapeHtml(JSON.stringify(e.metadata).slice(0, 160))}</span>`
+          : '';
+        return `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+          <span style="display:inline-block;width:150px;color:#6B7280">${dateStr}</span>
+          <strong>${escapeHtml(e.event_type)}</strong>
+          <span style="color:#374151;margin-left:6px">${escapeHtml(url)}</span>${metaStr}
+        </div>`;
+      }).join('')
+    : '<p style="font-size:12px;color:#6B7280">No activity yet.</p>';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="min-width:520px">
+      <div style="margin-bottom:14px">${summaryHtml}</div>
+      <div style="max-height:400px;overflow-y:auto">${eventsHtml}</div>
+    </div>`;
+}
+
+// ── Credential card (shown after create) ──────────
+function showCredentialCard(username, password) {
   const existing = document.getElementById('credentialCard');
   if (existing) existing.remove();
   const card = document.createElement('div');
@@ -2203,42 +2344,45 @@ function showCredentialCard(email, password) {
   card.innerHTML = `
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
       <span style="font-size:18px">&#9888;</span>
-      <strong style="font-size:14px;color:#1A2332">Admin account created -- share these credentials now</strong>
+      <strong style="font-size:14px;color:#1A2332">Account created -- share these credentials now</strong>
     </div>
     <p style="font-size:12px;color:#6B7280;margin-bottom:14px;line-height:1.6">
-      This is the only time this password will be shown here. Share it directly via a secure channel (text, Teams, phone). They should change it after first sign-in.
+      This is the only time this password will be shown here. Share via Slack / phone / in-person -- never email. They'll be prompted to change it on first sign-in.
     </p>
     <div style="background:#fff;border:1px solid #DFE2DA;border-radius:7px;padding:14px 16px;margin-bottom:14px;font-family:monospace;font-size:13px;line-height:2.2">
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">ADMIN URL</span><br>https://ct-resource-page.com/admin.html</div>
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">EMAIL</span><br>${email}</div>
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">PASSWORD</span><br>${password}</div>
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">SIGN-IN URL</span><br>https://ct-resource-page.com/</div>
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">USERNAME</span><br>${escapeHtml(username)}</div>
+      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">PASSWORD</span><br>${escapeHtml(password)}</div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button onclick="copyCredentials('${email.replace(/'/g,"\\'")}','${password.replace(/'/g,"\\'")}',this)"
+      <button onclick="copyCredentials('${username.replace(/'/g,"\\'")}','${password.replace(/'/g,"\\'")}',this)"
         style="padding:8px 16px;background:#1A2332;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">
-        Copy credentials
+        Copy
       </button>
       <button onclick="document.getElementById('credentialCard').remove()"
         style="padding:8px 14px;background:transparent;border:1px solid #DFE2DA;border-radius:7px;font-size:12px;font-weight:600;color:#6B7280;cursor:pointer">
         Dismiss
       </button>
     </div>`;
-  document.querySelector('#tabTeam .team-header').insertAdjacentElement('afterend', card);
+  const teamHeader = document.querySelector('#tabUsers .team-header');
+  if (teamHeader) teamHeader.insertAdjacentElement('afterend', card);
   card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-function copyCredentials(email, password, btn) {
+function copyCredentials(username, password, btn) {
   const text = [
-    'CT Traditional Sales Resource Center',
-    'Admin URL: https://ct-resource-page.com/admin.html',
-    'Email: ' + email,
-    'Password: ' + password
+    'CT Resource Page',
+    'Sign-in URL: https://ct-resource-page.com/',
+    'Username: ' + username,
+    'Password: ' + password,
+    '(You will be asked to set a new password on first sign-in.)'
   ].join('\n');
   navigator.clipboard.writeText(text).then(() => {
     btn.textContent = 'Copied!';
-    setTimeout(() => { btn.textContent = 'Copy credentials'; }, 2200);
+    setTimeout(() => { btn.textContent = 'Copy'; }, 2200);
   });
 }
+
 
 // ── Feedback queue ────────────────────────────────
 let FEEDBACK = [];

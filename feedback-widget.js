@@ -348,11 +348,16 @@
   }
 
   async function submitFeedback(payload) {
+    // Feedback is no longer anonymous. RLS requires authenticated insert with
+    // non-null submitter_name + submitter_email -- both pulled from the
+    // signed-in user's session.
+    const session = window.AUTH_SESSION;
+    if (!session) throw new Error('Not signed in. Refresh and sign in to submit feedback.');
     const res = await fetch(REST + '/feedback_items', {
       method: 'POST',
       headers: {
         apikey: SUPABASE_ANON_KEY,
-        Authorization: 'Bearer ' + SUPABASE_ANON_KEY,
+        Authorization: 'Bearer ' + session.access_token,
         'Content-Type': 'application/json',
         Prefer: 'return=minimal',
       },
@@ -410,8 +415,9 @@
           </div>
 
           <div class="fbw-field">
-            <label for="fbw-email-in">Your email <span style="font-weight:500;text-transform:none;color:#6b7a90;">(optional, only if you want a follow-up)</span></label>
-            <input type="email" id="fbw-email-in" maxlength="200" autocomplete="email" placeholder="you@trinity-solar.com">
+            <label>Submitting as</label>
+            <div data-fbw-who style="padding:9px 11px;background:#EFF1EC;border:1px solid #DFE2DA;border-radius:8px;font-size:13px;color:#1A2332">--</div>
+            <p style="font-size:11px;color:#6b7a90;margin-top:5px">Your name + sign-in handle are attached automatically. No anonymous feedback.</p>
           </div>
 
           <div class="fbw-field">
@@ -486,9 +492,28 @@
   function clearError(host) { host.classList.remove('open'); host.textContent = ''; }
 
   // --- main ---
+  function waitForAuth(cb) {
+    // Inject the FAB only after the user is signed in. Pages on this site
+    // are auth-gated by /auth-gate.js, which sets window.AUTH_PROFILE +
+    // window.AUTH_SESSION after the role check passes. Without that, the
+    // feedback insert would fail RLS (Migration I: non-anon feedback only).
+    if (window.AUTH_PROFILE && window.AUTH_SESSION) return cb();
+    const iv = setInterval(() => {
+      if (window.AUTH_PROFILE && window.AUTH_SESSION) {
+        clearInterval(iv);
+        cb();
+      }
+    }, 300);
+    // Give up after 60s to avoid leaking an interval on pages without auth-gate.
+    setTimeout(() => clearInterval(iv), 60000);
+  }
+
   function init() {
     injectStyles();
+    waitForAuth(() => initSignedIn());
+  }
 
+  function initSignedIn() {
     const fab = document.createElement('button');
     fab.type = 'button';
     fab.className = 'fbw-fab';
@@ -503,7 +528,7 @@
     const errBox = overlay.querySelector('[data-fbw-error]');
     const titleIn = overlay.querySelector('#fbw-title-in');
     const bodyIn = overlay.querySelector('#fbw-body-in');
-    const emailIn = overlay.querySelector('#fbw-email-in');
+    const whoEl = overlay.querySelector('[data-fbw-who]');
     const submitBtn = overlay.querySelector('[data-fbw-submit]');
     const screenshotBtn = overlay.querySelector('[data-fbw-screenshot]');
     const metaPre = overlay.querySelector('[data-fbw-meta-pre]');
@@ -514,6 +539,13 @@
     function open() {
       overlay.classList.add('open');
       metaPre.textContent = JSON.stringify(collectDeviceInfo(), null, 2);
+      const p = window.AUTH_PROFILE;
+      const s = window.AUTH_SESSION;
+      if (whoEl) {
+        whoEl.textContent = p && s
+          ? `${p.name} (${s.user.email})`
+          : 'Not signed in -- refresh and sign in to submit.';
+      }
       setTimeout(() => titleIn.focus(), 10);
     }
     function close() {
@@ -523,7 +555,6 @@
       attached = [];
       titleIn.value = '';
       bodyIn.value = '';
-      emailIn.value = '';
       clearError(errBox);
       renderTypes(typesHost);
       renderAttached(attachedHost);
@@ -607,13 +638,14 @@
       clearError(errBox);
       const title = titleIn.value.trim();
       const body = bodyIn.value.trim();
-      const email = emailIn.value.trim();
       if (!title && !body) {
         showError(errBox, 'Add a summary or details (one or the other is fine).');
         return;
       }
-      if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        showError(errBox, 'That email looks off -- check it or leave it blank.');
+      const profile = window.AUTH_PROFILE;
+      const session = window.AUTH_SESSION;
+      if (!profile || !session) {
+        showError(errBox, 'Your session expired. Refresh the page and sign in again.');
         return;
       }
 
@@ -626,7 +658,8 @@
         body: body,
         page_url: location.href,
         referrer: document.referrer || null,
-        submitter_email: email || null,
+        submitter_name: profile.name,
+        submitter_email: session.user.email,
         device_info: collectDeviceInfo(),
         attachments: attached,
       };
@@ -643,7 +676,7 @@
         success.innerHTML = `
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
           <h2>Got it -- thank you</h2>
-          <p>Your note is in the queue. ${email ? 'We will follow up at <b>' + email.replace(/[<>"]/g, '') + '</b> if there is anything to share.' : 'You can reach back out anytime.'}</p>
+          <p>Your note is in the queue, attached to your account. Anyone with admin access will see it on the Feedback tab.</p>
           <button class="fbw-btn fbw-btn-cancel" data-fbw-close style="margin-top:16px;">Close</button>
         `;
         overlay.querySelector('.fbw-modal').appendChild(success);
