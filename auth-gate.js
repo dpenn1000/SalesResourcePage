@@ -299,9 +299,14 @@
       if (errEl) { errEl.textContent = pwErr.message; errEl.style.display = 'block'; }
       return;
     }
-    const { data: { user } } = await sb.auth.getUser();
-    await sb.from('managers').update({ must_change_password: false }).eq('auth_user_id', user.id);
-    await sb.from('reps').update({ must_change_password: false }).eq('auth_user_id', user.id);
+    // Clear must_change_password via the SECURITY DEFINER RPC. Direct UPDATE
+    // on managers fails RLS for non-admin managers (mgr_write_admin requires
+    // is_admin()), which used to trap non-admin managers in the change-pw
+    // loop (incident 2026-05-14, Anthony Venditto). The RPC is scoped to
+    // ONLY clearing the flag on the caller's own row in either table, so
+    // there's no privilege-escalation surface.
+    const { error: clearErr } = await sb.rpc('clear_must_change_password');
+    if (clearErr) console.warn('[auth-gate] clear_must_change_password failed:', clearErr.message);
     window.location.reload();
   };
 })();
