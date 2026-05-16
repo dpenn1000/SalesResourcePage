@@ -261,7 +261,7 @@
 </div>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+<div class="modal-overlay" id="modal-overlay">
   <div class="modal" id="modal">
     <div class="modal-header">
       <div>
@@ -410,7 +410,7 @@
     <div class="modal-footer">
       <span id="m-save-msg" class="save-msg"></span>
       <button class="btn btn-split" id="btn-split" onclick="splitRecord()" style="display:none;background:#f0f4ff;color:#2d4fa0;border:1px solid #b0c4f0;margin-right:auto" title="Creates a separate Solar record and a separate Roof record, then removes this combined one">Split into Solar + Roof</button>
-      <button class="btn btn-cancel-modal" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-cancel-modal" onclick="closeModal()">Close</button>
       <button class="btn btn-save" onclick="saveModal()">Save Changes</button>
     </div>
   </div>
@@ -572,7 +572,25 @@ function renderTable() {
       <td style="text-align:right">${ncHtml}</td>
       <td class="notes-cell" title="${notePreview}">${notePreview}</td>
     `;
-    tr.addEventListener('click', () => openModal(r.id));
+    // Deliberate-click only: track mousedown position, fire openModal only on
+    // mouseup that stays within a few pixels and isn't a text selection.
+    // This makes copy-paste and click-drag (e.g. to select a cell value) safe.
+    let downX = 0, downY = 0, downOn = null;
+    tr.addEventListener('mousedown', e => {
+      downX = e.clientX; downY = e.clientY; downOn = e.target;
+    });
+    tr.addEventListener('mouseup', e => {
+      if (!downOn) return;
+      // Ignore if click started/ended in an anchor or button (e.g. the SF link)
+      if (e.target.closest('a, button')) return;
+      const dx = Math.abs(e.clientX - downX);
+      const dy = Math.abs(e.clientY - downY);
+      if (dx > 4 || dy > 4) return;  // click-drag, ignore
+      // If the user selected text during the gesture, don't open
+      const sel = window.getSelection && window.getSelection().toString();
+      if (sel && sel.length > 0) return;
+      openModal(r.id);
+    });
     tbody.appendChild(tr);
   });
 }
@@ -671,9 +689,9 @@ function closeModal() {
   currentRecord = null;
 }
 
-function handleOverlayClick(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
-}
+// Overlay-click-to-close intentionally removed: the modal now closes only via
+// the X in the header, the Close button in the footer, or the Escape key.
+// (Was triggering accidental closes during copy-paste / text selection.)
 
 async function saveModal() {
   if (!currentRecord) return;
