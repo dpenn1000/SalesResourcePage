@@ -286,6 +286,7 @@ th.sort-desc::after { content:' \2193'; color:var(--green); }
       <div class="nav-tab" data-tab="activity">Activity</div>
       <div class="nav-tab" data-tab="followups">Follow-ups</div>
       <div class="nav-tab" data-tab="pipeline">Rep Pipeline</div>
+      <div class="nav-tab" data-tab="trends">Weekly Trends</div>
       <div class="nav-tab" data-tab="load">Load List</div>
     </nav>
     <div class="header-user">
@@ -474,6 +475,22 @@ th.sort-desc::after { content:' \2193'; color:var(--green); }
       </div>
     </div>
 
+    <!-- ── Weekly Trends ── -->
+    <!-- 4-week rolling comparison per rep. Shows whether each rep is
+         improving, holding steady, or slipping vs. their own past.
+         Coaching-focused: compare a rep to themselves before comparing
+         across reps. See renderWeeklyTrends() below. -->
+    <div id="tab-trends" class="tab-panel">
+      <div class="dash-card" style="padding:18px 22px;margin-bottom:20px;">
+        <div class="dash-card-title" style="margin-bottom:4px;">Weekly Trends</div>
+        <div style="font-size:12px;color:var(--text-muted);">
+          Last 4 weeks per rep. Trend arrow compares this week vs the prior 3-week average.
+          Direction matters more than magnitude -- look for slipping reps to coach early.
+        </div>
+      </div>
+      <div id="weekly-trends"></div>
+    </div>
+
     <!-- ── Load List ── -->
     <div id="tab-load" class="tab-panel">
       <div style="max-width:760px;">
@@ -640,7 +657,7 @@ async function changePassword() {
 
 /* ── App init ── */
 async function initApp() {
-  await Promise.all([loadLeads(), loadContacts(), loadManagers()]);
+  await Promise.all([loadLeads(), loadContacts(), loadManagers(), loadLastSeen()]);
   buildContactMap();
   populateManagerDropdowns();
   renderDashboard();
@@ -661,9 +678,12 @@ async function loadManagers() {
   // but it now holds anyone leads can be dispatched to: managers + reps.
   // Reps were missing here, which is why Richard Wilkman and friends never
   // appeared in any of the assignment dropdowns.
+  //
+  // auth_user_id added so the Daily Performance strip can join with
+  // user_activity for "Last seen" badges.
   const [{ data: mgrs }, { data: reps }] = await Promise.all([
-    sb.from('managers').select('name, username').order('name'),
-    sb.from('reps').select('name, username').order('name'),
+    sb.from('managers').select('name, username, auth_user_id').order('name'),
+    sb.from('reps').select('name, username, auth_user_id').order('name'),
   ]);
   const seen = new Set();
   const combined = [];
@@ -672,6 +692,36 @@ async function loadManagers() {
   }
   combined.sort((a, b) => a.name.localeCompare(b.name));
   allManagers = combined;
+}
+
+// Last-seen + sessions-today per auth_user_id, derived from user_activity.
+// Refreshed when the Rep Pipeline tab renders. Admin-only RLS reads everything.
+let lastSeenByUser = {};   // auth_user_id -> { lastSeen: ISO, sessionsToday: N }
+
+async function loadLastSeen() {
+  // Pull every event from the last 24 hours and aggregate client-side.
+  // Cheap (admins are few; reps are ~20; activity rate is low).
+  const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+  const { data, error } = await sb.from('user_activity')
+    .select('auth_user_id, event_type, created_at')
+    .gt('created_at', since)
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.warn('loadLastSeen failed:', error.message);
+    return;
+  }
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const map = {};
+  for (const ev of (data || [])) {
+    if (!ev.auth_user_id) continue;
+    if (!map[ev.auth_user_id]) {
+      map[ev.auth_user_id] = { lastSeen: ev.created_at, sessionsToday: 0 };
+    }
+    if (ev.event_type === 'sign_in' && ev.created_at.slice(0, 10) === todayKey) {
+      map[ev.auth_user_id].sessionsToday++;
+    }
+  }
+  lastSeenByUser = map;
 }
 
 function buildContactMap() {
@@ -710,6 +760,7 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     if (tab.dataset.tab === 'activity')  renderActivity();
     if (tab.dataset.tab === 'followups') renderFollowups();
     if (tab.dataset.tab === 'pipeline')  renderPipeline();
+    if (tab.dataset.tab === 'trends')    renderWeeklyTrends();
   });
 });
 
@@ -1138,6 +1189,46 @@ function pct(num, denom) {
   return Math.round((num / denom) * 100) + '%';
 }
 
+function relativeTime(iso) {
+  if (!iso) return null;
+  const then = new Date(iso).getTime();
+  if (isNaN(then)) return null;
+  const diff = Date.now() - then;
+  if (diff < 0) return 'just now';
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  const d = Math.floor(h / 24);
+  return d + 'd ago';
+}
+
+function lastSeenBadge(repName) {
+  // Find this rep's auth_user_id from allManagers
+  const meta = allManagers.find(m => m.name === repName);
+  if (!meta || !meta.auth_user_id) {
+    return `<span style="color:var(--text-muted);font-size:11px">--</span>`;
+  }
+  const info = lastSeenByUser[meta.auth_user_id];
+  if (!info) {
+    return `<span style="color:var(--text-muted);font-size:11px" title="No activity in last 24h">offline</span>`;
+  }
+  const ago = Date.now() - new Date(info.lastSeen).getTime();
+  let color, label;
+  if (ago < 5 * 60 * 1000) {
+    color = '#3a7010'; label = 'Active now';
+  } else if (ago < 60 * 60 * 1000) {
+    color = '#52961a'; label = relativeTime(info.lastSeen);
+  } else if (ago < 8 * 60 * 60 * 1000) {
+    color = '#a06820'; label = relativeTime(info.lastSeen);
+  } else {
+    color = '#6b7a8d'; label = relativeTime(info.lastSeen);
+  }
+  const sess = info.sessionsToday > 0 ? ` &middot; ${info.sessionsToday} sess` : '';
+  return `<span style="color:${color};font-size:11px;font-weight:600" title="${info.sessionsToday} sign-in${info.sessionsToday!==1?'s':''} today">${label}${sess}</span>`;
+}
+
 function sparklineSvg(series, peakDay) {
   // 14 bars, 8px wide each (with 2px gap), max height 24px.
   // Color by intensity: light bars for low days, green for the rep's peak.
@@ -1183,24 +1274,28 @@ function renderDailyPerformance() {
         <thead>
           <tr style="text-align:left;color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);">
             <th style="padding:8px 12px 8px 0;">Rep</th>
-            <th style="padding:8px 12px;text-align:right;">Today</th>
-            <th style="padding:8px 12px;text-align:right;">Reached</th>
-            <th style="padding:8px 12px;text-align:right;">Set</th>
-            <th style="padding:8px 12px;text-align:right;">Set %</th>
+            <th style="padding:8px 10px;text-align:right;">Today</th>
+            <th style="padding:8px 10px;text-align:right;">Reached</th>
+            <th style="padding:8px 10px;text-align:right;" title="Reached / Calls -- did they get a person?">Connect%</th>
+            <th style="padding:8px 10px;text-align:right;">Set</th>
+            <th style="padding:8px 10px;text-align:right;" title="Set / Calls -- the headline KPI">Set %</th>
             <th style="padding:8px 16px;">Last ${PERF_WINDOW_DAYS} days</th>
-            <th style="padding:8px 12px;text-align:right;">14d Total</th>
+            <th style="padding:8px 10px;text-align:right;">14d Total</th>
+            <th style="padding:8px 10px;text-align:right;">Active</th>
           </tr>
         </thead>
         <tbody>
           ${rows.map(r => `
             <tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="selectRep('${r.name.replace(/'/g,"\\\\'")}')">
               <td style="padding:10px 12px 10px 0;font-weight:600;">${r.name}</td>
-              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;">${r.today.calls || '<span style="color:var(--text-muted)">0</span>'}</td>
-              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:${r.today.reached>0?'#52961a':'var(--text-muted)'};">${r.today.reached}</td>
-              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:${r.today.set>0?'#3a7010':'var(--text-muted)'};font-weight:${r.today.set>0?'600':'400'};">${r.today.set}</td>
-              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);">${pct(r.today.set, r.today.calls)}</td>
+              <td style="padding:10px 10px;text-align:right;font-family:'IBM Plex Mono',monospace;">${r.today.calls || '<span style="color:var(--text-muted)">0</span>'}</td>
+              <td style="padding:10px 10px;text-align:right;font-family:'IBM Plex Mono',monospace;color:${r.today.reached>0?'#52961a':'var(--text-muted)'};">${r.today.reached}</td>
+              <td style="padding:10px 10px;text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);">${pct(r.today.reached, r.today.calls)}</td>
+              <td style="padding:10px 10px;text-align:right;font-family:'IBM Plex Mono',monospace;color:${r.today.set>0?'#3a7010':'var(--text-muted)'};font-weight:${r.today.set>0?'600':'400'};">${r.today.set}</td>
+              <td style="padding:10px 10px;text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);">${pct(r.today.set, r.today.calls)}</td>
               <td style="padding:10px 16px;">${sparklineSvg(r.series, r.peakDay)}</td>
-              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);">${r.total14d.calls}c / ${r.total14d.set}s</td>
+              <td style="padding:10px 10px;text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);">${r.total14d.calls}c / ${r.total14d.set}s</td>
+              <td style="padding:10px 10px;text-align:right;">${lastSeenBadge(r.name)}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -1208,6 +1303,155 @@ function renderDailyPerformance() {
       </div>
     </div>`;
   document.getElementById('daily-performance').innerHTML = html;
+}
+
+/* ── Weekly Trends tab ─────────────────────────────────────────────
+ * 4 weeks of rolling activity per rep. Each rep gets a row showing
+ * weekly totals (calls/reached/set) plus a trend arrow comparing
+ * this week to the average of the prior 3.
+ *
+ * Coaching logic embedded in the colors:
+ *   - Green arrow up    = improving (set rate this week >= avg + 5pp)
+ *   - Red arrow down    = slipping (set rate this week <= avg - 5pp)
+ *   - Gray arrow flat   = steady (within ±5pp)
+ *
+ * Comparing a rep to themselves is more useful than ranking them
+ * against each other. Cross-rep comparison is in the leaderboard.
+ */
+
+const TRENDS_WEEKS = 4;
+
+function computeWeeklyTrends() {
+  // Same opp -> rep map as daily perf
+  const oppToRep = {};
+  for (const l of allLeads) {
+    if (l.assigned_to) oppToRep[l.opportunity_id] = l.assigned_to;
+  }
+  // Build week bins: week 0 = this week (most recent), week 1 = last, etc.
+  // Week boundary: 7-day windows ending today.
+  const now = new Date();
+  const todayMs = now.getTime();
+  const weekMs = 7 * 24 * 3600 * 1000;
+  function weekIndex(iso) {
+    const t = new Date(iso).getTime();
+    if (isNaN(t)) return -1;
+    const ago = todayMs - t;
+    if (ago < 0) return 0;             // future-dated -> count as this week
+    const w = Math.floor(ago / weekMs);
+    return w < TRENDS_WEEKS ? w : -1;
+  }
+  // Initialize per-rep bins
+  const reps = {};
+  function ensure(name) {
+    if (!reps[name]) {
+      reps[name] = { name, weeks: Array.from({length: TRENDS_WEEKS}, () => ({ calls: 0, reached: 0, set: 0 })) };
+    }
+    return reps[name];
+  }
+  for (const oppId in oppToRep) ensure(oppToRep[oppId]);
+
+  // Tally
+  for (const oppId in contactMap) {
+    const rep = oppToRep[oppId];
+    if (!rep) continue;
+    const bin = ensure(rep);
+    for (const c of contactMap[oppId]) {
+      const w = weekIndex(c.contacted_at);
+      if (w < 0) continue;
+      bin.weeks[w].calls++;
+      if (REACHED_OUTCOMES.has(c.outcome)) bin.weeks[w].reached++;
+      if (SET_OUTCOMES.has(c.outcome))     bin.weeks[w].set++;
+    }
+  }
+  // Compute trend per rep
+  return Object.values(reps).map(rep => {
+    const thisWeek = rep.weeks[0];
+    const priorWeeks = rep.weeks.slice(1);  // weeks 1..N-1
+    const priorCalls   = priorWeeks.reduce((s, w) => s + w.calls,   0);
+    const priorReached = priorWeeks.reduce((s, w) => s + w.reached, 0);
+    const priorSet     = priorWeeks.reduce((s, w) => s + w.set,     0);
+    const thisSetRate  = thisWeek.calls > 0 ? (thisWeek.set / thisWeek.calls) * 100 : null;
+    const priorSetRate = priorCalls   > 0 ? (priorSet   / priorCalls)   * 100 : null;
+    let trend = 'flat';
+    if (thisSetRate != null && priorSetRate != null) {
+      const delta = thisSetRate - priorSetRate;
+      if (delta >= 5)       trend = 'up';
+      else if (delta <= -5) trend = 'down';
+    } else if (thisWeek.calls > 0 && priorCalls === 0) {
+      trend = 'up';   // new activity from previously-silent rep
+    } else if (thisWeek.calls === 0 && priorCalls > 0) {
+      trend = 'down'; // went silent
+    }
+    return {
+      name: rep.name,
+      weeks: rep.weeks,
+      thisSetRate,
+      priorSetRate,
+      trend,
+      total4w: { calls: thisWeek.calls + priorCalls, reached: thisWeek.reached + priorReached, set: thisWeek.set + priorSet },
+    };
+  }).filter(r => r.total4w.calls > 0)  // hide reps with zero 4-week activity (cleaner view)
+    .sort((a, b) => b.total4w.calls - a.total4w.calls);
+}
+
+function trendArrow(trend) {
+  if (trend === 'up')   return `<span style="color:#52961a;font-size:18px;line-height:1;" title="Improving">&#9650;</span>`;
+  if (trend === 'down') return `<span style="color:#c0392b;font-size:18px;line-height:1;" title="Slipping">&#9660;</span>`;
+  return `<span style="color:#8fa3bc;font-size:18px;line-height:1;" title="Steady">&#9644;</span>`;
+}
+
+function weekLabel(weekIdx) {
+  // weekIdx 0 = this week, 1 = last week, etc.
+  if (weekIdx === 0) return 'This wk';
+  if (weekIdx === 1) return 'Last wk';
+  return weekIdx + ' wk ago';
+}
+
+function renderWeeklyTrends() {
+  const rows = computeWeeklyTrends();
+  if (!rows.length) {
+    document.getElementById('weekly-trends').innerHTML =
+      `<div class="dash-card" style="padding:60px;text-align:center;color:var(--text-muted);">
+         No contact activity in the last ${TRENDS_WEEKS} weeks yet.
+       </div>`;
+    return;
+  }
+  // Column headers: rep | trend | this wk | last wk | 2wk ago | 3wk ago | 4wk total
+  const html = `
+    <div class="dash-card" style="padding:0;overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="text-align:left;color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);">
+            <th style="padding:12px 16px;">Rep</th>
+            <th style="padding:12px 8px;text-align:center;">Trend</th>
+            ${Array.from({length: TRENDS_WEEKS}, (_, i) => `
+              <th style="padding:12px 8px;text-align:center;${i === 0 ? 'background:rgba(120,200,50,.04);' : ''}">${weekLabel(i)}</th>
+            `).join('')}
+            <th style="padding:12px 16px;text-align:right;">4wk Total</th>
+            <th style="padding:12px 16px;text-align:right;">Set Rate (this / prior)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="selectRep('${r.name.replace(/'/g,"\\\\'")}')">
+              <td style="padding:12px 16px;font-weight:600;">${r.name}</td>
+              <td style="padding:12px 8px;text-align:center;">${trendArrow(r.trend)}</td>
+              ${r.weeks.map((w, i) => `
+                <td style="padding:12px 8px;text-align:center;font-family:'IBM Plex Mono',monospace;${i === 0 ? 'background:rgba(120,200,50,.04);font-weight:600;' : ''}">
+                  ${w.calls > 0 ? `<div>${w.calls}c</div><div style="font-size:11px;color:var(--text-muted);">${w.reached}r ${w.set}s</div>` : '<span style="color:var(--text-muted);">--</span>'}
+                </td>
+              `).join('')}
+              <td style="padding:12px 16px;text-align:right;font-family:'IBM Plex Mono',monospace;">${r.total4w.calls}c / ${r.total4w.set}s</td>
+              <td style="padding:12px 16px;text-align:right;font-family:'IBM Plex Mono',monospace;">
+                <span style="color:${r.trend==='up'?'#52961a':r.trend==='down'?'#c0392b':'var(--text)'};">${r.thisSetRate != null ? r.thisSetRate.toFixed(0) + '%' : '--'}</span>
+                <span style="color:var(--text-muted);"> / ${r.priorSetRate != null ? r.priorSetRate.toFixed(0) + '%' : '--'}</span>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  document.getElementById('weekly-trends').innerHTML = html;
 }
 
 function renderPipeline() {

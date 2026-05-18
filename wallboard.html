@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>CT Wallboard | Trinity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<style>
+  :root {
+    --bg:       #0b1120;
+    --bg2:      #111927;
+    --bg3:      #1d2a40;
+    --border:   #253354;
+    --text:     #e9eef8;
+    --text2:    #8fa3bc;
+    --text3:    #5b6f8e;
+    --green:    #78c832;
+    --green-d:  #3a7010;
+    --green-l:  #c8f0a8;
+    --blue:     #29a9e1;
+    --amber:    #f0a020;
+    --red:      #e84040;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Manrope', system-ui, sans-serif;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  body { padding: 24px 32px; }
+
+  /* ── Header bar ── */
+  .wb-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px; padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .wb-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px; letter-spacing: 0.04em;
+    line-height: 1;
+  }
+  .wb-title .green { color: var(--green); }
+  .wb-sub {
+    font-size: 12px; color: var(--text2); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-top: 4px;
+  }
+  .wb-clock {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 26px; font-weight: 500;
+  }
+  .wb-date {
+    font-size: 12px; color: var(--text2); text-align: right;
+    margin-top: 4px; letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  /* ── KPI strip (team totals) ── */
+  .team-kpis {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 16px; margin-bottom: 28px;
+  }
+  .team-kpi {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 22px;
+  }
+  .team-kpi .label {
+    font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 8px;
+  }
+  .team-kpi .value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 54px; line-height: 1; letter-spacing: 0.02em;
+  }
+  .team-kpi .value.green { color: var(--green); }
+  .team-kpi .value.blue  { color: var(--blue); }
+  .team-kpi .sub {
+    font-size: 12px; color: var(--text2); margin-top: 6px;
+  }
+
+  /* ── Rep grid (leaderboard) ── */
+  .rep-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .rep-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 14px; padding: 16px 20px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .rep-card.top { border-color: var(--green); box-shadow: 0 0 0 1px var(--green); }
+  .rep-card.active { border-left: 3px solid var(--green); }
+  .rep-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .rep-name {
+    font-size: 17px; font-weight: 700; letter-spacing: -0.01em;
+  }
+  .rep-status {
+    font-size: 10px; padding: 3px 8px; border-radius: 999px;
+    background: var(--bg3); color: var(--text3);
+    letter-spacing: 0.05em; text-transform: uppercase; font-weight: 700;
+  }
+  .rep-status.live { background: rgba(120,200,50,.18); color: var(--green-l); }
+  .rep-status.recent { background: rgba(240,160,32,.15); color: #ffd28a; }
+  .rep-numbers {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .rep-num { text-align: center; }
+  .rep-num .n {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px; line-height: 1;
+  }
+  .rep-num .n.green { color: var(--green); }
+  .rep-num .n.blue  { color: var(--blue); }
+  .rep-num .lbl {
+    font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text3); margin-top: 4px;
+  }
+  .rep-rates {
+    display: flex; justify-content: space-between; font-size: 12px;
+    color: var(--text2); padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .rep-rates span strong { color: var(--text); }
+
+  /* ── Empty / loading ── */
+  .wb-msg { padding: 80px; text-align: center; color: var(--text2); font-size: 14px; }
+
+  /* ── Refresh footer ── */
+  .wb-foot {
+    margin-top: 24px; padding-top: 16px;
+    border-top: 1px solid var(--border);
+    text-align: center; font-size: 11px;
+    color: var(--text3); letter-spacing: 0.04em;
+  }
+
+  /* Auth-gate styles inherit; just darken the card for this dark page. */
+  #loginScreen, #changePasswordScreen { background: var(--bg); }
+  .auth-card { background: var(--bg2); border-color: var(--border); color: var(--text); }
+  .auth-card h2, .auth-card label, .auth-card .btn-auth { color: var(--text); }
+  .auth-card input { background: var(--bg3); border-color: var(--border); color: var(--text); }
+
+  @media (max-width: 1100px) {
+    .team-kpis { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 700px) {
+    body { padding: 16px; }
+    .wb-title { font-size: 32px; }
+    .team-kpis { grid-template-columns: repeat(2, 1fr); }
+    .team-kpi .value { font-size: 38px; }
+    .rep-num .n { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Wallboard Sign In</h2>
+    <p>Manager access only.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<div class="wb-head">
+  <div>
+    <div class="wb-title">CT TRADITIONAL <span class="green">WALLBOARD</span></div>
+    <div class="wb-sub">Today's calls &middot; reaches &middot; appointments set</div>
+  </div>
+  <div>
+    <div class="wb-clock" id="wb-clock">--:--</div>
+    <div class="wb-date" id="wb-date">--</div>
+  </div>
+</div>
+
+<div class="team-kpis" id="team-kpis">
+  <div class="wb-msg" style="grid-column:1 / -1;">Loading...</div>
+</div>
+
+<div class="rep-grid" id="rep-grid"></div>
+
+<div class="wb-foot">
+  Auto-refreshes every 60s &middot; Last refresh <span id="last-refresh">--</span>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+const sb = window.sb;
+const REACHED = new Set(['Reached', 'Appointment Set']);
+const SET     = new Set(['Appointment Set']);
+const REFRESH_MS = 60 * 1000;
+
+let users = [];   // { name, auth_user_id }
+let refreshTimer = null;
+
+async function initApp(profile, session) {
+  startClock();
+  await loadOnce();
+  refreshTimer = setInterval(loadOnce, REFRESH_MS);
+}
+
+function startClock() {
+  function tick() {
+    const now = new Date();
+    document.getElementById('wb-clock').textContent =
+      now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    document.getElementById('wb-date').textContent =
+      now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  }
+  tick();
+  setInterval(tick, 30 * 1000);
+}
+
+async function loadOnce() {
+  // Pull everything we need in parallel. Three small queries.
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const todayIso = todayStart.toISOString();
+  const since24h = new Date(Date.now() - 24*3600*1000).toISOString();
+
+  const [{ data: contacts }, { data: leads }, { data: mgrs }, { data: reps }, { data: activity }] = await Promise.all([
+    sb.from('contact_log').select('opportunity_id, outcome, contacted_at').gte('contacted_at', todayIso),
+    sb.from('call_list').select('opportunity_id, assigned_to').not('assigned_to','is',null),
+    sb.from('managers').select('name, auth_user_id'),
+    sb.from('reps').select('name, auth_user_id'),
+    sb.from('user_activity').select('auth_user_id, event_type, created_at').gt('created_at', since24h).order('created_at', { ascending: false }),
+  ]);
+
+  // Build opp -> rep map
+  const oppToRep = {};
+  for (const l of (leads || [])) oppToRep[l.opportunity_id] = l.assigned_to;
+
+  // Build user roster (skip Dan's personal Gmail backdoor and any without auth_user_id)
+  const seen = new Set();
+  users = [];
+  for (const u of [...(mgrs || []), ...(reps || [])]) {
+    if (!u.name || seen.has(u.name) || !u.auth_user_id) continue;
+    seen.add(u.name); users.push(u);
+  }
+
+  // Per-rep today buckets
+  const per = {};
+  for (const u of users) per[u.name] = { name: u.name, auth_user_id: u.auth_user_id, calls: 0, reached: 0, set: 0 };
+  for (const c of (contacts || [])) {
+    const rep = oppToRep[c.opportunity_id];
+    if (!rep || !per[rep]) continue;
+    per[rep].calls++;
+    if (REACHED.has(c.outcome)) per[rep].reached++;
+    if (SET.has(c.outcome))     per[rep].set++;
+  }
+
+  // Last-seen per user
+  const lastSeen = {};
+  for (const ev of (activity || [])) {
+    if (!ev.auth_user_id) continue;
+    if (!lastSeen[ev.auth_user_id]) lastSeen[ev.auth_user_id] = ev.created_at;
+  }
+
+  // Team totals
+  let teamCalls = 0, teamReached = 0, teamSet = 0, repsActive = 0;
+  const repRows = Object.values(per);
+  for (const r of repRows) {
+    teamCalls   += r.calls;
+    teamReached += r.reached;
+    teamSet     += r.set;
+    if (r.calls > 0) repsActive++;
+  }
+
+  // Render team KPIs
+  document.getElementById('team-kpis').innerHTML = `
+    <div class="team-kpi"><div class="label">Team Calls</div><div class="value">${teamCalls}</div><div class="sub">across ${repsActive} active rep${repsActive!==1?'s':''}</div></div>
+    <div class="team-kpi"><div class="label">Reached</div><div class="value blue">${teamReached}</div><div class="sub">${pctFmt(teamReached, teamCalls)} connect rate</div></div>
+    <div class="team-kpi"><div class="label">Appointments Set</div><div class="value green">${teamSet}</div><div class="sub">${pctFmt(teamSet, teamCalls)} set rate</div></div>
+    <div class="team-kpi"><div class="label">Active Reps</div><div class="value">${repsActive}</div><div class="sub">of ${users.length} signed-in this week</div></div>
+    <div class="team-kpi"><div class="label">Pacing</div><div class="value">${pacingLabel(teamCalls)}</div><div class="sub">${pacingHint(teamCalls)}</div></div>
+  `;
+
+  // Render rep cards: most-active first, top performer highlighted
+  repRows.sort((a, b) => (b.set * 100 + b.reached) - (a.set * 100 + a.reached) || b.calls - a.calls);
+  const topName = repRows.length > 0 && (repRows[0].calls > 0 || repRows[0].set > 0) ? repRows[0].name : null;
+
+  document.getElementById('rep-grid').innerHTML = repRows.map(r => {
+    const lastIso = lastSeen[r.auth_user_id];
+    const status = activityStatus(lastIso);
+    const cardCls = [r.calls === 0 ? '' : 'active', r.name === topName ? 'top' : ''].filter(Boolean).join(' ');
+    return `
+      <div class="rep-card ${cardCls}">
+        <div class="rep-card-head">
+          <div class="rep-name">${escapeHtml(r.name)}</div>
+          <div class="rep-status ${status.cls}">${status.label}</div>
+        </div>
+        <div class="rep-numbers">
+          <div class="rep-num"><div class="n">${r.calls}</div><div class="lbl">Calls</div></div>
+          <div class="rep-num"><div class="n blue">${r.reached}</div><div class="lbl">Reached</div></div>
+          <div class="rep-num"><div class="n green">${r.set}</div><div class="lbl">Set</div></div>
+        </div>
+        <div class="rep-rates">
+          <span>Connect <strong>${pctFmt(r.reached, r.calls)}</strong></span>
+          <span>Set <strong>${pctFmt(r.set, r.calls)}</strong></span>
+        </div>
+      </div>`;
+  }).join('') || `<div class="wb-msg">No active reps. Nobody has logged a contact today.</div>`;
+
+  document.getElementById('last-refresh').textContent =
+    new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+}
+
+function pctFmt(n, d) {
+  if (!d) return '--';
+  return Math.round((n / d) * 100) + '%';
+}
+
+function activityStatus(iso) {
+  if (!iso) return { cls: '', label: 'Offline' };
+  const ago = Date.now() - new Date(iso).getTime();
+  if (ago < 5 * 60 * 1000)  return { cls: 'live',   label: 'Live' };
+  if (ago < 60 * 60 * 1000) return { cls: 'recent', label: minutesAgo(ago) };
+  return { cls: '', label: hoursAgo(ago) };
+}
+
+function minutesAgo(ms) { return Math.max(1, Math.floor(ms / 60000)) + 'm'; }
+function hoursAgo(ms) {
+  const h = Math.floor(ms / 3600000);
+  if (h < 24) return h + 'h';
+  return Math.floor(h / 24) + 'd';
+}
+
+function pacingLabel(n) {
+  // Rough morale / momentum indicator for the whole team
+  if (n === 0)  return '--';
+  if (n < 10)   return 'WARMING';
+  if (n < 50)   return 'STEADY';
+  if (n < 100)  return 'HOT';
+  return 'FIRE';
+}
+
+function pacingHint(n) {
+  if (n === 0) return 'No contacts yet today';
+  if (n < 10)  return 'Still early';
+  if (n < 50)  return 'Building momentum';
+  if (n < 100) return 'Strong day';
+  return 'Top quartile';
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+
+</body>
+</html>
