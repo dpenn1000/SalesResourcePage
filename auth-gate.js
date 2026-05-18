@@ -257,21 +257,39 @@
   });
 
   window.signIn = async function signIn() {
-    const raw   = (document.getElementById('loginUser').value || '').trim().toLowerCase();
+    // Forgiving normalization for iPhone keyboards + autocorrect + autofill:
+    //   - trim + lowercase
+    //   - strip all whitespace anywhere in the field (auto-spacing after
+    //     a name suggestion is the #1 first-timer trap)
+    //   - if the rep typed a full email (anything @ anything), drop the
+    //     domain and force our synthetic one. Covers "john@trinity-solar.com"
+    //     autofill from corporate mail, "john@gmail.com" autofill from
+    //     personal mail, and accidental "john@" trailing.
+    const rawInput = (document.getElementById('loginUser').value || '');
+    const rawTrim  = rawInput.trim().toLowerCase().replace(/\s+/g, '');
+    const localPart = rawTrim.includes('@') ? rawTrim.split('@')[0] : rawTrim;
     const pass  = document.getElementById('loginPass').value;
     const errEl = document.getElementById('loginError');
     const btn   = document.getElementById('loginBtn');
     if (errEl) errEl.style.display = 'none';
-    if (!raw || !pass) {
+    if (!localPart || !pass) {
       showLoginError('Enter your username and password.');
       return;
     }
-    const email = raw.includes('@') ? raw : raw + '@ct-resource-page.com';
+    const email = localPart + '@ct-resource-page.com';
     const oldText = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
     const { error } = await sb.auth.signInWithPassword({ email, password: pass });
     if (btn) { btn.disabled = false; btn.textContent = oldText; }
-    if (error) showLoginError(error.message);
+    if (error) {
+      // The default Supabase message ("Invalid login credentials") leaves
+      // first-timers wondering whether their username or their password is
+      // the problem. Hint at both, and reinforce the username format.
+      const msg = /invalid login credentials/i.test(error.message || '')
+        ? 'That username and password did not match. Your username is your last name with first initial (no spaces, no email). Starter password is Trinity1.'
+        : error.message;
+      showLoginError(msg);
+    }
   };
 
   window.signOut = async function signOut() {
