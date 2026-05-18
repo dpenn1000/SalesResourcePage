@@ -445,6 +445,9 @@ th.sort-desc::after { content:' \2193'; color:var(--green); }
 
     <!-- ── Rep Pipeline ── -->
     <div id="tab-pipeline" class="tab-panel">
+      <!-- Daily performance strip. Computed client-side from contactMap + reps
+           + recent user_activity. See renderDailyPerformance() below. -->
+      <div id="daily-performance" style="margin-bottom:24px;"></div>
       <div id="rep-cards" class="rep-grid"></div>
       <div id="rep-detail" style="display:none;">
         <div class="section-head" style="margin-bottom:16px;">
@@ -1048,7 +1051,167 @@ function renderFollowups() {
 /* ── Rep Pipeline tab ── */
 let selectedRep = null;
 
+/* ── Daily performance strip ──────────────────────────────────────────
+ * One row per rep with assigned leads. Shows today's headline numbers
+ * (calls / reached / set / set%) plus a 14-day sparkline of daily
+ * contact volume. Data is derived client-side from contactMap +
+ * allLeads -- no extra fetch.
+ *
+ * Tracking when a rep was active is a follow-up: it would join the
+ * user_activity table (sign_in events) and surface "last seen" per rep.
+ */
+
+const PERF_WINDOW_DAYS = 14;
+const REACHED_OUTCOMES = new Set(['Reached', 'Appointment Set']);
+const SET_OUTCOMES     = new Set(['Appointment Set']);
+
+function computeDailyPerformance() {
+  // Map opportunity_id -> assigned_to so we can attribute each contact
+  // to a rep. Skip contacts for unassigned leads.
+  const oppToRep = {};
+  for (const l of allLeads) {
+    if (l.assigned_to) oppToRep[l.opportunity_id] = l.assigned_to;
+  }
+  // Build the date window: today, today-1, ..., today-13 (oldest first).
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = [];
+  for (let i = PERF_WINDOW_DAYS - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().slice(0, 10));  // YYYY-MM-DD
+  }
+  const todayKey = days[days.length - 1];
+
+  // Initialize per-rep buckets
+  const reps = {};
+  function ensureRep(name) {
+    if (!reps[name]) {
+      reps[name] = {
+        name,
+        days: Object.fromEntries(days.map(d => [d, { calls: 0, reached: 0, set: 0 }])),
+      };
+    }
+    return reps[name];
+  }
+  // Seed with every assigned rep so reps with zero activity still show
+  for (const oppId in oppToRep) ensureRep(oppToRep[oppId]);
+
+  // Walk contactMap and tally
+  for (const oppId in contactMap) {
+    const repName = oppToRep[oppId];
+    if (!repName) continue;
+    const rep = ensureRep(repName);
+    for (const entry of contactMap[oppId]) {
+      const dateKey = (entry.contacted_at || '').slice(0, 10);
+      if (!rep.days[dateKey]) continue;  // outside window
+      rep.days[dateKey].calls++;
+      if (REACHED_OUTCOMES.has(entry.outcome)) rep.days[dateKey].reached++;
+      if (SET_OUTCOMES.has(entry.outcome))     rep.days[dateKey].set++;
+    }
+  }
+
+  // Derive headline today numbers + 14d totals
+  return Object.values(reps).map(rep => {
+    const today = rep.days[todayKey];
+    let totalCalls = 0, totalReached = 0, totalSet = 0, peakDay = 0;
+    for (const d of days) {
+      const b = rep.days[d];
+      totalCalls   += b.calls;
+      totalReached += b.reached;
+      totalSet     += b.set;
+      if (b.calls > peakDay) peakDay = b.calls;
+    }
+    return {
+      name: rep.name,
+      today,
+      total14d:  { calls: totalCalls, reached: totalReached, set: totalSet },
+      peakDay,   // for sparkline scaling
+      series:    days.map(d => rep.days[d]),
+      days,
+    };
+  }).sort((a, b) => b.total14d.calls - a.total14d.calls);  // most-active first
+}
+
+function pct(num, denom) {
+  if (!denom) return '--';
+  return Math.round((num / denom) * 100) + '%';
+}
+
+function sparklineSvg(series, peakDay) {
+  // 14 bars, 8px wide each (with 2px gap), max height 24px.
+  // Color by intensity: light bars for low days, green for the rep's peak.
+  if (!peakDay) peakDay = 1;
+  const barW = 8, gap = 2, maxH = 24;
+  const w = series.length * (barW + gap);
+  const bars = series.map((b, i) => {
+    const h = b.calls > 0 ? Math.max(2, Math.round((b.calls / peakDay) * maxH)) : 0;
+    const x = i * (barW + gap);
+    const y = maxH - h;
+    const fill = b.set > 0     ? '#3a7010'
+              : b.reached > 0 ? '#78C832'
+              : b.calls > 0   ? '#29A9E1'
+              : 'transparent';
+    return h > 0
+      ? `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${fill}" rx="1"/>`
+      : `<rect x="${x}" y="${maxH-2}" width="${barW}" height="2" fill="#e1e7ee" rx="1"/>`;
+  }).join('');
+  return `<svg width="${w}" height="${maxH}" viewBox="0 0 ${w} ${maxH}" style="display:block">${bars}</svg>`;
+}
+
+function renderDailyPerformance() {
+  const rows = computeDailyPerformance();
+  if (!rows.length) {
+    document.getElementById('daily-performance').innerHTML = '';
+    return;
+  }
+  const html = `
+    <div class="dash-card" style="padding:18px 22px;">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div class="dash-card-title" style="margin-bottom:2px;">Daily Performance</div>
+          <div style="font-size:12px;color:var(--text-muted);">Last ${PERF_WINDOW_DAYS} days &middot; sorted by total contacts</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);display:flex;gap:14px;align-items:center;">
+          <span><span style="display:inline-block;width:10px;height:10px;background:#3a7010;border-radius:2px;vertical-align:middle;margin-right:5px;"></span>Appt set</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#78C832;border-radius:2px;vertical-align:middle;margin-right:5px;"></span>Reached</span>
+          <span><span style="display:inline-block;width:10px;height:10px;background:#29A9E1;border-radius:2px;vertical-align:middle;margin-right:5px;"></span>Tried</span>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="text-align:left;color:var(--text-muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);">
+            <th style="padding:8px 12px 8px 0;">Rep</th>
+            <th style="padding:8px 12px;text-align:right;">Today</th>
+            <th style="padding:8px 12px;text-align:right;">Reached</th>
+            <th style="padding:8px 12px;text-align:right;">Set</th>
+            <th style="padding:8px 12px;text-align:right;">Set %</th>
+            <th style="padding:8px 16px;">Last ${PERF_WINDOW_DAYS} days</th>
+            <th style="padding:8px 12px;text-align:right;">14d Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `
+            <tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="selectRep('${r.name.replace(/'/g,"\\\\'")}')">
+              <td style="padding:10px 12px 10px 0;font-weight:600;">${r.name}</td>
+              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;">${r.today.calls || '<span style="color:var(--text-muted)">0</span>'}</td>
+              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:${r.today.reached>0?'#52961a':'var(--text-muted)'};">${r.today.reached}</td>
+              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:${r.today.set>0?'#3a7010':'var(--text-muted)'};font-weight:${r.today.set>0?'600':'400'};">${r.today.set}</td>
+              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);">${pct(r.today.set, r.today.calls)}</td>
+              <td style="padding:10px 16px;">${sparklineSvg(r.series, r.peakDay)}</td>
+              <td style="padding:10px 12px;text-align:right;font-family:'IBM Plex Mono',monospace;color:var(--text-muted);">${r.total14d.calls}c / ${r.total14d.set}s</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      </div>
+    </div>`;
+  document.getElementById('daily-performance').innerHTML = html;
+}
+
 function renderPipeline() {
+  renderDailyPerformance();
   const repNames = ['Unassigned', ...allManagers.map(m => m.name)];
   document.getElementById('rep-cards').innerHTML = repNames.map(name => {
     const repLeads = name === 'Unassigned'
