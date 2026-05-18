@@ -1007,12 +1007,27 @@ async function saveLeadInfo() {
         </div>`;
       }
     } else {
+      // Surface the real server message instead of a silent "Error" button.
+      // The most common cause is the lead being unassigned (RLS denies the
+      // UPDATE because assigned_to doesn't match the rep's name).
+      let bodyText = '';
+      try { bodyText = await r.text(); } catch (_) {}
+      let serverMsg = bodyText;
+      try { const j = JSON.parse(bodyText); serverMsg = j.message || j.error_description || j.error || bodyText; } catch(_) {}
+      let hint = '';
+      if (r.status === 403 || (serverMsg && /row-level security/i.test(serverMsg))) {
+        hint = '\n\nThis lead is not assigned to you. Ask your manager to assign it on the Call List Distribution page first.';
+      } else if (r.status === 401) {
+        hint = '\n\nYour session expired. Refresh and sign in again.';
+      }
       btn.textContent = 'Error'; btn.disabled = false;
-      console.error('saveLeadInfo failed', r.status);
+      console.error('saveLeadInfo failed', r.status, serverMsg);
+      alert('Could not save (status ' + r.status + ').\n\n' + (serverMsg || '(no details)') + hint);
     }
   } catch(e) {
     btn.textContent = 'Error'; btn.disabled = false;
     console.error('saveLeadInfo:', e);
+    alert('Network error: ' + (e?.message || e));
   }
   setTimeout(() => { btn.textContent = 'Save Info'; btn.disabled = false; }, 3000);
 }
@@ -1082,8 +1097,25 @@ async function saveContact() {
       document.getElementById('cl-notes').value       = '';
       document.getElementById('cl-next-step').value   = '';
       document.getElementById('cl-follow-up-date').value = '';
-    } else { alert('Save failed (status ' + r.status + ')'); }
-  } catch(err) { alert('Error: ' + err); }
+    } else {
+      // Surface PostgREST's actual error body so RLS denials read clearly
+      // ("new row violates row-level security policy for table ...") instead
+      // of being hidden behind a generic status code. Friendly hint for the
+      // common case (lead not assigned to this rep).
+      let bodyText = '';
+      try { bodyText = await r.text(); } catch (_) {}
+      let serverMsg = bodyText;
+      try { const j = JSON.parse(bodyText); serverMsg = j.message || j.error_description || j.error || bodyText; } catch(_) {}
+      let hint = '';
+      if (r.status === 403 || (serverMsg && /row-level security/i.test(serverMsg))) {
+        hint = '\n\nThis lead is not assigned to you, so the system blocked the save. Ask your manager to assign it via the Call List Distribution page.';
+      } else if (r.status === 401) {
+        hint = '\n\nYour session expired. Refresh the page and sign in again.';
+      }
+      console.error('saveContact failed', r.status, serverMsg);
+      alert('Could not save the contact (status ' + r.status + ').\n\n' + (serverMsg || '(no details from server)') + hint);
+    }
+  } catch(err) { alert('Network error saving contact: ' + err); }
 }
 
 function reRenderCard(oppId) {
