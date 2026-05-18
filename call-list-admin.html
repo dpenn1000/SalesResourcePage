@@ -464,6 +464,7 @@ th.sort-desc::after { content:' \2193'; color:var(--green); }
                 <th>State</th>
                 <th>Status</th>
                 <th>Last Contact</th>
+                <th>Days Idle</th>
                 <th>Next Step</th>
                 <th>Follow-up</th>
                 <th>Phone</th>
@@ -1463,13 +1464,22 @@ function renderPipeline() {
       : allLeads.filter(l => l.assigned_to === name);
     const pending  = repLeads.filter(l => !l.status || l.status === 'pending').length;
     const inProg   = repLeads.filter(l => l.status === 'in_progress').length;
+    const reached  = repLeads.filter(l => l.status === 'reached').length;
     const resolved = repLeads.filter(l => l.status === 'resolved').length;
+    // Count distinct opps with an Appointment Set in their contact_log
+    let setCount = 0;
+    for (const lead of repLeads) {
+      const contacts = contactMap[lead.opportunity_id] || [];
+      if (contacts.some(c => c.outcome === 'Appointment Set')) setCount++;
+    }
     if (name !== 'Unassigned' && repLeads.length === 0) return '';
     return `<div class="rep-card${selectedRep===name?' selected':''}" onclick="selectRep('${name}')">
       <div class="rep-card-name">${name}</div>
       <div class="rep-mini-stat"><span>Total leads</span><span>${repLeads.length}</span></div>
       <div class="rep-mini-stat"><span>Pending</span><span>${pending}</span></div>
       <div class="rep-mini-stat"><span>In progress</span><span>${inProg}</span></div>
+      <div class="rep-mini-stat"><span>Reached</span><span style="color:#52961a;font-weight:600;">${reached}</span></div>
+      <div class="rep-mini-stat"><span>Appts Set</span><span style="color:#3a7010;font-weight:600;">${setCount}</span></div>
       <div class="rep-mini-stat"><span>Resolved</span><span>${resolved}</span></div>
     </div>`;
   }).join('');
@@ -1501,12 +1511,18 @@ function renderRepDetail(name) {
   const inProg   = repLeads.filter(l => l.status === 'in_progress').length;
   const reached  = repLeads.filter(l => l.status === 'reached').length;
   const resolved = repLeads.filter(l => l.status === 'resolved').length;
+  let setCount = 0;
+  for (const lead of repLeads) {
+    const contacts = contactMap[lead.opportunity_id] || [];
+    if (contacts.some(c => c.outcome === 'Appointment Set')) setCount++;
+  }
   document.getElementById('rep-stat-grid').innerHTML = [
-    {label:'Pending',   value:pending},
-    {label:'In Progress',value:inProg},
-    {label:'Reached',  value:reached},
-    {label:'Resolved', value:resolved},
-  ].map(s => `<div class="stat-card" style="padding:12px 16px;"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:22px;">${s.value}</div></div>`).join('');
+    {label:'Pending',    value:pending,  color:''},
+    {label:'In Progress',value:inProg,   color:''},
+    {label:'Reached',    value:reached,  color:'#52961a'},
+    {label:'Appts Set',  value:setCount, color:'#3a7010'},
+    {label:'Resolved',   value:resolved, color:''},
+  ].map(s => `<div class="stat-card" style="padding:12px 16px;"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:22px;${s.color?'color:'+s.color+';':''}">${s.value}</div></div>`).join('');
 
   const tbody = document.getElementById('rep-leads-tbody');
   if (!repLeads.length) {
@@ -1517,11 +1533,30 @@ function renderRepDetail(name) {
     const contacts = contactMap[lead.opportunity_id] || [];
     const last = contacts[0] || null;
     const lastFU = last?.follow_up_date;
+    // Days since most recent contact_log entry. If never contacted, fall back
+    // to when the lead was added (lead.added_at / updated_at). NULL when we
+    // can't tell either way.
+    let idleDays = null;
+    let idleSource = null;  // 'contacted' | 'added' | null
+    if (last?.contacted_at) {
+      idleDays = Math.floor((Date.now() - new Date(last.contacted_at).getTime()) / 86400000);
+      idleSource = 'contacted';
+    } else if (lead.added_at) {
+      idleDays = Math.floor((Date.now() - new Date(lead.added_at).getTime()) / 86400000);
+      idleSource = 'added';
+    }
+    let idleHtml = '<span class="td-muted">--</span>';
+    if (idleDays !== null) {
+      const color = idleDays >= 14 ? '#c0392b' : idleDays >= 7 ? '#a06820' : 'var(--text)';
+      const label = idleSource === 'contacted' ? 'since last contact' : 'since added (never contacted)';
+      idleHtml = `<span style="color:${color};font-weight:${idleDays>=7?'600':'400'};" title="${label}">${idleDays}d</span>`;
+    }
     return `<tr>
       <td class="td-name">${lead.opp_name || '--'}<br><span class="td-muted">${lead.address || ''}</span></td>
       <td>${stateBadge(lead.state)}</td>
       <td>${statusBadge(lead.status)}</td>
-      <td class="td-muted">${last ? fmtDatetime(last.contacted_at) : '--'}</td>
+      <td class="td-muted">${last ? fmtDatetime(last.contacted_at) : '<span style="color:#c0392b;">never</span>'}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;">${idleHtml}</td>
       <td style="font-size:12px;color:var(--accent);">${last?.next_step || '--'}</td>
       <td style="font-size:12px;${lastFU&&isOverdue(lastFU)?'color:#c0392b;font-weight:600;':''}">${lastFU ? fmtDate(lastFU) : '--'}</td>
       <td style="font-size:13px;">${lead.phone || '--'}</td>
