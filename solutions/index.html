@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solutions Center &middot; CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --gold: #F5A623;
+  --gold-dk: #C8851A;
+  --pink: #C4457A;
+  --teal: #0E9B8A;
+  --orange: #E8863A;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --surface: #F7F8F4;
+  --warm: #FAFBF7;
+  --white: #FFFFFF;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --warn: #E9A648;
+  --red: #C84545;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-variation-settings: "opsz" 144; line-height: 1.1; font-weight: 400; }
+h2 { font-size: 1.4rem; font-weight: 500; line-height: 1.2; margin-bottom: 8px; }
+h3 { font-size: 1.1rem; font-weight: 600; line-height: 1.3; margin-bottom: 6px; }
+h4 { font-size: 0.95rem; font-weight: 600; line-height: 1.3; margin-bottom: 4px; color: var(--ink-soft); }
+a { color: var(--blue-dk); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+
+/* HEADER */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 0;
+  border-bottom: 3px solid var(--gold);
+}
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .logo { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+.brand .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.2); }
+.brand .team { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.7); }
+.brand .pagename { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 500; color: var(--gold); }
+.header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.back-link, .header-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.82rem; font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.back-link:hover, .header-btn:hover { background: rgba(255,255,255,0.12); color: #fff; text-decoration: none; }
+.header-btn.primary { background: var(--green); border-color: var(--green-dk); color: var(--ink); }
+.header-btn.primary:hover { background: var(--green-dk); color: #fff; }
+.user-chip { font-size: 0.75rem; color: rgba(255,255,255,0.55); padding: 4px 10px; border-radius: 12px; background: rgba(255,255,255,0.05); }
+
+/* FILTER STRIP */
+.tools-bar {
+  background: linear-gradient(to bottom, #fff 0%, var(--warm) 100%);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 4px 12px rgba(15,32,56,0.05);
+  padding: 12px 0;
+}
+.tools-bar .wrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.82rem; font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.chip:hover { border-color: var(--gold); color: var(--ink); }
+.chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.search-wrap { flex: 1; min-width: 200px; position: relative; }
+.search-wrap input {
+  width: 100%;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9rem;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: #fff;
+}
+
+/* MAIN */
+main { padding: 28px 0 60px; }
+.empty-state {
+  background: #fff;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-lg);
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--muted);
+}
+.empty-state h3 { color: var(--ink); margin-bottom: 8px; }
+.empty-state p { max-width: 480px; margin: 0 auto 12px; }
+.empty-state .btn { margin-top: 8px; }
+
+/* SUBMISSION LIST */
+.list { display: grid; gap: 12px; }
+.card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+  cursor: pointer;
+  transition: border-color 0.12s, box-shadow 0.12s, transform 0.05s;
+}
+.card:hover { border-color: var(--gold); box-shadow: var(--shadow-md); }
+.card:active { transform: translateY(1px); }
+.card-head { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.card-title { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.15rem; color: var(--ink); line-height: 1.25; flex: 1; }
+.card-meta { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--muted); margin-top: 6px; }
+.card-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.card-meta .sep { color: var(--subtle); }
+.card-snippet { color: var(--muted); font-size: 0.92rem; margin-top: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* STATUS BADGES */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.badge.draft { background: #EEF1E8; color: var(--muted); }
+.badge.open { background: #E8F3FC; color: var(--blue-dk); }
+.badge.awaiting_refinement { background: #FDF1E0; color: var(--gold-dk); }
+.badge.escalated { background: #F6E8F0; color: var(--pink); }
+.badge.ready_for_vp { background: #E8F0FA; color: var(--blue-dk); }
+.badge.sent_to_corporate { background: #ECE9F8; color: #5A4FB8; }
+.badge.in_progress { background: #FFF5E0; color: var(--gold-dk); }
+.badge.resolved { background: #E5F4DC; color: var(--green-dk); }
+.badge.closed { background: #F0F2EC; color: var(--muted); }
+.badge.parked { background: #F0F2EC; color: var(--muted); }
+.badge.declined { background: #FCE8E8; color: var(--red); }
+
+.sev {
+  display: inline-block;
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
+  padding: 2px 7px; border-radius: 8px;
+  text-transform: uppercase;
+}
+.sev.critical { background: #FCE8E8; color: var(--red); }
+.sev.high { background: #FDF1E0; color: var(--gold-dk); }
+.sev.medium { background: #EEF1E8; color: var(--muted); }
+.sev.low { background: #F0F2EC; color: var(--subtle); }
+
+.tier-chip {
+  display: inline-block;
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em;
+  padding: 2px 6px; border-radius: 4px;
+  background: var(--ink-soft); color: #fff;
+  text-transform: uppercase;
+}
+
+/* DETAIL VIEW */
+.detail-shell {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 28px 32px;
+  box-shadow: var(--shadow-sm);
+}
+.detail-shell .crumbs { font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
+.detail-shell .crumbs a { color: var(--blue-dk); cursor: pointer; }
+.detail-shell .title-row { display: flex; gap: 14px; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; }
+.detail-shell h1 { font-size: 1.7rem; line-height: 1.15; }
+.detail-shell .meta-row { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.82rem; color: var(--muted); margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
+.detail-shell .section { margin: 22px 0; }
+.detail-shell .section h3 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.detail-shell .prose { white-space: pre-wrap; color: var(--text); }
+.attachments-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.att-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.82rem;
+  padding: 6px 12px;
+  background: var(--warm);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.att-chip:hover { border-color: var(--blue); text-decoration: none; }
+.att-chip.sf { background: #E8F3FC; border-color: #BDDEF3; color: var(--blue-dk); }
+.att-chip.url { background: var(--warm); }
+.att-chip.file { background: #F0F4EA; border-color: #D5DCC4; }
+.att-chip.image { background: #F6EBF4; border-color: #E3CFDB; }
+
+.solution-card {
+  background: var(--warm);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+  margin-bottom: 12px;
+}
+.solution-card .sol-head { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; margin-bottom: 8px; }
+.solution-card h4 { font-family: 'Fraunces', serif; font-size: 1.08rem; font-weight: 500; color: var(--ink); }
+.component {
+  border-top: 1px solid var(--line-soft);
+  padding: 12px 0 8px;
+  margin-top: 8px;
+}
+.component:first-of-type { border-top: 1px solid var(--line); margin-top: 12px; }
+.component .comp-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+.component .comp-title { font-weight: 600; color: var(--ink-soft); }
+.component .comp-body { white-space: pre-wrap; color: var(--text); font-size: 0.93rem; }
+
+/* FORMS / MODALS */
+.modal-shroud {
+  position: fixed; inset: 0;
+  background: rgba(15,32,56,0.4);
+  z-index: 500;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+.modal-card {
+  background: #fff;
+  width: 100%;
+  max-width: 760px;
+  border-radius: var(--r-lg);
+  box-shadow: 0 20px 60px rgba(15,32,56,0.25);
+  padding: 28px 32px;
+}
+.modal-card h2 { font-size: 1.5rem; margin-bottom: 4px; }
+.modal-card .sub { color: var(--muted); font-size: 0.92rem; margin-bottom: 18px; }
+.modal-card .x {
+  float: right;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--muted);
+}
+.modal-card .x:hover { background: var(--warm); color: var(--ink); }
+
+.field { margin: 14px 0; }
+.field label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.field label .req { color: var(--red); margin-left: 2px; }
+.field input[type="text"], .field input[type="url"], .field textarea, .field select {
+  width: 100%;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.95rem;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: #fff;
+  color: var(--text);
+}
+.field textarea { min-height: 80px; resize: vertical; line-height: 1.5; }
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(245,166,35,0.15);
+}
+.field .hint { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 600px) { .field-row { grid-template-columns: 1fr; } }
+
+.severity-radio { display: flex; gap: 8px; flex-wrap: wrap; }
+.severity-radio label {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--text);
+  margin-bottom: 0;
+}
+.severity-radio input { accent-color: var(--gold); }
+
+.btn {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn.primary { background: var(--green); color: var(--ink); border-color: var(--green-dk); }
+.btn.primary:hover:not(:disabled) { background: var(--green-dk); color: #fff; }
+.btn.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+.btn.ghost:hover:not(:disabled) { background: var(--warm); color: var(--ink); }
+.btn.danger { background: transparent; color: var(--red); border-color: var(--line); }
+.btn.danger:hover:not(:disabled) { background: #FCE8E8; border-color: #F1CACA; }
+.btn.small { padding: 6px 12px; font-size: 0.82rem; }
+.actions-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line-soft); }
+
+.editor-block {
+  background: var(--warm);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  margin: 10px 0;
+}
+.editor-block .block-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.editor-block .block-title { font-size: 0.85rem; font-weight: 700; color: var(--ink-soft); }
+.editor-block .block-actions { display: flex; gap: 6px; }
+.component-editor {
+  background: #fff;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-sm);
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.att-editor-row {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+  background: var(--warm);
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  margin: 6px 0;
+}
+.att-editor-row select { width: auto; padding: 6px 8px; }
+.att-editor-row input { padding: 6px 10px; font-size: 0.88rem; }
+.att-editor-row .x-att { background: transparent; border: none; color: var(--red); cursor: pointer; font-size: 1rem; padding: 4px 8px; }
+@media (max-width: 600px) { .att-editor-row { grid-template-columns: 1fr; } }
+
+.file-att-row {
+  background: var(--warm);
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  margin: 6px 0;
+  font-size: 0.88rem;
+  display: flex; align-items: center; gap: 10px; justify-content: space-between;
+}
+
+.hr-soft { border: 0; height: 1px; background: var(--line-soft); margin: 18px 0; }
+
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-md);
+  font-size: 0.9rem;
+  z-index: 800;
+}
+.toast.err { background: var(--red); }
+
+/* INTRO BANNER (HR redirect) */
+.hr-banner {
+  background: #FFF7E5;
+  border: 1px solid #F5D993;
+  color: #6D4D0E;
+  padding: 10px 16px;
+  border-radius: var(--r-md);
+  font-size: 0.85rem;
+  margin: 16px 0 18px;
+}
+
+footer {
+  margin-top: 40px;
+  padding: 18px 0;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+  background: var(--warm);
+  border-top: 1px solid var(--line);
+}
+footer a { color: var(--blue-dk); }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="/auth-gate.js"></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+        <div class="divider"></div>
+        <div class="pagename">Solutions Center</div>
+      </div>
+      <div class="header-actions">
+        <span class="user-chip" id="userChip"></span>
+        <button class="header-btn" id="categoriesBtn" style="display:none" onclick="openCategoryAdmin()">Categories</button>
+        <button class="header-btn primary" onclick="openNewSubmission()">+ New Submission</button>
+        <a href="https://ct-resource-page.com/" class="back-link">&larr; Resources</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="tools-bar" id="toolsBar">
+    <div class="wrap">
+      <div class="filter-chips" id="filterChips">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="mine">Mine</button>
+        <button class="chip" data-filter="inbox">Inbox</button>
+        <button class="chip" data-filter="open">Open</button>
+        <button class="chip" data-filter="resolved">Resolved</button>
+      </div>
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search title, problem, impact&hellip;">
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap" id="root">
+    <div class="empty-state"><p>Loading&hellip;</p></div>
+  </div>
+</main>
+
+<footer>
+  CT Traditional &middot; Solutions Center &middot; <a href="https://ct-resource-page.com/">Back to Resources</a>
+</footer>
+
+</div><!-- /appWrap -->
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+// Solutions Center -- Phase 1 MVP
+// Scope:
+//   - List submissions in scope (RLS does the filtering server-side)
+//   - Create a new submission with Problem + Evidence + Impact + 1+ Solutions
+//     (each with 1+ Components) and attachments (URL, SF link, file)
+//   - Read-only detail view
+//   - Manager-only category admin (add new categories + subcategories)
+// Out of scope for Phase 1:
+//   - Escalation buttons, decisions on solutions, comments,
+//     feedback requests, notifications. All Phase 2+.
+
+const sb = window.sb;
+const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
+const BUCKET = 'solutions-center';
+
+// State
+const State = {
+  profile: null,
+  session: null,
+  view: 'list',          // 'list' | 'detail' | 'new'
+  detailId: null,
+  filter: 'all',
+  search: '',
+  submissions: [],
+  categories: [],
+  subcategories: [],
+  // auth_user_id -> { name, kind, tier }
+  userLookup: new Map(),
+};
+
+// ── tiny utility helpers ────────────────────────────────────────────────
+function $(id) { return document.getElementById(id); }
+function el(tag, attrs = {}, ...kids) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') node.className = v;
+    else if (k === 'html') node.innerHTML = v;
+    else if (k.startsWith('on') && typeof v === 'function') node.addEventListener(k.slice(2), v);
+    else if (v !== null && v !== undefined && v !== false) node.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) {
+    if (kid == null || kid === false) continue;
+    node.appendChild(typeof kid === 'string' ? document.createTextNode(kid) : kid);
+  }
+  return node;
+}
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+function fmtDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const diff = Math.floor((now - d) / 86400000);
+  if (diff < 7) return diff + 'd ago';
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: d.getFullYear() === now.getFullYear() ? undefined : 'numeric' });
+}
+function toast(msg, kind) {
+  const t = el('div', { class: 'toast' + (kind === 'err' ? ' err' : '') }, msg);
+  $('toastRoot').appendChild(t);
+  setTimeout(() => t.remove(), kind === 'err' ? 5000 : 2500);
+}
+function statusLabel(s) {
+  return {
+    draft: 'Draft', open: 'Open', awaiting_refinement: 'Awaiting Refinement',
+    escalated: 'Escalated', ready_for_vp: 'Ready for VP',
+    sent_to_corporate: 'Sent to Corporate', in_progress: 'In Progress',
+    resolved: 'Resolved', closed: 'Closed', parked: 'Parked', declined: 'Declined'
+  }[s] || s;
+}
+function tierLabel(t) {
+  return { adm: 'ADM', dm: 'DM', regional: 'Regional', vp: 'VP' }[t] || '';
+}
+
+// ── data layer ──────────────────────────────────────────────────────────
+
+async function loadUserLookup() {
+  // Pull both tables so we can render any auth_user_id we encounter.
+  const [mgrs, reps] = await Promise.all([
+    sb.from('managers').select('auth_user_id, name, tier').not('auth_user_id', 'is', null),
+    sb.from('reps').select('auth_user_id, name').not('auth_user_id', 'is', null),
+  ]);
+  State.userLookup.clear();
+  for (const m of (mgrs.data || [])) {
+    State.userLookup.set(m.auth_user_id, { name: m.name, kind: 'manager', tier: m.tier });
+  }
+  for (const r of (reps.data || [])) {
+    State.userLookup.set(r.auth_user_id, { name: r.name, kind: 'rep', tier: null });
+  }
+}
+function userName(authId) {
+  const u = State.userLookup.get(authId);
+  return u ? u.name : '';
+}
+function userTier(authId) {
+  const u = State.userLookup.get(authId);
+  return u ? u.tier : null;
+}
+
+async function loadCategories() {
+  const { data: cats } = await sb.from('sc_categories')
+    .select('id, name, sort_order, active')
+    .eq('active', true)
+    .order('sort_order').order('name');
+  const { data: subs } = await sb.from('sc_subcategories')
+    .select('id, category_id, name, sort_order, active')
+    .eq('active', true)
+    .order('sort_order').order('name');
+  State.categories = cats || [];
+  State.subcategories = subs || [];
+}
+
+async function loadSubmissions() {
+  // RLS handles the visibility filter. We just pull everything visible
+  // and apply the current chip filter client-side.
+  const { data, error } = await sb.from('sc_submissions')
+    .select('id, title, problem, impact, status, severity, originator_auth_id, current_owner_auth_id, category_id, subcategory_id, created_at, updated_at')
+    .order('updated_at', { ascending: false });
+  if (error) {
+    toast('Failed to load submissions: ' + error.message, 'err');
+    State.submissions = [];
+    return;
+  }
+  State.submissions = data || [];
+}
+
+async function loadSubmissionDetail(id) {
+  const [sub, sols, comps, atts] = await Promise.all([
+    sb.from('sc_submissions').select('*').eq('id', id).maybeSingle(),
+    sb.from('sc_solutions').select('*').eq('submission_id', id).order('position').order('created_at'),
+    sb.from('sc_solution_components').select('*, sc_solutions!inner(submission_id)').eq('sc_solutions.submission_id', id).order('position').order('created_at'),
+    sb.from('sc_attachments').select('*').eq('target_type', 'submission').eq('target_id', id).order('created_at'),
+  ]);
+  if (sub.error || !sub.data) {
+    toast('Submission not found or access denied', 'err');
+    return null;
+  }
+  // Components linked to solutions in this submission.
+  const sols2 = (sols.data || []).map(s => ({
+    ...s,
+    components: (comps.data || []).filter(c => c.solution_id === s.id),
+  }));
+  return {
+    submission: sub.data,
+    solutions: sols2,
+    attachments: atts.data || [],
+  };
+}
+
+// ── rendering ───────────────────────────────────────────────────────────
+
+function render() {
+  const root = $('root');
+  root.innerHTML = '';
+  if (State.view === 'detail' && State.detailId) {
+    renderDetail(root, State.detailId);
+  } else {
+    renderList(root);
+  }
+}
+
+function applyFilter(s) {
+  const me = State.session.user.id;
+  if (State.filter === 'mine') {
+    if (s.originator_auth_id !== me) return false;
+  } else if (State.filter === 'inbox') {
+    if (s.current_owner_auth_id !== me || s.originator_auth_id === me) return false;
+  } else if (State.filter === 'open') {
+    if (['resolved', 'closed', 'parked', 'declined'].includes(s.status)) return false;
+  } else if (State.filter === 'resolved') {
+    if (!['resolved', 'closed'].includes(s.status)) return false;
+  }
+  if (State.search) {
+    const q = State.search.toLowerCase();
+    const hay = (s.title + ' ' + s.problem + ' ' + (s.impact || '')).toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  return true;
+}
+
+function renderList(root) {
+  const filtered = State.submissions.filter(applyFilter);
+  if (filtered.length === 0) {
+    const isEmpty = State.submissions.length === 0;
+    root.appendChild(
+      el('div', { class: 'empty-state' },
+        el('h3', {}, isEmpty ? 'No submissions yet' : 'Nothing matches that filter'),
+        el('p', {}, isEmpty
+          ? 'Submissions are systemic issues paired with proposed solutions. Open one when something needs to move up the chain.'
+          : 'Clear the filter or the search to see everything in your scope.'),
+        isEmpty ? el('button', { class: 'btn primary', onclick: openNewSubmission }, '+ New Submission') : null
+      )
+    );
+    return;
+  }
+  const list = el('div', { class: 'list' });
+  const catMap = new Map(State.categories.map(c => [c.id, c.name]));
+  const subMap = new Map(State.subcategories.map(s => [s.id, s.name]));
+  for (const s of filtered) {
+    const orig = userName(s.originator_auth_id) || 'Unknown';
+    const owner = userName(s.current_owner_auth_id) || 'Unknown';
+    const catName = s.category_id ? (catMap.get(s.category_id) || '') : '';
+    const subName = s.subcategory_id ? (subMap.get(s.subcategory_id) || '') : '';
+    const catLabel = catName + (subName ? ' / ' + subName : '');
+    const card = el('div', { class: 'card', onclick: () => goto('s/' + s.id) },
+      el('div', { class: 'card-head' },
+        el('div', { class: 'card-title' }, s.title),
+        el('span', { class: 'badge ' + s.status }, statusLabel(s.status)),
+      ),
+      el('div', { class: 'card-snippet' }, s.problem || ''),
+      el('div', { class: 'card-meta' },
+        s.severity ? el('span', { class: 'sev ' + s.severity }, s.severity) : null,
+        catLabel ? el('span', {}, catLabel) : null,
+        catLabel ? el('span', { class: 'sep' }, '|') : null,
+        el('span', {}, 'From ' + orig),
+        orig !== owner ? el('span', { class: 'sep' }, '|') : null,
+        orig !== owner ? el('span', {}, 'With ' + owner) : null,
+        el('span', { class: 'sep' }, '|'),
+        el('span', {}, 'Updated ' + fmtDate(s.updated_at)),
+      ),
+    );
+    list.appendChild(card);
+  }
+  root.appendChild(list);
+}
+
+async function renderDetail(root, id) {
+  root.innerHTML = '<div class="empty-state"><p>Loading&hellip;</p></div>';
+  const d = await loadSubmissionDetail(id);
+  if (!d) { State.view = 'list'; State.detailId = null; render(); return; }
+  const s = d.submission;
+  const catMap = new Map(State.categories.map(c => [c.id, c.name]));
+  const subMap = new Map(State.subcategories.map(x => [x.id, x.name]));
+  const orig = userName(s.originator_auth_id) || 'Unknown';
+  const origTier = userTier(s.originator_auth_id);
+  const owner = userName(s.current_owner_auth_id) || 'Unknown';
+  const ownerTier = userTier(s.current_owner_auth_id);
+  const catLabel = (s.category_id ? (catMap.get(s.category_id) || '') : '');
+  const subLabel = (s.subcategory_id ? (subMap.get(s.subcategory_id) || '') : '');
+
+  const shell = el('div', { class: 'detail-shell' });
+  shell.appendChild(el('div', { class: 'crumbs' },
+    el('a', { onclick: () => goto('') }, '&larr; All submissions'.replace('&larr;', '<<' ) ),
+  ));
+  // Replace the placeholder we just made
+  shell.querySelector('.crumbs').innerHTML = '<a onclick="goto(\'\')">&larr; All submissions</a>';
+
+  const titleRow = el('div', { class: 'title-row' },
+    el('h1', {}, s.title),
+    el('span', { class: 'badge ' + s.status }, statusLabel(s.status)),
+  );
+  shell.appendChild(titleRow);
+  const metaBits = [];
+  if (s.severity) metaBits.push('<span class="sev ' + s.severity + '">' + s.severity + '</span>');
+  if (catLabel) metaBits.push(escapeHtml(catLabel + (subLabel ? ' / ' + subLabel : '')));
+  metaBits.push('From <strong>' + escapeHtml(orig) + '</strong>' + (origTier ? ' <span class="tier-chip">' + tierLabel(origTier) + '</span>' : ''));
+  if (s.originator_auth_id !== s.current_owner_auth_id) {
+    metaBits.push('Owner <strong>' + escapeHtml(owner) + '</strong>' + (ownerTier ? ' <span class="tier-chip">' + tierLabel(ownerTier) + '</span>' : ''));
+  }
+  metaBits.push('Created ' + fmtDate(s.created_at));
+  metaBits.push('Updated ' + fmtDate(s.updated_at));
+  const meta = el('div', { class: 'meta-row', html: metaBits.join(' &middot; ') });
+  shell.appendChild(meta);
+
+  // Problem
+  shell.appendChild(el('div', { class: 'section' },
+    el('h3', {}, 'Problem'),
+    el('div', { class: 'prose' }, s.problem || ''),
+  ));
+  // Impact
+  if (s.impact) {
+    shell.appendChild(el('div', { class: 'section' },
+      el('h3', {}, 'Impact'),
+      el('div', { class: 'prose' }, s.impact),
+    ));
+  }
+  // Evidence
+  const evidenceSection = el('div', { class: 'section' }, el('h3', {}, 'Evidence'));
+  if (d.attachments.length === 0) {
+    evidenceSection.appendChild(el('div', { class: 'prose', style: 'color:var(--muted);font-size:0.9rem;' }, 'No attachments.'));
+  } else {
+    const row = el('div', { class: 'attachments-row' });
+    for (const a of d.attachments) row.appendChild(renderAttachmentChip(a));
+    evidenceSection.appendChild(row);
+  }
+  shell.appendChild(evidenceSection);
+
+  // Solutions
+  shell.appendChild(el('div', { class: 'section' },
+    el('h3', {}, 'Proposed Solutions'),
+  ));
+  if (d.solutions.length === 0) {
+    shell.appendChild(el('div', { class: 'prose', style: 'color:var(--muted);font-size:0.9rem;margin-bottom:14px;' }, 'No solutions yet.'));
+  } else {
+    for (const sol of d.solutions) {
+      const proposerName = userName(sol.proposed_by_auth_id) || 'Unknown';
+      const card = el('div', { class: 'solution-card' });
+      card.appendChild(el('div', { class: 'sol-head' },
+        el('h4', {}, sol.title),
+        el('span', { class: 'badge ' + (sol.status === 'proposed' ? 'open' : sol.status) }, sol.status),
+      ));
+      card.appendChild(el('div', { class: 'card-meta', html: 'Proposed by <strong>' + escapeHtml(proposerName) + '</strong> &middot; ' + fmtDate(sol.created_at) }));
+      if (sol.summary) card.appendChild(el('div', { class: 'prose', style: 'margin-top:8px;' }, sol.summary));
+      for (const c of sol.components) {
+        card.appendChild(el('div', { class: 'component' },
+          el('div', { class: 'comp-head' },
+            el('div', { class: 'comp-title' }, c.title),
+            el('span', { class: 'badge ' + (c.status === 'proposed' ? 'open' : c.status) }, c.status),
+          ),
+          c.body ? el('div', { class: 'comp-body' }, c.body) : null,
+        ));
+      }
+      shell.appendChild(card);
+    }
+  }
+
+  root.innerHTML = '';
+  root.appendChild(shell);
+}
+
+function renderAttachmentChip(a) {
+  if (a.kind === 'url' || a.kind === 'sf_link') {
+    const cls = a.kind === 'sf_link' ? 'sf' : 'url';
+    return el('a', { class: 'att-chip ' + cls, href: a.url, target: '_blank' },
+      a.kind === 'sf_link' ? 'SF ' : '',
+      a.caption || a.url
+    );
+  }
+  if (a.kind === 'image' || a.kind === 'file' || a.kind === 'eml' || a.kind === 'md') {
+    const cls = a.kind === 'image' ? 'image' : 'file';
+    return el('a', { class: 'att-chip ' + cls, onclick: () => downloadAttachment(a) },
+      a.filename || 'file'
+    );
+  }
+  return el('span', { class: 'att-chip' }, a.caption || a.filename || a.url || '');
+}
+
+async function downloadAttachment(a) {
+  if (!a.storage_path) return;
+  const { data, error } = await sb.storage.from(BUCKET).createSignedUrl(a.storage_path, 60);
+  if (error || !data) { toast('Download failed: ' + (error && error.message), 'err'); return; }
+  window.open(data.signedUrl, '_blank');
+}
+
+// ── routing ─────────────────────────────────────────────────────────────
+
+function goto(hash) {
+  window.location.hash = hash;
+}
+function parseHash() {
+  const h = (window.location.hash || '').replace(/^#/, '');
+  if (h.startsWith('s/')) return { view: 'detail', id: h.slice(2) };
+  if (h === 'new') return { view: 'new' };
+  return { view: 'list' };
+}
+function handleHashChange() {
+  const r = parseHash();
+  if (r.view === 'detail') {
+    State.view = 'detail';
+    State.detailId = r.id;
+    closeModal();
+    render();
+  } else if (r.view === 'new') {
+    State.view = 'list';
+    State.detailId = null;
+    render();
+    openNewSubmission();
+  } else {
+    State.view = 'list';
+    State.detailId = null;
+    closeModal();
+    render();
+  }
+}
+window.addEventListener('hashchange', handleHashChange);
+
+// ── filter chips + search ───────────────────────────────────────────────
+
+document.addEventListener('click', (e) => {
+  const chip = e.target.closest('.filter-chips .chip');
+  if (chip) {
+    document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    State.filter = chip.dataset.filter;
+    if (State.view === 'list') render();
+  }
+});
+
+let searchT;
+document.addEventListener('input', (e) => {
+  if (e.target && e.target.id === 'searchInput') {
+    clearTimeout(searchT);
+    searchT = setTimeout(() => {
+      State.search = e.target.value.trim();
+      if (State.view === 'list') render();
+    }, 180);
+  }
+});
+
+// ── modals ──────────────────────────────────────────────────────────────
+
+function closeModal() { $('modalRoot').innerHTML = ''; }
+
+window.openNewSubmission = function openNewSubmission() {
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const card = el('div', { class: 'modal-card' });
+  card.innerHTML = '';
+
+  const xBtn = el('button', { class: 'x', onclick: closeModal }, 'Close');
+  card.appendChild(xBtn);
+  card.appendChild(el('h2', {}, 'New submission'));
+  card.appendChild(el('div', { class: 'sub' }, 'Every submission is Problem + Evidence + Proposed Solution. The form refuses to submit without all three.'));
+  card.appendChild(el('div', { class: 'hr-banner' },
+    'HR, compensation, and personnel concerns go through HR. Not here.'
+  ));
+
+  // Title
+  card.appendChild(el('div', { class: 'field' },
+    el('label', { html: 'Title <span class="req">*</span>' }),
+    el('input', { type: 'text', id: 'fTitle', maxlength: '200', required: true, placeholder: 'One line that names the issue.' })
+  ));
+
+  // Category + Subcategory row
+  const catSelect = el('select', { id: 'fCat', onchange: () => refreshSubcatOptions() });
+  catSelect.appendChild(el('option', { value: '' }, '-- pick a category --'));
+  for (const c of State.categories) catSelect.appendChild(el('option', { value: c.id }, c.name));
+  const newCatBtn = el('button', { type: 'button', class: 'btn ghost small', onclick: addCategoryInline }, '+ New category');
+  const subSelect = el('select', { id: 'fSub' });
+  subSelect.appendChild(el('option', { value: '' }, '-- pick a subcategory --'));
+  const newSubBtn = el('button', { type: 'button', class: 'btn ghost small', onclick: addSubcategoryInline }, '+ New subcategory');
+
+  card.appendChild(el('div', { class: 'field-row' },
+    el('div', { class: 'field' },
+      el('label', {}, 'Category'),
+      catSelect,
+      State.profile.kind === 'manager' ? el('div', { class: 'hint', style: 'margin-top:6px;' }, newCatBtn) : null,
+    ),
+    el('div', { class: 'field' },
+      el('label', {}, 'Subcategory'),
+      subSelect,
+      State.profile.kind === 'manager' ? el('div', { class: 'hint', style: 'margin-top:6px;' }, newSubBtn) : null,
+    ),
+  ));
+
+  // Severity
+  const sevOpts = ['low', 'medium', 'high', 'critical'];
+  const sevGroup = el('div', { class: 'severity-radio' });
+  for (const lvl of sevOpts) {
+    sevGroup.appendChild(el('label', {},
+      el('input', { type: 'radio', name: 'fSev', value: lvl }),
+      el('span', { class: 'sev ' + lvl }, lvl),
+    ));
+  }
+  card.appendChild(el('div', { class: 'field' },
+    el('label', {}, 'Severity'),
+    sevGroup,
+  ));
+
+  // Problem
+  card.appendChild(el('div', { class: 'field' },
+    el('label', { html: 'Problem <span class="req">*</span>' }),
+    el('textarea', { id: 'fProblem', required: true, placeholder: 'State the issue plainly. Facts, not feelings.' })
+  ));
+
+  // Impact
+  card.appendChild(el('div', { class: 'field' },
+    el('label', {}, 'Impact'),
+    el('textarea', { id: 'fImpact', placeholder: 'Who is affected. How often. What it costs (deals, time, morale).' })
+  ));
+
+  // Evidence (URL + SF + file attachments)
+  card.appendChild(el('div', { class: 'field' },
+    el('label', {}, 'Evidence'),
+    el('div', { class: 'hint' }, 'Add URLs, Salesforce links, files, or screenshots. The more concrete, the easier to act on.'),
+    el('div', { id: 'attList' }),
+    el('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;' },
+      el('button', { type: 'button', class: 'btn ghost small', onclick: () => addAttachmentRow('url') }, '+ URL'),
+      el('button', { type: 'button', class: 'btn ghost small', onclick: () => addAttachmentRow('sf_link') }, '+ Salesforce link'),
+      el('label', { class: 'btn ghost small', style: 'cursor:pointer;' },
+        '+ File',
+        el('input', { type: 'file', id: 'fFile', multiple: true, style: 'display:none;', onchange: (e) => addFileRows(e.target.files) }),
+      ),
+    ),
+  ));
+
+  // Solutions block
+  card.appendChild(el('hr', { class: 'hr-soft' }));
+  card.appendChild(el('div', { class: 'field' },
+    el('label', { html: 'Proposed Solutions <span class="req">*</span>' }),
+    el('div', { class: 'hint' }, 'One or more. Each solution can have multiple parts (components).'),
+    el('div', { id: 'solList' }),
+    el('button', { type: 'button', class: 'btn ghost small', style: 'margin-top:6px;', onclick: addSolutionBlock }, '+ Add solution'),
+  ));
+
+  // Actions
+  card.appendChild(el('div', { class: 'actions-row' },
+    el('button', { class: 'btn ghost', onclick: closeModal }, 'Cancel'),
+    el('button', { class: 'btn primary', id: 'submitBtn', onclick: submitNew }, 'Submit'),
+  ));
+
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+
+  // Seed with one empty solution + one empty component
+  addSolutionBlock();
+};
+
+function refreshSubcatOptions() {
+  const catId = $('fCat').value;
+  const sub = $('fSub');
+  sub.innerHTML = '';
+  sub.appendChild(el('option', { value: '' }, '-- pick a subcategory --'));
+  for (const s of State.subcategories.filter(s => s.category_id === catId)) {
+    sub.appendChild(el('option', { value: s.id }, s.name));
+  }
+}
+
+async function addCategoryInline() {
+  const name = prompt('New category name?');
+  if (!name) return;
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const { data, error } = await sb.from('sc_categories').insert({
+    name: trimmed, created_by_auth_id: State.session.user.id
+  }).select().single();
+  if (error) { toast('Failed: ' + error.message, 'err'); return; }
+  State.categories.push(data);
+  State.categories.sort((a, b) => (a.sort_order - b.sort_order) || a.name.localeCompare(b.name));
+  // Refresh the dropdown
+  const catSelect = $('fCat');
+  catSelect.innerHTML = '';
+  catSelect.appendChild(el('option', { value: '' }, '-- pick a category --'));
+  for (const c of State.categories) catSelect.appendChild(el('option', { value: c.id }, c.name));
+  catSelect.value = data.id;
+  refreshSubcatOptions();
+  toast('Category added');
+}
+
+async function addSubcategoryInline() {
+  const catId = $('fCat').value;
+  if (!catId) { toast('Pick a category first', 'err'); return; }
+  const name = prompt('New subcategory name?');
+  if (!name) return;
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const { data, error } = await sb.from('sc_subcategories').insert({
+    category_id: catId, name: trimmed, created_by_auth_id: State.session.user.id
+  }).select().single();
+  if (error) { toast('Failed: ' + error.message, 'err'); return; }
+  State.subcategories.push(data);
+  refreshSubcatOptions();
+  $('fSub').value = data.id;
+  toast('Subcategory added');
+}
+
+// ── attachments editor state ────────────────────────────────────────────
+
+const PendingAttachments = []; // { kind, url, caption, file?, _id }
+let attRowSeq = 0;
+
+function addAttachmentRow(kind) {
+  const id = ++attRowSeq;
+  PendingAttachments.push({ _id: id, kind, url: '', caption: '' });
+  const row = el('div', { class: 'att-editor-row', 'data-att-id': id },
+    el('span', { html: kind === 'sf_link' ? '<strong>SF</strong>' : '<strong>URL</strong>' }),
+    el('input', { type: 'url', placeholder: 'https://...', oninput: (e) => updateAttField(id, 'url', e.target.value) }),
+    el('input', { type: 'text', placeholder: 'caption (optional)', oninput: (e) => updateAttField(id, 'caption', e.target.value) }),
+    el('button', { type: 'button', class: 'x-att', onclick: () => removeAtt(id) }, 'x'),
+  );
+  $('attList').appendChild(row);
+}
+
+function addFileRows(files) {
+  for (const f of files) {
+    const id = ++attRowSeq;
+    const isImg = f.type && f.type.startsWith('image/');
+    const isEml = /\.eml$/i.test(f.name);
+    const isMd  = /\.md$/i.test(f.name);
+    const kind = isImg ? 'image' : isEml ? 'eml' : isMd ? 'md' : 'file';
+    PendingAttachments.push({ _id: id, kind, file: f, caption: '' });
+    const row = el('div', { class: 'file-att-row', 'data-att-id': id },
+      el('span', {}, (isImg ? 'IMG ' : isEml ? 'EML ' : isMd ? 'MD ' : 'FILE ') + f.name),
+      el('span', { style: 'color:var(--muted);font-size:0.78rem;' }, formatBytes(f.size)),
+      el('button', { type: 'button', class: 'x-att', onclick: () => removeAtt(id) }, 'x'),
+    );
+    $('attList').appendChild(row);
+  }
+}
+
+function formatBytes(n) {
+  if (n < 1024) return n + ' B';
+  if (n < 1024*1024) return Math.round(n/1024) + ' KB';
+  return (n/1024/1024).toFixed(1) + ' MB';
+}
+
+function updateAttField(id, field, val) {
+  const a = PendingAttachments.find(x => x._id === id);
+  if (a) a[field] = val;
+}
+
+function removeAtt(id) {
+  const i = PendingAttachments.findIndex(a => a._id === id);
+  if (i >= 0) PendingAttachments.splice(i, 1);
+  const row = document.querySelector('[data-att-id="' + id + '"]');
+  if (row) row.remove();
+}
+
+// ── solutions editor state ──────────────────────────────────────────────
+
+const PendingSolutions = []; // { _id, title, summary, components: [{ _id, title, body }] }
+let solSeq = 0, compSeq = 0;
+
+function addSolutionBlock() {
+  const id = ++solSeq;
+  const sol = { _id: id, title: '', summary: '', components: [] };
+  PendingSolutions.push(sol);
+  const block = el('div', { class: 'editor-block', 'data-sol-id': id });
+  const head = el('div', { class: 'block-head' },
+    el('div', { class: 'block-title' }, 'Solution ' + PendingSolutions.length),
+    el('div', { class: 'block-actions' },
+      el('button', { type: 'button', class: 'btn danger small', onclick: () => removeSolution(id) }, 'Remove'),
+    )
+  );
+  block.appendChild(head);
+  block.appendChild(el('div', { class: 'field' },
+    el('label', { html: 'Solution title <span class="req">*</span>' }),
+    el('input', { type: 'text', placeholder: 'What is the solution?', oninput: (e) => sol.title = e.target.value }),
+  ));
+  block.appendChild(el('div', { class: 'field' },
+    el('label', {}, 'Summary'),
+    el('textarea', { placeholder: 'Optional short overview.', oninput: (e) => sol.summary = e.target.value }),
+  ));
+  const compList = el('div', { 'data-comp-list': id });
+  block.appendChild(compList);
+  block.appendChild(el('button', { type: 'button', class: 'btn ghost small', style: 'margin-top:6px;', onclick: () => addComponentBlock(id) }, '+ Add component'));
+  $('solList').appendChild(block);
+  // Seed one component
+  addComponentBlock(id);
+}
+
+function removeSolution(id) {
+  const i = PendingSolutions.findIndex(s => s._id === id);
+  if (i >= 0) PendingSolutions.splice(i, 1);
+  const block = document.querySelector('[data-sol-id="' + id + '"]');
+  if (block) block.remove();
+  // Renumber labels
+  document.querySelectorAll('[data-sol-id] .block-title').forEach((node, idx) => {
+    node.textContent = 'Solution ' + (idx + 1);
+  });
+}
+
+function addComponentBlock(solId) {
+  const sol = PendingSolutions.find(s => s._id === solId);
+  if (!sol) return;
+  const cid = ++compSeq;
+  const c = { _id: cid, title: '', body: '' };
+  sol.components.push(c);
+  const list = document.querySelector('[data-comp-list="' + solId + '"]');
+  const node = el('div', { class: 'component-editor', 'data-comp-id': cid },
+    el('div', { class: 'block-head' },
+      el('div', { class: 'block-title', style: 'font-weight:600;color:var(--muted);font-size:0.78rem;' }, 'Component ' + sol.components.length),
+      el('div', { class: 'block-actions' },
+        el('button', { type: 'button', class: 'btn danger small', onclick: () => removeComponent(solId, cid) }, 'x'),
+      )
+    ),
+    el('div', { class: 'field' },
+      el('label', { html: 'Component title <span class="req">*</span>' }),
+      el('input', { type: 'text', placeholder: 'e.g. "Update training", "Change SF stage rule"', oninput: (e) => c.title = e.target.value }),
+    ),
+    el('div', { class: 'field' },
+      el('label', {}, 'Detail'),
+      el('textarea', { placeholder: 'What does this part actually do?', oninput: (e) => c.body = e.target.value }),
+    ),
+  );
+  list.appendChild(node);
+}
+
+function removeComponent(solId, cid) {
+  const sol = PendingSolutions.find(s => s._id === solId);
+  if (!sol) return;
+  const i = sol.components.findIndex(c => c._id === cid);
+  if (i >= 0) sol.components.splice(i, 1);
+  const node = document.querySelector('[data-comp-id="' + cid + '"]');
+  if (node) node.remove();
+}
+
+// ── submit ──────────────────────────────────────────────────────────────
+
+async function submitNew() {
+  const btn = $('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const title = $('fTitle').value.trim();
+    const problem = $('fProblem').value.trim();
+    const impact = $('fImpact').value.trim();
+    const categoryId = $('fCat').value || null;
+    const subcategoryId = $('fSub').value || null;
+    const sevEl = document.querySelector('input[name="fSev"]:checked');
+    const severity = sevEl ? sevEl.value : null;
+
+    if (!title) throw new Error('Title is required.');
+    if (!problem) throw new Error('Problem is required.');
+    const validSols = PendingSolutions
+      .filter(s => s.title.trim())
+      .map(s => ({ ...s, components: s.components.filter(c => c.title.trim()) }));
+    if (validSols.length === 0) throw new Error('At least one solution with a title is required.');
+    if (validSols.some(s => s.components.length === 0)) {
+      throw new Error('Every solution needs at least one component.');
+    }
+
+    // 1. Create submission
+    const me = State.session.user.id;
+    const { data: sub, error: subErr } = await sb.from('sc_submissions').insert({
+      title, problem, impact: impact || null,
+      category_id: categoryId, subcategory_id: subcategoryId,
+      severity: severity, status: 'open',
+      originator_auth_id: me, current_owner_auth_id: me,
+    }).select().single();
+    if (subErr) throw new Error('Submission insert failed: ' + subErr.message);
+
+    // 2. Insert solutions + components
+    for (let si = 0; si < validSols.length; si++) {
+      const s = validSols[si];
+      const { data: solRow, error: solErr } = await sb.from('sc_solutions').insert({
+        submission_id: sub.id, title: s.title.trim(),
+        summary: s.summary.trim() || null,
+        proposed_by_auth_id: me, position: si,
+      }).select().single();
+      if (solErr) throw new Error('Solution insert failed: ' + solErr.message);
+      for (let ci = 0; ci < s.components.length; ci++) {
+        const c = s.components[ci];
+        const { error: compErr } = await sb.from('sc_solution_components').insert({
+          solution_id: solRow.id, title: c.title.trim(),
+          body: c.body.trim() || null,
+          proposed_by_auth_id: me, position: ci,
+        });
+        if (compErr) throw new Error('Component insert failed: ' + compErr.message);
+      }
+    }
+
+    // 3. Attachments
+    for (const a of PendingAttachments) {
+      if (a.kind === 'url' || a.kind === 'sf_link') {
+        if (!a.url.trim()) continue;
+        const { error: aErr } = await sb.from('sc_attachments').insert({
+          target_type: 'submission', target_id: sub.id,
+          kind: a.kind, url: a.url.trim(),
+          caption: a.caption.trim() || null,
+          uploaded_by_auth_id: me,
+        });
+        if (aErr) throw new Error('Attachment insert failed: ' + aErr.message);
+      } else if (a.file) {
+        const safe = a.file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const path = me + '/' + sub.id + '/' + Date.now() + '_' + safe;
+        const { error: upErr } = await sb.storage.from(BUCKET).upload(path, a.file, {
+          contentType: a.file.type || 'application/octet-stream',
+        });
+        if (upErr) throw new Error('Upload failed for ' + a.file.name + ': ' + upErr.message);
+        const { error: aErr } = await sb.from('sc_attachments').insert({
+          target_type: 'submission', target_id: sub.id,
+          kind: a.kind, filename: a.file.name,
+          storage_path: path, mime_type: a.file.type || null,
+          size_bytes: a.file.size,
+          caption: a.caption.trim() || null,
+          uploaded_by_auth_id: me,
+        });
+        if (aErr) throw new Error('Attachment row failed: ' + aErr.message);
+      }
+    }
+
+    toast('Submitted');
+    // Reset state, reload list, go to detail
+    PendingSolutions.length = 0; PendingAttachments.length = 0;
+    closeModal();
+    await loadSubmissions();
+    goto('s/' + sub.id);
+  } catch (e) {
+    toast(e.message, 'err');
+    btn.disabled = false;
+    btn.textContent = 'Submit';
+  }
+}
+
+// ── category admin modal ────────────────────────────────────────────────
+
+window.openCategoryAdmin = function openCategoryAdmin() {
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const card = el('div', { class: 'modal-card' });
+  card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
+  card.appendChild(el('h2', {}, 'Categories'));
+  card.appendChild(el('div', { class: 'sub' }, 'Manage the category hierarchy. Reps and managers pick from these when submitting.'));
+  const list = el('div', { id: 'catAdminList' });
+  card.appendChild(list);
+  card.appendChild(el('hr', { class: 'hr-soft' }));
+  card.appendChild(el('div', { class: 'field' },
+    el('label', {}, 'Add new category'),
+    el('div', { style: 'display:flex;gap:8px;' },
+      el('input', { type: 'text', id: 'newCatName', placeholder: 'Category name' }),
+      el('button', { class: 'btn primary', onclick: async () => {
+        const name = $('newCatName').value.trim();
+        if (!name) return;
+        const { error } = await sb.from('sc_categories').insert({
+          name, created_by_auth_id: State.session.user.id
+        });
+        if (error) { toast('Failed: ' + error.message, 'err'); return; }
+        $('newCatName').value = '';
+        await loadCategories();
+        renderCatAdminList();
+        toast('Added');
+      }}, 'Add'),
+    ),
+  ));
+  card.appendChild(el('div', { class: 'actions-row' },
+    el('button', { class: 'btn ghost', onclick: closeModal }, 'Close'),
+  ));
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+  renderCatAdminList();
+};
+
+function renderCatAdminList() {
+  const list = $('catAdminList');
+  if (!list) return;
+  list.innerHTML = '';
+  if (State.categories.length === 0) {
+    list.appendChild(el('div', { class: 'prose', style: 'color:var(--muted);' }, 'No categories yet.'));
+    return;
+  }
+  for (const c of State.categories) {
+    const subs = State.subcategories.filter(s => s.category_id === c.id);
+    const block = el('div', { class: 'editor-block' });
+    block.appendChild(el('div', { class: 'block-head' },
+      el('div', { class: 'block-title', style: 'font-size:0.95rem;color:var(--ink);' }, c.name),
+    ));
+    if (subs.length > 0) {
+      const sl = el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;' });
+      for (const s of subs) sl.appendChild(el('span', { class: 'att-chip' }, s.name));
+      block.appendChild(sl);
+    }
+    block.appendChild(el('div', { style: 'display:flex;gap:8px;align-items:center;' },
+      el('input', { type: 'text', placeholder: 'New subcategory', 'data-cat-id': c.id, style: 'flex:1;padding:6px 10px;font-size:0.88rem;border:1px solid var(--line);border-radius:4px;' }),
+      el('button', { class: 'btn ghost small', onclick: async (e) => {
+        const inp = e.target.previousElementSibling;
+        const name = inp.value.trim();
+        if (!name) return;
+        const { error } = await sb.from('sc_subcategories').insert({
+          category_id: c.id, name, created_by_auth_id: State.session.user.id
+        });
+        if (error) { toast('Failed: ' + error.message, 'err'); return; }
+        inp.value = '';
+        await loadCategories();
+        renderCatAdminList();
+      }}, '+ Sub'),
+    ));
+    list.appendChild(block);
+  }
+}
+
+// ── entry point ─────────────────────────────────────────────────────────
+
+window.initApp = async function initApp(profile, session) {
+  State.profile = profile;
+  State.session = session;
+  $('userChip').textContent = profile.name + (profile.kind === 'manager' ? ' (Manager)' : ' (Rep)');
+  if (profile.kind === 'manager') {
+    $('categoriesBtn').style.display = '';
+  }
+  await Promise.all([loadUserLookup(), loadCategories()]);
+  await loadSubmissions();
+  handleHashChange();
+};
+</script>
+
+</body>
+</html>
