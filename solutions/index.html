@@ -667,6 +667,96 @@ main { padding: 28px 0 60px; }
 .response-card .resp-head strong { color: var(--ink-soft); }
 .response-card .resp-body { color: var(--text); font-size: 0.92rem; white-space: pre-wrap; }
 
+/* AI BRIEF / CONSOLIDATION MODAL */
+.ai-btn {
+  background: linear-gradient(135deg, #29A9E1 0%, #5A4FB8 100%);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+}
+.ai-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1E8BBC 0%, #483FAA 100%);
+  color: #fff;
+}
+.ai-btn.small { padding: 5px 12px; font-size: 0.8rem; }
+.ai-marker {
+  display: inline-block;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  background: linear-gradient(135deg, #29A9E1 0%, #5A4FB8 100%);
+  color: #fff;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.brief-block {
+  background: var(--warm);
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+  margin: 12px 0;
+}
+.brief-block h3 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.brief-block .prose { font-size: 0.95rem; }
+.brief-block ul { margin: 0 0 0 18px; }
+.brief-block ul li { margin: 4px 0; font-size: 0.92rem; }
+.action-card {
+  background: #fff;
+  border-left: 3px solid var(--green);
+  padding: 10px 14px;
+  margin: 8px 0;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.action-card .action-text { font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.action-card .action-meta { font-size: 0.8rem; color: var(--muted); }
+.theme-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  margin: 8px 0;
+}
+.theme-card .theme-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.theme-card .theme-name { font-weight: 600; color: var(--ink); }
+.theme-card .theme-count {
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+.theme-card .quote {
+  font-style: italic;
+  color: var(--muted);
+  padding: 4px 10px;
+  border-left: 2px solid var(--line);
+  margin: 4px 0;
+  font-size: 0.88rem;
+}
+.suggest-banner {
+  background: linear-gradient(90deg, rgba(41,169,225,0.08), rgba(90,79,184,0.08));
+  border: 1px solid #BDDEF3;
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  margin: 8px 0;
+  font-size: 0.85rem;
+  color: var(--ink);
+  display: flex; gap: 10px; align-items: center; justify-content: space-between;
+}
+
 /* INTRO BANNER (HR redirect) */
 .hr-banner {
   background: #FFF7E5;
@@ -1199,6 +1289,9 @@ async function renderDetail(root, id) {
       bar.appendChild(statusSelect);
       bar.appendChild(el('button', { class: 'btn ghost small', onclick: () => doStatusChange(s.id, statusSelect.value) }, 'Apply'));
     }
+    bar.appendChild(el('span', { class: 'spacer' }));
+    bar.appendChild(el('button', { class: 'btn ai-btn small', onclick: () => doGenerateBrief(s.id, s.title), title: 'AI-generated brief for the VP' },
+      el('span', { class: 'ai-marker' }, 'AI'), document.createTextNode(' Generate VP Brief')));
     shell.appendChild(bar);
   }
 
@@ -1485,18 +1578,29 @@ async function renderFeedbackDetail(root, id) {
   if (r.closes_at) bits.push('Closes ' + fmtDate(r.closes_at));
   shell.appendChild(el('div', { class: 'meta-row', html: bits.join(' &middot; ') }));
 
-  // Action bar (close button for creator/admin)
-  if ((isCreator || isAdmin) && r.status === 'open') {
+  // Action bar (close button + Consolidate for creator/admin)
+  if (isCreator || isAdmin) {
     const bar = el('div', { class: 'action-bar' });
     bar.appendChild(el('span', { class: 'label' }, 'Actions:'));
-    bar.appendChild(el('button', { class: 'btn ghost small', onclick: async () => {
-      if (!confirm('Close this request? No more responses can be added.')) return;
-      const { error } = await sb.from('sc_feedback_requests').update({ status: 'closed' }).eq('id', r.id);
-      if (error) { toast('Close failed: ' + error.message, 'err'); return; }
-      toast('Closed');
-      await loadFeedbackRequests();
-      render();
-    }}, 'Close request'));
+    if (r.status === 'open') {
+      bar.appendChild(el('button', { class: 'btn ghost small', onclick: async () => {
+        if (!confirm('Close this request? No more responses can be added.')) return;
+        const { error } = await sb.from('sc_feedback_requests').update({ status: 'closed' }).eq('id', r.id);
+        if (error) { toast('Close failed: ' + error.message, 'err'); return; }
+        toast('Closed');
+        await loadFeedbackRequests();
+        render();
+      }}, 'Close request'));
+    }
+    bar.appendChild(el('span', { class: 'spacer' }));
+    bar.appendChild(el('button', {
+      class: 'btn ai-btn small',
+      onclick: () => doConsolidate(r.id, r.prompt),
+      disabled: d.responses.length === 0,
+      title: d.responses.length === 0 ? 'No responses yet to consolidate' : 'AI-themed rollup of every response',
+    },
+      el('span', { class: 'ai-marker' }, 'AI'), document.createTextNode(' Consolidate Responses')
+    ));
     shell.appendChild(bar);
   }
 
@@ -1737,6 +1841,276 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// ── AI hooks (Phase 5) ─────────────────────────────────────────────────
+
+async function callAi(action, params) {
+  const token = State.session.access_token;
+  const res = await fetch(SUPABASE_URL + '/functions/v1/solutions-center-ai', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ action, ...params }),
+  });
+  let data;
+  try { data = await res.json(); } catch { data = { error: 'Bad response' }; }
+  if (!res.ok) throw new Error(data.error || ('AI call failed: ' + res.status));
+  return data;
+}
+
+async function doGenerateBrief(submissionId, submissionTitle) {
+  // Show a working modal immediately so the user knows something is happening.
+  showWorkingModal('Generating VP brief...', 'Calling the model. Usually takes 10-20 seconds.');
+  try {
+    const { brief } = await callAi('package_brief', { submission_id: submissionId });
+    showBriefModal(brief, submissionId, submissionTitle);
+  } catch (e) {
+    closeModal();
+    toast('Brief failed: ' + e.message, 'err');
+  }
+}
+
+async function doConsolidate(requestId, requestPrompt) {
+  showWorkingModal('Consolidating responses...', 'Calling the model. Usually takes 10-20 seconds.');
+  try {
+    const { consolidation } = await callAi('consolidate_feedback', { request_id: requestId });
+    showConsolidationModal(consolidation, requestId, requestPrompt);
+  } catch (e) {
+    closeModal();
+    toast('Consolidation failed: ' + e.message, 'err');
+  }
+}
+
+async function doSuggestCategory() {
+  const title = $('fTitle').value.trim();
+  const problem = $('fProblem').value.trim();
+  const impact = $('fImpact').value.trim();
+  if (!title || !problem) {
+    toast('Add a title and problem first, then I can suggest a category.', 'err');
+    return;
+  }
+  const banner = $('suggestBanner');
+  if (banner) { banner.innerHTML = '<em>Thinking...</em>'; banner.style.display = ''; }
+  try {
+    const { suggestion } = await callAi('suggest_category', { title, problem, impact });
+    if (!suggestion) throw new Error('No suggestion returned');
+    if (suggestion.category_id) {
+      const catSelect = $('fCat');
+      if (catSelect && Array.from(catSelect.options).some(o => o.value === suggestion.category_id)) {
+        catSelect.value = suggestion.category_id;
+        refreshSubcatOptions();
+        if (suggestion.subcategory_id) {
+          const subSelect = $('fSub');
+          if (subSelect && Array.from(subSelect.options).some(o => o.value === suggestion.subcategory_id)) {
+            subSelect.value = suggestion.subcategory_id;
+          }
+        }
+      }
+    }
+    if (banner) {
+      const conf = suggestion.confidence || 'medium';
+      banner.innerHTML = '<div><span class="ai-marker">AI</span><strong>Suggested</strong> &middot; confidence: ' + escapeHtml(conf) + '. ' + escapeHtml(suggestion.rationale || '') + '</div>';
+    }
+  } catch (e) {
+    if (banner) banner.innerHTML = '<em style="color:var(--red)">Suggestion failed: ' + escapeHtml(e.message) + '</em>';
+  }
+}
+
+function showWorkingModal(title, sub) {
+  const shroud = el('div', { class: 'modal-shroud' });
+  const card = el('div', { class: 'modal-card', style: 'max-width:480px;text-align:center;padding:40px 32px;' });
+  card.appendChild(el('h2', { style: 'margin-bottom:8px;' }, title));
+  card.appendChild(el('div', { class: 'sub' }, sub));
+  card.appendChild(el('div', { style: 'margin-top:18px;font-size:0.85rem;color:var(--muted);' }, 'You can keep the tab open. The page will not reload.'));
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+}
+
+function showBriefModal(brief, submissionId, submissionTitle) {
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const card = el('div', { class: 'modal-card', style: 'max-width:820px;' });
+  card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
+  card.appendChild(el('h2', {}, el('span', { class: 'ai-marker' }, 'AI'), document.createTextNode(' VP Brief: ' + submissionTitle)));
+  card.appendChild(el('div', { class: 'sub' }, 'Generated for Melvin DeJesus. Edit before sharing if needed.'));
+
+  if (brief.executive_summary) {
+    card.appendChild(el('div', { class: 'brief-block' },
+      el('h3', {}, 'Executive Summary'),
+      el('div', { class: 'prose' }, brief.executive_summary),
+    ));
+  }
+  if (brief.situation) {
+    card.appendChild(el('div', { class: 'brief-block' },
+      el('h3', {}, 'Situation'),
+      el('div', { class: 'prose' }, brief.situation),
+    ));
+  }
+  if (Array.isArray(brief.evidence) && brief.evidence.length) {
+    const ul = el('ul');
+    for (const b of brief.evidence) ul.appendChild(el('li', {}, b));
+    card.appendChild(el('div', { class: 'brief-block' }, el('h3', {}, 'Evidence'), ul));
+  }
+  if (brief.business_impact) {
+    card.appendChild(el('div', { class: 'brief-block' },
+      el('h3', {}, 'Business Impact'),
+      el('div', { class: 'prose' }, brief.business_impact),
+    ));
+  }
+  if (Array.isArray(brief.recommended_actions) && brief.recommended_actions.length) {
+    const wrap = el('div', { class: 'brief-block' }, el('h3', {}, 'Recommended Actions'));
+    for (const a of brief.recommended_actions) {
+      wrap.appendChild(el('div', { class: 'action-card' },
+        el('div', { class: 'action-text' }, a.action || ''),
+        el('div', { class: 'action-meta' }, (a.owner ? 'Owner: ' + a.owner + ' · ' : '') + (a.rationale || '')),
+      ));
+    }
+    card.appendChild(wrap);
+  }
+  if (Array.isArray(brief.open_questions) && brief.open_questions.length) {
+    const ul = el('ul');
+    for (const q of brief.open_questions) ul.appendChild(el('li', {}, q));
+    card.appendChild(el('div', { class: 'brief-block' }, el('h3', {}, 'Open Questions'), ul));
+  }
+
+  card.appendChild(el('div', { class: 'actions-row' },
+    el('button', { class: 'btn ghost', onclick: () => copyBriefToClipboard(brief, submissionTitle) }, 'Copy as text'),
+    el('button', { class: 'btn primary', onclick: () => saveBriefAsComment(brief, submissionId) }, 'Save as comment'),
+  ));
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+}
+
+function briefToMarkdown(brief, title) {
+  let md = '# VP Brief: ' + (title || '') + '\n\n';
+  if (brief.executive_summary) md += '## Executive Summary\n' + brief.executive_summary + '\n\n';
+  if (brief.situation) md += '## Situation\n' + brief.situation + '\n\n';
+  if (Array.isArray(brief.evidence) && brief.evidence.length) {
+    md += '## Evidence\n' + brief.evidence.map(b => '- ' + b).join('\n') + '\n\n';
+  }
+  if (brief.business_impact) md += '## Business Impact\n' + brief.business_impact + '\n\n';
+  if (Array.isArray(brief.recommended_actions) && brief.recommended_actions.length) {
+    md += '## Recommended Actions\n';
+    for (const a of brief.recommended_actions) {
+      md += '- **' + (a.action || '') + '**' + (a.owner ? ' (Owner: ' + a.owner + ')' : '') + (a.rationale ? ' — ' + a.rationale : '') + '\n';
+    }
+    md += '\n';
+  }
+  if (Array.isArray(brief.open_questions) && brief.open_questions.length) {
+    md += '## Open Questions\n' + brief.open_questions.map(q => '- ' + q).join('\n') + '\n';
+  }
+  return md.trim();
+}
+
+async function copyBriefToClipboard(brief, title) {
+  const md = briefToMarkdown(brief, title);
+  try {
+    await navigator.clipboard.writeText(md);
+    toast('Copied');
+  } catch (e) {
+    toast('Copy failed: ' + e.message, 'err');
+  }
+}
+
+async function saveBriefAsComment(brief, submissionId) {
+  const md = '[AI VP Brief]\n\n' + briefToMarkdown(brief, '');
+  const { error } = await sb.from('sc_comments').insert({
+    target_type: 'submission', target_id: submissionId,
+    body: md, author_auth_id: State.session.user.id,
+  });
+  if (error) { toast('Save failed: ' + error.message, 'err'); return; }
+  toast('Saved as comment');
+  closeModal();
+  if (State.view === 'detail' && State.detailId === submissionId) render();
+}
+
+function showConsolidationModal(con, requestId, requestPrompt) {
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const card = el('div', { class: 'modal-card', style: 'max-width:820px;' });
+  card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
+  card.appendChild(el('h2', {}, el('span', { class: 'ai-marker' }, 'AI'), document.createTextNode(' Consolidated Responses')));
+  card.appendChild(el('div', { class: 'sub' }, requestPrompt));
+
+  if (con.summary) {
+    card.appendChild(el('div', { class: 'brief-block' },
+      el('h3', {}, 'Summary'),
+      el('div', { class: 'prose' }, con.summary),
+    ));
+  }
+  if (Array.isArray(con.themes) && con.themes.length) {
+    const wrap = el('div', { class: 'brief-block' }, el('h3', {}, 'Themes'));
+    for (const t of con.themes) {
+      const tc = el('div', { class: 'theme-card' });
+      tc.appendChild(el('div', { class: 'theme-head' },
+        el('div', { class: 'theme-name' }, t.name || ''),
+        el('div', { class: 'theme-count' }, String(t.count || 0)),
+      ));
+      if (Array.isArray(t.supporting_quotes)) {
+        for (const q of t.supporting_quotes) tc.appendChild(el('div', { class: 'quote' }, '"' + q + '"'));
+      }
+      wrap.appendChild(tc);
+    }
+    card.appendChild(wrap);
+  }
+  if (con.divergence) {
+    card.appendChild(el('div', { class: 'brief-block' },
+      el('h3', {}, 'Where Responses Diverge'),
+      el('div', { class: 'prose' }, con.divergence),
+    ));
+  }
+  if (con.recommended_next_step) {
+    card.appendChild(el('div', { class: 'brief-block' },
+      el('h3', {}, 'Recommended Next Step'),
+      el('div', { class: 'prose' }, con.recommended_next_step),
+    ));
+  }
+
+  card.appendChild(el('div', { class: 'actions-row' },
+    el('button', { class: 'btn ghost', onclick: () => copyConsolidationToClipboard(con, requestPrompt) }, 'Copy as text'),
+    el('button', { class: 'btn primary', onclick: () => saveConsolidationAsComment(con, requestId, requestPrompt) }, 'Save as comment'),
+  ));
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+}
+
+function consolidationToMarkdown(con, requestPrompt) {
+  let md = '# Consolidated Responses\n*' + (requestPrompt || '') + '*\n\n';
+  if (con.summary) md += '## Summary\n' + con.summary + '\n\n';
+  if (Array.isArray(con.themes) && con.themes.length) {
+    md += '## Themes\n';
+    for (const t of con.themes) {
+      md += '\n### ' + (t.name || '') + ' (' + (t.count || 0) + ')\n';
+      if (Array.isArray(t.supporting_quotes)) {
+        for (const q of t.supporting_quotes) md += '> ' + q + '\n';
+      }
+    }
+    md += '\n';
+  }
+  if (con.divergence) md += '## Where Responses Diverge\n' + con.divergence + '\n\n';
+  if (con.recommended_next_step) md += '## Recommended Next Step\n' + con.recommended_next_step + '\n';
+  return md.trim();
+}
+
+async function copyConsolidationToClipboard(con, prompt) {
+  try { await navigator.clipboard.writeText(consolidationToMarkdown(con, prompt)); toast('Copied'); }
+  catch (e) { toast('Copy failed: ' + e.message, 'err'); }
+}
+
+async function saveConsolidationAsComment(con, requestId, prompt) {
+  const md = '[AI Consolidation]\n\n' + consolidationToMarkdown(con, prompt);
+  const { error } = await sb.from('sc_comments').insert({
+    target_type: 'feedback_request', target_id: requestId,
+    body: md, author_auth_id: State.session.user.id,
+  });
+  if (error) { toast('Save failed: ' + error.message, 'err'); return; }
+  toast('Saved as comment');
+  closeModal();
+  if (State.view === 'fb_detail' && State.fbDetailId === requestId) render();
+}
+
 function subscribeToNotifications() {
   if (State.realtimeChannel) sb.removeChannel(State.realtimeChannel);
   const me = State.session.user.id;
@@ -1880,6 +2254,11 @@ window.openNewSubmission = function openNewSubmission() {
       subSelect,
       State.profile.kind === 'manager' ? el('div', { class: 'hint', style: 'margin-top:6px;' }, newSubBtn) : null,
     ),
+  ));
+  card.appendChild(el('div', { class: 'suggest-banner', style: 'display:none;', id: 'suggestBanner' }));
+  card.appendChild(el('div', { style: 'margin:-4px 0 8px;' },
+    el('button', { type: 'button', class: 'btn ai-btn small', onclick: doSuggestCategory, title: 'Have AI suggest a category based on your title and problem' },
+      el('span', { class: 'ai-marker' }, 'AI'), document.createTextNode(' Suggest category')),
   ));
 
   // Severity
