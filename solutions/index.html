@@ -414,6 +414,259 @@ main { padding: 28px 0 60px; }
 }
 .toast.err { background: var(--red); }
 
+/* TAB NAV */
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 0;
+}
+.tab {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--ink); border-bottom-color: var(--gold); }
+.tab .count {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+  margin-left: 6px;
+}
+
+/* NOTIFICATION BELL */
+.bell-wrap { position: relative; display: inline-flex; }
+.bell-btn {
+  position: relative;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.bell-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.bell-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  background: var(--red);
+  color: #fff;
+  border-radius: 10px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+  border: 1.5px solid var(--ink);
+}
+.bell-drawer {
+  position: absolute;
+  top: 44px; right: 0;
+  width: min(380px, 90vw);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: 0 12px 36px rgba(15,32,56,0.18);
+  z-index: 700;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.bell-drawer .drawer-head {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+.bell-drawer .drawer-head strong { color: var(--ink); font-size: 0.95rem; }
+.bell-drawer .drawer-head a { font-size: 0.8rem; cursor: pointer; }
+.notif-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line-soft);
+  cursor: pointer;
+  background: #fff;
+  transition: background 0.1s;
+}
+.notif-item:hover { background: var(--warm); }
+.notif-item.unread { background: #FFFCEF; }
+.notif-item.unread:hover { background: #FFF7DA; }
+.notif-item .notif-title { font-size: 0.88rem; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
+.notif-item .notif-body { font-size: 0.82rem; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.notif-item .notif-time { font-size: 0.72rem; color: var(--subtle); margin-top: 4px; }
+.notif-empty { padding: 28px 16px; text-align: center; color: var(--muted); font-size: 0.88rem; }
+
+/* DETAIL ACTIONS */
+.action-bar {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin: 0 0 18px;
+  padding: 12px 0 14px;
+  border-bottom: 1px solid var(--line-soft);
+  align-items: center;
+}
+.action-bar .label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-right: 4px; }
+.action-bar .spacer { flex: 1; }
+
+.solution-actions, .component-actions {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line-soft);
+}
+.solution-actions .btn, .component-actions .btn { padding: 4px 10px; font-size: 0.78rem; }
+
+.decision-btn-approve { background: var(--green); color: var(--ink); border-color: var(--green-dk); }
+.decision-btn-approve:hover:not(:disabled) { background: var(--green-dk); color: #fff; }
+.decision-btn-deny { background: transparent; color: var(--red); border-color: #F1CACA; }
+.decision-btn-deny:hover:not(:disabled) { background: #FCE8E8; }
+.decision-btn-consider { background: transparent; color: var(--gold-dk); border-color: #F5D993; }
+.decision-btn-consider:hover:not(:disabled) { background: #FFF5E0; }
+.decision-btn-refine { background: transparent; color: var(--blue-dk); border-color: #BDDEF3; }
+.decision-btn-refine:hover:not(:disabled) { background: #E8F3FC; }
+
+/* COMMENTS */
+.comments {
+  margin-top: 8px;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 14px;
+}
+.comments h4 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.comment {
+  background: var(--warm);
+  border-left: 3px solid var(--line);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.comment .comment-head { font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
+.comment .comment-head strong { color: var(--ink-soft); }
+.comment .comment-body { color: var(--text); font-size: 0.92rem; white-space: pre-wrap; }
+.comment-composer { margin-top: 12px; }
+.comment-composer textarea {
+  width: 100%;
+  min-height: 60px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  resize: vertical;
+}
+.comment-composer .row { display: flex; justify-content: flex-end; margin-top: 6px; }
+
+/* TIMELINE */
+.timeline { margin: 10px 0; }
+.timeline-item {
+  display: flex; gap: 10px;
+  padding: 8px 0;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+.timeline-item:last-child { border-bottom: none; }
+.timeline-item .ti-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-top: 6px;
+  flex: 0 0 auto;
+}
+.timeline-item .ti-body { flex: 1; color: var(--text); }
+.timeline-item .ti-body .ti-meta { color: var(--muted); font-size: 0.78rem; }
+
+/* DECISION HISTORY ON SOLUTION/COMPONENT */
+.decision-log {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(15,32,56,0.03);
+  border-radius: var(--r-sm);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.decision-log .d-row { padding: 2px 0; }
+.decision-log .d-row strong { color: var(--ink-soft); }
+
+/* FEEDBACK REQUEST LIST */
+.fr-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue);
+  border-radius: var(--r-lg);
+  padding: 18px 22px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.fr-card:hover { border-color: var(--blue); box-shadow: var(--shadow-md); }
+.fr-card.closed { border-left-color: var(--subtle); opacity: 0.78; }
+.fr-card .fr-prompt {
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  color: var(--ink);
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.fr-card .fr-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.fr-card .fr-meta .sep { color: var(--subtle); }
+.recipient-pill-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.recipient-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  background: #E8F3FC;
+  color: var(--blue-dk);
+  border-radius: 12px;
+}
+.recipient-pill .x {
+  background: transparent;
+  border: none;
+  color: var(--blue-dk);
+  cursor: pointer;
+  padding: 0;
+  margin-left: 2px;
+}
+
+.response-card {
+  background: var(--warm);
+  border-radius: var(--r-md);
+  padding: 12px 16px;
+  margin-bottom: 10px;
+}
+.response-card .resp-head { font-size: 0.82rem; color: var(--muted); margin-bottom: 6px; }
+.response-card .resp-head strong { color: var(--ink-soft); }
+.response-card .resp-body { color: var(--text); font-size: 0.92rem; white-space: pre-wrap; }
+
 /* INTRO BANNER (HR redirect) */
 .hr-banner {
   background: #FFF7E5;
@@ -486,7 +739,14 @@ footer a { color: var(--blue-dk); }
       </div>
       <div class="header-actions">
         <span class="user-chip" id="userChip"></span>
+        <div class="bell-wrap">
+          <button class="bell-btn" id="bellBtn" onclick="toggleBell(event)" title="Notifications">
+            <span>&#x1F514;</span>
+            <span class="bell-badge" id="bellBadge" style="display:none">0</span>
+          </button>
+        </div>
         <button class="header-btn" id="categoriesBtn" style="display:none" onclick="openCategoryAdmin()">Categories</button>
+        <button class="header-btn" id="newFbBtn" style="display:none" onclick="openNewFeedbackRequest()">+ Ask Managers</button>
         <button class="header-btn primary" onclick="openNewSubmission()">+ New Submission</button>
         <a href="https://ct-resource-page.com/" class="back-link">&larr; Resources</a>
       </div>
@@ -494,16 +754,22 @@ footer a { color: var(--blue-dk); }
   </div>
 
   <div class="tools-bar" id="toolsBar">
-    <div class="wrap">
-      <div class="filter-chips" id="filterChips">
-        <button class="chip active" data-filter="all">All</button>
-        <button class="chip" data-filter="mine">Mine</button>
-        <button class="chip" data-filter="inbox">Inbox</button>
-        <button class="chip" data-filter="open">Open</button>
-        <button class="chip" data-filter="resolved">Resolved</button>
+    <div class="wrap" style="flex-direction:column;align-items:stretch;gap:10px;">
+      <div class="tabs">
+        <button class="tab active" data-tab="submissions" onclick="setTab('submissions')">Submissions</button>
+        <button class="tab" data-tab="feedback" onclick="setTab('feedback')">Feedback Requests <span class="count" id="fbCount" style="display:none">0</span></button>
       </div>
-      <div class="search-wrap">
-        <input type="text" id="searchInput" placeholder="Search title, problem, impact&hellip;">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;" id="filterRow">
+        <div class="filter-chips" id="filterChips">
+          <button class="chip active" data-filter="all">All</button>
+          <button class="chip" data-filter="mine">Mine</button>
+          <button class="chip" data-filter="inbox">Inbox</button>
+          <button class="chip" data-filter="open">Open</button>
+          <button class="chip" data-filter="resolved">Resolved</button>
+        </div>
+        <div class="search-wrap">
+          <input type="text" id="searchInput" placeholder="Search title, problem, impact&hellip;">
+        </div>
       </div>
     </div>
   </div>
@@ -544,13 +810,20 @@ const BUCKET = 'solutions-center';
 const State = {
   profile: null,
   session: null,
-  view: 'list',          // 'list' | 'detail' | 'new'
+  tab: 'submissions',    // 'submissions' | 'feedback'
+  view: 'list',          // 'list' | 'detail' | 'new' | 'fb_list' | 'fb_detail'
   detailId: null,
+  fbDetailId: null,
   filter: 'all',
   search: '',
   submissions: [],
+  feedbackRequests: [],
   categories: [],
   subcategories: [],
+  notifications: [],
+  unreadCount: 0,
+  bellOpen: false,
+  realtimeChannel: null,
   // auth_user_id -> { name, kind, tier }
   userLookup: new Map(),
 };
@@ -605,11 +878,13 @@ function tierLabel(t) {
 
 async function loadUserLookup() {
   // Pull both tables so we can render any auth_user_id we encounter.
+  // Also cache the full manager hierarchy so we can compute escalation targets.
   const [mgrs, reps] = await Promise.all([
-    sb.from('managers').select('auth_user_id, name, tier').not('auth_user_id', 'is', null),
+    sb.from('managers').select('id, auth_user_id, name, tier, parent_manager_id').not('auth_user_id', 'is', null),
     sb.from('reps').select('auth_user_id, name').not('auth_user_id', 'is', null),
   ]);
   State.userLookup.clear();
+  State.managerHierarchy = mgrs.data || [];
   for (const m of (mgrs.data || [])) {
     State.userLookup.set(m.auth_user_id, { name: m.name, kind: 'manager', tier: m.tier });
   }
@@ -654,26 +929,117 @@ async function loadSubmissions() {
 }
 
 async function loadSubmissionDetail(id) {
-  const [sub, sols, comps, atts] = await Promise.all([
+  const [sub, sols, comps, atts, escEvents, comments] = await Promise.all([
     sb.from('sc_submissions').select('*').eq('id', id).maybeSingle(),
     sb.from('sc_solutions').select('*').eq('submission_id', id).order('position').order('created_at'),
     sb.from('sc_solution_components').select('*, sc_solutions!inner(submission_id)').eq('sc_solutions.submission_id', id).order('position').order('created_at'),
     sb.from('sc_attachments').select('*').eq('target_type', 'submission').eq('target_id', id).order('created_at'),
+    sb.from('sc_escalation_events').select('*').eq('submission_id', id).order('created_at'),
+    sb.from('sc_comments').select('*').eq('target_type', 'submission').eq('target_id', id).order('created_at'),
   ]);
   if (sub.error || !sub.data) {
     toast('Submission not found or access denied', 'err');
     return null;
   }
-  // Components linked to solutions in this submission.
+  // Pull decisions for all solutions + components in this submission.
+  const solIds = (sols.data || []).map(s => s.id);
+  const compIds = (comps.data || []).map(c => c.id);
+  let decisions = [];
+  if (solIds.length || compIds.length) {
+    const { data: ds } = await sb.from('sc_decisions')
+      .select('*')
+      .or(
+        (solIds.length ? 'solution_id.in.(' + solIds.join(',') + ')' : 'solution_id.is.null') +
+        ',' +
+        (compIds.length ? 'component_id.in.(' + compIds.join(',') + ')' : 'component_id.is.null')
+      )
+      .order('decided_at');
+    decisions = ds || [];
+  }
   const sols2 = (sols.data || []).map(s => ({
     ...s,
     components: (comps.data || []).filter(c => c.solution_id === s.id),
+    decisions: decisions.filter(d => d.solution_id === s.id),
   }));
+  for (const s of sols2) {
+    for (const c of s.components) {
+      c.decisions = decisions.filter(d => d.component_id === c.id);
+    }
+  }
   return {
     submission: sub.data,
     solutions: sols2,
     attachments: atts.data || [],
+    escalationEvents: escEvents.data || [],
+    comments: comments.data || [],
   };
+}
+
+async function loadNotifications() {
+  const { data, error } = await sb.from('sc_notifications')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) { console.warn('Notifications load failed:', error.message); return; }
+  State.notifications = data || [];
+  State.unreadCount = State.notifications.filter(n => !n.read_at).length;
+  refreshBellBadge();
+}
+
+async function loadFeedbackRequests() {
+  const { data, error } = await sb.from('sc_feedback_requests')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) { console.warn('Feedback requests load failed:', error.message); State.feedbackRequests = []; return; }
+  State.feedbackRequests = data || [];
+  const openForMe = State.feedbackRequests.filter(f => f.status === 'open').length;
+  const cnt = $('fbCount');
+  if (cnt) {
+    if (openForMe > 0) { cnt.textContent = openForMe; cnt.style.display = ''; }
+    else { cnt.style.display = 'none'; }
+  }
+}
+
+async function loadFeedbackRequestDetail(id) {
+  const [req, recips, responses, comments] = await Promise.all([
+    sb.from('sc_feedback_requests').select('*').eq('id', id).maybeSingle(),
+    sb.from('sc_feedback_request_recipients').select('*').eq('request_id', id),
+    sb.from('sc_feedback_responses').select('*').eq('request_id', id).order('created_at'),
+    sb.from('sc_comments').select('*').eq('target_type', 'feedback_request').eq('target_id', id).order('created_at'),
+  ]);
+  if (req.error || !req.data) { toast('Feedback request not found or access denied', 'err'); return null; }
+  return {
+    request: req.data,
+    recipients: recips.data || [],
+    responses: responses.data || [],
+    comments: comments.data || [],
+  };
+}
+
+async function markNotificationRead(id) {
+  const n = State.notifications.find(x => x.id === id);
+  if (!n || n.read_at) return;
+  const { error } = await sb.from('sc_notifications')
+    .update({ read_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) { console.warn('Mark read failed:', error.message); return; }
+  n.read_at = new Date().toISOString();
+  State.unreadCount = Math.max(0, State.unreadCount - 1);
+  refreshBellBadge();
+}
+
+async function markAllNotificationsRead() {
+  const unread = State.notifications.filter(n => !n.read_at);
+  if (unread.length === 0) return;
+  const ids = unread.map(n => n.id);
+  const { error } = await sb.from('sc_notifications')
+    .update({ read_at: new Date().toISOString() })
+    .in('id', ids);
+  if (error) { toast('Mark-all failed: ' + error.message, 'err'); return; }
+  for (const n of unread) n.read_at = new Date().toISOString();
+  State.unreadCount = 0;
+  refreshBellBadge();
+  if (State.bellOpen) renderBellDrawer();
 }
 
 // ── rendering ───────────────────────────────────────────────────────────
@@ -683,9 +1049,26 @@ function render() {
   root.innerHTML = '';
   if (State.view === 'detail' && State.detailId) {
     renderDetail(root, State.detailId);
+  } else if (State.view === 'fb_detail' && State.fbDetailId) {
+    renderFeedbackDetail(root, State.fbDetailId);
+  } else if (State.tab === 'feedback') {
+    renderFeedbackList(root);
   } else {
     renderList(root);
   }
+}
+
+function setTab(tab) {
+  State.tab = tab;
+  State.view = 'list';
+  State.detailId = null;
+  State.fbDetailId = null;
+  document.querySelectorAll('.tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  // Hide the submission filter row on the feedback tab
+  const fr = $('filterRow');
+  if (fr) fr.style.display = (tab === 'feedback') ? 'none' : '';
+  window.location.hash = (tab === 'feedback') ? 'fb' : '';
+  render();
 }
 
 function applyFilter(s) {
@@ -758,6 +1141,14 @@ async function renderDetail(root, id) {
   const d = await loadSubmissionDetail(id);
   if (!d) { State.view = 'list'; State.detailId = null; render(); return; }
   const s = d.submission;
+  const me = State.session.user.id;
+  const isOwner = (s.current_owner_auth_id === me);
+  const isOriginator = (s.originator_auth_id === me);
+  const isAdmin = !!State.profile.is_admin;
+  const canEscalate = isOwner || isOriginator || isAdmin;
+  const canDecide = isOwner || isAdmin;
+  const canChangeStatus = isOwner || isOriginator || isAdmin;
+
   const catMap = new Map(State.categories.map(c => [c.id, c.name]));
   const subMap = new Map(State.subcategories.map(x => [x.id, x.name]));
   const orig = userName(s.originator_auth_id) || 'Unknown';
@@ -768,17 +1159,14 @@ async function renderDetail(root, id) {
   const subLabel = (s.subcategory_id ? (subMap.get(s.subcategory_id) || '') : '');
 
   const shell = el('div', { class: 'detail-shell' });
-  shell.appendChild(el('div', { class: 'crumbs' },
-    el('a', { onclick: () => goto('') }, '&larr; All submissions'.replace('&larr;', '<<' ) ),
-  ));
-  // Replace the placeholder we just made
-  shell.querySelector('.crumbs').innerHTML = '<a onclick="goto(\'\')">&larr; All submissions</a>';
+  const crumbs = el('div', { class: 'crumbs' });
+  crumbs.innerHTML = '<a onclick="goto(\'\')">&larr; All submissions</a>';
+  shell.appendChild(crumbs);
 
-  const titleRow = el('div', { class: 'title-row' },
+  shell.appendChild(el('div', { class: 'title-row' },
     el('h1', {}, s.title),
     el('span', { class: 'badge ' + s.status }, statusLabel(s.status)),
-  );
-  shell.appendChild(titleRow);
+  ));
   const metaBits = [];
   if (s.severity) metaBits.push('<span class="sev ' + s.severity + '">' + s.severity + '</span>');
   if (catLabel) metaBits.push(escapeHtml(catLabel + (subLabel ? ' / ' + subLabel : '')));
@@ -788,15 +1176,37 @@ async function renderDetail(root, id) {
   }
   metaBits.push('Created ' + fmtDate(s.created_at));
   metaBits.push('Updated ' + fmtDate(s.updated_at));
-  const meta = el('div', { class: 'meta-row', html: metaBits.join(' &middot; ') });
-  shell.appendChild(meta);
+  shell.appendChild(el('div', { class: 'meta-row', html: metaBits.join(' &middot; ') }));
+
+  // Action bar
+  if (canChangeStatus || canEscalate) {
+    const bar = el('div', { class: 'action-bar' });
+    bar.appendChild(el('span', { class: 'label' }, 'Actions:'));
+    if (canEscalate) {
+      const parentName = computeParentName(s.current_owner_auth_id);
+      const escLabel = parentName ? ('Escalate to ' + parentName) : 'Escalate';
+      bar.appendChild(el('button', { class: 'btn primary small', onclick: () => doEscalate(s.id), disabled: !parentName }, escLabel));
+    }
+    if (canChangeStatus) {
+      const statusSelect = el('select', { id: 'detailStatusSelect', style: 'padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:0.85rem;' });
+      const opts = ['open','awaiting_refinement','escalated','ready_for_vp','sent_to_corporate','in_progress','resolved','closed','parked','declined'];
+      for (const st of opts) {
+        const opt = el('option', { value: st }, statusLabel(st));
+        if (st === s.status) opt.selected = true;
+        statusSelect.appendChild(opt);
+      }
+      bar.appendChild(el('span', { style: 'font-size:0.82rem;color:var(--muted);' }, 'Set status:'));
+      bar.appendChild(statusSelect);
+      bar.appendChild(el('button', { class: 'btn ghost small', onclick: () => doStatusChange(s.id, statusSelect.value) }, 'Apply'));
+    }
+    shell.appendChild(bar);
+  }
 
   // Problem
   shell.appendChild(el('div', { class: 'section' },
     el('h3', {}, 'Problem'),
     el('div', { class: 'prose' }, s.problem || ''),
   ));
-  // Impact
   if (s.impact) {
     shell.appendChild(el('div', { class: 'section' },
       el('h3', {}, 'Impact'),
@@ -815,36 +1225,132 @@ async function renderDetail(root, id) {
   shell.appendChild(evidenceSection);
 
   // Solutions
-  shell.appendChild(el('div', { class: 'section' },
-    el('h3', {}, 'Proposed Solutions'),
-  ));
+  shell.appendChild(el('div', { class: 'section' }, el('h3', {}, 'Proposed Solutions')));
   if (d.solutions.length === 0) {
     shell.appendChild(el('div', { class: 'prose', style: 'color:var(--muted);font-size:0.9rem;margin-bottom:14px;' }, 'No solutions yet.'));
   } else {
     for (const sol of d.solutions) {
-      const proposerName = userName(sol.proposed_by_auth_id) || 'Unknown';
-      const card = el('div', { class: 'solution-card' });
-      card.appendChild(el('div', { class: 'sol-head' },
-        el('h4', {}, sol.title),
-        el('span', { class: 'badge ' + (sol.status === 'proposed' ? 'open' : sol.status) }, sol.status),
-      ));
-      card.appendChild(el('div', { class: 'card-meta', html: 'Proposed by <strong>' + escapeHtml(proposerName) + '</strong> &middot; ' + fmtDate(sol.created_at) }));
-      if (sol.summary) card.appendChild(el('div', { class: 'prose', style: 'margin-top:8px;' }, sol.summary));
-      for (const c of sol.components) {
-        card.appendChild(el('div', { class: 'component' },
-          el('div', { class: 'comp-head' },
-            el('div', { class: 'comp-title' }, c.title),
-            el('span', { class: 'badge ' + (c.status === 'proposed' ? 'open' : c.status) }, c.status),
-          ),
-          c.body ? el('div', { class: 'comp-body' }, c.body) : null,
-        ));
-      }
-      shell.appendChild(card);
+      shell.appendChild(renderSolutionCard(sol, canDecide));
     }
   }
 
+  // Escalation timeline
+  if (d.escalationEvents.length > 0) {
+    const tlSec = el('div', { class: 'section' }, el('h3', {}, 'Escalation Timeline'));
+    const tl = el('div', { class: 'timeline' });
+    for (const ev of d.escalationEvents) {
+      const fromN = userName(ev.from_auth_id) || 'Someone';
+      const toN = userName(ev.to_auth_id) || 'Someone';
+      tl.appendChild(el('div', { class: 'timeline-item' },
+        el('div', { class: 'ti-dot' }),
+        el('div', { class: 'ti-body' },
+          el('div', {}, escapeHtml(fromN) + ' → ' + escapeHtml(toN)),
+          el('div', { class: 'ti-meta' }, fmtDate(ev.created_at) + (ev.note ? ' · ' + ev.note : '')),
+        ),
+      ));
+    }
+    tlSec.appendChild(tl);
+    shell.appendChild(tlSec);
+  }
+
+  // Comments
+  const commentsSec = el('div', { class: 'section comments' });
+  commentsSec.appendChild(el('h4', {}, 'Discussion (' + d.comments.length + ')'));
+  for (const c of d.comments) commentsSec.appendChild(renderComment(c));
+  commentsSec.appendChild(renderCommentComposer('submission', s.id));
+  shell.appendChild(commentsSec);
+
   root.innerHTML = '';
   root.appendChild(shell);
+}
+
+function renderSolutionCard(sol, canDecide) {
+  const proposerName = userName(sol.proposed_by_auth_id) || 'Unknown';
+  const card = el('div', { class: 'solution-card' });
+  card.appendChild(el('div', { class: 'sol-head' },
+    el('h4', {}, sol.title),
+    el('span', { class: 'badge ' + (sol.status === 'proposed' ? 'open' : sol.status) }, sol.status),
+  ));
+  card.appendChild(el('div', { class: 'card-meta', html: 'Proposed by <strong>' + escapeHtml(proposerName) + '</strong> &middot; ' + fmtDate(sol.created_at) }));
+  if (sol.summary) card.appendChild(el('div', { class: 'prose', style: 'margin-top:8px;' }, sol.summary));
+  // Decision actions
+  card.appendChild(renderDecisionActions('solution', sol.id, canDecide));
+  if (sol.decisions && sol.decisions.length > 0) card.appendChild(renderDecisionLog(sol.decisions));
+  // Components
+  for (const c of sol.components) {
+    const compNode = el('div', { class: 'component' },
+      el('div', { class: 'comp-head' },
+        el('div', { class: 'comp-title' }, c.title),
+        el('span', { class: 'badge ' + (c.status === 'proposed' ? 'open' : c.status) }, c.status),
+      ),
+      c.body ? el('div', { class: 'comp-body' }, c.body) : null,
+    );
+    compNode.appendChild(renderDecisionActions('component', c.id, canDecide));
+    if (c.decisions && c.decisions.length > 0) compNode.appendChild(renderDecisionLog(c.decisions));
+    card.appendChild(compNode);
+  }
+  return card;
+}
+
+function renderDecisionActions(targetType, targetId, canDecide) {
+  const wrap = el('div', { class: targetType === 'solution' ? 'solution-actions' : 'component-actions' });
+  if (canDecide) {
+    wrap.appendChild(el('button', { class: 'btn decision-btn-approve small', onclick: () => doDecide(targetType, targetId, 'approve') }, 'Approve'));
+    wrap.appendChild(el('button', { class: 'btn decision-btn-deny small', onclick: () => doDecide(targetType, targetId, 'deny') }, 'Deny'));
+  }
+  wrap.appendChild(el('button', { class: 'btn decision-btn-consider small', onclick: () => doDecide(targetType, targetId, 'consider') }, 'Consider'));
+  wrap.appendChild(el('button', { class: 'btn decision-btn-refine small', onclick: () => doDecide(targetType, targetId, 'refine') }, 'Refine'));
+  if (canDecide) {
+    wrap.appendChild(el('button', { class: 'btn ghost small', onclick: () => doDecide(targetType, targetId, 'reset') }, 'Reset'));
+  }
+  return wrap;
+}
+
+function renderDecisionLog(decisions) {
+  const log = el('div', { class: 'decision-log' });
+  for (const d of decisions) {
+    const who = userName(d.decided_by_auth_id) || 'Unknown';
+    log.appendChild(el('div', { class: 'd-row' },
+      document.createTextNode(fmtDate(d.decided_at) + ' · '),
+      el('strong', {}, who),
+      document.createTextNode(' ' + d.decision + (d.rationale ? ' — ' + d.rationale : '')),
+    ));
+  }
+  return log;
+}
+
+function renderComment(c) {
+  const author = userName(c.author_auth_id) || 'Unknown';
+  return el('div', { class: 'comment' },
+    el('div', { class: 'comment-head', html: '<strong>' + escapeHtml(author) + '</strong> &middot; ' + fmtDate(c.created_at) }),
+    el('div', { class: 'comment-body' }, c.body),
+  );
+}
+
+function renderCommentComposer(targetType, targetId) {
+  const wrap = el('div', { class: 'comment-composer' });
+  const ta = el('textarea', { placeholder: 'Add to the discussion. Stay constructive.' });
+  wrap.appendChild(ta);
+  wrap.appendChild(el('div', { class: 'row' },
+    el('button', { class: 'btn primary small', onclick: async () => {
+      const body = ta.value.trim();
+      if (!body) return;
+      await postComment(targetType, targetId, body);
+      ta.value = '';
+    }}, 'Post comment'),
+  ));
+  return wrap;
+}
+
+function computeParentName(authId) {
+  // Find the manager record for authId and return their parent_manager_id's name.
+  // We don't have parent_manager_id in userLookup, so fall back to a synchronous lookup.
+  // Since the parent chain is short, we cache the manager list at initApp.
+  if (!State.managerHierarchy) return null;
+  const me = State.managerHierarchy.find(m => m.auth_user_id === authId);
+  if (!me || !me.parent_manager_id) return null;
+  const parent = State.managerHierarchy.find(m => m.id === me.parent_manager_id);
+  return parent ? parent.name : null;
 }
 
 function renderAttachmentChip(a) {
@@ -871,32 +1377,437 @@ async function downloadAttachment(a) {
   window.open(data.signedUrl, '_blank');
 }
 
+// ── action handlers ────────────────────────────────────────────────────
+
+async function doEscalate(submissionId) {
+  const note = prompt('Add a note for the person you\'re escalating to (optional):');
+  if (note === null) return; // cancelled
+  const { data, error } = await sb.rpc('sc_escalate_submission', {
+    p_submission_id: submissionId, p_note: note || null
+  });
+  if (error) { toast('Escalate failed: ' + error.message, 'err'); return; }
+  toast('Escalated');
+  await loadSubmissions();
+  if (State.view === 'detail' && State.detailId === submissionId) render();
+}
+
+async function doStatusChange(submissionId, newStatus) {
+  const { error } = await sb.rpc('sc_set_submission_status', {
+    p_submission_id: submissionId, p_status: newStatus, p_note: null
+  });
+  if (error) { toast('Status change failed: ' + error.message, 'err'); return; }
+  toast('Status updated');
+  await loadSubmissions();
+  if (State.view === 'detail' && State.detailId === submissionId) render();
+}
+
+async function doDecide(targetType, targetId, decision) {
+  let rationale = null;
+  if (decision === 'deny' || decision === 'refine') {
+    rationale = prompt('Why? (rationale will show in the decision log):');
+    if (rationale === null) return; // cancelled
+  }
+  const { error } = await sb.rpc('sc_record_decision', {
+    p_target_type: targetType, p_target_id: targetId,
+    p_decision: decision, p_rationale: rationale || null
+  });
+  if (error) { toast('Decision failed: ' + error.message, 'err'); return; }
+  toast(decision.charAt(0).toUpperCase() + decision.slice(1) + 'd');
+  if (State.view === 'detail' && State.detailId) render();
+}
+
+async function postComment(targetType, targetId, body) {
+  const { error } = await sb.from('sc_comments').insert({
+    target_type: targetType, target_id: targetId,
+    body, author_auth_id: State.session.user.id,
+  });
+  if (error) { toast('Comment failed: ' + error.message, 'err'); return; }
+  toast('Posted');
+  if (State.view === 'detail' && State.detailId) render();
+  if (State.view === 'fb_detail' && State.fbDetailId) render();
+}
+
+// ── feedback requests ──────────────────────────────────────────────────
+
+function renderFeedbackList(root) {
+  const visible = State.feedbackRequests;
+  if (visible.length === 0) {
+    root.appendChild(el('div', { class: 'empty-state' },
+      el('h3', {}, 'No feedback requests'),
+      el('p', {}, 'Managers can ask the field a targeted question and collect tracked responses here.'),
+      State.profile.is_admin ? el('button', { class: 'btn primary', onclick: openNewFeedbackRequest }, '+ Ask Managers') : null
+    ));
+    return;
+  }
+  const list = el('div', { class: 'list' });
+  for (const f of visible) {
+    const creator = userName(f.created_by_auth_id) || 'Unknown';
+    const card = el('div', { class: 'fr-card' + (f.status === 'closed' ? ' closed' : ''), onclick: () => goto('fb/' + f.id) });
+    card.appendChild(el('div', { class: 'fr-prompt' }, f.prompt));
+    card.appendChild(el('div', { class: 'fr-meta' },
+      el('span', { class: 'badge ' + (f.status === 'open' ? 'open' : 'closed') }, f.status),
+      el('span', { class: 'sep' }, '|'),
+      el('span', { html: 'From <strong>' + escapeHtml(creator) + '</strong>' }),
+      el('span', { class: 'sep' }, '|'),
+      el('span', {}, fmtDate(f.created_at)),
+    ));
+    list.appendChild(card);
+  }
+  root.appendChild(list);
+}
+
+async function renderFeedbackDetail(root, id) {
+  root.innerHTML = '<div class="empty-state"><p>Loading&hellip;</p></div>';
+  const d = await loadFeedbackRequestDetail(id);
+  if (!d) { State.view = 'list'; State.fbDetailId = null; setTab('feedback'); return; }
+  const me = State.session.user.id;
+  const r = d.request;
+  const isCreator = (r.created_by_auth_id === me);
+  const isAdmin = !!State.profile.is_admin;
+  const isRecipient = d.recipients.some(x => x.auth_user_id === me);
+  const myResponse = d.responses.find(x => x.responder_auth_id === me);
+
+  const shell = el('div', { class: 'detail-shell' });
+  const crumbs = el('div', { class: 'crumbs' });
+  crumbs.innerHTML = '<a onclick="setTab(\'feedback\')">&larr; All feedback requests</a>';
+  shell.appendChild(crumbs);
+
+  shell.appendChild(el('div', { class: 'title-row' },
+    el('h1', {}, r.prompt),
+    el('span', { class: 'badge ' + (r.status === 'open' ? 'open' : 'closed') }, r.status),
+  ));
+  const creator = userName(r.created_by_auth_id) || 'Unknown';
+  const bits = [
+    'From <strong>' + escapeHtml(creator) + '</strong>',
+    'Opened ' + fmtDate(r.created_at),
+    d.responses.length + ' response' + (d.responses.length === 1 ? '' : 's'),
+  ];
+  if (r.closes_at) bits.push('Closes ' + fmtDate(r.closes_at));
+  shell.appendChild(el('div', { class: 'meta-row', html: bits.join(' &middot; ') }));
+
+  // Action bar (close button for creator/admin)
+  if ((isCreator || isAdmin) && r.status === 'open') {
+    const bar = el('div', { class: 'action-bar' });
+    bar.appendChild(el('span', { class: 'label' }, 'Actions:'));
+    bar.appendChild(el('button', { class: 'btn ghost small', onclick: async () => {
+      if (!confirm('Close this request? No more responses can be added.')) return;
+      const { error } = await sb.from('sc_feedback_requests').update({ status: 'closed' }).eq('id', r.id);
+      if (error) { toast('Close failed: ' + error.message, 'err'); return; }
+      toast('Closed');
+      await loadFeedbackRequests();
+      render();
+    }}, 'Close request'));
+    shell.appendChild(bar);
+  }
+
+  if (r.context) {
+    shell.appendChild(el('div', { class: 'section' },
+      el('h3', {}, 'Context'),
+      el('div', { class: 'prose' }, r.context),
+    ));
+  }
+
+  // Recipients
+  const rs = el('div', { class: 'section' }, el('h3', {}, 'Recipients (' + d.recipients.length + ')'));
+  const pillBox = el('div', { class: 'recipient-pill-list' });
+  for (const rec of d.recipients) {
+    const respondedFlag = d.responses.find(x => x.responder_auth_id === rec.auth_user_id) ? ' ✓' : '';
+    pillBox.appendChild(el('span', { class: 'recipient-pill' }, (userName(rec.auth_user_id) || 'Unknown') + respondedFlag));
+  }
+  rs.appendChild(pillBox);
+  shell.appendChild(rs);
+
+  // Responses
+  const respSec = el('div', { class: 'section' }, el('h3', {}, 'Responses'));
+  if (d.responses.length === 0) {
+    respSec.appendChild(el('div', { class: 'prose', style: 'color:var(--muted);font-size:0.9rem;' }, 'No responses yet.'));
+  } else {
+    for (const rp of d.responses) {
+      const who = userName(rp.responder_auth_id) || 'Unknown';
+      respSec.appendChild(el('div', { class: 'response-card' },
+        el('div', { class: 'resp-head', html: '<strong>' + escapeHtml(who) + '</strong> &middot; ' + fmtDate(rp.created_at) }),
+        el('div', { class: 'resp-body' }, rp.response_body),
+      ));
+    }
+  }
+  shell.appendChild(respSec);
+
+  // Respond composer (recipients only, if request is open and they haven't responded)
+  if (isRecipient && r.status === 'open' && !myResponse) {
+    const compSec = el('div', { class: 'section' }, el('h3', {}, 'Your response'));
+    const ta = el('textarea', { placeholder: 'Specific examples land harder than general impressions.', style: 'width:100%;min-height:100px;font-family:Manrope,sans-serif;font-size:0.95rem;padding:10px 12px;border:1px solid var(--line);border-radius:8px;' });
+    compSec.appendChild(ta);
+    compSec.appendChild(el('div', { style: 'display:flex;justify-content:flex-end;margin-top:8px;' },
+      el('button', { class: 'btn primary', onclick: async () => {
+        const body = ta.value.trim();
+        if (!body) { toast('Write a response first', 'err'); return; }
+        const { error } = await sb.from('sc_feedback_responses').insert({
+          request_id: r.id, response_body: body, responder_auth_id: me
+        });
+        if (error) { toast('Response failed: ' + error.message, 'err'); return; }
+        toast('Response sent');
+        render();
+      }}, 'Submit response'),
+    ));
+    shell.appendChild(compSec);
+  } else if (myResponse) {
+    shell.appendChild(el('div', { class: 'section' },
+      el('div', { class: 'prose', style: 'color:var(--green-dk);font-size:0.9rem;' }, 'You responded ' + fmtDate(myResponse.created_at) + '.'),
+    ));
+  }
+
+  // Comments thread on the feedback request (for clarifying questions)
+  const commentsSec = el('div', { class: 'section comments' });
+  commentsSec.appendChild(el('h4', {}, 'Discussion (' + d.comments.length + ')'));
+  for (const c of d.comments) commentsSec.appendChild(renderComment(c));
+  if (isCreator || isRecipient || isAdmin) {
+    commentsSec.appendChild(renderCommentComposer('feedback_request', r.id));
+  }
+  shell.appendChild(commentsSec);
+
+  root.innerHTML = '';
+  root.appendChild(shell);
+}
+
+window.openNewFeedbackRequest = function openNewFeedbackRequest() {
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const card = el('div', { class: 'modal-card' });
+  card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
+  card.appendChild(el('h2', {}, 'Ask managers for feedback'));
+  card.appendChild(el('div', { class: 'sub' }, 'A targeted question that goes to selected managers. Responses come back tracked.'));
+
+  card.appendChild(el('div', { class: 'field' },
+    el('label', { html: 'Prompt <span class="req">*</span>' }),
+    el('input', { type: 'text', id: 'fbPrompt', maxlength: '300', placeholder: 'What are you asking them?' })
+  ));
+  card.appendChild(el('div', { class: 'field' },
+    el('label', {}, 'Context'),
+    el('textarea', { id: 'fbContext', placeholder: 'Optional background. Why are you asking?' })
+  ));
+
+  // Recipients (managers only; exclude self)
+  card.appendChild(el('div', { class: 'field' },
+    el('label', {}, 'Send to'),
+    el('div', { class: 'hint' }, 'Pick the managers you want to hear from.'),
+    el('div', { id: 'fbRecipients', style: 'display:flex;flex-direction:column;gap:6px;margin-top:6px;max-height:220px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:8px;' }),
+  ));
+  const me = State.session.user.id;
+  const list = $('fbRecipients') || card.querySelector('#fbRecipients');
+  const orderedManagers = (State.managerHierarchy || [])
+    .filter(m => m.auth_user_id && m.auth_user_id !== me)
+    .sort((a, b) => {
+      const order = { vp: 1, regional: 2, dm: 3, adm: 4 };
+      return (order[a.tier] || 5) - (order[b.tier] || 5);
+    });
+  for (const m of orderedManagers) {
+    const row = el('label', { style: 'display:flex;gap:8px;align-items:center;font-size:0.9rem;cursor:pointer;font-weight:500;text-transform:none;letter-spacing:normal;color:var(--text);margin-bottom:0;' },
+      el('input', { type: 'checkbox', value: m.auth_user_id, 'data-recipient': true }),
+      document.createTextNode(m.name + (m.tier ? '  (' + tierLabel(m.tier) + ')' : '')),
+    );
+    list.appendChild(row);
+  }
+
+  card.appendChild(el('div', { class: 'actions-row' },
+    el('button', { class: 'btn ghost', onclick: closeModal }, 'Cancel'),
+    el('button', { class: 'btn primary', id: 'fbSubmitBtn', onclick: submitNewFeedbackRequest }, 'Send'),
+  ));
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+};
+
+async function submitNewFeedbackRequest() {
+  const btn = $('fbSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try {
+    const prompt = $('fbPrompt').value.trim();
+    const ctx = $('fbContext').value.trim();
+    const recipients = Array.from(document.querySelectorAll('[data-recipient]:checked')).map(el => el.value);
+    if (!prompt) throw new Error('Prompt is required.');
+    if (recipients.length === 0) throw new Error('Pick at least one recipient.');
+    const me = State.session.user.id;
+    const { data: req, error: reqErr } = await sb.from('sc_feedback_requests').insert({
+      prompt, context: ctx || null,
+      created_by_auth_id: me, status: 'open',
+    }).select().single();
+    if (reqErr) throw new Error('Request insert failed: ' + reqErr.message);
+    const rows = recipients.map(uid => ({ request_id: req.id, auth_user_id: uid }));
+    const { error: rErr } = await sb.from('sc_feedback_request_recipients').insert(rows);
+    if (rErr) throw new Error('Recipients insert failed: ' + rErr.message);
+    toast('Sent');
+    closeModal();
+    await loadFeedbackRequests();
+    setTab('feedback');
+    goto('fb/' + req.id);
+  } catch (e) {
+    toast(e.message, 'err');
+    btn.disabled = false;
+    btn.textContent = 'Send';
+  }
+}
+
+// ── notifications + bell ───────────────────────────────────────────────
+
+function refreshBellBadge() {
+  const badge = $('bellBadge');
+  if (!badge) return;
+  if (State.unreadCount > 0) {
+    badge.textContent = State.unreadCount > 99 ? '99+' : String(State.unreadCount);
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+window.toggleBell = function toggleBell(ev) {
+  ev && ev.stopPropagation();
+  State.bellOpen = !State.bellOpen;
+  if (State.bellOpen) renderBellDrawer();
+  else removeBellDrawer();
+};
+
+function removeBellDrawer() {
+  const d = document.getElementById('bellDrawerEl');
+  if (d) d.remove();
+}
+
+function renderBellDrawer() {
+  removeBellDrawer();
+  const drawer = el('div', { class: 'bell-drawer', id: 'bellDrawerEl' });
+  drawer.appendChild(el('div', { class: 'drawer-head' },
+    el('strong', {}, 'Notifications'),
+    el('a', { onclick: async (e) => { e.stopPropagation(); await markAllNotificationsRead(); } }, 'Mark all read'),
+  ));
+  if (State.notifications.length === 0) {
+    drawer.appendChild(el('div', { class: 'notif-empty' }, 'Nothing here yet.'));
+  } else {
+    for (const n of State.notifications) {
+      const isUnread = !n.read_at;
+      const item = el('div', { class: 'notif-item' + (isUnread ? ' unread' : ''), onclick: async (ev) => {
+        ev.stopPropagation();
+        await markNotificationRead(n.id);
+        navigateToNotification(n);
+        State.bellOpen = false;
+        removeBellDrawer();
+      }});
+      item.appendChild(el('div', { class: 'notif-title' }, n.title));
+      if (n.body) item.appendChild(el('div', { class: 'notif-body' }, n.body));
+      item.appendChild(el('div', { class: 'notif-time' }, fmtDate(n.created_at)));
+      drawer.appendChild(item);
+    }
+  }
+  $('bellBtn').parentNode.appendChild(drawer);
+}
+
+function navigateToNotification(n) {
+  if (n.target_type === 'submission') {
+    goto('s/' + n.target_id);
+  } else if (n.target_type === 'solution' || n.target_type === 'component') {
+    // Need the submission id; the URL pattern is the same -- detail view shows the whole thing.
+    // For now, we look it up if we have the submission cached, else fetch it.
+    sb.from(n.target_type === 'solution' ? 'sc_solutions' : 'sc_solution_components')
+      .select(n.target_type === 'solution' ? 'submission_id' : 'sc_solutions!inner(submission_id)')
+      .eq('id', n.target_id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const subId = data && (data.submission_id || (data.sc_solutions && data.sc_solutions.submission_id));
+        if (subId) goto('s/' + subId);
+      });
+  } else if (n.target_type === 'feedback_request') {
+    setTab('feedback');
+    goto('fb/' + n.target_id);
+  } else if (n.target_type === 'feedback_response') {
+    // Find the request id for this response, then route there.
+    sb.from('sc_feedback_responses').select('request_id').eq('id', n.target_id).maybeSingle().then(({ data }) => {
+      if (data && data.request_id) { setTab('feedback'); goto('fb/' + data.request_id); }
+    });
+  }
+}
+
+document.addEventListener('click', (e) => {
+  // Close bell on outside click
+  if (State.bellOpen) {
+    const drawer = document.getElementById('bellDrawerEl');
+    const bell = $('bellBtn');
+    if (drawer && !drawer.contains(e.target) && bell && !bell.contains(e.target)) {
+      State.bellOpen = false;
+      removeBellDrawer();
+    }
+  }
+});
+
+function subscribeToNotifications() {
+  if (State.realtimeChannel) sb.removeChannel(State.realtimeChannel);
+  const me = State.session.user.id;
+  State.realtimeChannel = sb.channel('sc_notif_' + me)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'sc_notifications',
+      filter: 'auth_user_id=eq.' + me,
+    }, (payload) => {
+      State.notifications.unshift(payload.new);
+      if (State.notifications.length > 50) State.notifications.pop();
+      State.unreadCount += 1;
+      refreshBellBadge();
+      if (State.bellOpen) renderBellDrawer();
+      toast(payload.new.title || 'New notification');
+    })
+    .subscribe();
+}
+
 // ── routing ─────────────────────────────────────────────────────────────
 
-function goto(hash) {
+window.goto = function goto(hash) {
   window.location.hash = hash;
-}
+};
 function parseHash() {
   const h = (window.location.hash || '').replace(/^#/, '');
   if (h.startsWith('s/')) return { view: 'detail', id: h.slice(2) };
+  if (h.startsWith('fb/')) return { view: 'fb_detail', id: h.slice(3) };
+  if (h === 'fb') return { view: 'fb_list' };
   if (h === 'new') return { view: 'new' };
+  if (h === 'newfb') return { view: 'newfb' };
   return { view: 'list' };
 }
 function handleHashChange() {
   const r = parseHash();
   if (r.view === 'detail') {
+    State.tab = 'submissions';
+    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'submissions'));
     State.view = 'detail';
     State.detailId = r.id;
+    State.fbDetailId = null;
     closeModal();
     render();
+  } else if (r.view === 'fb_detail') {
+    State.tab = 'feedback';
+    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'feedback'));
+    const fr = $('filterRow');
+    if (fr) fr.style.display = 'none';
+    State.view = 'fb_detail';
+    State.fbDetailId = r.id;
+    State.detailId = null;
+    closeModal();
+    render();
+  } else if (r.view === 'fb_list') {
+    setTab('feedback');
   } else if (r.view === 'new') {
     State.view = 'list';
     State.detailId = null;
+    State.fbDetailId = null;
     render();
     openNewSubmission();
+  } else if (r.view === 'newfb') {
+    setTab('feedback');
+    openNewFeedbackRequest();
   } else {
+    State.tab = 'submissions';
+    document.querySelectorAll('.tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'submissions'));
+    const fr = $('filterRow');
+    if (fr) fr.style.display = '';
     State.view = 'list';
     State.detailId = null;
+    State.fbDetailId = null;
     closeModal();
     render();
   }
@@ -1398,8 +2309,12 @@ window.initApp = async function initApp(profile, session) {
   if (profile.kind === 'manager') {
     $('categoriesBtn').style.display = '';
   }
+  if (profile.is_admin) {
+    $('newFbBtn').style.display = '';
+  }
   await Promise.all([loadUserLookup(), loadCategories()]);
-  await loadSubmissions();
+  await Promise.all([loadSubmissions(), loadFeedbackRequests(), loadNotifications()]);
+  subscribeToNotifications();
   handleHashChange();
 };
 </script>
