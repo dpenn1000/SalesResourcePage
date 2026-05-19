@@ -2652,31 +2652,108 @@ function renderCatAdminList() {
   for (const c of State.categories) {
     const subs = State.subcategories.filter(s => s.category_id === c.id);
     const block = el('div', { class: 'editor-block' });
-    block.appendChild(el('div', { class: 'block-head' },
-      el('div', { class: 'block-title', style: 'font-size:0.95rem;color:var(--ink);' }, c.name),
-    ));
+
+    // Category row: editable name + Save + Delete
+    const catNameInput = el('input', {
+      type: 'text', value: c.name,
+      style: 'flex:1;padding:6px 10px;font-size:0.95rem;font-weight:600;color:var(--ink);border:1px solid var(--line);border-radius:4px;',
+    });
+    const catRow = el('div', { style: 'display:flex;gap:6px;align-items:center;margin-bottom:10px;' },
+      catNameInput,
+      el('button', { type: 'button', class: 'btn primary small', onclick: () => saveCategoryName(c.id, catNameInput) }, 'Save'),
+      el('button', { type: 'button', class: 'btn danger small', onclick: () => deactivateCategory(c.id, c.name) }, 'Delete'),
+    );
+    block.appendChild(catRow);
+
+    // Subcategories: each editable
     if (subs.length > 0) {
-      const sl = el('div', { style: 'display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;' });
-      for (const s of subs) sl.appendChild(el('span', { class: 'att-chip' }, s.name));
-      block.appendChild(sl);
-    }
-    block.appendChild(el('div', { style: 'display:flex;gap:8px;align-items:center;' },
-      el('input', { type: 'text', placeholder: 'New subcategory', 'data-cat-id': c.id, style: 'flex:1;padding:6px 10px;font-size:0.88rem;border:1px solid var(--line);border-radius:4px;' }),
-      el('button', { class: 'btn ghost small', onclick: async (e) => {
-        const inp = e.target.previousElementSibling;
-        const name = inp.value.trim();
-        if (!name) return;
-        const { error } = await sb.from('sc_subcategories').insert({
-          category_id: c.id, name, created_by_auth_id: State.session.user.id
+      const subList = el('div', { style: 'display:flex;flex-direction:column;gap:6px;margin:8px 0 10px;padding-left:14px;border-left:2px solid var(--line-soft);' });
+      for (const s of subs) {
+        const subNameInput = el('input', {
+          type: 'text', value: s.name,
+          style: 'flex:1;padding:5px 9px;font-size:0.88rem;border:1px solid var(--line);border-radius:4px;',
         });
-        if (error) { toast('Failed: ' + error.message, 'err'); return; }
-        inp.value = '';
-        await loadCategories();
-        renderCatAdminList();
-      }}, '+ Sub'),
-    ));
+        const subRow = el('div', { style: 'display:flex;gap:6px;align-items:center;' },
+          subNameInput,
+          el('button', { type: 'button', class: 'btn ghost small', onclick: () => saveSubcategoryName(s.id, subNameInput) }, 'Save'),
+          el('button', { type: 'button', class: 'btn danger small', onclick: () => deactivateSubcategory(s.id, s.name) }, 'Delete'),
+        );
+        subList.appendChild(subRow);
+      }
+      block.appendChild(subList);
+    }
+
+    // Add-subcategory row -- input captured in closure, no previousElementSibling games.
+    const newSubInput = el('input', {
+      type: 'text', placeholder: 'Add a subcategory',
+      style: 'flex:1;padding:6px 10px;font-size:0.88rem;border:1px solid var(--line);border-radius:4px;',
+    });
+    const addBtn = el('button', { type: 'button', class: 'btn ghost small', onclick: () => addSubcategoryTo(c.id, newSubInput) }, '+ Sub');
+    newSubInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') { ev.preventDefault(); addSubcategoryTo(c.id, newSubInput); }
+    });
+    block.appendChild(el('div', { style: 'display:flex;gap:6px;align-items:center;' }, newSubInput, addBtn));
+
     list.appendChild(block);
   }
+}
+
+async function saveCategoryName(catId, input) {
+  const name = input.value.trim();
+  if (!name) { toast('Name cannot be empty', 'err'); return; }
+  const { error } = await sb.from('sc_categories').update({ name }).eq('id', catId);
+  if (error) { toast('Save failed: ' + error.message, 'err'); return; }
+  toast('Saved');
+  await loadCategories();
+  renderCatAdminList();
+}
+
+async function deactivateCategory(catId, name) {
+  const subs = State.subcategories.filter(s => s.category_id === catId);
+  const subNote = subs.length > 0 ? ' (and its ' + subs.length + ' subcategor' + (subs.length === 1 ? 'y' : 'ies') + ')' : '';
+  if (!confirm('Delete category "' + name + '"' + subNote + '? Existing submissions keep their reference; new submissions cannot pick it.')) return;
+  // Soft-delete: set active=false on category + all its subcategories.
+  const { error: cErr } = await sb.from('sc_categories').update({ active: false }).eq('id', catId);
+  if (cErr) { toast('Delete failed: ' + cErr.message, 'err'); return; }
+  if (subs.length > 0) {
+    const { error: sErr } = await sb.from('sc_subcategories').update({ active: false }).eq('category_id', catId);
+    if (sErr) { toast('Subcategory cleanup failed: ' + sErr.message, 'err'); }
+  }
+  toast('Deleted');
+  await loadCategories();
+  renderCatAdminList();
+}
+
+async function saveSubcategoryName(subId, input) {
+  const name = input.value.trim();
+  if (!name) { toast('Name cannot be empty', 'err'); return; }
+  const { error } = await sb.from('sc_subcategories').update({ name }).eq('id', subId);
+  if (error) { toast('Save failed: ' + error.message, 'err'); return; }
+  toast('Saved');
+  await loadCategories();
+  renderCatAdminList();
+}
+
+async function deactivateSubcategory(subId, name) {
+  if (!confirm('Delete subcategory "' + name + '"? Existing submissions keep their reference; new submissions cannot pick it.')) return;
+  const { error } = await sb.from('sc_subcategories').update({ active: false }).eq('id', subId);
+  if (error) { toast('Delete failed: ' + error.message, 'err'); return; }
+  toast('Deleted');
+  await loadCategories();
+  renderCatAdminList();
+}
+
+async function addSubcategoryTo(catId, input) {
+  const name = input.value.trim();
+  if (!name) { toast('Type a name first', 'err'); input.focus(); return; }
+  const { error } = await sb.from('sc_subcategories').insert({
+    category_id: catId, name, created_by_auth_id: State.session.user.id,
+  });
+  if (error) { toast('Add failed: ' + error.message, 'err'); return; }
+  input.value = '';
+  toast('Added');
+  await loadCategories();
+  renderCatAdminList();
 }
 
 // ── entry point ─────────────────────────────────────────────────────────
