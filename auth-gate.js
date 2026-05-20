@@ -87,33 +87,24 @@
   }
 
   async function loadProfile(session) {
-    const { data: mgr } = await sb.from('managers')
-      .select('name, is_admin, status, must_change_password')
-      .eq('auth_user_id', session.user.id)
-      .maybeSingle();
-    if (mgr) {
-      return {
-        kind: 'manager',
-        name: mgr.name,
-        is_admin: !!mgr.is_admin,
-        is_active: mgr.status === 'active',
-        must_change_password: !!mgr.must_change_password
-      };
+    // One round trip: get_user_profile() checks managers then reps server-side
+    // (SECURITY DEFINER) and returns the caller's identity row, managers first.
+    // Replaces the prior two sequential client queries. The `session` arg is
+    // kept for signature compatibility; the RPC reads auth.uid() from the JWT.
+    const { data, error } = await sb.rpc('get_user_profile');
+    if (error) {
+      console.warn('[auth-gate] get_user_profile error:', error.message);
+      return null;
     }
-    const { data: rep } = await sb.from('reps')
-      .select('name, status, must_change_password')
-      .eq('auth_user_id', session.user.id)
-      .maybeSingle();
-    if (rep) {
-      return {
-        kind: 'rep',
-        name: rep.name,
-        is_admin: false,
-        is_active: rep.status === 'active',
-        must_change_password: !!rep.must_change_password
-      };
-    }
-    return null;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) return null;
+    return {
+      kind: row.kind,
+      name: row.name,
+      is_admin: !!row.is_admin,
+      is_active: !!row.is_active,
+      must_change_password: !!row.must_change_password
+    };
   }
 
   // ── Activity tracking ─────────────────────────────────────────────────
