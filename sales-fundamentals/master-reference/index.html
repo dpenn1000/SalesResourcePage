@@ -532,24 +532,6 @@ footer.page-foot {
 .chk-item .ci-meta { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
 .chk-item .ci-dep { font-size: 11.5px; color: var(--muted); margin-top: 3px; font-style: italic; }
 
-/* ---- CT rate targets panel ---- */
-.rt-panel { background: linear-gradient(135deg, #11203f, #0b1120); border: 1px solid #24406a; border-radius: var(--radius-lg); padding: 20px 22px; margin-bottom: 18px; box-shadow: var(--shadow-md); }
-.rt-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
-.rt-eyebrow { display: inline-block; font-family: 'Manrope', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--trinity-green); margin-bottom: 2px; }
-.rt-title { font-family: 'Fraunces', serif; color: #fff; margin: 0; font-size: clamp(22px, 3vw, 30px); }
-.rt-eff { font-size: 12px; font-weight: 600; color: #aebfd6; background: rgba(255,255,255,0.06); border: 1px solid #2c4a73; border-radius: 999px; padding: 4px 12px; white-space: nowrap; }
-.rt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-.rt-card { background: rgba(255,255,255,0.04); border: 1px solid #24406a; border-radius: var(--radius); padding: 14px 18px; }
-.rt-util { font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--trinity-green); margin-bottom: 8px; }
-.rt-util .rt-code { color: #8aa0bd; font-weight: 600; }
-.rt-rows { display: grid; gap: 4px; }
-.rt-row { display: flex; align-items: baseline; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.07); padding-top: 8px; }
-.rt-row:first-child { border-top: none; padding-top: 0; }
-.rt-lbl { color: #c4d2e6; font-size: 14px; }
-.rt-val { font-family: 'Fraunces', serif; font-weight: 700; color: #fff; font-size: 34px; line-height: 1; }
-.rt-val .rt-c { font-size: 17px; color: #8aa0bd; margin-left: 2px; }
-.rt-note { color: #9fb2cc; font-size: 12.5px; margin: 14px 0 0; }
-
 /* ---- contacts ---- */
 .contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
 .contact-card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--white); padding: 12px 14px; box-shadow: var(--shadow-sm); }
@@ -766,7 +748,6 @@ footer.page-foot {
   </section>
 
   <section class="mode" id="mode-pricing">
-    <div id="ct-rate-targets"></div>
     <div class="pricing-controls">
       <div class="field"><label for="p-state">State</label><select id="p-state"><option value="">All</option></select></div>
       <div class="field"><label for="p-partner">Partner</label><select id="p-partner"><option value="">All</option></select></div>
@@ -835,7 +816,7 @@ footer.page-foot {
 // ============================================================
 // Data
 // ============================================================
-let CHEAT, PRICING, GUIDE, CHECK, CONSOL, CONTACTS = null, RATE_TARGETS = null;
+let CHEAT, PRICING, GUIDE, CHECK, CONSOL, CONTACTS = null;
 let STATE = {
   mode: 'home',
   // by state
@@ -900,7 +881,6 @@ async function boot() {
       fetch('./checklist-consolidated.json').then(r => r.json()),
     ]);
     CHEAT = cs; PRICING = pr; GUIDE = gd; CHECK = ck; CONSOL = ckc;
-    RATE_TARGETS = await fetch('./ct-rate-targets.json').then(r => r.json()).catch(() => null);
   } catch (err) {
     document.querySelector('main').innerHTML =
       '<div class="empty-state"><h3>Could not load data</h3><p>'+err.message+
@@ -921,7 +901,6 @@ async function boot() {
   initMatrix();
   initContacts();
   initChanges();
-  renderRateTargets();
 
   renderStateGuidelines();
 }
@@ -1691,27 +1670,6 @@ function initPricing() {
 function isDiscontinued(partnerKey) {
   const s = CHEAT.partners[partnerKey]?.status;
   return s === 'paused' || s === 'defunct';
-}
-
-function renderRateTargets() {
-  const el = document.getElementById('ct-rate-targets');
-  if (!el || !RATE_TARGETS) return;
-  const eff = new Date(RATE_TARGETS.effective + 'T00:00:00')
-    .toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  const cards = RATE_TARGETS.utilities.map(u =>
-    '<div class="rt-card"><div class="rt-util">' + escapeHtml(u.name) +
-    ' <span class="rt-code">(' + escapeHtml(u.code) + ')</span></div>' +
-    '<div class="rt-rows">' +
-    '<div class="rt-row"><span class="rt-lbl">3% Escalator</span><span class="rt-val">' + u.esc3 + '<span class="rt-c">&cent;</span></span></div>' +
-    '<div class="rt-row"><span class="rt-lbl">0% Escalator</span><span class="rt-val">' + u.esc0 + '<span class="rt-c">&cent;</span></span></div>' +
-    '</div></div>').join('');
-  el.innerHTML =
-    '<div class="rt-panel"><div class="rt-head">' +
-    '<div><span class="rt-eyebrow">Hold the line</span><h2 class="rt-title">CT Rate Targets</h2></div>' +
-    '<span class="rt-eff">Effective ' + escapeHtml(eff) + '</span></div>' +
-    '<div class="rt-grid">' + cards + '</div>' +
-    (RATE_TARGETS.note ? '<p class="rt-note">' + escapeHtml(RATE_TARGETS.note) + '</p>' : '') +
-    '</div>';
 }
 
 function renderPricing() {
