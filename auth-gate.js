@@ -239,9 +239,12 @@
       window.AUTH_SESSION = session;
       showOnly('appWrap');
 
-      // Track sign_in only on the actual SIGNED_IN event, not every
-      // TOKEN_REFRESHED tick. Track page_view on each fresh page load.
-      if (event === 'SIGNED_IN') {
+      // Track sign_in ONLY for a genuine credential sign-in (flagged by
+      // signIn()). SIGNED_IN also fires on session-restore on every page load,
+      // which otherwise logged a sign_in per navigation and flooded
+      // user_activity.
+      if (event === 'SIGNED_IN' && window.__ctCredentialSignIn) {
+        window.__ctCredentialSignIn = false;
         trackEvent('sign_in', { kind: profile.kind, is_admin: profile.is_admin });
       }
 
@@ -279,9 +282,13 @@
     const email = localPart + '@ct-resource-page.com';
     const oldText = btn ? btn.textContent : '';
     if (btn) { btn.disabled = true; btn.textContent = 'Signing in...'; }
+    // Flag a genuine credential sign-in so the auth-state handler logs exactly
+    // one sign_in (and not the SIGNED_IN that fires on every session-restore).
+    window.__ctCredentialSignIn = true;
     const { error } = await sb.auth.signInWithPassword({ email, password: pass });
     if (btn) { btn.disabled = false; btn.textContent = oldText; }
     if (error) {
+      window.__ctCredentialSignIn = false;
       // The default Supabase message ("Invalid login credentials") leaves
       // first-timers wondering whether their username or their password is
       // the problem. Hint at both, and reinforce the username format.
