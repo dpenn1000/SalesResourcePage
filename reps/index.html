@@ -39,7 +39,8 @@
   .count { color:var(--muted); font-size:0.8rem; margin-bottom:14px; }
 
   .rep-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
-  .rep-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; }
+  .rep-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; cursor:pointer; transition:transform 0.12s, box-shadow 0.12s, border-color 0.12s; }
+  .rep-card:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(15,32,56,0.1); border-color:var(--green); }
   .rep-card .top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
   .rep-card .nm { font-weight:700; font-size:1.02rem; color:var(--ink); }
   .rep-card .un { font-size:0.78rem; color:var(--subtle); font-family:'DM Mono',monospace; }
@@ -56,6 +57,35 @@
 
   .notice { background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--muted); }
   .notice h2 { color:var(--ink); margin-bottom:8px; font-size:1.2rem; }
+
+  /* ── Detail view (chunk 2) ── */
+  .detail-top { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:6px; }
+  .back-btn { background:none; border:none; cursor:pointer; font-family:inherit; font-size:0.85rem; color:var(--muted); padding:4px 0; display:inline-flex; align-items:center; gap:6px; }
+  .back-btn:hover { color:var(--ink); }
+  .detail-top h2 { font-size:1.5rem; color:var(--ink); }
+  .detail-top .un { font-size:0.8rem; color:var(--subtle); font-family:'DM Mono',monospace; }
+  .detail-tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid var(--border); margin:14px 0 18px; }
+  .dtab { background:none; border:none; cursor:pointer; font-family:inherit; font-size:0.875rem; font-weight:500; color:var(--muted); padding:10px 14px; border-bottom:2px solid transparent; }
+  .dtab:hover { color:var(--ink); }
+  .dtab.active { color:var(--ink); border-bottom-color:var(--green); font-weight:600; }
+  .d-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:8px 18px; box-shadow:var(--shadow); }
+  .d-row { display:flex; justify-content:space-between; gap:14px; padding:11px 0; border-bottom:1px solid var(--hairline); font-size:0.9rem; }
+  .d-row:last-child { border-bottom:none; }
+  .d-k { color:var(--subtle); }
+  .d-v { color:var(--ink); font-weight:500; text-align:right; }
+  .d-list { display:flex; flex-direction:column; gap:8px; }
+  .d-item { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; box-shadow:var(--shadow); }
+  .d-item .it-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+  .d-item .it-title { font-weight:600; color:var(--ink); font-size:0.92rem; }
+  .d-item .it-meta { font-size:0.78rem; color:var(--muted); margin-top:3px; }
+  .d-item .it-note { font-size:0.85rem; color:var(--ink); margin-top:6px; }
+  .pill { font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:3px 9px; border-radius:999px; background:var(--hairline); color:var(--muted); white-space:nowrap; }
+  .pill.ok { background:#EFF8E5; color:var(--green-dark); }
+  .pill.warn { background:#FEF3DC; color:#8A5E15; }
+  .pill.bad { background:#FBE8EA; color:#C94F5A; }
+  .pill.info { background:#E8F4FB; color:#1E8BBC; }
+  .d-empty { color:var(--subtle); font-size:0.875rem; padding:18px 2px; }
+  .section-h { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--subtle); margin:18px 0 8px; }
 </style>
 </head>
 <body>
@@ -100,12 +130,12 @@
   </header>
 
   <main>
-    <!-- Reps land here; the Console is a manager oversight tool. -->
     <div id="notManager" class="notice" style="display:none">
       <h2>Managers only</h2>
       <p>The Rep Console is for managers. If you think you should have access, contact Dan.</p>
     </div>
 
+    <!-- Roster (list view) -->
     <div id="console">
       <div class="toolbar">
         <input type="text" id="search" placeholder="Search by name or username...">
@@ -118,6 +148,20 @@
       </div>
       <div class="count" id="count"></div>
       <div class="rep-grid" id="repGrid"></div>
+    </div>
+
+    <!-- Per-rep detail (chunk 2) -->
+    <div id="repDetail" style="display:none">
+      <div class="detail-top">
+        <div>
+          <button class="back-btn" onclick="backToList()">&larr; All reps</button>
+          <h2 id="detailName"></h2>
+          <span class="un" id="detailUser"></span>
+        </div>
+        <a class="rr-link" id="detailRR" href="#" target="_blank" rel="noopener">Open in Rep Review &#8599;</a>
+      </div>
+      <div class="detail-tabs" id="detailTabs"></div>
+      <div id="detailBody"></div>
     </div>
   </main>
 </div>
@@ -133,8 +177,6 @@ let REPS = [], MGR_BY_ID = {}, LAST_SEEN = {};
 // auth-gate.js calls this once, after sign-in + must-change-password gate.
 window.initApp = async function (profile, session) {
   document.getElementById('userLabel').textContent = profile.name || '';
-  // Reps can authenticate (auth-gate lets any active user through), but the
-  // Console is a manager tool -- gate it here.
   if (!window.IS_MANAGER) {
     document.getElementById('console').style.display = 'none';
     document.getElementById('notManager').style.display = 'block';
@@ -142,24 +184,23 @@ window.initApp = async function (profile, session) {
   }
   await loadData();
   render();
+  // Deep-link: /reps/?rep=<username> opens that rep's detail directly.
+  const rq = new URLSearchParams(location.search).get('rep');
+  if (rq) openRep(rq);
 };
 
 async function loadData() {
   const [repsRes, mgrsRes, actRes] = await Promise.all([
     supa.from('reps')
-      .select('id, auth_user_id, name, username, status, manager_id, cohort_start_date')
+      .select('id, auth_user_id, name, username, email, status, manager_id, cohort_start_date, must_change_password')
       .order('name'),
-    // Best-effort: map manager_id -> name. Blank if not readable.
     supa.from('managers').select('id, name'),
-    // Latest sign-in per user. Pull recent sign_in events desc; first hit per
-    // user is their most recent. (Manager read enabled by RLS migration.)
     supa.from('user_activity')
       .select('auth_user_id, created_at')
       .eq('event_type', 'sign_in')
       .order('created_at', { ascending: false })
       .limit(5000),
   ]);
-
   REPS = repsRes.data || [];
   MGR_BY_ID = {};
   (mgrsRes.data || []).forEach(m => { MGR_BY_ID[m.id] = m.name; });
@@ -169,46 +210,39 @@ async function loadData() {
   });
 }
 
+function decorate(r) {
+  return { ...r,
+    manager: r.manager_id ? (MGR_BY_ID[r.manager_id] || '') : '',
+    lastSeen: LAST_SEEN[r.auth_user_id] || null };
+}
+
 function render() {
   const q = (document.getElementById('search').value || '').trim().toLowerCase();
   const sort = document.getElementById('sort').value;
-
-  let rows = REPS.map(r => ({
-    ...r,
-    manager: r.manager_id ? (MGR_BY_ID[r.manager_id] || '') : '',
-    lastSeen: LAST_SEEN[r.auth_user_id] || null,
-  }));
-
+  let rows = REPS.map(decorate);
   if (q) rows = rows.filter(r =>
     (r.name || '').toLowerCase().includes(q) || (r.username || '').toLowerCase().includes(q));
-
   rows.sort((a, b) => {
     if (sort === 'name')   return (a.name || '').localeCompare(b.name || '');
     if (sort === 'status') return (a.status || '').localeCompare(b.status || '') || (a.name || '').localeCompare(b.name || '');
     const ta = a.lastSeen ? new Date(a.lastSeen).getTime() : 0;
     const tb = b.lastSeen ? new Date(b.lastSeen).getTime() : 0;
-    return sort === 'recent' ? (tb - ta) : (ta - tb); // recent: newest first; stale: oldest first
+    return sort === 'recent' ? (tb - ta) : (ta - tb);
   });
-
   document.getElementById('count').textContent =
     `${rows.length} rep${rows.length === 1 ? '' : 's'}${q ? ' (filtered)' : ''}`;
-
   const grid = document.getElementById('repGrid');
-  if (!rows.length) {
-    grid.innerHTML = '<div class="notice"><p>No reps match that search.</p></div>';
-    return;
-  }
-  grid.innerHTML = rows.map(repCard).join('');
+  grid.innerHTML = rows.length ? rows.map(repCard).join('')
+    : '<div class="notice"><p>No reps match that search.</p></div>';
 }
 
 function repCard(r) {
   const statusClass = r.status === 'active' ? 'active' : 'inactive';
-  const cohort = r.cohort_start_date
-    ? `Day ${daysSince(r.cohort_start_date)} of 90`
-    : '--';
+  const cohort = r.cohort_start_date ? `Day ${daysSince(r.cohort_start_date)} of 90` : '--';
   const rr = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(r.username || '')}`;
+  const u = (r.username || '').replace(/[^a-zA-Z0-9_-]/g, '');
   return `
-    <div class="rep-card">
+    <div class="rep-card" tabindex="0" onclick="openRep('${u}')">
       <div class="top">
         <div>
           <div class="nm">${escapeHtml(r.name || '(no name)')}</div>
@@ -222,12 +256,150 @@ function repCard(r) {
         <div class="row"><span class="k">Last sign-in</span><span class="v">${lastSeenLabel(r.lastSeen)}</span></div>
       </div>
       <div class="actions">
-        <a class="rr-link" href="${rr}" target="_blank" rel="noopener">Open in Rep Review &#8599;</a>
+        <a class="rr-link" href="${rr}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open in Rep Review &#8599;</a>
       </div>
     </div>`;
 }
 
+// ── Per-rep detail (chunk 2) ──
+let D_REP = null, D_DATA = null, D_TAB = 'profile';
+const D_TABS = [['profile','Profile'],['activity','Activity'],['university','University'],['callwork','Call Work'],['feedback','Feedback']];
+
+async function openRep(username) {
+  const rep = REPS.find(r => (r.username || '') === username);
+  if (!rep) return;
+  D_REP = decorate(rep); D_TAB = 'profile'; D_DATA = null;
+  try { history.replaceState(null, '', '?rep=' + encodeURIComponent(username)); } catch (_) {}
+  document.getElementById('console').style.display = 'none';
+  document.getElementById('repDetail').style.display = 'block';
+  document.getElementById('detailName').textContent = D_REP.name || username;
+  document.getElementById('detailUser').textContent = username;
+  document.getElementById('detailRR').href = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(username)}`;
+  document.getElementById('detailBody').innerHTML = '<div class="d-empty">Loading...</div>';
+  renderTabBar(); window.scrollTo(0, 0);
+  D_DATA = await loadRepDetail(D_REP);
+  renderDetailTab();
+}
+
+function backToList() {
+  document.getElementById('repDetail').style.display = 'none';
+  document.getElementById('console').style.display = 'block';
+  try { history.replaceState(null, '', location.pathname); } catch (_) {}
+}
+
+async function loadRepDetail(rep) {
+  const repId = rep.id, auid = rep.auth_user_id, nm = rep.name || '';
+  const [acts, assigns, attempts, shadows, helps, certs, calls, fb] = await Promise.all([
+    supa.from('user_activity').select('event_type, page_url, created_at').eq('auth_user_id', auid).order('created_at', { ascending: false }).limit(40),
+    supa.from('cert_assignments').select('cert_id, status, assigned_at, completed_at').eq('rep_id', repId),
+    supa.from('quiz_attempts').select('cert_id, status, auto_score, auto_max, submitted_at').eq('rep_id', repId).order('submitted_at', { ascending: false }),
+    supa.from('shadow_logs').select('shadowed_rep_name, shadow_date, duration_minutes, status').eq('rep_id', repId).order('shadow_date', { ascending: false }),
+    supa.from('help_requests').select('message, status, created_at').eq('rep_id', repId).order('created_at', { ascending: false }),
+    supa.from('certs').select('id, name, stage, order_index').order('order_index'),
+    supa.from('call_list').select('opp_name, state, status, appt_date, lead_source').eq('assigned_to', nm).order('added_at', { ascending: false }).limit(60),
+    supa.from('feedback_items').select('type, title, status, priority, created_at').eq('submitter_name', nm).order('created_at', { ascending: false }).limit(20),
+  ]);
+  return { activity:acts.data||[], assignments:assigns.data||[], attempts:attempts.data||[],
+    shadows:shadows.data||[], helps:helps.data||[], certs:certs.data||[], calls:calls.data||[], feedback:fb.data||[] };
+}
+
+function renderTabBar() {
+  document.getElementById('detailTabs').innerHTML = D_TABS.map(([id, label]) =>
+    `<button class="dtab ${id === D_TAB ? 'active' : ''}" onclick="setDetailTab('${id}')">${label}</button>`).join('');
+}
+function setDetailTab(t) { D_TAB = t; renderTabBar(); renderDetailTab(); }
+
+function renderDetailTab() {
+  const b = document.getElementById('detailBody');
+  if (!D_DATA) { b.innerHTML = '<div class="d-empty">Loading...</div>'; return; }
+  const fns = { profile:tabProfile, activity:tabActivity, university:tabUniversity, callwork:tabCallWork, feedback:tabFeedback };
+  b.innerHTML = (fns[D_TAB] || tabProfile)();
+}
+
+function dRow(k, v) { return `<div class="d-row"><span class="d-k">${k}</span><span class="d-v">${v}</span></div>`; }
+
+function tabProfile() {
+  const r = D_REP;
+  return `<div class="d-card">
+    ${dRow('Name', escapeHtml(r.name || '--'))}
+    ${dRow('Username', escapeHtml(r.username || '--'))}
+    ${dRow('Email', escapeHtml(r.email || '--'))}
+    ${dRow('Status', escapeHtml(r.status || '--'))}
+    ${dRow('Manager', escapeHtml(r.manager || '--'))}
+    ${dRow('Cohort', r.cohort_start_date ? `${fmtDate(r.cohort_start_date)} &middot; day ${daysSince(r.cohort_start_date)} of 90` : '--')}
+    ${dRow('Last sign-in', lastSeenLabel(r.lastSeen))}
+    ${dRow('Must change password', r.must_change_password ? 'Yes' : 'No')}
+  </div>`;
+}
+
+function tabActivity() {
+  const a = D_DATA.activity;
+  if (!a.length) return '<div class="d-empty">No recorded activity.</div>';
+  return '<div class="d-list">' + a.map(e => `
+    <div class="d-item"><div class="it-top">
+      <div><span class="it-title">${escapeHtml(e.event_type || 'event')}</span>
+      <div class="it-meta">${escapeHtml(e.page_url || '')}</div></div>
+      <span class="pill info">${lastSeenLabel(e.created_at)}</span>
+    </div></div>`).join('') + '</div>';
+}
+
+function tabUniversity() {
+  const d = D_DATA;
+  const latestAttempt = {};
+  d.attempts.forEach(at => { if (!latestAttempt[at.cert_id]) latestAttempt[at.cert_id] = at; });
+  const assigned = new Set(d.assignments.map(a => a.cert_id));
+  const certRows = d.certs.map(c => {
+    const at = latestAttempt[c.id];
+    const st = at ? at.status : (assigned.has(c.id) ? 'assigned' : 'not assigned');
+    const score = at && at.auto_max ? ` &middot; ${at.auto_score}/${at.auto_max}` : '';
+    const cls = st === 'approved' ? 'ok' : st === 'pending_review' ? 'info' : st === 'retake' ? 'bad' : 'warn';
+    return `<div class="d-item"><div class="it-top">
+      <div><span class="it-title">${escapeHtml(c.name)}</span><div class="it-meta">Stage ${c.stage}${score}</div></div>
+      <span class="pill ${st === 'not assigned' ? '' : cls}">${escapeHtml(uniStatusLabel(st))}</span>
+    </div></div>`;
+  }).join('');
+  const openHelp = d.helps.filter(h => h.status !== 'resolved').length;
+  return `<div class="section-h">Certifications</div><div class="d-list">${certRows}</div>
+    <div class="section-h">Shadows (${d.shadows.length}) &middot; Open help requests (${openHelp})</div>
+    <div class="d-list">${
+      d.shadows.length ? d.shadows.slice(0,6).map(s => `<div class="d-item"><div class="it-top">
+        <div><span class="it-title">Shadowed ${escapeHtml(s.shadowed_rep_name || '')}</span>
+        <div class="it-meta">${fmtDate(s.shadow_date)}${s.duration_minutes ? ` &middot; ${s.duration_minutes} min` : ''}</div></div>
+        <span class="pill ${s.status === 'approved' ? 'ok' : s.status === 'denied' ? 'bad' : 'warn'}">${escapeHtml(s.status || '')}</span>
+      </div></div>`).join('') : '<div class="d-empty">No shadow logs.</div>'
+    }</div>`;
+}
+
+function tabCallWork() {
+  const c = D_DATA.calls;
+  if (!c.length) return '<div class="d-empty">No call-list leads assigned to this rep.</div>';
+  return `<div class="count" style="margin-bottom:10px">${c.length} assigned lead${c.length === 1 ? '' : 's'}</div>
+    <div class="d-list">` + c.map(l => `
+    <div class="d-item"><div class="it-top">
+      <div><span class="it-title">${escapeHtml(l.opp_name || '(no name)')}</span>
+      <div class="it-meta">${escapeHtml(l.state || '')}${l.lead_source ? ` &middot; ${escapeHtml(l.lead_source)}` : ''}${l.appt_date ? ` &middot; appt ${fmtDate(l.appt_date)}` : ''}</div></div>
+      <span class="pill ${callStatusClass(l.status)}">${escapeHtml(l.status || 'pending')}</span>
+    </div></div>`).join('') + '</div>';
+}
+
+function tabFeedback() {
+  const f = D_DATA.feedback;
+  if (!f.length) return '<div class="d-empty">No feedback submitted by this rep.</div>';
+  return '<div class="d-list">' + f.map(x => `
+    <div class="d-item"><div class="it-top">
+      <div><span class="it-title">${escapeHtml(x.title || '(untitled)')}</span>
+      <div class="it-meta">${escapeHtml(x.type || '')}${x.priority ? ` &middot; ${escapeHtml(x.priority)}` : ''} &middot; ${fmtDate(x.created_at)}</div></div>
+      <span class="pill ${x.status === 'resolved' ? 'ok' : x.status === 'new' ? 'info' : 'warn'}">${escapeHtml(x.status || '')}</span>
+    </div></div>`).join('') + '</div>';
+}
+
 // ── Helpers ──
+function uniStatusLabel(s) {
+  return ({ 'approved':'Complete','pending_review':'In review','retake':'Retake','in_progress':'In progress','assigned':'Assigned','not assigned':'Not assigned' }[s] || s);
+}
+function callStatusClass(s) {
+  return s === 'sold' || s === 'appointment_set' ? 'ok' : s === 'dead' || s === 'no_answer' ? 'bad' : 'warn';
+}
 function lastSeenLabel(d) {
   if (!d) return 'never';
   const days = daysSince(d);
@@ -236,15 +408,11 @@ function lastSeenLabel(d) {
   if (days < 7) return `${days} days ago`;
   return fmtDate(d);
 }
-function daysSince(d) {
-  return Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 86400000));
-}
-function fmtDate(d) {
-  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
+function daysSince(d) { return Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 86400000)); }
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '--'; }
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
 }
 
 document.getElementById('search').addEventListener('input', render);
