@@ -888,6 +888,7 @@ window.initApp = function (profile, session) {
   document.getElementById('userLabel').textContent =
     profile.name || (session.user && session.user.email) || '';
   loadResources();
+  switchTab('tools'); // default the admin page to the Tools tab on load
 };
 
 // changePassword is provided by /auth-gate.js. The old inline version updated
