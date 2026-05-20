@@ -7,6 +7,10 @@
       "label": "Offset / Production Cap"
     },
     {
+      "key": "usage",
+      "label": "Usage & Production"
+    },
+    {
       "key": "max_system_size",
       "label": "Max System Size"
     },
@@ -111,6 +115,12 @@
           "type": "text"
         },
         {
+          "key": "usage",
+          "label": "Usage & Production",
+          "value": "Design to the customer's historical usage PLUS the legislated CT adders (EV / Heat Pump, below). Do not cap production at usage -- the old 'do not exceed usage amount with production' guideline is incorrect for CT. 5-year lookback (new homeowner on an existing home): at Interconnection review the utility approves the highest 12-month usage from the past 5 years, plus adders. That history is not available at point of sale; if the rep can obtain the prior bills from the customer, submit them so the larger system can be honored.",
+          "type": "text"
+        },
+        {
           "key": "max_system_size",
           "label": "Max System Size",
           "value": "25kW-AC (inverter) is the max system allowed in CT. If the original system is part of the RRES program (installed 2022 or later), the MAX AC for both systems combined cannot exceed 25kW (inverter size).",
@@ -136,19 +146,19 @@
         {
           "key": "inverter_rules",
           "label": "Inverter Sizing",
-          "value": "Less than 12 months on the bill: 9.0K-AC is the max inverter size allowed. Calculate the average shown on the bill; do not exceed the 9.0K inverter cap. If the rep requests a 9.0K inverter, build to this. If a welcome letter and load calc are provided, build to the load calc but do not exceed the 9.0K inverter cap. CT allows 28 (410-watt) panels on a SE7.6K inverter.",
+          "value": "9 kW AC inverter cap: applies specifically to NEW BUILDS and homes with NO usage history (this is the scenario, not a blanket CT rule). Build to the available usage and do not exceed the 9 kW AC inverter cap. Operational note: no stocked inverter combination totals exactly 9 kW, so these designs require Micro Inverters (see the Special Work / Micro Inverter SOP). CT allows 28 (410-watt) panels on a SE7.6K inverter.",
           "type": "text"
         },
         {
           "key": "electric_vehicle",
           "label": "Electric Vehicle",
-          "value": "Design to the annual usage plus 3,285 kWh. Account for up to two electric vehicles max, regardless of how many the customer plans to purchase. Rep must have the customer sign the CT MOU for all purchase methods. No additional documents required (no proof of purchase/receipts). EV/Heat Pump with less than 12 months on the bill: you can design over the 9.0K-AC inverter cap -- generate the quote based on the 9.0K cap first, then add the production allowed per item to the 9.0K system production in Sunnova. Rep must provide the required proof to submit with the application.",
+          "value": "Legislated adder: up to two electric vehicles, +3,285 kWh each, added on top of the customer's historical usage (max 2, regardless of how many the customer plans to buy). Documentation (all purchase methods): sign the CT MOU and indicate the adder in the combined packet -- proof of purchase / receipts are no longer required. EV or Heat Pump with less than 12 months of history: design over the 9 kW AC cap by quoting the 9 kW system first, then adding the allowed adder production.",
           "type": "text"
         },
         {
           "key": "heat_pump",
           "label": "Heat Pump",
-          "value": "Design to the annual usage plus 3,608 kWh. Rep must have the customer sign the CT MOU for all purchase methods. No additional documents required.",
+          "value": "Legislated adder on top of the customer's historical usage: whole-home Air Source Heat Pump +3,608 kWh; whole-home Ground Source Heat Pump +2,458 kWh. Documentation (all purchase methods): sign the CT MOU and indicate the adder in the combined packet.",
           "type": "text"
         },
         {
