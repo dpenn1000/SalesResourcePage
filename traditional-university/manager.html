@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<link rel="stylesheet" href="/auth-gate.css">
 <style>
 :root {
   --solar-green: #78C832; --solar-green-dark: #5FA520;
@@ -283,40 +285,57 @@ table.data tbody tr:hover { background: #F5F7F0; }
 </head>
 <body>
 
-<!-- SIGN-IN -->
-<div id="signin-view" class="signin-wrap">
+<!-- AUTH-GATE SCREENS (loginScreen / changePasswordScreen / appWrap toggled by auth-gate.js) -->
+<div id="loginScreen" class="signin-wrap" style="display:none;">
   <div class="signin-card">
     <div class="logo-row">
       <span class="dot"></span>
       <span>CT Traditional · Manager Access</span>
     </div>
     <h2>Manager Portal</h2>
-    <p class="subtitle">Sign in with your manager nickname.</p>
+    <p class="subtitle">Sign in with your Trinity Solar username.</p>
 
-    <div id="signin-msg"></div>
+    <div id="loginError" class="msg msg-error" style="display:none;"></div>
 
-    <form id="signin-form" onsubmit="handleSignin(event)">
-      <div class="form-group">
-        <label for="si-nickname">Nickname</label>
-        <input type="text" id="si-nickname" required autocomplete="username" pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 characters. Letters, numbers, underscore, hyphen.">
-      </div>
-      <div class="form-group">
-        <label for="si-password">Password</label>
-        <input type="password" id="si-password" required autocomplete="current-password">
-        <div class="hint" id="pw-hint">At least 6 characters.</div>
-      </div>
-      <button type="submit" class="btn btn-primary btn-full" id="signin-btn">Sign in</button>
-    </form>
-
-    <div style="text-align: center; margin-top: var(--s-4); font-size: 0.875rem; color: var(--text-muted);">
-      <span id="auth-toggle-text">First time here?</span>
-      <a href="#" onclick="toggleSignupMode(event)" id="auth-toggle-link" style="color: var(--totalhome-blue); font-weight: 600; text-decoration: none; margin-left: 4px;">Create account</a>
+    <div class="form-group">
+      <label for="loginUser">Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <div class="hint">Last name + first initial.</div>
     </div>
+    <div class="form-group">
+      <label for="loginPass">Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password">
+    </div>
+    <button type="button" class="btn btn-primary btn-full" id="loginBtn" onclick="signIn()">Sign in</button>
+  </div>
+</div>
+
+<div id="changePasswordScreen" class="signin-wrap" style="display:none;">
+  <div class="signin-card">
+    <div class="logo-row">
+      <span class="dot"></span>
+      <span>CT Traditional · Manager Access</span>
+    </div>
+    <h2>Set your password</h2>
+    <p class="subtitle">First time signing in. Pick something only you know.</p>
+
+    <div id="cpError" class="msg msg-error" style="display:none;"></div>
+
+    <div class="form-group">
+      <label for="cpNew">New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password">
+      <div class="hint">At least 8 characters.</div>
+    </div>
+    <div class="form-group">
+      <label for="cpConfirm">Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password">
+    </div>
+    <button type="button" class="btn btn-primary btn-full" id="cpBtn" onclick="changePassword()">Update password</button>
   </div>
 </div>
 
 <!-- SHELL -->
-<div id="app-shell" style="display:none;">
+<div id="appWrap" style="display:none;">
 
 <header class="page-header">
   <div class="wrap">
@@ -494,9 +513,9 @@ table.data tbody tr:hover { background: #F5F7F0; }
 
 <script>
 // ===================== CONFIG =====================
-const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
-const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Shared auth-gate Supabase client (window.sb). Single source of truth for the
+// URL + publishable key, and the authenticated session this page runs in.
+const supa = window.sb;
 
 let state = {
   session: null,
@@ -508,117 +527,37 @@ let state = {
   pendingAttempts: [], // with rep + cert joined
   shadows: [],
   help: [],
-  authMode: 'signin',
   activeTab: 'queue',
   shadowFilter: 'all',
   helpFilter: 'all',
 };
 
 // ===================== AUTH =====================
-const SYNTHETIC_DOMAIN = 'ct-resource-page.com';
-const nickToEmail = n => `${String(n || '').trim().toLowerCase()}@${SYNTHETIC_DOMAIN}`;
-const emailToNick = e => (e || '').split('@')[0];
-const validNick = n => /^[a-zA-Z0-9_-]{3,30}$/.test(n || '');
-
-function toggleSignupMode(e) {
-  if (e) e.preventDefault();
-  state.authMode = state.authMode === 'signup' ? 'signin' : 'signup';
-  const isSignup = state.authMode === 'signup';
-  document.getElementById('signin-btn').textContent = isSignup ? 'Create account' : 'Sign in';
-  document.getElementById('auth-toggle-text').textContent = isSignup ? 'Already have an account?' : 'First time here?';
-  document.getElementById('auth-toggle-link').textContent = isSignup ? 'Sign in' : 'Create account';
-  document.getElementById('si-password').autocomplete = isSignup ? 'new-password' : 'current-password';
-  document.getElementById('pw-hint').textContent = isSignup
-    ? 'Pick something at least 6 characters. You\'ll use this to sign in from now on.'
-    : 'At least 6 characters.';
-  document.getElementById('signin-msg').innerHTML = '';
-}
-
-async function handleSignin(e) {
-  e.preventDefault();
-  const nickname = document.getElementById('si-nickname').value.trim().toLowerCase();
-  const password = document.getElementById('si-password').value;
-  const msg = document.getElementById('signin-msg');
-  const btn = document.getElementById('signin-btn');
-  msg.innerHTML = '';
-
-  if (!validNick(nickname)) {
-    msg.innerHTML = '<div class="msg msg-error">Nickname must be 3-30 characters. Letters, numbers, underscore, or hyphen only.</div>';
-    return;
-  }
-
-  btn.disabled = true;
-  const syntheticEmail = nickToEmail(nickname);
-
-  try {
-    if (state.authMode === 'signup') {
-      const { data, error } = await supa.auth.signUp({ email: syntheticEmail, password });
-      if (error) throw error;
-      if (!data.session) {
-        msg.innerHTML = '<div class="msg msg-error">Account created, but email confirmation is still enabled in Supabase. Turn off "Confirm email" in Authentication settings.</div>';
-        return;
-      }
-      await init();
-    } else {
-      const { error } = await supa.auth.signInWithPassword({ email: syntheticEmail, password });
-      if (error) {
-        const cleaned = /invalid login credentials/i.test(error.message)
-          ? 'Nickname or password is incorrect.' : error.message;
-        throw new Error(cleaned);
-      }
-      await init();
-    }
-  } catch (err) {
-    msg.innerHTML = `<div class="msg msg-error">${err.message || 'Sign-in failed.'}</div>`;
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-async function signOut() { await supa.auth.signOut(); window.location.reload(); }
+// Sign-in, sign-out, change-password, and the must-change-password gate are
+// handled by /auth-gate.js (window.signIn / signOut / changePassword).
 
 // ===================== INIT =====================
-async function init() {
-  const { data: { session } } = await supa.auth.getSession();
+// auth-gate.js calls window.initApp(profile, session) once, after sign-in and
+// the must-change-password gate are cleared.
+window.initApp = async function (profile, session) {
   state.session = session;
-  if (!session) {
-    document.getElementById('signin-view').style.display = 'flex';
-    document.getElementById('app-shell').style.display = 'none';
+
+  // auth-gate verified the profile; we still need the full managers row.
+  const { data: mgr } = await supa.from('managers')
+    .select('*')
+    .eq('auth_user_id', session.user.id)
+    .maybeSingle();
+
+  if (!mgr) {
+    document.getElementById('appWrap').innerHTML =
+      '<div style="padding:40px;text-align:center;">' +
+      '<h2>Account not linked to a manager profile</h2>' +
+      '<p>Your sign-in worked, but no manager record was found. Contact an existing manager.</p>' +
+      '<button class="btn btn-ghost" onclick="signOut()">Sign out</button></div>';
     return;
   }
 
-  // Manager record
-  let { data: mgr } = await supa.from('managers').select('*').eq('auth_user_id', session.user.id).maybeSingle();
-  if (!mgr) {
-    // Not yet linked. Figure out path based on email format.
-    const authEmail = session.user.email || '';
-    const isSynthetic = authEmail.endsWith('@' + SYNTHETIC_DOMAIN);
-    let lookup = null;
-    if (isSynthetic) {
-      const nick = emailToNick(authEmail).toLowerCase();
-      const r = await supa.from('managers').select('*').ilike('nickname', nick).maybeSingle();
-      lookup = r.data;
-    } else {
-      const r = await supa.from('managers').select('*').eq('email', authEmail.toLowerCase()).maybeSingle();
-      lookup = r.data;
-    }
-    if (lookup && !lookup.auth_user_id) {
-      await supa.from('managers').update({ auth_user_id: session.user.id }).eq('id', lookup.id);
-      mgr = { ...lookup, auth_user_id: session.user.id };
-    }
-  }
-  if (!mgr) {
-    document.getElementById('signin-view').style.display = 'flex';
-    document.getElementById('app-shell').style.display = 'none';
-    document.getElementById('signin-msg').innerHTML =
-      '<div class="msg msg-error">No manager account found with that nickname. Contact an existing manager.</div>';
-    await supa.auth.signOut();
-    return;
-  }
   state.manager = mgr;
-
-  document.getElementById('signin-view').style.display = 'none';
-  document.getElementById('app-shell').style.display = 'block';
   document.getElementById('header-name').textContent = mgr.name;
 
   await loadAll();
@@ -628,7 +567,7 @@ async function init() {
   renderAssignments();
   renderShadows();
   renderHelp();
-}
+};
 
 async function loadAll() {
   const [repsRes, mgrsRes, certsRes, assignsRes, attemptsRes, shadowsRes, helpRes] = await Promise.all([
@@ -1391,13 +1330,8 @@ function escapeHtml(s) {
 }
 
 // ===================== BOOT =====================
-supa.auth.onAuthStateChange((_event, session) => {
-  if (session && !state.session) {
-    state.session = session;
-    init();
-  }
-});
-init();
+// auth-gate.js owns the auth state machine and calls window.initApp once the
+// user is authenticated, so this page needs no boot call of its own.
 </script>
 </body>
 </html>

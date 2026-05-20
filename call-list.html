@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<link rel="stylesheet" href="/auth-gate.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -573,158 +575,42 @@
 const SB_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqY296c2t5b3BldHZpZ2pobG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MDU0MTQsImV4cCI6MjA5MjE4MTQxNH0.IXvvXIYdfFNaQSrnwmKvNJEOHLq9wq6NZfE0SUB5NfE';
 
-// HDR is mutated by onAuthStateChange: apikey stays the anon key (identifies the
-// project), Authorization becomes the user's JWT (identifies them for RLS).
-// Before sign-in this is null and no fetch is allowed.
+// This page makes direct REST calls with a hand-built header object (HDR):
+// apikey = anon key (identifies the project), Authorization = the user's JWT.
+// auth-gate.js owns sign-in; we rebuild HDR from the session it hands us and
+// keep it fresh on every token refresh.
 let HDR = null;
-
-const sb = supabase.createClient(SB_URL, SB_KEY);
 
 let allLeads = [], contactMap = {};
 let activeStateFilter = '', activeStatusFilter = '';
 let modalOppId = null, modalOppName = null;
-let appStarted = false;
+
+function buildHdr(session) {
+  return { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + session.access_token, 'Content-Type': 'application/json' };
+}
+// Keep HDR current as the SDK refreshes the token in the background.
+window.sb.auth.onAuthStateChange((_e, session) => { HDR = session ? buildHdr(session) : null; });
+
+// auth-gate.js calls this once, after sign-in + the must-change-password gate.
+window.initApp = function (profile, session) {
+  HDR = buildHdr(session);
+  document.getElementById('userLabel').textContent = profile.name || '';
+  initData();
+};
 
 // ── Auth gate ───────────────────────────────────────────────────────────
-function showOnly(screenId) {
-  for (const id of ['loginScreen', 'changePasswordScreen', 'appWrap']) {
-    const el = document.getElementById(id);
-    if (!el) continue;
-    el.style.display = (id === screenId)
-      ? (id === 'appWrap' ? 'block' : 'flex')
-      : 'none';
-  }
-}
+// Screen switching (loginScreen / changePasswordScreen / appWrap) is handled by auth-gate.js.
 
-sb.auth.onAuthStateChange((_e, session) => {
-  if (session) {
-    // Defer the role lookup out of the auth state machine -- awaiting Supabase
-    // calls inside this callback deadlocks the SDK.
-    setTimeout(async () => {
-      // Try managers first, then reps. Both tables follow the same shape:
-      // status (active/inactive) and must_change_password.
-      let profile = null;
-      const { data: mgr } = await sb.from('managers')
-        .select('name, is_admin, status, must_change_password')
-        .eq('auth_user_id', session.user.id)
-        .maybeSingle();
-      if (mgr) {
-        profile = { kind: 'manager', name: mgr.name, is_admin: !!mgr.is_admin,
-                    status: mgr.status, must_change_password: !!mgr.must_change_password };
-      } else {
-        const { data: rep } = await sb.from('reps')
-          .select('name, status, must_change_password')
-          .eq('auth_user_id', session.user.id)
-          .maybeSingle();
-        if (rep) {
-          profile = { kind: 'rep', name: rep.name, is_admin: false,
-                      status: rep.status, must_change_password: !!rep.must_change_password };
-        }
-      }
+// The auth state machine (profile lookup, status + must-change-password gating,
+// screen switching) is owned by /auth-gate.js, which calls window.initApp once.
 
-      const errEl = document.getElementById('loginError');
-      if (!profile) {
-        errEl.textContent = 'Your account is signed in but not authorized for this app. Contact Dan if you need access.';
-        errEl.style.display = 'block';
-        await sb.auth.signOut();
-        return;
-      }
-      if (profile.status !== 'active') {
-        errEl.textContent = 'Your account has been deactivated. Contact Dan if this is in error.';
-        errEl.style.display = 'block';
-        await sb.auth.signOut();
-        return;
-      }
-      if (profile.must_change_password) {
-        showOnly('changePasswordScreen');
-        return;
-      }
-      // Refresh the request headers with the user's JWT every time the
-      // session updates (sign-in, token refresh, etc.).
-      HDR = {
-        'apikey': SB_KEY,
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json'
-      };
-      window.IS_ADMIN = profile.is_admin;
-      window.IS_MANAGER = profile.kind === 'manager';
-      window.IS_REP = profile.kind === 'rep';
-      showOnly('appWrap');
-      document.getElementById('userLabel').textContent = profile.name || '';
-      if (!appStarted) {
-        appStarted = true;
-        initApp();
-      }
-    }, 0);
-  } else {
-    showOnly('loginScreen');
-  }
-});
-
-async function signIn() {
-  const raw   = document.getElementById('loginUser').value.trim().toLowerCase();
-  const pass  = document.getElementById('loginPass').value;
-  const errEl = document.getElementById('loginError');
-  const btn   = document.getElementById('loginBtn');
-  errEl.style.display = 'none';
-  if (!raw || !pass) {
-    errEl.textContent = 'Enter your username and password.';
-    errEl.style.display = 'block';
-    return;
-  }
-  const email = raw.includes('@') ? raw : `${raw}@ct-resource-page.com`;
-  btn.disabled = true;
-  btn.textContent = 'Signing in...';
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-  btn.disabled = false;
-  btn.textContent = 'Sign In';
-  if (error) {
-    errEl.textContent = error.message;
-    errEl.style.display = 'block';
-  }
-}
-
-async function signOut() { await sb.auth.signOut(); }
-
-async function changePassword() {
-  const newPass = document.getElementById('cpNew').value;
-  const confirm = document.getElementById('cpConfirm').value;
-  const errEl   = document.getElementById('cpError');
-  const btn     = document.getElementById('cpBtn');
-  errEl.style.display = 'none';
-  if (newPass.length < 8) {
-    errEl.textContent = 'Password must be at least 8 characters.';
-    errEl.style.display = 'block';
-    return;
-  }
-  if (newPass !== confirm) {
-    errEl.textContent = 'Passwords do not match.';
-    errEl.style.display = 'block';
-    return;
-  }
-  btn.disabled = true;
-  btn.textContent = 'Updating...';
-  const { error: pwErr } = await sb.auth.updateUser({ password: newPass });
-  if (pwErr) {
-    btn.disabled = false;
-    btn.textContent = 'Update Password';
-    errEl.textContent = pwErr.message;
-    errEl.style.display = 'block';
-    return;
-  }
-  const { data: { user } } = await sb.auth.getUser();
-  // Clear the flag on whichever table the user belongs to. The eq filter
-  // makes the wrong-table update a no-op.
-  await sb.from('managers').update({ must_change_password: false }).eq('auth_user_id', user.id);
-  await sb.from('reps').update({ must_change_password: false }).eq('auth_user_id', user.id);
-  btn.disabled = false;
-  btn.textContent = 'Update Password';
-  // Hard reload so the auth listener re-evaluates with the cleared flag.
-  window.location.reload();
-}
+// signIn / signOut / changePassword are provided by /auth-gate.js
+// (window.signIn / window.signOut / window.changePassword). The old inline
+// changePassword updated managers/reps directly, which fails RLS for non-admin
+// managers; auth-gate uses the clear_must_change_password RPC instead.
 
 // ── App init (fires once per page load, after auth is verified) ─────────
-async function initApp() {
+async function initData() {
   await Promise.all([loadLeads(), loadAllContacts()]);
   render();
 }
