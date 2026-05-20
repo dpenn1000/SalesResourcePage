@@ -720,6 +720,7 @@ footer.page-foot {
     <div class="pricing-controls">
       <div class="field"><label for="p-state">State</label><select id="p-state"><option value="">All</option></select></div>
       <div class="field"><label for="p-partner">Partner</label><select id="p-partner"><option value="">All</option></select></div>
+      <div class="field"><label>Discontinued</label><button class="state-chip" id="p-hide-disc" aria-pressed="true">Hidden</button></div>
       <div class="sub-tabs" role="tablist" aria-label="Pricing sub-mode">
         <button data-pmode="lease_ppa"  role="tab" aria-selected="true">Lease / PPA</button>
         <button data-pmode="loan_solar" role="tab" aria-selected="false">Solar Loan</button>
@@ -786,6 +787,7 @@ let STATE = {
   pricingState: '',
   pricingPartner: '',
   pmode: 'lease_ppa',
+  hideDiscontinued: true,
   // matrix
   matrixProduct: 'tpo',
   // search
@@ -1457,6 +1459,19 @@ function initPricing() {
       renderPricing();
     });
   });
+
+  const hideBtn = document.getElementById('p-hide-disc');
+  hideBtn.addEventListener('click', () => {
+    STATE.hideDiscontinued = !STATE.hideDiscontinued;
+    hideBtn.setAttribute('aria-pressed', STATE.hideDiscontinued);
+    hideBtn.textContent = STATE.hideDiscontinued ? 'Hidden' : 'Shown';
+    renderPricing();
+  });
+}
+
+function isDiscontinued(partnerKey) {
+  const s = CHEAT.partners[partnerKey]?.status;
+  return s === 'paused' || s === 'defunct';
 }
 
 function renderPricing() {
@@ -1482,6 +1497,7 @@ function rowMatchesQuery(row, q) {
 
 function renderLeasePpaTable() {
   let rows = PRICING.lease_ppa.slice();
+  if (STATE.hideDiscontinued) rows = rows.filter(r => !isDiscontinued(r.partner));
   if (STATE.pricingState) rows = rows.filter(r => r.state === STATE.pricingState);
   if (STATE.pricingPartner) rows = rows.filter(r => r.partner === STATE.pricingPartner);
   if (STATE.query) rows = rows.filter(r => rowMatchesQuery(r, STATE.query));
@@ -1520,6 +1536,7 @@ function renderLeasePpaTable() {
 
 function renderLoanSolarTables() {
   let blocks = PRICING.loan_solar_only.slice();
+  if (STATE.hideDiscontinued) blocks = blocks.filter(b => !isDiscontinued(b.partner));
   if (STATE.pricingPartner) blocks = blocks.filter(b => b.partner === STATE.pricingPartner);
   if (!blocks.length) return '<div class="empty-state">No matches.</div>';
 
