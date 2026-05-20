@@ -663,6 +663,12 @@ footer.page-foot {
         <option value="battery">Battery</option>
       </select></div>
       <div class="field"><label for="chk-state">State (optional)</label><select id="chk-state"><option value="">Any</option></select></div>
+      <div class="field"><label>View</label>
+        <div class="sub-tabs" role="tablist" aria-label="Checklist detail level" style="display:inline-flex;">
+          <button data-chkview="simple" role="tab" aria-selected="true">Simple</button>
+          <button data-chkview="full" role="tab" aria-selected="false">Full Ops</button>
+        </div>
+      </div>
     </div>
     <div class="chk-summary" id="chk-summary"></div>
     <div id="checklist-content"></div>
@@ -768,7 +774,7 @@ footer.page-foot {
 // ============================================================
 // Data
 // ============================================================
-let CHEAT, PRICING, GUIDE, CHECK;
+let CHEAT, PRICING, GUIDE, CHECK, CONSOL;
 let STATE = {
   mode: 'home',
   // by state
@@ -783,6 +789,7 @@ let STATE = {
   chkPartner: 'lightreach',
   chkProject: 'solar',
   chkState: '',
+  chkView: 'simple',
   // pricing
   pricingState: '',
   pricingPartner: '',
@@ -821,13 +828,14 @@ const PROPERTY_TYPES = [
 // ============================================================
 async function boot() {
   try {
-    const [cs, pr, gd, ck] = await Promise.all([
+    const [cs, pr, gd, ck, ckc] = await Promise.all([
       fetch('./cheat-sheet.json').then(r => r.json()),
       fetch('./pricing.json').then(r => r.json()),
       fetch('./state-guidelines.json').then(r => r.json()),
       fetch('./checklist.json').then(r => r.json()),
+      fetch('./checklist-consolidated.json').then(r => r.json()),
     ]);
-    CHEAT = cs; PRICING = pr; GUIDE = gd; CHECK = ck;
+    CHEAT = cs; PRICING = pr; GUIDE = gd; CHECK = ck; CONSOL = ckc;
   } catch (err) {
     document.querySelector('main').innerHTML =
       '<div class="empty-state"><h3>Could not load data</h3><p>'+err.message+
@@ -1100,15 +1108,28 @@ function initChecklist() {
   const stateSel = document.getElementById('chk-state');
   GUIDE.states.forEach(s => stateSel.appendChild(opt(s.code, s.code)));
   stateSel.addEventListener('change', e => { STATE.chkState = e.target.value; renderChecklist(); });
+
+  document.querySelectorAll('[data-chkview]').forEach(b => {
+    b.addEventListener('click', () => {
+      STATE.chkView = b.dataset.chkview;
+      document.querySelectorAll('[data-chkview]').forEach(x => x.setAttribute('aria-selected', x === b));
+      renderChecklist();
+    });
+  });
 }
 
 function renderChecklist() {
   const wrap = document.getElementById('checklist-content');
   const summary = document.getElementById('chk-summary');
   const q = STATE.query;
+  const simple = STATE.chkView === 'simple';
+  const data = simple ? CONSOL : CHECK;
 
-  let items = CHECK.items.filter(it =>
-    it.active &&
+  const titleOf = it => it.title || it.summary || it.description || '';
+  const descOf = it => simple ? (it.detail || '') : (it.description !== it.summary ? it.description : '');
+
+  let items = data.items.filter(it =>
+    (simple || it.active) &&
     it.partners.includes(STATE.chkPartner) &&
     (it.project_types.length === 0 || it.project_types.includes(STATE.chkProject)) &&
     (it.territory.includes('All') || (STATE.chkState && it.territory.includes(STATE.chkState)) ||
@@ -1116,27 +1137,28 @@ function renderChecklist() {
   );
   if (q) {
     items = items.filter(it =>
-      it.summary.toLowerCase().includes(q) || it.description.toLowerCase().includes(q) ||
+      titleOf(it).toLowerCase().includes(q) || (descOf(it) || '').toLowerCase().includes(q) ||
       it.group.toLowerCase().includes(q));
   }
 
   const pName = CHEAT.partners[STATE.chkPartner]?.name || STATE.chkPartner;
   const projName = { solar: 'Solar', roof: 'Roofing', battery: 'Battery' }[STATE.chkProject];
   const crit = items.filter(it => it.critical).length;
-  summary.innerHTML = '<b>' + items.length + '</b> requirement' + (items.length === 1 ? '' : 's') +
+  summary.innerHTML = '<b>' + items.length + '</b> ' + (simple ? 'requirement' : 'Ops item') +
+    (items.length === 1 ? '' : 's') +
     ' for <b>' + escapeHtml(pName) + '</b> &middot; ' + escapeHtml(projName) +
     (STATE.chkState ? ' &middot; ' + escapeHtml(STATE.chkState) : '') +
-    ' &mdash; <b>' + crit + '</b> critical.';
+    ' &mdash; <b>' + crit + '</b> critical.' +
+    (simple ? ' <span style="color:var(--muted);">Switch to Full Ops for every granular system check.</span>' : '');
 
   if (!items.length) {
     wrap.innerHTML = '<div class="empty-state"><p>No checklist items for this combination.</p></div>';
     return;
   }
 
-  // group in CHECK.groups order
   const byGroup = {};
   items.forEach(it => { (byGroup[it.group] = byGroup[it.group] || []).push(it); });
-  const order = CHECK.groups.filter(g => byGroup[g]);
+  const order = data.groups.filter(g => byGroup[g]);
 
   let html = '';
   order.forEach(g => {
@@ -1144,23 +1166,24 @@ function renderChecklist() {
     byGroup[g].forEach(it => {
       const critCls = it.critical ? 'critical' : 'noncritical';
       html += '<div class="chk-item ' + critCls + '"><div class="ci-head">';
-      html += '<span class="ci-title">' + escapeHtml(it.summary || it.description) + '</span>';
+      html += '<span class="ci-title">' + escapeHtml(titleOf(it)) + '</span>';
       html += it.critical ? '<span class="ci-tag crit">Critical</span>'
                           : '<span class="ci-tag non">Non-critical</span>';
       if (!it.territory.includes('All')) {
         html += '<span class="ci-tag terr">' + it.territory.join(', ') + '</span>';
       }
       html += '</div>';
-      if (it.description && it.description !== it.summary) {
-        html += '<p class="ci-desc">' + escapeHtml(it.description) + '</p>';
-      }
-      const meta = [];
-      if (it.fail_reasons.length) meta.push('Fails if: ' + it.fail_reasons.join(', '));
-      if (it.utility && it.utility !== 'All') meta.push('Utility: ' + it.utility);
-      if (meta.length) html += '<div class="ci-meta">' + escapeHtml(meta.join(' · ')) + '</div>';
-      if (it.parent_question) {
-        html += '<div class="ci-dep">Only if: ' + escapeHtml(it.parent_question) +
-          (it.dependent_parent_answer ? ' = ' + escapeHtml(it.dependent_parent_answer) : '') + '</div>';
+      const desc = descOf(it);
+      if (desc) html += '<p class="ci-desc">' + escapeHtml(desc) + '</p>';
+      if (!simple) {
+        const meta = [];
+        if (it.fail_reasons && it.fail_reasons.length) meta.push('Fails if: ' + it.fail_reasons.join(', '));
+        if (it.utility && it.utility !== 'All') meta.push('Utility: ' + it.utility);
+        if (meta.length) html += '<div class="ci-meta">' + escapeHtml(meta.join(' · ')) + '</div>';
+        if (it.parent_question) {
+          html += '<div class="ci-dep">Only if: ' + escapeHtml(it.parent_question) +
+            (it.dependent_parent_answer ? ' = ' + escapeHtml(it.dependent_parent_answer) : '') + '</div>';
+        }
       }
       html += '</div>';
     });

@@ -1,0 +1,938 @@
+{
+  "version": "2026-05-20",
+  "note": "Rep-facing consolidation of the M0 tracking checklist. Full granular list available in checklist.json (Full Ops view).",
+  "groups": [
+    "Contract & Signing",
+    "Credit",
+    "Title & Ownership",
+    "Property Type",
+    "Electric Bill & Usage",
+    "Installation & Site",
+    "Photos",
+    "Design",
+    "Tree Removal",
+    "Ground Mount",
+    "Detached Structure",
+    "Add-On",
+    "Net Metering (Schedule Z)",
+    "Roofing",
+    "Battery",
+    "Combined Packet",
+    "Special Work (handled by Ops)"
+  ],
+  "items": [
+    {
+      "group": "Contract & Signing",
+      "title": "Signed partner agreement",
+      "detail": "An active, signed agreement in the finance partner portal.",
+      "critical": true,
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "Signed cash contract",
+      "detail": "A complete, signed cash contract.",
+      "critical": true,
+      "partners": [
+        "cash"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "Proof of income (if required)",
+      "detail": "Provide proof of income when the partner requires it.",
+      "critical": true,
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "ID verification",
+      "detail": "A copy of the customer's driver's license or other acceptable ID.",
+      "critical": true,
+      "partners": [
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "Customer validation completed",
+      "detail": "Customer has completed the partner validation call/process.",
+      "critical": true,
+      "partners": [
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "Sales rep recheck verification",
+      "detail": "Rep has completed the recheck verification.",
+      "critical": true,
+      "partners": [
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "ACH set up",
+      "detail": "Customer has completed the ACH payment setup.",
+      "critical": true,
+      "partners": [
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "Language of agreement",
+      "detail": "Confirm the primary language on the agreement (English or Spanish).",
+      "critical": false,
+      "partners": [
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "Web portal sign-up (LightReach)",
+      "detail": "Customer has signed up for their LightReach web portal.",
+      "critical": true,
+      "partners": [
+        "lightreach"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "Clear Facts Disclosure (LightReach)",
+      "detail": "Clear Facts Disclosure completed by the customer.",
+      "critical": true,
+      "partners": [
+        "lightreach"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Contract & Signing",
+      "title": "Deposit confirmed (if required)",
+      "detail": "If a deposit is required, it's collected and the amount is listed accurately.",
+      "critical": true,
+      "partners": [
+        "cash"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Credit",
+      "title": "Credit pass on file",
+      "detail": "Proof the credit check passed.",
+      "critical": true,
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Credit",
+      "title": "Credit not expiring",
+      "detail": "Confirm enough time remains before credit expires (LightReach 90 days; others 180 days from approval).",
+      "critical": true,
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "Proof of ownership",
+      "detail": "Recorded deed, or an unrecorded deed / mortgage statement where accepted.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "Title approved in portal",
+      "detail": "For financed deals, the title is approved in the partner portal. If not, the conditions below may apply.",
+      "critical": false,
+      "partners": [
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If owned by a corporation or LLC",
+      "detail": "Provide LLC / corporation documents.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If exempt property",
+      "detail": "Provide exemption documentation (property that can't be passed by will or claimed by creditors).",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If signed under Power of Attorney",
+      "detail": "Provide a copy of the POA (LightReach does not allow POA).",
+      "critical": true,
+      "partners": [
+        "cash",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If more than 2 people on title",
+      "detail": "Confirm handling for additional title holders.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If name doesn't match contract",
+      "detail": "Obtain a name amendment signature.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If address doesn't match contract",
+      "detail": "Obtain an address amendment signature.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If a certificate of occupancy is required",
+      "detail": "Provide the certificate of occupancy.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If a Life Estate",
+      "detail": "Provide the Life Estate documents.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Title & Ownership",
+      "title": "If held in a Trust",
+      "detail": "List the trustee (not the trust) on the contract and provide the Certificate of Trust.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Property Type",
+      "title": "Confirm property type is eligible",
+      "detail": "Identify the property type on title (or via certificate of occupancy / property card) and confirm it's eligible for the selected partner. Watch-outs with partner-specific rules: manufactured homes, condos, apartments, ADUs, duplex/triplex, townhomes. See the By Partner lens for the full property matrix.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Electric Bill & Usage",
+      "title": "Recent, legible electric bill",
+      "detail": "A clear, full bill dated within the last 3 months (LightReach: 2 months). Name and service address must match the contract.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Electric Bill & Usage",
+      "title": "No utility balance issues",
+      "detail": "No past-due balance over the partner limit (LightReach $1,000; IGS $600) and the customer is not on a payment plan.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Electric Bill & Usage",
+      "title": "Residential meter",
+      "detail": "Meter must be a residential type. If a GLP meter, must prove year-1 savings (Cash/SunLight).",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Electric Bill & Usage",
+      "title": "Municipal utility check",
+      "detail": "If a municipal utility, verify Trinity can work with it (Cash/SunLight).",
+      "critical": false,
+      "partners": [
+        "cash"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Electric Bill & Usage",
+      "title": "If new to the home (no bill yet)",
+      "detail": "Provide the utility welcome letter, a signed load calc, and a Letter of Explanation.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Electric Bill & Usage",
+      "title": "If usage history is thin or you're building above it",
+      "detail": "Provide a signed load calc and a Letter of Explanation (state load-calc rules vary by months on the bill -- see By State).",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Electric Bill & Usage",
+      "title": "If a low-income discount is on the bill",
+      "detail": "Provide 6 months of bills.",
+      "critical": false,
+      "partners": [
+        "cash",
+        "lightreach"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Installation & Site",
+      "title": "Confirm installation type",
+      "detail": "Identify the installation type. Standard 10-45 degree roof mount needs no extra approval.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Installation & Site",
+      "title": "If roof pitch exceeds 45 degrees",
+      "detail": "Request local ops approval for the steep-pitch install.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Installation & Site",
+      "title": "If flat roof",
+      "detail": "Request local ops approval to install a tilt kit.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Installation & Site",
+      "title": "If carport, pergola, or overhang",
+      "detail": "Confirm the structure meets partner approval guidelines (LightReach has specific guidelines).",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Photos",
+      "title": "Electrical photos",
+      "detail": "Meter, electric panel, and generator (if any) photos -- all legible.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Photos",
+      "title": "Structural photos",
+      "detail": "Exterior and interior structural photos.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Design",
+      "title": "Design Intent",
+      "detail": "Design Intent provided (signed for Direct).",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Design",
+      "title": "OneDraw certified",
+      "detail": "OneDraw is updated to match the Design Intent and partner contract for the correct property.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Design",
+      "title": "Production validation",
+      "detail": "Project shading analysis / production validation provided.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Design",
+      "title": "Change order (if needed)",
+      "detail": "Submit a change order if layout, equipment, sizing, inputs, production, or pricing changed.",
+      "critical": false,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Tree Removal",
+      "title": "If tree removal is involved",
+      "detail": "Confirm who removes the trees (Trinity or customer -- see By State for where Trinity has vendors), provide clear photos of the trees and their location relative to the house, and a completed Tree Checklist.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Ground Mount",
+      "title": "Ground mount package",
+      "detail": "Photos of the ground-mount area/location, the trench path, and confirmation of whether Trinity does the trenching.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "CT",
+        "NJ",
+        "MA",
+        "PA",
+        "RI",
+        "MD",
+        "NY"
+      ]
+    },
+    {
+      "group": "Detached Structure",
+      "title": "Detached structure package",
+      "detail": "Photos of the detached structure and its location, the trench path, and confirmation of whether Trinity does the trenching.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Add-On",
+      "title": "If an add-on to an existing system",
+      "detail": "If the original system was installed by another company, provide its equipment info or photos connected to the meter (modules, size, inverter) or the original agreement.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Net Metering (Schedule Z)",
+      "title": "If Schedule Z (virtual net metering)",
+      "detail": "Identify the meter being interconnected to, provide the electric bill and photos of the meter you're back-feeding, and the percentage of credits shared. (MA and PA only.)",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "MA",
+        "PA"
+      ]
+    },
+    {
+      "group": "Roofing",
+      "title": "If Trinity is re-roofing",
+      "detail": "Signed and dated Roof Acknowledgement form, Roof Cash Contract, and Roof Partner Contract (all matching).",
+      "critical": true,
+      "partners": [
+        "cash",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "roof"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Battery",
+      "title": "Battery package",
+      "detail": "Signed and dated Battery Acknowledgement form, Battery Cash/Partner Contract (matching), a photo of the intended battery location, and the battery pricing calculator. More than one battery needs Paul Soltys' approval.",
+      "critical": true,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "battery"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Combined Packet",
+      "title": "Combined packet complete",
+      "detail": "Fully signed and dated combined packet -- Trinity POA (notarized), plus Utility, AHJ, State, and Disclosure documents signed and dated by the title holder / contract signer.",
+      "critical": false,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    },
+    {
+      "group": "Special Work (handled by Ops)",
+      "title": "Special work flags",
+      "detail": "Skirts, overhead/underground wiring, snow guards, and critter guards trigger Ops CPR action items automatically -- no rep document needed, but flag them if known.",
+      "critical": false,
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "service_finance"
+      ],
+      "project_types": [
+        "solar"
+      ],
+      "territory": [
+        "All"
+      ]
+    }
+  ]
+}
