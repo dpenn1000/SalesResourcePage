@@ -51,9 +51,12 @@
   .rep-meta .row { display:flex; justify-content:space-between; gap:10px; }
   .rep-meta .row .k { color:var(--subtle); }
   .rep-meta .row .v { color:var(--ink); text-align:right; }
-  .rep-card .actions { margin-top:2px; padding-top:10px; border-top:1px solid var(--hairline); }
-  .rr-link { display:inline-flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:600; color:var(--green-dark); text-decoration:none; }
-  .rr-link:hover { text-decoration:underline; }
+  .rep-card .actions { margin-top:2px; padding-top:10px; border-top:1px solid var(--hairline); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .view-detail { font-size:0.82rem; font-weight:700; color:var(--green-dark); display:inline-flex; align-items:center; gap:6px; user-select:none; }
+  .view-detail .arr { transition:transform 0.12s; }
+  .rep-card:hover .view-detail .arr { transform:translateX(3px); }
+  .rr-link { display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--muted); text-decoration:none; }
+  .rr-link:hover { color:var(--green-dark); text-decoration:underline; }
 
   .notice { background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--muted); }
   .notice h2 { color:var(--ink); margin-bottom:8px; font-size:1.2rem; }
@@ -241,8 +244,9 @@ function repCard(r) {
   const cohort = r.cohort_start_date ? `Day ${daysSince(r.cohort_start_date)} of 90` : '--';
   const rr = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(r.username || '')}`;
   const u = (r.username || '').replace(/[^a-zA-Z0-9_-]/g, '');
+  const aria = escapeHtml(`View detail for ${r.name || r.username || 'rep'}`);
   return `
-    <div class="rep-card" tabindex="0" onclick="openRep('${u}')">
+    <div class="rep-card" role="button" tabindex="0" aria-label="${aria}" onclick="openRep('${u}')" onkeydown="cardKey(event,'${u}')">
       <div class="top">
         <div>
           <div class="nm">${escapeHtml(r.name || '(no name)')}</div>
@@ -256,7 +260,8 @@ function repCard(r) {
         <div class="row"><span class="k">Last sign-in</span><span class="v">${lastSeenLabel(r.lastSeen)}</span></div>
       </div>
       <div class="actions">
-        <a class="rr-link" href="${rr}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Open in Rep Review &#8599;</a>
+        <span class="view-detail">View detail <span class="arr">&rarr;</span></span>
+        <a class="rr-link" href="${rr}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Rep Review &#8599;</a>
       </div>
     </div>`;
 }
@@ -414,6 +419,7 @@ function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
     ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
 }
+function cardKey(e, u) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRep(u); } }
 
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('sort').addEventListener('change', render);
