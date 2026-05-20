@@ -816,7 +816,7 @@ footer.page-foot {
 // ============================================================
 // Data
 // ============================================================
-let CHEAT, PRICING, GUIDE, CHECK, CONSOL, CONTACTS = null;
+let CHEAT, PRICING, GUIDE, CHECK, CONSOL, CONTACTS = null, CHANGELOG = null;
 let STATE = {
   mode: 'home',
   // by state
@@ -881,6 +881,7 @@ async function boot() {
       fetch('./checklist-consolidated.json').then(r => r.json()),
     ]);
     CHEAT = cs; PRICING = pr; GUIDE = gd; CHECK = ck; CONSOL = ckc;
+    CHANGELOG = await fetch('./changelog.json').then(r => r.json()).catch(() => null);
   } catch (err) {
     document.querySelector('main').innerHTML =
       '<div class="empty-state"><h3>Could not load data</h3><p>'+err.message+
@@ -1854,9 +1855,10 @@ function slug(s) {
 // ============================================================
 function initChanges() {
   const ul = document.getElementById('changes-list');
-  ul.innerHTML = (CHEAT.changes_log || []).map(c =>
+  const entries = (CHANGELOG && CHANGELOG.entries) || [];
+  ul.innerHTML = entries.map(c =>
     '<li><span class="date">' + escapeHtml(c.date) + '</span>' + escapeHtml(c.note) + '</li>').join('');
-  if (!CHEAT.changes_log || !CHEAT.changes_log.length) {
+  if (!entries.length) {
     document.getElementById('changes-block').style.display = 'none';
   }
 }
