@@ -104,6 +104,7 @@
   .btn-save:disabled { opacity:0.6; cursor:default; }
   .btn-cancel { font-family:inherit; font-size:0.85rem; font-weight:600; color:var(--muted); background:none; border:none; cursor:pointer; padding:9px 4px; }
   .btn-cancel:hover { color:var(--ink); }
+  .acct-actions { display:flex; gap:10px; flex-wrap:wrap; }
 </style>
 </head>
 <body>
@@ -306,13 +307,13 @@ function repCard(r) {
 }
 
 // ── Per-rep detail (chunk 2) ──
-let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false;
+let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false, PW_OPEN = false;
 const D_TABS = [['profile','Profile'],['activity','Activity'],['university','University'],['callwork','Call Work'],['feedback','Feedback']];
 
 async function openRep(username) {
   const rep = REPS.find(r => (r.username || '') === username);
   if (!rep) return;
-  D_REP = decorate(rep); D_TAB = 'profile'; D_DATA = null; EDITING = false;
+  D_REP = decorate(rep); D_TAB = 'profile'; D_DATA = null; EDITING = false; PW_OPEN = false;
   try { history.replaceState(null, '', '?rep=' + encodeURIComponent(username)); } catch (_) {}
   document.getElementById('console').style.display = 'none';
   document.getElementById('repDetail').style.display = 'block';
@@ -351,7 +352,7 @@ function renderTabBar() {
   document.getElementById('detailTabs').innerHTML = D_TABS.map(([id, label]) =>
     `<button class="dtab ${id === D_TAB ? 'active' : ''}" onclick="setDetailTab('${id}')">${label}</button>`).join('');
 }
-function setDetailTab(t) { D_TAB = t; EDITING = false; renderTabBar(); renderDetailTab(); }
+function setDetailTab(t) { D_TAB = t; EDITING = false; PW_OPEN = false; renderTabBar(); renderDetailTab(); }
 
 function renderDetailTab() {
   const b = document.getElementById('detailBody');
@@ -375,12 +376,11 @@ function tabProfile() {
     ${dRow('Must change password', r.must_change_password ? 'Yes' : 'No')}
   </div>`;
   if (!window.IS_ADMIN) return card;
-  if (!EDITING) return card +
-    `<div class="edit-trigger"><button class="btn-edit" onclick="toggleEdit()">Edit assignment</button></div>`;
-  const opts = MANAGERS.map(m =>
-    `<option value="${m.id}"${m.id === r.manager_id ? ' selected' : ''}>${escapeHtml(m.name || '')}</option>`).join('');
-  const cohortVal = r.cohort_start_date ? String(r.cohort_start_date).slice(0, 10) : '';
-  return card + `
+  if (EDITING) {
+    const opts = MANAGERS.map(m =>
+      `<option value="${m.id}"${m.id === r.manager_id ? ' selected' : ''}>${escapeHtml(m.name || '')}</option>`).join('');
+    const cohortVal = r.cohort_start_date ? String(r.cohort_start_date).slice(0, 10) : '';
+    return card + `
     <div class="d-card edit-card">
       <div class="section-h" style="margin-top:4px">Edit assignment</div>
       <div id="editErr" class="auth-error" style="display:none"></div>
@@ -395,6 +395,27 @@ function tabProfile() {
         <button class="btn-save" onclick="saveAssignment()">Save</button>
         <button class="btn-cancel" onclick="toggleEdit()">Cancel</button>
       </div>
+    </div>`;
+  }
+  const isActive = r.status === 'active';
+  const acctInner = PW_OPEN
+    ? `<label class="edit-label" for="pwNew">New password</label>
+      <input type="text" id="pwNew" class="edit-input" value="Trinity1">
+      <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0">Sets a new password and forces a change on next sign-in. Share it with the rep directly.</p>
+      <div class="edit-actions">
+        <button class="btn-save btn-pw-set" onclick="resetRepPassword()">Set password</button>
+        <button class="btn-cancel" onclick="togglePw()">Cancel</button>
+      </div>`
+    : `<div class="acct-actions">
+        <button class="btn-edit" onclick="togglePw()">Reset password</button>
+        <button class="btn-edit" onclick="toggleRepStatus()">${isActive ? 'Deactivate' : 'Activate'}</button>
+      </div>`;
+  return card + `
+    <div class="edit-trigger"><button class="btn-edit" onclick="toggleEdit()">Edit assignment</button></div>
+    <div class="d-card edit-card">
+      <div class="section-h" style="margin-top:4px">Account (admin)</div>
+      <div id="acctMsg" class="auth-error" style="display:none"></div>
+      ${acctInner}
     </div>`;
 }
 
@@ -428,6 +449,66 @@ async function saveAssignment() {
   EDITING = false;
   renderDetailTab();
   render();
+}
+
+// ── Account actions (admin-only): reset password + activate/deactivate ──
+// Calls the same manage-users Edge Function admin.html uses. The function
+// enforces is_admin server-side; the buttons are also gated on IS_ADMIN.
+const MANAGE_USERS_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-users';
+
+async function callManageUsers(payload) {
+  const { data: { session } } = await supa.auth.getSession();
+  const res = await fetch(MANAGE_USERS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+    body: JSON.stringify(payload)
+  });
+  return res.json();
+}
+
+function togglePw() { PW_OPEN = !PW_OPEN; renderDetailTab(); }
+
+function acctMsg(msg, isErr) {
+  const el = document.getElementById('acctMsg');
+  if (!el) return;
+  el.style.display = 'block';
+  el.textContent = msg;
+  el.style.color = isErr ? '' : 'var(--green-dark)';
+}
+
+async function resetRepPassword() {
+  const pw = (document.getElementById('pwNew') || {}).value || '';
+  if (pw.length < 8) { acctMsg('Password must be at least 8 characters.', true); return; }
+  const btn = document.querySelector('.btn-pw-set');
+  if (btn) { btn.disabled = true; btn.textContent = 'Setting...'; }
+  const result = await callManageUsers({ action: 'set_password', auth_user_id: D_REP.auth_user_id, password: pw });
+  if (result && result.error) {
+    acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
+    if (btn) { btn.disabled = false; btn.textContent = 'Set password'; }
+    return;
+  }
+  const idx = REPS.findIndex(x => x.id === D_REP.id);
+  if (idx >= 0) { REPS[idx].must_change_password = true; D_REP = decorate(REPS[idx]); }
+  PW_OPEN = false;
+  renderDetailTab();
+  acctMsg('Password set. Share it with ' + (D_REP.name || 'the rep') + '; they must change it on next sign-in.', false);
+}
+
+async function toggleRepStatus() {
+  const isActive = D_REP.status === 'active';
+  const newStatus = isActive ? 'inactive' : 'active';
+  const consequence = isActive ? 'They will be unable to sign in.' : 'They can sign in again.';
+  if (!confirm((isActive ? 'Deactivate ' : 'Activate ') + (D_REP.name || 'this rep') + '? ' + consequence)) return;
+  const result = await callManageUsers({ action: 'set_status', auth_user_id: D_REP.auth_user_id, status: newStatus });
+  if (result && result.error) {
+    acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
+    return;
+  }
+  const idx = REPS.findIndex(x => x.id === D_REP.id);
+  if (idx >= 0) { REPS[idx].status = newStatus; D_REP = decorate(REPS[idx]); }
+  renderDetailTab();
+  render();
+  acctMsg((D_REP.name || 'Rep') + ' ' + (isActive ? 'deactivated' : 'reactivated') + '.', false);
 }
 
 function tabActivity() {
