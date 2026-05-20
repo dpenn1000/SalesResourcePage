@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rep Console -- Trinity Solar CT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<link rel="stylesheet" href="/auth-gate.css">
+<style>
+  :root {
+    --green:#78C832; --green-dark:#5FA520; --blue:#29A9E1;
+    --ink:#1A2332; --muted:#6b7a8d; --subtle:#9aa6b4;
+    --bg:#EFF1EC; --surface:#ffffff; --border:#DFE2DA; --hairline:#E5E8E0;
+    --radius:12px; --shadow:0 1px 3px rgba(15,32,56,0.07);
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Manrope',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  h1,h2,h3 { font-family:'Fraunces',Georgia,serif; font-weight:600; letter-spacing:-0.01em; }
+  a { color:inherit; }
+
+  .console-header { background:var(--ink); color:#fff; padding:18px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; border-bottom:3px solid var(--green); }
+  .console-header .eyebrow { font-size:0.7rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.55); display:block; }
+  .console-header h1 { color:#fff; font-size:1.4rem; }
+  .console-header .user { font-size:0.85rem; color:rgba(255,255,255,0.85); display:flex; align-items:center; gap:12px; }
+  .console-header .user .name { font-weight:600; color:#fff; }
+  .console-header button { background:transparent; color:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.25); padding:6px 12px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:0.8rem; }
+  .console-header button:hover { background:rgba(255,255,255,0.1); color:#fff; }
+
+  main { max-width:1080px; margin:0 auto; padding:24px clamp(16px,3vw,32px) 64px; }
+
+  .toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .toolbar input, .toolbar select { font-family:inherit; font-size:0.9rem; padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink); }
+  .toolbar input { flex:1; min-width:200px; }
+  .toolbar input:focus, .toolbar select:focus { outline:none; border-color:var(--blue); }
+  .count { color:var(--muted); font-size:0.8rem; margin-bottom:14px; }
+
+  .rep-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+  .rep-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; }
+  .rep-card .top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  .rep-card .nm { font-weight:700; font-size:1.02rem; color:var(--ink); }
+  .rep-card .un { font-size:0.78rem; color:var(--subtle); font-family:'DM Mono',monospace; }
+  .badge { font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  .badge.active { background:#EFF8E5; color:var(--green-dark); }
+  .badge.inactive { background:#FBE8EA; color:#C94F5A; }
+  .rep-meta { display:flex; flex-direction:column; gap:4px; font-size:0.82rem; color:var(--muted); }
+  .rep-meta .row { display:flex; justify-content:space-between; gap:10px; }
+  .rep-meta .row .k { color:var(--subtle); }
+  .rep-meta .row .v { color:var(--ink); text-align:right; }
+  .rep-card .actions { margin-top:2px; padding-top:10px; border-top:1px solid var(--hairline); }
+  .rr-link { display:inline-flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:600; color:var(--green-dark); text-decoration:none; }
+  .rr-link:hover { text-decoration:underline; }
+
+  .notice { background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--muted); }
+  .notice h2 { color:var(--ink); margin-bottom:8px; font-size:1.2rem; }
+</style>
+</head>
+<body>
+
+<!-- auth-gate.js toggles these three by id -->
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Rep Console</h2>
+    <p>Sign in with your Trinity Solar manager username.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <label>Username</label>
+    <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+    <label>Password</label>
+    <input type="password" id="loginPass" autocomplete="current-password">
+    <button type="button" class="btn-auth" id="loginBtn" onclick="signIn()">Sign in</button>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set your password</h2>
+    <p>First time signing in. Pick something only you know (at least 8 characters).</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <label>New password</label>
+    <input type="password" id="cpNew" autocomplete="new-password">
+    <label>Confirm new password</label>
+    <input type="password" id="cpConfirm" autocomplete="new-password">
+    <button type="button" class="btn-auth" id="cpBtn" onclick="changePassword()">Update password</button>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+  <header class="console-header">
+    <div>
+      <span class="eyebrow">CT Traditional &middot; Trinity Solar</span>
+      <h1>Rep Console</h1>
+    </div>
+    <div class="user">
+      <span>Signed in as <span class="name" id="userLabel"></span></span>
+      <button onclick="signOut()">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Reps land here; the Console is a manager oversight tool. -->
+    <div id="notManager" class="notice" style="display:none">
+      <h2>Managers only</h2>
+      <p>The Rep Console is for managers. If you think you should have access, contact Dan.</p>
+    </div>
+
+    <div id="console">
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="Search by name or username...">
+        <select id="sort">
+          <option value="name">Sort: Name (A-Z)</option>
+          <option value="recent">Sort: Recently active</option>
+          <option value="stale">Sort: Least active</option>
+          <option value="status">Sort: Status</option>
+        </select>
+      </div>
+      <div class="count" id="count"></div>
+      <div class="rep-grid" id="repGrid"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+// Shared auth-gate client (single session). auth-gate.js provides window.sb,
+// window.IS_MANAGER, window.signIn / signOut / changePassword.
+const supa = window.sb;
+const REP_REVIEW_BASE = 'https://tools.ct-resource-page.com/rep-review';
+
+let REPS = [], MGR_BY_ID = {}, LAST_SEEN = {};
+
+// auth-gate.js calls this once, after sign-in + must-change-password gate.
+window.initApp = async function (profile, session) {
+  document.getElementById('userLabel').textContent = profile.name || '';
+  // Reps can authenticate (auth-gate lets any active user through), but the
+  // Console is a manager tool -- gate it here.
+  if (!window.IS_MANAGER) {
+    document.getElementById('console').style.display = 'none';
+    document.getElementById('notManager').style.display = 'block';
+    return;
+  }
+  await loadData();
+  render();
+};
+
+async function loadData() {
+  const [repsRes, mgrsRes, actRes] = await Promise.all([
+    supa.from('reps')
+      .select('id, auth_user_id, name, username, status, manager_id, cohort_start_date')
+      .order('name'),
+    // Best-effort: map manager_id -> name. Blank if not readable.
+    supa.from('managers').select('id, name'),
+    // Latest sign-in per user. Pull recent sign_in events desc; first hit per
+    // user is their most recent. (Manager read enabled by RLS migration.)
+    supa.from('user_activity')
+      .select('auth_user_id, created_at')
+      .eq('event_type', 'sign_in')
+      .order('created_at', { ascending: false })
+      .limit(5000),
+  ]);
+
+  REPS = repsRes.data || [];
+  MGR_BY_ID = {};
+  (mgrsRes.data || []).forEach(m => { MGR_BY_ID[m.id] = m.name; });
+  LAST_SEEN = {};
+  (actRes.data || []).forEach(a => {
+    if (a.auth_user_id && !LAST_SEEN[a.auth_user_id]) LAST_SEEN[a.auth_user_id] = a.created_at;
+  });
+}
+
+function render() {
+  const q = (document.getElementById('search').value || '').trim().toLowerCase();
+  const sort = document.getElementById('sort').value;
+
+  let rows = REPS.map(r => ({
+    ...r,
+    manager: r.manager_id ? (MGR_BY_ID[r.manager_id] || '') : '',
+    lastSeen: LAST_SEEN[r.auth_user_id] || null,
+  }));
+
+  if (q) rows = rows.filter(r =>
+    (r.name || '').toLowerCase().includes(q) || (r.username || '').toLowerCase().includes(q));
+
+  rows.sort((a, b) => {
+    if (sort === 'name')   return (a.name || '').localeCompare(b.name || '');
+    if (sort === 'status') return (a.status || '').localeCompare(b.status || '') || (a.name || '').localeCompare(b.name || '');
+    const ta = a.lastSeen ? new Date(a.lastSeen).getTime() : 0;
+    const tb = b.lastSeen ? new Date(b.lastSeen).getTime() : 0;
+    return sort === 'recent' ? (tb - ta) : (ta - tb); // recent: newest first; stale: oldest first
+  });
+
+  document.getElementById('count').textContent =
+    `${rows.length} rep${rows.length === 1 ? '' : 's'}${q ? ' (filtered)' : ''}`;
+
+  const grid = document.getElementById('repGrid');
+  if (!rows.length) {
+    grid.innerHTML = '<div class="notice"><p>No reps match that search.</p></div>';
+    return;
+  }
+  grid.innerHTML = rows.map(repCard).join('');
+}
+
+function repCard(r) {
+  const statusClass = r.status === 'active' ? 'active' : 'inactive';
+  const cohort = r.cohort_start_date
+    ? `Day ${daysSince(r.cohort_start_date)} of 90`
+    : '--';
+  const rr = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(r.username || '')}`;
+  return `
+    <div class="rep-card">
+      <div class="top">
+        <div>
+          <div class="nm">${escapeHtml(r.name || '(no name)')}</div>
+          <div class="un">${escapeHtml(r.username || '')}</div>
+        </div>
+        <span class="badge ${statusClass}">${escapeHtml(r.status || 'unknown')}</span>
+      </div>
+      <div class="rep-meta">
+        <div class="row"><span class="k">Manager</span><span class="v">${escapeHtml(r.manager || '--')}</span></div>
+        <div class="row"><span class="k">Cohort</span><span class="v">${cohort}</span></div>
+        <div class="row"><span class="k">Last sign-in</span><span class="v">${lastSeenLabel(r.lastSeen)}</span></div>
+      </div>
+      <div class="actions">
+        <a class="rr-link" href="${rr}" target="_blank" rel="noopener">Open in Rep Review &#8599;</a>
+      </div>
+    </div>`;
+}
+
+// ── Helpers ──
+function lastSeenLabel(d) {
+  if (!d) return 'never';
+  const days = daysSince(d);
+  if (days === 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7) return `${days} days ago`;
+  return fmtDate(d);
+}
+function daysSince(d) {
+  return Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 86400000));
+}
+function fmtDate(d) {
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function escapeHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('sort').addEventListener('change', render);
+</script>
+</body>
+</html>
