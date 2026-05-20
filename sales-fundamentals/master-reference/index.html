@@ -532,6 +532,24 @@ footer.page-foot {
 .chk-item .ci-meta { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
 .chk-item .ci-dep { font-size: 11.5px; color: var(--muted); margin-top: 3px; font-style: italic; }
 
+/* ---- contacts ---- */
+.contact-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.contact-card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--white); padding: 12px 14px; box-shadow: var(--shadow-sm); }
+.contact-card .cc-role { font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--th-blue); font-weight: 700; margin-bottom: 3px; }
+.contact-card .cc-name { font-weight: 600; color: var(--ink); font-size: 14px; white-space: pre-line; }
+.contact-card .cc-contact { font-size: 13px; color: var(--body); margin-top: 4px; word-break: break-word; }
+.contact-card .cc-contact a { color: var(--trinity-green-deep); }
+.contact-card .cc-notes { font-size: 12px; color: var(--muted); margin-top: 5px; white-space: pre-line; }
+.contact-rolelegend { font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+.contact-rolelegend b { color: var(--ink-soft); }
+.contact-section-h { font-size: 16px; margin: 18px 0 8px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+.approval-card { border: 1px solid var(--border); border-left: 4px solid var(--th-blue); border-radius: var(--radius-sm); background: var(--white); padding: 12px 15px; margin-bottom: 10px; box-shadow: var(--shadow-sm); }
+.approval-card h4 { margin: 0 0 4px; font-family: 'Fraunces', serif; font-size: 16px; color: var(--ink); }
+.approval-card .ap-approver { font-size: 13.5px; color: var(--ink-soft); white-space: pre-line; }
+.approval-card .ap-approver b { color: var(--trinity-green-deep); }
+.approval-card .ap-notes { font-size: 13px; color: var(--body); margin-top: 6px; white-space: pre-line; }
+.approval-card .ap-template { font-size: 12px; color: var(--muted); margin-top: 6px; white-space: pre-line; border-top: 1px dashed var(--border); padding-top: 6px; }
+
 /* ---- print ---- */
 @media print {
   .topnav, .controls, .pricing-controls .sub-tabs, .matrix-controls, details.changes, .launcher { display: none; }
@@ -601,6 +619,7 @@ footer.page-foot {
       <button class="tab" role="tab" data-mode="checklist"   aria-selected="false">Checklist</button>
       <button class="tab" role="tab" data-mode="pricing"     aria-selected="false">Pricing</button>
       <button class="tab" role="tab" data-mode="matrix"      aria-selected="false">Full Matrix</button>
+      <button class="tab" role="tab" data-mode="contacts"    aria-selected="false" id="tab-contacts" hidden>Contacts</button>
     </div>
   </div>
 </nav>
@@ -640,6 +659,12 @@ footer.page-foot {
         <span class="lc-q">What's the pricing?</span>
         <span class="lc-sub">Lease/PPA and loan pricing by state and utility.</span>
         <span class="lc-go">Pricing &rarr;</span>
+      </button>
+      <button class="launch-card" id="launch-contacts" onclick="goMode('contacts')" hidden>
+        <span class="lc-icon">📇</span>
+        <span class="lc-q">Who do I contact?</span>
+        <span class="lc-sub">Ops, finance, escalations, partner support, and approval owners. Managers only.</span>
+        <span class="lc-go">Contacts &rarr;</span>
       </button>
     </div>
   </section>
@@ -749,6 +774,23 @@ footer.page-foot {
     <div id="matrix-content"></div>
   </section>
 
+  <section class="mode" id="mode-contacts">
+    <div class="chk-summary" style="background:#eef4fb;border-color:#bcd9f0;">
+      <b>Manager-only.</b> Internal contact points, finance milestones, sales escalations, partner support lines, and approval owners. Not visible to reps.
+    </div>
+    <div class="pricing-controls">
+      <div class="sub-tabs" role="tablist" aria-label="Contacts section">
+        <button data-cmode="internal" role="tab" aria-selected="true">Ops by Territory</button>
+        <button data-cmode="milestone" role="tab" aria-selected="false">Finance Milestones</button>
+        <button data-cmode="sales" role="tab" aria-selected="false">Sales Escalations</button>
+        <button data-cmode="external" role="tab" aria-selected="false">Partner Support</button>
+        <button data-cmode="approvals" role="tab" aria-selected="false">Approvals</button>
+      </div>
+      <div class="field" id="contacts-territory-wrap"><label for="c-territory">Territory</label><select id="c-territory"></select></div>
+    </div>
+    <div id="contacts-content"></div>
+  </section>
+
   <details class="changes" id="changes-block">
     <summary>What's changed recently</summary>
     <ul id="changes-list"></ul>
@@ -774,7 +816,7 @@ footer.page-foot {
 // ============================================================
 // Data
 // ============================================================
-let CHEAT, PRICING, GUIDE, CHECK, CONSOL;
+let CHEAT, PRICING, GUIDE, CHECK, CONSOL, CONTACTS = null;
 let STATE = {
   mode: 'home',
   // by state
@@ -797,6 +839,9 @@ let STATE = {
   hideDiscontinued: true,
   // matrix
   matrixProduct: 'tpo',
+  // contacts (manager-only)
+  cmode: 'internal',
+  cTerritory: '',
   // search
   query: '',
 };
@@ -854,6 +899,7 @@ async function boot() {
   initEligibility();
   initPricing();
   initMatrix();
+  initContacts();
   initChanges();
 
   renderStateGuidelines();
@@ -939,6 +985,7 @@ function goMode(mode) {
   if (mode === 'eligibility') renderEligibility();
   if (mode === 'pricing') renderPricing();
   if (mode === 'matrix') renderMatrix();
+  if (mode === 'contacts') { CONTACTS ? renderContacts() : loadContacts(); }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -954,6 +1001,7 @@ function initSearch() {
     if (STATE.mode === 'checklist') renderChecklist();
     if (STATE.mode === 'matrix') renderMatrix();
     if (STATE.mode === 'pricing') renderPricing();
+    if (STATE.mode === 'contacts' && CONTACTS) renderContacts();
   });
   document.addEventListener('keydown', e => {
     if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
@@ -1190,6 +1238,133 @@ function renderChecklist() {
     html += '</div>';
   });
   wrap.innerHTML = html;
+}
+
+// ============================================================
+// Contacts (manager-only; RLS-gated in Supabase)
+// ============================================================
+function initContacts() {
+  document.querySelectorAll('[data-cmode]').forEach(b => {
+    b.addEventListener('click', () => {
+      STATE.cmode = b.dataset.cmode;
+      document.querySelectorAll('[data-cmode]').forEach(x => x.setAttribute('aria-selected', x === b));
+      renderContacts();
+    });
+  });
+  document.getElementById('c-territory').addEventListener('change', e => {
+    STATE.cTerritory = e.target.value; renderContacts();
+  });
+}
+
+async function loadContacts() {
+  const wrap = document.getElementById('contacts-content');
+  if (!window.sb) { wrap.innerHTML = '<div class="empty-state"><p>Sign-in required.</p></div>'; return; }
+  wrap.innerHTML = '<div class="empty-state"><p>Loading contacts&hellip;</p></div>';
+  const { data, error } = await window.sb.from('reference_contacts')
+    .select('*').eq('active', true).order('sort_order');
+  if (error) {
+    wrap.innerHTML = '<div class="empty-state"><h3>Could not load contacts</h3><p>' +
+      escapeHtml(error.message) + '</p></div>';
+    return;
+  }
+  CONTACTS = data || [];
+  const terrs = [...new Set(CONTACTS.filter(c => c.section === 'internal').map(c => c.group_label))];
+  const sel = document.getElementById('c-territory');
+  sel.innerHTML = '';
+  terrs.forEach(t => sel.appendChild(opt(t, t)));
+  if (!STATE.cTerritory || !terrs.includes(STATE.cTerritory)) STATE.cTerritory = terrs[0] || '';
+  sel.value = STATE.cTerritory;
+  renderContacts();
+}
+
+function linkify(text) {
+  return escapeHtml(text).replace(/([\w.+-]+@[\w-]+\.[\w.-]+)/g, '<a href="mailto:$1">$1</a>');
+}
+
+function contactMatches(c, q) {
+  return [c.name, c.contact, c.notes, c.group_label, c.role_or_stage]
+    .some(v => v && String(v).toLowerCase().includes(q));
+}
+
+function renderContacts() {
+  const wrap = document.getElementById('contacts-content');
+  if (!CONTACTS) { wrap.innerHTML = ''; return; }
+  const q = STATE.query;
+  const sec = STATE.cmode;
+  document.getElementById('contacts-territory-wrap').style.display = sec === 'internal' ? '' : 'none';
+  let rows = CONTACTS.filter(c => c.section === sec);
+  if (q) rows = rows.filter(c => contactMatches(c, q));
+
+  if (sec === 'internal') { wrap.innerHTML = renderInternalContacts(rows, q); return; }
+  if (sec === 'milestone') {
+    wrap.innerHTML = rows.length ? '<div class="contact-grid">' + rows.map(c =>
+      '<div class="contact-card"><div class="cc-role">' + escapeHtml(c.group_label) + '</div>' +
+      '<div class="cc-name">' + escapeHtml(c.name || '') + '</div>' +
+      (c.contact ? '<div class="cc-contact">Preferred: ' + escapeHtml(c.contact) + '</div>' : '') +
+      (c.notes ? '<div class="cc-notes">' + escapeHtml(c.notes) + '</div>' : '') +
+      '</div>').join('') + '</div>' : emptyContacts();
+    return;
+  }
+  if (sec === 'sales') {
+    const groups = [...new Set(rows.map(c => c.group_label))];
+    wrap.innerHTML = groups.length ? groups.map(g =>
+      '<h3 class="contact-section-h">' + escapeHtml(g) + '</h3><div class="contact-grid">' +
+      rows.filter(c => c.group_label === g).map(c =>
+        '<div class="contact-card"><div class="cc-role">' + escapeHtml(c.role_or_stage || '') + '</div>' +
+        '<div class="cc-name">' + escapeHtml(c.name || '') + '</div></div>').join('') +
+      '</div>').join('') : emptyContacts();
+    return;
+  }
+  if (sec === 'external') {
+    const partners = [...new Set(rows.map(c => c.group_label))];
+    wrap.innerHTML = partners.length ? '<div class="contact-grid">' + partners.map(p => {
+      const lines = rows.filter(c => c.group_label === p).map(c =>
+        '<div class="cc-contact"><b style="color:var(--ink-soft);font-weight:600;">' +
+        escapeHtml(c.role_or_stage) + ':</b> ' + linkify(c.contact || '') + '</div>').join('');
+      return '<div class="contact-card"><div class="cc-role">' + escapeHtml(p) + '</div>' + lines + '</div>';
+    }).join('') + '</div>' : emptyContacts();
+    return;
+  }
+  if (sec === 'approvals') {
+    wrap.innerHTML = rows.length ? rows.map(c =>
+      '<div class="approval-card"><h4>' + escapeHtml(c.group_label) + '</h4>' +
+      '<div class="ap-approver"><b>Approver:</b> ' + escapeHtml(c.name || 'n/a') + '</div>' +
+      (c.notes ? '<div class="ap-notes">' + escapeHtml(c.notes) + '</div>' : '') +
+      (c.contact ? '<div class="ap-template"><b>Provide:</b> ' + escapeHtml(c.contact) + '</div>' : '') +
+      '</div>').join('') : emptyContacts();
+    return;
+  }
+  wrap.innerHTML = emptyContacts();
+}
+
+function renderInternalContacts(allRows, q) {
+  // role guide + global emails come from the unfiltered set so they always show
+  const roleGuide = CONTACTS.filter(c => c.section === 'internal_roles');
+  const globals = CONTACTS.filter(c => c.section === 'internal_global');
+  let html = '';
+  if (globals.length) {
+    html += '<div class="contact-grid" style="margin-bottom:14px;">' + globals.map(c =>
+      '<div class="contact-card"><div class="cc-role">' + escapeHtml(c.name) + '</div>' +
+      '<div class="cc-contact">' + linkify(c.contact || '') + '</div></div>').join('') + '</div>';
+  }
+  const terrRows = allRows.filter(c => c.group_label === STATE.cTerritory);
+  if (!terrRows.length) {
+    html += emptyContacts();
+    return html;
+  }
+  html += '<h3 class="contact-section-h">' + escapeHtml(STATE.cTerritory) + '</h3>';
+  html += '<div class="contact-grid">' + terrRows.map(c => {
+    const guide = roleGuide.find(g => g.role_or_stage === c.role_or_stage);
+    return '<div class="contact-card"><div class="cc-role">' + escapeHtml(c.role_or_stage) + '</div>' +
+      '<div class="cc-name">' + escapeHtml(c.name || '') + '</div>' +
+      (guide && guide.notes ? '<div class="cc-notes">' + escapeHtml(guide.notes) + '</div>' : '') +
+      '</div>';
+  }).join('') + '</div>';
+  return html;
+}
+
+function emptyContacts() {
+  return '<div class="empty-state"><p>No contacts match.</p></div>';
 }
 
 // ============================================================
@@ -1694,7 +1869,13 @@ function initChanges() {
 
 <script>
 // Required by /auth-gate.js -- called once after sign-in + role check pass.
-function initApp(profile, session) { /* static page; nothing to init */ }
+// Reveal the manager-only Contacts tab + launch card for managers/admins.
+function initApp(profile, session) {
+  if (window.IS_MANAGER) {
+    document.getElementById('tab-contacts')?.removeAttribute('hidden');
+    document.getElementById('launch-contacts')?.removeAttribute('hidden');
+  }
+}
 </script>
 
 </body>
