@@ -157,10 +157,14 @@
     <div id="console">
       <div class="toolbar">
         <input type="text" id="search" placeholder="Search by name or username...">
+        <select id="mgrFilter">
+          <option value="">All managers</option>
+        </select>
         <select id="sort">
           <option value="name">Sort: Name (A-Z)</option>
           <option value="recent">Sort: Recently active</option>
           <option value="stale">Sort: Least active</option>
+          <option value="cohort">Sort: Cohort (newest)</option>
           <option value="status">Sort: Status</option>
         </select>
       </div>
@@ -201,6 +205,7 @@ window.initApp = async function (profile, session) {
     return;
   }
   await loadData();
+  populateMgrFilter();
   render();
   // Deep-link: /reps/?rep=<username> opens that rep's detail directly.
   const rq = new URLSearchParams(location.search).get('rep');
@@ -238,21 +243,39 @@ function decorate(r) {
 function render() {
   const q = (document.getElementById('search').value || '').trim().toLowerCase();
   const sort = document.getElementById('sort').value;
+  const mgr = (document.getElementById('mgrFilter') || {}).value || '';
   let rows = REPS.map(decorate);
   if (q) rows = rows.filter(r =>
     (r.name || '').toLowerCase().includes(q) || (r.username || '').toLowerCase().includes(q));
+  if (mgr === '__none__') rows = rows.filter(r => !r.manager_id);
+  else if (mgr) rows = rows.filter(r => r.manager_id === mgr);
   rows.sort((a, b) => {
     if (sort === 'name')   return (a.name || '').localeCompare(b.name || '');
     if (sort === 'status') return (a.status || '').localeCompare(b.status || '') || (a.name || '').localeCompare(b.name || '');
+    if (sort === 'cohort') {
+      const ca = a.cohort_start_date ? new Date(a.cohort_start_date).getTime() : 0;
+      const cb = b.cohort_start_date ? new Date(b.cohort_start_date).getTime() : 0;
+      return cb - ca || (a.name || '').localeCompare(b.name || '');
+    }
     const ta = a.lastSeen ? new Date(a.lastSeen).getTime() : 0;
     const tb = b.lastSeen ? new Date(b.lastSeen).getTime() : 0;
     return sort === 'recent' ? (tb - ta) : (ta - tb);
   });
   document.getElementById('count').textContent =
-    `${rows.length} rep${rows.length === 1 ? '' : 's'}${q ? ' (filtered)' : ''}`;
+    `${rows.length} rep${rows.length === 1 ? '' : 's'}${(q || mgr) ? ' (filtered)' : ''}`;
   const grid = document.getElementById('repGrid');
   grid.innerHTML = rows.length ? rows.map(repCard).join('')
     : '<div class="notice"><p>No reps match that search.</p></div>';
+}
+
+function populateMgrFilter() {
+  const sel = document.getElementById('mgrFilter');
+  if (!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All managers</option>'
+    + '<option value="__none__">Unassigned</option>'
+    + MANAGERS.map(m => `<option value="${m.id}">${escapeHtml(m.name || '')}</option>`).join('');
+  sel.value = cur || '';
 }
 
 function repCard(r) {
@@ -492,6 +515,7 @@ function escapeHtml(s) {
 function cardKey(e, u) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRep(u); } }
 
 document.getElementById('search').addEventListener('input', render);
+document.getElementById('mgrFilter').addEventListener('change', render);
 document.getElementById('sort').addEventListener('change', render);
 </script>
 </body>
