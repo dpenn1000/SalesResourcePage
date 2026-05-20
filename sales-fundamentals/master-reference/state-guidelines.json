@@ -1,0 +1,936 @@
+{
+  "version": "2026-04-06",
+  "source_file": "State Guidelines 4.6.26.pdf",
+  "section_order": [
+    {
+      "key": "offset_cap",
+      "label": "Offset / Production Cap"
+    },
+    {
+      "key": "max_system_size",
+      "label": "Max System Size"
+    },
+    {
+      "key": "system_size",
+      "label": "System Size by Finance Partner"
+    },
+    {
+      "key": "load_calc",
+      "label": "Load Calc & Usage Rules"
+    },
+    {
+      "key": "inverter_rules",
+      "label": "Inverter Sizing"
+    },
+    {
+      "key": "electric_vehicle",
+      "label": "Electric Vehicle"
+    },
+    {
+      "key": "heat_pump",
+      "label": "Heat Pump"
+    },
+    {
+      "key": "rebates",
+      "label": "Rebates"
+    },
+    {
+      "key": "ground_mount",
+      "label": "Ground Mount"
+    },
+    {
+      "key": "car_port",
+      "label": "Car Port"
+    },
+    {
+      "key": "orientation",
+      "label": "Roof Orientation"
+    },
+    {
+      "key": "pitch",
+      "label": "Roof Pitch"
+    },
+    {
+      "key": "detached_structure",
+      "label": "Detached Structure"
+    },
+    {
+      "key": "net_metering",
+      "label": "Net Metering (Schedule Z)"
+    },
+    {
+      "key": "mou",
+      "label": "MOU / Net Metering Acknowledgement"
+    },
+    {
+      "key": "battery",
+      "label": "Battery"
+    },
+    {
+      "key": "add_on",
+      "label": "Add-On Systems"
+    },
+    {
+      "key": "tree_vendors",
+      "label": "Tree Removal Vendors"
+    },
+    {
+      "key": "ahj",
+      "label": "AHJ Confirmation"
+    },
+    {
+      "key": "setbacks",
+      "label": "Setbacks"
+    },
+    {
+      "key": "market",
+      "label": "Approved Market / Counties"
+    },
+    {
+      "key": "contract",
+      "label": "Contract / Signing"
+    },
+    {
+      "key": "cash_requirements",
+      "label": "Cash Contract Requirements"
+    },
+    {
+      "key": "notes",
+      "label": "Notes"
+    }
+  ],
+  "states": [
+    {
+      "code": "CT",
+      "name": "Connecticut",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "PPA / Loan (all utilities): cannot exceed 103% offset. Cash (all utilities): prefer 100% actual production; 103% is the absolute max allowed.",
+          "type": "text"
+        },
+        {
+          "key": "max_system_size",
+          "label": "Max System Size",
+          "value": "25kW-AC (inverter) is the max system allowed in CT. If the original system is part of the RRES program (installed 2022 or later), the MAX AC for both systems combined cannot exceed 25kW (inverter size).",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - no max",
+            "goodleap": "3kW - 25kW",
+            "igs": "2.050kW - 25kW",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "State does NOT allow a load calc. It may be used for internal purposes only -- the utility will not accept it. The utility has final say and can reject a system for being oversized if it was sized based on a load calc.",
+          "type": "text"
+        },
+        {
+          "key": "inverter_rules",
+          "label": "Inverter Sizing",
+          "value": "Less than 12 months on the bill: 9.0K-AC is the max inverter size allowed. Calculate the average shown on the bill; do not exceed the 9.0K inverter cap. If the rep requests a 9.0K inverter, build to this. If a welcome letter and load calc are provided, build to the load calc but do not exceed the 9.0K inverter cap. CT allows 28 (410-watt) panels on a SE7.6K inverter.",
+          "type": "text"
+        },
+        {
+          "key": "electric_vehicle",
+          "label": "Electric Vehicle",
+          "value": "Design to the annual usage plus 3,285 kWh. Account for up to two electric vehicles max, regardless of how many the customer plans to purchase. Rep must have the customer sign the CT MOU for all purchase methods. No additional documents required (no proof of purchase/receipts). EV/Heat Pump with less than 12 months on the bill: you can design over the 9.0K-AC inverter cap -- generate the quote based on the 9.0K cap first, then add the production allowed per item to the 9.0K system production in Sunnova. Rep must provide the required proof to submit with the application.",
+          "type": "text"
+        },
+        {
+          "key": "heat_pump",
+          "label": "Heat Pump",
+          "value": "Design to the annual usage plus 3,608 kWh. Rep must have the customer sign the CT MOU for all purchase methods. No additional documents required.",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "Minimum panel count of 15, Net PPW $5.00 after trenching, and a multiplier of 1.2 or higher.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "CT allows up to 52 degrees pitch without approval. IGS pitch limits: 10-45 degrees.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure. Back feeding for detached structures is never an option. Trenching must always be accounted for when a detached structure is designed on.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "Eversource requires 12 months of bills to calculate the Annual Usage post-PTO. UI requires 1 bill (the graph is accurate for usage).",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in CT if the rep requests Trinity to remove trees.",
+          "type": "text"
+        },
+        {
+          "key": "ahj",
+          "label": "AHJ Confirmation",
+          "value": "Based on the Township listed on the Title. Does not require an external website to confirm accuracy.",
+          "type": "text"
+        },
+        {
+          "key": "setbacks",
+          "label": "Setbacks",
+          "value": "State-wide setbacks must be followed.",
+          "type": "text"
+        },
+        {
+          "key": "cash_requirements",
+          "label": "Cash Contract Requirements",
+          "value": "All Cash Contracts require the sales rep's HIS License Number, located in Salesforce.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "code": "MD",
+      "name": "Maryland",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "All Utilities: cannot exceed 110% actual production. State allows up to 200% if the deal is signed and we are one panel over 110% actual production -- push it forward without a change order.",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - no max",
+            "goodleap": "3kW - 25kW",
+            "igs": "2.050kW - 50kW",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "Less than 6 months on the bill: load calc required. 6-11 months: average for the missing months and build to this; if the rep provided a load calc, build to the load calc usage. Required if under 6 months, can be used if 6-11 months. Required along with a Letter of Explanation if the rep is requesting over 110%.",
+          "type": "text"
+        },
+        {
+          "key": "electric_vehicle",
+          "label": "Electric Vehicle",
+          "value": "No information currently available. If a deal comes up, reach out to a manager.",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "Minimum panel count of 15, minimum Net PPW $4.00 after non-DC and trenching. Ballasted systems follow the same pricing.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "Roofs with a pitch of 46-49 degrees need local office approval. IGS pitch limits: 10-45 degrees.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "Baltimore Gas & Electric, Delmarva Power, and PEPCO need 1 bill (graph is accurate for after-solar usage).",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in MD if the rep requests Trinity to remove trees.",
+          "type": "text"
+        },
+        {
+          "key": "ahj",
+          "label": "AHJ Confirmation",
+          "value": "To confirm the AHJ, visit the Maryland Taxation website. Most townships have a version of the IRC setback code implemented.",
+          "type": "text"
+        },
+        {
+          "key": "cash_requirements",
+          "label": "Cash Contract Requirements",
+          "value": "Vernon Hurley must countersign all cash contracts.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "code": "MA",
+      "name": "Massachusetts",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "All Utilities: cannot exceed 110% actual production. State allows up to 200% if the deal is signed and we are one panel over 110% actual production -- push it forward without a change order.",
+          "type": "text"
+        },
+        {
+          "key": "max_system_size",
+          "label": "Max System Size",
+          "value": "Can go up to 25kW-AC (inverter) without a MOU. If the system exceeds 25kW we cannot install it.",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - no max",
+            "goodleap": "3kW - 25kW",
+            "igs": "2.050kW - 35kW",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "Less than 6 months on the bill: load calc required. 6-11 months: average for the missing months and build to this; if the rep provided a load calc, build to the load calc usage. Required if under 6 months, can be used if 6-11 months, and required along with a Letter of Explanation if requesting over 110%.",
+          "type": "text"
+        },
+        {
+          "key": "electric_vehicle",
+          "label": "Electric Vehicle",
+          "value": "If a customer is planning on purchasing an electric vehicle, the rep must provide a Letter of Explanation and a Load Calc.",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "Minimum panel count of 15, minimum Net PPW $4.50 after non-DC and trenching.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "Roofs with a pitch of 46-49 degrees need local office approval. IGS pitch limits: 10-45 degrees.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "National Grid, Eversource (WMECO), and Eversource (NSTAR) need 1 bill (graph is accurate for after-solar usage).",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in MA if the rep requests Trinity to remove trees.",
+          "type": "text"
+        },
+        {
+          "key": "ahj",
+          "label": "AHJ Confirmation",
+          "value": "Based on the Township listed on the Title. Does not require an external website to confirm accuracy.",
+          "type": "text"
+        },
+        {
+          "key": "setbacks",
+          "label": "Setbacks",
+          "value": "State-wide setbacks must be followed.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "code": "NH",
+      "name": "New Hampshire",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "All Utilities: reference the 'NH Usage and Offset Rubric' (Memo & Announcement tab in SharePoint). Offset is based on Partner Production if it is a PPA or Loan. Reference the 'NH Sizing Guide' for help understanding the rubric.",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - no max",
+            "goodleap": "3kW - 25kW",
+            "igs": "N/A - no information",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "Less than 12 months on the bill: reference the 'NH Usage and Offset Rubric' (Memo & Announcement tab in SharePoint). Must enter the monthly usage data in Sunnova's portal -- cannot input the annual usage.",
+          "type": "text"
+        },
+        {
+          "key": "electric_vehicle",
+          "label": "Electric Vehicle",
+          "value": "Need a Letter of Explanation from the customer and supporting documents for the estimate of usage increase. Reference the 'NH Usage and Offset Rubric'.",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "Not allowed.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "Roofs with a pitch of 46-49 degrees need local office approval.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure.",
+          "type": "text"
+        },
+        {
+          "key": "mou",
+          "label": "MOU / Net Metering Acknowledgement",
+          "value": "MOU (Net Metering Acknowledgement form) required on all deals at Stage 4; rep must provide.",
+          "type": "text"
+        },
+        {
+          "key": "battery",
+          "label": "Battery",
+          "value": "No battery deals allowed.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "No current information available. If you come across a NH add-on, reach out to management for support.",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in NH if the rep requests Trinity to remove trees.",
+          "type": "text"
+        },
+        {
+          "key": "ahj",
+          "label": "AHJ Confirmation",
+          "value": "Based on the Township listed on the Title. Does not require an external website to confirm accuracy.",
+          "type": "text"
+        },
+        {
+          "key": "setbacks",
+          "label": "Setbacks",
+          "value": "State-wide setbacks must be followed.",
+          "type": "text"
+        },
+        {
+          "key": "market",
+          "label": "Approved Market / Counties",
+          "value": "Counties currently approved to sell: Rockingham, Hillsborough, Merrimack, and Strafford.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "code": "NJ",
+      "name": "New Jersey",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "By utility -- JCP&L: cannot exceed 100% PVWatts (Utility Production in Genesis). PSE&G: cannot exceed 100% PVWatts (Utility Production in Genesis). Vineland: cannot exceed 90% actual production. Atlantic City Electric (ACE): cannot exceed the max inverter size based on the inverter equation Annual Usage / 1.2 (e.g., 8,345 / 1.2 = 6,954, so max inverter is a 6.0K). Most feeders have a 5.0kW-AC inverter restriction; check the Atlantic City Electric map to confirm the circuit is open.",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - no max",
+            "goodleap": "3kW - 25kW",
+            "igs": "2.050kW - 55kW",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "Less than 12 months on the bill: load calc required. We CANNOT average for missing months in any utility. If there are 12 months and the rep is adamant about needing additional usage, chatter the @NJ Applications handle with the Utility Company, System Size, and Offset; ask if they foresee issues with the utility approving the oversize and whether additional info (e.g., LOE) is required; CC the rep. Only proceed with the official LC/LOE request if NJ Applications believes the utility will approve. Note in Salesforce: 'System Size is contingent upon the utility company approving applications - Initials'. PSE&G: does not accept a load calc for customers with 12 months usage without full, dated supporting documents -- rep must provide receipts and proof of any work done with the LC and LOE. PSE&G may still reject the oversize.",
+          "type": "text"
+        },
+        {
+          "key": "electric_vehicle",
+          "label": "Electric Vehicle",
+          "value": "JCP&L, ACE, and PSE&G need proof of purchase; if it's a Tesla that was delivered, need the delivery receipt, load calc, and letter of explanation. PSE&G additionally needs car registration showing the address matches the PSE&G account address, plus proof of purchase of an EV charger. Based on the 'NJ EV Info' form from 6.25.24.",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "Minimum panel count of 15, minimum Net PPW $4.15 after non-DC and trenching.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "Roofs with a pitch of 46-49 degrees need local office approval. IGS pitch limits: 10-45 degrees.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "Atlantic City Electric (ACE), PSE&G, and Vineland need 1 bill (graph is accurate for after-solar usage). JCP&L requires 12 bills or usage history showing the 'kWh Billed' amount.",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in NJ if the rep requests Trinity to remove trees.",
+          "type": "text"
+        },
+        {
+          "key": "ahj",
+          "label": "AHJ Confirmation",
+          "value": "Visit either the NJ (Ocean County) or NJ (Not Ocean County) website to confirm the AHJ.",
+          "type": "text"
+        },
+        {
+          "key": "setbacks",
+          "label": "Setbacks",
+          "value": "State-wide setbacks must be followed.",
+          "type": "text"
+        },
+        {
+          "key": "contract",
+          "label": "Contract / Signing",
+          "value": "Combined Packet must be completed through Adobe Sign for Loan and Cash deals. Both the customer's and sales rep's signatures must be done through Adobe Sign. State requires the Audit form that comes from Adobe Sign.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "code": "NY",
+      "name": "New York",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "All Utilities: cannot exceed 110% actual production. State allows up to 200% if the deal is signed and we are one panel over 110% actual production -- push it forward without a change order.",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - no max",
+            "goodleap": "3kW - 25kW",
+            "igs": "2.050kW - 25kW",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "Less than 6 months on the bill: load calc required. 6-11 months: average for the missing months and build to this; if the rep provided a load calc, build to the load calc usage. Required if under 6 months, can be used if 6-11 months, and required along with a Letter of Explanation if requesting over 110%.",
+          "type": "text"
+        },
+        {
+          "key": "inverter_rules",
+          "label": "Inverter Sizing",
+          "value": "Brooklyn, Bronx, and Queens follow a different inverter calculation -- reference the NYC Inverter Sizing Memo (Memos tab in SharePoint).",
+          "type": "text"
+        },
+        {
+          "key": "electric_vehicle",
+          "label": "Electric Vehicle",
+          "value": "If a customer is planning on purchasing an electric vehicle, the rep must provide a Letter of Explanation and a Load Calc.",
+          "type": "text"
+        },
+        {
+          "key": "rebates",
+          "label": "Rebates",
+          "value": "Orange & Rockland and Central Hudson rebate = $0.15/watt; if the average is below 70%, multiply by the efficiency (reference the math guide). PSEG-LI, Con-Ed, and NYSEG do NOT have rebates. NYSERDA rebates have a max system size of 25.000kW (if the system is larger than 25kW, the rebate is calculated using 25kW).",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "Minimum panel count of 15, minimum Net PPW $4.25 after non-DC and trenching. Sam Magliaro must approve all ground mounts in New York.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "Roofs with a pitch of 46-49 degrees need local office approval. IGS pitch limits: 10-45 degrees.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "PSE&G-LI need 1 bill (graph is accurate). ConEdison need 1 bill (net meter summary lists kWh billed). Other utilities are TBD -- no current information available in Salesforce.",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in Long Island (Suffolk County and Nassau County), Queens, the Buffalo area, and the Syracuse area. Trinity does NOT have tree vendors in Lower Hudson, the Bronx, or Brooklyn -- the customer will have to remove trees in those areas.",
+          "type": "text"
+        },
+        {
+          "key": "ahj",
+          "label": "AHJ Confirmation",
+          "value": "Based on the Township listed on the Title. Most townships have setbacks; confirm with the AHJ that setbacks are followed.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "code": "OH",
+      "name": "Ohio",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "All Utilities: cannot exceed 120% actual production.",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - 25kW",
+            "goodleap": "3kW - 25kW",
+            "lightreach": "2.050kW - 25kW",
+            "igs": "2.050kW - 50kW",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "Less than 12 months on the bill: load calc required. Required if under 12 months, and required along with a Letter of Explanation if the rep is requesting over 120%.",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "No current info.",
+          "type": "text"
+        },
+        {
+          "key": "car_port",
+          "label": "Car Port",
+          "value": "No current info.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "Roofs with a pitch of 46-49 degrees need local office approval. IGS pitch limits: 10-45 degrees.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "No current info.",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in OH if the rep requests Trinity to remove trees.",
+          "type": "text"
+        },
+        {
+          "key": "setbacks",
+          "label": "Setbacks",
+          "value": "State-wide setbacks must be followed. Ohio does allow net metering for residential solar.",
+          "type": "text"
+        },
+        {
+          "key": "market",
+          "label": "Approved Market / Counties",
+          "value": "Initial Towns: Youngstown City, Struthers City, Campbell City. Initial Counties: Mahoning, Columbiana, Jefferson, Trumbull.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "code": "PA",
+      "name": "Pennsylvania",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "All Utilities: cannot exceed 110% actual production. State allows up to 200% if the deal is signed and we are one panel over 110% actual production -- push it forward without a change order.",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - no max",
+            "goodleap": "3kW - 25kW",
+            "igs": "2.050kW - 50kW",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "Less than 12 months on the bill: load calc required (see Duquesne Light and PPL below). Required along with a Letter of Explanation if requesting over 110%. Duquesne Light: load calc required if the customer has less than 12 months on the bill and we are building above the usage history shown -- you can build to the usage on the bill or to a load calc. PPL: if less than 12 months, build to the usage on the bill or to the load calc the rep provided; PPL has final approval and can reject the use of the load calc.",
+          "type": "text"
+        },
+        {
+          "key": "electric_vehicle",
+          "label": "Electric Vehicle",
+          "value": "Customer will need to sign an MOU for the overproduction.",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "Minimum panel count of 15, minimum Net PPW $4.10 after non-DC and trenching. Dan Riddle must approve.",
+          "type": "text"
+        },
+        {
+          "key": "car_port",
+          "label": "Car Port",
+          "value": "Only allowed in PA. Minimum Net PPW $4.50.",
+          "type": "text"
+        },
+        {
+          "key": "orientation",
+          "label": "Roof Orientation",
+          "value": "Cannot design on roofs with an orientation between 290-70 degrees (northern roofs) unless the rep asks to max all roofs or include northern roofs. The minimum system size for the City of Pittsburgh is 5.0kW (thirteen 410-watt panels) when the AHJ is City of Pittsburgh; if the AHJ is anything else, 5 panels is the minimum system size.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "Roofs with a pitch of 46-49 degrees need local office approval. IGS pitch limits: 10-45 degrees.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure.",
+          "type": "text"
+        },
+        {
+          "key": "net_metering",
+          "label": "Net Metering (Schedule Z)",
+          "value": "PA allows Schedule Z (virtual net metering); each utility has different rules. Chatter Mike Davis on each opportunity with specific questions if needed.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "Met-Ed requires 12 bills. PPL needs 1 bill (the graph is accurate). PECO requires 1 bill (graph is accurate). DLC requires 1 bill (graph is accurate; bars that go below 0 should be entered as 0). Other utilities are TBD.",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in PA if the rep requests Trinity to remove trees.",
+          "type": "text"
+        },
+        {
+          "key": "ahj",
+          "label": "AHJ Confirmation",
+          "value": "AHJ must be confirmed on the Pennsylvania Flood Map website, or if the title shows Dauphin County, use the Dauphin County website.",
+          "type": "text"
+        },
+        {
+          "key": "setbacks",
+          "label": "Setbacks",
+          "value": "State-wide setbacks must be followed.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    },
+    {
+      "code": "RI",
+      "name": "Rhode Island",
+      "sections": [
+        {
+          "key": "offset_cap",
+          "label": "Offset / Production Cap",
+          "value": "All Utilities: cannot exceed 125% actual production.",
+          "type": "text"
+        },
+        {
+          "key": "system_size",
+          "label": "System Size by Finance Partner",
+          "value": {
+            "cash": "2.050kW - no max",
+            "goodleap": "3kW - 25kW",
+            "igs": "2.050kW - 25kW",
+            "sunlight": "2.050kW - EPC cap based on credit score"
+          },
+          "type": "partner_sizes"
+        },
+        {
+          "key": "load_calc",
+          "label": "Load Calc & Usage Rules",
+          "value": "Less than 6 months on the bill: load calc required. 6-11 months: average for the missing months and build to this; if the rep provided a load calc, build to the load calc usage. Required if under 6 months, can be used if 6-11 months. The utility company has final say and may reject based on 1- or 3-year historical usage.",
+          "type": "text"
+        },
+        {
+          "key": "electric_vehicle",
+          "label": "Electric Vehicle",
+          "value": "No information currently available. If a deal comes up, reach out to a manager.",
+          "type": "text"
+        },
+        {
+          "key": "rebates",
+          "label": "Rebates",
+          "value": "REF rebate currently available for loans: $0.65/watt, capped at $5,000.00. Systems sized larger than 7.69kW receive the capped amount of $5,000.00. Battery deals get an additional $2,000.00 rebate. Overall TSRF must be above 80%.",
+          "type": "text"
+        },
+        {
+          "key": "ground_mount",
+          "label": "Ground Mount",
+          "value": "Minimum panel count of 15, minimum Net PPW $4.35 after non-DC and trenching.",
+          "type": "text"
+        },
+        {
+          "key": "pitch",
+          "label": "Roof Pitch",
+          "value": "Roofs with a pitch of 46-49 degrees need local office approval. IGS pitch limits: 10-45 degrees.",
+          "type": "text"
+        },
+        {
+          "key": "detached_structure",
+          "label": "Detached Structure",
+          "value": "A minimum of six 410-watt panels allowed on a detached structure.",
+          "type": "text"
+        },
+        {
+          "key": "add_on",
+          "label": "Add-On Systems",
+          "value": "RI Energy (formerly NatGrid) requires 1 bill (graph is accurate for after-solar usage).",
+          "type": "text"
+        },
+        {
+          "key": "tree_vendors",
+          "label": "Tree Removal Vendors",
+          "value": "Trinity has tree vendors in RI if the rep requests Trinity to remove trees.",
+          "type": "text"
+        },
+        {
+          "key": "ahj",
+          "label": "AHJ Confirmation",
+          "value": "Based on the Township listed on the Title. Does not require an external website to confirm accuracy.",
+          "type": "text"
+        },
+        {
+          "key": "setbacks",
+          "label": "Setbacks",
+          "value": "State-wide setbacks must be followed.",
+          "type": "text"
+        },
+        {
+          "key": "notes",
+          "label": "Notes",
+          "value": "Check the Contact List in SharePoint for local office contacts.",
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}

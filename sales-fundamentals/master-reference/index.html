@@ -1,0 +1,1661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Sales Operations Master Reference -- Trinity CT Sales</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --trinity-green: #78C832;
+  --trinity-green-dark: #5eba28;
+  --trinity-green-deep: #3f8e1c;
+  --th-blue: #29A9E1;
+  --ink: #0b1120;
+  --ink-soft: #1A2332;
+  --body: #2a3340;
+  --muted: #6b7a90;
+  --warm: #EFF1EC;
+  --warm-deep: #e2e6dc;
+  --border: #DFE2DA;
+  --border-soft: #ecefe8;
+  --paper: #fefdf7;
+  --white: #ffffff;
+  --green-soft: #e7f5d6;
+  --green-line: #b6dd80;
+  --yellow-soft: #fdf3d4;
+  --yellow-line: #e9cf6a;
+  --red-soft: #fbe1e1;
+  --red-line: #e09a9a;
+  --gray-soft: #f1f3ee;
+  --shadow-sm: 0 1px 2px rgba(11, 17, 32, 0.04), 0 0 0 1px rgba(11, 17, 32, 0.04);
+  --shadow-md: 0 6px 16px rgba(11, 17, 32, 0.06), 0 2px 4px rgba(11, 17, 32, 0.04);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+  --nav-h: 96px;
+  --max-w: 1240px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--body);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 {
+  font-family: 'Fraunces', Georgia, serif;
+  color: var(--ink);
+  font-weight: 600;
+  margin: 0 0 0.4em;
+  letter-spacing: -0.01em;
+}
+h1 { font-size: clamp(28px, 4vw, 38px); line-height: 1.1; font-weight: 700; }
+h2 { font-size: clamp(20px, 2.6vw, 26px); }
+h3 { font-size: 17px; }
+p { margin: 0 0 0.7em; }
+a { color: var(--trinity-green-deep); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 120ms; }
+a:hover { border-bottom-color: var(--trinity-green-deep); }
+
+/* ---- top nav ---- */
+.topnav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(254, 253, 247, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid #c7ccc0;
+  box-shadow: 0 1px 0 rgba(11,17,32,0.04);
+}
+.topnav-inner {
+  max-width: var(--max-w); margin: 0 auto;
+  padding: 12px clamp(16px, 3vw, 32px);
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Fraunces', serif; font-weight: 700; font-size: 19px;
+  color: var(--ink);
+}
+.brand .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--trinity-green); }
+.brand .back-link {
+  font-family: 'Manrope', sans-serif; font-weight: 600; font-size: 13px;
+  color: var(--ink-soft); border: none; padding: 4px 8px; margin-left: 6px;
+  border-radius: 6px; background: rgba(120,200,50,0.10);
+}
+.brand .back-link:hover { color: var(--trinity-green-deep); background: rgba(120,200,50,0.18); border-bottom-color: transparent; }
+
+.tabs {
+  display: flex; gap: 4px; background: #d8dfd0;
+  padding: 4px; border-radius: var(--radius); margin-left: auto;
+  box-shadow: inset 0 1px 2px rgba(11,17,32,0.04);
+}
+.tab {
+  padding: 8px 16px; border: none; background: transparent; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 600; color: var(--ink-soft);
+  border-radius: var(--radius-sm); transition: all 120ms;
+  letter-spacing: 0.01em;
+}
+.tab[aria-selected="true"] {
+  background: var(--ink); color: #fff;
+  box-shadow: 0 1px 2px rgba(11,17,32,0.18), 0 0 0 1px rgba(11,17,32,0.08);
+}
+.tab:hover:not([aria-selected="true"]) { background: rgba(255,255,255,0.7); color: var(--ink); }
+
+.search {
+  display: flex; align-items: center; gap: 6px; padding: 8px 12px;
+  background: var(--white); border: 1px solid #c7ccc0; border-radius: var(--radius);
+  flex: 1 1 220px; min-width: 200px; max-width: 360px;
+  box-shadow: inset 0 1px 2px rgba(11,17,32,0.03);
+}
+.search:focus-within { border-color: var(--trinity-green); box-shadow: 0 0 0 3px rgba(120,200,50,0.18); }
+.search input {
+  border: none; outline: none; font: inherit; flex: 1; min-width: 0;
+  background: transparent; color: var(--ink); font-weight: 500;
+}
+.search input::placeholder { color: #8a96a8; }
+.search .kbd {
+  font-size: 11px; padding: 3px 7px; border-radius: 4px;
+  background: var(--warm-deep); color: var(--ink-soft); font-family: 'DM Mono', monospace;
+  font-weight: 600; border: 1px solid var(--border);
+}
+
+/* ---- hero / freshness banner ---- */
+.hero {
+  max-width: var(--max-w); margin: 0 auto;
+  padding: 28px clamp(16px, 3vw, 32px) 8px;
+}
+.hero h1 .accent { color: var(--trinity-green-deep); }
+.hero p.lead { font-size: 16px; color: var(--muted); max-width: 720px; }
+
+.freshness-bar {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px;
+}
+.freshness {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 11px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 500;
+  border: 1px solid;
+}
+.freshness.fresh { background: var(--green-soft); color: #2a5e0e; border-color: var(--green-line); }
+.freshness.stale { background: var(--yellow-soft); color: #7a5a0c; border-color: var(--yellow-line); }
+.freshness.warn  { background: var(--red-soft); color: #843636; border-color: var(--red-line); }
+.freshness::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.55; }
+
+/* ---- sections ---- */
+main { max-width: var(--max-w); margin: 0 auto; padding: 16px clamp(16px, 3vw, 32px) 64px; }
+section.mode { display: none; }
+section.mode[data-active="true"] { display: block; }
+
+/* ---- ELIGIBILITY MODE ---- */
+.eligibility-grid {
+  display: grid; grid-template-columns: 320px 1fr; gap: 24px;
+}
+@media (max-width: 900px) { .eligibility-grid { grid-template-columns: 1fr; } }
+
+.controls {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-sm);
+  position: sticky; top: 92px; align-self: start;
+}
+@media (max-width: 900px) { .controls { position: static; } }
+.controls h2 { font-size: 18px; margin-bottom: 14px; }
+.field { margin-bottom: 14px; }
+.field label {
+  display: block; font-size: 12px; font-weight: 600; color: var(--ink-soft);
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 5px;
+}
+.field select, .field input[type=text], .field input[type=number] {
+  width: 100%; padding: 9px 11px; font: inherit;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--white); color: var(--body); transition: border-color 100ms;
+}
+.field select:focus, .field input:focus {
+  outline: none; border-color: var(--trinity-green); box-shadow: 0 0 0 3px rgba(120, 200, 50, 0.15);
+}
+.fico-row { display: flex; align-items: center; gap: 12px; }
+.fico-row input[type=range] { flex: 1; }
+.fico-val { font-family: 'DM Mono', monospace; font-weight: 700; color: var(--ink); min-width: 36px; text-align: right; font-size: 16px; }
+.product-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.product-pills .pill {
+  padding: 7px 11px; border-radius: 999px; border: 1px solid var(--border);
+  background: var(--white); font: inherit; font-size: 13px; cursor: pointer;
+  transition: all 120ms;
+}
+.product-pills .pill[aria-pressed="true"] {
+  background: var(--ink); color: var(--white); border-color: var(--ink);
+}
+.product-pills .pill:hover:not([aria-pressed="true"]) { border-color: var(--trinity-green); }
+
+.results h2 {
+  font-size: 17px; color: var(--muted); font-weight: 500;
+  font-family: 'Manrope', sans-serif; letter-spacing: 0.02em; text-transform: uppercase;
+}
+.results h2 .count { color: var(--ink); font-weight: 700; }
+
+.partner-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 14px;
+  box-shadow: var(--shadow-sm); transition: box-shadow 150ms;
+}
+.partner-card:hover { box-shadow: var(--shadow-md); }
+.partner-card.verdict-yes  { border-left: 4px solid var(--trinity-green); }
+.partner-card.verdict-warn { border-left: 4px solid #d99a1f; }
+.partner-card.verdict-no   { border-left: 4px solid #c44a4a; }
+.partner-card.verdict-info { border-left: 4px solid var(--th-blue); }
+
+/* status overrides: paused / defunct */
+.partner-card.status-paused, .partner-card.status-defunct {
+  border-left: 4px solid #c92020;
+  background: linear-gradient(180deg, #fff5f5 0, #ffffff 80px);
+}
+.partner-card.status-defunct .partner-name { text-decoration: line-through; color: var(--muted); }
+.status-banner {
+  background: #c92020; color: #fff; padding: 8px 12px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; line-height: 1.4; margin: -2px 0 12px;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.status-banner::before {
+  content: "!"; font-family: 'Fraunces', serif; font-weight: 700;
+  background: rgba(255,255,255,0.2); width: 22px; height: 22px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; flex: 0 0 22px;
+  font-size: 14px;
+}
+.status-banner .body { font-weight: 500; }
+.status-banner .head { display: block; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.92; }
+
+.global-status-bar {
+  max-width: var(--max-w); margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 32px);
+}
+.global-status-bar .alert {
+  background: #c92020; color: #fff; padding: 10px 14px; border-radius: var(--radius);
+  font-size: 13.5px; line-height: 1.5; display: flex; gap: 10px; align-items: flex-start;
+  margin-bottom: 6px; box-shadow: 0 2px 6px rgba(201,32,32,0.2);
+}
+.global-status-bar .alert::before {
+  content: "⚠"; font-size: 16px; flex: 0 0 16px; line-height: 1.3;
+}
+.global-status-bar .alert b { font-weight: 700; margin-right: 6px; }
+
+.partner-status-pill {
+  display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 2px 8px; border-radius: 999px;
+  background: #c92020; color: #fff; margin-left: 6px; vertical-align: middle;
+}
+.partner-status-pill.coming { background: rgba(41,169,225,0.92); }
+
+table.pricing th.paused-col, table.pricing td.paused-col {
+  background: #fff5f5;
+}
+table.pricing th.paused-col {
+  position: relative;
+}
+table.pricing th.paused-col::after {
+  content: "PAUSED"; display: block; font-size: 10px; color: #c92020;
+  font-weight: 700; letter-spacing: 0.06em; margin-top: 2px;
+}
+table.pricing th.defunct-col::after {
+  content: "DEFUNCT"; display: block; font-size: 10px; color: #c92020;
+  font-weight: 700; letter-spacing: 0.06em; margin-top: 2px;
+}
+table.pricing td.defunct-col { color: var(--muted); text-decoration: line-through; }
+table.pricing tr.partner-paused td.partner { color: #c92020; }
+table.pricing tr.partner-defunct td.partner { color: var(--muted); text-decoration: line-through; }
+
+.matrix-row .cell.col-paused { background: #fff5f5; }
+.matrix-row .cell.col-defunct { background: #fbf3f3; opacity: 0.78; }
+.matrix-row .cell.col-paused .partner-tag,
+.matrix-row .cell.col-defunct .partner-tag {
+  color: #c92020;
+}
+.matrix-row .cell.col-defunct .partner-tag { text-decoration: line-through; }
+
+.partner-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.partner-name {
+  font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; color: var(--ink);
+}
+.verdict {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+  border-radius: 999px; font-size: 12.5px; font-weight: 600;
+}
+.verdict-yes  { background: var(--green-soft); color: #2a5e0e; }
+.verdict-warn { background: var(--yellow-soft); color: #7a5a0c; }
+.verdict-no   { background: var(--red-soft); color: #843636; }
+.verdict-info { background: rgba(41,169,225,0.12); color: #15607c; }
+.verdict::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.coming-soon-pill {
+  display: inline-block; padding: 3px 8px; font-size: 11px; font-weight: 600;
+  background: rgba(41,169,225,0.12); color: #15607c; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+.criteria-list { list-style: none; padding: 0; margin: 8px 0 12px; display: grid; gap: 6px; }
+.criteria-list li {
+  display: grid; grid-template-columns: 18px 1fr; gap: 10px;
+  font-size: 14px; align-items: start;
+}
+.criteria-list .icon { font-size: 13px; line-height: 1.4; }
+.criteria-list .icon.pass { color: var(--trinity-green-deep); }
+.criteria-list .icon.warn { color: #c98a17; }
+.criteria-list .icon.fail { color: #b04040; }
+.criteria-list .icon.info { color: #15607c; }
+.criteria-list .label { color: var(--muted); font-weight: 500; min-width: 84px; }
+.criteria-list .value { color: var(--body); }
+
+.pricing-snip {
+  margin-top: 12px; padding: 10px 12px; background: var(--warm);
+  border-radius: var(--radius-sm); font-size: 13.5px;
+}
+.pricing-snip .row { display: flex; justify-content: space-between; gap: 12px; }
+.pricing-snip .row + .row { margin-top: 3px; }
+.pricing-snip .row .k { color: var(--muted); }
+.pricing-snip .row .v { font-family: 'DM Mono', monospace; color: var(--ink); font-weight: 600; }
+
+.see-rules {
+  display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 600;
+  color: var(--trinity-green-deep); cursor: pointer; border: none; background: none; padding: 0;
+}
+.see-rules:hover { text-decoration: underline; }
+
+.empty-state {
+  background: var(--white); border: 1px dashed var(--border);
+  border-radius: var(--radius-lg); padding: 32px; text-align: center; color: var(--muted);
+}
+
+/* ---- PRICING MODE ---- */
+.pricing-controls {
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px; margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.pricing-controls .field { margin: 0; flex: 0 0 auto; min-width: 120px; }
+.pricing-controls .field label { font-size: 11px; }
+.pricing-controls .sub-tabs {
+  display: flex; background: var(--warm); padding: 3px; border-radius: var(--radius-sm);
+  margin-left: auto;
+}
+.pricing-controls .sub-tabs button {
+  padding: 7px 12px; border: none; background: transparent;
+  font: inherit; font-size: 13px; cursor: pointer; border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+.pricing-controls .sub-tabs button[aria-selected="true"] {
+  background: var(--white); color: var(--ink); box-shadow: var(--shadow-sm);
+}
+
+.table-wrap {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: auto; box-shadow: var(--shadow-sm);
+}
+table.pricing {
+  width: 100%; border-collapse: collapse; font-size: 13.5px;
+}
+table.pricing th, table.pricing td {
+  padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border-soft);
+  white-space: nowrap;
+}
+table.pricing thead th {
+  background: var(--warm); position: sticky; top: 0;
+  font-weight: 600; color: var(--ink-soft); font-size: 12px;
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+table.pricing tbody tr:hover { background: var(--warm); }
+table.pricing td.num { font-family: 'DM Mono', monospace; text-align: right; color: var(--ink); }
+table.pricing td.na  { color: var(--muted); font-style: italic; text-align: right; font-family: 'DM Mono', monospace; }
+table.pricing td.partner { font-weight: 600; color: var(--ink-soft); }
+table.pricing tbody tr.state-divider td { border-top: 2px solid var(--border); }
+
+.loan-ref {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 18px; box-shadow: var(--shadow-sm);
+}
+.loan-ref pre {
+  font-family: 'DM Mono', monospace; font-size: 12.5px; line-height: 1.6;
+  white-space: pre-wrap; word-wrap: break-word; color: var(--body);
+  margin: 0; max-height: 70vh; overflow: auto; padding: 10px; background: var(--warm); border-radius: var(--radius-sm);
+}
+.loan-ref h3 { margin-top: 14px; }
+
+/* ---- MATRIX MODE ---- */
+.matrix-controls {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center;
+}
+.matrix-tabs { display: flex; background: var(--warm); padding: 3px; border-radius: var(--radius); }
+.matrix-tabs button {
+  padding: 7px 12px; border: none; background: transparent;
+  font: inherit; font-size: 13.5px; cursor: pointer; border-radius: var(--radius-sm);
+  font-weight: 500; color: var(--body);
+}
+.matrix-tabs button[aria-selected="true"] {
+  background: var(--white); color: var(--ink); box-shadow: var(--shadow-sm);
+}
+
+.matrix-cat-anchors {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px;
+}
+.matrix-cat-anchors a {
+  font-size: 12px; padding: 4px 9px; border-radius: 999px;
+  background: var(--warm); color: var(--ink-soft); border: 1px solid transparent;
+  font-weight: 500;
+}
+.matrix-cat-anchors a:hover { background: var(--warm-deep); border-color: var(--border); }
+
+.matrix-section { margin-bottom: 28px; }
+.matrix-section h3 {
+  font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600;
+  color: var(--ink); padding-bottom: 6px; margin-bottom: 12px;
+  border-bottom: 2px solid var(--trinity-green); display: inline-block; padding-right: 30px;
+}
+.matrix-row {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+  margin-bottom: 8px; overflow: hidden; box-shadow: var(--shadow-sm);
+}
+.matrix-row .attr-label {
+  background: var(--warm); padding: 9px 14px; font-weight: 600; color: var(--ink-soft);
+  font-size: 14px; border-bottom: 1px solid var(--border-soft);
+}
+.matrix-row .attr-row {
+  display: grid; gap: 0; grid-template-columns: repeat(var(--cols, 3), 1fr);
+}
+.matrix-row .cell {
+  padding: 10px 14px; font-size: 13.5px; border-right: 1px solid var(--border-soft);
+  white-space: pre-wrap; line-height: 1.45;
+}
+.matrix-row .cell:last-child { border-right: none; }
+.matrix-row .cell .partner-tag {
+  display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px;
+}
+.matrix-row .cell.empty .val { color: var(--muted); font-style: italic; font-size: 12px; }
+.matrix-row .note {
+  padding: 8px 14px; background: rgba(41,169,225,0.06); font-size: 12.5px;
+  color: var(--ink-soft); border-top: 1px solid var(--border-soft);
+}
+.matrix-row .note::before { content: "ⓘ "; font-weight: 700; color: var(--th-blue); }
+
+@media (max-width: 700px) {
+  .matrix-row .attr-row { grid-template-columns: 1fr !important; }
+  .matrix-row .cell { border-right: none; border-bottom: 1px solid var(--border-soft); }
+  .matrix-row .cell:last-child { border-bottom: none; }
+}
+
+/* ---- changes log + footer ---- */
+details.changes {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 14px 18px; margin-top: 24px; box-shadow: var(--shadow-sm);
+}
+details.changes summary {
+  cursor: pointer; font-weight: 600; color: var(--ink-soft); font-size: 14px;
+  list-style: none;
+}
+details.changes summary::-webkit-details-marker { display: none; }
+details.changes summary::before {
+  content: "+"; display: inline-block; width: 18px; font-weight: 700; color: var(--trinity-green-deep);
+}
+details.changes[open] summary::before { content: "−"; }
+details.changes ul { margin: 12px 0 0; padding-left: 24px; }
+details.changes li { margin-bottom: 6px; font-size: 13.5px; color: var(--body); }
+details.changes li .date { font-family: 'DM Mono', monospace; color: var(--muted); margin-right: 10px; font-size: 12px; }
+
+footer.page-foot {
+  text-align: center; color: var(--muted); font-size: 12.5px;
+  padding: 28px 16px 0; border-top: 1px solid var(--border-soft); margin-top: 36px;
+}
+
+/* ---- quick-start launcher (home) ---- */
+.launcher { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin: 8px 0 28px; }
+.launch-card {
+  text-align: left; cursor: pointer; border: 1px solid var(--border);
+  background: var(--white); border-radius: var(--radius-lg); padding: 22px 20px;
+  box-shadow: var(--shadow-sm); transition: transform 120ms, box-shadow 120ms, border-color 120ms;
+  font-family: inherit; display: flex; flex-direction: column; gap: 8px;
+}
+.launch-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--green-line); }
+.launch-card .lc-icon { font-size: 26px; line-height: 1; }
+.launch-card .lc-q { font-family: 'Fraunces', serif; font-weight: 600; font-size: 18px; color: var(--ink); }
+.launch-card .lc-sub { color: var(--muted); font-size: 13px; }
+.launch-card .lc-go { margin-top: auto; color: var(--trinity-green-deep); font-weight: 600; font-size: 13px; }
+
+/* ---- by-state view ---- */
+.state-controls { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 18px; }
+.state-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.state-chip {
+  padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border);
+  background: var(--white); cursor: pointer; font-family: inherit; font-weight: 600;
+  font-size: 13px; color: var(--ink-soft); transition: all 120ms;
+}
+.state-chip:hover { border-color: var(--green-line); }
+.state-chip[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); }
+.state-head { display: flex; align-items: baseline; gap: 12px; margin: 4px 0 16px; }
+.state-head h2 { margin: 0; }
+.state-head .pill-min { font-size: 12px; color: var(--muted); font-weight: 600; }
+.guide-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.guide-card { border: 1px solid var(--border); border-radius: var(--radius); background: var(--white); padding: 14px 16px; box-shadow: var(--shadow-sm); }
+.guide-card.span2 { grid-column: 1 / -1; }
+.guide-card h3 { font-family: 'Manrope', sans-serif; font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--trinity-green-deep); margin: 0 0 7px; }
+.guide-card p { margin: 0; font-size: 14px; color: var(--body); line-height: 1.5; }
+.guide-card mark { background: var(--yellow-soft); padding: 0 2px; border-radius: 3px; }
+.sizes { display: grid; gap: 5px; }
+.sizes .srow { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; padding: 3px 0; border-bottom: 1px dashed var(--border-soft); }
+.sizes .srow:last-child { border-bottom: none; }
+.sizes .srow .pk { font-weight: 600; color: var(--ink-soft); }
+.sizes .srow.archived { color: var(--muted); }
+.sizes .srow.archived .pk { text-decoration: line-through; }
+.sizes .srow .badge-arch { font-size: 10px; color: var(--muted); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; margin-left: 6px; }
+.sizes .srow.active .pk { color: var(--trinity-green-deep); }
+
+/* ---- checklist view ---- */
+.chk-controls { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 16px; }
+.chk-summary { background: var(--green-soft); border: 1px solid var(--green-line); border-radius: var(--radius); padding: 10px 14px; font-size: 13.5px; margin-bottom: 16px; }
+.chk-group { margin-bottom: 18px; }
+.chk-group h3 { font-size: 16px; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 2px solid var(--border); }
+.chk-item { border: 1px solid var(--border); border-left-width: 4px; border-radius: var(--radius-sm); background: var(--white); padding: 10px 13px; margin-bottom: 8px; box-shadow: var(--shadow-sm); }
+.chk-item.critical { border-left-color: #e09a9a; }
+.chk-item.noncritical { border-left-color: var(--green-line); }
+.chk-item .ci-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.chk-item .ci-title { font-weight: 600; color: var(--ink); font-size: 14px; }
+.chk-item .ci-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; padding: 1px 6px; border-radius: 4px; }
+.chk-item .ci-tag.crit { background: var(--red-soft); color: #b42318; }
+.chk-item .ci-tag.non { background: var(--gray-soft); color: var(--muted); }
+.chk-item .ci-tag.terr { background: #e3f0fb; color: #1d6fa5; }
+.chk-item .ci-desc { font-size: 13px; color: var(--body); margin: 4px 0 0; }
+.chk-item .ci-meta { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+.chk-item .ci-dep { font-size: 11.5px; color: var(--muted); margin-top: 3px; font-style: italic; }
+
+/* ---- print ---- */
+@media print {
+  .topnav, .controls, .pricing-controls .sub-tabs, .matrix-controls, details.changes, .launcher { display: none; }
+  body { background: white; }
+  .partner-card, .matrix-row, .table-wrap, .guide-card, .chk-item { box-shadow: none; break-inside: avoid; }
+  section.mode { display: block !important; }
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+
+
+<div class="global-status-bar" id="global-status-bar"></div>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="brand">
+      <span class="dot"></span>
+      <button class="brand-home" onclick="goMode('home')" title="Home" style="background:none;border:none;font:inherit;color:inherit;cursor:pointer;padding:0;">Sales Ops Master Reference</button>
+      <a class="back-link" href="../../">&larr; Resources</a>
+    </div>
+    <div class="search">
+      <span aria-hidden="true">🔍</span>
+      <input id="search" type="text" placeholder="Search every rule, partner, doc..." aria-label="Search">
+      <span class="kbd">/</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Mode">
+      <button class="tab" role="tab" data-mode="state"       aria-selected="true">By State</button>
+      <button class="tab" role="tab" data-mode="eligibility" aria-selected="false">By Partner</button>
+      <button class="tab" role="tab" data-mode="checklist"   aria-selected="false">Checklist</button>
+      <button class="tab" role="tab" data-mode="pricing"     aria-selected="false">Pricing</button>
+      <button class="tab" role="tab" data-mode="matrix"      aria-selected="false">Full Matrix</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1><span class="accent">Sales Operations</span> Master Reference</h1>
+  <p class="lead">
+    One place for state sizing rules, finance-partner eligibility, the document checklist, and pricing.
+    Start with what you need below, switch lenses any time, or search across everything.
+  </p>
+  <div class="freshness-bar" id="freshness-bar"></div>
+</header>
+
+<main>
+  <section class="mode" id="mode-home" data-active="true">
+    <div class="launcher">
+      <button class="launch-card" onclick="goMode('state')">
+        <span class="lc-icon">📍</span>
+        <span class="lc-q">What can I sell here?</span>
+        <span class="lc-sub">State sizing, offset caps, load-calc rules, ground mount, pitch, EV/heat pump.</span>
+        <span class="lc-go">By State &rarr;</span>
+      </button>
+      <button class="launch-card" onclick="goMode('eligibility')">
+        <span class="lc-icon">🤝</span>
+        <span class="lc-q">Can a partner do this?</span>
+        <span class="lc-sub">Finance-partner eligibility: credit, property type, system, contract terms.</span>
+        <span class="lc-go">By Partner &rarr;</span>
+      </button>
+      <button class="launch-card" onclick="goMode('checklist')">
+        <span class="lc-icon">📋</span>
+        <span class="lc-q">What docs do I need?</span>
+        <span class="lc-sub">The M0 document checklist by partner and project type.</span>
+        <span class="lc-go">Checklist &rarr;</span>
+      </button>
+      <button class="launch-card" onclick="goMode('pricing')">
+        <span class="lc-icon">💲</span>
+        <span class="lc-q">What's the pricing?</span>
+        <span class="lc-sub">Lease/PPA and loan pricing by state and utility.</span>
+        <span class="lc-go">Pricing &rarr;</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="mode" id="mode-state">
+    <div class="state-controls">
+      <div class="field" style="flex:0 0 auto;">
+        <label>State / Region</label>
+        <div class="state-chips" id="state-chips"></div>
+      </div>
+    </div>
+    <div id="state-content"></div>
+  </section>
+
+  <section class="mode" id="mode-checklist">
+    <div class="chk-controls">
+      <div class="field"><label for="chk-partner">Finance Partner</label><select id="chk-partner"></select></div>
+      <div class="field"><label for="chk-project">Project Type</label><select id="chk-project">
+        <option value="solar">Solar</option>
+        <option value="roof">Roofing</option>
+        <option value="battery">Battery</option>
+      </select></div>
+      <div class="field"><label for="chk-state">State (optional)</label><select id="chk-state"><option value="">Any</option></select></div>
+    </div>
+    <div class="chk-summary" id="chk-summary"></div>
+    <div id="checklist-content"></div>
+  </section>
+
+  <section class="mode" id="mode-eligibility">
+    <div class="eligibility-grid">
+      <aside class="controls" aria-label="Filters">
+        <h2>Tell me about the deal</h2>
+
+        <div class="field">
+          <label for="f-state">State</label>
+          <select id="f-state"></select>
+        </div>
+
+        <div class="field">
+          <label for="f-utility">Utility</label>
+          <select id="f-utility"><option value="">Any</option></select>
+        </div>
+
+        <div class="field">
+          <label>Product</label>
+          <div class="product-pills" id="f-product" role="group">
+            <button class="pill" data-product="tpo"        aria-pressed="true">TPO Lease/PPA</button>
+            <button class="pill" data-product="solar_loan" aria-pressed="false">Solar Loan</button>
+            <button class="pill" data-product="roof_loan"  aria-pressed="false">Roof-Only Loan</button>
+            <button class="pill" data-product="cash"       aria-pressed="false">Cash</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-property">Property type</label>
+          <select id="f-property">
+            <option value="">Any</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="f-fico">Customer FICO <span style="font-weight:400; text-transform:none; color:var(--muted);">(optional)</span></label>
+          <div class="fico-row">
+            <input type="range" id="f-fico" min="550" max="850" step="5" value="700">
+            <span class="fico-val" id="f-fico-val">700</span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="results" id="results">
+        <h2><span class="count" id="results-count">…</span> partners</h2>
+        <div id="results-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mode" id="mode-pricing">
+    <div class="pricing-controls">
+      <div class="field"><label for="p-state">State</label><select id="p-state"><option value="">All</option></select></div>
+      <div class="field"><label for="p-partner">Partner</label><select id="p-partner"><option value="">All</option></select></div>
+      <div class="sub-tabs" role="tablist" aria-label="Pricing sub-mode">
+        <button data-pmode="lease_ppa"  role="tab" aria-selected="true">Lease / PPA</button>
+        <button data-pmode="loan_solar" role="tab" aria-selected="false">Solar Loan</button>
+        <button data-pmode="loan_terms" role="tab" aria-selected="false">Loan Terms</button>
+        <button data-pmode="equipment"  role="tab" aria-selected="false">Equipment</button>
+      </div>
+    </div>
+    <div id="pricing-content"></div>
+  </section>
+
+  <section class="mode" id="mode-matrix">
+    <div class="matrix-controls">
+      <div class="matrix-tabs" role="tablist" aria-label="Product">
+        <button data-product="tpo"        role="tab" aria-selected="true">TPO Lease/PPA</button>
+        <button data-product="solar_loan" role="tab" aria-selected="false">Solar Loan</button>
+        <button data-product="roof_loan"  role="tab" aria-selected="false">Roof-Only Loan</button>
+      </div>
+    </div>
+    <div class="matrix-cat-anchors" id="matrix-anchors"></div>
+    <div id="matrix-content"></div>
+  </section>
+
+  <details class="changes" id="changes-block">
+    <summary>What's changed recently</summary>
+    <ul id="changes-list"></ul>
+  </details>
+
+  <footer class="page-foot">
+    <p>
+      Maintained by <a href="mailto:tom.weiss@trinity-solar.com">Tom Weiss</a> &middot;
+      Spotted an error or missing rule? <a href="mailto:tom.weiss@trinity-solar.com?subject=Finance%20Partner%20Finder%20-%20edit%20suggestion">Send a correction</a>.
+    </p>
+    <p style="font-size:12px; color:#c92020; font-weight:600;">
+      Internal Trinity sales-team resource. Do not share externally.
+    </p>
+    <p style="font-size:11px;">
+      This tool reads from <code>state-guidelines.json</code>, <code>cheat-sheet.json</code>,
+      <code>checklist.json</code>, and <code>pricing.json</code>, regenerated by
+      <code>admin-scripts/build-reference-data.py</code> when source files change.
+    </p>
+  </footer>
+</main>
+
+<script>
+// ============================================================
+// Data
+// ============================================================
+let CHEAT, PRICING, GUIDE, CHECK;
+let STATE = {
+  mode: 'home',
+  // by state
+  stateCode: 'CT',
+  // eligibility
+  state: '',
+  utility: '',
+  product: 'tpo',
+  property: '',
+  fico: 700,
+  // checklist
+  chkPartner: 'lightreach',
+  chkProject: 'solar',
+  chkState: '',
+  // pricing
+  pricingState: '',
+  pricingPartner: '',
+  pmode: 'lease_ppa',
+  // matrix
+  matrixProduct: 'tpo',
+  // search
+  query: '',
+};
+
+const STATES = ['CT','DE','MA','MD','NH','NJ','NY','OH','PA','RI'];
+
+// Map property dropdown values <-> attribute labels in Tom's sheet.
+// Values are the cheat-sheet's "Property Type" attribute names.
+const PROPERTY_TYPES = [
+  ['single_family',     'Single Family'],
+  ['condo',             'Condos'],
+  ['townhome',          'Townhome'],
+  ['duplex_triplex',    'Duplex / Triplex'],
+  ['vacation',          'Vacation Home'],
+  ['rental',            'Rental / Investment Prop'],
+  ['manufactured',      'Manufactured Homes'],
+  ['mobile',            'Mobile Homes'],
+  ['modular',           'Modular Homes'],
+  ['apartments',        'Apartments (4 or more units)'],
+  ['carports',          'Carports'],
+  ['farm_ag',           'Farm / Ag'],
+  ['mixed_farm_resi',   'Mixed Use (Farm or Ag & Resi)'],
+  ['mixed_comm_resi',   'Mixed Use (Comm / Resi)'],
+  ['golf_course',       'Golf Course'],
+];
+
+// ============================================================
+// Boot
+// ============================================================
+async function boot() {
+  try {
+    const [cs, pr, gd, ck] = await Promise.all([
+      fetch('./cheat-sheet.json').then(r => r.json()),
+      fetch('./pricing.json').then(r => r.json()),
+      fetch('./state-guidelines.json').then(r => r.json()),
+      fetch('./checklist.json').then(r => r.json()),
+    ]);
+    CHEAT = cs; PRICING = pr; GUIDE = gd; CHECK = ck;
+  } catch (err) {
+    document.querySelector('main').innerHTML =
+      '<div class="empty-state"><h3>Could not load data</h3><p>'+err.message+
+      '</p><p>The page expects <code>state-guidelines.json</code>, <code>cheat-sheet.json</code>, '+
+      '<code>checklist.json</code>, and <code>pricing.json</code> in the same folder. '+
+      'Run <code>admin-scripts/build-reference-data.py</code> to regenerate them.</p></div>';
+    return;
+  }
+
+  initStatusBar();
+  initFreshness();
+  initTabs();
+  initSearch();
+  initState();
+  initChecklist();
+  initEligibility();
+  initPricing();
+  initMatrix();
+  initChanges();
+
+  renderStateGuidelines();
+}
+
+// ============================================================
+// Global status bar (paused / defunct partners)
+// ============================================================
+function initStatusBar() {
+  const bar = document.getElementById('global-status-bar');
+  const paused = [], defunct = [];
+  for (const [key, p] of Object.entries(CHEAT.partners)) {
+    if (p.status === 'paused') paused.push(p.name);
+    else if (p.status === 'defunct') defunct.push(p.name);
+  }
+  if (!paused.length && !defunct.length) return;
+  const parts = [];
+  if (defunct.length) parts.push('<b>No longer offered (reference only):</b> ' + escapeHtml(defunct.join(', ')));
+  if (paused.length) parts.push('<b>Paused:</b> ' + escapeHtml(paused.join(', ')));
+  // One compact line. Active partners: LightReach + Cash (solar), SunLight + Service Finance (roof/battery).
+  bar.innerHTML = '<div class="alert" style="display:flex;gap:8px;align-items:baseline;">' +
+    '<span aria-hidden="true">⚠</span><span>' + parts.join(' &nbsp;&middot;&nbsp; ') +
+    ' &mdash; do not quote. Active: LightReach &amp; Cash (solar), SunLight &amp; Service Finance (roof/battery).</span></div>';
+}
+boot();
+
+// ============================================================
+// Freshness banner
+// ============================================================
+function initFreshness() {
+  const bar = document.getElementById('freshness-bar');
+  const csVer = CHEAT.version;
+  const pricingVer = PRICING.version;
+
+  const csAge = ageInDays(csVer);
+  const pricingAge = monthAgeInDays(pricingVer);
+
+  bar.appendChild(makeFresh('Cheat sheet', csVer, csAge, 90));
+  bar.appendChild(makeFresh('Pricing', pricingVer, pricingAge, 60));
+}
+function ageInDays(yyyy_mm_dd) {
+  if (!yyyy_mm_dd) return 999;
+  const d = new Date(yyyy_mm_dd + 'T00:00:00');
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+function monthAgeInDays(monthLabel) {
+  // "Jan 2026" or "January 2026" -> first of month
+  const m = monthLabel && monthLabel.match(/^([A-Za-z]+) (\d{4})$/);
+  if (!m) return 999;
+  const key = m[1].slice(0, 3).toLowerCase();
+  const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+  const idx = months.indexOf(key);
+  if (idx < 0) return 999;
+  const d = new Date(parseInt(m[2]), idx, 1);
+  return Math.floor((Date.now() - d.getTime()) / 86400000);
+}
+function makeFresh(label, version, age, threshold) {
+  const span = document.createElement('span');
+  let cls = 'fresh';
+  if (age > threshold * 2) cls = 'warn';
+  else if (age > threshold) cls = 'stale';
+  span.className = 'freshness ' + cls;
+  span.textContent = label + ': ' + version + (age > threshold ? ' (' + age + 'd old)' : '');
+  return span;
+}
+
+// ============================================================
+// Tabs
+// ============================================================
+function initTabs() {
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => goMode(btn.dataset.mode));
+  });
+}
+
+// Central mode switch -- used by tabs and the home launcher cards.
+function goMode(mode) {
+  STATE.mode = mode;
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', b.dataset.mode === mode));
+  document.querySelectorAll('section.mode').forEach(s => s.dataset.active = (s.id === 'mode-' + mode));
+  if (mode === 'state') renderStateGuidelines();
+  if (mode === 'checklist') renderChecklist();
+  if (mode === 'eligibility') renderEligibility();
+  if (mode === 'pricing') renderPricing();
+  if (mode === 'matrix') renderMatrix();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// Search
+// ============================================================
+function initSearch() {
+  const input = document.getElementById('search');
+  input.addEventListener('input', e => {
+    STATE.query = e.target.value.trim().toLowerCase();
+    if (STATE.mode === 'home' && STATE.query) goMode('state');
+    if (STATE.mode === 'state') renderStateGuidelines();
+    if (STATE.mode === 'checklist') renderChecklist();
+    if (STATE.mode === 'matrix') renderMatrix();
+    if (STATE.mode === 'pricing') renderPricing();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'SELECT') {
+      e.preventDefault(); input.focus(); input.select();
+    }
+  });
+}
+
+// ============================================================
+// By State
+// ============================================================
+const VERBOSE_KEYS = new Set(['offset_cap','load_calc','inverter_rules','electric_vehicle',
+  'system_size','contract','orientation','rebates','add_on','net_metering','tree_vendors']);
+
+function activeForSolar(pk) {
+  const p = CHEAT.partners[pk];
+  return !!(p && p.status === 'live' && (p.scope === 'all' || p.scope === 'solar'));
+}
+
+function initState() {
+  const chips = document.getElementById('state-chips');
+  GUIDE.states.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'state-chip';
+    b.dataset.code = s.code;
+    b.textContent = s.code;
+    b.title = s.name;
+    b.setAttribute('aria-pressed', s.code === STATE.stateCode);
+    b.addEventListener('click', () => {
+      STATE.stateCode = s.code;
+      document.querySelectorAll('#state-chips .state-chip').forEach(x =>
+        x.setAttribute('aria-pressed', x.dataset.code === s.code));
+      renderStateGuidelines();
+    });
+    chips.appendChild(b);
+  });
+}
+
+function highlight(text) {
+  const safe = escapeHtml(text);
+  if (!STATE.query) return safe;
+  try {
+    // Escape the query the same way as the text so terms with & < > still match.
+    const q = escapeHtml(STATE.query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(' + q + ')', 'ig');
+    return safe.replace(re, '<mark>$1</mark>');
+  } catch (e) { return safe; }
+}
+
+function renderStateGuidelines() {
+  const wrap = document.getElementById('state-content');
+  const st = GUIDE.states.find(s => s.code === STATE.stateCode) || GUIDE.states[0];
+  const q = STATE.query;
+
+  let sections = st.sections;
+  if (q) {
+    sections = sections.filter(sec => {
+      if (sec.type === 'partner_sizes') {
+        return Object.entries(sec.value).some(([pk, v]) =>
+          (CHEAT.partners[pk]?.name || pk).toLowerCase().includes(q) || v.toLowerCase().includes(q));
+      }
+      return sec.label.toLowerCase().includes(q) || String(sec.value).toLowerCase().includes(q);
+    });
+  }
+
+  let html = '<div class="state-head"><h2>' + escapeHtml(st.name) +
+    '</h2><span class="pill-min">' + sections.length + ' rule areas &middot; guidelines v' +
+    escapeHtml(GUIDE.version) + '</span></div>';
+
+  if (!sections.length) {
+    html += '<div class="empty-state"><p>No rules in ' + escapeHtml(st.name) + ' match "' + escapeHtml(q) + '".</p></div>';
+    wrap.innerHTML = html; return;
+  }
+
+  html += '<div class="guide-grid">';
+  sections.forEach(sec => {
+    const span = (sec.type === 'partner_sizes' || VERBOSE_KEYS.has(sec.key)) ? ' span2' : '';
+    html += '<div class="guide-card' + span + '"><h3>' + escapeHtml(sec.label) + '</h3>';
+    if (sec.type === 'partner_sizes') {
+      html += '<div class="sizes">';
+      // active solar partners first, then archived
+      const entries = Object.entries(sec.value).sort((a, b) =>
+        (activeForSolar(b[0]) - activeForSolar(a[0])));
+      entries.forEach(([pk, v]) => {
+        const live = activeForSolar(pk);
+        const name = CHEAT.partners[pk]?.name || pk;
+        const badge = live ? '' : '<span class="badge-arch">not active for solar</span>';
+        html += '<div class="srow ' + (live ? 'active' : 'archived') + '">' +
+          '<span class="pk">' + highlight(name) + badge + '</span>' +
+          '<span class="pv">' + highlight(v) + '</span></div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<p>' + highlight(sec.value) + '</p>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+// ============================================================
+// Checklist
+// ============================================================
+const CHK_ACTIVE = ['cash', 'lightreach', 'sunlight', 'service_finance'];
+// What each active partner can actually be quoted for. Keeps a solar-only TPO
+// partner from showing roofing/battery items just because generic title/credit
+// rows are tagged for all project types.
+const PARTNER_PROJECTS = {
+  cash: ['solar', 'roof', 'battery'],
+  lightreach: ['solar'],
+  sunlight: ['roof', 'battery'],
+  service_finance: ['roof', 'battery'],
+};
+const PROJECT_LABELS = { solar: 'Solar', roof: 'Roofing', battery: 'Battery' };
+
+function syncProjectOptions() {
+  const allowed = PARTNER_PROJECTS[STATE.chkPartner] || ['solar', 'roof', 'battery'];
+  const sel = document.getElementById('chk-project');
+  sel.innerHTML = '';
+  allowed.forEach(p => sel.appendChild(opt(p, PROJECT_LABELS[p])));
+  if (!allowed.includes(STATE.chkProject)) STATE.chkProject = allowed[0];
+  sel.value = STATE.chkProject;
+}
+
+function initChecklist() {
+  const partnerSel = document.getElementById('chk-partner');
+  // active partners present in the data, in preferred order
+  const present = new Set();
+  CHECK.items.forEach(it => it.partners.forEach(p => present.add(p)));
+  const active = CHK_ACTIVE.filter(p => present.has(p));
+  const archived = [...present].filter(p => !CHK_ACTIVE.includes(p));
+
+  const grpA = document.createElement('optgroup'); grpA.label = 'Active';
+  active.forEach(p => grpA.appendChild(opt(p, CHEAT.partners[p]?.name || p)));
+  partnerSel.appendChild(grpA);
+  if (archived.length) {
+    const grpB = document.createElement('optgroup'); grpB.label = 'Archived (reference)';
+    archived.forEach(p => grpB.appendChild(opt(p, (CHEAT.partners[p]?.name || p) + ' - n/a')));
+    partnerSel.appendChild(grpB);
+  }
+  partnerSel.value = STATE.chkPartner;
+  partnerSel.addEventListener('change', e => {
+    STATE.chkPartner = e.target.value; syncProjectOptions(); renderChecklist();
+  });
+
+  syncProjectOptions();
+  document.getElementById('chk-project').addEventListener('change', e => {
+    STATE.chkProject = e.target.value; renderChecklist();
+  });
+
+  const stateSel = document.getElementById('chk-state');
+  GUIDE.states.forEach(s => stateSel.appendChild(opt(s.code, s.code)));
+  stateSel.addEventListener('change', e => { STATE.chkState = e.target.value; renderChecklist(); });
+}
+
+function renderChecklist() {
+  const wrap = document.getElementById('checklist-content');
+  const summary = document.getElementById('chk-summary');
+  const q = STATE.query;
+
+  let items = CHECK.items.filter(it =>
+    it.active &&
+    it.partners.includes(STATE.chkPartner) &&
+    (it.project_types.length === 0 || it.project_types.includes(STATE.chkProject)) &&
+    (it.territory.includes('All') || (STATE.chkState && it.territory.includes(STATE.chkState)) ||
+      (!STATE.chkState && it.territory.length > 0))
+  );
+  if (q) {
+    items = items.filter(it =>
+      it.summary.toLowerCase().includes(q) || it.description.toLowerCase().includes(q) ||
+      it.group.toLowerCase().includes(q));
+  }
+
+  const pName = CHEAT.partners[STATE.chkPartner]?.name || STATE.chkPartner;
+  const projName = { solar: 'Solar', roof: 'Roofing', battery: 'Battery' }[STATE.chkProject];
+  const crit = items.filter(it => it.critical).length;
+  summary.innerHTML = '<b>' + items.length + '</b> requirement' + (items.length === 1 ? '' : 's') +
+    ' for <b>' + escapeHtml(pName) + '</b> &middot; ' + escapeHtml(projName) +
+    (STATE.chkState ? ' &middot; ' + escapeHtml(STATE.chkState) : '') +
+    ' &mdash; <b>' + crit + '</b> critical.';
+
+  if (!items.length) {
+    wrap.innerHTML = '<div class="empty-state"><p>No checklist items for this combination.</p></div>';
+    return;
+  }
+
+  // group in CHECK.groups order
+  const byGroup = {};
+  items.forEach(it => { (byGroup[it.group] = byGroup[it.group] || []).push(it); });
+  const order = CHECK.groups.filter(g => byGroup[g]);
+
+  let html = '';
+  order.forEach(g => {
+    html += '<div class="chk-group"><h3>' + escapeHtml(g) + '</h3>';
+    byGroup[g].forEach(it => {
+      const critCls = it.critical ? 'critical' : 'noncritical';
+      html += '<div class="chk-item ' + critCls + '"><div class="ci-head">';
+      html += '<span class="ci-title">' + escapeHtml(it.summary || it.description) + '</span>';
+      html += it.critical ? '<span class="ci-tag crit">Critical</span>'
+                          : '<span class="ci-tag non">Non-critical</span>';
+      if (!it.territory.includes('All')) {
+        html += '<span class="ci-tag terr">' + it.territory.join(', ') + '</span>';
+      }
+      html += '</div>';
+      if (it.description && it.description !== it.summary) {
+        html += '<p class="ci-desc">' + escapeHtml(it.description) + '</p>';
+      }
+      const meta = [];
+      if (it.fail_reasons.length) meta.push('Fails if: ' + it.fail_reasons.join(', '));
+      if (it.utility && it.utility !== 'All') meta.push('Utility: ' + it.utility);
+      if (meta.length) html += '<div class="ci-meta">' + escapeHtml(meta.join(' · ')) + '</div>';
+      if (it.parent_question) {
+        html += '<div class="ci-dep">Only if: ' + escapeHtml(it.parent_question) +
+          (it.dependent_parent_answer ? ' = ' + escapeHtml(it.dependent_parent_answer) : '') + '</div>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  wrap.innerHTML = html;
+}
+
+// ============================================================
+// Eligibility
+// ============================================================
+function initEligibility() {
+  const stateSel = document.getElementById('f-state');
+  stateSel.appendChild(opt('', 'Any'));
+  STATES.forEach(s => stateSel.appendChild(opt(s, s)));
+  stateSel.addEventListener('change', () => { STATE.state = stateSel.value; refreshUtility(); renderEligibility(); });
+
+  refreshUtility();
+
+  document.getElementById('f-utility').addEventListener('change', e => {
+    STATE.utility = e.target.value; renderEligibility();
+  });
+
+  const propSel = document.getElementById('f-property');
+  PROPERTY_TYPES.forEach(([k, label]) => propSel.appendChild(opt(label, label)));
+  propSel.addEventListener('change', e => { STATE.property = e.target.value; renderEligibility(); });
+
+  document.querySelectorAll('#f-product .pill').forEach(b => {
+    b.addEventListener('click', () => {
+      STATE.product = b.dataset.product;
+      document.querySelectorAll('#f-product .pill').forEach(x => x.setAttribute('aria-pressed', x === b));
+      renderEligibility();
+    });
+  });
+
+  const fico = document.getElementById('f-fico');
+  fico.addEventListener('input', () => {
+    STATE.fico = parseInt(fico.value, 10);
+    document.getElementById('f-fico-val').textContent = STATE.fico;
+    renderEligibility();
+  });
+}
+
+function refreshUtility() {
+  const sel = document.getElementById('f-utility');
+  sel.innerHTML = '';
+  sel.appendChild(opt('', 'Any'));
+  if (!STATE.state) return;
+  // utilities for this state from pricing data, deduped
+  const utils = new Set();
+  PRICING.lease_ppa.forEach(r => { if (r.state === STATE.state) utils.add(r.utility); });
+  [...utils].sort().forEach(u => sel.appendChild(opt(u, u)));
+  STATE.utility = '';
+}
+
+function opt(value, label) {
+  const o = document.createElement('option');
+  o.value = value; o.textContent = label;
+  return o;
+}
+
+// Look up an attribute from cheat-sheet rows.
+function lookup(productId, attribute, partner) {
+  if (productId === 'cash') {
+    const row = (CHEAT.call_center_extras.cash || {})[attribute];
+    return row ? row.value : '';
+  }
+  const product = CHEAT.products[productId];
+  if (!product) return '';
+  const row = product.rows.find(r => r.attribute === attribute);
+  if (!row) return '';
+  return row.values[partner] || '';
+}
+
+// Read approved-states list from a partner's cheat-sheet row.
+function partnerStates(productId, partner) {
+  const v = lookup(productId, 'States Available', partner);
+  if (!v) return null;
+  // Parse "CT, MA, MD, NJ, PA" or similar
+  const matches = v.match(/\b(CT|DE|MA|MD|NH|NJ|NY|OH|PA|RI)\b/g);
+  return matches ? new Set(matches) : null;
+}
+
+function partnerMinFico(productId, partner) {
+  const v = lookup(productId, 'Minimum FICO', partner);
+  if (!v) return null;
+  const m = v.match(/(\d{3})/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+// Verdict for one criterion. Returns {status: 'pass'|'warn'|'fail'|'info', text}.
+function checkProperty(productId, partner, propLabel) {
+  if (!propLabel) return null;
+  const v = lookup(productId, propLabel, partner);
+  if (!v) return { status: 'info', text: 'Property: not specified for ' + partner };
+  const lower = v.toLowerCase();
+  if (lower.startsWith('no')) return { status: 'fail', text: 'Property: not allowed' };
+  if (lower.startsWith('maybe')) return { status: 'warn', text: 'Property: case by case' };
+  if (lower.startsWith('yes')) {
+    return { status: v.length > 5 ? 'warn' : 'pass', text: 'Property: ' + v };
+  }
+  return { status: 'info', text: 'Property: ' + v };
+}
+function checkState(productId, partner, state) {
+  if (!state) return null;
+  const set = partnerStates(productId, partner);
+  if (!set) return { status: 'info', text: 'State: list not on file' };
+  return set.has(state)
+    ? { status: 'pass', text: 'State: ' + state + ' in territory' }
+    : { status: 'fail', text: 'State: ' + state + ' not currently served' };
+}
+function checkFico(productId, partner, fico) {
+  const min = partnerMinFico(productId, partner);
+  if (min == null) return null;
+  if (fico >= min)      return { status: 'pass', text: 'FICO ' + fico + ' clears minimum (' + min + ')' };
+  if (fico >= min - 20) return { status: 'warn', text: 'FICO ' + fico + ' below minimum (' + min + ') -- worth a re-pull in 30 days' };
+  return { status: 'fail', text: 'FICO ' + fico + ' below minimum (' + min + ')' };
+}
+
+function partnerListForProduct(product) {
+  if (product === 'cash') return ['cash'];
+  return CHEAT.products[product] ? CHEAT.products[product].partners : [];
+}
+
+function renderEligibility() {
+  const list = document.getElementById('results-list');
+  list.innerHTML = '';
+  let partners = partnerListForProduct(STATE.product).slice();
+
+  // Always also show EnFin as coming-soon if it has any data and the product is TPO
+  // (Call Center extras are TPO-level data).
+  if (STATE.product === 'tpo' && !partners.includes('enfin')) partners.push('enfin');
+
+  let shown = 0;
+  partners.forEach(p => {
+    const card = renderEligibilityCard(STATE.product, p);
+    if (card) { list.appendChild(card); shown++; }
+  });
+
+  document.getElementById('results-count').textContent = shown;
+  if (shown === 0) {
+    list.innerHTML = '<div class="empty-state"><p>No partners offer ' + STATE.product + ' for these criteria.</p></div>';
+  }
+}
+
+function renderEligibilityCard(product, partner) {
+  const p = CHEAT.partners[partner] || { name: partner };
+  const card = document.createElement('article');
+  card.className = 'partner-card';
+
+  // For partners not in the chosen product roster, skip silently
+  // (e.g. Sunnova for TPO -- not offered).
+  // CASH and EnFin special-cased above.
+
+  const checks = [];
+  // Verdict gathering
+  const stateChk = checkState(product, partner, STATE.state);
+  if (stateChk) checks.push(stateChk);
+  const propLabel = STATE.property; // already the attribute name
+  const propChk = checkProperty(product, partner, propLabel);
+  if (propChk) checks.push(propChk);
+  // FICO
+  if (product !== 'cash') {
+    const ficoChk = checkFico(product, partner, STATE.fico);
+    if (ficoChk) checks.push(ficoChk);
+  }
+  // Utility check (binary -- pricing row exists for state+utility)
+  if (STATE.state && STATE.utility) {
+    const ppaRow = PRICING.lease_ppa.find(r =>
+      r.partner === partner && r.state === STATE.state && r.utility === STATE.utility);
+    if (product === 'tpo' && ppaRow) {
+      if (ppaRow.flat_rate == null) checks.push({ status: 'fail', text: 'Utility: not currently priced for this market' });
+      else                          checks.push({ status: 'pass', text: 'Utility: priced (see below)' });
+    }
+  }
+
+  // Verdict
+  let verdict = 'pass';
+  if (checks.some(c => c.status === 'fail')) verdict = 'fail';
+  else if (checks.some(c => c.status === 'warn')) verdict = 'warn';
+  if (partner === 'enfin') verdict = 'info';
+
+  const verdictMap = { pass: ['verdict-yes','OK'], warn: ['verdict-warn','Verify'], fail: ['verdict-no','Not eligible'], info: ['verdict-info','Coming soon'] };
+  card.classList.add(verdict === 'pass' ? 'verdict-yes' : verdict === 'warn' ? 'verdict-warn' : verdict === 'fail' ? 'verdict-no' : 'verdict-info');
+
+  // Status overrides (paused/defunct take precedence over the verdict styling)
+  if (p.status === 'paused' || p.status === 'defunct') {
+    card.classList.add('status-' + p.status);
+  }
+
+  // Build card
+  let html = '<div class="partner-head">';
+  html += '<div class="partner-name">' + escapeHtml(p.name) + '</div>';
+  if (p.status === 'paused') {
+    html += '<span class="partner-status-pill">Paused</span>';
+  } else if (p.status === 'defunct') {
+    html += '<span class="partner-status-pill">Discontinued</span>';
+  } else {
+    html += '<span class="verdict ' + verdictMap[verdict][0] + '">' + verdictMap[verdict][1] + '</span>';
+  }
+  if (p.status === 'coming_soon') html += '<span class="coming-soon-pill">Live ' + (p.expected_live || 'soon') + '</span>';
+  html += '</div>';
+
+  // Card-level red disclaimer banner
+  if ((p.status === 'paused' || p.status === 'defunct') && p.disclaimer) {
+    const headLabel = p.status === 'paused' ? 'Not currently offered' : 'No longer accepting deals';
+    html += '<div class="status-banner"><div><span class="head">' + headLabel + '</span><span class="body">' + escapeHtml(p.disclaimer) + '</span></div></div>';
+  }
+
+  if (checks.length) {
+    html += '<ul class="criteria-list">';
+    for (const c of checks) {
+      const icon = c.status === 'pass' ? '✓' : c.status === 'warn' ? '!' : c.status === 'fail' ? '×' : 'ⓘ';
+      html += '<li><span class="icon ' + c.status + '">' + icon + '</span><span class="value">' + escapeHtml(c.text) + '</span></li>';
+    }
+    html += '</ul>';
+  } else {
+    html += '<p style="color:var(--muted);font-size:13px;">Pick a state, property, or utility to refine.</p>';
+  }
+
+  // Pricing snip
+  if (STATE.state) {
+    if (product === 'tpo') {
+      const rows = PRICING.lease_ppa.filter(r => r.partner === partner && r.state === STATE.state);
+      const row = STATE.utility ? rows.find(r => r.utility === STATE.utility) : rows[0];
+      if (row && row.flat_rate != null) {
+        html += '<div class="pricing-snip">';
+        html += '<div class="row"><span class="k">Utility</span><span class="v">' + escapeHtml(row.utility) + '</span></div>';
+        html += '<div class="row"><span class="k">Flat rate</span><span class="v">$' + row.flat_rate.toFixed(3) + '/kWh</span></div>';
+        if (row.ppa_with_esc != null)
+          html += '<div class="row"><span class="k">PPA w/Esc</span><span class="v">$' + row.ppa_with_esc.toFixed(3) + '/kWh</span></div>';
+        if (row.rate_caps != null)
+          html += '<div class="row"><span class="k">Rate cap</span><span class="v">$' + row.rate_caps.toFixed(3) + '/kWh</span></div>';
+        if (row.base_ppw != null)
+          html += '<div class="row"><span class="k">Base / Min / Floor</span><span class="v">$' + row.base_ppw.toFixed(2) + ' / $' + row.minimum_ppw.toFixed(2) + ' / $' + row.floor_ppw.toFixed(2) + '</span></div>';
+        html += '</div>';
+      }
+    } else if (product === 'solar_loan') {
+      const blk = PRICING.loan_solar_only.find(b => b.partner === partner);
+      if (blk) {
+        const rows = blk.rows.filter(r => r.state === STATE.state);
+        const row = STATE.utility ? rows.find(r => r.utility === STATE.utility) : rows[0];
+        if (row) {
+          html += '<div class="pricing-snip">';
+          html += '<div class="row"><span class="k">Utility</span><span class="v">' + escapeHtml(row.utility) + '</span></div>';
+          blk.header.forEach((h, i) => {
+            if (row.money[i] != null) {
+              const v = row.money[i];
+              const display = v < 1 ? '$' + v.toFixed(2) : '$' + v.toFixed(2);
+              html += '<div class="row"><span class="k">' + escapeHtml(h) + '</span><span class="v">' + display + '</span></div>';
+            }
+          });
+          html += '</div>';
+        }
+      }
+    }
+  }
+
+  // See rules link
+  if (product !== 'cash' && partner !== 'enfin') {
+    html += '<button class="see-rules" data-partner="' + partner + '" data-product="' + product + '">See full rules &rarr;</button>';
+  }
+
+  card.innerHTML = html;
+  card.querySelector('.see-rules')?.addEventListener('click', e => {
+    STATE.matrixProduct = e.currentTarget.dataset.product;
+    document.querySelector('[data-mode="matrix"]').click();
+  });
+  return card;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ============================================================
+// Pricing
+// ============================================================
+function initPricing() {
+  const pState = document.getElementById('p-state');
+  pState.appendChild(opt('', 'All states'));
+  STATES.forEach(s => pState.appendChild(opt(s, s)));
+  pState.addEventListener('change', e => { STATE.pricingState = e.target.value; renderPricing(); });
+
+  const pPart = document.getElementById('p-partner');
+  pPart.appendChild(opt('', 'All partners'));
+  ['goodleap','igs','lightreach','sunlight','sunnova','service_finance'].forEach(p =>
+    pPart.appendChild(opt(p, CHEAT.partners[p].name))
+  );
+  pPart.addEventListener('change', e => { STATE.pricingPartner = e.target.value; renderPricing(); });
+
+  document.querySelectorAll('.pricing-controls .sub-tabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      STATE.pmode = b.dataset.pmode;
+      document.querySelectorAll('.pricing-controls .sub-tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+      renderPricing();
+    });
+  });
+}
+
+function renderPricing() {
+  const c = document.getElementById('pricing-content');
+  if (STATE.pmode === 'lease_ppa') {
+    c.innerHTML = renderLeasePpaTable();
+  } else if (STATE.pmode === 'loan_solar') {
+    c.innerHTML = renderLoanSolarTables();
+  } else if (STATE.pmode === 'loan_terms') {
+    c.innerHTML = '<div class="loan-ref"><h3>Loan Terms (from Pricing Packet, p.6)</h3>'
+      + '<p style="color:var(--muted);font-size:13px;">Reference text extracted from the packet -- structure preserved as supplied.</p>'
+      + '<pre>' + escapeHtml(PRICING.loan_terms_reference_text || '(empty)') + '</pre></div>';
+  } else if (STATE.pmode === 'equipment') {
+    c.innerHTML = '<div class="loan-ref"><h3>Active Equipment & Domestic Content (from p.7)</h3>'
+      + '<pre>' + escapeHtml(PRICING.equipment_reference_text || '(empty)') + '</pre></div>';
+  }
+}
+
+function rowMatchesQuery(row, q) {
+  if (!q) return true;
+  return Object.values(row).some(v => v != null && String(v).toLowerCase().includes(q));
+}
+
+function renderLeasePpaTable() {
+  let rows = PRICING.lease_ppa.slice();
+  if (STATE.pricingState) rows = rows.filter(r => r.state === STATE.pricingState);
+  if (STATE.pricingPartner) rows = rows.filter(r => r.partner === STATE.pricingPartner);
+  if (STATE.query) rows = rows.filter(r => rowMatchesQuery(r, STATE.query));
+
+  // sort by state, then partner, then utility for stable display
+  rows.sort((a,b) => a.state.localeCompare(b.state) || a.partner.localeCompare(b.partner) || a.utility.localeCompare(b.utility));
+
+  if (!rows.length) return '<div class="empty-state">No rows match.</div>';
+
+  let prevState = null;
+  let html = '<div class="table-wrap"><table class="pricing"><thead><tr>'
+    + '<th>State</th><th>Utility</th><th>Partner</th>'
+    + '<th>Flat Rate</th><th>PPA w/Esc</th><th>Rate Cap</th><th>Base PPW</th><th>Min PPW</th><th>Floor PPW</th>'
+    + '</tr></thead><tbody>';
+  rows.forEach(r => {
+    const dividerCls = (prevState && prevState !== r.state) ? ' state-divider' : '';
+    prevState = r.state;
+    const partnerInfo = CHEAT.partners[r.partner] || {};
+    const statusCls = partnerInfo.status === 'paused' ? ' partner-paused'
+                    : partnerInfo.status === 'defunct' ? ' partner-defunct' : '';
+    const namePill = partnerInfo.status === 'paused' ? ' <span class="partner-status-pill">Paused</span>'
+                   : partnerInfo.status === 'defunct' ? ' <span class="partner-status-pill">Discontinued</span>' : '';
+    html += '<tr class="' + dividerCls + statusCls + '">';
+    html += '<td>' + r.state + '</td><td>' + escapeHtml(r.utility) + '</td>';
+    html += '<td class="partner">' + escapeHtml(partnerInfo.name || r.partner) + namePill + '</td>';
+    ['flat_rate','ppa_with_esc','rate_caps','base_ppw','minimum_ppw','floor_ppw'].forEach(k => {
+      const v = r[k];
+      if (v == null) html += '<td class="na">N/A</td>';
+      else html += '<td class="num">$' + (v < 1 ? v.toFixed(3) : v.toFixed(2)) + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function renderLoanSolarTables() {
+  let blocks = PRICING.loan_solar_only.slice();
+  if (STATE.pricingPartner) blocks = blocks.filter(b => b.partner === STATE.pricingPartner);
+  if (!blocks.length) return '<div class="empty-state">No matches.</div>';
+
+  let html = '';
+  blocks.forEach(blk => {
+    let rows = blk.rows.slice();
+    if (STATE.pricingState) rows = rows.filter(r => r.state === STATE.pricingState);
+    if (STATE.query) rows = rows.filter(r => rowMatchesQuery(r, STATE.query) || (CHEAT.partners[blk.partner].name.toLowerCase().includes(STATE.query)));
+    if (!rows.length) return;
+
+    html += '<h3 style="margin:18px 0 8px;">' + escapeHtml(CHEAT.partners[blk.partner].name) + ' Solar Loan / Cash</h3>';
+    html += '<div class="table-wrap"><table class="pricing"><thead><tr><th>State</th><th>Utility</th>';
+    blk.header.forEach((h, i) => {
+      const fee = blk.dealer_fees[i];
+      const feeStr = fee != null ? '<br><span style="font-weight:400;font-size:10.5px;color:var(--muted);">DF ' + (fee*100).toFixed(2) + '%</span>' : '';
+      html += '<th>' + escapeHtml(h) + feeStr + '</th>';
+    });
+    html += '</tr></thead><tbody>';
+    let prevState = null;
+    rows.sort((a,b) => a.state.localeCompare(b.state) || a.utility.localeCompare(b.utility));
+    rows.forEach(r => {
+      const dividerCls = (prevState && prevState !== r.state) ? ' state-divider' : '';
+      prevState = r.state;
+      const partnerInfo = CHEAT.partners[blk.partner] || {};
+      const statusCls = partnerInfo.status === 'paused' ? ' partner-paused'
+                      : partnerInfo.status === 'defunct' ? ' partner-defunct' : '';
+      html += '<tr class="' + dividerCls + statusCls + '"><td>' + r.state + '</td><td>' + escapeHtml(r.utility) + '</td>';
+      r.money.forEach(m => {
+        if (m == null) html += '<td class="na">N/A</td>';
+        else html += '<td class="num">$' + m.toFixed(2) + '</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+  });
+  return html || '<div class="empty-state">No matches.</div>';
+}
+
+// ============================================================
+// Matrix
+// ============================================================
+function initMatrix() {
+  document.querySelectorAll('.matrix-tabs button').forEach(b => {
+    b.addEventListener('click', () => {
+      STATE.matrixProduct = b.dataset.product;
+      document.querySelectorAll('.matrix-tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+      renderMatrix();
+    });
+  });
+}
+
+function renderMatrix() {
+  const product = CHEAT.products[STATE.matrixProduct];
+  // sync tab state if entered via see-rules
+  document.querySelectorAll('.matrix-tabs button').forEach(b =>
+    b.setAttribute('aria-selected', b.dataset.product === STATE.matrixProduct));
+
+  // Group rows by category
+  const categories = [];
+  const byCategory = {};
+  product.rows.forEach(r => {
+    if (!byCategory[r.category]) {
+      byCategory[r.category] = [];
+      categories.push(r.category);
+    }
+    byCategory[r.category].push(r);
+  });
+
+  // Anchors
+  const anch = document.getElementById('matrix-anchors');
+  anch.innerHTML = categories.map(c =>
+    '<a href="#cat-' + slug(c) + '">' + escapeHtml(c) + '</a>').join('');
+
+  const partners = product.partners;
+  const cols = partners.length;
+  let html = '';
+  categories.forEach(cat => {
+    let rows = byCategory[cat];
+    if (STATE.query) {
+      rows = rows.filter(r =>
+        r.attribute.toLowerCase().includes(STATE.query) ||
+        partners.some(p => (r.values[p]||'').toLowerCase().includes(STATE.query)) ||
+        (r.note||'').toLowerCase().includes(STATE.query));
+    }
+    if (!rows.length) return;
+    html += '<div class="matrix-section" id="cat-' + slug(cat) + '">';
+    html += '<h3>' + escapeHtml(cat) + '</h3>';
+    rows.forEach(r => {
+      html += '<div class="matrix-row"><div class="attr-label">' + escapeHtml(r.attribute) + '</div>';
+      html += '<div class="attr-row" style="--cols:' + cols + ';">';
+      partners.forEach(p => {
+        const v = r.values[p] || '';
+        const partnerInfo = CHEAT.partners[p] || {};
+        const statusCls = partnerInfo.status === 'paused' ? ' col-paused'
+                        : partnerInfo.status === 'defunct' ? ' col-defunct' : '';
+        const cls = (v ? '' : ' empty') + statusCls;
+        html += '<div class="cell' + cls + '"><span class="partner-tag">' + escapeHtml(partnerInfo.name || p) + '</span>'
+          + '<span class="val">' + (v ? escapeHtml(v) : '(no info)') + '</span></div>';
+      });
+      html += '</div>';
+      if (r.note) html += '<div class="note">' + escapeHtml(r.note) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+
+  if (!html) html = '<div class="empty-state">No rows match.</div>';
+  document.getElementById('matrix-content').innerHTML = html;
+}
+
+function slug(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+// ============================================================
+// Changes log
+// ============================================================
+function initChanges() {
+  const ul = document.getElementById('changes-list');
+  ul.innerHTML = (CHEAT.changes_log || []).map(c =>
+    '<li><span class="date">' + escapeHtml(c.date) + '</span>' + escapeHtml(c.note) + '</li>').join('');
+  if (!CHEAT.changes_log || !CHEAT.changes_log.length) {
+    document.getElementById('changes-block').style.display = 'none';
+  }
+}
+</script>
+
+<script src="/feedback-widget.js" defer></script>
+
+</div><!-- /#appWrap -->
+
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session) { /* static page; nothing to init */ }
+</script>
+
+</body>
+</html>

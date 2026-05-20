@@ -1,0 +1,4810 @@
+{
+  "version": "2026-05-20",
+  "source_file": "Tracking Checklist Sample - Sales.xlsx",
+  "generated_at": "2026-05-20 16:16",
+  "groups": [
+    "Partner Contract",
+    "Cash Contract",
+    "Title Requirements",
+    "Tree Removal",
+    "Eligible Properties",
+    "Installation Type",
+    "Credit Requirements",
+    "Photo Review",
+    "Electric Bill",
+    "Combined Packet",
+    "Special Work",
+    "Roofing Install",
+    "Battery Install",
+    "Ground Mount",
+    "Add- On",
+    "Net Metering (Schedule Z)",
+    "Detached Structure",
+    "Design"
+  ],
+  "items": [
+    {
+      "group": "Partner Contract",
+      "summary": "Signed Partner Contract",
+      "description": "Is there an Active and Signed Contract in the Partner Portal?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "service_finance",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Not Signed",
+        "Cancelled/Expired"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Cash Contract",
+      "summary": "Cash contract",
+      "description": "Is there an Active and Signed Cash Contractl?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Not Signed",
+        "Cancelled/Expired"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Cash contract",
+      "description": "Is there a complete signed cash contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "service_finance",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Web Portal Account Sign Up",
+      "description": "Did the customer sign up for their web portal?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Down payment confirmation",
+      "description": "Is a deposit required and is the amount listed accurately?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Proof of Income",
+      "description": "Do we need to provide proof of income?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "service_finance",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Completed Clear Facts Disclosure task",
+      "description": "Is the clear facts disclosure completed by the customer?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Customer validation call/process completed",
+      "description": "Did the customer complete the validation call/process?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Sales rep recheck verification completed",
+      "description": "Did the sales rep complete the recheck verification?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Electronic consent form completed",
+      "description": "Did the customer completed the electronic consent form?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "EPC calculation",
+      "description": "Do we have the EPC calculation?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "ID Verification",
+      "description": "Do we have a copy of a driver's license or other acceptable ID?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Illegible"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Language requirements",
+      "description": "What langauge is the primary spoken language based on the agreement?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "English",
+        "Spanish"
+      ],
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "ACH Payment method",
+      "description": "Did the customer complete the ACH set up process?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete",
+        "Opted Out"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "ACH Payment method",
+      "description": "Did the customer complete the ACH set up process?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Partner Contract",
+      "summary": "Payment Validation",
+      "description": "Did the Customer set up their payment Validation?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Title Project Block",
+      "description": "Is the title approved in the Partner Portal?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Corporations/LLCs",
+      "description": "Is the property owned by a corporation or LLC?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Corporations/LLCs",
+      "description": "Do we have LLC Documents?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the property owned by a corporation or LLC?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Exempt",
+      "description": "Is the property exempt in that it can neither be passed by will nor claimed by creditors?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "POA",
+      "description": "Is there a Power of Attorney?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "POA",
+      "description": "Provide copy of Power of Attorney",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there a Power of Attorney?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Number of people on title",
+      "description": "Are there more than 2 people on title?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Name amendment signature",
+      "description": "Is a name amendment signature required?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Name amendment signature",
+      "description": "Did we request a name amendment?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is a name amendment signature required?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": []
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Address amendment signature",
+      "description": "Is an address amendment signature required?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Address amendment signature",
+      "description": "Did we request a address amendment?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is an address amendment signature required?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Home appraisal documents",
+      "description": "Do we need home appraisal documents?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Certificate of Occupancy",
+      "description": "Do we need a certificate of occupancy?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Certificate of Occupancy",
+      "description": "Do we need a certificate of occupancy?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Do we need a certificate of occupancy?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Recorded Deed",
+      "description": "Do we need a recorded deed?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Recorded Deed",
+      "description": "Do we have a recorded deed?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Do we need a recorded deed?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Unrecorded Deed",
+      "description": "Do we need an unrecorded deed?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "sunlight"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Unrecorded Deed",
+      "description": "Do we have a unrecorded deed?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Do we need an unrecorded deed?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Mortgage",
+      "description": "Do we need a mortgage statement?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach",
+        "sunlight"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Mortgage",
+      "description": "Do we have a mortgage statements?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Do we need a mortgage statement?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Life Estate",
+      "description": "Is the property held in a Life Estate?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "sunlight"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Life Estate",
+      "description": "Do we have the Life Estate Documents?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the property held in a Life Estate?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Trusts",
+      "description": "Is the property held in a Turst? Note: revocable or irrerevocable trust",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the title approved in the Partner Portal?",
+      "dependent_parent_answer": "No",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Trusts- Trustee listed",
+      "description": "Is the Trustee (not the trust) listed on the contract? Note:Irrevocable or revocable trust.",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the property held in a Turst? Note: revocable or irrerevocable trust",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Title Requirements",
+      "summary": "Trusts- Certificate of Trust",
+      "description": "Do we have the Certificate of Trust in box?  Note: revocable or irrerevocable trust",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is the property held in a Turst? Note: revocable or irrerevocable trust",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Tree Removal",
+      "summary": "Is there a tree removal involved",
+      "description": "Is there a tree removal involved",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Tree Removal",
+      "summary": "Who is going to remove the tree",
+      "description": "Who is going to remove the tree",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Trinity",
+        "Customer"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there a tree removal involved",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Tree Removal",
+      "summary": "Location Photo",
+      "description": "Do we have clear photos of the tree(s) to be removed and the location as it pertains to the house?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Who is going to remove the tree",
+      "dependent_parent_answer": "Trinity;Customer",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Tree Removal",
+      "summary": "Tree Checklist",
+      "description": "Does the Tree Checklist filled out completely and correctly?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Who is going to remove the tree",
+      "dependent_parent_answer": "Trinity;Customer",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Eligible Properties",
+      "summary": "Eligible Properties",
+      "description": "Can we identify the property type on title (or via certificate of occupancy/property card)?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Eligible Properties",
+      "summary": "Single Family",
+      "description": "Is the title property type a single family home?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the property type on title (or via certificate of occupancy/property card)?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Eligible Properties",
+      "summary": "Duplex/Triplex",
+      "description": "Is the title property type a duplex/triplex install?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the property type on title (or via certificate of occupancy/property card)?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Eligible Properties",
+      "summary": "Townhomes",
+      "description": "Is the title property type a townhome install?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the property type on title (or via certificate of occupancy/property card)?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Eligible Properties",
+      "summary": "Manufactured Homes w/ structural support",
+      "description": "Is the title property type a manufactured home?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the property type on title (or via certificate of occupancy/property card)?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Eligible Properties",
+      "summary": "Accessory Dwelling Unit",
+      "description": "Is the title property type a install on an ADU?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "goodleap",
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the property type on title (or via certificate of occupancy/property card)?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Eligible Properties",
+      "summary": "Condos",
+      "description": "Is the title property type a install on a condo ?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the property type on title (or via certificate of occupancy/property card)?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Eligible Properties",
+      "summary": "Apartments",
+      "description": "Is the title property type a install on an apartment?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the property type on title (or via certificate of occupancy/property card)?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Installation Type",
+      "description": "Can we identify the installation type?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Roof Mount - 10-45 Degree Pitch",
+      "description": "Are we installing on a 10-45 degree standard material roof?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the installation type?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Roof Mount - Exceeding 45 Degree Pitch",
+      "description": "Are we installing on a pitched roof exceeding 45 degrees?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the installation type?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Roof Mount - Exceeding 45 Degree Pitch",
+      "description": "Did we request approval from local ops to install on a steep pitched roof?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Are we installing on a pitched roof exceeding 45 degrees?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Flat roof with Tilt Kit",
+      "description": "Are we installing on a flat roof?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the installation type?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Flat roof with Tilt Kit",
+      "description": "Did we request approval from local ops to install a tilt kit?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Are we installing on a flat roof?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Carport/Pergola",
+      "description": "Are conditions met for an install on a carport or pergola?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Are we installing on a carport or pergola?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Carport/Pergola",
+      "description": "Did we confirm the structure is on the Lighreach approval guidelines?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Are we installing on a carport or pergola?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Groundmounts",
+      "description": "Is this a groundmount install?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the installation type?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Overhang porches",
+      "description": "Are we installing on a overhang?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the installation type?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Overhang porches",
+      "description": "Did we confirm the structure is on the Lighreach approval guidelines?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Are we installing on a overhang?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Detached garage/structure",
+      "description": "Are we installing on a detached structure?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Can we identify the installation type?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Installation Type",
+      "summary": "Detached garage/structure",
+      "description": "Are conditions met for a detached structure install?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Are we installing on a detached structure?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Credit Requirements",
+      "summary": "Credit pass on file",
+      "description": "Is there proof that the credit check passed?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "service_finance",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Not Signed",
+        "Cancelled/Expired"
+      ],
+      "project_types": [
+        "solar",
+        "roof"
+      ]
+    },
+    {
+      "group": "Credit Requirements",
+      "summary": "Sufficient time before credit expires?",
+      "description": "Have you checked how much time we have until credit expires?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "service_finance",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Not Signed",
+        "Cancelled/Expired"
+      ],
+      "project_types": [
+        "solar",
+        "roof"
+      ]
+    },
+    {
+      "group": "Photo Review",
+      "summary": "Photos - Electrical",
+      "description": "Did we receive all required photos and are they legible?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing All",
+        "Missing Some",
+        "Illegible"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Photo Review",
+      "summary": "Photos - Electrical",
+      "description": "Do we have Meter, Electric Panel, (generator) required photos?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing All",
+        "Missing Some",
+        "Illegible"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Photo Review",
+      "summary": "Photos - Structural",
+      "description": "Do we have exterior and interior structural photos?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing All",
+        "Missing Some",
+        "Illegible"
+      ],
+      "project_types": [
+        "solar",
+        "roof",
+        "battery"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "What is Electric Bill type ?",
+      "description": "",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "New Home",
+        "Minimum usage shown",
+        "Clear, full bill"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Welcome Letter",
+      "description": "If the customer is new to the home and has not received their first bill: Do we have their welcome letter to the utility company?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "New Home",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Load calculator",
+      "description": "Is a load calculator provided for anything with less than 12 months utility usage or production more than what available usage history shows and signed?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "New Home",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Letter of Explanation",
+      "description": "Is the letter of explanation received and signed by the customer?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "New Home",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Load calculator",
+      "description": "Is a load calculator provided for anything with less than 12 months utility usage or production more than what available usage history shows and signed?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Letter of Explanation",
+      "description": "Is the letter of explanation received and signed by the customer?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Name matches contract",
+      "description": "Does the name on the bill match the name on the contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Address matches contract",
+      "description": "Does the service address on the bill match the address on the contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Past due balance",
+      "description": "Is there a past-due balance of over $1000?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Past due balance",
+      "description": "Is there a past-due balance of over $600?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Not on a payment plan",
+      "description": "Is the customer on a payment plan with the utility?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Low Income Discount",
+      "description": "Is there a low income discount listed on the bill?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Low Income Discount",
+      "description": "Do we have 6 months of bills?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there a low income discount listed on the bill?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Residential meter type",
+      "description": "Is the meter type on the electric bill a residential type?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "GLP meter type",
+      "description": "If the meter is a GLP type, can we prove year 1 savings?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Usage on Bill matches Partner & OneDraw",
+      "description": "Does the usage listed on the partner contract match onedraw and the electric bill?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Municipal utility company",
+      "description": "Is this a municipal utility company?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Recent bill",
+      "description": "Is the bill dated within the last 3 months?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Recent bill",
+      "description": "Is the bill dated within the last 21 days?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Recent bill",
+      "description": "Is the bill dated within the last 6 months?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Recent bill",
+      "description": "Is the bill dated within the last 2 months?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Name matches contract",
+      "description": "Does the name on the bill match the name on the contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Address matches contract",
+      "description": "Does the service address on the bill match the address on the contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Past due balance",
+      "description": "Is there a past-due balance of over $1000?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Past due balance",
+      "description": "Is there a past-due balance of over $600?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Not on a payment plan",
+      "description": "Is the customer on a payment plan with the utility?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Low Income Discount",
+      "description": "Is there a low income discount listed on the bill?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Minimum usage shown",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Low Income Discount",
+      "description": "Do we have 6 months of bills?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there a low income discount listed on the bill?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Residential meter type",
+      "description": "Is the meter type on the electric bill a residential type?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "GLP meter type",
+      "description": "If the meter is a GLP type, can we prove year 1 savings?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Usage on Bill matches Partner & OneDraw",
+      "description": "Does the usage listed on the partner contract match onedraw and the electric bill?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Electric Bill",
+      "summary": "Municipal utility company",
+      "description": "Is this a municipal utility company?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "What is Electric Bill type ?",
+      "dependent_parent_answer": "Clear, full bill",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Combined Packet",
+      "summary": "Full Completed Combined Packet",
+      "description": "Do we have a fully signed and dated combined backet?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Active and Signed Contract in the Partner Portal?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Combined Packet",
+      "summary": "Trinity POA",
+      "description": "Do we have a Trinity POA signed and notarized?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Do we have a fully signed and dated combined backet?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Combined Packet",
+      "summary": "Combined Packet - Utility",
+      "description": "Do we have all Utility documents signed and dated by the  utility holder?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Combined Packet",
+      "summary": "Combined Packet - AHJ",
+      "description": "Do we have the AHJ documents signed and dated by the title holder or contract signor?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Combined Packet",
+      "summary": "Combined Packet - State",
+      "description": "Do we have the State documents signed and dated by the title holder or contract signor?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Combined Packet",
+      "summary": "Combined Packet - Disclosures",
+      "description": "Do we have the Disclosures documents signed and dated by the title holder or contract signor?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Combined Packet",
+      "summary": "Cash contract",
+      "description": "Do we have the Cash Contract signed and dated by the title holder/Loan and Sales Representatitve?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Special Work",
+      "summary": "Skirts",
+      "description": "CPR Action Item must be triggered with Skirts needed notification",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Special Work",
+      "summary": "Overhead Wiring",
+      "description": "CPR Action Item must be triggered with Overhead Wiring needed notification",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Special Work",
+      "summary": "Underground Wiring",
+      "description": "CPR Action Item must be triggered with Underground Wiring needed notification",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Special Work",
+      "summary": "Snow Guards",
+      "description": "CPR Action Item must be triggered with Snow Guards needed notification",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Special Work",
+      "summary": "Critter Guards",
+      "description": "CPR Action Item must be triggered with Critter Guards needed notification",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Yes",
+        "No"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Roofing Install",
+      "summary": "Is Roofing Install ?",
+      "description": "",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Trinity to Re-roof",
+        "Customer to Re-roof"
+      ],
+      "partners": [
+        "cash",
+        "service_finance",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "roof"
+      ]
+    },
+    {
+      "group": "Roofing Install",
+      "summary": "Roof Acknowledgement Form",
+      "description": "Do we have a signed and dated Roof Acknowledgement form that matches the Loan/Cash Contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "service_finance",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is Roofing Install ?",
+      "dependent_parent_answer": "Trinity to Re-roof",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "roof"
+      ]
+    },
+    {
+      "group": "Roofing Install",
+      "summary": "Roof Cash Contract",
+      "description": "Do we have a signed and dated Roof Cash Contract that matches the Loan/Acknowledgement form?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "service_finance",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is Roofing Install ?",
+      "dependent_parent_answer": "Trinity to Re-roof",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "roof"
+      ]
+    },
+    {
+      "group": "Roofing Install",
+      "summary": "Roof Partner Contract",
+      "description": "Do we have a fully signed Roof Partner Contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "service_finance",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is Roofing Install ?",
+      "dependent_parent_answer": "Trinity to Re-roof",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "roof"
+      ]
+    },
+    {
+      "group": "Battery Install",
+      "summary": "Is a Battery being installed?",
+      "description": "",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "service_finance",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [],
+      "project_types": [
+        "battery"
+      ]
+    },
+    {
+      "group": "Battery Install",
+      "summary": "Battery Acknowledgement Form",
+      "description": "Do we have a signed and dated Battery Acknowledgement form that matches the Loan/Cash Contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is a Battery being installed?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "battery"
+      ]
+    },
+    {
+      "group": "Battery Install",
+      "summary": "Battery Cash Contract",
+      "description": "Do we have a signed and dated Battery Cash Contract that matches the Loan/Acknowledgement form?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is a Battery being installed?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "battery"
+      ]
+    },
+    {
+      "group": "Battery Install",
+      "summary": "Battery Partner Contract",
+      "description": "Do we have a fully signed Battery Partner Contract?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is a Battery being installed?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "battery"
+      ]
+    },
+    {
+      "group": "Battery Install",
+      "summary": "Battery Location Photo",
+      "description": "Do we have a photo of where the Battery is intended to be installed?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is a Battery being installed?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "battery"
+      ]
+    },
+    {
+      "group": "Battery Install",
+      "summary": "Battery Quantity Exceeding 1",
+      "description": "Are we installing more than 1 battery?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is a Battery being installed?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "battery"
+      ]
+    },
+    {
+      "group": "Ground Mount",
+      "summary": "Trench Work Needed",
+      "description": "Do we require trenching to be done by Trinity?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "CT",
+        "NJ",
+        "MA",
+        "PA",
+        "RI",
+        "MD",
+        "NY"
+      ],
+      "active": true,
+      "parent_question": "Is this a groundmount install?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Ground Mount",
+      "summary": "Photos - Trench Path",
+      "description": "Do we have photos of the pathing we are to be trenching?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "CT",
+        "NJ",
+        "MA",
+        "PA",
+        "RI",
+        "MD",
+        "NY"
+      ],
+      "active": true,
+      "parent_question": "Is this a groundmount install?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Ground Mount",
+      "summary": "Photos - Ground Mount",
+      "description": "Do we have photos of the area and location the Ground Mount is intended to be installed on?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "sunlight",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "CT",
+        "NJ",
+        "MA",
+        "PA",
+        "RI",
+        "MD",
+        "NY"
+      ],
+      "active": true,
+      "parent_question": "Is this a groundmount install?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Add- On",
+      "summary": "Is there an Add-On ?",
+      "description": "",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Original System Installed by Trinity",
+        "Original System Installed by Other Company"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Add- On",
+      "summary": "Equipment Information",
+      "description": "All original system equipment information or photographs connected to the meter IE: Modules, Size, Inverter OR Original Agreement",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "Is there an Add-On ?",
+      "dependent_parent_answer": "Original System Installed by Other Company",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Net Metering (Schedule Z)",
+      "summary": "Is there Schedule Z?",
+      "description": "",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": false,
+      "territory": [
+        "MA",
+        "PA"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Net Metering (Schedule Z)",
+      "summary": "Meter Interconnection Point",
+      "description": "Do we have indication of which meter we are interconnecting to?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "MA",
+        "PA"
+      ],
+      "active": true,
+      "parent_question": "Is there Schedule Z?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Net Metering (Schedule Z)",
+      "summary": "Backfeeding Production",
+      "description": "Do we have the electric bill and photos of the meter we are back feeding production to?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "MA",
+        "PA"
+      ],
+      "active": true,
+      "parent_question": "Is there Schedule Z?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Net Metering (Schedule Z)",
+      "summary": "Percentage Shared",
+      "description": "Do we have the % of credits shared?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "MA",
+        "PA"
+      ],
+      "active": true,
+      "parent_question": "Is there Schedule Z?",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Detached Structure",
+      "summary": "Photos - Detached Structure",
+      "description": "Do we have photos of the detached structure and its location?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Detached Structure",
+      "summary": "Photos - Trench Path",
+      "description": "Do we have photos of the pathing we are to be trenching?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Detached Structure",
+      "summary": "Trench Work Needed",
+      "description": "Do we require trenching to be done by Trinity?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "Yes",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "Design Intent - Traditional",
+      "description": "Do we have a Design Intent?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "Design Intent - Direct",
+      "description": "Do we have a signed Design Intent?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "OneDraw Certified",
+      "description": "Is OneDraw Updated to match the Design Intent and Partner Contract for the correct property?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "Change Order Needed",
+      "description": "Is a Change Order request needed for layout, equipment, sizing, inputs, production, or pricing?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "System production pre-check",
+      "description": "Is the system production pre-check included?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "Design Intent",
+      "description": "Is the preliminary design provided?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "cash",
+        "lightreach",
+        "sunlight",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "Production validation",
+      "description": "Do we have the project shading analysis/production validation?",
+      "critical": true,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "Full set preliminary design",
+      "description": "Is the full set preliminary design provided?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    },
+    {
+      "group": "Design",
+      "summary": "System array values",
+      "description": "Do we have the system array values filled out in the Finance Partner Portal?",
+      "critical": false,
+      "utility": "All",
+      "question_type": "Picklist",
+      "options": [
+        "Yes",
+        "No"
+      ],
+      "partners": [
+        "lightreach",
+        "igs",
+        "goodleap"
+      ],
+      "include_in_pass_fail": true,
+      "territory": [
+        "All"
+      ],
+      "active": true,
+      "parent_question": "",
+      "dependent_parent_answer": "",
+      "fail_reasons": [
+        "Missing",
+        "Incomplete"
+      ],
+      "project_types": [
+        "solar"
+      ]
+    }
+  ],
+  "additional_rules": {
+    "usage_by_state": [
+      {
+        "state": "Connecticut",
+        "detail": "*Do not exceed usage amount with production | *9k inverter limit"
+      },
+      {
+        "state": "Maryland",
+        "detail": "x | x"
+      },
+      {
+        "state": "Massachusetts",
+        "detail": "x | x"
+      },
+      {
+        "state": "New Hampshire",
+        "detail": "*NH Usage Rubric"
+      },
+      {
+        "state": "New Jersey",
+        "detail": "x"
+      },
+      {
+        "state": "New York",
+        "detail": "x | x"
+      },
+      {
+        "state": "Pennsylvania",
+        "detail": "x"
+      },
+      {
+        "state": "PA - Duquesne Light",
+        "detail": "*if less than 12 adhere to LC or bill usage - NO AVG"
+      },
+      {
+        "state": "PA - PPL",
+        "detail": "*if less than 12 adhere to LC or bill usage - NO AVG"
+      },
+      {
+        "state": "Rhode Island",
+        "detail": "x | x"
+      }
+    ],
+    "trench": [
+      {
+        "length": "1'-100'",
+        "cost": "1000",
+        "detail": "Signed | Proceed with Checklist"
+      },
+      {
+        "length": ">100'",
+        "cost": "2000",
+        "detail": "Not Signed | \"Project\" is the equivelent to reverted backward to the previous stage. E-Mail notification is sent to the Sales Rep with message \"Opportunity Name - Project has been reverter due to no signed partner agreement being located. Please resubmit when you have obtained a signed agreement\" | *"
+      }
+    ],
+    "usage_header": [
+      "Usage Requirements by State",
+      "12 Months or Load Calc",
+      "6-11 Months/AVG for missing months",
+      "Less than 6 Months - Load Calc required",
+      "Any Usage History"
+    ]
+  }
+}
