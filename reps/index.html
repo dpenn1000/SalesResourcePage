@@ -52,6 +52,9 @@
   .rep-meta .row { display:flex; justify-content:space-between; gap:10px; }
   .rep-meta .row .k { color:var(--subtle); }
   .rep-meta .row .v { color:var(--ink); text-align:right; }
+  .cc-active { color:var(--green-dark); }
+  .cc-week { color:var(--subtle); font-weight:400; }
+  .cc-none { color:var(--subtle); }
   .rep-card .actions { margin-top:2px; padding-top:10px; border-top:1px solid var(--hairline); display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .view-detail { font-size:0.82rem; font-weight:700; color:var(--green-dark); display:inline-flex; align-items:center; gap:6px; user-select:none; }
   .view-detail .arr { transition:transform 0.12s; }
@@ -192,6 +195,8 @@
         </select>
         <select id="sort">
           <option value="name">Sort: Name (A-Z)</option>
+          <option value="calls_today">Sort: Calls today</option>
+          <option value="calls_7d">Sort: Calls (7 days)</option>
           <option value="recent">Sort: Recently active</option>
           <option value="stale">Sort: Least active</option>
           <option value="cohort">Sort: Cohort (newest)</option>
@@ -224,7 +229,7 @@
 const supa = window.sb;
 const REP_REVIEW_BASE = 'https://tools.ct-resource-page.com/rep-review';
 
-let REPS = [], MANAGERS = [], MGR_BY_ID = {}, LAST_SEEN = {};
+let REPS = [], MANAGERS = [], MGR_BY_ID = {}, LAST_SEEN = {}, CALL_COUNTS = {};
 
 // auth-gate.js calls this once, after sign-in + must-change-password gate.
 window.initApp = async function (profile, session) {
@@ -262,12 +267,23 @@ async function loadData() {
   (actRes.data || []).forEach(a => {
     if (a.auth_user_id && !LAST_SEEN[a.auth_user_id]) LAST_SEEN[a.auth_user_id] = a.created_at;
   });
+  // Per-rep call rollup (today / 7d). Separate + guarded so a failure here
+  // can never blank the roster.
+  CALL_COUNTS = {};
+  try {
+    const { data: ccData } = await supa.rpc('get_rep_call_counts');
+    (ccData || []).forEach(c => { if (c.rep_name) CALL_COUNTS[c.rep_name] = c; });
+  } catch (e) { console.warn('[reps] get_rep_call_counts failed:', e); }
 }
 
 function decorate(r) {
+  const cc = CALL_COUNTS[r.name] || null;
   return { ...r,
     manager: r.manager_id ? (MGR_BY_ID[r.manager_id] || '') : '',
-    lastSeen: LAST_SEEN[r.auth_user_id] || null };
+    lastSeen: LAST_SEEN[r.auth_user_id] || null,
+    callsToday: cc ? Number(cc.calls_today) : null,
+    calls7d: cc ? Number(cc.calls_7d) : null,
+    lastCall: cc ? cc.last_call : null };
 }
 
 function render() {
@@ -287,6 +303,8 @@ function render() {
       const cb = b.cohort_start_date ? new Date(b.cohort_start_date).getTime() : 0;
       return cb - ca || (a.name || '').localeCompare(b.name || '');
     }
+    if (sort === 'calls_today') return (b.callsToday || 0) - (a.callsToday || 0) || (a.name || '').localeCompare(b.name || '');
+    if (sort === 'calls_7d')    return (b.calls7d || 0) - (a.calls7d || 0) || (a.name || '').localeCompare(b.name || '');
     const ta = a.lastSeen ? new Date(a.lastSeen).getTime() : 0;
     const tb = b.lastSeen ? new Date(b.lastSeen).getTime() : 0;
     return sort === 'recent' ? (tb - ta) : (ta - tb);
@@ -311,6 +329,9 @@ function populateMgrFilter() {
 function repCard(r) {
   const statusClass = r.status === 'active' ? 'active' : 'inactive';
   const cohort = r.cohort_start_date ? `Day ${daysSince(r.cohort_start_date)} of 90` : '--';
+  const callsLabel = (r.callsToday == null)
+    ? '<span class="cc-none">--</span>'
+    : `<b class="cc-today${r.callsToday > 0 ? ' cc-active' : ''}">${r.callsToday}</b> today <span class="cc-week">&middot; ${r.calls7d} (7d)</span>`;
   const rr = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(r.username || '')}`;
   const u = (r.username || '').replace(/[^a-zA-Z0-9_-]/g, '');
   const aria = escapeHtml(`View detail for ${r.name || r.username || 'rep'}`);
@@ -324,6 +345,7 @@ function repCard(r) {
         <span class="badge ${statusClass}">${escapeHtml(r.status || 'unknown')}</span>
       </div>
       <div class="rep-meta">
+        <div class="row"><span class="k">Calls</span><span class="v">${callsLabel}</span></div>
         <div class="row"><span class="k">Manager</span><span class="v">${escapeHtml(r.manager || '--')}</span></div>
         <div class="row"><span class="k">Cohort</span><span class="v">${cohort}</span></div>
         <div class="row"><span class="k">Last sign-in</span><span class="v">${lastSeenLabel(r.lastSeen)}</span></div>
