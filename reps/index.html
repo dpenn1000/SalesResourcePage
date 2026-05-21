@@ -626,10 +626,11 @@ function callWorkChart(contacts) {
     const h = n => n ? Math.max(3, Math.round(n / max * H)) : 0;
     const seg = (n, cls) => n ? `<div class="cw-seg ${cls}" style="height:${h(n)}px"></div>` : '';
     const dlabel = s.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const conn = s.reached + s.appt; // appointments are connects too -- you reached them
     const tipPlain = `${dlabel}: ${s.total} call${s.total === 1 ? '' : 's'}` +
-      (s.total ? ` (${s.appt} appt, ${s.reached} reached, ${s.noanswer} no-answer)` : '');
+      (s.total ? ` (${conn} connected${s.appt ? `, ${s.appt} appt` : ''}, ${s.noanswer} no answer)` : '');
     const tipHtml = `<div class="cw-tip"><b>${escapeHtml(dlabel)}</b><br>${s.total} call${s.total === 1 ? '' : 's'}` +
-      (s.total ? `<br>${s.appt} appt &middot; ${s.reached} reached &middot; ${s.noanswer} no-ans` : '') + `</div>`;
+      (s.total ? `<br>${conn} connected${s.appt ? ` (${s.appt} appt)` : ''}<br>${s.noanswer} no answer` : '') + `</div>`;
     return `<div class="cw-bar" title="${escapeHtml(tipPlain)}">
       ${tipHtml}
       <div class="cw-stack">${seg(s.noanswer, 'noanswer')}${seg(s.reached, 'reached')}${seg(s.appt, 'appt')}</div>
@@ -639,7 +640,7 @@ function callWorkChart(contacts) {
   return `<div class="cw-chart">${bars}</div>
     <div class="cw-legend">
       <span><i class="cw-dot appt"></i>Appt set</span>
-      <span><i class="cw-dot reached"></i>Reached</span>
+      <span><i class="cw-dot reached"></i>Reached, no appt</span>
       <span><i class="cw-dot noanswer"></i>No answer</span>
     </div>`;
 }
