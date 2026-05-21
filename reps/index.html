@@ -99,7 +99,9 @@
   .cw-stat-sub { font-size:0.72rem; font-weight:600; color:var(--green-dark); }
   .cw-stat-l { font-size:0.7rem; color:var(--subtle); text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
   .cw-chart { display:flex; align-items:flex-end; gap:4px; height:150px; padding:8px 6px 0; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow); }
-  .cw-bar { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .cw-bar { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative; }
+  .cw-tip { display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:6px 9px; border-radius:7px; font-size:0.7rem; line-height:1.35; white-space:nowrap; text-align:center; z-index:5; box-shadow:0 4px 12px rgba(15,32,56,0.25); pointer-events:none; }
+  .cw-bar:hover .cw-tip { display:block; }
   .cw-stack { display:flex; flex-direction:column-reverse; width:64%; min-width:6px; }
   .cw-seg { width:100%; }
   .cw-seg.appt { background:var(--green); border-radius:2px 2px 0 0; }
@@ -335,7 +337,7 @@ function repCard(r) {
 
 // ── Per-rep detail (chunk 2) ──
 let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false, PW_OPEN = false;
-const D_TABS = [['profile','Profile'],['activity','Activity'],['university','University'],['callwork','Call Work'],['feedback','Feedback']];
+const D_TABS = [['profile','Profile'],['activity','Portal Logins'],['university','University'],['callwork','Call Work'],['feedback','Feedback']];
 
 async function openRep(username) {
   const rep = REPS.find(r => (r.username || '') === username);
@@ -550,8 +552,9 @@ async function toggleRepStatus() {
 
 function tabActivity() {
   const a = D_DATA.activity;
-  if (!a.length) return '<div class="d-empty">No recorded activity.</div>';
-  return '<div class="d-list">' + a.map(e => `
+  const head = '<div class="section-h">Portal sign-ins &amp; page views</div>';
+  if (!a.length) return head + '<div class="d-empty">No portal activity (this rep has not signed into the rep portal). This is separate from Call Work.</div>';
+  return head + '<div class="d-list">' + a.map(e => `
     <div class="d-item"><div class="it-top">
       <div><span class="it-title">${escapeHtml(e.event_type || 'event')}</span>
       <div class="it-meta">${escapeHtml(e.page_url || '')}</div></div>
@@ -622,9 +625,13 @@ function callWorkChart(contacts) {
   const bars = slots.map(s => {
     const h = n => n ? Math.max(3, Math.round(n / max * H)) : 0;
     const seg = (n, cls) => n ? `<div class="cw-seg ${cls}" style="height:${h(n)}px"></div>` : '';
-    const tip = `${s.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}: ${s.total} contact${s.total === 1 ? '' : 's'}` +
+    const dlabel = s.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const tipPlain = `${dlabel}: ${s.total} call${s.total === 1 ? '' : 's'}` +
       (s.total ? ` (${s.appt} appt, ${s.reached} reached, ${s.noanswer} no-answer)` : '');
-    return `<div class="cw-bar" title="${escapeHtml(tip)}">
+    const tipHtml = `<div class="cw-tip"><b>${escapeHtml(dlabel)}</b><br>${s.total} call${s.total === 1 ? '' : 's'}` +
+      (s.total ? `<br>${s.appt} appt &middot; ${s.reached} reached &middot; ${s.noanswer} no-ans` : '') + `</div>`;
+    return `<div class="cw-bar" title="${escapeHtml(tipPlain)}">
+      ${tipHtml}
       <div class="cw-stack">${seg(s.noanswer, 'noanswer')}${seg(s.reached, 'reached')}${seg(s.appt, 'appt')}</div>
       <div class="cw-xlabel${s.key === todayKey ? ' cw-today' : ''}">${s.date.getDate()}</div>
     </div>`;
@@ -683,14 +690,18 @@ function tabCallWork() {
   const reachedN = contacts.filter(c => contactCat(c.outcome) === 'reached').length;
   const connects = apptN + reachedN;
   const connectRate = total ? Math.round(connects / total * 100) : 0;
-  const lastTs = contacts.reduce((m, c) => { const t = c.contacted_at || c.created_at; return t && (!m || t > m) ? t : m; }, null);
+  const todayK = dayKey(new Date());
+  const weekAgo = Date.now() - 7 * 86400000;
+  const todayN = contacts.filter(c => dayKey(c.contacted_at || c.created_at) === todayK).length;
+  const weekN = contacts.filter(c => { const t = new Date(c.contacted_at || c.created_at).getTime(); return !isNaN(t) && t >= weekAgo; }).length;
 
   const stats = `<div class="cw-stats">
-    ${cwStat(calls.length, 'Leads')}
-    ${cwStat(total, 'Contacts')}
+    ${cwStat(todayN, 'Calls today')}
+    ${cwStat(weekN, 'Last 7 days')}
+    ${cwStat(total, 'All-time')}
     ${cwStat(connects, 'Connects', total ? connectRate + '%' : '')}
     ${cwStat(apptN, 'Appts set')}
-    ${cwStat(lastTs ? lastSeenLabel(lastTs) : 'never', 'Last activity', '', true)}
+    ${cwStat(calls.length, 'Leads')}
   </div>`;
   const graph = total ? `<div class="section-h">Daily activity (last 14 days)</div>${callWorkChart(contacts)}` : '';
   const byDay = `<div class="section-h">Contact log by day</div>${callWorkDays(contacts)}`;
