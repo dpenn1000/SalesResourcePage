@@ -91,6 +91,32 @@
   .d-empty { color:var(--subtle); font-size:0.875rem; padding:18px 2px; }
   .section-h { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--subtle); margin:18px 0 8px; }
 
+  /* ── Call Work tab ── */
+  .cw-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:10px; margin:6px 0 4px; }
+  .cw-stat { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; box-shadow:var(--shadow); }
+  .cw-stat-v { font-size:1.25rem; font-weight:700; color:var(--ink); line-height:1.1; display:flex; align-items:baseline; gap:6px; }
+  .cw-stat-v.cw-stat-text { font-size:0.95rem; }
+  .cw-stat-sub { font-size:0.72rem; font-weight:600; color:var(--green-dark); }
+  .cw-stat-l { font-size:0.7rem; color:var(--subtle); text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
+  .cw-chart { display:flex; align-items:flex-end; gap:4px; height:150px; padding:8px 6px 0; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow); }
+  .cw-bar { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .cw-stack { display:flex; flex-direction:column-reverse; width:64%; min-width:6px; }
+  .cw-seg { width:100%; }
+  .cw-seg.appt { background:var(--green); border-radius:2px 2px 0 0; }
+  .cw-seg.reached { background:var(--blue); }
+  .cw-seg.noanswer { background:#cbd3dc; }
+  .cw-xlabel { font-size:0.6rem; color:var(--subtle); margin-top:4px; }
+  .cw-today { color:var(--green-dark); font-weight:700; }
+  .cw-legend { display:flex; gap:14px; margin:8px 2px 0; font-size:0.72rem; color:var(--muted); }
+  .cw-legend i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:middle; }
+  .cw-dot.appt { background:var(--green); }
+  .cw-dot.reached { background:var(--blue); }
+  .cw-dot.noanswer { background:#cbd3dc; }
+  .cw-day { margin-bottom:14px; }
+  .cw-day-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:6px 2px; border-bottom:1px solid var(--hairline); margin-bottom:8px; }
+  .cw-day-head span:first-child { font-weight:700; font-size:0.9rem; color:var(--ink); }
+  .cw-day-meta { font-size:0.76rem; color:var(--muted); }
+
   /* ── Admin: edit rep assignment (manager + cohort) ── */
   .edit-trigger { margin-top:12px; }
   .btn-edit { font-family:inherit; font-size:0.82rem; font-weight:600; color:var(--green-dark); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; cursor:pointer; }
@@ -342,11 +368,25 @@ async function loadRepDetail(rep) {
     supa.from('shadow_logs').select('shadowed_rep_name, shadow_date, duration_minutes, status').eq('rep_id', repId).order('shadow_date', { ascending: false }),
     supa.from('help_requests').select('message, status, created_at').eq('rep_id', repId).order('created_at', { ascending: false }),
     supa.from('certs').select('id, name, stage, order_index').order('order_index'),
-    supa.from('call_list').select('opp_name, state, status, appt_date, lead_source').eq('assigned_to', nm).order('added_at', { ascending: false }).limit(60),
+    supa.from('call_list').select('opportunity_id, opp_name, state, status, appt_date, lead_source, added_at').eq('assigned_to', nm).order('added_at', { ascending: false }).limit(300),
     supa.from('feedback_items').select('type, title, status, priority, created_at').eq('submitter_name', nm).order('created_at', { ascending: false }).limit(20),
   ]);
+  // Call activity: contact_log links by opportunity_id (it has no rep column),
+  // so pull this rep's lead opp-ids from call_list, then fetch their contacts.
+  const callRows = calls.data || [];
+  const oppIds = [...new Set(callRows.map(c => c.opportunity_id).filter(Boolean))];
+  let contacts = [];
+  if (oppIds.length) {
+    const { data: cdata } = await supa.from('contact_log')
+      .select('opportunity_id, opp_name, contacted_at, outcome, next_step, follow_up_date, created_at')
+      .in('opportunity_id', oppIds)
+      .order('contacted_at', { ascending: false })
+      .limit(3000);
+    contacts = cdata || [];
+  }
   return { activity:acts.data||[], assignments:assigns.data||[], attempts:attempts.data||[],
-    shadows:shadows.data||[], helps:helps.data||[], certs:certs.data||[], calls:calls.data||[], feedback:fb.data||[] };
+    shadows:shadows.data||[], helps:helps.data||[], certs:certs.data||[], calls:callRows, contacts,
+    feedback:fb.data||[] };
 }
 
 function renderTabBar() {
@@ -550,16 +590,118 @@ function tabUniversity() {
     }</div>`;
 }
 
+// ── Call Work helpers ──
+function contactCat(outcome) {
+  const o = (outcome || '').toLowerCase();
+  if (o.includes('appoint')) return 'appt';
+  if (o.includes('reach')) return 'reached';
+  return 'noanswer';
+}
+function dayKey(d) {
+  const x = new Date(d);
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+}
+function cwStat(value, label, sub, isText) {
+  return `<div class="cw-stat">
+    <div class="cw-stat-v${isText ? ' cw-stat-text' : ''}">${escapeHtml(String(value))}${sub ? `<span class="cw-stat-sub">${escapeHtml(sub)}</span>` : ''}</div>
+    <div class="cw-stat-l">${escapeHtml(label)}</div>
+  </div>`;
+}
+function callWorkChart(contacts) {
+  const DAYS = 14;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const slots = [], byKey = {};
+  for (let i = DAYS - 1; i >= 0; i--) {
+    const d = new Date(today); d.setDate(today.getDate() - i);
+    const s = { key: dayKey(d), date: d, appt: 0, reached: 0, noanswer: 0, total: 0 };
+    slots.push(s); byKey[s.key] = s;
+  }
+  contacts.forEach(c => {
+    const ts = c.contacted_at || c.created_at; if (!ts) return;
+    const s = byKey[dayKey(ts)]; if (!s) return;
+    s[contactCat(c.outcome)]++; s.total++;
+  });
+  const max = Math.max(1, ...slots.map(s => s.total));
+  const H = 104, todayKey = dayKey(today);
+  const bars = slots.map(s => {
+    const h = n => n ? Math.max(3, Math.round(n / max * H)) : 0;
+    const seg = (n, cls) => n ? `<div class="cw-seg ${cls}" style="height:${h(n)}px"></div>` : '';
+    const tip = `${s.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}: ${s.total} contact${s.total === 1 ? '' : 's'}` +
+      (s.total ? ` (${s.appt} appt, ${s.reached} reached, ${s.noanswer} no-answer)` : '');
+    return `<div class="cw-bar" title="${escapeHtml(tip)}">
+      <div class="cw-stack">${seg(s.noanswer, 'noanswer')}${seg(s.reached, 'reached')}${seg(s.appt, 'appt')}</div>
+      <div class="cw-xlabel${s.key === todayKey ? ' cw-today' : ''}">${s.date.getDate()}</div>
+    </div>`;
+  }).join('');
+  return `<div class="cw-chart">${bars}</div>
+    <div class="cw-legend">
+      <span><i class="cw-dot appt"></i>Appt set</span>
+      <span><i class="cw-dot reached"></i>Reached</span>
+      <span><i class="cw-dot noanswer"></i>No answer</span>
+    </div>`;
+}
+function callWorkDays(contacts) {
+  if (!contacts.length) return '<div class="d-empty">No logged contacts yet.</div>';
+  const groups = {};
+  contacts.forEach(c => {
+    const ts = c.contacted_at || c.created_at;
+    const k = ts ? dayKey(ts) : 'unknown';
+    (groups[k] = groups[k] || []).push(c);
+  });
+  return Object.keys(groups).sort().reverse().map(k => {
+    const items = groups[k];
+    const appt = items.filter(c => contactCat(c.outcome) === 'appt').length;
+    const head = k === 'unknown' ? 'Undated'
+      : new Date(items[0].contacted_at || items[0].created_at).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    return `<div class="cw-day">
+      <div class="cw-day-head"><span>${escapeHtml(head)}</span><span class="cw-day-meta">${items.length} contact${items.length === 1 ? '' : 's'}${appt ? ` &middot; ${appt} appt` : ''}</span></div>
+      <div class="d-list">${items.map(contactItem).join('')}</div>
+    </div>`;
+  }).join('');
+}
+function contactItem(c) {
+  const cat = contactCat(c.outcome);
+  const cls = cat === 'appt' ? 'ok' : cat === 'reached' ? 'info' : '';
+  const time = c.contacted_at ? new Date(c.contacted_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+  const meta = [time, c.next_step ? 'next: ' + c.next_step : '', c.follow_up_date ? 'follow-up ' + fmtDate(c.follow_up_date) : '']
+    .filter(Boolean).map(escapeHtml).join(' &middot; ');
+  return `<div class="d-item"><div class="it-top">
+    <div><span class="it-title">${escapeHtml(c.opp_name || '(lead)')}</span>
+    <div class="it-meta">${meta}</div></div>
+    <span class="pill ${cls}">${escapeHtml(c.outcome || 'logged')}</span>
+  </div></div>`;
+}
+function leadItem(l) {
+  return `<div class="d-item"><div class="it-top">
+    <div><span class="it-title">${escapeHtml(l.opp_name || '(no name)')}</span>
+    <div class="it-meta">${escapeHtml(l.state || '')}${l.lead_source ? ` &middot; ${escapeHtml(l.lead_source)}` : ''}${l.appt_date ? ` &middot; appt ${escapeHtml(String(l.appt_date))}` : ''}</div></div>
+    <span class="pill ${callStatusClass(l.status)}">${escapeHtml(l.status || 'pending')}</span>
+  </div></div>`;
+}
+
 function tabCallWork() {
-  const c = D_DATA.calls;
-  if (!c.length) return '<div class="d-empty">No call-list leads assigned to this rep.</div>';
-  return `<div class="count" style="margin-bottom:10px">${c.length} assigned lead${c.length === 1 ? '' : 's'}</div>
-    <div class="d-list">` + c.map(l => `
-    <div class="d-item"><div class="it-top">
-      <div><span class="it-title">${escapeHtml(l.opp_name || '(no name)')}</span>
-      <div class="it-meta">${escapeHtml(l.state || '')}${l.lead_source ? ` &middot; ${escapeHtml(l.lead_source)}` : ''}${l.appt_date ? ` &middot; appt ${fmtDate(l.appt_date)}` : ''}</div></div>
-      <span class="pill ${callStatusClass(l.status)}">${escapeHtml(l.status || 'pending')}</span>
-    </div></div>`).join('') + '</div>';
+  const contacts = D_DATA.contacts || [];
+  const calls = D_DATA.calls || [];
+  const total = contacts.length;
+  const apptN = contacts.filter(c => contactCat(c.outcome) === 'appt').length;
+  const reachedN = contacts.filter(c => contactCat(c.outcome) === 'reached').length;
+  const connects = apptN + reachedN;
+  const connectRate = total ? Math.round(connects / total * 100) : 0;
+  const lastTs = contacts.reduce((m, c) => { const t = c.contacted_at || c.created_at; return t && (!m || t > m) ? t : m; }, null);
+
+  const stats = `<div class="cw-stats">
+    ${cwStat(calls.length, 'Leads')}
+    ${cwStat(total, 'Contacts')}
+    ${cwStat(connects, 'Connects', total ? connectRate + '%' : '')}
+    ${cwStat(apptN, 'Appts set')}
+    ${cwStat(lastTs ? lastSeenLabel(lastTs) : 'never', 'Last activity', '', true)}
+  </div>`;
+  const graph = total ? `<div class="section-h">Daily activity (last 14 days)</div>${callWorkChart(contacts)}` : '';
+  const byDay = `<div class="section-h">Contact log by day</div>${callWorkDays(contacts)}`;
+  const leads = calls.length
+    ? `<div class="section-h">Assigned leads (${calls.length})</div><div class="d-list">${calls.map(leadItem).join('')}</div>`
+    : `<div class="section-h">Assigned leads</div><div class="d-empty">No call-list leads assigned to this rep.</div>`;
+  return stats + graph + byDay + leads;
 }
 
 function tabFeedback() {
