@@ -368,24 +368,20 @@ async function loadRepDetail(rep) {
     supa.from('shadow_logs').select('shadowed_rep_name, shadow_date, duration_minutes, status').eq('rep_id', repId).order('shadow_date', { ascending: false }),
     supa.from('help_requests').select('message, status, created_at').eq('rep_id', repId).order('created_at', { ascending: false }),
     supa.from('certs').select('id, name, stage, order_index').order('order_index'),
-    supa.from('call_list').select('opportunity_id, opp_name, state, status, appt_date, lead_source, added_at').eq('assigned_to', nm).order('added_at', { ascending: false }).limit(300),
+    supa.from('call_list').select('opp_name, state, status, appt_date, lead_source').eq('assigned_to', nm).order('added_at', { ascending: false }).limit(300),
     supa.from('feedback_items').select('type, title, status, priority, created_at').eq('submitter_name', nm).order('created_at', { ascending: false }).limit(20),
   ]);
-  // Call activity: contact_log links by opportunity_id (it has no rep column),
-  // so pull this rep's lead opp-ids from call_list, then fetch their contacts.
-  const callRows = calls.data || [];
-  const oppIds = [...new Set(callRows.map(c => c.opportunity_id).filter(Boolean))];
+  // Call activity via RPC: server-side join of contact_log -> call_list on
+  // opportunity_id (contact_log has no rep column). Wrapped in try/catch so a
+  // failure here can never take down the rest of the detail (leads, etc.) --
+  // the prior client-side .in([~100 opp-ids]) threw for high-volume reps.
   let contacts = [];
-  if (oppIds.length) {
-    const { data: cdata } = await supa.from('contact_log')
-      .select('opportunity_id, opp_name, contacted_at, outcome, next_step, follow_up_date, created_at')
-      .in('opportunity_id', oppIds)
-      .order('contacted_at', { ascending: false })
-      .limit(3000);
+  try {
+    const { data: cdata } = await supa.rpc('get_rep_contacts', { p_rep_name: nm });
     contacts = cdata || [];
-  }
+  } catch (e) { console.warn('[reps] get_rep_contacts failed:', e); }
   return { activity:acts.data||[], assignments:assigns.data||[], attempts:attempts.data||[],
-    shadows:shadows.data||[], helps:helps.data||[], certs:certs.data||[], calls:callRows, contacts,
+    shadows:shadows.data||[], helps:helps.data||[], certs:certs.data||[], calls:calls.data||[], contacts,
     feedback:fb.data||[] };
 }
 
