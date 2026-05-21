@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Deposit Refund Agreement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<link rel="stylesheet" href="/auth-gate.css">
+<style>
+  :root {
+    --green:#78C832; --blue:#29A9E1; --ink:#1A2332; --navy:#1A2332;
+    --muted:#6b7a8d; --bg:#EFF1EC; --border:#DFE2DA;
+    --doc-ink:#1c2230; --doc-line:#2c3340;
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Manrope',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  /* ── Screen-only toolbar ───────────────────────────── */
+  .toolbar {
+    position:sticky; top:0; z-index:50;
+    background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:12px clamp(14px,3vw,28px); border-bottom:3px solid var(--green);
+  }
+  .toolbar .back { color:rgba(255,255,255,0.85); text-decoration:none; font-size:0.85rem; font-weight:600; }
+  .toolbar .back:hover { color:#fff; }
+  .toolbar .tb-right { display:flex; align-items:center; gap:12px; }
+  .toolbar .who { font-size:0.8rem; color:rgba(255,255,255,0.7); }
+  .btn-print {
+    background:var(--green); color:#10240a; border:none; border-radius:8px;
+    padding:9px 18px; font-family:inherit; font-size:0.85rem; font-weight:700; cursor:pointer;
+  }
+  .btn-print:hover { filter:brightness(1.06); }
+  .btn-ghost {
+    background:transparent; color:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.25);
+    border-radius:8px; padding:8px 14px; font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;
+  }
+  .btn-ghost:hover { background:rgba(255,255,255,0.1); color:#fff; }
+  .hint { font-size:0.72rem; color:var(--muted); text-align:center; padding:8px 16px 0; }
+
+  .notice { max-width:680px; margin:48px auto; background:#fff; border:1px dashed var(--border); border-radius:12px; padding:40px 24px; text-align:center; color:var(--muted); }
+  .notice h2 { color:var(--ink); margin-bottom:8px; font-size:1.2rem; font-family:'Fraunces',Georgia,serif; }
+
+  /* ── The printable sheet ───────────────────────────── */
+  .sheet-wrap { padding:28px clamp(12px,3vw,28px) 64px; }
+  .sheet {
+    background:#fff; color:var(--doc-ink);
+    width:100%; max-width:8.5in; margin:0 auto;
+    box-shadow:0 4px 22px rgba(15,32,56,0.13);
+    border-radius:4px; overflow:hidden;
+  }
+  .sheet-inner { padding:0.5in 0.7in 0.7in; }
+
+  /* Navy co-branded band (full-width child of .sheet) */
+  .band {
+    background:var(--navy);
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    padding:18px 28px;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .band img { height:38px; width:auto; display:block; }
+  .band .sep { flex:0 0 1px; align-self:stretch; background:rgba(255,255,255,0.18); margin:2px 0; }
+
+  .doc-title {
+    text-align:center; font-family:'Fraunces',Georgia,serif; font-weight:600;
+    font-size:1.5rem; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink);
+    margin:26px 0 4px;
+  }
+  .doc-rev { text-align:center; font-size:0.7rem; color:var(--muted); margin-bottom:22px; }
+
+  /* Agreement body uses a formal serif */
+  .agreement { font-family:Georgia,'Times New Roman',serif; font-size:11.5pt; line-height:1.55; color:var(--doc-ink); }
+  .agreement p { margin:0 0 14px; text-align:justify; text-indent:0.4in; }
+
+  /* Header field grid (two columns) */
+  .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 36px; margin:0 0 26px; }
+  .field { display:flex; flex-direction:column; }
+  .field .fl { order:2; font-family:'Manrope',sans-serif; font-size:0.72rem; color:var(--muted); margin-top:4px; }
+  .field .fi { order:1; }
+
+  /* Fill-in inputs */
+  input.fi, input.blank {
+    font-family:Georgia,'Times New Roman',serif; font-size:11.5pt; color:#0b1a3a;
+    border:none; border-bottom:1px solid var(--doc-line); background:transparent;
+    padding:2px 4px; outline:none; width:100%;
+  }
+  input.fi:focus, input.blank:focus { border-bottom-color:var(--blue); background:rgba(41,169,225,0.05); }
+  input.blank { display:inline-block; width:2.4in; text-align:center; }
+  input.blank.amount { width:1.6in; }
+
+  /* Signature block */
+  .sig-head { font-family:'Manrope',sans-serif; font-weight:700; font-size:0.82rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink); margin:34px 0 18px; }
+  .sig-grid { display:grid; grid-template-columns:1fr 1fr; gap:26px 36px; }
+  .sig-line { border-bottom:1px solid var(--doc-line); height:1.7rem; }
+  .sig-fill { display:flex; flex-direction:column; }
+  .sig-fill .fl { order:2; font-family:'Manrope',sans-serif; font-size:0.72rem; color:var(--muted); margin-top:4px; }
+  .sig-fill .fi { order:1; }
+  .sig-cap { font-family:'Manrope',sans-serif; font-size:0.72rem; color:var(--muted); margin-top:4px; }
+
+  /* ── Print ─────────────────────────────────────────── */
+  @media print {
+    @page { size:letter; margin:0.4in; }
+    body { background:#fff; }
+    .no-print { display:none !important; }
+    .sheet-wrap { padding:0; }
+    .sheet { box-shadow:none; border-radius:0; max-width:none; }
+    .sheet-inner { padding:0.3in 0.4in 0.4in; }
+    .band { border-radius:0; }
+    input.fi, input.blank { background:transparent !important; }
+    .doc-title { margin-top:18px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- auth-gate.js toggles these three by id -->
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Forms</h2>
+    <p>Sign in with your Trinity Solar manager username.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <label>Username</label>
+    <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+    <label>Password</label>
+    <input type="password" id="loginPass" autocomplete="current-password">
+    <button type="button" class="btn-auth" id="loginBtn" onclick="signIn()">Sign in</button>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set your password</h2>
+    <p>First time signing in. Pick something only you know (at least 8 characters).</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <label>New password</label>
+    <input type="password" id="cpNew" autocomplete="new-password">
+    <label>Confirm new password</label>
+    <input type="password" id="cpConfirm" autocomplete="new-password">
+    <button type="button" class="btn-auth" id="cpBtn" onclick="changePassword()">Update password</button>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+  <div class="toolbar no-print">
+    <a class="back" href="/forms/">&larr; Forms</a>
+    <div class="tb-right">
+      <span class="who" id="who"></span>
+      <button class="btn-print" onclick="downloadPdf()" title="Opens your browser print dialog. Choose 'Save as PDF' as the destination.">Download PDF</button>
+      <button class="btn-ghost" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+  <div class="hint no-print">Fill the form below, then <strong>Download PDF</strong> and choose <strong>Save as PDF</strong> in the print dialog.</div>
+
+  <div id="notManager" class="notice no-print" style="display:none">
+    <h2>Managers only</h2>
+    <p>This form is for managers. If you think you should have access, contact Dan.</p>
+  </div>
+
+  <div class="sheet-wrap" id="docWrap">
+    <div class="sheet">
+      <div class="band">
+        <img src="/forms/trinity-solar-logo.png" alt="Trinity Solar">
+        <div class="sep"></div>
+        <img src="/forms/trinity-total-home-logo.png" alt="Trinity Total Home">
+      </div>
+
+      <div class="sheet-inner">
+
+        <h1 class="doc-title">Deposit Refund Agreement</h1>
+        <div class="doc-rev">[revised 11.28.11]</div>
+
+        <div class="field-grid">
+          <div class="field"><span class="fi"><input class="fi" type="text" id="custName"></span><span class="fl">Customer name(s)</span></div>
+          <div class="field"><span class="fi"><input class="fi" type="text" id="street"></span><span class="fl">Street address</span></div>
+          <div class="field"><span class="fi"><input class="fi" type="text" id="effDate" placeholder=""></span><span class="fl">Date</span></div>
+          <div class="field"><span class="fi"><input class="fi" type="text" id="cityStateZip"></span><span class="fl">City, state and ZIP</span></div>
+        </div>
+
+        <div class="agreement">
+          <p>This Deposit Refund Agreement (this "Agreement") is entered into as of the date specified above (the "Effective Date") by and between the above-captioned customer(s) (the "Customer") and Trinity Heating &amp; Air, Inc. d/b/a Trinity Solar ("Trinity Solar" and, collectively, the "Parties"). Reference is hereby made to that certain Contract (the "Solar Contract"), dated <input class="blank" type="text" id="contractDate" aria-label="Solar Contract date">, by and between the Parties, with respect to the installation of a photovoltaic system at the Customer's site specified above (the "Site"). In the event that there is any discrepancy between the terms of this Agreement and the terms of the Solar Contract, the terms of this Agreement shall govern.</p>
+
+          <p>In exchange for the promises herein, each Party hereby agrees to release the other Party from the Solar Contract, which Solar Contract shall have no further effect, provided that the Customer shall not install or contract to install a photovoltaic system at the Site unless Trinity Solar is hired as the contractor to perform the work. Trinity Solar will refund to the Customer the deposit paid in the amount of $<input class="blank amount" type="text" id="depositAmt" aria-label="Deposit amount">. The Customer shall not owe Trinity Solar any additional amount with respect to, and Trinity Solar shall have no further obligation pursuant to, the Solar Contract.</p>
+
+          <p>Each Party irrevocably releases the other Party from any claims, damages and liabilities arising on or before the Effective Date, which in any way pertain to the Solar Contract. This Agreement represents the entire agreement between the Parties and supersedes all prior negotiations, representations or agreements, either written or oral.</p>
+        </div>
+
+        <div class="sig-head">Acknowledged and agreed by:</div>
+        <div class="sig-grid">
+          <div><div class="sig-line"></div><div class="sig-cap">Customer</div></div>
+          <div><div class="sig-line"></div><div class="sig-cap">Trinity Solar</div></div>
+
+          <div class="sig-fill"><span class="fi"><input class="fi" type="text" id="custPrint"></span><span class="fl">Print name</span></div>
+          <div class="sig-fill"><span class="fi"><input class="fi" type="text" id="tsPrint"></span><span class="fl">Print name</span></div>
+
+          <div class="sig-fill"><span class="fi"><input class="fi" type="text" id="custSigDate"></span><span class="fl">Date</span></div>
+          <div class="sig-fill"><span class="fi"><input class="fi" type="text" id="tsSigDate"></span><span class="fl">Date</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// auth-gate.js provides window.sb, window.IS_MANAGER, signIn/signOut/changePassword,
+// and calls initApp once after sign-in + must-change-password gate.
+window.initApp = function (profile) {
+  document.getElementById('who').textContent = profile.name ? ('Signed in as ' + profile.name) : '';
+  if (!window.IS_MANAGER) {
+    document.getElementById('docWrap').style.display = 'none';
+    document.querySelector('.toolbar .btn-print').style.display = 'none';
+    document.querySelector('.hint').style.display = 'none';
+    document.getElementById('notManager').style.display = 'block';
+  }
+};
+
+// Give the saved PDF a sensible default filename (browsers seed it from document.title).
+function downloadPdf() {
+  const cust = (document.getElementById('custName').value || '').trim();
+  const base = 'Deposit Refund Agreement';
+  const original = document.title;
+  document.title = cust ? (base + ' - ' + cust) : base;
+  window.addEventListener('afterprint', function restore() {
+    document.title = original;
+    window.removeEventListener('afterprint', restore);
+  });
+  window.print();
+}
+</script>
+
+</body>
+</html>

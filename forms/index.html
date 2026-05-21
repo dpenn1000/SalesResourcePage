@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Forms -- Trinity Solar CT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<link rel="stylesheet" href="/auth-gate.css">
+<style>
+  :root {
+    --green:#78C832; --green-dark:#5FA520; --blue:#29A9E1;
+    --ink:#1A2332; --muted:#6b7a8d; --subtle:#9aa6b4;
+    --bg:#EFF1EC; --surface:#ffffff; --border:#DFE2DA; --hairline:#E5E8E0;
+    --radius:12px; --shadow:0 1px 3px rgba(15,32,56,0.07);
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Manrope',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  h1,h2,h3 { font-family:'Fraunces',Georgia,serif; font-weight:600; letter-spacing:-0.01em; }
+  a { color:inherit; }
+
+  .console-header { background:var(--ink); color:#fff; padding:18px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; border-bottom:3px solid var(--green); }
+  .console-header .eyebrow { font-size:0.7rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:rgba(255,255,255,0.55); display:block; }
+  .console-header h1 { color:#fff; font-size:1.4rem; }
+  .console-header .user { font-size:0.85rem; color:rgba(255,255,255,0.85); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .console-header .user .name { font-weight:600; color:#fff; }
+  .console-header a.home { color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.8rem; font-weight:600; }
+  .console-header a.home:hover { color:#fff; }
+  .console-header button { background:transparent; color:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.25); padding:6px 12px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:0.8rem; }
+  .console-header button:hover { background:rgba(255,255,255,0.1); color:#fff; }
+
+  main { max-width:980px; margin:0 auto; padding:28px clamp(16px,3vw,32px) 64px; }
+  .lead { color:var(--muted); font-size:0.95rem; margin-bottom:22px; max-width:60ch; }
+
+  .form-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+  .form-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+    padding:20px 20px 18px; box-shadow:var(--shadow); text-decoration:none; color:var(--ink);
+    display:flex; flex-direction:column; gap:10px;
+    transition:transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+  }
+  .form-card:hover { transform:translateY(-3px); box-shadow:0 8px 20px rgba(15,32,56,0.1); border-color:var(--green); }
+  .form-card .icon {
+    width:42px; height:42px; border-radius:10px; background:#EDFAD6; color:var(--green-dark);
+    display:flex; align-items:center; justify-content:center; font-size:20px;
+  }
+  .form-card .ttl { font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:1.12rem; color:var(--ink); }
+  .form-card .desc { font-size:0.86rem; color:var(--muted); line-height:1.45; flex:1; }
+  .form-card .cta { font-size:0.8rem; font-weight:700; color:var(--green-dark); display:inline-flex; align-items:center; gap:6px; }
+  .form-card .cta .arr { transition:transform 0.12s; }
+  .form-card:hover .cta .arr { transform:translateX(3px); }
+
+  .notice { background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--muted); }
+  .notice h2 { color:var(--ink); margin-bottom:8px; font-size:1.2rem; }
+</style>
+</head>
+<body>
+
+<!-- auth-gate.js toggles these three by id -->
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Forms</h2>
+    <p>Sign in with your Trinity Solar manager username.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <label>Username</label>
+    <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+    <label>Password</label>
+    <input type="password" id="loginPass" autocomplete="current-password">
+    <button type="button" class="btn-auth" id="loginBtn" onclick="signIn()">Sign in</button>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set your password</h2>
+    <p>First time signing in. Pick something only you know (at least 8 characters).</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <label>New password</label>
+    <input type="password" id="cpNew" autocomplete="new-password">
+    <label>Confirm new password</label>
+    <input type="password" id="cpConfirm" autocomplete="new-password">
+    <button type="button" class="btn-auth" id="cpBtn" onclick="changePassword()">Update password</button>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+  <header class="console-header">
+    <div>
+      <span class="eyebrow">CT Traditional &middot; Trinity Solar</span>
+      <h1>Forms</h1>
+    </div>
+    <div class="user">
+      <a class="home" href="/">&larr; Resource Center</a>
+      <span>Signed in as <span class="name" id="userLabel"></span></span>
+      <button onclick="signOut()">Sign out</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="notManager" class="notice" style="display:none">
+      <h2>Managers only</h2>
+      <p>The Forms section is for managers. If you think you should have access, contact Dan.</p>
+    </div>
+
+    <div id="formsBody" style="display:none">
+      <p class="lead">Fill these out on screen and download a finished PDF. Fields are blank and ready. Choose <strong>Save as PDF</strong> in the print dialog when you download.</p>
+      <div class="form-grid">
+
+        <a class="form-card" href="/forms/check-request.html">
+          <div class="icon">&#128179;</div>
+          <div class="ttl">Check Request</div>
+          <div class="desc">Request a check (refund, goodwill, or payout). Cost-impact fields calculate automatically from system size and price per watt.</div>
+          <div class="cta">Open form <span class="arr">&rarr;</span></div>
+        </a>
+
+        <a class="form-card" href="/forms/deposit-refund-agreement.html">
+          <div class="icon">&#128196;</div>
+          <div class="ttl">Deposit Refund Agreement</div>
+          <div class="desc">Release the customer and Trinity Solar from a Solar Contract and refund the deposit. Fill the parties, dates, and amount, then print for signature.</div>
+          <div class="cta">Open form <span class="arr">&rarr;</span></div>
+        </a>
+
+      </div>
+    </div>
+  </main>
+</div><!-- /#appWrap -->
+
+<script>
+// auth-gate.js provides window.sb, window.IS_MANAGER, signIn/signOut/changePassword,
+// and calls initApp once after sign-in + must-change-password gate.
+window.initApp = function (profile) {
+  document.getElementById('userLabel').textContent = profile.name || '';
+  if (!window.IS_MANAGER) {
+    document.getElementById('notManager').style.display = 'block';
+    return;
+  }
+  document.getElementById('formsBody').style.display = 'block';
+};
+</script>
+
+</body>
+</html>

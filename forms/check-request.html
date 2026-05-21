@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Check Request</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<link rel="stylesheet" href="/auth-gate.css">
+<style>
+  :root {
+    --green:#78C832; --blue:#29A9E1; --ink:#1A2332; --navy:#1A2332;
+    --muted:#6b7a8d; --bg:#EFF1EC; --border:#DFE2DA;
+    --doc-ink:#1c2230; --row-line:#cfd5dd; --calc-bg:#f4f7f1; --red:#c8341f;
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Manrope',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  /* ── Screen-only toolbar ───────────────────────────── */
+  .toolbar {
+    position:sticky; top:0; z-index:50;
+    background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:12px clamp(14px,3vw,28px); border-bottom:3px solid var(--green);
+  }
+  .toolbar .back { color:rgba(255,255,255,0.85); text-decoration:none; font-size:0.85rem; font-weight:600; }
+  .toolbar .back:hover { color:#fff; }
+  .toolbar .tb-right { display:flex; align-items:center; gap:12px; }
+  .toolbar .who { font-size:0.8rem; color:rgba(255,255,255,0.7); }
+  .btn-print {
+    background:var(--green); color:#10240a; border:none; border-radius:8px;
+    padding:9px 18px; font-family:inherit; font-size:0.85rem; font-weight:700; cursor:pointer;
+  }
+  .btn-print:hover { filter:brightness(1.06); }
+  .btn-ghost {
+    background:transparent; color:rgba(255,255,255,0.85); border:1px solid rgba(255,255,255,0.25);
+    border-radius:8px; padding:8px 14px; font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;
+  }
+  .btn-ghost:hover { background:rgba(255,255,255,0.1); color:#fff; }
+  .hint { font-size:0.72rem; color:var(--muted); text-align:center; padding:8px 16px 0; }
+
+  .notice { max-width:680px; margin:48px auto; background:#fff; border:1px dashed var(--border); border-radius:12px; padding:40px 24px; text-align:center; color:var(--muted); }
+  .notice h2 { color:var(--ink); margin-bottom:8px; font-size:1.2rem; font-family:'Fraunces',Georgia,serif; }
+
+  /* ── The printable sheet ───────────────────────────── */
+  .sheet-wrap { padding:28px clamp(12px,3vw,28px) 64px; }
+  .sheet {
+    background:#fff; color:var(--doc-ink);
+    width:100%; max-width:8.5in; margin:0 auto;
+    box-shadow:0 4px 22px rgba(15,32,56,0.13);
+    border-radius:4px; overflow:hidden;
+  }
+  .sheet-inner { padding:0.45in 0.6in 0.6in; }
+
+  /* Navy co-branded band */
+  .band {
+    background:var(--navy);
+    display:flex; align-items:center; justify-content:space-between; gap:24px;
+    padding:18px 28px;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .band img { height:38px; width:auto; display:block; }
+  .band .sep { flex:0 0 1px; align-self:stretch; background:rgba(255,255,255,0.18); margin:2px 0; }
+
+  .doc-title {
+    text-align:center; font-family:'Fraunces',Georgia,serif; font-weight:600;
+    font-size:1.6rem; letter-spacing:0.02em; color:var(--ink);
+    margin:22px 0 20px;
+  }
+
+  /* Form table */
+  .crtable { width:100%; border-collapse:collapse; }
+  .crtable tr { border-bottom:1px solid var(--row-line); }
+  .crtable tr:first-child { border-top:1px solid var(--row-line); }
+  .crtable th {
+    text-align:left; vertical-align:middle; width:34%;
+    font-size:0.86rem; font-weight:700; color:var(--ink);
+    padding:0 14px; white-space:nowrap;
+  }
+  .crtable td { padding:0; vertical-align:middle; }
+  .cell-in {
+    width:100%; border:none; background:transparent; outline:none;
+    font-family:'Manrope',sans-serif; font-size:1rem; color:#0b1a3a;
+    padding:13px 14px; text-align:center;
+  }
+  .cell-in:focus { background:rgba(41,169,225,0.06); }
+  textarea.cell-in {
+    text-align:left; resize:vertical; min-height:120px; line-height:1.5;
+    field-sizing:content; font-size:0.92rem; padding:11px 14px;
+  }
+  .approver { display:flex; align-items:center; gap:0; }
+  .approver .num {
+    flex:0 0 30px; text-align:center; color:var(--blue); font-weight:700; font-size:0.95rem;
+    align-self:stretch; display:flex; align-items:center; justify-content:center;
+    border-right:1px solid var(--row-line);
+  }
+  .approver .cell-in { text-align:center; }
+  .th-sub { font-weight:400; font-size:0.78rem; color:var(--muted); }
+
+  /* Calculation block */
+  .calc-head {
+    margin:26px 0 0; padding:9px 14px;
+    font-size:0.74rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--muted); background:var(--calc-bg); border:1px solid var(--row-line); border-bottom:none;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .crtable.calc tr:first-child { border-top:1px solid var(--row-line); }
+  .crtable.calc th { width:42%; font-weight:600; }
+  .calc-out {
+    display:block; padding:11px 14px; text-align:center;
+    font-family:'Manrope',sans-serif; font-size:1rem; font-weight:600; color:#0b1a3a;
+    background:var(--calc-bg);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  .calc-out.empty { color:#aab2bd; font-weight:400; }
+  .calc-out.net { color:var(--red); font-weight:700; }
+  .calc-note { font-size:0.7rem; color:var(--muted); padding:8px 2px 0; text-align:right; }
+
+  /* ── Print ─────────────────────────────────────────── */
+  @media print {
+    @page { size:letter; margin:0.4in; }
+    body { background:#fff; }
+    .no-print { display:none !important; }
+    .sheet-wrap { padding:0; }
+    .sheet { box-shadow:none; border-radius:0; max-width:none; }
+    .sheet-inner { padding:0.25in 0.35in 0.35in; }
+    .band { border-radius:0; }
+    .cell-in:focus { background:transparent; }
+    textarea.cell-in { min-height:0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- auth-gate.js toggles these three by id -->
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Forms</h2>
+    <p>Sign in with your Trinity Solar manager username.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <label>Username</label>
+    <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+    <label>Password</label>
+    <input type="password" id="loginPass" autocomplete="current-password">
+    <button type="button" class="btn-auth" id="loginBtn" onclick="signIn()">Sign in</button>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set your password</h2>
+    <p>First time signing in. Pick something only you know (at least 8 characters).</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <label>New password</label>
+    <input type="password" id="cpNew" autocomplete="new-password">
+    <label>Confirm new password</label>
+    <input type="password" id="cpConfirm" autocomplete="new-password">
+    <button type="button" class="btn-auth" id="cpBtn" onclick="changePassword()">Update password</button>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+  <div class="toolbar no-print">
+    <a class="back" href="/forms/">&larr; Forms</a>
+    <div class="tb-right">
+      <span class="who" id="who"></span>
+      <button class="btn-print" onclick="downloadPdf()" title="Opens your browser print dialog. Choose 'Save as PDF' as the destination.">Download PDF</button>
+      <button class="btn-ghost" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+  <div class="hint no-print">Fill the form below. Cost fields calculate automatically. Then <strong>Download PDF</strong> and choose <strong>Save as PDF</strong> in the print dialog.</div>
+
+  <div id="notManager" class="notice no-print" style="display:none">
+    <h2>Managers only</h2>
+    <p>This form is for managers. If you think you should have access, contact Dan.</p>
+  </div>
+
+  <div class="sheet-wrap" id="docWrap">
+    <div class="sheet">
+
+      <div class="band">
+        <img src="/forms/trinity-solar-logo.png" alt="Trinity Solar">
+        <div class="sep"></div>
+        <img src="/forms/trinity-total-home-logo.png" alt="Trinity Total Home">
+      </div>
+
+      <div class="sheet-inner">
+        <h1 class="doc-title">Check Request</h1>
+
+        <table class="crtable">
+          <tr><th>Date:</th><td><input class="cell-in" type="text" id="date"></td></tr>
+          <tr><th>Amount:</th><td><input class="cell-in" type="text" inputmode="decimal" id="amount" oninput="recalc()" placeholder=""></td></tr>
+          <tr><th>Payable to:</th><td><input class="cell-in" type="text" id="payableTo"></td></tr>
+          <tr><th>On behalf of:</th><td><input class="cell-in" type="text" id="onBehalf"></td></tr>
+          <tr><th>Requested by:</th><td><input class="cell-in" type="text" id="requestedBy"></td></tr>
+          <tr><th style="vertical-align:top;padding-top:13px;">Reason:</th><td><textarea class="cell-in" id="reason"></textarea></td></tr>
+          <tr><th>Support Attached:</th><td><input class="cell-in" type="text" id="support" placeholder=""></td></tr>
+          <tr><th>Approved by:</th><td><div class="approver"><span class="num">1</span><input class="cell-in" type="text" id="appr1"></div></td></tr>
+          <tr><th></th><td><div class="approver"><span class="num">2</span><input class="cell-in" type="text" id="appr2"></div></td></tr>
+          <tr><th></th><td><div class="approver"><span class="num">3</span><input class="cell-in" type="text" id="appr3"></div></td></tr>
+        </table>
+
+        <div class="calc-head">System Cost Calculation</div>
+        <table class="crtable calc">
+          <tr><th>System Size: <span class="th-sub">(kW)</span></th><td><input class="cell-in" type="text" inputmode="decimal" id="systemSize" oninput="recalc()"></td></tr>
+          <tr><th>Price Per watt: <span class="th-sub">($)</span></th><td><input class="cell-in" type="text" inputmode="decimal" id="pricePerWatt" oninput="recalc()"></td></tr>
+          <tr><th>System Cost:</th><td><span class="calc-out empty" id="outSystemCost">-</span></td></tr>
+          <tr><th>Amount:</th><td><span class="calc-out empty" id="outAmount">-</span></td></tr>
+          <tr><th>New System Cost:</th><td><span class="calc-out empty" id="outNewCost">-</span></td></tr>
+          <tr><th>Final System Net: <span class="th-sub">($/W)</span></th><td><span class="calc-out net empty" id="outFinalNet">-</span></td></tr>
+        </table>
+        <div class="calc-note no-print">System Cost = Size &times; 1000 &times; Price/watt &nbsp;&middot;&nbsp; New System Cost = System Cost &minus; Amount &nbsp;&middot;&nbsp; Final System Net = New System Cost &divide; watts</div>
+
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// auth-gate.js provides window.sb, window.IS_MANAGER, signIn/signOut/changePassword,
+// and calls initApp once after sign-in + must-change-password gate.
+window.initApp = function (profile) {
+  document.getElementById('who').textContent = profile.name ? ('Signed in as ' + profile.name) : '';
+  if (!window.IS_MANAGER) {
+    document.getElementById('docWrap').style.display = 'none';
+    document.querySelector('.toolbar .btn-print').style.display = 'none';
+    document.querySelector('.hint').style.display = 'none';
+    document.getElementById('notManager').style.display = 'block';
+  }
+};
+
+// ── Live cost calculation ──────────────────────────────
+// System Cost     = System Size (kW) x 1000 x Price/watt
+// Amount          = the check Amount entered above
+// New System Cost = System Cost - Amount
+// Final System Net= New System Cost / watts   (net price per watt)
+const num = v => {
+  const n = parseFloat(String(v == null ? '' : v).replace(/[$,\s]/g, ''));
+  return isFinite(n) ? n : NaN;
+};
+const fmtUSD = n => n.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+const fmtRate = n => '$' + n.toFixed(3);
+
+function setOut(id, text, isEmpty, isNet) {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.classList.toggle('empty', !!isEmpty);
+  if (isNet) el.classList.toggle('net', true);
+}
+
+function recalc() {
+  const size = num(document.getElementById('systemSize').value);
+  const ppw  = num(document.getElementById('pricePerWatt').value);
+  const amt  = num(document.getElementById('amount').value);
+
+  const watts = isFinite(size) ? size * 1000 : NaN;
+  const systemCost = (isFinite(watts) && isFinite(ppw)) ? watts * ppw : NaN;
+  const amount = isFinite(amt) ? amt : NaN;
+  const newCost = isFinite(systemCost) ? systemCost - (isFinite(amount) ? amount : 0) : NaN;
+  const finalNet = (isFinite(newCost) && isFinite(watts) && watts > 0) ? newCost / watts : NaN;
+
+  setOut('outSystemCost', isFinite(systemCost) ? fmtUSD(systemCost) : '-', !isFinite(systemCost));
+  setOut('outAmount',     isFinite(amount)     ? fmtUSD(amount)     : '-', !isFinite(amount));
+  setOut('outNewCost',    isFinite(newCost)    ? fmtUSD(newCost)    : '-', !isFinite(newCost));
+  setOut('outFinalNet',   isFinite(finalNet)   ? fmtRate(finalNet)  : '-', !isFinite(finalNet), true);
+}
+
+// Give the saved PDF a sensible default filename.
+function downloadPdf() {
+  const payee = (document.getElementById('payableTo').value || '').trim();
+  const base = 'Check Request';
+  const original = document.title;
+  document.title = payee ? (base + ' - ' + payee) : base;
+  window.addEventListener('afterprint', function restore() {
+    document.title = original;
+    window.removeEventListener('afterprint', restore);
+  });
+  window.print();
+}
+</script>
+
+</body>
+</html>
