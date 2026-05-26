@@ -2091,7 +2091,7 @@ function renderUsersTable() {
           ? '<span style="font-size:11px;color:var(--text2)">Current account</span>'
           : `<div class="row-actions" style="display:flex;gap:4px;flex-wrap:wrap">
               <button class="btn-row btn-edit" onclick="showActivityModal('${u.auth_user_id}','${escapeAttr(u.name||'')}')">Activity</button>
-              <button class="btn-row btn-edit" onclick="showSetPasswordModal('${u.auth_user_id}','${escapeAttr(u.name||'')}')">Reset PW</button>
+              <button class="btn-row btn-edit" onclick="showSetPasswordModal('${u.auth_user_id}','${escapeAttr(u.name||'')}','${escapeAttr(u.username||'')}')">Reset PW</button>
               <button class="btn-row btn-edit" onclick="toggleAdmin('${u.auth_user_id}', ${u.kind === 'manager'}, ${!!u.is_admin})">${adminLabel}</button>
               <button class="btn-row btn-edit" onclick="toggleStatus('${u.auth_user_id}','${u.status}','${escapeAttr(u.name||'')}')">${u.status === 'active' ? 'Deactivate' : 'Activate'}</button>
               <button class="btn-row btn-del" onclick="showDeleteModal('${u.auth_user_id}','${escapeAttr(u.name||'')}')">Delete</button>
@@ -2199,7 +2199,7 @@ async function createUser() {
 }
 
 // ── Set password modal ────────────────────────────
-function showSetPasswordModal(userId, name) {
+function showSetPasswordModal(userId, name, username) {
   openModal(
     'Reset password: ' + name,
     `<div style="display:flex;flex-direction:column;gap:12px">
@@ -2211,11 +2211,11 @@ function showSetPasswordModal(userId, name) {
     </div>`,
     'Set Password',
     'background:#1A2332;color:#fff;',
-    () => savePassword(userId, name)
+    () => savePassword(userId, name, username)
   );
 }
 
-async function savePassword(userId, name) {
+async function savePassword(userId, name, username) {
   const password = document.getElementById('pwField').value;
   const btn      = document.getElementById('modalConfirmBtn');
   document.getElementById('modalError').style.display = 'none';
@@ -2228,7 +2228,8 @@ async function savePassword(userId, name) {
 
   closeModal();
   await loadUsers();
-  toast(`Password set for ${name}. Share via Slack: username + new password.`);
+  // Same share-these-credentials card as user creation, so a reset is a clean handoff.
+  showCredentialCard(username || name, password, 'Password reset for ' + name + ' -- share the new credentials now');
 }
 
 // ── Toggle admin / promote to manager ─────────────
@@ -2333,8 +2334,9 @@ async function showActivityModal(userId, name) {
     </div>`;
 }
 
-// ── Credential card (shown after create) ──────────
-function showCredentialCard(username, password) {
+// ── Credential card (shown after create OR password reset) ──────────
+function showCredentialCard(username, password, heading) {
+  heading = heading || 'Account created -- share these credentials now';
   const existing = document.getElementById('credentialCard');
   if (existing) existing.remove();
   const card = document.createElement('div');
@@ -2343,7 +2345,7 @@ function showCredentialCard(username, password) {
   card.innerHTML = `
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
       <span style="font-size:18px">&#9888;</span>
-      <strong style="font-size:14px;color:#1A2332">Account created -- share these credentials now</strong>
+      <strong style="font-size:14px;color:#1A2332">${escapeHtml(heading)}</strong>
     </div>
     <p style="font-size:12px;color:#6B7280;margin-bottom:14px;line-height:1.6">
       This is the only time this password will be shown here. Share via Slack / phone / in-person -- never email. They'll be prompted to change it on first sign-in.
