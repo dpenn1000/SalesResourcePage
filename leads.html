@@ -119,6 +119,11 @@
   .btn-sm:disabled{opacity:.5;cursor:default}
   .dleg{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);white-space:nowrap;margin-right:8px}
   .dleg i{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .timeline{display:flex;flex-direction:column;margin-top:4px}
+  .tl-evt{font-size:12.5px;color:var(--ink);padding:5px 0;border-top:1px solid var(--border)}
+  .tl-badge{display:inline-block;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-right:6px;vertical-align:middle}
+  .tl-when{color:var(--muted);font-variant-numeric:tabular-nums}
+  .tl-n{color:var(--muted);font-size:12px;margin:2px 0 0 2px}
   .kpi.hot{border-color:var(--amber);background:rgba(200,140,0,.06)}
   .kpi.hot .n{color:#8a5800}
   .frow{margin-bottom:11px}
@@ -794,12 +799,35 @@ function buildDetail(g){
     if(!appts.length)h+='<div class="appt sub">No appointment detail.</div>';
     else for(const a of appts){h+=`<div class="appt"><span class="appt-d">${fmtDate(a.date)}${a.at?' '+fmtTime(a.at):''}</span> <b>${esc(a.outcome||'--')}</b>${a.rep?' &middot; '+esc(a.rep):''}${a.notes?`<div class="appt-n">${esc(a.notes)}</div>`:''}</div>`;}
   }
-  const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
-  const cs=contacts.filter(c=>ids.has(c.opportunity_id)).sort((a,b)=>(b.contacted_at||'').localeCompare(a.contacted_at||''));
-  h+='<div class="dhdr">Contact history ('+cs.length+')</div>';
-  if(!cs.length)h+='<div class="sub">No logged QC calls yet.</div>';
-  else for(const c of cs){h+=`<div class="ct-row"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.notes?' &middot; '+esc(c.notes):''}${c.next_step?` &middot; next: ${esc(c.next_step)}`:''}</div>`;}
+  /* #7: unified history timeline from lead_events (appointments + calls + sold,
+     interleaved, with source). Lazy-loaded on expand so it scales as events grow. */
+  const tlKey=g.property.property_id||p.dl_number;
+  h+='<div class="dhdr">Timeline</div><div id="tl-'+esc(tlKey)+'" class="timeline"><div class="sub">Loading timeline...</div></div>';
+  setTimeout(()=>loadTimeline(tlKey,g),0);
   return h;
+}
+/* #7: fetch + render the lead_events timeline for one home (RLS-scoped: managers
+   see all, reps their own). property_id covers all DLs on the home; fall back to
+   the DL list when a lead has no property identity. */
+async function loadTimeline(key,g){
+  const el=document.getElementById('tl-'+key);if(!el)return;
+  const pid=g.property&&g.property.property_id;
+  const dls=g.dls.map(d=>d.dl_number).filter(Boolean);
+  let q=sb.from('lead_events').select('event_type,occurred_at,rep,outcome,notes,source').order('occurred_at',{ascending:false}).limit(500);
+  q = pid ? q.eq('property_id',pid) : q.in('dl_number',dls);
+  const { data, error }=await q;
+  if(error){el.innerHTML='<div class="sub">Timeline unavailable: '+esc(error.message)+'</div>';return;}
+  el.innerHTML=renderTimeline(data||[]);
+}
+function renderTimeline(events){
+  if(!events.length)return '<div class="sub">No timeline events yet.</div>';
+  const TY={appointment:['APPT','#5a8fb5'],call:['CALL','#5aa522'],sold:['SOLD','#3f7a16'],import:['IMPORT','#9aa7b6'],dnc_set:['DNC','#a02020'],dnc_clear:['DNC OFF','#6f7d8c'],assignment:['ASSIGN','#6f7d8c'],status_change:['STATUS','#6f7d8c']};
+  return events.map(e=>{
+    const t=TY[e.event_type]||[String(e.event_type||'').toUpperCase().slice(0,6),'#9aa7b6'];
+    const when=fmtDate(e.occurred_at)+(e.event_type==='call'?' '+fmtTime(e.occurred_at):'');
+    const bits=[];if(e.rep)bits.push(esc(e.rep));if(e.source)bits.push('<span class="sub">'+esc(e.source)+'</span>');
+    return `<div class="tl-evt"><span class="tl-badge" style="background:${t[1]}">${t[0]}</span><span class="tl-when">${when}</span> <b>${esc(e.outcome||'--')}</b>${bits.length?' &middot; '+bits.join(' &middot; '):''}${e.notes?`<div class="tl-n">${esc(e.notes)}</div>`:''}</div>`;
+  }).join('');
 }
 function toggleDetail(key){
   const row=document.getElementById('r-'+key);if(!row)return;
