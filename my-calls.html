@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Call List -- Trinity Solar CT</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--green:#78C832;--accent:#29A9E1;--ink:#1A2332;--muted:#6b7a8d;--border:#DFE2DA;--bg:#EFF1EC;--surface:#fff;--radius:10px;--shadow:0 1px 4px rgba(0,0,0,.07);--red:#D63030;--amber:#C88C00}
+  html{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;font-size:15px;line-height:1.5}
+  .hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px}
+  .logo{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;color:#0b1120}
+  .htitle{font-family:'Fraunces',serif;font-size:18px;font-weight:700;flex:1}
+  .htitle small{display:block;font-family:'Manrope';font-size:12px;color:var(--muted);font-weight:500}
+  .hbtn{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;cursor:pointer;background:none;border:none}
+  .guidebtn{font-size:13px;font-weight:700;color:#0b1120;background:var(--green);border-radius:7px;padding:7px 13px;text-decoration:none}
+  .wrap{max-width:760px;margin:0 auto;padding:16px 16px 64px}
+  .kpis{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+  .kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow);flex:1;min-width:90px}
+  .kpi .n{font-family:'Fraunces',serif;font-size:22px;font-weight:700}
+  .kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .toolbar input,.toolbar select{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff}
+  .toolbar input[type=search]{flex:1;min-width:160px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:10px;overflow:hidden}
+  .card-head{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer}
+  .card-head:hover{background:#fafbf9}
+  .nm{font-weight:700;font-size:15px}
+  .card-sub{font-size:12px;color:var(--muted)}
+  .badge{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .b-deleted{background:rgba(214,48,48,.12);color:#a02020}.b-noshow{background:rgba(214,48,48,.1);color:#a02020}
+  .b-cancel{background:rgba(200,140,0,.12);color:#8a5800}.b-new{background:rgba(120,200,50,.18);color:#3a7010}
+  .b-done{background:rgba(120,200,50,.16);color:#3a7010}
+  .chev{margin-left:auto;color:var(--muted);font-size:13px}
+  .card-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
+  .card.open .card-body{display:block}
+  .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px 16px;margin:12px 0;font-size:13px}
+  .meta .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .sflink{color:var(--accent);text-decoration:none;font-weight:600}
+  .hist{font-size:12.5px;border-top:1px solid var(--border);padding:6px 0;color:var(--muted)}
+  .hist b{color:var(--ink)}
+  .logform{background:#f7f9f4;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:10px}
+  .logform h4{font-size:13px;margin-bottom:8px}
+  .radios{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+  .radios label{font-size:13px;border:1px solid var(--border);border-radius:7px;padding:6px 10px;cursor:pointer;background:#fff}
+  .radios input{margin-right:5px}
+  .frow{margin-bottom:9px}
+  .frow label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:3px}
+  .frow input,.frow select,.frow textarea{width:100%;font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink)}
+  .frow.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .btn-primary{background:var(--green);color:#0b1120;border:none;border-radius:8px;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+  .btn-primary:hover{filter:brightness(1.05)}.btn-primary:disabled{opacity:.6;cursor:default}
+  .empty,.loading{padding:36px;text-align:center;color:var(--muted)}
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:200}
+  #toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>My Call List</h2>
+    <p>Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one (at least 8 characters).</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+  <header class="hdr">
+    <div class="logo">T</div>
+    <div class="htitle">My Call List <small id="userLabel"></small></div>
+    <a class="guidebtn" href="/call-list-guide.html" target="_blank" rel="noopener">Call Guide</a>
+    <button class="hbtn" onclick="signOut()">Sign out</button>
+  </header>
+  <div class="wrap">
+    <div id="kpis" class="kpis"></div>
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Search name, town, DL#..." oninput="render()">
+      <select id="fView" onchange="render()">
+        <option value="callable">To call</option>
+        <option value="followup">Follow-ups due</option>
+        <option value="today">Called today</option>
+        <option value="all">All my leads</option>
+      </select>
+    </div>
+    <div id="list"><div class="loading">Loading your leads...</div></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const sb = window.sb;            // shared client + session from /auth-gate.js
+const SF = 'https://trinity-solar.lightning.force.com/lightning/r/{}/view';
+let ME='', leads=[], contacts=[], byOpp={}, openSet=new Set();
+
+const HSTATES=['','Receptive / re-engaged','Not interested','Already has solar','Renter / not owner','Moving / selling','Hostile / rude','Hard no / stop calling','Wrong / bad number','DNC request'];
+const FSOURCES=['','Setter: misinformation','Setter: aggressive / pushy','Setter: needs coaching','Call center: no confirmation','Call center: over-confirming (too many texts/calls)','Call center: high pressure','Prior rep: bad experience','Other'];
+const DISPO={deleted:['Deleted (pre-run)','b-deleted'],noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],new:['New','b-new']};
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function fmtDate(d){if(!d)return '--';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});}catch(e){return d;}}
+function isCallable(l){const s=l.lifecycle_state||'';return !l.sold && (s==='deleted'||s==='noshow'||s==='cancel'||s==='new');}
+function oppOf(l){return (l.opportunity_ids&&l.opportunity_ids[0])||l.dl_number;}
+
+// auth-gate.js owns sign-in / role / screen switching and calls this once authed.
+window.initApp = function(profile){ ME=profile.name||''; document.getElementById('userLabel').textContent=ME?('· '+ME):''; loadLeads(); };
+
+async function loadLeads(){
+  try{
+    const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,properties(town,county)';
+    const [{data:dl,error:e1},{data:cl}] = await Promise.all([
+      sb.from('direct_leads').select(SEL).order('last_appt_date',{ascending:false,nullsFirst:false}),
+      sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source').order('contacted_at',{ascending:false}),
+    ]);
+    if(e1)throw e1;
+    leads=(dl||[]).filter(l=>(l.assigned_to||'')===ME);   // RLS already scopes; double-check
+    contacts=cl||[]; byOpp={};
+    for(const c of contacts){(byOpp[c.opportunity_id]=byOpp[c.opportunity_id]||[]).push(c);}
+    renderKpis(); render();
+  }catch(err){document.getElementById('list').innerHTML='<div class="empty">Could not load: '+esc(err.message||err)+'</div>';}
+}
+function callsFor(l){const ids=new Set((l.opportunity_ids||[]));ids.add(l.dl_number);let out=[];for(const id of ids)out=out.concat(byOpp[id]||[]);return out.sort((a,b)=>(b.contacted_at||'').localeCompare(a.contacted_at||''));}
+function renderKpis(){
+  const callable=leads.filter(isCallable);
+  const today=new Date().toISOString().slice(0,10);
+  let calledToday=0,due=0;
+  for(const l of leads){const cs=callsFor(l);if(cs.some(c=>(c.contacted_at||'').slice(0,10)===today))calledToday++;if(cs.some(c=>c.follow_up_date&&c.follow_up_date<=today))due++;}
+  const k=[['To call',callable.length],['Called today',calledToday],['Follow-ups due',due],['My leads',leads.length]];
+  document.getElementById('kpis').innerHTML=k.map(([l,n])=>`<div class="kpi"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
+}
+function render(){
+  const q=document.getElementById('q').value.trim().toLowerCase();
+  const v=document.getElementById('fView').value;
+  const today=new Date().toISOString().slice(0,10);
+  let rows=leads.filter(l=>{
+    const cs=callsFor(l);
+    if(v==='callable'&&!isCallable(l))return false;
+    if(v==='today'&&!cs.some(c=>(c.contacted_at||'').slice(0,10)===today))return false;
+    if(v==='followup'&&!cs.some(c=>c.follow_up_date&&c.follow_up_date<=today))return false;
+    if(q){const hay=((l.homeowner_name||'')+' '+((l.properties&&l.properties.town)||'')+' '+l.dl_number).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  if(!rows.length){document.getElementById('list').innerHTML='<div class="empty">No leads here. Switch the filter or check back after dispatch.</div>';return;}
+  document.getElementById('list').innerHTML=rows.map(cardHtml).join('');
+}
+function cardHtml(l){
+  const d=DISPO[l.lifecycle_state]||['',''];
+  const town=(l.properties&&l.properties.town)||'--';
+  const cs=callsFor(l);const lastCall=cs[0];
+  const open=openSet.has(l.dl_number);
+  const calledBadge=cs.length?`<span class="badge b-done">${cs.length} call${cs.length>1?'s':''}</span>`:'';
+  return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
+    <div class="card-head" onclick="toggle('${esc(l.dl_number)}')">
+      <div><div class="nm">${esc(l.homeowner_name||'--')}</div><div class="card-sub">${esc(town)} &middot; ${esc(l.dl_number)}${lastCall?' &middot; last call '+fmtDate(lastCall.contacted_at):''}</div></div>
+      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${calledBadge}
+      <span class="chev">${open?'&#9662;':'&#9656;'}</span>
+    </div>
+    <div class="card-body">
+      <div class="meta">
+        <div><div class="k">Lead source</div>${esc(l.lead_source||'--')}</div>
+        <div><div class="k">Last outcome</div>${esc(l.last_outcome||'--')}</div>
+        <div><div class="k">Last appt</div>${fmtDate(l.last_appt_date)}</div>
+        <div><div class="k">Direct Lead</div>${l.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(l.dl_sf_id))}">Open in SF &nearr; (phone here)</a>`:'<span class="card-sub">no SF link</span>'}</div>
+      </div>
+      ${cs.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:4px">Call history</div>'+cs.map(c=>`<div class="hist"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.homeowner_state?' &middot; '+esc(c.homeowner_state):''}${c.frustration_source?' &middot; '+esc(c.frustration_source):''}${c.notes?'<br>'+esc(c.notes):''}${c.next_step?'<br>Next: '+esc(c.next_step):''}</div>`).join(''):''}
+      <div class="logform">
+        <h4>Log this call</h4>
+        <div class="radios" id="oc-${esc(l.dl_number)}">
+          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Reached" checked>Reached</label>
+          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Appointment Set">Appt set</label>
+          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Voicemail">Voicemail</label>
+          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="No Answer">No answer</label>
+        </div>
+        <div class="frow two">
+          <div><label>Homeowner state</label><select id="hs-${esc(l.dl_number)}">${HSTATES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
+          <div><label>Frustration source (coaching intel)</label><select id="fs-${esc(l.dl_number)}">${FSOURCES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
+        </div>
+        <div class="frow"><label>Notes -- what was said, their mood, feedback</label><textarea id="nt-${esc(l.dl_number)}" rows="2"></textarea></div>
+        <div class="frow two">
+          <div><label>Next step</label><input id="ns-${esc(l.dl_number)}" type="text" placeholder="callback, setter handoff, resolved..."></div>
+          <div><label>Follow-up date</label><input id="fu-${esc(l.dl_number)}" type="date"></div>
+        </div>
+        <button class="btn-primary" onclick="saveCall('${esc(l.dl_number)}')">Log call</button>
+      </div>
+    </div>
+  </div>`;
+}
+function toggle(dl){if(openSet.has(dl))openSet.delete(dl);else openSet.add(dl);const c=document.getElementById('c-'+dl);if(c){c.classList.toggle('open');const ch=c.querySelector('.chev');if(ch)ch.innerHTML=c.classList.contains('open')?'&#9662;':'&#9656;';}}
+async function saveCall(dl){
+  const l=leads.find(x=>x.dl_number===dl);if(!l)return;
+  const oc=document.querySelector(`input[name="oc-${dl}"]:checked`);
+  const row={
+    opportunity_id:oppOf(l),
+    contacted_at:new Date().toISOString(),
+    outcome:oc?oc.value:'Reached',
+    homeowner_state:(document.getElementById('hs-'+dl).value||null),
+    frustration_source:(document.getElementById('fs-'+dl).value||null),
+    notes:(document.getElementById('nt-'+dl).value.trim()||null),
+    next_step:(document.getElementById('ns-'+dl).value.trim()||null),
+    follow_up_date:(document.getElementById('fu-'+dl).value||null),
+  };
+  const { error }=await sb.from('contact_log').insert(row);
+  if(error){toast('Save failed: '+error.message);return;}
+  /* reflect locally + light status bump */
+  contacts.unshift(row);(byOpp[row.opportunity_id]=byOpp[row.opportunity_id]||[]).unshift(row);
+  toast('Call logged');
+  renderKpis();render();
+}
+function initAppGate(){}
+</script>
+</body>
+</html>

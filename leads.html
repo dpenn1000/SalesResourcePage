@@ -406,7 +406,7 @@ async function initApp(){
     try{ dls = await fetchAllDL(); }
     catch(e1){document.getElementById('tableWrap').innerHTML='<div class="empty">Error loading leads: '+esc(e1.message)+'</div>';return;}
     const [{ data: cl }, { data: mgrs }, { data: reps }] = await Promise.all([
-      sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date'),
+      sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source'),
       sb.from('managers').select('name').order('name'),
       sb.from('reps').select('name').order('name'),
     ]);
@@ -491,7 +491,8 @@ function renderDashDetail(){
     const t=g.property.town||'(unknown)'; byTown[t]=(byTown[t]||0)+1;
   }
   /* logged QC call outcomes (call-list activity, not appointment data) */
-  const outc={};for(const c of contacts){const o=c.outcome||'Other';outc[o]=(outc[o]||0)+1;}
+  const outc={},byFrust={},byHState={};
+  for(const c of contacts){const o=c.outcome||'Other';outc[o]=(outc[o]||0)+1;if(c.frustration_source)byFrust[c.frustration_source]=(byFrust[c.frustration_source]||0)+1;if(c.homeowner_state)byHState[c.homeowner_state]=(byHState[c.homeowner_state]||0)+1;}
   const totCalls=contacts.length,connected=(outc['Reached']||0)+(outc['Appointment Set']||0),connRate=totCalls?Math.round(connected/totCalls*100):0;
   /* one cohesive palette: green = good/go, steel = in-progress, slate = inert/neutral, amber = attention */
   const G={green:'linear-gradient(90deg,#5aa522,#7ec63f)',dgreen:'linear-gradient(90deg,#3f7a16,#5aa522)',steel:'linear-gradient(90deg,#3f6f96,#5a93bd)',slate:'linear-gradient(90deg,#6f7d8c,#95a3b1)',amber:'linear-gradient(90deg,#b8770f,#d99a2b)'};
@@ -513,6 +514,8 @@ function renderDashDetail(){
     +card('By lead type',byType,null,null,k=>k==='Direct'?G.amber:k==='Traditional'?G.green:G.slate,null,'Direct = rep-owned (do not dispatch). Traditional = company leads, freely dispatchable.')
     +card('By rep (assigned)',byRep,null,10,k=>k==='Unassigned'?G.slate:G.steel,null,'How the list is dispatched. Unassigned = still in the pool to hand out.')
     +card('Top towns',byTown,null,10,null,G.green,'Where the leads are, for geographic dispatch.')
+    +card('QC frustration sources',byFrust,null,10,null,G.amber,'Root-cause coaching intel logged on QC calls: lead-setter issues (misinformation, aggression, coaching) and call-center confirmation issues (no-confirm, over-confirming, high pressure). Populates as reps tag calls.')
+    +card('Homeowner states',byHState,null,10,null,G.slate,'How homeowners reacted on QC calls (receptive, not interested, already solar, hostile, DNC, etc.). Populates as reps tag calls.')
     +'</div>';
 }
 
