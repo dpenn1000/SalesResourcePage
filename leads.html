@@ -116,6 +116,7 @@
   .dash-scope input[type=date]{font-family:inherit;font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink)}
   .btn-sm{font-family:inherit;font-size:12px;font-weight:600;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer}
   .btn-sm:hover{background:#f3f6ef}
+  .btn-sm:disabled{opacity:.5;cursor:default}
   .dleg{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);white-space:nowrap;margin-right:8px}
   .dleg i{width:9px;height:9px;border-radius:2px;display:inline-block}
   .kpi.hot{border-color:var(--amber);background:rgba(200,140,0,.06)}
@@ -954,6 +955,9 @@ function renderRep(){
   const _ids=new Set();for(const g of mine)for(const d of g.dls){(d.opportunity_ids||[]).forEach(o=>_ids.add(o));_ids.add(d.dl_number);}
   let _calls=0,_conn=0,_appt=0;for(const c of contacts){if(!_ids.has(c.opportunity_id))continue;_calls++;if(c.outcome==='Reached'||c.outcome==='Appointment Set')_conn++;if(c.outcome==='Appointment Set')_appt++;}
   const _cr=_calls?Math.round(_conn/_calls*100):0;
+  /* #1: count this rep's uncalled (no logged call), non-sold leads, for the Recall button. */
+  const _byOpp=contactsByOpp();let _uncalled=0;
+  for(const g of mine){if(g.anySold)continue;let cd=false;for(const d of g.dls){for(const oid of (d.opportunity_ids||[]).concat([d.dl_number]))if((_byOpp[oid]||[]).length){cd=true;break;}if(cd)break;}if(!cd)_uncalled++;}
   const ksp=[['Leads',mine.length,'','#1A2332'],['Calls logged',_calls,'','#3f6f96'],['Connect %',_cr+'%','','#52961a'],['Appts set',_appt,'','#3a7010'],['Callable',cat.callable,'','#5aa522'],['Sold',cat.sold,'','#3f7a16']];
   const kpiHtml=ksp.map(([l,n,c,col])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
   const q=document.getElementById('repq').value.trim().toLowerCase();
@@ -976,12 +980,42 @@ function renderRep(){
       <td>${p.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(p.dl_sf_id))}">Open &nearr;</a>`:'<span class="sub">--</span>'}</td></tr>`;
   }
   tbl+='</tbody></table>';
-  body.innerHTML=`<div class="kpis">${kpiHtml}</div>`+
+  body.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap"><h2 style="margin:0;font-size:16px">${esc(rep)}</h2><button class="btn-sm" onclick="recallUncalled('${esc(rep)}')"${_uncalled?'':' disabled'} title="Un-dispatch every lead assigned to this rep with no logged call yet, back to the unassigned pool. Leads with any logged call stay; sold leads are never recalled.">Recall ${_uncalled} uncalled</button></div>`+
+    `<div class="kpis">${kpiHtml}</div>`+
     `<div class="panel"><h2>${esc(rep)} &middot; call activity &middot; last 30 days</h2>${repCallChart(rep)}</div>`+
     `<div class="panel" style="padding:0;overflow:hidden">${tbl}</div>`;
 }
 
 /* ── Actions ── */
+/* #1: recall every uncalled (no logged call), non-sold lead from a rep back to the
+   unassigned pool. Group-level: if any DL on the property has a logged call, the
+   whole home stays with the rep. Manager/admin only (RLS enforces). */
+async function recallUncalled(rep){
+  if(!rep)return;
+  const byOpp=contactsByOpp();
+  const targets=[];
+  for(const g of props){
+    if(g.anySold)continue;
+    let called=false;
+    for(const d of g.dls){for(const oid of (d.opportunity_ids||[]).concat([d.dl_number]))if((byOpp[oid]||[]).length){called=true;break;}if(called)break;}
+    if(called)continue;
+    for(const d of g.dls)if((d.assigned_to||'')===rep)targets.push(d.dl_number);
+  }
+  if(!targets.length){toast('No uncalled leads assigned to '+rep+'.');return;}
+  if(!confirm(`Recall ${targets.length} uncalled lead${targets.length>1?'s':''} from ${rep} to the unassigned pool?\n\nLeads they have logged any call on stay with them. Sold leads are never recalled.`))return;
+  let done=0,failed=0;
+  for(let i=0;i<targets.length;i+=100){
+    const chunk=targets.slice(i,i+100);
+    const { data, error }=await sb.from('direct_leads').update({assigned_to:null}).in('dl_number',chunk).select('dl_number');
+    if(error){failed+=chunk.length;continue;}
+    done+=(data?data.length:0);
+  }
+  if(!done){toast('Recall not permitted (need manager access).');return;}
+  const set=new Set(targets);
+  for(const g of props)for(const d of g.dls)if(set.has(d.dl_number))d.assigned_to=null;
+  toast(`Recalled ${done} lead${done!==1?'s':''} from ${rep}`+(failed?` (${failed} failed)`:''));
+  renderKpis();renderDashDetail();renderRepOverview();renderRep();render();
+}
 async function assign(dlNumber, rep){
   const g=props.find(x=>x.dls.some(d=>d.dl_number===dlNumber));
   /* guard: don't let a manager dispatch a direct rep's own lead to someone else */
