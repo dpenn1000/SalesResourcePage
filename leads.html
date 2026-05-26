@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/auth-gate.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{--green:#78C832;--accent:#29A9E1;--ink:#1A2332;--muted:#6b7a8d;--border:#DFE2DA;--bg:#EFF1EC;--surface:#fff;--radius:10px;--shadow:0 1px 4px rgba(0,0,0,.07);--red:#D63030;--amber:#C88C00}
@@ -269,7 +270,7 @@
     <div id="tab-load" class="tabpanel" style="display:none">
       <div class="panel" style="max-width:700px">
         <h2>Add a lead manually</h2>
-        <div class="sub" style="margin-bottom:14px">Queues a lead for the secure resolver, which dedupes it against existing properties and assigns a clean identity on the next sync. Use this for referrals or homes the appointment reports missed. (The address is hashed server-side, so manual adds go through a review queue rather than writing directly.) Bulk Salesforce lists still load through the server-side pipeline.</div>
+        <div class="sub" style="margin-bottom:14px">Queues a lead for the secure resolver, which dedupes it against existing properties and assigns a clean identity on the next sync. Use this for referrals or homes the appointment reports missed. (The address is hashed server-side, so manual adds go through a review queue rather than writing directly.) For a whole list, use the uploader below.</div>
         <div id="loadMsg"></div>
         <form id="loadForm" onsubmit="event.preventDefault();submitIntake()">
           <div class="frow"><label>Homeowner name<input id="li_name" type="text" autocomplete="off" required></label></div>
@@ -289,6 +290,18 @@
           <div class="frow"><label>Note<textarea id="li_note" rows="2" placeholder="Optional context for the rep / QC team"></textarea></label></div>
           <button type="submit" class="btn-primary" id="li_submit">Queue lead</button>
         </form>
+      </div>
+      <div class="panel" style="max-width:700px">
+        <h2>Upload a list</h2>
+        <div class="sub" style="margin-bottom:12px">Drop a Salesforce export (CSV or XLSX). Columns auto-map (name, address, town, state, DL#, source). Rows queue for the secure resolver, which dedupes against existing properties and assigns identity on the next sync. The file is parsed in your browser; only the queued rows are sent.</div>
+        <div id="ulMsg"></div>
+        <input type="file" id="ulFile" accept=".csv,.xlsx,.xls" onchange="ulParse(this.files[0])" style="margin-bottom:10px">
+        <div class="frow two" style="max-width:480px">
+          <label>Default lead source (if blank in file)<input id="ulSource" type="text" autocomplete="off" placeholder="e.g. Deleted-before-ran list"></label>
+          <label>Batch tag / note<input id="ulNote" type="text" autocomplete="off" placeholder="optional"></label>
+        </div>
+        <div id="ulPreview"></div>
+        <button class="btn-primary" id="ulBtn" onclick="ulUpload()" style="display:none">Upload</button>
       </div>
       <div class="panel">
         <h2>Recent intake <span class="sub" id="intakeCount"></span></h2>
@@ -930,6 +943,67 @@ async function renderIntakeList(){
   if(!data||!data.length){el.innerHTML='<div class="empty">No manual intake yet.</div>';return;}
   const bcls={pending:'b-pending',resolved:'b-resolved',rejected:'b-rejected'};
   el.innerHTML=data.map(r=>`<div class="intake-row"><div><span class="name">${esc(r.homeowner_name||'--')}</span> <span class="sub">&middot; ${esc(r.town||'--')}${r.dl_number?' &middot; '+esc(r.dl_number):''}${r.assign_to?' &middot; '+esc(r.assign_to):''}</span><div class="sub">${fmtDate(r.created_at)}${r.created_by?' &middot; by '+esc(r.created_by):''}${r.lead_source?' &middot; '+esc(r.lead_source):''}${r.status==='rejected'&&r.reject_reason?' &middot; '+esc(r.reject_reason):''}</div></div><div><span class="badge ${bcls[r.status]||''}">${esc(r.status)}</span></div></div>`).join('');
+}
+
+/* ── List uploader: parse a CSV/XLSX in-browser, auto-map columns, queue rows into lead_intake ── */
+let ulRows=[];
+function _csvParse(text){
+  const rows=[];let i=0,field='',row=[],inQ=false;text=text.replace(/\r\n?/g,'\n');
+  while(i<text.length){const c=text[i];
+    if(inQ){if(c==='"'){if(text[i+1]==='"'){field+='"';i++;}else inQ=false;}else field+=c;}
+    else{if(c==='"')inQ=true;else if(c===','){row.push(field);field='';}else if(c==='\n'){row.push(field);rows.push(row);row=[];field='';}else field+=c;}
+    i++;}
+  if(field.length||row.length){row.push(field);rows.push(row);}
+  return rows.filter(r=>r.some(x=>(x||'').trim()));
+}
+function _rowsToObjects(rows){if(rows.length<2)return [];const hd=rows[0].map(h=>(h||'').trim());return rows.slice(1).map(r=>{const o={};hd.forEach((h,i)=>o[h]=(r[i]||'').trim());return o;});}
+function _autoMap(headers){
+  const find=(...pats)=>headers.find(h=>{const l=h.toLowerCase();return pats.some(p=>l.includes(p));});
+  const eq=v=>headers.find(h=>h.toLowerCase().trim()===v);
+  const nm=headers.find(h=>{const l=h.toLowerCase();return l.includes('name')&&!/rep|set|user|manager|account exec/.test(l);})||find('opportunity','customer','homeowner','contact');
+  return {homeowner_name:nm,street:find('street','address','addr'),town:find('city','town'),state:eq('state')||eq('st')||find('state'),zip:find('zip','postal'),dl_number:find('direct lead','dl number','dl#','dl #','dl_number')||eq('dl'),lead_source:find('lead source','source')};
+}
+function ulParse(file){
+  const msg=document.getElementById('ulMsg'),btn=document.getElementById('ulBtn');
+  ulRows=[];btn.style.display='none';document.getElementById('ulPreview').innerHTML='';msg.innerHTML='';
+  if(!file)return;
+  const ext=file.name.toLowerCase().split('.').pop();
+  const done=objs=>{
+    if(!objs||!objs.length){msg.innerHTML='<div class="msg-err">No rows found in the file.</div>';return;}
+    const headers=Object.keys(objs[0]);const map=_autoMap(headers);
+    if(!map.street&&!map.homeowner_name){msg.innerHTML='<div class="msg-err">Could not find a name or address column. Headers seen: '+esc(headers.join(', '))+'</div>';return;}
+    ulRows=objs.map(o=>({homeowner_name:(o[map.homeowner_name]||'').trim()||null,street:(o[map.street]||'').trim()||null,town:(o[map.town]||'').trim()||null,state:(o[map.state]||'').trim()||null,zip:(o[map.zip]||'').trim()||null,dl_number:(o[map.dl_number]||'').trim()||null,lead_source:(o[map.lead_source]||'').trim()||null})).filter(r=>r.street||r.homeowner_name);
+    const withAddr=ulRows.filter(r=>r.street).length;
+    msg.innerHTML='<div class="msg-ok">Parsed '+ulRows.length+' row'+(ulRows.length===1?'':'s')+'. '+withAddr+' have a street address (needed to dedupe).</div>';
+    const mapHtml=Object.entries(map).map(([k,v])=>`<div class="bl-row"><span class="bl-k">${esc(k)}</span><span class="sub" style="text-align:right">${v?esc(v):'(not found)'}</span></div>`).join('');
+    const prev=ulRows.slice(0,3).map(r=>`<div class="intake-row"><div><span class="name">${esc(r.homeowner_name||'--')}</span> <span class="sub">&middot; ${esc(r.street||'no street')}, ${esc(r.town||'?')}${r.dl_number?' &middot; '+esc(r.dl_number):''}</span></div></div>`).join('');
+    document.getElementById('ulPreview').innerHTML='<div style="margin:12px 0 4px;font-weight:600;font-size:13px">Column mapping</div>'+mapHtml+'<div style="margin:12px 0 4px;font-weight:600;font-size:13px">Preview (first 3)</div>'+prev;
+    btn.style.display='inline-block';btn.disabled=false;btn.textContent='Upload '+ulRows.length+' leads';
+  };
+  const reader=new FileReader();
+  if(ext==='csv'){reader.onload=e=>done(_rowsToObjects(_csvParse(e.target.result)));reader.readAsText(file);}
+  else if(ext==='xlsx'||ext==='xls'){
+    if(typeof XLSX==='undefined'){msg.innerHTML='<div class="msg-err">XLSX support did not load. Save as CSV and retry.</div>';return;}
+    reader.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];done(XLSX.utils.sheet_to_json(ws,{defval:''}));}catch(err){msg.innerHTML='<div class="msg-err">Could not read the spreadsheet: '+esc(err.message)+'</div>';}};
+    reader.readAsArrayBuffer(file);
+  } else {msg.innerHTML='<div class="msg-err">Use a .csv or .xlsx file.</div>';}
+}
+async function ulUpload(){
+  if(!ulRows.length)return;
+  const btn=document.getElementById('ulBtn'),msg=document.getElementById('ulMsg');
+  const src=document.getElementById('ulSource').value.trim(),note=document.getElementById('ulNote').value.trim();
+  const rows=ulRows.map(r=>({created_by:ME||null,homeowner_name:r.homeowner_name,street:r.street,town:r.town,state:(r.state||'CT').toUpperCase().slice(0,2),zip:r.zip,dl_number:r.dl_number,lead_source:r.lead_source||src||null,note:note||null}));
+  btn.disabled=true;btn.textContent='Uploading...';let done=0,failed=false;
+  for(let i=0;i<rows.length&&!failed;i+=200){
+    const { error }=await sb.from('lead_intake').insert(rows.slice(i,i+200));
+    if(error){msg.innerHTML='<div class="msg-err">Upload stopped at row '+i+': '+esc(error.message)+' (manager access required)</div>';failed=true;break;}
+    done+=Math.min(200,rows.length-i);
+  }
+  btn.disabled=false;
+  if(failed){btn.textContent='Upload '+ulRows.length+' leads';return;}
+  msg.innerHTML='<div class="msg-ok">Queued '+done+' leads. The resolver dedupes and adds them on the next sync (within ~5 min); watch the list below.</div>';
+  ulRows=[];btn.style.display='none';document.getElementById('ulPreview').innerHTML='';document.getElementById('ulFile').value='';
+  renderIntakeList();
 }
 
 /* called by /auth-gate.js if present; harmless otherwise */
