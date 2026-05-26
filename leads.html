@@ -74,7 +74,7 @@
   .tab{background:none;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;color:var(--muted);padding:12px 16px;border-bottom:2px solid transparent}
   .tab:hover{color:var(--ink)}
   .tab.active{color:var(--ink);border-bottom-color:var(--green)}
-  .dp-chart{display:flex;align-items:flex-end;gap:3px;height:180px;padding:10px 8px 0;background:#fff;border:1px solid var(--border);border-radius:10px}
+  .dp-chart{display:flex;align-items:flex-end;gap:3px;height:150px;padding:10px 8px 0;background:#fff;border:1px solid var(--border);border-radius:10px}
   .dp-bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
   .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.35;white-space:nowrap;text-align:center;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
   .dp-bar:hover .dp-tip{display:block}
@@ -154,6 +154,7 @@
         <label class="chk"><input type="checkbox" id="showSold" onchange="render()"> show sold</label>
         <label class="chk"><input type="checkbox" id="showDnc" onchange="render()"> show DNC</label>
         <label class="chk"><input type="checkbox" id="dupOnly" onchange="render()"> duplicates only</label>
+        <button class="act" id="expandAllBtn" onclick="toggleExpandAll()" style="margin-left:auto">Expand all</button>
       </div>
       <div id="tableWrap"><div class="loading">Loading leads...</div></div>
     </div>
@@ -183,6 +184,7 @@ let people = [];       // managers + reps (names)
 let contacts = [];     // contact_log
 let oppToProp = {};    // opportunity_id -> property index
 let propByKey = {};    // row key -> property group (lazy detail expand)
+let expandAll = false; // Leads tab: expand-all toggle
 
 function showOnly(id){for(const s of ['loginScreen','changePasswordScreen','appWrap']){const el=document.getElementById(s);if(el)el.style.display=(s===id)?(s==='appWrap'?'block':'block'):'none';}}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
@@ -229,16 +231,32 @@ async function changePassword(){
   showOnly('appWrap');if(!appStarted){appStarted=true;initApp();}
 }
 
+/* PostgREST caps a single response at 1000 rows; page through so we get every lead. */
+const SEL_DL='dl_number,dl_sf_id,property_id,homeowner_name,lead_source,set_by,original_rep,first_appt_date,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,appointments,redispatch_approved,opportunity_ids,sold,sold_contract_date,sold_rep,properties(property_id,town,county,dnc,sold,quality_flags)';
+async function fetchAllDL(){
+  let out=[],from=0,size=1000;
+  while(true){
+    const {data,error}=await sb.from('direct_leads').select(SEL_DL).order('last_appt_date',{ascending:false,nullsFirst:false}).range(from,from+size-1);
+    if(error)throw error;
+    out=out.concat(data||[]);
+    if(!data||data.length<size)break;
+    from+=size;
+  }
+  return out;
+}
+function fmtTime(at){if(!at)return'';const d=new Date(at);if(isNaN(d))return'';return d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+
 /* ── Load + group ── */
 async function initApp(){
   try{
-    const [{ data: dls, error: e1 }, { data: cl }, { data: mgrs }, { data: reps }] = await Promise.all([
-      sb.from('direct_leads').select('dl_number,dl_sf_id,property_id,homeowner_name,lead_source,set_by,original_rep,first_appt_date,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,appointments,opportunity_ids,sold,sold_contract_date,sold_rep,properties(property_id,town,county,dnc,sold,quality_flags)').order('last_appt_date',{ascending:false}),
+    let dls;
+    try{ dls = await fetchAllDL(); }
+    catch(e1){document.getElementById('tableWrap').innerHTML='<div class="empty">Error loading leads: '+esc(e1.message)+'</div>';return;}
+    const [{ data: cl }, { data: mgrs }, { data: reps }] = await Promise.all([
       sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date'),
       sb.from('managers').select('name').order('name'),
       sb.from('reps').select('name').order('name'),
     ]);
-    if(e1){document.getElementById('tableWrap').innerHTML='<div class="empty">Error loading leads: '+esc(e1.message)+'</div>';return;}
     contacts = cl || [];
     const seen=new Set();people=[];
     for(const p of [...(mgrs||[]),...(reps||[])]){if(p&&p.name&&!seen.has(p.name)){seen.add(p.name);people.push(p.name);}}
@@ -314,6 +332,11 @@ function setTab(t){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   document.querySelectorAll('.tabpanel').forEach(p=>{p.style.display=(p.id==='tab-'+t)?'block':'none';});
 }
+function toggleExpandAll(){
+  expandAll=!expandAll;
+  const b=document.getElementById('expandAllBtn');if(b)b.textContent=expandAll?'Collapse all':'Expand all';
+  render();
+}
 
 /* ── Table ── */
 const STATE={noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],goback:['Go Back','b-goback'],nosale:['No Sale','b-nosale']};
@@ -327,7 +350,7 @@ function buildDetail(g){
     h+=`<div class="dl-row">${esc(d.dl_number)} &middot; ${stateBadge(d.lifecycle_state)} &middot; ${esc(d.homeowner_name||'')} &middot; rep ${esc(d.original_rep||'--')} &middot; ${esc(d.assigned_to||'unassigned')}${d.dl_sf_id?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(d.dl_sf_id))}">SF &nearr;</a>`:''}</div>`;
     const appts=d.appointments||[];
     if(!appts.length)h+='<div class="appt sub">No appointment detail.</div>';
-    else for(const a of appts){h+=`<div class="appt"><span class="appt-d">${fmtDate(a.date)}</span> <b>${esc(a.outcome||'--')}</b>${a.rep?' &middot; '+esc(a.rep):''}${a.notes?`<div class="appt-n">${esc(a.notes)}</div>`:''}</div>`;}
+    else for(const a of appts){h+=`<div class="appt"><span class="appt-d">${fmtDate(a.date)}${a.at?' '+fmtTime(a.at):''}</span> <b>${esc(a.outcome||'--')}</b>${a.rep?' &middot; '+esc(a.rep):''}${a.notes?`<div class="appt-n">${esc(a.notes)}</div>`:''}</div>`;}
   }
   const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
   const cs=contacts.filter(c=>ids.has(c.opportunity_id)).sort((a,b)=>(b.contacted_at||'').localeCompare(a.contacted_at||''));
@@ -388,6 +411,7 @@ function render(){
       <td>${link}</td>
       <td><button class="act danger" onclick="toggleDnc('${g.property.property_id||''}',${g.dnc})">${g.dnc?'Un-DNC':'DNC'}</button></td>
     </tr>`;
+    if(expandAll) h+='<tr class="detail"><td colspan="10">'+buildDetail(g)+'</td></tr>';
   }
   h+='</tbody></table>';
   document.getElementById('tableWrap').innerHTML=h;
