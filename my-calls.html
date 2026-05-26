@@ -59,6 +59,11 @@
   .empty,.loading{padding:36px;text-align:center;color:var(--muted)}
   #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:200}
   #toast.show{opacity:1}
+  /* A checkbox must not inherit the full-width / padded / bordered styling that .frow input gives text fields. */
+  .checkrow{display:flex;align-items:center;gap:8px;margin:8px 0 10px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer}
+  .checkrow input[type=checkbox],.frow input[type=checkbox]{width:18px;height:18px;flex:0 0 auto;margin:0;padding:0;border:1px solid var(--border);border-radius:4px;accent-color:var(--green);vertical-align:middle;cursor:pointer}
+  /* Stack the two-up rows on narrow tablets/phones so fields never overlap. */
+  @media (max-width:600px){.frow.two{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -240,6 +245,7 @@ function cardHtml(l){
           <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Appointment Set">Appt set</label>
           <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Voicemail">Voicemail</label>
           <label><input type="radio" name="oc-${esc(l.dl_number)}" value="No Answer">No answer</label>
+          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Sent SMS">Sent SMS</label>
         </div>
         <div class="frow two">
           <div><label>Homeowner state</label><select id="hs-${esc(l.dl_number)}">${HSTATES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
@@ -258,10 +264,8 @@ function cardHtml(l){
           <option value="">Keep current (${esc(l.lifecycle_state||'--')})</option>
           ${DISPO_EDIT.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('')}
         </select></div>
-        <div class="frow two">
-          <div><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink);font-weight:600;margin-top:18px"><input type="checkbox" id="sd-${esc(l.dl_number)}" onchange="var e=document.getElementById('sc-${esc(l.dl_number)}');e.disabled=!this.checked;if(this.checked&&!e.value)e.value=new Date().toISOString().slice(0,10)"> Mark sold from a call</label></div>
-          <div><label>Sold contract date</label><input id="sc-${esc(l.dl_number)}" type="date" disabled></div>
-        </div>
+        <label class="checkrow"><input type="checkbox" id="sd-${esc(l.dl_number)}" onchange="var w=document.getElementById('scwrap-${esc(l.dl_number)}');var e=document.getElementById('sc-${esc(l.dl_number)}');w.style.display=this.checked?'block':'none';if(this.checked&&!e.value)e.value=new Date().toISOString().slice(0,10)"> Mark sold from a call</label>
+        <div class="frow" id="scwrap-${esc(l.dl_number)}" style="display:none"><label>Sold contract date</label><input id="sc-${esc(l.dl_number)}" type="date"></div>
         <button class="btn-primary" onclick="saveLead('${esc(l.dl_number)}')">Save lead update</button>
       </div>`;
   return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
