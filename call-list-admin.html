@@ -450,12 +450,29 @@ th.sort-desc::after { content:' \2193'; color:var(--green); }
            + recent user_activity. See renderDailyPerformance() below. -->
       <div id="daily-performance" style="margin-bottom:24px;"></div>
       <div id="rep-cards" class="rep-grid"></div>
+      <style>
+        .dp-chart{display:flex;align-items:flex-end;gap:4px;height:140px;padding:10px 8px 0;background:#fff;border:1px solid #DFE2DA;border-radius:10px;margin-bottom:6px}
+        .dp-bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+        .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.35;white-space:nowrap;text-align:center;z-index:5;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
+        .dp-bar:hover .dp-tip{display:block}
+        .dp-stack{display:flex;flex-direction:column-reverse;width:62%;min-width:6px}
+        .dp-seg{width:100%}
+        .dp-seg.appt{background:#3a7010;border-radius:2px 2px 0 0}
+        .dp-seg.reached{background:#78C832}
+        .dp-seg.noanswer{background:#cbd3dc}
+        .dp-xlabel{font-size:10px;color:#9aa7b4;margin-top:4px}
+        .dp-today{color:#3a7010;font-weight:700}
+        .dp-legend{display:flex;gap:14px;margin:6px 2px 0;font-size:11px;color:#6b7a8d}
+        .dp-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+        .dp-dot.appt{background:#3a7010}.dp-dot.reached{background:#78C832}.dp-dot.noanswer{background:#cbd3dc}
+      </style>
       <div id="rep-detail" style="display:none;">
         <div class="section-head" style="margin-bottom:16px;">
           <span class="section-title" id="rep-detail-name"></span>
           <button class="filter-btn" onclick="clearRepSelection()">Clear selection</button>
         </div>
-        <div class="stat-grid" id="rep-stat-grid" style="margin-bottom:20px;"></div>
+        <div class="stat-grid" id="rep-stat-grid" style="margin-bottom:16px;"></div>
+        <div id="rep-daily-chart" style="margin-bottom:20px;"></div>
         <div class="table-wrap">
           <table>
             <thead>
@@ -1251,6 +1268,29 @@ function sparklineSvg(series, peakDay) {
   return `<svg width="${w}" height="${maxH}" viewBox="0 0 ${w} ${maxH}" style="display:block">${bars}</svg>`;
 }
 
+function repDailyChart(contacts){
+  const WIN=21;
+  const today=new Date();today.setHours(0,0,0,0);
+  const slots=[],byKey={};
+  for(let i=WIN-1;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);const s={date:d,key:k,appt:0,reached:0,noanswer:0,total:0};slots.push(s);byKey[k]=s;}
+  for(const c of (contacts||[])){const ts=c.contacted_at||c.created_at;if(!ts)continue;const s=byKey[String(ts).slice(0,10)];if(!s)continue;const o=c.outcome;if(o==='Appointment Set')s.appt++;else if(o==='Reached')s.reached++;else s.noanswer++;s.total++;}
+  const max=Math.max(1,...slots.map(s=>s.total));
+  const H=120,todayKey=today.toISOString().slice(0,10);
+  const h=n=>n?Math.max(3,Math.round(n/max*H)):0;
+  const seg=(n,cls)=>n?`<div class="dp-seg ${cls}" style="height:${h(n)}px"></div>`:'';
+  const bars=slots.map(s=>{
+    const dlabel=s.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const conn=s.reached+s.appt;
+    const tip=`${dlabel}: ${s.total} call${s.total===1?'':'s'}`+(s.total?` (${conn} connected${s.appt?', '+s.appt+' appt':''}, ${s.noanswer} no answer)`:'');
+    const tipHtml=`<div class="dp-tip"><b>${dlabel}</b><br>${s.total} call${s.total===1?'':'s'}`+(s.total?`<br>${conn} connected${s.appt?' ('+s.appt+' appt)':''}<br>${s.noanswer} no answer`:'')+`</div>`;
+    return `<div class="dp-bar" title="${tip}">${tipHtml}<div class="dp-stack">${seg(s.noanswer,'noanswer')}${seg(s.reached,'reached')}${seg(s.appt,'appt')}</div><div class="dp-xlabel${s.key===todayKey?' dp-today':''}">${s.date.getDate()}</div></div>`;
+  }).join('');
+  const tot=slots.reduce((a,s)=>{a.c+=s.total;a.r+=s.reached+s.appt;a.a+=s.appt;return a;},{c:0,r:0,a:0});
+  return `<div class="section-head" style="margin:4px 0 8px"><span class="section-title">Daily call activity -- last ${WIN} days</span><span style="font-size:12px;color:var(--text-muted)">${tot.c} calls &middot; ${tot.r} connected &middot; ${tot.a} appts set</span></div>
+    <div class="dp-chart">${bars}</div>
+    <div class="dp-legend"><span><i class="dp-dot appt"></i>Appt set</span><span><i class="dp-dot reached"></i>Reached, no appt</span><span><i class="dp-dot noanswer"></i>No answer</span></div>`;
+}
+
 function renderDailyPerformance() {
   const rows = computeDailyPerformance();
   if (!rows.length) {
@@ -1523,6 +1563,9 @@ function renderRepDetail(name) {
     {label:'Appts Set',  value:setCount, color:'#3a7010'},
     {label:'Resolved',   value:resolved, color:''},
   ].map(s => `<div class="stat-card" style="padding:12px 16px;"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:22px;${s.color?'color:'+s.color+';':''}">${s.value}</div></div>`).join('');
+
+  const repContacts = repLeads.flatMap(l => contactMap[l.opportunity_id] || []);
+  document.getElementById('rep-daily-chart').innerHTML = repDailyChart(repContacts);
 
   const tbody = document.getElementById('rep-leads-tbody');
   if (!repLeads.length) {
