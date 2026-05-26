@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Objection Handling | CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --red: #E84040;
+  --red-dk: #C53030;
+  --warn: #E9A648;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --surface: #F7F8F4;
+  --warm: #FAFBF7;
+  --white: #FFFFFF;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 96px; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); font-variation-settings: "opsz" 144; line-height: 1.05; font-weight: 400; }
+h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-variation-settings: "opsz" 72; line-height: 1.15; font-weight: 500; margin-bottom: 14px; }
+h3 { font-size: 1.2rem; font-weight: 600; line-height: 1.3; margin-bottom: 10px; }
+h4 { font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; color: var(--ink); }
+p { margin-bottom: 12px; color: var(--text); }
+ul, ol { padding-left: 22px; margin-bottom: 12px; }
+li { margin-bottom: 6px; color: var(--text); }
+strong { font-weight: 700; color: var(--ink); }
+em { font-style: italic; }
+a { color: var(--blue-dk); text-decoration: none; }
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 10px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+
+/* HEADER */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header { background: var(--ink); color: #fff; padding: 14px 0; border-bottom: 3px solid var(--red); }
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .logo { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+.brand .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.2); }
+.brand .team { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.7); }
+.page-title { font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* TOC NAV */
+.toc-nav { background: linear-gradient(to bottom, #fff 0%, var(--warm) 100%); border-bottom: 1px solid var(--line); box-shadow: 0 4px 12px rgba(15,32,56,0.05); overflow-x: auto; scrollbar-width: none; }
+.toc-nav::-webkit-scrollbar { display: none; }
+.toc-nav .wrap { display: flex; gap: 0; align-items: stretch; }
+.toc-nav a { font-size: 0.8125rem; font-weight: 600; color: var(--muted); text-decoration: none; padding: 13px 16px; border-bottom: 3px solid transparent; white-space: nowrap; transition: color 0.15s, border-color 0.15s; display: flex; align-items: center; gap: 7px; }
+.toc-nav a .num { font-size: 0.66rem; font-weight: 800; background: var(--line); color: var(--muted); border-radius: 999px; padding: 1px 7px; line-height: 1.45; }
+.toc-nav a:hover { color: var(--ink); border-bottom-color: var(--red); }
+.toc-nav a.active { color: var(--ink); border-bottom-color: var(--red); }
+
+/* HERO */
+.hero { background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%); color: #fff; padding: 28px 0 60px; position: relative; overflow: hidden; }
+.hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 50% 40% at 20% 50%, rgba(232,64,64,0.16) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 80% 50%, rgba(41,169,225,0.18) 0%, transparent 60%); pointer-events: none; }
+.hero .wrap { position: relative; z-index: 1; }
+.hero .eyebrow { color: var(--red); }
+.hero h1 { color: #fff; max-width: 820px; margin-bottom: 22px; }
+.hero h1 em { font-style: italic; background: linear-gradient(135deg, var(--red), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .lede { font-size: 1.15rem; line-height: 1.55; color: rgba(255,255,255,0.78); max-width: 640px; }
+.hero .lede strong { color: #fff; font-weight: 600; }
+
+/* PRINCIPLE STRIP */
+.principles { background: var(--white); border-bottom: 1px solid var(--line); }
+.principles .wrap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+.principle { padding: 28px 18px; text-align: center; border-right: 1px solid var(--line-soft); }
+.principle:last-child { border-right: none; }
+.principle .num { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 400; color: var(--red); line-height: 1; margin-bottom: 8px; }
+.principle .num.alt { color: var(--blue); }
+.principle .label { font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.principle .sub { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+@media (max-width: 720px) { .principles .wrap { grid-template-columns: repeat(2, 1fr); } .principle { border-bottom: 1px solid var(--line-soft); } .principle:nth-child(2n) { border-right: none; } }
+
+/* SECTIONS */
+.section { padding: 28px 0 64px; border-bottom: 1px solid var(--line); }
+.section.alt { background: var(--warm); }
+.section-header { margin-bottom: 32px; max-width: 760px; }
+.section-header p { color: var(--muted); font-size: 1.05rem; margin: 0; }
+
+/* CARDS */
+.card { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px 28px; box-shadow: var(--shadow-sm); margin-bottom: 16px; }
+.card.green-left { border-left: 4px solid var(--green); }
+.card.blue-left { border-left: 4px solid var(--blue); }
+.card.ink-left { border-left: 4px solid var(--ink); }
+.card.warm-left { border-left: 4px solid var(--warn); }
+.card.red-left { border-left: 4px solid var(--red); }
+.card h3 { margin-bottom: 10px; }
+
+/* GRID LAYOUTS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .three-col { grid-template-columns: 1fr; } }
+.four-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+@media (max-width: 900px) { .four-col { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .four-col { grid-template-columns: 1fr; } }
+
+/* PULL QUOTE */
+.pullquote { font-family: 'Fraunces', serif; font-size: 1.5rem; font-style: italic; font-weight: 400; line-height: 1.35; color: var(--ink); padding: 30px 36px; border-left: 4px solid var(--red); background: var(--warm); border-radius: 0 var(--r-md) var(--r-md) 0; margin: 24px 0; }
+.pullquote .attr { display: block; font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-top: 14px; }
+
+/* TIP STRIP */
+.tip { background: linear-gradient(135deg, rgba(232,64,64,0.06), rgba(41,169,225,0.06)); border: 1px solid rgba(232,64,64,0.22); border-radius: var(--r-md); padding: 14px 20px; font-size: 0.95rem; margin: 14px 0; }
+.tip strong { color: var(--red-dk); }
+.tip.warn { background: rgba(233,166,72,0.10); border-color: rgba(233,166,72,0.4); }
+.tip.warn strong { color: #B07A1E; }
+
+/* STEPS */
+.steps { display: grid; gap: 14px; }
+.step { display: grid; grid-template-columns: 56px 1fr; gap: 18px; align-items: start; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 22px; box-shadow: var(--shadow-sm); }
+.step .num { font-family: 'Fraunces', serif; font-size: 2.1rem; font-weight: 400; color: var(--red); line-height: 1; }
+.step .body h4 { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink); margin-bottom: 4px; }
+.step .body p { margin: 0 0 8px; font-size: 0.95rem; color: var(--text); }
+
+/* SCRIPT BLOCK */
+.script { background: rgba(41,169,225,0.06); border-left: 3px solid var(--blue); padding: 12px 18px; margin: 10px 0; font-style: italic; color: var(--ink-soft); font-size: 0.95rem; border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+
+/* DISC GRID */
+.disc-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 20px; box-shadow: var(--shadow-sm); border-top: 3px solid var(--line); }
+.disc-card.d { border-top-color: var(--red); }
+.disc-card.i { border-top-color: var(--warn); }
+.disc-card.s { border-top-color: var(--green); }
+.disc-card.c { border-top-color: var(--blue); }
+.disc-card .letter { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 500; line-height: 1; margin-bottom: 6px; }
+.disc-card.d .letter { color: var(--red); }
+.disc-card.i .letter { color: var(--warn); }
+.disc-card.s .letter { color: var(--green-dk); }
+.disc-card.c .letter { color: var(--blue-dk); }
+.disc-card .role { font-size: 0.8rem; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+.disc-card p { font-size: 0.88rem; color: var(--muted); margin: 0; line-height: 1.5; }
+
+/* REFERENCE TABLE */
+.ref-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.ref-table th { background: var(--ink); color: #fff; text-align: left; padding: 10px 14px; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+.ref-table td { padding: 9px 14px; border-top: 1px solid var(--line-soft); color: var(--text); }
+.ref-table tr:nth-child(even) td { background: var(--warm); }
+.ref-table .v { font-weight: 700; color: var(--ink); white-space: nowrap; }
+
+/* OBJECTION LIBRARY */
+.filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; padding: 14px; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); }
+.filter-pill { background: var(--surface); border: 1px solid var(--line); color: var(--muted); padding: 6px 14px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.filter-pill:hover { color: var(--ink); border-color: var(--ink); }
+.filter-pill.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.notes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+@media (max-width: 720px) { .notes { grid-template-columns: 1fr; } }
+.obj-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px 18px; box-shadow: var(--shadow-sm); font-size: 0.92rem; line-height: 1.5; transition: opacity 0.2s; }
+.obj-card.hidden { display: none; }
+.obj-card .tag { display: inline-block; font-size: 0.64rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-bottom: 8px; background: rgba(91,101,118,0.14); color: var(--ink-soft); }
+.tag.financial { background: rgba(120,200,50,0.16); color: var(--green-dk); }
+.tag.decision { background: rgba(41,169,225,0.14); color: var(--blue-dk); }
+.tag.roof { background: rgba(233,166,72,0.18); color: #B07A1E; }
+.tag.performance { background: rgba(41,169,225,0.12); color: var(--blue-dk); }
+.tag.moving { background: rgba(120,200,50,0.14); color: var(--green-dk); }
+.tag.reputation { background: rgba(232,64,64,0.12); color: var(--red-dk); }
+.tag.utility { background: rgba(15,32,56,0.10); color: var(--ink); }
+.tag.timing { background: rgba(233,166,72,0.18); color: #B07A1E; }
+.tag.battery { background: rgba(41,169,225,0.14); color: var(--blue-dk); }
+.tag.hoa { background: rgba(91,101,118,0.14); color: var(--ink-soft); }
+.tag.door { background: rgba(232,64,64,0.12); color: var(--red-dk); }
+.obj-card .obj-title { font-family: 'Fraunces', serif; font-size: 1.02rem; font-weight: 600; color: var(--ink); margin-bottom: 6px; line-height: 1.25; }
+.obj-card .surface { font-style: italic; color: var(--muted); margin: 0 0 8px; font-size: 0.88rem; }
+.obj-card .resp { color: var(--ink-soft); margin: 0; }
+.obj-card .resp strong { color: var(--ink); }
+
+/* CLOSER */
+.closer { background: var(--ink); color: #fff; padding: 60px 0; text-align: center; }
+.closer h2 { color: #fff; margin-bottom: 28px; }
+.closer .one-liners { display: grid; gap: 12px; max-width: 740px; margin: 0 auto; text-align: left; }
+.closer .one { background: rgba(255,255,255,0.04); border-left: 3px solid var(--red); padding: 12px 22px; font-family: 'Fraunces', serif; font-size: 1.05rem; font-style: italic; color: rgba(255,255,255,0.92); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.closer .signoff { margin-top: 36px; font-size: 0.85rem; color: rgba(255,255,255,0.5); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* FOOTER */
+.foot { padding: 30px 0; text-align: center; font-size: 0.82rem; color: var(--muted); background: var(--warm); }
+.divider-rule { height: 2px; background: linear-gradient(to right, var(--red), var(--blue)); border: none; margin: 30px 0; opacity: 0.4; }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">Sales Resource · Field Mastery</div>
+    </div>
+  </div>
+
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#foundations"><span class="num">1</span> Foundations</a>
+      <a href="#techniques"><span class="num">2</span> Four Techniques</a>
+      <a href="#principles"><span class="num">3</span> Three Principles</a>
+      <a href="#disc"><span class="num">4</span> Read by DISC</a>
+      <a href="#compliance"><span class="num">5</span> Compliance</a>
+      <a href="#library"><span class="num">6</span> Objection Library</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Field Mastery · The Kitchen Table</span>
+    <h1>Objection <em>Handling</em></h1>
+    <p class="lede">
+      An objection is not a wall. It is the homeowner telling you what they need before they can say yes.
+      <br><br>
+      <strong>The rep who seems unfazed by the hardest objection is the one who closes.</strong>
+      Underreact, find the real concern under the words, and let them talk their way to the answer.
+    </p>
+  </div>
+</section>
+
+<!-- FOUR TECHNIQUES STRIP -->
+<section class="principles">
+  <div class="wrap">
+    <div class="principle">
+      <div class="num">01</div>
+      <div class="label">Be Proactive</div>
+      <div class="sub">Raise it before they do</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">02</div>
+      <div class="label">Hot Potato</div>
+      <div class="sub">They answer their own question</div>
+    </div>
+    <div class="principle">
+      <div class="num">03</div>
+      <div class="label">Short, Then Long</div>
+      <div class="sub">Punchline first</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">04</div>
+      <div class="label">Read the Room</div>
+      <div class="sub">Stop when it's handled</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: FOUNDATIONS -->
+<section class="section" id="foundations">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 1 · Foundations</span>
+      <h2>Two Truths That Keep You in Control</h2>
+      <p>Before any specific rebuttal, two beliefs keep you confident no matter how the conversation goes.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="card red-left">
+        <h3>Not every question is valid</h3>
+        <p>Separate a real question from tire-kicking. Some homeowners don't yet know what they're actually afraid of. Your job is to help them get there. Find the subtitle to what they said.</p>
+      </div>
+      <div class="card blue-left">
+        <h3>The motivation to ask always is</h3>
+        <p>Even a prickly or condescending homeowner is just trying to do right by their family. Hold that, and you stay in a position of power regardless of their tone.</p>
+      </div>
+    </div>
+
+    <div class="pullquote">
+      "The homeowner watches how you react more than they listen to what you say."
+      <span class="attr">The Golden Rule</span>
+    </div>
+
+    <div class="card ink-left">
+      <h3>Don't change a thing</h3>
+      <p>When an objection lands, hold your pitch, pace, tone, and body language. The goal is to underreact. Nod. Count to three. Sit up straighter.</p>
+      <p style="margin-bottom:0;"><strong>Body language:</strong> sit up, not back. Hands open on the table, wrists up. Clasped hands read as nervous. No crossed arms. If they bring an attitude, look slightly surprised, and make them respect you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: FOUR TECHNIQUES -->
+<section class="section alt" id="techniques">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 2 · The Mechanics</span>
+      <h2>Four Core Techniques</h2>
+      <p>These work on any objection, in any product. Learn the move, not just the line.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <h4>Be Proactive</h4>
+          <p>The most powerful move with a common objection is raising it before they do. Name it, and you go from stranger to expert in one sentence.</p>
+          <div class="script">"Everyone asks what happens when it snows, so let me get ahead of it."</div>
+          <p style="margin-bottom:0;"><strong>The four to always pre-empt:</strong> what happens when it snows, what happens when I move, what happens to my roof, what will I actually save.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="body">
+          <h4>Hot Potato</h4>
+          <p>Get them to answer their own question by responding with a question. People believe what comes out of their own mouth far more than anything you say.</p>
+          <div class="script">"What have you heard about that?" / "Why do you think that would ever be a problem?"</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="body">
+          <h4>Short Answer, Long Answer</h4>
+          <p>Get to the punchline first, then back it up. Long-winded routes erode trust. If you need too many words to explain something, you don't know it well enough yet. Give the direct answer, even when it's uncomfortable, then elaborate once their guard is down.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div class="body">
+          <h4>Read the Room</h4>
+          <p>Reps talk themselves out of more sales than customers ever do. When the homeowner has nodded, settled, and relaxed, stop. Always verify before moving on.</p>
+          <div class="script">"Did that answer your question?"</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: THREE PRINCIPLES -->
+<section class="section" id="principles">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 3 · Keep These Close</span>
+      <h2>Three Principles</h2>
+      <p>The framing tools that prevent objections instead of just answering them.</p>
+    </div>
+
+    <div class="card green-left">
+      <h3>Feel, Felt, Found</h3>
+      <p>For any late-stage emotional hesitation. It validates without agreeing, bridges to social proof, and never argues.</p>
+      <div class="script">"I understand how you feel. A lot of my customers have felt the same way. What they found was..."</div>
+    </div>
+
+    <div class="card blue-left">
+      <h3>"Think About It" Is Preventable</h3>
+      <p>If you get this at the closing appointment, the first visit wasn't set up correctly. When expectations are right, the close is a confirmation, not a surprise. Set every closing this way:</p>
+      <div class="script">"Nobody is committing today. My job is just to make sure everything makes sense. If it still looks like a win-win, great. If not, no problem."</div>
+    </div>
+
+    <div class="card warm-left">
+      <h3>The One-Legger Rule</h3>
+      <p>If you sit with one spouse and don't sell them on the concept before leaving, they cancel about 80% of the time. Sell the concept to whoever is there, why solar, why Trinity, why now, then set a hard return with both present.</p>
+      <div class="script">"What do you think your spouse is going to like about this?" Then: "Don't try to sell them before I get back. Just make sure they'll let me in."</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: READ BY DISC -->
+<section class="section alt" id="disc">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 4 · Who You're Talking To</span>
+      <h2>Read the Objection by DISC</h2>
+      <p>The same words mean different things from different people. How they object tells you how to answer.</p>
+    </div>
+
+    <div class="four-col">
+      <div class="disc-card d">
+        <div class="letter">D</div>
+        <div class="role">Driver</div>
+        <p>States objections bluntly and expects direct answers. Goes cold under pressure. Give them control, specific numbers, and get to the point.</p>
+      </div>
+      <div class="disc-card i">
+        <div class="letter">I</div>
+        <div class="role">Expressive</div>
+        <p>Won't object directly. Their energy shifts instead. Watch for subject changes and vagueness. Move when they get excited.</p>
+      </div>
+      <div class="disc-card s">
+        <div class="letter">S</div>
+        <div class="role">Amiable</div>
+        <p>The most common user of "let me think about it" and the absent-spouse shield. The real concern is almost always unstated. Never push. Open them up in discovery.</p>
+      </div>
+      <div class="disc-card c">
+        <div class="letter">C</div>
+        <div class="role">Analytical</div>
+        <p>Challenges with data and expects data back. A green light looks like next-step questions. Welcome their research. Defensiveness loses them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: COMPLIANCE -->
+<section class="section" id="compliance">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 5 · Non-Negotiable</span>
+      <h2>Compliance Rules</h2>
+      <p>Handling an objection never means saying something inaccurate. These are current as of 2026 and they are not optional.</p>
+    </div>
+
+    <div class="tip warn">
+      <strong>ITC:</strong> The 30% federal credit expired December 31, 2025 for cash and loan. Never mention it as a homeowner benefit on an owned system. Section 48E applies to PPA/TPO systems beginning construction before July 4, 2026. Present it accurately, for the right product only.
+    </div>
+    <div class="tip warn">
+      <strong>SB4 non-bypassable charge:</strong> 3.25 cents per kWh on all solar production for customers interconnecting on or after January 1, 2026. Disclose it proactively in every savings conversation. Never bury it.
+    </div>
+    <div class="tip warn">
+      <strong>CT rate cut (May 2026):</strong> PURA approved a 4.3 cents per kWh decrease effective May 1, 2026. It is temporary. Eversource has stated higher bills are coming as deferred storm costs are recovered. Use the two-lane approach. Do not argue "rates always keep going up."
+    </div>
+    <div class="tip warn">
+      <strong>Financing:</strong> Do not recommend CT Green Bank loans. Redirect to GoodLeap, SunLight, or Service Finance. <strong>RRES:</strong> no active application for new CT solar customers, so do not use it. <strong>Home premium:</strong> 6.9% (roughly $25,000 to $29,000 on a typical CT home). The old "20% faster" stat is retired.
+    </div>
+
+    <h3 style="margin-top:32px;">CT Market Quick Reference</h3>
+    <table class="ref-table">
+      <thead><tr><th>Data point</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Trinity target PPA rate</td><td class="v">22.9 cents/kWh</td><td>The goal, not always enforced</td></tr>
+        <tr><td>Eversource rate (May 2026+)</td><td class="v">~26 cents/kWh</td><td>Down from 30.2 cents, temporary</td></tr>
+        <tr><td>CT rate history</td><td class="v">10.9 to 30.2 cents</td><td>177% increase, 2000 to 2025</td></tr>
+        <tr><td>Monthly cost of delay</td><td class="v">$300 to $800</td><td>CT rates vs a locked PPA</td></tr>
+        <tr><td>Panel degradation</td><td class="v">0.4 to 0.5%/yr</td><td>~91% output at year 25</td></tr>
+        <tr><td>Powerwall 3 (standard ESS)</td><td class="v">~$930/yr</td><td>~$9,300 over 10 years</td></tr>
+        <tr><td>HOA law</td><td class="v">Jan 2023</td><td>CT prohibits blocking rooftop solar</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SECTION 6: OBJECTION LIBRARY -->
+<section class="section alt" id="library">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 6 · The Library</span>
+      <h2>The Objection Library</h2>
+      <p>Filter by type. Each card gives the surface line, then the response that works. Learn the reframe, then put it in your own words.</p>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-pill active" data-filter="all">All</button>
+      <button class="filter-pill" data-filter="financial">Financial</button>
+      <button class="filter-pill" data-filter="decision">Decision-Maker</button>
+      <button class="filter-pill" data-filter="roof">Roof &amp; Home</button>
+      <button class="filter-pill" data-filter="performance">Performance</button>
+      <button class="filter-pill" data-filter="moving">Moving</button>
+      <button class="filter-pill" data-filter="reputation">Reputation</button>
+      <button class="filter-pill" data-filter="utility">Utility &amp; Policy</button>
+      <button class="filter-pill" data-filter="timing">Timing &amp; Urgency</button>
+      <button class="filter-pill" data-filter="battery">Battery</button>
+      <button class="filter-pill" data-filter="hoa">HOA &amp; Looks</button>
+      <button class="filter-pill" data-filter="door">Door</button>
+    </div>
+
+    <div class="notes">
+
+      <div class="obj-card" data-cat="financial">
+        <span class="tag financial">Financial</span>
+        <div class="obj-title">"It's too expensive"</div>
+        <p class="surface">"That's a lot of money." / "Way out of our budget."</p>
+        <p class="resp">Never defend the price. Reframe to monthly. <strong>"You're already paying Eversource $X a month with no ceiling. We're talking about replacing that with $Y and locking it in."</strong> Know their actual bill before you present any number.</p>
+      </div>
+
+      <div class="obj-card" data-cat="financial">
+        <span class="tag financial">Financial</span>
+        <div class="obj-title">"I can't afford it right now"</div>
+        <p class="surface">"We're tight right now." / "Maybe in a year or two."</p>
+        <p class="resp">It's an information gap. They think they're buying something. <strong>"There's no cost to get started. We're replacing your Eversource bill with a lower number starting the day your system turns on."</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="financial">
+        <span class="tag financial">Financial</span>
+        <div class="obj-title">"I don't want another bill"</div>
+        <p class="surface">"I don't need another monthly payment."</p>
+        <p class="resp">One-sentence reframe, not a financing talk. <strong>"You're not adding a bill, you're replacing one. Your Eversource usage charges go away and get replaced with a lower solar payment."</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="financial">
+        <span class="tag financial">Financial</span>
+        <div class="obj-title">"Another company was cheaper"</div>
+        <p class="surface">"Can you do better?" / "SolarCo quoted me lower."</p>
+        <p class="resp">The Walk-Around Close. Acknowledge you can't speak to what they include. Differentiate on transparency. Then: <strong>"Let's walk your home together right now, meter, panel, attic. If everything's clean, I'll call my manager."</strong> Never drop price first or say they cut corners.</p>
+      </div>
+
+      <div class="obj-card" data-cat="financial">
+        <span class="tag financial">Financial</span>
+        <div class="obj-title">"The numbers don't work"</div>
+        <p class="surface">"The savings aren't that impressive."</p>
+        <p class="resp">Savings were presented generically. <strong>"Out of curiosity, what would make it worth it to you?"</strong> Then anchor to their actual bill. Never quote a savings range.</p>
+      </div>
+
+      <div class="obj-card" data-cat="decision">
+        <span class="tag decision">Decision-Maker</span>
+        <div class="obj-title">"I need to talk to my spouse"</div>
+        <p class="surface">"My husband isn't home." / "We decide together."</p>
+        <p class="resp">Coach the present partner. Name the absent one. <strong>"When you talk to [name] tonight, what do you think will matter most to them?"</strong> Sell them the concept first, set the go-back with both confirmed. If you don't, they cancel about 80% of the time.</p>
+      </div>
+
+      <div class="obj-card" data-cat="decision">
+        <span class="tag decision">Decision-Maker</span>
+        <div class="obj-title">"We never decide on the first visit"</div>
+        <p class="surface">"We always sleep on big decisions."</p>
+        <p class="resp"><strong>"That's smart. What questions do you need answered before moving forward?"</strong> Frame the go-back as a signing appointment with a stated purpose, a date, a time, and both decision-makers confirmed.</p>
+      </div>
+
+      <div class="obj-card" data-cat="decision">
+        <span class="tag decision">Decision-Maker</span>
+        <div class="obj-title">"We'd like to think about it"</div>
+        <p class="surface">"Let us sleep on it." / "We'll reach out."</p>
+        <p class="resp">Almost never about time. It's a trust or information gap with no name yet. <strong>"What's the main thing on your mind, the program, the company, the timing, or something I haven't addressed?"</strong> Then: "What would need to be true to feel confident today?"</p>
+      </div>
+
+      <div class="obj-card" data-cat="roof">
+        <span class="tag roof">Roof &amp; Home</span>
+        <div class="obj-title">"My roof isn't in good shape"</div>
+        <p class="surface">"My roof is old." / "The shingles are bad."</p>
+        <p class="resp">Not a disqualifier, an opening. <strong>"That's something we handle together. If the roof needs work first, we can do both on one loan."</strong> Ask every homeowner "How do you feel about your roof?" even when it looks fine.</p>
+      </div>
+
+      <div class="obj-card" data-cat="roof">
+        <span class="tag roof">Roof &amp; Home</span>
+        <div class="obj-title">"What if I need a new roof after solar?"</div>
+        <p class="surface">"What if the panels have to come off?"</p>
+        <p class="resp"><strong>"Panels can be temporarily removed and reinstalled. We assess every roof before installation, so we catch this upfront. Many customers bundle both for exactly this reason."</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="roof">
+        <span class="tag roof">Roof &amp; Home</span>
+        <div class="obj-title">"I don't want holes in my roof"</div>
+        <p class="surface">"Won't the mounting cause leaks?"</p>
+        <p class="resp"><strong>"The mounts are engineered for waterproofing, sealed, and backed by a 25-year warranty. If anything ever happens, you call us."</strong> Anchor to the 25-year number. It does the work.</p>
+      </div>
+
+      <div class="obj-card" data-cat="roof">
+        <span class="tag roof">Roof &amp; Home</span>
+        <div class="obj-title">"Too much shade / wrong direction"</div>
+        <p class="surface">"I have big trees." / "My roof faces the wrong way."</p>
+        <p class="resp"><strong>"That's worth looking at specifically. Shading affects sizing, not necessarily viability. Let's get the data before we assume."</strong> No assessment, no answer. Never disqualify from the driveway.</p>
+      </div>
+
+      <div class="obj-card" data-cat="performance">
+        <span class="tag performance">Performance</span>
+        <div class="obj-title">"What happens when it snows?"</div>
+        <p class="surface">"Does it work in winter?"</p>
+        <p class="resp">Lead with efficiency. <strong>"Cold actually makes panels more efficient. Snow slides off fast because the panels are warm, black, and angled. Your estimate is built around CT's real climate."</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="performance">
+        <span class="tag performance">Performance</span>
+        <div class="obj-title">"What if I lose power?"</div>
+        <p class="surface">"What good is solar if the grid goes down?"</p>
+        <p class="resp">The battery opener. <strong>"Without storage, grid-tied solar shuts off in an outage. That's why a lot of customers pair it with a battery, and Connecticut has a program that pays you for owning one. Want me to walk you through it?"</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="performance">
+        <span class="tag performance">Performance</span>
+        <div class="obj-title">"I'm waiting for better technology"</div>
+        <p class="surface">"Shouldn't I wait?" / "Won't prices drop?"</p>
+        <p class="resp">A timing objection in disguise. <strong>"Solar always improves, same as a phone. But waiting means paying the utility every month. A better panel in five years doesn't recover what you paid Eversource while you waited."</strong> Tier 1 panels lose only 0.4 to 0.5% a year.</p>
+      </div>
+
+      <div class="obj-card" data-cat="moving">
+        <span class="tag moving">Moving</span>
+        <div class="obj-title">"What if I sell my home?"</div>
+        <p class="surface">"We might move in a few years."</p>
+        <p class="resp">Often a buying signal. <strong>"Homes with solar sell for about 6.9% more, roughly $25,000 on a typical CT home. A PPA transfers to the buyer easily."</strong> Analogy: it's like a pool, except with solar you're saving money, not spending it.</p>
+      </div>
+
+      <div class="obj-card" data-cat="reputation">
+        <span class="tag reputation">Reputation</span>
+        <div class="obj-title">"I don't trust solar companies"</div>
+        <p class="surface">"I've heard bad things." / "I've seen the scam stories."</p>
+        <p class="resp">Credential before you defend. <strong>"I'll walk you through every line of any agreement before we're near a signature. Nothing gets signed until you fully understand it."</strong> Trinity: 32 years, 125,000+ installs, BBB A+.</p>
+      </div>
+
+      <div class="obj-card" data-cat="reputation">
+        <span class="tag reputation">Reputation</span>
+        <div class="obj-title">"I read bad reviews"</div>
+        <p class="surface">"My neighbor had a bad experience." / "I Googled you."</p>
+        <p class="resp">Engage, never dismiss. <strong>"I appreciate you bringing that up. Can you tell me what you saw specifically? I'd rather address it directly than have it sit there."</strong> Then distinguish Trinity's process. Never say "every company has bad reviews."</p>
+      </div>
+
+      <div class="obj-card" data-cat="utility">
+        <span class="tag utility">Utility</span>
+        <div class="obj-title">"What if rates go down?"</div>
+        <p class="surface">"Didn't Eversource just cut rates?"</p>
+        <p class="resp">Two lanes. <strong>Lane 1:</strong> "What in your life is cheaper than it was 20 years ago?" <strong>Lane 2:</strong> "Eversource already said this cut is temporary and higher bills are coming." Get them to say rates won't drop before you show a number. Never argue.</p>
+      </div>
+
+      <div class="obj-card" data-cat="utility">
+        <span class="tag utility">Utility</span>
+        <div class="obj-title">"Do I still pay the utility?"</div>
+        <p class="surface">"Does solar eliminate my electric bill?"</p>
+        <p class="resp">Disclose proactively. <strong>"There's a small connection fee, usually $10 to $20 a month, and a state charge of 3.25 cents per kWh on production that we factor into your savings. Net result, your total electricity spend drops a lot."</strong> Never bury the SB4 charge.</p>
+      </div>
+
+      <div class="obj-card" data-cat="utility">
+        <span class="tag utility">Utility</span>
+        <div class="obj-title">"My utility won't allow solar"</div>
+        <p class="surface">"Does Eversource even support solar?"</p>
+        <p class="resp"><strong>"Eversource fully supports solar. They have a formal interconnection process and we manage all of it. We pull the permits, they inspect and approve, then you flip the switch."</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="timing">
+        <span class="tag timing">Timing</span>
+        <div class="obj-title">"How long does installation take?"</div>
+        <p class="surface">"How disruptive will it be?"</p>
+        <p class="resp">A buying question. Treat it that way. <strong>"Installation is 1 to 2 days and crews leave the property cleaner than they found it. Permitting runs 4 to 8 weeks and we manage all of it. Any preference on days of the week?"</strong> Move toward scheduling.</p>
+      </div>
+
+      <div class="obj-card" data-cat="timing">
+        <span class="tag timing">Timing</span>
+        <div class="obj-title">"What happens at the end of 25 years?"</div>
+        <p class="surface">"What are my options when it ends?"</p>
+        <p class="resp">Usually a buying signal. <strong>"You actually have four options:"</strong> renew, own it outright, have the panels removed, or upgrade to the latest technology. The list itself signals Trinity has thought it through.</p>
+      </div>
+
+      <div class="obj-card" data-cat="timing">
+        <span class="tag timing">Urgency</span>
+        <div class="obj-title">"Maybe next year"</div>
+        <p class="surface">"Let's revisit in the spring."</p>
+        <p class="resp">Make inaction concrete. <strong>"At your current rate, every month you wait is about $[bill delta] that stays with the utility instead of locked at your solar rate. Over a year that's roughly $[annual delta]."</strong> Not a rush, just all the numbers in front of them.</p>
+      </div>
+
+      <div class="obj-card" data-cat="timing">
+        <span class="tag timing">Urgency</span>
+        <div class="obj-title">"I'm waiting to see what happens politically"</div>
+        <p class="surface">"With all the changes I want to wait."</p>
+        <p class="resp">Make waiting feel riskier than acting. <strong>"Customers already on solar are grandfathered under their program terms. The ones who wait are exposed to whatever comes next. Acting now locks in today's rules."</strong> Never promise specific future programs.</p>
+      </div>
+
+      <div class="obj-card" data-cat="battery">
+        <span class="tag battery">Battery</span>
+        <div class="obj-title">"The battery ROI doesn't pencil out"</div>
+        <p class="surface">"The payback period is too long."</p>
+        <p class="resp">They're pricing it standalone. <strong>"Before the financial case, there's a Connecticut program that pays you for owning the battery, and it changes the math. Let me walk you through that first."</strong> Powerwall 3 earns ~$930/yr standard.</p>
+      </div>
+
+      <div class="obj-card" data-cat="battery">
+        <span class="tag battery">Battery</span>
+        <div class="obj-title">"I'll add the battery later"</div>
+        <p class="surface">"Can we just do solar first?"</p>
+        <p class="resp"><strong>"Adding it now versus later isn't the same cost. The crew is here and the electrical work is already happening, so the incremental cost is lower than a separate project. And the program rates aren't guaranteed to stay where they are."</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="battery">
+        <span class="tag battery">Battery</span>
+        <div class="obj-title">"I don't lose power that often"</div>
+        <p class="surface">"The grid is pretty reliable here."</p>
+        <p class="resp">You led with backup. They want savings. <strong>"Backup isn't the only reason. A lot of customers add it for savings, storing daytime solar to use at night instead of pulling at peak rates, and the program pays you for 10 years on top. Does that matter to you?"</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="battery">
+        <span class="tag battery">Battery</span>
+        <div class="obj-title">"I don't want the utility controlling my battery"</div>
+        <p class="surface">"What if I need it during an event?"</p>
+        <p class="resp">The rules are reassuring. Events run noon to 9pm, about 24 hours notice, roughly 3 hours. <strong>"Your backup reserve, set at 20% by default, is always protected. The utility can't touch it, and you can opt out of any event in the app with no penalty."</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="hoa">
+        <span class="tag hoa">HOA</span>
+        <div class="obj-title">"My HOA won't allow it"</div>
+        <p class="surface">"I need HOA approval."</p>
+        <p class="resp">The most underused CT fact on the team. <strong>"Connecticut law prohibits HOAs from blocking rooftop solar. They can regulate placement and appearance, but they can't say no. Let's get the design done so you have something concrete to show them."</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="hoa">
+        <span class="tag hoa">Looks</span>
+        <div class="obj-title">"I don't like how panels look"</div>
+        <p class="surface">"The panels look industrial."</p>
+        <p class="resp"><strong>"The older panels had a very different look. We use all-black panels now that blend with the roofline. I can show you installs on homes in your area."</strong> Show, don't describe. Local photos close this fast.</p>
+      </div>
+
+      <div class="obj-card" data-cat="door">
+        <span class="tag door">Door</span>
+        <div class="obj-title">"Not interested"</div>
+        <p class="surface">"We're all set."</p>
+        <p class="resp">A reflex, not an objection. <strong>"Totally get it, I'd probably say the same thing. Takes 60 seconds, fair enough?"</strong></p>
+      </div>
+
+      <div class="obj-card" data-cat="door">
+        <span class="tag door">Door</span>
+        <div class="obj-title">"I don't have time"</div>
+        <p class="surface">"Not a good time."</p>
+        <p class="resp"><strong>"I hear you. 60 seconds to see if it's worth your time later, fair enough?"</strong></p>
+      </div>
+
+    </div>
+
+    <div class="tip" style="margin-top: 24px;">
+      <strong>How to use the library:</strong> filter by type, pick a card, and role-play it out loud with a partner. Say the surface line, then deliver the response in your own words. Then ask the real test: <em>did that answer the question, or did it just fill the silence?</em>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section class="closer">
+  <div class="wrap">
+    <span class="eyebrow" style="color: var(--red);">The Field Manual</span>
+    <h2>One-Sentence Reminders</h2>
+    <div class="one-liners">
+      <div class="one">An objection is a request for information, not a wall.</div>
+      <div class="one">When it lands, don't change a thing. Underreact.</div>
+      <div class="one">Raise the common ones before they do.</div>
+      <div class="one">People believe what comes out of their own mouth.</div>
+      <div class="one">Punchline first. If it takes too many words, you don't know it well enough.</div>
+      <div class="one">"Think about it" at the close means the first visit wasn't set up right.</div>
+      <div class="one">Sell the one-legger the concept, or they cancel 80% of the time.</div>
+      <div class="one">Disclose the SB4 charge every time. Never bury it.</div>
+    </div>
+    <div class="signoff">CT Traditional · Trinity Solar · Built for the field</div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Distilled from the Trinity Total Home Customer Objections Field Guide and Rachel DiVenere's objection-handling training. Current as of 2026.
+  </div>
+</footer>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.toc-nav a');
+function highlightActiveSection() {
+  let current = '';
+  const scrollPos = window.scrollY + 200;
+  sections.forEach(section => {
+    const top = section.offsetTop;
+    const height = section.offsetHeight;
+    if (scrollPos >= top && scrollPos < top + height) { current = section.getAttribute('id'); }
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) { link.classList.add('active'); }
+  });
+}
+window.addEventListener('scroll', highlightActiveSection);
+window.addEventListener('load', highlightActiveSection);
+
+// Objection library filter
+const filterPills = document.querySelectorAll('.filter-pill');
+const objCards = document.querySelectorAll('.obj-card');
+filterPills.forEach(pill => {
+  pill.addEventListener('click', () => {
+    filterPills.forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    const filter = pill.dataset.filter;
+    objCards.forEach(card => {
+      if (filter === 'all' || card.dataset.cat === filter) { card.classList.remove('hidden'); }
+      else { card.classList.add('hidden'); }
+    });
+  });
+});
+</script>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session) { /* static page; nothing to init */ }
+</script>
+
+</body>
+</html>
