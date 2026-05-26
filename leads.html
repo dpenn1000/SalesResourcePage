@@ -725,7 +725,7 @@ const COOLDOWN_DAYS=14;
 function daysSince(d){if(!d)return null;const t=new Date(d).getTime();if(isNaN(t))return null;return Math.floor((Date.now()-t)/86400000);}
 function leadCategory(g){
   if(g.anySold)return 'sold';
-  if(g.dnc)return 'dnc';
+  if(g.dnc || g.primary.lifecycle_state==='dnc' || /forge/i.test(g.primary.lead_source||''))return 'dnc';
   const st=g.primary.lifecycle_state||'';
   if(st==='ready')return 'scheduled';
   if(st==='new'||st==='deleted')return 'callable';

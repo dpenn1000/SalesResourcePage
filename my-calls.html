@@ -192,13 +192,13 @@ async function loadLeads(){
   const target = window.IS_MANAGER ? VIEW_AS : ME;   // managers view a chosen rep; reps view themselves
   if(!target) return;                                // manager hasn't picked a rep yet
   try{
-    const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,properties(town,county)';
+    const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,properties(town,county,dnc)';
     const [{data:dl,error:e1},{data:cl}] = await Promise.all([
       sb.from('direct_leads').select(SEL).not('assigned_to','is',null).order('last_appt_date',{ascending:false,nullsFirst:false}),
       sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source').order('contacted_at',{ascending:false}),
     ]);
     if(e1)throw e1;
-    leads=(dl||[]).filter(l=>(l.assigned_to||'')===target);   // RLS scopes reps; managers fetch all assigned, filter to the chosen rep
+    leads=(dl||[]).filter(l=>(l.assigned_to||'')===target && !(l.properties&&l.properties.dnc) && !/forge/i.test(l.lead_source||''));   // scope to rep; never show DNC'd or Forge-source leads
     contacts=cl||[]; byOpp={};
     for(const c of contacts){(byOpp[c.opportunity_id]=byOpp[c.opportunity_id]||[]).push(c);}
     renderKpis(); render();
