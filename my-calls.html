@@ -64,6 +64,13 @@
   .checkrow input[type=checkbox],.frow input[type=checkbox]{width:18px;height:18px;flex:0 0 auto;margin:0;padding:0;border:1px solid var(--border);border-radius:4px;accent-color:var(--green);vertical-align:middle;cursor:pointer}
   /* Stack the two-up rows on narrow tablets/phones so fields never overlap. */
   @media (max-width:600px){.frow.two{grid-template-columns:1fr}}
+  .modal-ov{position:fixed;inset:0;background:rgba(20,30,50,.45);display:flex;align-items:center;justify-content:center;z-index:300;padding:16px}
+  .modal-card{background:var(--surface);border-radius:12px;max-width:470px;width:100%;padding:22px 24px;box-shadow:0 10px 34px rgba(0,0,0,.22);max-height:90vh;overflow:auto}
+  .modal-card h3{font-family:'Fraunces',serif;font-size:18px;margin-bottom:10px;color:var(--ink)}
+  .modal-card p{font-size:14px;margin-bottom:10px;color:var(--ink)}
+  .modal-card ul{margin:0 0 12px 18px;font-size:13.5px;color:var(--ink)}
+  .modal-card li{margin-bottom:6px}
+  .ticket-link{display:inline-block;margin-bottom:12px;font-size:13px;font-weight:700;color:#0b1120;background:var(--green);border-radius:7px;padding:8px 14px;text-decoration:none}
 </style>
 </head>
 <body>
@@ -103,6 +110,7 @@
     <div class="logo">T</div>
     <div class="htitle">My Call List <small id="userLabel"></small></div>
     <a class="guidebtn" href="/call-list-guide.html" target="_blank" rel="noopener">Call Guide</a>
+    <a class="hbtn" href="/" style="white-space:nowrap">&larr; Resource Center</a>
     <button class="hbtn" onclick="signOut()">Sign out</button>
   </header>
   <div class="wrap">
@@ -130,6 +138,21 @@
 
 <div id="toast"></div>
 
+<div id="apptModal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeApptModal()">
+  <div class="modal-card">
+    <h3>Setting or transferring an appointment?</h3>
+    <p>Appointments are booked through the Call Center, not in this tool. Open a ticket and choose the type that fits:</p>
+    <a class="ticket-link" href="https://helpdesk.trinitysolarsystems.com/support/catalog/items?category_id=11000206828" target="_blank" rel="noopener">Open a Call Center ticket &nearr;</a>
+    <ul>
+      <li><b>Lead Input:</b> for a lead that was 3+ months old.</li>
+      <li><b>Appointment Transfer:</b> to transfer ownership.</li>
+      <li><b>Appointment for Existing Customer:</b> rehashing a company appointment less than 3 months old.</li>
+    </ul>
+    <p>Reach out to your manager for assistance. Once the lead is in your name, keep the Salesforce Opportunity, Jobs, and Sales notes up to date.</p>
+    <button class="btn-primary" onclick="closeApptModal()">Got it</button>
+  </div>
+</div>
+
 <script>
 const sb = window.sb;            // shared client + session from /auth-gate.js
 const SF = 'https://trinity-solar.lightning.force.com/lightning/r/{}/view';
@@ -142,6 +165,8 @@ const DISPO={deleted:['Deleted (pre-run)','b-deleted'],noshow:['No Show','b-nosh
 const DISPO_EDIT=[['ready','Ready to dispatch'],['goback','Go-back scheduled'],['ran','Appointment ran'],['noshow','No show'],['cancel','Cancelled'],['nosale','No sale / not interested'],['sold','Sold'],['deleted','Deleted (pre-run)']];
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function apptNotice(){const m=document.getElementById('apptModal');if(m)m.style.display='flex';}
+function closeApptModal(){const m=document.getElementById('apptModal');if(m)m.style.display='none';}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function fmtDate(d){if(!d)return '--';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});}catch(e){return d;}}
 function isCallable(l){const s=l.lifecycle_state||'';return !l.sold && (s==='deleted'||s==='noshow'||s==='cancel'||s==='new');}
@@ -242,7 +267,7 @@ function cardHtml(l){
         <h4>${logHeading}</h4>
         <div class="radios" id="oc-${esc(l.dl_number)}">
           <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Reached" checked>Reached</label>
-          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Appointment Set">Appt set</label>
+          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Appointment Set" onchange="apptNotice()">Appt set</label>
           <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Voicemail">Voicemail</label>
           <label><input type="radio" name="oc-${esc(l.dl_number)}" value="No Answer">No answer</label>
           <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Sent SMS">Sent SMS</label>
