@@ -251,7 +251,7 @@ async function loadOnce() {
 
   const [{ data: contacts }, { data: leads }, { data: mgrs }, { data: reps }, { data: activity }] = await Promise.all([
     sb.from('contact_log').select('opportunity_id, outcome, contacted_at').gte('contacted_at', todayIso),
-    sb.from('call_list').select('opportunity_id, assigned_to').not('assigned_to','is',null),
+    sb.from('direct_leads').select('opportunity_ids, dl_number, assigned_to').not('assigned_to','is',null),
     sb.from('managers').select('name, auth_user_id'),
     sb.from('reps').select('name, auth_user_id'),
     sb.from('user_activity').select('auth_user_id, event_type, created_at').gt('created_at', since24h).order('created_at', { ascending: false }),
@@ -259,7 +259,7 @@ async function loadOnce() {
 
   // Build opp -> rep map
   const oppToRep = {};
-  for (const l of (leads || [])) oppToRep[l.opportunity_id] = l.assigned_to;
+  for (const l of (leads || [])) { (l.opportunity_ids || []).forEach(o => { oppToRep[o] = l.assigned_to; }); if (l.dl_number) oppToRep[l.dl_number] = l.assigned_to; }
 
   // Build user roster (skip Dan's personal Gmail backdoor and any without auth_user_id)
   const seen = new Set();

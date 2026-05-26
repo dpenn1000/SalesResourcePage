@@ -392,7 +392,7 @@ async function loadRepDetail(rep) {
     supa.from('shadow_logs').select('shadowed_rep_name, shadow_date, duration_minutes, status').eq('rep_id', repId).order('shadow_date', { ascending: false }),
     supa.from('help_requests').select('message, status, created_at').eq('rep_id', repId).order('created_at', { ascending: false }),
     supa.from('certs').select('id, name, stage, order_index').order('order_index'),
-    supa.from('call_list').select('opp_name, state, status, appt_date, lead_source').eq('assigned_to', nm).order('added_at', { ascending: false }).limit(300),
+    supa.from('direct_leads').select('opp_name:homeowner_name, state:lifecycle_state, status, appt_date:last_appt_date, lead_source').eq('assigned_to', nm).order('created_at', { ascending: false }).limit(300),
     supa.from('feedback_items').select('type, title, status, priority, created_at').eq('submitter_name', nm).order('created_at', { ascending: false }).limit(20),
   ]);
   // Call activity via RPC: server-side join of contact_log -> call_list on
