@@ -76,12 +76,12 @@
   .tab.active{color:var(--ink);border-bottom-color:var(--green)}
   .dp-plot{display:flex;align-items:flex-end;gap:3px;height:152px;padding:8px 10px 0;background:linear-gradient(180deg,#ffffff,#f6f8f3);border:1px solid var(--border);border-bottom:2px solid #d3d9dd;border-radius:10px 10px 0 0}
   .dp-col{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;height:100%;position:relative}
-  .dp-stack{display:flex;flex-direction:column-reverse;width:66%;min-width:6px}
+  .dp-stack{display:flex;flex-direction:column-reverse;width:66%;min-width:6px;box-shadow:0 0 0 1px rgba(26,35,50,.06)}
   .dp-seg{width:100%}
   .dp-seg.appt{background:linear-gradient(180deg,#5aa522,#3f7a16);border-radius:3px 3px 0 0}
   .dp-seg.reached{background:linear-gradient(180deg,#9ad657,#74bd33)}
   .dp-seg.sched{background:linear-gradient(180deg,#5a93bd,#3f6f96)}
-  .dp-seg.noanswer{background:linear-gradient(180deg,#c6ced8,#a4b1bf)}
+  .dp-seg.noanswer{background:linear-gradient(180deg,#9aa7b6,#7f8d9d)}
   .dp-seg:first-child{border-radius:0 0 2px 2px}
   .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.4;white-space:nowrap;text-align:left;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
   .dp-col:hover .dp-tip{display:block}
@@ -91,7 +91,7 @@
   .dp-today{color:#C88C00;font-weight:700}
   .dp-legend{display:flex;gap:14px;margin:8px 2px 0;font-size:11px;color:var(--muted);flex-wrap:wrap}
   .dp-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
-  .dp-dot.appt{background:linear-gradient(180deg,#5aa522,#3f7a16)}.dp-dot.reached{background:linear-gradient(180deg,#9ad657,#74bd33)}.dp-dot.sched{background:linear-gradient(180deg,#5a93bd,#3f6f96)}.dp-dot.noanswer{background:#b3bdc9}
+  .dp-dot.appt{background:linear-gradient(180deg,#5aa522,#3f7a16)}.dp-dot.reached{background:linear-gradient(180deg,#9ad657,#74bd33)}.dp-dot.sched{background:linear-gradient(180deg,#5a93bd,#3f6f96)}.dp-dot.noanswer{background:#8f9dac}
   .b-sched{background:rgba(41,169,225,.14);color:#1070a0}
   .b-callable{background:rgba(120,200,50,.18);color:#3a7010}
   .b-direct{background:rgba(184,119,15,.16);color:#8a5800;border:1px solid rgba(184,119,15,.45)}
@@ -470,7 +470,7 @@ function apptKind(outcome){
 function repApptChart(rep){
   const slots=buildDaySlots(30);
   for(const g of props)for(const d of g.dls){
-    if((d.assigned_to||d.original_rep||'')!==rep)continue;
+    if((d.assigned_to||'')!==rep)continue;
     for(const a of (d.appointments||[])){const s=slots.byKey[String(a.date||'').slice(0,10)];if(!s)continue;const k=apptKind(a.outcome);s.c[k]=(s.c[k]||0)+1;s.total++;}
   }
   const segs=[{k:'miss',cls:'noanswer',label:'No-show / cancel'},{k:'sched',cls:'sched',label:'Scheduled'},{k:'sat',cls:'reached',label:'Sat'},{k:'sold',cls:'appt',label:'Sold'}];
@@ -608,7 +608,9 @@ function render(){
 }
 
 /* ── Reps tab: per-rep lead-call detail (effective rep = assigned_to||original_rep) ── */
-function repOf(g){return g.primary.assigned_to||g.primary.original_rep||'';}
+/* Reps tab is about who leads are dispatched to (assigned_to), not who set the
+   appointment (original_rep). Only reps with assigned leads appear in the list. */
+function repOf(g){return g.primary.assigned_to||'';}
 function catBadge(c){const M={callable:['Callable','b-callable'],scheduled:['Scheduled','b-sched'],review:['Review','b-review'],cooldown:['Cooldown','b-cooldown'],sold:['Sold','b-sold'],dnc:['DNC','b-dnc'],other:['Other','']};const m=M[c]||['--',''];return `<span class="badge ${m[1]}">${m[0]}</span>`;}
 function toggleRepDetail(key){
   const row=document.getElementById('rr-'+key);if(!row)return;
