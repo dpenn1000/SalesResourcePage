@@ -117,6 +117,14 @@
   .btn-primary{background:var(--green);color:#0b1120;border:none;border-radius:8px;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
   .btn-primary:hover{filter:brightness(1.05)}
   .btn-primary:disabled{opacity:.6;cursor:default}
+  .dispatch-bar{display:flex;align-items:center;gap:10px;background:#1A2332;color:#fff;border-radius:10px;padding:10px 16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(15,32,56,.2);flex-wrap:wrap}
+  .dispatch-bar strong{font-size:15px}
+  .dispatch-bar .sub{color:rgba(255,255,255,.72)}
+  .dispatch-bar select{font-family:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink)}
+  .dispatch-bar .btn-primary{margin-top:0}
+  .dispatch-bar .act{color:#fff;border-color:rgba(255,255,255,.3)}
+  .dispatch-bar .act:hover{border-color:#fff;color:#fff}
+  .rowchk{width:16px;height:16px;cursor:pointer}
   .msg-ok{background:rgba(120,200,50,.12);color:#3a7010;border:1px solid rgba(120,200,50,.4);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
   .msg-err{background:rgba(214,48,48,.08);color:#a02020;border:1px solid rgba(214,48,48,.3);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
   .intake-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--border)}
@@ -200,6 +208,7 @@
           <option value="noshow">No Show</option><option value="cancel">Cancelled</option>
           <option value="goback">Go Back</option><option value="nosale">No Sale</option>
           <option value="ready">Scheduled</option><option value="ran">Ran</option><option value="new">New (manual)</option>
+          <option value="deleted">Deleted (pre-run)</option>
         </select>
         <select id="fType" onchange="render()" title="Direct leads belong to a rep -- don't dispatch them">
           <option value="">All types</option>
@@ -209,6 +218,13 @@
         </select>
         <label class="chk"><input type="checkbox" id="dupOnly" onchange="render()"> duplicates only</label>
         <button class="act" id="expandAllBtn" onclick="toggleExpandAll()" style="margin-left:auto">Expand all</button>
+      </div>
+      <div id="dispatchBar" class="dispatch-bar" style="display:none">
+        <strong id="dispatchCount">0 selected</strong>
+        <span class="sub">&rarr; dispatch to</span>
+        <select id="dispatchRep"><option value="">Choose rep...</option></select>
+        <button class="btn-primary" onclick="bulkDispatch()">Dispatch</button>
+        <button class="act" onclick="clearSel()">Clear</button>
       </div>
       <div id="tableWrap"><div class="loading">Loading leads...</div></div>
     </div>
@@ -361,6 +377,7 @@ async function initApp(){
     const rp=document.getElementById('repPick');
     for(const r of Object.keys(repCount).sort((a,b)=>repCount[b]-repCount[a]))rp.appendChild(new Option(`${r} (${repCount[r]})`,r));
     const la=document.getElementById('li_assign');for(const n of people)la.appendChild(new Option(n,n));
+    const dr=document.getElementById('dispatchRep');for(const n of people)dr.appendChild(new Option(n,n));
     renderKpis();renderTeamChart();renderDashDetail();render();
   }catch(err){
     document.getElementById('tableWrap').innerHTML='<div class="empty">Load failed: '+esc(err.message||err)+'</div>';
@@ -412,8 +429,8 @@ function renderDashDetail(){
   }
   /* one cohesive palette: green = good/go, steel = in-progress, slate = inert/neutral, amber = attention */
   const G={green:'linear-gradient(90deg,#5aa522,#7ec63f)',dgreen:'linear-gradient(90deg,#3f7a16,#5aa522)',steel:'linear-gradient(90deg,#3f6f96,#5a93bd)',slate:'linear-gradient(90deg,#6f7d8c,#95a3b1)',amber:'linear-gradient(90deg,#b8770f,#d99a2b)'};
-  const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Scheduled',sold:'Sold',dq:'DQ',new:'New (manual)',other:'Other'};
-  const DISPO={sold:G.dgreen,new:G.green,ready:G.steel,ran:G.steel,goback:G.steel,nosale:G.slate,noshow:G.amber,cancel:G.amber,dq:G.slate,other:G.slate};
+  const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Scheduled',sold:'Sold',dq:'DQ',new:'New (manual)',deleted:'Deleted (pre-run)',other:'Other'};
+  const DISPO={sold:G.dgreen,new:G.green,ready:G.steel,ran:G.steel,goback:G.steel,nosale:G.slate,noshow:G.amber,cancel:G.amber,dq:G.slate,deleted:G.amber,other:G.slate};
   const card=(title,obj,labmap,limit,colorFn,accent)=>{
     const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const max=Math.max(1,...ent.map(e=>e[1]));
@@ -492,9 +509,51 @@ function toggleExpandAll(){
   render();
 }
 
+/* ── Quick Dispatch: multi-select + bulk assign to a rep ── */
+let selected=new Set();   // primary dl_numbers currently checked
+function toggleSel(dl,on){if(on)selected.add(dl);else selected.delete(dl);updateDispatchBar();}
+function selectAllVisible(on){
+  document.querySelectorAll('#tableWrap .rowchk').forEach(cb=>{cb.checked=on;const dl=cb.dataset.dl;if(on)selected.add(dl);else selected.delete(dl);});
+  updateDispatchBar();
+}
+function clearSel(){selected.clear();document.querySelectorAll('#tableWrap .rowchk').forEach(cb=>cb.checked=false);const sa=document.getElementById('selAll');if(sa)sa.checked=false;updateDispatchBar();}
+function updateDispatchBar(){
+  const bar=document.getElementById('dispatchBar');if(!bar)return;
+  const n=selected.size;
+  bar.style.display=n?'flex':'none';
+  const c=document.getElementById('dispatchCount');if(c)c.textContent=n+' selected';
+  const sa=document.getElementById('selAll');
+  if(sa){const boxes=[...document.querySelectorAll('#tableWrap .rowchk')];sa.checked=boxes.length>0&&boxes.every(cb=>cb.checked);}
+}
+async function bulkDispatch(){
+  const rep=document.getElementById('dispatchRep').value;
+  if(!rep){toast('Choose a rep to dispatch to');return;}
+  const dls=[...selected];
+  if(!dls.length){toast('No leads selected');return;}
+  const m={};props.forEach(g=>{m[g.primary.dl_number]=g;});
+  let direct=0;for(const dl of dls){const g=m[dl];if(g&&leadType(g)==='direct'&&(g.primary.original_rep||'')!==rep)direct++;}
+  let msg=`Dispatch ${dls.length} lead${dls.length===1?'':'s'} to ${rep}?`;
+  if(direct)msg+=`\n\n${direct} of these are DIRECT (rep-owned) leads -- dispatching reassigns them away from their owner.`;
+  if(!confirm(msg))return;
+  const btn=document.querySelector('#dispatchBar .btn-primary');if(btn){btn.disabled=true;btn.textContent='Dispatching...';}
+  let done=0,failed=false;
+  for(let i=0;i<dls.length&&!failed;i+=100){     /* chunked so the URL stays short for hundreds */
+    const chunk=dls.slice(i,i+100);
+    const { data, error }=await sb.from('direct_leads').update({assigned_to:rep}).in('dl_number',chunk).select('dl_number');
+    if(error){toast('Dispatch failed: '+error.message);failed=true;break;}
+    const ok=new Set((data||[]).map(r=>r.dl_number));done+=ok.size;
+    for(const g of props)if(ok.has(g.primary.dl_number)){g.primary.assigned_to=rep;g.dls.forEach(d=>{if(d.dl_number===g.primary.dl_number)d.assigned_to=rep;});}
+  }
+  if(btn){btn.disabled=false;btn.textContent='Dispatch';}
+  if(failed)return;
+  if(!done){toast('Not permitted (need manager access).');return;}
+  toast(`Dispatched ${done} to ${rep}`);
+  clearSel();renderKpis();renderDashDetail();render();
+}
+
 /* ── Table ── */
 const STATE={noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],goback:['Go Back','b-goback'],nosale:['No Sale','b-nosale']};
-function stateBadge(s){const m=STATE[s];if(m)return `<span class="badge ${m[1]}">${m[0]}</span>`;const lbl={ready:'Scheduled',ran:'Ran',sold:'Sold',dq:'DQ',new:'New'}[s]||s||'--';return `<span class="badge">${esc(lbl)}</span>`;}
+function stateBadge(s){const m=STATE[s];if(m)return `<span class="badge ${m[1]}">${m[0]}</span>`;const lbl={ready:'Scheduled',ran:'Ran',sold:'Sold',dq:'DQ',new:'New',deleted:'Deleted (pre-run)'}[s]||s||'--';return `<span class="badge ${s==='deleted'?'b-noshow':''}">${esc(lbl)}</span>`;}
 function buildDetail(g){
   const p=g.primary;
   const meta=[['Lead source',p.lead_source],['Set by',p.set_by],['Original rep',p.original_rep],['First appt',fmtDate(p.first_appt_date)],['Appointments',p.appt_count],['County',g.property.county]];
@@ -518,7 +577,7 @@ function toggleDetail(key){
   const next=row.nextElementSibling;
   if(next&&next.classList.contains('detail')){next.remove();return;}
   const g=propByKey[key];if(!g)return;
-  row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="10">'+buildDetail(g)+'</td></tr>');
+  row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="11">'+buildDetail(g)+'</td></tr>');
 }
 /* ── Lead category: 2-week sat/Stage-2+ cooldown + manager review ──
    QC re-engagement targets are leads that NEVER sat (no-show / cancel).
@@ -536,7 +595,7 @@ function leadCategory(g){
   if(g.dnc)return 'dnc';
   const st=g.primary.lifecycle_state||'';
   if(st==='ready')return 'scheduled';
-  if(st==='new')return 'callable';
+  if(st==='new'||st==='deleted')return 'callable';
   if(QC_STATES.has(st))return 'callable';
   if(SAT_STATES.has(st)){
     if(g.primary.redispatch_approved)return 'callable';
@@ -579,8 +638,11 @@ function render(){
     return true;
   });
   rows.sort((a,b)=>{const sa=a.anySold?1:0,sb2=b.anySold?1:0;if(sa!==sb2)return sa-sb2;return (b.primary.last_appt_date||'').localeCompare(a.primary.last_appt_date||'');});
-  if(!rows.length){const vl=document.querySelector('#fView option:checked');document.getElementById('tableWrap').innerHTML='<div class="empty">No leads in the <b>'+esc(vl?vl.textContent:'current')+'</b> view'+(q?' matching &ldquo;'+esc(q)+'&rdquo;':'')+'. Try a different view filter'+(q?'':' or search by name')+'.</div>';return;}
-  let h='<table><thead><tr><th>Homeowner</th><th>Town</th><th>State</th><th>Status</th><th>Assigned</th><th>Last appt</th><th>Last outcome</th><th>Contacts</th><th>Salesforce</th><th></th></tr></thead><tbody>';
+  /* keep the bulk-dispatch selection scoped to what's currently shown */
+  const visDls=new Set(rows.map(g=>g.primary.dl_number));
+  selected=new Set([...selected].filter(d=>visDls.has(d)));
+  if(!rows.length){const vl=document.querySelector('#fView option:checked');document.getElementById('tableWrap').innerHTML='<div class="empty">No leads in the <b>'+esc(vl?vl.textContent:'current')+'</b> view'+(q?' matching &ldquo;'+esc(q)+'&rdquo;':'')+'. Try a different view filter'+(q?'':' or search by name')+'.</div>';updateDispatchBar();return;}
+  let h='<table><thead><tr><th style="width:30px"><input type="checkbox" id="selAll" onchange="selectAllVisible(this.checked)" title="Select all shown"></th><th>Homeowner</th><th>Town</th><th>State</th><th>Status</th><th>Assigned</th><th>Last appt</th><th>Last outcome</th><th>Contacts</th><th>Salesforce</th><th></th></tr></thead><tbody>';
   for(const g of rows){
     const p=g.primary;const town=g.property.town||'--';const county=g.property.county?` <span class="sub">(${esc(g.property.county)})</span>`:'';
     const dup=g.dls.length>1?` <span class="badge b-dup">${g.dls.length} leads</span>`:'';
@@ -594,6 +656,7 @@ function render(){
     const redispatchBtn=cat==='review'?`<button class="act review" onclick="approveRedispatch('${esc(p.dl_number)}')" title="Sat/Stage-2 lead${dsince!=null?', '+dsince+' days ago':''}. Approve to return it to the callable list.">Redispatch</button> `:'';
     const key=g.property.property_id||p.dl_number;propByKey[key]=g;
     h+=`<tr class="${g.anySold?'row-sold':''}" id="r-${esc(key)}">
+      <td style="text-align:center"><input type="checkbox" class="rowchk" data-dl="${esc(p.dl_number)}" ${selected.has(p.dl_number)?'checked':''} onchange="toggleSel('${esc(p.dl_number)}',this.checked)"></td>
       <td><button class="xbtn" onclick="toggleDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${dup}${sold}${dnc}${flag}${typeBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
       <td>${esc(town)}${county}${ooState}</td>
       <td>${stateBadge(p.lifecycle_state)}</td>
@@ -605,10 +668,11 @@ function render(){
       <td>${link}</td>
       <td>${redispatchBtn}<button class="act danger" onclick="toggleDnc('${g.property.property_id||''}',${g.dnc})">${g.dnc?'Un-DNC':'DNC'}</button></td>
     </tr>`;
-    if(expandAll) h+='<tr class="detail"><td colspan="10">'+buildDetail(g)+'</td></tr>';
+    if(expandAll) h+='<tr class="detail"><td colspan="11">'+buildDetail(g)+'</td></tr>';
   }
   h+='</tbody></table>';
   document.getElementById('tableWrap').innerHTML=h;
+  updateDispatchBar();
 }
 
 /* ── Reps tab: per-rep lead-call detail (effective rep = assigned_to||original_rep) ── */
