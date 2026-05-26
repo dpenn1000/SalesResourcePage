@@ -442,36 +442,65 @@ function contactCount(g){
 }
 
 /* ── KPIs (by category) ── */
+/* call-log lookup: opportunity_id -> its logged QC calls */
+function contactsByOpp(){const m={};for(const c of contacts){(m[c.opportunity_id]=m[c.opportunity_id]||[]).push(c);}return m;}
 function renderKpis(){
   const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
-  let unassigned=0;
-  for(const g of props){const c=leadCategory(g);cat[c]=(cat[c]||0)+1;if(c==='callable'&&!g.primary.assigned_to)unassigned++;}
-  const k=[['Callable now',cat.callable,'','#5aa522'],['Scheduled',cat.scheduled,'','#3f6f96'],['Needs review',cat.review,cat.review>0?'hot':'','#b8770f'],['In cooldown',cat.cooldown,'','#5a93bd'],['Unassigned',unassigned,'','#6f7d8c'],['Sold',cat.sold,'','#3f7a16'],['DNC',cat.dnc,'','#a85a3f'],['Total homes',props.length,'','#1A2332']];
-  document.getElementById('kpis').innerHTML=k.map(([l,n,c,col])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
+  let unassigned=0,deletedCt=0;
+  for(const g of props){const c=leadCategory(g);cat[c]=(cat[c]||0)+1;if(c==='callable'&&!g.primary.assigned_to)unassigned++;if((g.primary.lifecycle_state||'')==='deleted')deletedCt++;}
+  /* call-attributed outcomes: count an appt/sale only when a QC call on THIS list drove it */
+  const byOpp=contactsByOpp();let apptCalls=0,soldCalls=0;
+  for(const g of props){
+    const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
+    let called=false,apptCall=false;
+    for(const oid of ids)for(const c of (byOpp[oid]||[])){called=true;if(c.outcome==='Appointment Set')apptCall=true;}
+    if(apptCall)apptCalls++; if(called&&g.anySold)soldCalls++;
+  }
+  const k=[
+    ['Callable now',cat.callable,'','#5aa522','Leads ready to be called now: deleted-before-ran, no-shows, cancels, and fresh manual adds. The QC work queue.'],
+    ['Deleted (pre-run)',deletedCt,'','#a85a3f','Appointments dispatched then deleted off the rep calendar before they ran. The core re-engagement list this tool was built for.'],
+    ['Unassigned',unassigned,'','#6f7d8c','Callable leads not yet dispatched to a rep.'],
+    ['In cooldown',cat.cooldown,'','#3f6f96','Sat / Stage-2 leads resting 14 days before they can be re-dispatched.'],
+    ['Needs review',cat.review,cat.review>0?'hot':'','#b8770f','Cooldown elapsed: a manager must approve re-dispatch before these return to the call list.'],
+    ['Appts set (calls)',apptCalls,'','#5aa522','Appointments set FROM a QC call on this list (a call logged as Appointment Set). Not appointments already on the calendar.'],
+    ['Sold (calls)',soldCalls,'','#3f7a16','Jobs sold from leads that were called on this list (sold and had at least one logged QC call).'],
+    ['Total leads',props.length,'','#1A2332','Every tracked lead (home) in the call list.'],
+  ];
+  document.getElementById('kpis').innerHTML=k.map(([l,n,c,col,tip])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}" title="${esc(tip)}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
 }
 /* ── Dashboard breakdown cards ── */
 function renderDashDetail(){
-  const byState={},byType={},byRep={},byTown={};
+  const byCallable={},byType={},byRep={},byTown={};
   for(const g of props){
-    const st=g.primary.lifecycle_state||'other'; byState[st]=(byState[st]||0)+1;
+    if(leadCategory(g)==='callable'){const st=g.primary.lifecycle_state||'other'; byCallable[st]=(byCallable[st]||0)+1;}
     const ty=leadType(g); const tl=ty==='direct'?'Direct':ty==='trad'?'Traditional':'Unknown'; byType[tl]=(byType[tl]||0)+1;
     const r=g.primary.assigned_to||'Unassigned'; byRep[r]=(byRep[r]||0)+1;   /* relative to dispatch (assignment), not the appointment rep */
     const t=g.property.town||'(unknown)'; byTown[t]=(byTown[t]||0)+1;
   }
+  /* logged QC call outcomes (call-list activity, not appointment data) */
+  const outc={};for(const c of contacts){const o=c.outcome||'Other';outc[o]=(outc[o]||0)+1;}
+  const totCalls=contacts.length,connected=(outc['Reached']||0)+(outc['Appointment Set']||0),connRate=totCalls?Math.round(connected/totCalls*100):0;
   /* one cohesive palette: green = good/go, steel = in-progress, slate = inert/neutral, amber = attention */
   const G={green:'linear-gradient(90deg,#5aa522,#7ec63f)',dgreen:'linear-gradient(90deg,#3f7a16,#5aa522)',steel:'linear-gradient(90deg,#3f6f96,#5a93bd)',slate:'linear-gradient(90deg,#6f7d8c,#95a3b1)',amber:'linear-gradient(90deg,#b8770f,#d99a2b)'};
-  const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Scheduled',sold:'Sold',dq:'DQ',new:'New (manual)',deleted:'Deleted (pre-run)',other:'Other'};
-  const DISPO={sold:G.dgreen,new:G.green,ready:G.steel,ran:G.steel,goback:G.steel,nosale:G.slate,noshow:G.amber,cancel:G.amber,dq:G.slate,deleted:G.amber,other:G.slate};
-  const card=(title,obj,labmap,limit,colorFn,accent)=>{
+  const STLAB={noshow:'No Show',cancel:'Cancelled',new:'New (manual)',deleted:'Deleted (pre-run)',ready:'Scheduled',goback:'Go Back',nosale:'No Sale',ran:'Ran',dq:'DQ',other:'Other'};
+  const DISPO={deleted:G.amber,noshow:G.amber,cancel:G.amber,new:G.green,other:G.slate};
+  const OUTC={'Appointment Set':G.dgreen,'Reached':G.green,'No Answer':G.slate};
+  const card=(title,obj,labmap,limit,colorFn,accent,tip)=>{
     const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const max=Math.max(1,...ent.map(e=>e[1]));
     const rows=(limit?ent.slice(0,limit):ent).map(([k,v])=>{
       const lab=labmap?(labmap[k]||k):k;const col=colorFn?(colorFn(k)||G.green):(accent||G.green);
       return `<div class="bl-row"><span class="bl-k" title="${esc(lab)}">${esc(lab)}</span><span class="bl-bar"><span style="width:${Math.round(v/max*100)}%;background:${col}"></span></span><span class="bl-v">${v}</span></div>`;
     }).join('');
-    return `<div class="dash-card"><div class="dash-card-title">${esc(title)}</div>${rows||'<div class="sub">None</div>'}</div>`;
+    return `<div class="dash-card" title="${esc(tip||'')}"><div class="dash-card-title">${esc(title)}</div>${rows||'<div class="sub">None yet</div>'}</div>`;
   };
-  document.getElementById('dashdetail').innerHTML=`<div class="dash-grid">${card('By disposition',byState,STLAB,null,k=>DISPO[k]||G.slate)}${card('By lead type',byType,null,null,k=>k==='Direct'?G.amber:k==='Traditional'?G.green:G.slate)}${card('By rep (assigned)',byRep,null,10,k=>k==='Unassigned'?G.slate:G.steel)}${card('Top towns',byTown,null,10,null,G.green)}</div>`;
+  document.getElementById('dashdetail').innerHTML='<div class="dash-grid">'
+    +card(`Call outcomes (${connRate}% connect)`,outc,null,null,k=>OUTC[k]||G.slate,null,`Logged QC call results. Connect rate = (reached + appt set) / total calls = ${connected}/${totCalls}.`)
+    +card('Callable by disposition',byCallable,STLAB,null,k=>DISPO[k]||G.slate,null,'What the callable queue is made of, by why each lead is callable (deleted-before-ran, no-show, cancelled, fresh manual).')
+    +card('By lead type',byType,null,null,k=>k==='Direct'?G.amber:k==='Traditional'?G.green:G.slate,null,'Direct = rep-owned (do not dispatch). Traditional = company leads, freely dispatchable.')
+    +card('By rep (assigned)',byRep,null,10,k=>k==='Unassigned'?G.slate:G.steel,null,'How the list is dispatched. Unassigned = still in the pool to hand out.')
+    +card('Top towns',byTown,null,10,null,G.green,'Where the leads are, for geographic dispatch.')
+    +'</div>';
 }
 
 /* ── Stacked daily activity chart (shared: team calls + per-rep appts) ──
