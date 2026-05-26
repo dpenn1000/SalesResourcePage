@@ -302,6 +302,10 @@
       <!-- Editable fields -->
       <div class="modal-section">
         <div class="modal-section-title">Flip Details -- Edit &amp; Save</div>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:9px 12px;background:#daeee1;border:1px solid #62a87a;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;color:#265538">
+          <input type="checkbox" id="m-resign-complete" style="width:16px;height:16px;cursor:pointer">
+          Re-sign Complete (moves this flip to the Completed tab)
+        </label>
         <div class="form-grid">
           <div class="form-group">
             <label>Flip Target</label>
@@ -524,17 +528,18 @@ function renderStats() {
   ncEl.textContent = fmt$(nc);
   ncEl.style.color = nc >= 0 ? '#166534' : '#991b1b';
   document.getElementById('s-active').textContent = d.filter(r => r.flip_status?.toLowerCase().includes('need')).length;
-  document.getElementById('s-done').textContent = d.filter(r => r.flip_status?.toLowerCase().includes('done') || r.flip_status?.toLowerCase().includes('complete')).length;
+  document.getElementById('s-done').textContent = d.filter(r => r.resign_complete === true).length;
   document.getElementById('s-solar').textContent = d.filter(r => r.flip_target === 'Solar').length;
   document.getElementById('s-roof').textContent = d.filter(r => r.flip_target === 'Roof').length;
   document.getElementById('s-both').textContent = d.filter(r => r.flip_target === 'Both').length;
   document.getElementById('s-unknown').textContent = d.filter(r => !r.flip_target).length;
 }
 
+// A flip is "complete" only when the re-sign is finished -- tracked explicitly
+// via the resign_complete flag, NOT the SF install stage (flip_status). A job
+// can be 'Project Complete' on the install side but still need its re-sign.
 function isComplete(r) {
-  if (!r.flip_status) return false;
-  const s = r.flip_status.toLowerCase();
-  return s.includes('done') || s.includes('project complete') || s === 'complete ntp' || s === 'pto' || s === 'final state/rebate application' || s === 'coc/ca';
+  return r.resign_complete === true;
 }
 
 function renderTable() {
@@ -662,6 +667,7 @@ function openModal(id) {
   // Editable
   document.getElementById('m-flip-target').value = r.flip_target || '';
   document.getElementById('m-flip-status').value = r.flip_status || '';
+  document.getElementById('m-resign-complete').checked = r.resign_complete === true;
   document.getElementById('m-old-fp').value = r.old_fp || '';
   document.getElementById('m-new-fp').value = r.new_fp || '';
   document.getElementById('m-flip-owner').value = r.flip_owner || '';
@@ -712,6 +718,7 @@ async function saveModal() {
     email: document.getElementById('m-email').value || null,
     flip_target: document.getElementById('m-flip-target').value || null,
     flip_status: document.getElementById('m-flip-status').value || null,
+    resign_complete: document.getElementById('m-resign-complete').checked,
     old_fp: document.getElementById('m-old-fp').value || null,
     new_fp: document.getElementById('m-new-fp').value || null,
     flip_owner: document.getElementById('m-flip-owner').value || null,
