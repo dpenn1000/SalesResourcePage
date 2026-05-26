@@ -77,7 +77,7 @@
   .tab.active{color:var(--ink);border-bottom-color:var(--green)}
   .dp-chart{display:flex;align-items:flex-end;gap:3px;height:185px;padding:10px 10px 0;background:linear-gradient(180deg,#ffffff,#f6f8f3);border:1px solid var(--border);border-radius:10px}
   .dp-bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
-  .dp-stack{display:flex;flex-direction:column-reverse;width:62%;min-width:6px}
+  .dp-stack{width:62%;min-width:6px}
   .dp-seg{width:100%}
   .dp-seg.appt{background:#4e8f1f}
   .dp-seg.reached{background:#8ed44f}
@@ -191,6 +191,7 @@
     <div class="htitle">Lead Manager <small>Property view &middot; deduped, address-resolved, sold-aware</small></div>
     <a class="hbtn" href="/call-list-guide.html" target="_blank" rel="noopener">Call Guide &rarr;</a>
     <span id="userName" class="sub"></span>
+    <a class="hbtn" href="/" style="white-space:nowrap">&larr; Resource Center</a>
     <button class="hbtn" onclick="signOut()">Sign out</button>
   </header>
 
@@ -529,19 +530,22 @@ function buildDaySlots(win){
   return {list,byKey,todayKey:today.toISOString().slice(0,10)};
 }
 function renderStackChart(slots,segs,footerHtml){
-  /* Structure mirrors the proven call-list-admin repDailyChart: each bar is a
-     vertical flex (.dp-bar) with the date label INSIDE it; segs render bottom-first
-     into a column-reverse .dp-stack. Do not switch to a row-flex / separate-axis
-     layout -- that reintroduced a sub-pixel offset on the top segment. */
+  /* Each bar's stack is ONE element painted with a hard-stop linear-gradient,
+     not N stacked child divs. A single box has no siblings to sub-pixel-offset
+     against, which removes the long-standing top-segment (Appt, dark green)
+     misalignment seen on scaled Windows displays. Colors mirror the old
+     .dp-seg.* classes; segs are bottom-first, so the gradient runs to top. */
   const max=Math.max(1,...slots.list.map(s=>s.total)),H=140;
   const h=n=>n?Math.max(2,Math.round(n/max*H)):0;
-  const seg=(n,cls)=>n?`<div class="dp-seg ${cls}" style="height:${h(n)}px"></div>`:'';
+  const COL={appt:'#4e8f1f',reached:'#8ed44f',sched:'#5a8fb5',noanswer:'#9aa7b6'};
   const bars=slots.list.map(s=>{
     const dl=s.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    const stack=segs.map(g=>seg(s.c[g.k]||0,g.cls)).join('');
+    let acc=0;const stops=[];
+    for(const g of segs){const hh=h(s.c[g.k]||0);if(!hh)continue;const c=COL[g.cls]||'#ccc';stops.push(`${c} ${acc}px`);acc+=hh;stops.push(`${c} ${acc}px`);}
+    const stackStyle=acc?`height:${acc}px;background:linear-gradient(to top,${stops.join(',')})`:'height:0';
     const lines=segs.slice().reverse().filter(g=>s.c[g.k]).map(g=>`${g.label}: ${s.c[g.k]}`).join('<br>');
     const tip=`<div class="dp-tip"><b>${dl}</b><br>${s.total} total${lines?'<br>'+lines:''}</div>`;
-    return `<div class="dp-bar">${tip}<div class="dp-stack">${stack}</div><div class="dp-xlabel${s.key===slots.todayKey?' dp-today':''}">${s.date.getDate()}</div></div>`;
+    return `<div class="dp-bar">${tip}<div class="dp-stack" style="${stackStyle}"></div><div class="dp-xlabel${s.key===slots.todayKey?' dp-today':''}">${s.date.getDate()}</div></div>`;
   }).join('');
   const legend=segs.slice().reverse().map(g=>`<span><i class="dp-dot ${g.cls}"></i>${g.label}</span>`).join('');
   return `<div class="dp-chart">${bars}</div><div class="dp-legend">${footerHtml||''}${legend}</div>`;
