@@ -74,15 +74,25 @@
   .tab{background:none;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;color:var(--muted);padding:12px 16px;border-bottom:2px solid transparent}
   .tab:hover{color:var(--ink)}
   .tab.active{color:var(--ink);border-bottom-color:var(--green)}
-  .dp-chart{display:flex;align-items:flex-end;gap:3px;height:150px;padding:10px 8px 0;background:#fff;border:1px solid var(--border);border-radius:10px}
-  .dp-bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
-  .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.35;white-space:nowrap;text-align:center;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
-  .dp-bar:hover .dp-tip{display:block}
-  .dp-stack{display:flex;flex-direction:column-reverse;width:64%;min-width:5px}
-  .dp-seg{width:100%}.dp-seg.appt{background:#3a7010;border-radius:2px 2px 0 0}.dp-seg.reached{background:#78C832}.dp-seg.noanswer{background:#cbd3dc}
-  .dp-xlabel{font-size:10px;color:#9aa7b4;margin-top:4px}.dp-today{color:#3a7010;font-weight:700}
-  .dp-legend{display:flex;gap:14px;margin:8px 2px 0;font-size:11px;color:var(--muted)}.dp-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
-  .dp-dot.appt{background:#3a7010}.dp-dot.reached{background:#78C832}.dp-dot.noanswer{background:#cbd3dc}
+  .dp-plot{display:flex;align-items:flex-end;gap:3px;height:152px;padding:8px 10px 0;background:linear-gradient(180deg,#ffffff,#f6f8f3);border:1px solid var(--border);border-bottom:2px solid #d3d9dd;border-radius:10px 10px 0 0}
+  .dp-col{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;height:100%;position:relative}
+  .dp-stack{display:flex;flex-direction:column-reverse;width:66%;min-width:6px}
+  .dp-seg{width:100%}
+  .dp-seg.appt{background:linear-gradient(180deg,#f1c14b,#C88C00);border-radius:3px 3px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
+  .dp-seg.reached{background:linear-gradient(180deg,#92dd4d,#5aa522)}
+  .dp-seg.sched{background:linear-gradient(180deg,#5ec2ee,#2392cc)}
+  .dp-seg.noanswer{background:linear-gradient(180deg,#e3e8ed,#c2cad4)}
+  .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.4;white-space:nowrap;text-align:left;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
+  .dp-col:hover .dp-tip{display:block}
+  .dp-col:hover .dp-stack{filter:brightness(1.07) saturate(1.05)}
+  .dp-axis{display:flex;gap:3px;padding:3px 10px 6px;background:#fafbf9;border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px}
+  .dp-tick{flex:1;min-width:0;text-align:center;font-size:10px;color:#9aa7b4}
+  .dp-today{color:#C88C00;font-weight:700}
+  .dp-legend{display:flex;gap:14px;margin:8px 2px 0;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .dp-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .dp-dot.appt{background:linear-gradient(180deg,#f1c14b,#C88C00)}.dp-dot.reached{background:linear-gradient(180deg,#92dd4d,#5aa522)}.dp-dot.sched{background:linear-gradient(180deg,#5ec2ee,#2392cc)}.dp-dot.noanswer{background:#cbd3dc}
+  .b-sched{background:rgba(41,169,225,.14);color:#1070a0}
+  .b-callable{background:rgba(120,200,50,.18);color:#3a7010}
   .b-review{background:rgba(214,48,48,.14);color:#a02020}
   .b-cooldown{background:rgba(41,169,225,.1);color:#1070a0}
   .act.review{border-color:var(--amber);color:#8a5800;background:rgba(200,140,0,.08);font-weight:600}
@@ -182,7 +192,19 @@
     </div>
 
     <div id="tab-reps" class="tabpanel" style="display:none">
-      <div class="panel"><div class="sub">Per-rep lead-call detail (activity graph, their leads, triage) is coming in the next deploy.</div></div>
+      <div class="toolbar">
+        <select id="repPick" onchange="renderRep()"><option value="">Select a rep...</option></select>
+        <input type="search" id="repq" placeholder="Filter this rep's leads..." oninput="renderRep()" style="min-width:200px">
+        <select id="repView" onchange="renderRep()">
+          <option value="">All categories</option>
+          <option value="callable">Callable now</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="review">Needs review</option>
+          <option value="cooldown">In cooldown</option>
+          <option value="sold">Sold</option>
+        </select>
+      </div>
+      <div id="repBody"><div class="empty">Pick a rep to see their lead-call detail: a 30-day appointment activity graph and every lead tied to them.</div></div>
     </div>
 
     <div id="tab-load" class="tabpanel" style="display:none">
@@ -286,6 +308,10 @@ async function initApp(){
     groupByProperty(dls||[]);
     const rsel=document.getElementById('fRep');
     for(const n of people){rsel.appendChild(new Option(n,n));}
+    /* Reps tab dropdown: only reps who actually own leads, highest volume first */
+    const repCount={};for(const g of props){const r=repOf(g);if(r)repCount[r]=(repCount[r]||0)+1;}
+    const rp=document.getElementById('repPick');
+    for(const r of Object.keys(repCount).sort((a,b)=>repCount[b]-repCount[a]))rp.appendChild(new Option(`${r} (${repCount[r]})`,r));
     renderKpis();renderTeamChart();renderDashDetail();render();
   }catch(err){
     document.getElementById('tableWrap').innerHTML='<div class="empty">Load failed: '+esc(err.message||err)+'</div>';
@@ -323,8 +349,8 @@ function renderKpis(){
   const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
   let unassigned=0;
   for(const g of props){const c=leadCategory(g);cat[c]=(cat[c]||0)+1;if(c==='callable'&&!g.primary.assigned_to)unassigned++;}
-  const k=[['Callable now',cat.callable],['Scheduled',cat.scheduled],['Needs review',cat.review,cat.review>0?'hot':''],['In cooldown',cat.cooldown],['Unassigned',unassigned],['Sold',cat.sold],['DNC',cat.dnc],['Total homes',props.length]];
-  document.getElementById('kpis').innerHTML=k.map(([l,n,c])=>`<div class="kpi ${c||''}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+  const k=[['Callable now',cat.callable,'','#5aa522'],['Scheduled',cat.scheduled,'','#2392cc'],['Needs review',cat.review,cat.review>0?'hot':'','#C88C00'],['In cooldown',cat.cooldown,'','#3aa0d8'],['Unassigned',unassigned,'','#9aa7b4'],['Sold',cat.sold,'','#3a7010'],['DNC',cat.dnc,'','#D63030'],['Total homes',props.length,'','#1A2332']];
+  document.getElementById('kpis').innerHTML=k.map(([l,n,c,col])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
 }
 /* ── Dashboard breakdown cards ── */
 function renderDashDetail(){
@@ -332,38 +358,71 @@ function renderDashDetail(){
   for(const g of props){
     const st=g.primary.lifecycle_state||'other'; byState[st]=(byState[st]||0)+1;
     const stt=g.dnc?'DNC':(g.primary.status||'pending'); byStatus[stt]=(byStatus[stt]||0)+1;
-    const r=g.primary.assigned_to||'Unassigned'; byRep[r]=(byRep[r]||0)+1;
+    const r=g.primary.assigned_to||g.primary.original_rep||'Unassigned'; byRep[r]=(byRep[r]||0)+1;
     const t=g.property.town||'(unknown)'; byTown[t]=(byTown[t]||0)+1;
   }
   const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Scheduled',sold:'Sold',dq:'DQ',other:'Other'};
-  const card=(title,obj,labmap,limit)=>{
+  const DISPO={noshow:'#e0644b',cancel:'#e2a23a',goback:'#3aa0d8',nosale:'#8a78d0',ran:'#9aa7b4',ready:'#2392cc',sold:'#5aa522',dq:'#b0b8c0',other:'#c2cad4'};
+  const card=(title,obj,labmap,limit,colorFn,accent)=>{
     const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const max=Math.max(1,...ent.map(e=>e[1]));
-    const rows=(limit?ent.slice(0,limit):ent).map(([k,v])=>`<div class="bl-row"><span class="bl-k" title="${esc(labmap?(labmap[k]||k):k)}">${esc(labmap?(labmap[k]||k):k)}</span><span class="bl-bar"><span style="width:${Math.round(v/max*100)}%"></span></span><span class="bl-v">${v}</span></div>`).join('');
-    return `<div class="dash-card"><div class="dash-card-title">${title}</div>${rows||'<div class="sub">None</div>'}</div>`;
+    const rows=(limit?ent.slice(0,limit):ent).map(([k,v])=>{
+      const lab=labmap?(labmap[k]||k):k;const col=colorFn?(colorFn(k)||'var(--green)'):(accent||'var(--green)');
+      return `<div class="bl-row"><span class="bl-k" title="${esc(lab)}">${esc(lab)}</span><span class="bl-bar"><span style="width:${Math.round(v/max*100)}%;background:${col}"></span></span><span class="bl-v">${v}</span></div>`;
+    }).join('');
+    return `<div class="dash-card"><div class="dash-card-title">${esc(title)}</div>${rows||'<div class="sub">None</div>'}</div>`;
   };
-  document.getElementById('dashdetail').innerHTML=`<div class="dash-grid">${card('By disposition',byState,STLAB)}${card('By status',byStatus,null)}${card('By assigned rep',byRep,null,10)}${card('Top towns',byTown,null,10)}</div>`;
+  document.getElementById('dashdetail').innerHTML=`<div class="dash-grid">${card('By disposition',byState,STLAB,null,k=>DISPO[k])}${card('By status',byStatus,null,null,null,'#2392cc')}${card('By rep',byRep,null,10,null,'#C88C00')}${card('Top towns',byTown,null,10,null,'#7a64c8')}</div>`;
 }
 
-/* ── Stacked daily call-activity chart (team-wide, reused per-rep in Phase 2) ── */
-function renderTeamChart(){ document.getElementById('teamchart').innerHTML = dailyBarChart(contacts); }
-function dailyBarChart(cts){
-  const WIN=21,today=new Date();today.setHours(0,0,0,0);
-  const slots=[],byKey={};
-  for(let i=WIN-1;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);const s={date:d,key:k,appt:0,reached:0,noanswer:0,total:0};slots.push(s);byKey[k]=s;}
-  for(const c of (cts||[])){const ts=c.contacted_at||c.created_at;if(!ts)continue;const s=byKey[String(ts).slice(0,10)];if(!s)continue;const o=c.outcome;if(o==='Appointment Set')s.appt++;else if(o==='Reached')s.reached++;else s.noanswer++;s.total++;}
-  const max=Math.max(1,...slots.map(s=>s.total)),H=140,todayKey=today.toISOString().slice(0,10);
-  const h=n=>n?Math.max(2,Math.round(n/max*H)):0;
-  const seg=(n,cls)=>n?`<div class="dp-seg ${cls}" style="height:${h(n)}px"></div>`:'';
-  const bars=slots.map(s=>{
+/* ── Stacked daily activity chart (shared: team calls + per-rep appts) ──
+   Date labels live in their own axis row UNDER a fixed-height plot, so a full
+   bar never overflows the card or splits its stack (the prior bug). segs are
+   listed bottom-first; column-reverse pins them to the baseline with no gaps. */
+function buildDaySlots(win){
+  const today=new Date();today.setHours(0,0,0,0);const list=[],byKey={};
+  for(let i=win-1;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);const s={date:d,key:k,total:0,c:{}};list.push(s);byKey[k]=s;}
+  return {list,byKey,todayKey:today.toISOString().slice(0,10)};
+}
+function renderStackChart(slots,segs,footerHtml){
+  const max=Math.max(1,...slots.list.map(s=>s.total)),H=126;
+  const h=n=>n?Math.max(3,Math.round(n/max*H)):0;
+  const bars=slots.list.map(s=>{
     const dl=s.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    const conn=s.reached+s.appt;
-    const tip=`${dl}: ${s.total} call${s.total===1?'':'s'}`+(s.total?` (${conn} connected${s.appt?', '+s.appt+' appt':''}, ${s.noanswer} no answer)`:'');
-    const th=`<div class="dp-tip"><b>${dl}</b><br>${s.total} call${s.total===1?'':'s'}`+(s.total?`<br>${conn} connected${s.appt?' ('+s.appt+' appt)':''}<br>${s.noanswer} no answer`:'')+`</div>`;
-    return `<div class="dp-bar" title="${tip}">${th}<div class="dp-stack">${seg(s.noanswer,'noanswer')}${seg(s.reached,'reached')}${seg(s.appt,'appt')}</div><div class="dp-xlabel${s.key===todayKey?' dp-today':''}">${s.date.getDate()}</div></div>`;
+    const stack=segs.map(g=>{const n=s.c[g.k]||0;return n?`<div class="dp-seg ${g.cls}" style="height:${h(n)}px"></div>`:'';}).join('');
+    const lines=segs.slice().reverse().filter(g=>s.c[g.k]).map(g=>`${g.label}: ${s.c[g.k]}`).join('<br>');
+    const tip=`<div class="dp-tip"><b>${dl}</b><br>${s.total} total${lines?'<br>'+lines:''}</div>`;
+    return `<div class="dp-col">${tip}<div class="dp-stack">${stack}</div></div>`;
   }).join('');
-  const tot=slots.reduce((a,s)=>{a.c+=s.total;a.r+=s.reached+s.appt;a.a+=s.appt;return a;},{c:0,r:0,a:0});
-  return `<div class="dp-chart">${bars}</div><div class="dp-legend"><span style="margin-right:auto;color:var(--ink);font-weight:600">${tot.c} calls &middot; ${tot.r} connected &middot; ${tot.a} appts set</span><span><i class="dp-dot appt"></i>Appt set</span><span><i class="dp-dot reached"></i>Reached</span><span><i class="dp-dot noanswer"></i>No answer</span></div>`;
+  const axis=slots.list.map(s=>`<div class="dp-tick${s.key===slots.todayKey?' dp-today':''}">${s.date.getDate()}</div>`).join('');
+  const legend=segs.slice().reverse().map(g=>`<span><i class="dp-dot ${g.cls}"></i>${g.label}</span>`).join('');
+  return `<div class="dp-plot">${bars}</div><div class="dp-axis">${axis}</div><div class="dp-legend">${footerHtml||''}${legend}</div>`;
+}
+function renderTeamChart(){
+  const slots=buildDaySlots(21);
+  for(const c of contacts){const s=slots.byKey[String(c.contacted_at||'').slice(0,10)];if(!s)continue;const o=c.outcome;const k=o==='Appointment Set'?'appt':(o==='Reached'?'reached':'noanswer');s.c[k]=(s.c[k]||0)+1;s.total++;}
+  const segs=[{k:'noanswer',cls:'noanswer',label:'No answer'},{k:'reached',cls:'reached',label:'Reached'},{k:'appt',cls:'appt',label:'Appt set'}];
+  const tot=slots.list.reduce((a,s)=>{a.c+=s.total;a.r+=(s.c.reached||0)+(s.c.appt||0);a.a+=(s.c.appt||0);return a;},{c:0,r:0,a:0});
+  const footer=`<span style="margin-right:auto;color:var(--ink);font-weight:600">${tot.c} calls &middot; ${tot.r} connected &middot; ${tot.a} appts set</span>`;
+  document.getElementById('teamchart').innerHTML=renderStackChart(slots,segs,footer);
+}
+/* Map an appointment outcome to a per-rep chart bucket. */
+function apptKind(outcome){
+  const o=(outcome||'').toLowerCase();
+  if(o.includes('contract')||o.includes('sold'))return 'sold';
+  if(o.includes('no show')||o.includes('cancel')||o.includes('not run')||o.includes('door'))return 'miss';
+  if(o)return 'sat';
+  return 'sched';
+}
+function repApptChart(rep){
+  const slots=buildDaySlots(30);
+  for(const g of props)for(const d of g.dls){
+    if((d.assigned_to||d.original_rep||'')!==rep)continue;
+    for(const a of (d.appointments||[])){const s=slots.byKey[String(a.date||'').slice(0,10)];if(!s)continue;const k=apptKind(a.outcome);s.c[k]=(s.c[k]||0)+1;s.total++;}
+  }
+  const segs=[{k:'miss',cls:'noanswer',label:'No-show / cancel'},{k:'sched',cls:'sched',label:'Scheduled'},{k:'sat',cls:'reached',label:'Sat'},{k:'sold',cls:'appt',label:'Sold'}];
+  const any=slots.list.some(s=>s.total);
+  return any?renderStackChart(slots,segs,''):'<div class="empty">No appointment activity in the last 30 days.</div>';
 }
 function setTab(t){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
@@ -477,6 +536,51 @@ function render(){
   }
   h+='</tbody></table>';
   document.getElementById('tableWrap').innerHTML=h;
+}
+
+/* ── Reps tab: per-rep lead-call detail (effective rep = assigned_to||original_rep) ── */
+function repOf(g){return g.primary.assigned_to||g.primary.original_rep||'';}
+function catBadge(c){const M={callable:['Callable','b-callable'],scheduled:['Scheduled','b-sched'],review:['Review','b-review'],cooldown:['Cooldown','b-cooldown'],sold:['Sold','b-sold'],dnc:['DNC','b-dnc'],other:['Other','']};const m=M[c]||['--',''];return `<span class="badge ${m[1]}">${m[0]}</span>`;}
+function toggleRepDetail(key){
+  const row=document.getElementById('rr-'+key);if(!row)return;
+  const next=row.nextElementSibling;
+  if(next&&next.classList.contains('detail')){next.remove();return;}
+  const g=propByKey[key];if(!g)return;
+  row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="7">'+buildDetail(g)+'</td></tr>');
+}
+function renderRep(){
+  const rep=document.getElementById('repPick').value;
+  const body=document.getElementById('repBody');
+  if(!rep){body.innerHTML='<div class="empty">Pick a rep to see their lead-call detail: a 30-day appointment activity graph and every lead tied to them.</div>';return;}
+  const mine=props.filter(g=>repOf(g)===rep);
+  const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
+  for(const g of mine)cat[leadCategory(g)]=(cat[leadCategory(g)]||0)+1;
+  const sat=cat.sold+cat.review+cat.cooldown;const conv=sat?Math.round(cat.sold/sat*100):0;
+  const ksp=[['Leads',mine.length,'','#1A2332'],['Callable',cat.callable,'','#5aa522'],['Scheduled',cat.scheduled,'','#2392cc'],['Sold',cat.sold,'','#3a7010'],['Sold %',conv+'%','','#C88C00'],['Needs review',cat.review,cat.review>0?'hot':'','#C88C00']];
+  const kpiHtml=ksp.map(([l,n,c,col])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
+  const q=document.getElementById('repq').value.trim().toLowerCase();
+  const view=document.getElementById('repView').value;
+  let rows=mine.filter(g=>{
+    if(view&&leadCategory(g)!==view)return false;
+    if(q){const hay=((g.primary.homeowner_name||'')+' '+(g.property.town||'')+' '+g.dls.map(d=>d.dl_number).join(' ')).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  }).sort((a,b)=>{const sa=a.anySold?1:0,sb=b.anySold?1:0;if(sa!==sb)return sa-sb;return (b.primary.last_appt_date||'').localeCompare(a.primary.last_appt_date||'');});
+  let tbl='<table><thead><tr><th>Homeowner</th><th>Town</th><th>Disposition</th><th>Pipeline</th><th>Last appt</th><th>Contacts</th><th>Salesforce</th></tr></thead><tbody>';
+  if(!rows.length)tbl+='<tr><td colspan="7" class="empty">No leads match this filter.</td></tr>';
+  for(const g of rows){
+    const p=g.primary;const key=g.property.property_id||p.dl_number;propByKey[key]=g;
+    tbl+=`<tr class="${g.anySold?'row-sold':''}" id="rr-${esc(key)}"><td><button class="xbtn" onclick="toggleRepDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${g.dls.length>1?` <span class="badge b-dup">${g.dls.length}</span>`:''}<div class="sub">${esc(p.dl_number)}</div></td>
+      <td>${esc(g.property.town||'--')}</td>
+      <td>${stateBadge(p.lifecycle_state)}</td>
+      <td>${catBadge(leadCategory(g))}</td>
+      <td>${fmtDate(p.last_appt_date)}</td>
+      <td style="text-align:center">${contactCount(g)}</td>
+      <td>${p.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(p.dl_sf_id))}">Open &nearr;</a>`:'<span class="sub">--</span>'}</td></tr>`;
+  }
+  tbl+='</tbody></table>';
+  body.innerHTML=`<div class="kpis">${kpiHtml}</div>`+
+    `<div class="panel"><h2>${esc(rep)} &middot; appointment activity &middot; last 30 days</h2>${repApptChart(rep)}</div>`+
+    `<div class="panel" style="padding:0;overflow:hidden">${tbl}</div>`;
 }
 
 /* ── Actions ── */
