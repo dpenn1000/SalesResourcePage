@@ -560,6 +560,18 @@ function renderTeamChart(){
   el.classList.remove('loading');   /* drop the loading wrapper's padding + text-align:center so this container matches the (working) rep-chart panel */
   el.innerHTML=renderStackChart(slots,segs,footer);
 }
+/* #10: per-rep CALL activity from contact_log (parallel to renderTeamChart), for the Reps drill-in. */
+function repCallChart(rep){
+  const slots=buildDaySlots(30);
+  const ids=new Set();
+  for(const g of props){if(repOf(g)!==rep)continue;for(const d of g.dls){(d.opportunity_ids||[]).forEach(o=>ids.add(o));ids.add(d.dl_number);}}
+  for(const c of contacts){if(!ids.has(c.opportunity_id))continue;const s=slots.byKey[String(c.contacted_at||'').slice(0,10)];if(!s)continue;const k=c.outcome==='Appointment Set'?'appt':(c.outcome==='Reached'?'reached':'noanswer');s.c[k]=(s.c[k]||0)+1;s.total++;}
+  if(!slots.list.some(s=>s.total))return '<div class="sub" style="padding:10px 2px">No calls logged in the last 30 days.</div>';
+  const segs=[{k:'noanswer',cls:'noanswer',label:'No answer / VM / SMS'},{k:'reached',cls:'reached',label:'Reached'},{k:'appt',cls:'appt',label:'Appt set'}];
+  const tot=slots.list.reduce((a,s)=>{a.c+=s.total;a.r+=(s.c.reached||0)+(s.c.appt||0);a.a+=(s.c.appt||0);return a;},{c:0,r:0,a:0});
+  const footer=`<span style="margin-right:auto;color:var(--ink);font-weight:600">${tot.c} calls &middot; ${tot.r} connected &middot; ${tot.a} appts set</span>`;
+  return renderStackChart(slots,segs,footer);
+}
 /* Map an appointment outcome to a per-rep chart bucket. */
 function apptKind(outcome){
   const o=(outcome||'').toLowerCase();
@@ -859,7 +871,11 @@ function renderRep(){
   const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
   for(const g of mine)cat[leadCategory(g)]=(cat[leadCategory(g)]||0)+1;
   const sat=cat.sold+cat.review+cat.cooldown;const conv=sat?Math.round(cat.sold/sat*100):0;
-  const ksp=[['Leads',mine.length,'','#1A2332'],['Callable',cat.callable,'','#5aa522'],['Scheduled',cat.scheduled,'','#3f6f96'],['Sold',cat.sold,'','#3f7a16'],['Sold %',conv+'%','','#b8770f'],['Needs review',cat.review,cat.review>0?'hot':'','#b8770f']];
+  /* #10: the Reps drill-in leads with CALL activity (contact_log), not appt/sale data. */
+  const _ids=new Set();for(const g of mine)for(const d of g.dls){(d.opportunity_ids||[]).forEach(o=>_ids.add(o));_ids.add(d.dl_number);}
+  let _calls=0,_conn=0,_appt=0;for(const c of contacts){if(!_ids.has(c.opportunity_id))continue;_calls++;if(c.outcome==='Reached'||c.outcome==='Appointment Set')_conn++;if(c.outcome==='Appointment Set')_appt++;}
+  const _cr=_calls?Math.round(_conn/_calls*100):0;
+  const ksp=[['Leads',mine.length,'','#1A2332'],['Calls logged',_calls,'','#3f6f96'],['Connect %',_cr+'%','','#52961a'],['Appts set',_appt,'','#3a7010'],['Callable',cat.callable,'','#5aa522'],['Sold',cat.sold,'','#3f7a16']];
   const kpiHtml=ksp.map(([l,n,c,col])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
   const q=document.getElementById('repq').value.trim().toLowerCase();
   const view=document.getElementById('repView').value;
@@ -882,7 +898,7 @@ function renderRep(){
   }
   tbl+='</tbody></table>';
   body.innerHTML=`<div class="kpis">${kpiHtml}</div>`+
-    `<div class="panel"><h2>${esc(rep)} &middot; appointment activity &middot; last 30 days</h2>${repApptChart(rep)}</div>`+
+    `<div class="panel"><h2>${esc(rep)} &middot; call activity &middot; last 30 days</h2>${repCallChart(rep)}</div>`+
     `<div class="panel" style="padding:0;overflow:hidden">${tbl}</div>`;
 }
 
