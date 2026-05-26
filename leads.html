@@ -60,6 +60,13 @@
   #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:200}
   #toast.show{opacity:1}
   .loading{padding:40px;text-align:center;color:var(--muted)}
+  tr.row-sold td{background:rgba(120,200,50,.07);color:#7a8a6a}
+  .xbtn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:14px;margin-right:6px;line-height:1}
+  tr.detail td{background:#f7f9f4;padding:12px 18px}
+  .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 18px;margin-bottom:6px;font-size:13px}
+  .dgrid .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .dl-row,.ct-row{font-size:13px;padding:4px 0;border-top:1px solid var(--border)}
+  .dhdr{font-weight:700;font-size:12px;text-transform:uppercase;color:var(--muted);margin:10px 0 2px}
 </style>
 </head>
 <body>
@@ -194,7 +201,7 @@ async function initApp(){
   try{
     const [{ data: dls, error: e1 }, { data: cl }, { data: mgrs }, { data: reps }] = await Promise.all([
       sb.from('direct_leads').select('dl_number,dl_sf_id,property_id,homeowner_name,lead_source,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,opportunity_ids,sold,sold_contract_date,sold_rep,properties(property_id,town,county,dnc,sold,quality_flags)').order('last_appt_date',{ascending:false}),
-      sb.from('contact_log').select('opportunity_id,contacted_at,outcome'),
+      sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date'),
       sb.from('managers').select('name').order('name'),
       sb.from('reps').select('name').order('name'),
     ]);
@@ -276,6 +283,22 @@ function renderTracker(){
 /* ── Table ── */
 const STATE={noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],goback:['Go Back','b-goback'],nosale:['No Sale','b-nosale']};
 function stateBadge(s){const m=STATE[s];if(m)return `<span class="badge ${m[1]}">${m[0]}</span>`;const lbl={ready:'Ready',ran:'Ran',sold:'Sold',dq:'DQ'}[s]||s||'--';return `<span class="badge">${esc(lbl)}</span>`;}
+function buildDetail(g){
+  const p=g.primary;
+  const meta=[['Lead source',p.lead_source],['Set by',p.set_by],['Original rep',p.original_rep],['First appt',fmtDate(p.first_appt_date)],['Appointments',p.appt_count],['County',g.property.county]];
+  let h='<div class="dgrid">'+meta.map(([k,v])=>`<div><div class="k">${esc(k)}</div>${esc(v==null||v===''?'--':v)}</div>`).join('')+'</div>';
+  if(g.dls.length>1){
+    h+='<div class="dhdr">Direct Leads at this property ('+g.dls.length+')</div>';
+    for(const d of g.dls){h+=`<div class="dl-row">${esc(d.dl_number)} &middot; ${stateBadge(d.lifecycle_state)} &middot; ${esc(d.homeowner_name||'')} &middot; last ${fmtDate(d.last_appt_date)} &middot; ${esc(d.assigned_to||'unassigned')}${d.dl_sf_id?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(d.dl_sf_id))}">SF &nearr;</a>`:''}</div>`;}
+  }
+  const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
+  const cs=contacts.filter(c=>ids.has(c.opportunity_id)).sort((a,b)=>(b.contacted_at||'').localeCompare(a.contacted_at||''));
+  h+='<div class="dhdr">Contact history ('+cs.length+')</div>';
+  if(!cs.length)h+='<div class="sub">No logged QC calls yet.</div>';
+  else for(const c of cs){h+=`<div class="ct-row"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.notes?' &middot; '+esc(c.notes):''}${c.next_step?` &middot; next: ${esc(c.next_step)}`:''}</div>`;}
+  return h;
+}
+function toggleDetail(key){const el=document.getElementById('d-'+key);if(el)el.style.display=el.style.display==='none'?'table-row':'none';}
 function render(){
   const q=document.getElementById('q').value.trim().toLowerCase();
   const fRep=document.getElementById('fRep').value;
@@ -296,7 +319,7 @@ function render(){
     if(q){const hay=((g.primary.homeowner_name||'')+' '+(g.property.town||'')+' '+st+' '+g.dls.map(d=>d.dl_number).join(' ')).toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
-  rows.sort((a,b)=>(b.primary.last_appt_date||'').localeCompare(a.primary.last_appt_date||''));
+  rows.sort((a,b)=>{const sa=a.anySold?1:0,sb2=b.anySold?1:0;if(sa!==sb2)return sa-sb2;return (b.primary.last_appt_date||'').localeCompare(a.primary.last_appt_date||'');});
   if(!rows.length){document.getElementById('tableWrap').innerHTML='<div class="empty">No leads match.</div>';return;}
   let h='<table><thead><tr><th>Homeowner</th><th>Town</th><th>State</th><th>Status</th><th>Assigned</th><th>Last appt</th><th>Last outcome</th><th>Contacts</th><th>Salesforce</th><th></th></tr></thead><tbody>';
   for(const g of rows){
@@ -307,8 +330,9 @@ function render(){
     const ooState=(g.property.quality_flags||[]).includes('non_ct')?' <span class="badge b-ooState">non-CT</span>':'';
     const link=p.dl_sf_id?`<a class="sflink" href="${SF.replace('{}',esc(p.dl_sf_id))}" target="_blank" rel="noopener">Open DL &nearr;</a>`:'<span class="sub">no link</span>';
     const repOpts=['<option value="">Unassigned</option>'].concat(people.map(n=>`<option ${n===p.assigned_to?'selected':''}>${esc(n)}</option>`)).join('');
-    h+=`<tr>
-      <td><span class="name">${esc(p.homeowner_name||'--')}</span>${dup}${sold}${dnc}<div class="sub">${esc(p.dl_number)}</div></td>
+    const key=g.property.property_id||p.dl_number;
+    h+=`<tr class="${g.anySold?'row-sold':''}">
+      <td><button class="xbtn" onclick="toggleDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${dup}${sold}${dnc}<div class="sub">${esc(p.dl_number)}</div></td>
       <td>${esc(town)}${county}${ooState}</td>
       <td>${stateBadge(p.lifecycle_state)}</td>
       <td><span class="badge ${g.primary.status==='do_not_call'?'b-dnc':''}">${esc(p.status||'pending')}</span></td>
@@ -318,7 +342,8 @@ function render(){
       <td style="text-align:center">${contactCount(g)}</td>
       <td>${link}</td>
       <td><button class="act danger" onclick="toggleDnc('${g.property.property_id||''}',${g.dnc})">${g.dnc?'Un-DNC':'DNC'}</button></td>
-    </tr>`;
+    </tr>
+    <tr class="detail" id="d-${esc(key)}" style="display:none"><td colspan="10">${buildDetail(g)}</td></tr>`;
   }
   h+='</tbody></table>';
   document.getElementById('tableWrap').innerHTML=h;
@@ -326,18 +351,20 @@ function render(){
 
 /* ── Actions ── */
 async function assign(dlNumber, rep){
-  const { error }=await sb.from('direct_leads').update({assigned_to:rep||null}).eq('dl_number',dlNumber);
+  const { data, error }=await sb.from('direct_leads').update({assigned_to:rep||null}).eq('dl_number',dlNumber).select('dl_number');
   if(error){toast('Assign failed: '+error.message);return;}
+  if(!data||!data.length){toast('Not permitted (need manager access).');return;}
   const g=props.find(x=>x.dls.some(d=>d.dl_number===dlNumber));if(g){g.dls.forEach(d=>{if(d.dl_number===dlNumber)d.assigned_to=rep||null;});g.primary.assigned_to=rep||null;}
   toast(rep?('Assigned to '+rep):'Unassigned');renderKpis();
 }
 async function toggleDnc(propId, isDnc){
-  if(!propId){toast('No property id');return;}
+  if(!propId){toast('No property id for this row');return;}
   if(!isDnc && !confirm('Mark this property Do-Not-Contact? It will be hidden from the active list and never re-added.'))return;
-  const { error }=await sb.from('properties').update({dnc:!isDnc, dnc_source:'manual', dnc_set_at:new Date().toISOString()}).eq('property_id',propId);
-  if(error){toast('DNC update failed: '+error.message);return;}
+  const { data, error }=await sb.from('properties').update({dnc:!isDnc, dnc_source:'manual', dnc_set_at:new Date().toISOString()}).eq('property_id',propId).select('property_id');
+  if(error){toast('DNC failed: '+error.message);return;}
+  if(!data||!data.length){toast('Not permitted (need manager access).');return;}
   const g=props.find(x=>x.property&&x.property.property_id===propId);if(g){g.property.dnc=!isDnc;g.dnc=!isDnc;}
-  toast(!isDnc?'Marked DNC':'DNC removed');renderKpis();render();
+  toast(!isDnc?'Marked DNC (hidden; toggle "show DNC" to see)':'DNC removed');renderKpis();render();
 }
 
 /* called by /auth-gate.js if present; harmless otherwise */
