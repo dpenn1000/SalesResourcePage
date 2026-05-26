@@ -459,7 +459,9 @@ function renderTeamChart(){
   const segs=[{k:'noanswer',cls:'noanswer',label:'No answer'},{k:'reached',cls:'reached',label:'Reached'},{k:'appt',cls:'appt',label:'Appt set'}];
   const tot=slots.list.reduce((a,s)=>{a.c+=s.total;a.r+=(s.c.reached||0)+(s.c.appt||0);a.a+=(s.c.appt||0);return a;},{c:0,r:0,a:0});
   const footer=`<span style="margin-right:auto;color:var(--ink);font-weight:600">${tot.c} calls &middot; ${tot.r} connected &middot; ${tot.a} appts set</span>`;
-  document.getElementById('teamchart').innerHTML=renderStackChart(slots,segs,footer);
+  const el=document.getElementById('teamchart');
+  el.classList.remove('loading');   /* drop the loading wrapper's padding + text-align:center so this container matches the (working) rep-chart panel */
+  el.innerHTML=renderStackChart(slots,segs,footer);
 }
 /* Map an appointment outcome to a per-rep chart bucket. */
 function apptKind(outcome){
