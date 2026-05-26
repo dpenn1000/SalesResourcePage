@@ -797,7 +797,7 @@ function buildDetail(g){
     h+=`<div class="dl-row">${esc(d.dl_number)} &middot; ${stateBadge(d.lifecycle_state)} &middot; ${esc(d.homeowner_name||'')} &middot; rep ${esc(d.original_rep||'--')} &middot; ${esc(d.assigned_to||'unassigned')}${d.dl_sf_id?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(d.dl_sf_id))}">SF &nearr;</a>`:''}</div>`;
     const appts=d.appointments||[];
     if(!appts.length)h+='<div class="appt sub">No appointment detail.</div>';
-    else for(const a of appts){h+=`<div class="appt"><span class="appt-d">${fmtDate(a.date)}${a.at?' '+fmtTime(a.at):''}</span> <b>${esc(a.outcome||'--')}</b>${a.rep?' &middot; '+esc(a.rep):''}${a.notes?`<div class="appt-n">${esc(a.notes)}</div>`:''}</div>`;}
+    else for(const a of appts){h+=`<div class="appt"><span class="appt-d">${fmtDate(a.date)}${a.at?' '+fmtTime(a.at):''}</span> <b>${esc(a.outcome||'--')}</b>${a.rep?' &middot; '+esc(a.rep):''}${a.job?' &middot; '+(a.job_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(a.job_sf_id))}">${esc(a.job)} &nearr;</a>`:esc(a.job)):''}${a.notes?`<div class="appt-n">${esc(a.notes)}</div>`:''}</div>`;}
   }
   /* #7: unified history timeline from lead_events (appointments + calls + sold,
      interleaved, with source). Lazy-loaded on expand so it scales as events grow. */
@@ -813,7 +813,7 @@ async function loadTimeline(key,g){
   const el=document.getElementById('tl-'+key);if(!el)return;
   const pid=g.property&&g.property.property_id;
   const dls=g.dls.map(d=>d.dl_number).filter(Boolean);
-  let q=sb.from('lead_events').select('event_type,occurred_at,rep,outcome,notes,source').order('occurred_at',{ascending:false}).limit(500);
+  let q=sb.from('lead_events').select('event_type,occurred_at,rep,outcome,notes,source,meta').order('occurred_at',{ascending:false}).limit(500);
   q = pid ? q.eq('property_id',pid) : q.in('dl_number',dls);
   const { data, error }=await q;
   if(error){el.innerHTML='<div class="sub">Timeline unavailable: '+esc(error.message)+'</div>';return;}
@@ -826,7 +826,9 @@ function renderTimeline(events){
     const t=TY[e.event_type]||[String(e.event_type||'').toUpperCase().slice(0,6),'#9aa7b6'];
     const when=fmtDate(e.occurred_at)+(e.event_type==='call'?' '+fmtTime(e.occurred_at):'');
     const bits=[];if(e.rep)bits.push(esc(e.rep));if(e.source)bits.push('<span class="sub">'+esc(e.source)+'</span>');
-    return `<div class="tl-evt"><span class="tl-badge" style="background:${t[1]}">${t[0]}</span><span class="tl-when">${when}</span> <b>${esc(e.outcome||'--')}</b>${bits.length?' &middot; '+bits.join(' &middot; '):''}${e.notes?`<div class="tl-n">${esc(e.notes)}</div>`:''}</div>`;
+    const job=e.meta&&e.meta.job;
+    const jobHtml=job?(e.meta.job_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(e.meta.job_sf_id))}">${esc(job)} &nearr;</a>`:esc(job)):'';
+    return `<div class="tl-evt"><span class="tl-badge" style="background:${t[1]}">${t[0]}</span><span class="tl-when">${when}</span> <b>${esc(e.outcome||'--')}</b>${job?' &middot; '+jobHtml:''}${bits.length?' &middot; '+bits.join(' &middot; '):''}${e.notes?`<div class="tl-n">${esc(e.notes)}</div>`:''}</div>`;
   }).join('');
 }
 function toggleDetail(key){
