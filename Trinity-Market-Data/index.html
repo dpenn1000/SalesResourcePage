@@ -181,6 +181,33 @@ footer { padding:48px 52px; background:var(--charcoal); border-top:1px solid rgb
   .quote-band{padding:64px 24px;} .links-bar{padding:20px 24px;}
   footer{padding:40px 24px;} .foot-states{white-space:normal;} .foot-disc{max-width:100%;}
 }
+
+/* REVIEWS / REPUTATION */
+.rep-stats { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--white); margin-bottom:22px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+.rep-stat { text-align:center; padding:30px 18px; border-right:1px solid var(--border); }
+.rep-stat:last-child { border-right:none; }
+.rep-stat-n { font-size:2.3rem; font-weight:700; line-height:1; margin-bottom:9px; }
+.rep-stat-n.blue { color:var(--blue); }
+.rep-stat-n.green { color:var(--green); }
+.rep-stat-l { font-size:0.68rem; color:var(--muted); letter-spacing:0.04em; line-height:1.5; text-transform:uppercase; }
+.math-box { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--green); border-radius:4px; padding:18px 22px; margin-bottom:46px; }
+.math-box p { font-size:0.86rem; color:var(--body-txt); line-height:1.8; }
+.math-box strong { color:var(--charcoal); font-weight:600; }
+.rev-card { display:flex; flex-direction:column; gap:13px; }
+.rev-stars { font-size:1rem; letter-spacing:3px; color:#E8A33D; }
+.rev-stars .dim { color:var(--border-m); }
+.rev-quote { font-size:0.92rem; color:var(--charcoal); line-height:1.72; font-style:italic; }
+.rev-attr { font-size:0.68rem; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; font-weight:500; }
+.rev-resp { font-size:0.79rem; color:var(--muted); line-height:1.68; border-top:1px solid var(--border); padding-top:12px; margin-top:4px; }
+.rev-resp strong { color:var(--green); font-weight:600; }
+.rev-readall { display:flex; flex-wrap:wrap; align-items:center; gap:16px; margin-top:18px; font-size:0.82rem; color:var(--muted); }
+.rev-readall a { color:var(--blue); text-decoration:none; font-weight:500; border-bottom:1px solid transparent; transition:border-color 0.2s; }
+.rev-readall a:hover { border-bottom-color:var(--blue); }
+@media(max-width:960px){
+  .rep-stats{grid-template-columns:repeat(2,1fr);}
+  .rep-stat:nth-child(2){border-right:none;}
+  .rep-stat:nth-child(1),.rep-stat:nth-child(2){border-bottom:1px solid var(--border);}
+}
 </style>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/auth-gate.css">
@@ -232,6 +259,7 @@ footer { padding:48px 52px; background:var(--charcoal); border-top:1px solid rgb
   <div class="nav-links">
     <a href="#data">The Data</a>
     <a href="#why">Why Trinity</a>
+    <a href="#reviews">Reviews</a>
     <a href="https://www.trinitysolar.com/solar-batteries" target="_blank">Solar &amp; Batteries</a>
     <a href="https://www.trinitysolar.com/learning" target="_blank">Learning Center</a>
     <a href="https://www.trinitysolar.com/about-us/contact-us" target="_blank">Contact</a>
@@ -300,6 +328,55 @@ footer { padding:48px 52px; background:var(--charcoal); border-top:1px solid rgb
     <div class="card"><div class="card-icon blue">&#x1F91D;</div><h3>A Partner, Not a Transaction</h3><p>We've been here for 32 years. When others have exited or stopped answering, Trinity customers have always had someone to call.</p></div>
     <div class="card"><div class="card-icon green">&#x1F3E0;</div><h3>Total Home Solutions</h3><p>Beyond solar, roofing, batteries, and EV charging, all backed by industry-leading warranties from the same team protecting CT homes for three decades.</p></div>
   </div>
+</section>
+
+<!-- SURVIVAL ROLL CALL -->
+<div class="quote-band reveal">
+  <div class="quote-inner">
+    <span class="q-mark">&ldquo;</span>
+    <p class="q-text">In 2019, Trinity shared the national installer leaderboard with SunPower, Vivint, SolarCity, Sungevity, Titan, and PetersenDean. <em>Most of them no longer exist.</em></p>
+    <p class="q-attr">Wood Mackenzie U.S. PV Leaderboard &nbsp;.&nbsp; 2019 to 2025</p>
+  </div>
+</div>
+
+<!-- REVIEWS -->
+<section class="sec reveal" id="reviews">
+  <p class="sec-eye green">Reputation, in the open</p>
+  <h2 class="sec-title">We want you to read the bad reviews too.</h2>
+  <p class="sec-body">No company that has installed 120,000+ systems has a clean sheet. Disney has one-star reviews. The real question was never whether Trinity has unhappy customers. It is how many, and what happens when one calls.</p>
+
+  <div class="rep-stats">
+    <div class="rep-stat"><div class="rep-stat-n green">A+</div><div class="rep-stat-l">BBB rating, accredited since 2001</div></div>
+    <div class="rep-stat"><div class="rep-stat-n blue">3.64&#9733;</div><div class="rep-stat-l">Across 165 verified BBB reviews</div></div>
+    <div class="rep-stat"><div class="rep-stat-n green">0.18%</div><div class="rep-stat-l">Of 120,000+ installs drew a formal complaint</div></div>
+    <div class="rep-stat"><div class="rep-stat-n blue">100</div><div class="rep-stat-l">Complaints resolved in the last 12 months</div></div>
+  </div>
+
+  <div class="math-box">
+    <p><strong>The math, with nothing hidden:</strong> the BBB logged 220 complaints over three years, set against the 120,000+ systems Trinity has installed. That is fewer than 2 homes in every 1,000. Put another way, roughly 99.8 percent of the families Trinity has served never filed one. Perfect was never possible. This is as close as the industry gets.</p>
+  </div>
+
+  <div class="cards">
+    <div class="card rev-card">
+      <div class="rev-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="rev-quote">"Professional, knowledgeable, and took the time to explain the entire solar process clearly. No pressure, just honest answers."</p>
+      <p class="rev-attr">Verified BBB review</p>
+    </div>
+    <div class="card rev-card">
+      <div class="rev-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <p class="rev-quote">"Top notch from the first visit through final inspection. They were proud to work for Trinity, and it showed in the work."</p>
+      <p class="rev-attr">Verified BBB review</p>
+    </div>
+    <div class="card rev-card">
+      <div class="rev-stars">&#9733;&#9733;<span class="dim">&#9733;&#9733;&#9733;</span></div>
+      <p class="rev-quote">"Signed up for leased panels and ended up re-signing the contract three times over the year. The back and forth tested my patience."</p>
+      <p class="rev-attr">Critical BBB review</p>
+      <p class="rev-resp"><strong>How Trinity handles this:</strong> repeat signings almost always trace to a state program or financing change mid-process, not a mistake on the roof. Accounts like this route to a dedicated resolution team. The A+ rating reflects that follow-through, not a spotless record.</p>
+    </div>
+  </div>
+
+  <p class="sec-body" style="margin-top:44px;max-width:640px;">Most of the hard moments in solar start outside the install. A state program changes. A utility rewrites its rules. Financing shifts overnight. Trinity's real advantage is seeing those turns coming and routing around them, which is why more Connecticut homes go solar with Trinity than with anyone else. You do not have to take that on faith.</p>
+  <p class="rev-readall"><span>Read them yourself:</span> <a href="https://www.bbb.org/us/nj/wall-township/profile/solar-energy-design/trinity-solar-0221-16001220/customer-reviews" target="_blank">All 165 BBB reviews &#x2197;</a> <a href="https://www.google.com/search?q=Trinity+Solar+Reviews" target="_blank">Google reviews &#x2197;</a></p>
 </section>
 
 <div class="links-bar reveal">
