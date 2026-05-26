@@ -70,6 +70,19 @@
   .appt{font-size:13px;padding:3px 0 4px 14px;border-left:2px solid var(--border);margin:2px 0 4px 6px}
   .appt-d{color:var(--muted);font-size:12px}
   .appt-n{color:var(--ink);background:#fff;border:1px solid var(--border);border-radius:6px;padding:6px 9px;margin-top:3px;white-space:pre-wrap;font-size:12.5px;line-height:1.45}
+  .tabnav{display:flex;gap:2px;background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px}
+  .tab{background:none;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;color:var(--muted);padding:12px 16px;border-bottom:2px solid transparent}
+  .tab:hover{color:var(--ink)}
+  .tab.active{color:var(--ink);border-bottom-color:var(--green)}
+  .dp-chart{display:flex;align-items:flex-end;gap:3px;height:180px;padding:10px 8px 0;background:#fff;border:1px solid var(--border);border-radius:10px}
+  .dp-bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+  .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.35;white-space:nowrap;text-align:center;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
+  .dp-bar:hover .dp-tip{display:block}
+  .dp-stack{display:flex;flex-direction:column-reverse;width:64%;min-width:5px}
+  .dp-seg{width:100%}.dp-seg.appt{background:#3a7010;border-radius:2px 2px 0 0}.dp-seg.reached{background:#78C832}.dp-seg.noanswer{background:#cbd3dc}
+  .dp-xlabel{font-size:10px;color:#9aa7b4;margin-top:4px}.dp-today{color:#3a7010;font-weight:700}
+  .dp-legend{display:flex;gap:14px;margin:8px 2px 0;font-size:11px;color:var(--muted)}.dp-legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .dp-dot.appt{background:#3a7010}.dp-dot.reached{background:#78C832}.dp-dot.noanswer{background:#cbd3dc}
 </style>
 </head>
 <body>
@@ -113,29 +126,45 @@
     <button class="hbtn" onclick="signOut()">Sign out</button>
   </header>
 
+  <div class="tabnav">
+    <button class="tab active" data-tab="dashboard" onclick="setTab('dashboard')">Dashboard</button>
+    <button class="tab" data-tab="leads" onclick="setTab('leads')">Leads</button>
+    <button class="tab" data-tab="reps" onclick="setTab('reps')">Reps</button>
+    <button class="tab" data-tab="load" onclick="setTab('load')">Load</button>
+  </div>
   <div class="wrap">
-    <div id="kpis" class="kpis"></div>
-
-    <div class="panel">
-      <h2>Daily activity (last 7 days)</h2>
-      <div id="tracker" class="loading">Loading...</div>
+    <div id="tab-dashboard" class="tabpanel">
+      <div id="kpis" class="kpis"></div>
+      <div class="panel">
+        <h2>Team daily call activity &middot; last 21 days</h2>
+        <div id="teamchart" class="loading">Loading...</div>
+      </div>
     </div>
 
-    <div class="toolbar">
-      <input type="search" id="q" placeholder="Search name, town, DL#..." oninput="render()">
-      <select id="fRep" onchange="render()"><option value="">All reps</option><option value="__unassigned">Unassigned</option></select>
-      <select id="fState" onchange="render()">
-        <option value="">Actionable</option>
-        <option value="noshow">No Show</option><option value="cancel">Cancelled</option>
-        <option value="goback">Go Back</option><option value="nosale">No Sale</option>
-        <option value="ready">Ready</option><option value="ran">Ran</option>
-      </select>
-      <label class="chk"><input type="checkbox" id="showSold" onchange="render()"> show sold</label>
-      <label class="chk"><input type="checkbox" id="showDnc" onchange="render()"> show DNC</label>
-      <label class="chk"><input type="checkbox" id="dupOnly" onchange="render()"> duplicates only</label>
+    <div id="tab-leads" class="tabpanel" style="display:none">
+      <div class="toolbar">
+        <input type="search" id="q" placeholder="Search name, town, DL#..." oninput="render()">
+        <select id="fRep" onchange="render()"><option value="">All reps</option><option value="__unassigned">Unassigned</option></select>
+        <select id="fState" onchange="render()">
+          <option value="">Actionable</option>
+          <option value="noshow">No Show</option><option value="cancel">Cancelled</option>
+          <option value="goback">Go Back</option><option value="nosale">No Sale</option>
+          <option value="ready">Ready</option><option value="ran">Ran</option>
+        </select>
+        <label class="chk"><input type="checkbox" id="showSold" onchange="render()"> show sold</label>
+        <label class="chk"><input type="checkbox" id="showDnc" onchange="render()"> show DNC</label>
+        <label class="chk"><input type="checkbox" id="dupOnly" onchange="render()"> duplicates only</label>
+      </div>
+      <div id="tableWrap"><div class="loading">Loading leads...</div></div>
     </div>
 
-    <div id="tableWrap"><div class="loading">Loading leads...</div></div>
+    <div id="tab-reps" class="tabpanel" style="display:none">
+      <div class="panel"><div class="sub">Per-rep lead-call detail (activity graph, their leads, triage) is coming in the next deploy.</div></div>
+    </div>
+
+    <div id="tab-load" class="tabpanel" style="display:none">
+      <div class="panel"><div class="sub">Manual lead add is coming soon. Leads currently sync automatically from the parser.</div></div>
+    </div>
   </div>
 </div>
 
@@ -216,7 +245,7 @@ async function initApp(){
     groupByProperty(dls||[]);
     const rsel=document.getElementById('fRep');
     for(const n of people){rsel.appendChild(new Option(n,n));}
-    renderKpis();renderTracker();render();
+    renderKpis();renderTeamChart();render();
   }catch(err){
     document.getElementById('tableWrap').innerHTML='<div class="empty">Load failed: '+esc(err.message||err)+'</div>';
   }
@@ -261,27 +290,29 @@ function renderKpis(){
   document.getElementById('kpis').innerHTML=k.map(([l,n])=>`<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
 }
 
-/* ── Daily tracker (contacts/day, last 7 days) ── */
-function renderTracker(){
-  const days=[];const today=new Date();
-  for(let i=6;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);days.push(d.toISOString().slice(0,10));}
-  // map opportunity_id -> assigned rep (via property primary)
-  const oppRep={};
-  props.forEach(g=>{const rep=g.primary.assigned_to;if(rep)for(const dl of g.dls)for(const oid of (dl.opportunity_ids||[]))oppRep[oid]=rep;});
-  const byRep={};
-  for(const c of contacts){
-    const day=(c.contacted_at||'').slice(0,10);if(!days.includes(day))continue;
-    const rep=oppRep[c.opportunity_id]||'Unassigned';
-    byRep[rep]=byRep[rep]||{};byRep[rep][day]=(byRep[rep][day]||0)+1;
-  }
-  const reps=Object.keys(byRep).sort((a,b)=>{const sa=Object.values(byRep[a]).reduce((x,y)=>x+y,0),sb2=Object.values(byRep[b]).reduce((x,y)=>x+y,0);return sb2-sa;});
-  if(!reps.length){document.getElementById('tracker').innerHTML='<div class="sub">No logged contacts in the last 7 days.</div>';return;}
-  const cls=n=>n===0?'c0':n<=2?'c1':n<=5?'c2':'c3';
-  let h='<div class="track-grid"><div class="th"></div>'+days.map(d=>`<div class="th">${new Date(d+'T12:00').toLocaleDateString('en-US',{weekday:'short'})}</div>`).join('')+'<div class="th">Total</div>';
-  for(const rep of reps){const row=byRep[rep];const tot=Object.values(row).reduce((x,y)=>x+y,0);
-    h+=`<div class="rep">${esc(rep)}</div>`+days.map(d=>{const n=row[d]||0;return `<div class="cell ${cls(n)}">${n||''}</div>`;}).join('')+`<div class="cell" style="font-weight:700">${tot}</div>`;}
-  h+='</div>';
-  document.getElementById('tracker').innerHTML=h;
+/* ── Stacked daily call-activity chart (team-wide, reused per-rep in Phase 2) ── */
+function renderTeamChart(){ document.getElementById('teamchart').innerHTML = dailyBarChart(contacts); }
+function dailyBarChart(cts){
+  const WIN=21,today=new Date();today.setHours(0,0,0,0);
+  const slots=[],byKey={};
+  for(let i=WIN-1;i>=0;i--){const d=new Date(today);d.setDate(d.getDate()-i);const k=d.toISOString().slice(0,10);const s={date:d,key:k,appt:0,reached:0,noanswer:0,total:0};slots.push(s);byKey[k]=s;}
+  for(const c of (cts||[])){const ts=c.contacted_at||c.created_at;if(!ts)continue;const s=byKey[String(ts).slice(0,10)];if(!s)continue;const o=c.outcome;if(o==='Appointment Set')s.appt++;else if(o==='Reached')s.reached++;else s.noanswer++;s.total++;}
+  const max=Math.max(1,...slots.map(s=>s.total)),H=140,todayKey=today.toISOString().slice(0,10);
+  const h=n=>n?Math.max(2,Math.round(n/max*H)):0;
+  const seg=(n,cls)=>n?`<div class="dp-seg ${cls}" style="height:${h(n)}px"></div>`:'';
+  const bars=slots.map(s=>{
+    const dl=s.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    const conn=s.reached+s.appt;
+    const tip=`${dl}: ${s.total} call${s.total===1?'':'s'}`+(s.total?` (${conn} connected${s.appt?', '+s.appt+' appt':''}, ${s.noanswer} no answer)`:'');
+    const th=`<div class="dp-tip"><b>${dl}</b><br>${s.total} call${s.total===1?'':'s'}`+(s.total?`<br>${conn} connected${s.appt?' ('+s.appt+' appt)':''}<br>${s.noanswer} no answer`:'')+`</div>`;
+    return `<div class="dp-bar" title="${tip}">${th}<div class="dp-stack">${seg(s.noanswer,'noanswer')}${seg(s.reached,'reached')}${seg(s.appt,'appt')}</div><div class="dp-xlabel${s.key===todayKey?' dp-today':''}">${s.date.getDate()}</div></div>`;
+  }).join('');
+  const tot=slots.reduce((a,s)=>{a.c+=s.total;a.r+=s.reached+s.appt;a.a+=s.appt;return a;},{c:0,r:0,a:0});
+  return `<div class="dp-chart">${bars}</div><div class="dp-legend"><span style="margin-right:auto;color:var(--ink);font-weight:600">${tot.c} calls &middot; ${tot.r} connected &middot; ${tot.a} appts set</span><span><i class="dp-dot appt"></i>Appt set</span><span><i class="dp-dot reached"></i>Reached</span><span><i class="dp-dot noanswer"></i>No answer</span></div>`;
+}
+function setTab(t){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.querySelectorAll('.tabpanel').forEach(p=>{p.style.display=(p.id==='tab-'+t)?'block':'none';});
 }
 
 /* ── Table ── */
