@@ -78,10 +78,11 @@
   .dp-col{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;height:100%;position:relative}
   .dp-stack{display:flex;flex-direction:column-reverse;width:66%;min-width:6px}
   .dp-seg{width:100%}
-  .dp-seg.appt{background:linear-gradient(180deg,#f1c14b,#C88C00);border-radius:3px 3px 0 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.45)}
-  .dp-seg.reached{background:linear-gradient(180deg,#92dd4d,#5aa522)}
-  .dp-seg.sched{background:linear-gradient(180deg,#5ec2ee,#2392cc)}
-  .dp-seg.noanswer{background:linear-gradient(180deg,#e3e8ed,#c2cad4)}
+  .dp-seg.appt{background:linear-gradient(180deg,#5aa522,#3f7a16);border-radius:3px 3px 0 0}
+  .dp-seg.reached{background:linear-gradient(180deg,#9ad657,#74bd33)}
+  .dp-seg.sched{background:linear-gradient(180deg,#5a93bd,#3f6f96)}
+  .dp-seg.noanswer{background:linear-gradient(180deg,#c6ced8,#a4b1bf)}
+  .dp-seg:first-child{border-radius:0 0 2px 2px}
   .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.4;white-space:nowrap;text-align:left;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
   .dp-col:hover .dp-tip{display:block}
   .dp-col:hover .dp-stack{filter:brightness(1.07) saturate(1.05)}
@@ -90,9 +91,11 @@
   .dp-today{color:#C88C00;font-weight:700}
   .dp-legend{display:flex;gap:14px;margin:8px 2px 0;font-size:11px;color:var(--muted);flex-wrap:wrap}
   .dp-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
-  .dp-dot.appt{background:linear-gradient(180deg,#f1c14b,#C88C00)}.dp-dot.reached{background:linear-gradient(180deg,#92dd4d,#5aa522)}.dp-dot.sched{background:linear-gradient(180deg,#5ec2ee,#2392cc)}.dp-dot.noanswer{background:#cbd3dc}
+  .dp-dot.appt{background:linear-gradient(180deg,#5aa522,#3f7a16)}.dp-dot.reached{background:linear-gradient(180deg,#9ad657,#74bd33)}.dp-dot.sched{background:linear-gradient(180deg,#5a93bd,#3f6f96)}.dp-dot.noanswer{background:#b3bdc9}
   .b-sched{background:rgba(41,169,225,.14);color:#1070a0}
   .b-callable{background:rgba(120,200,50,.18);color:#3a7010}
+  .b-direct{background:rgba(184,119,15,.16);color:#8a5800;border:1px solid rgba(184,119,15,.45)}
+  .b-trad{background:rgba(90,165,34,.14);color:#3f7a16}
   .b-review{background:rgba(214,48,48,.14);color:#a02020}
   .b-cooldown{background:rgba(41,169,225,.1);color:#1070a0}
   .act.review{border-color:var(--amber);color:#8a5800;background:rgba(200,140,0,.08);font-weight:600}
@@ -198,7 +201,13 @@
           <option value="">All states</option>
           <option value="noshow">No Show</option><option value="cancel">Cancelled</option>
           <option value="goback">Go Back</option><option value="nosale">No Sale</option>
-          <option value="ready">Ready</option><option value="ran">Ran</option>
+          <option value="ready">Scheduled</option><option value="ran">Ran</option><option value="new">New (manual)</option>
+        </select>
+        <select id="fType" onchange="render()" title="Direct leads belong to a rep -- don't dispatch them">
+          <option value="">All types</option>
+          <option value="trad">Traditional (dispatchable)</option>
+          <option value="direct">Direct (rep-owned)</option>
+          <option value="unknown">Unknown source</option>
         </select>
         <label class="chk"><input type="checkbox" id="dupOnly" onchange="render()"> duplicates only</label>
         <button class="act" id="expandAllBtn" onclick="toggleExpandAll()" style="margin-left:auto">Expand all</button>
@@ -391,30 +400,32 @@ function renderKpis(){
   const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
   let unassigned=0;
   for(const g of props){const c=leadCategory(g);cat[c]=(cat[c]||0)+1;if(c==='callable'&&!g.primary.assigned_to)unassigned++;}
-  const k=[['Callable now',cat.callable,'','#5aa522'],['Scheduled',cat.scheduled,'','#2392cc'],['Needs review',cat.review,cat.review>0?'hot':'','#C88C00'],['In cooldown',cat.cooldown,'','#3aa0d8'],['Unassigned',unassigned,'','#9aa7b4'],['Sold',cat.sold,'','#3a7010'],['DNC',cat.dnc,'','#D63030'],['Total homes',props.length,'','#1A2332']];
+  const k=[['Callable now',cat.callable,'','#5aa522'],['Scheduled',cat.scheduled,'','#3f6f96'],['Needs review',cat.review,cat.review>0?'hot':'','#b8770f'],['In cooldown',cat.cooldown,'','#5a93bd'],['Unassigned',unassigned,'','#6f7d8c'],['Sold',cat.sold,'','#3f7a16'],['DNC',cat.dnc,'','#a85a3f'],['Total homes',props.length,'','#1A2332']];
   document.getElementById('kpis').innerHTML=k.map(([l,n,c,col])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
 }
 /* ── Dashboard breakdown cards ── */
 function renderDashDetail(){
-  const byState={},byStatus={},byRep={},byTown={};
+  const byState={},byType={},byRep={},byTown={};
   for(const g of props){
     const st=g.primary.lifecycle_state||'other'; byState[st]=(byState[st]||0)+1;
-    const stt=g.dnc?'DNC':(g.primary.status||'pending'); byStatus[stt]=(byStatus[stt]||0)+1;
-    const r=g.primary.assigned_to||g.primary.original_rep||'Unassigned'; byRep[r]=(byRep[r]||0)+1;
+    const ty=leadType(g); const tl=ty==='direct'?'Direct':ty==='trad'?'Traditional':'Unknown'; byType[tl]=(byType[tl]||0)+1;
+    const r=g.primary.assigned_to||'Unassigned'; byRep[r]=(byRep[r]||0)+1;   /* relative to dispatch (assignment), not the appointment rep */
     const t=g.property.town||'(unknown)'; byTown[t]=(byTown[t]||0)+1;
   }
+  /* one cohesive palette: green = good/go, steel = in-progress, slate = inert/neutral, amber = attention */
+  const G={green:'linear-gradient(90deg,#5aa522,#7ec63f)',dgreen:'linear-gradient(90deg,#3f7a16,#5aa522)',steel:'linear-gradient(90deg,#3f6f96,#5a93bd)',slate:'linear-gradient(90deg,#6f7d8c,#95a3b1)',amber:'linear-gradient(90deg,#b8770f,#d99a2b)'};
   const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Scheduled',sold:'Sold',dq:'DQ',new:'New (manual)',other:'Other'};
-  const DISPO={noshow:'#e0644b',cancel:'#e2a23a',goback:'#3aa0d8',nosale:'#8a78d0',ran:'#9aa7b4',ready:'#2392cc',sold:'#5aa522',dq:'#b0b8c0',new:'#5aa522',other:'#c2cad4'};
+  const DISPO={sold:G.dgreen,new:G.green,ready:G.steel,ran:G.steel,goback:G.steel,nosale:G.slate,noshow:G.amber,cancel:G.amber,dq:G.slate,other:G.slate};
   const card=(title,obj,labmap,limit,colorFn,accent)=>{
     const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const max=Math.max(1,...ent.map(e=>e[1]));
     const rows=(limit?ent.slice(0,limit):ent).map(([k,v])=>{
-      const lab=labmap?(labmap[k]||k):k;const col=colorFn?(colorFn(k)||'var(--green)'):(accent||'var(--green)');
+      const lab=labmap?(labmap[k]||k):k;const col=colorFn?(colorFn(k)||G.green):(accent||G.green);
       return `<div class="bl-row"><span class="bl-k" title="${esc(lab)}">${esc(lab)}</span><span class="bl-bar"><span style="width:${Math.round(v/max*100)}%;background:${col}"></span></span><span class="bl-v">${v}</span></div>`;
     }).join('');
     return `<div class="dash-card"><div class="dash-card-title">${esc(title)}</div>${rows||'<div class="sub">None</div>'}</div>`;
   };
-  document.getElementById('dashdetail').innerHTML=`<div class="dash-grid">${card('By disposition',byState,STLAB,null,k=>DISPO[k])}${card('By status',byStatus,null,null,null,'#2392cc')}${card('By rep',byRep,null,10,null,'#C88C00')}${card('Top towns',byTown,null,10,null,'#7a64c8')}</div>`;
+  document.getElementById('dashdetail').innerHTML=`<div class="dash-grid">${card('By disposition',byState,STLAB,null,k=>DISPO[k]||G.slate)}${card('By lead type',byType,null,null,k=>k==='Direct'?G.amber:k==='Traditional'?G.green:G.slate)}${card('By rep (assigned)',byRep,null,10,k=>k==='Unassigned'?G.slate:G.steel)}${card('Top towns',byTown,null,10,null,G.green)}</div>`;
 }
 
 /* ── Stacked daily activity chart (shared: team calls + per-rep appts) ──
@@ -530,17 +541,31 @@ function leadCategory(g){
   }
   return 'other';
 }
+/* ── Direct vs Traditional ──
+   DIRECT = rep-owned (self-gen, any referral, word of mouth, repeat customer,
+   add'l meter sale, Trinity Direct). These belong to the original rep and must
+   NOT be dispatched to the call team. TRADITIONAL = company-sourced (Field
+   Marketing, Web, Purchased, Forge, Fundraising, Prime, THD), freely assignable. */
+function leadType(g){
+  const s=(g.primary.lead_source||'').toLowerCase();
+  if(!s)return 'unknown';
+  if(s.includes('self gen')||s.includes('self-gen')||s.includes('referral')||s.includes('word of mouth')||s.includes('repeat customer')||s.includes('meter sale')||s.includes('trinity direct'))return 'direct';
+  return 'trad';
+}
+function typeBadge(g){const t=leadType(g);if(t==='direct')return ` <span class="badge b-direct" title="Direct lead -- belongs to ${esc(g.primary.original_rep||'a direct rep')}. Do not dispatch.">DIRECT${g.primary.original_rep?' &middot; '+esc(g.primary.original_rep):''}</span>`;if(t==='trad')return ' <span class="badge b-trad">Trad</span>';return '';}
 function render(){
   propByKey={};
   const q=document.getElementById('q').value.trim().toLowerCase();
   const fRep=document.getElementById('fRep').value;
   const fState=document.getElementById('fState').value;
   const fView=document.getElementById('fView').value||'callable';
+  const fType=document.getElementById('fType').value;
   const dupOnly=document.getElementById('dupOnly').checked;
   let rows=props.filter(g=>{
     const cat=leadCategory(g);
     /* a name/DL search looks across every view (it's the manager-review entry point); browsing respects the view lens */
     if(fView!=='all' && !q && cat!==fView)return false;
+    if(fType && leadType(g)!==fType)return false;
     if(dupOnly&&g.dls.length<2)return false;
     const st=g.primary.lifecycle_state||'';
     if(fState && st!==fState)return false;
@@ -565,7 +590,7 @@ function render(){
     const redispatchBtn=cat==='review'?`<button class="act review" onclick="approveRedispatch('${esc(p.dl_number)}')" title="Sat/Stage-2 lead${dsince!=null?', '+dsince+' days ago':''}. Approve to return it to the callable list.">Redispatch</button> `:'';
     const key=g.property.property_id||p.dl_number;propByKey[key]=g;
     h+=`<tr class="${g.anySold?'row-sold':''}" id="r-${esc(key)}">
-      <td><button class="xbtn" onclick="toggleDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${dup}${sold}${dnc}${flag}<div class="sub">${esc(p.dl_number)}</div></td>
+      <td><button class="xbtn" onclick="toggleDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${dup}${sold}${dnc}${flag}${typeBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
       <td>${esc(town)}${county}${ooState}</td>
       <td>${stateBadge(p.lifecycle_state)}</td>
       <td><span class="badge ${g.primary.status==='do_not_call'?'b-dnc':''}">${esc(p.status||'pending')}</span></td>
@@ -600,7 +625,7 @@ function renderRep(){
   const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
   for(const g of mine)cat[leadCategory(g)]=(cat[leadCategory(g)]||0)+1;
   const sat=cat.sold+cat.review+cat.cooldown;const conv=sat?Math.round(cat.sold/sat*100):0;
-  const ksp=[['Leads',mine.length,'','#1A2332'],['Callable',cat.callable,'','#5aa522'],['Scheduled',cat.scheduled,'','#2392cc'],['Sold',cat.sold,'','#3a7010'],['Sold %',conv+'%','','#C88C00'],['Needs review',cat.review,cat.review>0?'hot':'','#C88C00']];
+  const ksp=[['Leads',mine.length,'','#1A2332'],['Callable',cat.callable,'','#5aa522'],['Scheduled',cat.scheduled,'','#3f6f96'],['Sold',cat.sold,'','#3f7a16'],['Sold %',conv+'%','','#b8770f'],['Needs review',cat.review,cat.review>0?'hot':'','#b8770f']];
   const kpiHtml=ksp.map(([l,n,c,col])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
   const q=document.getElementById('repq').value.trim().toLowerCase();
   const view=document.getElementById('repView').value;
@@ -613,7 +638,7 @@ function renderRep(){
   if(!rows.length)tbl+='<tr><td colspan="7" class="empty">No leads match this filter.</td></tr>';
   for(const g of rows){
     const p=g.primary;const key=g.property.property_id||p.dl_number;propByKey[key]=g;
-    tbl+=`<tr class="${g.anySold?'row-sold':''}" id="rr-${esc(key)}"><td><button class="xbtn" onclick="toggleRepDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${g.dls.length>1?` <span class="badge b-dup">${g.dls.length}</span>`:''}<div class="sub">${esc(p.dl_number)}</div></td>
+    tbl+=`<tr class="${g.anySold?'row-sold':''}" id="rr-${esc(key)}"><td><button class="xbtn" onclick="toggleRepDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${g.dls.length>1?` <span class="badge b-dup">${g.dls.length}</span>`:''}${typeBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
       <td>${esc(g.property.town||'--')}</td>
       <td>${stateBadge(p.lifecycle_state)}</td>
       <td>${catBadge(leadCategory(g))}</td>
@@ -629,11 +654,17 @@ function renderRep(){
 
 /* ── Actions ── */
 async function assign(dlNumber, rep){
+  const g=props.find(x=>x.dls.some(d=>d.dl_number===dlNumber));
+  /* guard: don't let a manager dispatch a direct rep's own lead to someone else */
+  if(rep && g && leadType(g)==='direct'){
+    const owner=g.primary.original_rep||'a direct rep';
+    if(rep!==owner && !confirm(`This is a DIRECT lead that belongs to ${owner} (self-gen / referral). Dispatching it to ${rep} takes it from them.\n\nAssign anyway?`)){render();return;}
+  }
   const { data, error }=await sb.from('direct_leads').update({assigned_to:rep||null}).eq('dl_number',dlNumber).select('dl_number');
   if(error){toast('Assign failed: '+error.message);return;}
   if(!data||!data.length){toast('Not permitted (need manager access).');return;}
-  const g=props.find(x=>x.dls.some(d=>d.dl_number===dlNumber));if(g){g.dls.forEach(d=>{if(d.dl_number===dlNumber)d.assigned_to=rep||null;});g.primary.assigned_to=rep||null;}
-  toast(rep?('Assigned to '+rep):'Unassigned');renderKpis();
+  if(g){g.dls.forEach(d=>{if(d.dl_number===dlNumber)d.assigned_to=rep||null;});g.primary.assigned_to=rep||null;}
+  toast(rep?('Assigned to '+rep):'Unassigned');renderKpis();renderDashDetail();
 }
 async function toggleDnc(propId, isDnc){
   if(!propId){toast('No property id for this row');return;}
