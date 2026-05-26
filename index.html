@@ -387,6 +387,7 @@
       <button class="search-clear" id="searchClear" onclick="clearSearch()" title="Clear">&times;</button>
     </div>
     <div class="header-date" id="headerDate"></div>
+    <a id="repToolLink" href="#" style="display:none;padding:7px 14px;background:rgba(41,169,225,0.16);border:1px solid rgba(41,169,225,0.34);border-radius:7px;color:rgba(255,255,255,0.88);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(41,169,225,0.26)'" onmouseout="this.style.background='rgba(41,169,225,0.16)'"></a>
     <a href="https://ct-resource-page.com/leads.html" style="padding:7px 14px;background:rgba(120,200,50,0.14);border:1px solid rgba(120,200,50,0.3);border-radius:7px;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(120,200,50,0.22)'" onmouseout="this.style.background='rgba(120,200,50,0.14)'">Lead Manager</a>
     <a href="https://ct-resource-page.com/admin.html" style="padding:7px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:rgba(255,255,255,0.55);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.14)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">Admin</a>
   </div>
@@ -488,6 +489,22 @@ function escapeHtml(s) {
 // auth-gate.js calls this once, after the user is signed in and the role
 // check has passed. profile = { kind, name, is_admin, is_active }.
 async function initApp(profile, session) {
+  // Role-aware rep tool entry in the header. Reps go to their own call list;
+  // managers and admins go to the Rep Console oversight roster. auth-gate.js
+  // sets window.IS_MANAGER / window.IS_REP before this runs.
+  const repLink = document.getElementById('repToolLink');
+  if (repLink) {
+    if (window.IS_MANAGER) {
+      repLink.href = '/reps/';
+      repLink.textContent = 'Rep Console';
+      repLink.style.display = '';
+    } else if (window.IS_REP) {
+      repLink.href = '/my-calls.html';
+      repLink.textContent = 'My Calls';
+      repLink.style.display = '';
+    }
+  }
+
   const { data, error } = await sb.from('resources').select('*')
     .eq('active', true).order('sort_order').order('name');
   if (error) {
