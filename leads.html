@@ -76,13 +76,12 @@
   .tab.active{color:var(--ink);border-bottom-color:var(--green)}
   .dp-plot{display:flex;align-items:flex-end;gap:3px;height:152px;padding:8px 10px 0;background:linear-gradient(180deg,#ffffff,#f6f8f3);border:1px solid var(--border);border-bottom:2px solid #d3d9dd;border-radius:10px 10px 0 0}
   .dp-col{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;height:100%;position:relative}
-  .dp-stack{display:flex;flex-direction:column-reverse;width:66%;min-width:6px;box-shadow:0 0 0 1px rgba(26,35,50,.06)}
-  .dp-seg{width:100%}
-  .dp-seg.appt{background:linear-gradient(180deg,#5aa522,#3f7a16);border-radius:3px 3px 0 0}
+  .dp-stack{width:66%;min-width:6px;border-radius:3px;overflow:hidden}
+  .dp-seg{display:block;width:100%}
+  .dp-seg.appt{background:linear-gradient(180deg,#5aa522,#3f7a16)}
   .dp-seg.reached{background:linear-gradient(180deg,#9ad657,#74bd33)}
   .dp-seg.sched{background:linear-gradient(180deg,#5a93bd,#3f6f96)}
   .dp-seg.noanswer{background:linear-gradient(180deg,#9aa7b6,#7f8d9d)}
-  .dp-seg:first-child{border-radius:0 0 2px 2px}
   .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.4;white-space:nowrap;text-align:left;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
   .dp-col:hover .dp-tip{display:block}
   .dp-col:hover .dp-stack{filter:brightness(1.07) saturate(1.05)}
@@ -442,7 +441,8 @@ function renderStackChart(slots,segs,footerHtml){
   const h=n=>n?Math.max(3,Math.round(n/max*H)):0;
   const bars=slots.list.map(s=>{
     const dl=s.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    const stack=segs.map(g=>{const n=s.c[g.k]||0;return n?`<div class="dp-seg ${g.cls}" style="height:${h(n)}px"></div>`:'';}).join('');
+    /* top-first DOM order: segs are listed bottom-first, so reverse for normal block flow (no flex -> no sub-pixel drift) */
+    const stack=segs.slice().reverse().map(g=>{const n=s.c[g.k]||0;return n?`<div class="dp-seg ${g.cls}" style="height:${h(n)}px"></div>`:'';}).join('');
     const lines=segs.slice().reverse().filter(g=>s.c[g.k]).map(g=>`${g.label}: ${s.c[g.k]}`).join('<br>');
     const tip=`<div class="dp-tip"><b>${dl}</b><br>${s.total} total${lines?'<br>'+lines:''}</div>`;
     return `<div class="dp-col">${tip}<div class="dp-stack">${stack}</div></div>`;
