@@ -101,6 +101,14 @@
     <button class="hbtn" onclick="signOut()">Sign out</button>
   </header>
   <div class="wrap">
+    <div id="viewAsBar" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:#eef6ff;border:1px solid #cfe4f5;border-radius:10px">
+      <span style="font-size:13px;font-weight:700;color:var(--ink)">Manager view</span>
+      <label for="viewAs" style="font-size:12px;color:var(--muted)">View as rep:</label>
+      <select id="viewAs" onchange="onViewAs()" style="font-family:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;min-width:190px">
+        <option value="">Select a rep...</option>
+      </select>
+      <span style="font-size:11px;color:var(--muted)">Read-only. Reps log their own calls.</span>
+    </div>
     <div id="kpis" class="kpis"></div>
     <div class="toolbar">
       <input type="search" id="q" placeholder="Search name, town, DL#..." oninput="render()">
@@ -120,7 +128,7 @@
 <script>
 const sb = window.sb;            // shared client + session from /auth-gate.js
 const SF = 'https://trinity-solar.lightning.force.com/lightning/r/{}/view';
-let ME='', leads=[], contacts=[], byOpp={}, openSet=new Set();
+let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set();
 
 const HSTATES=['','Receptive / re-engaged','Not interested','Already has solar','Renter / not owner','Moving / selling','Hostile / rude','Hard no / stop calling','Wrong / bad number','DNC request'];
 const FSOURCES=['','Setter: misinformation','Setter: aggressive / pushy','Setter: needs coaching','Call center: no confirmation','Call center: over-confirming (too many texts/calls)','Call center: high pressure','Prior rep: bad experience','Other'];
@@ -133,17 +141,57 @@ function isCallable(l){const s=l.lifecycle_state||'';return !l.sold && (s==='del
 function oppOf(l){return (l.opportunity_ids&&l.opportunity_ids[0])||l.dl_number;}
 
 // auth-gate.js owns sign-in / role / screen switching and calls this once authed.
-window.initApp = function(profile){ ME=profile.name||''; document.getElementById('userLabel').textContent=ME?('· '+ME):''; loadLeads(); };
+window.initApp = function(profile){
+  ME = profile.name || '';
+  if (window.IS_MANAGER) {            // managers/admins have no calls of their own; they pick a rep to view
+    setupViewAs();
+  } else {
+    document.getElementById('userLabel').textContent = ME ? ('· ' + ME) : '';
+    loadLeads();
+  }
+};
+
+// Manager "View as rep": populate the rep picker, then load on selection.
+// Reps can read all assigned leads + the call log via is_manager() RLS, so this
+// is a pure client-side scope swap (no RPC, no extra privilege).
+async function setupViewAs(){
+  const bar = document.getElementById('viewAsBar');
+  const sel = document.getElementById('viewAs');
+  bar.style.display = 'flex';
+  document.getElementById('userLabel').textContent = '· manager view';
+  document.getElementById('list').innerHTML = '<div class="empty">Pick a rep above to view their call list.</div>';
+  const { data, error } = await sb.from('reps').select('name').eq('status','active').order('name');
+  if (error) { document.getElementById('list').innerHTML = '<div class="empty">Could not load reps: ' + esc(error.message) + '</div>'; return; }
+  sel.innerHTML = '<option value="">Select a rep...</option>' +
+    (data||[]).map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('');
+  // Optional deep link: /my-calls.html?as=Rep%20Name preselects that rep.
+  const want = new URLSearchParams(location.search).get('as');
+  if (want && (data||[]).some(r => r.name === want)) { sel.value = want; onViewAs(); }
+}
+function onViewAs(){
+  VIEW_AS = document.getElementById('viewAs').value || '';
+  const lbl = document.getElementById('userLabel');
+  if (!VIEW_AS) {
+    lbl.textContent = '· manager view';
+    document.getElementById('kpis').innerHTML = '';
+    document.getElementById('list').innerHTML = '<div class="empty">Pick a rep above to view their call list.</div>';
+    return;
+  }
+  lbl.textContent = '· viewing as ' + VIEW_AS;
+  loadLeads();
+}
 
 async function loadLeads(){
+  const target = window.IS_MANAGER ? VIEW_AS : ME;   // managers view a chosen rep; reps view themselves
+  if(!target) return;                                // manager hasn't picked a rep yet
   try{
     const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,properties(town,county)';
     const [{data:dl,error:e1},{data:cl}] = await Promise.all([
-      sb.from('direct_leads').select(SEL).order('last_appt_date',{ascending:false,nullsFirst:false}),
+      sb.from('direct_leads').select(SEL).not('assigned_to','is',null).order('last_appt_date',{ascending:false,nullsFirst:false}),
       sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source').order('contacted_at',{ascending:false}),
     ]);
     if(e1)throw e1;
-    leads=(dl||[]).filter(l=>(l.assigned_to||'')===ME);   // RLS already scopes; double-check
+    leads=(dl||[]).filter(l=>(l.assigned_to||'')===target);   // RLS scopes reps; managers fetch all assigned, filter to the chosen rep
     contacts=cl||[]; byOpp={};
     for(const c of contacts){(byOpp[c.opportunity_id]=byOpp[c.opportunity_id]||[]).push(c);}
     renderKpis(); render();
@@ -179,21 +227,9 @@ function cardHtml(l){
   const cs=callsFor(l);const lastCall=cs[0];
   const open=openSet.has(l.dl_number);
   const calledBadge=cs.length?`<span class="badge b-done">${cs.length} call${cs.length>1?'s':''}</span>`:'';
-  return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
-    <div class="card-head" onclick="toggle('${esc(l.dl_number)}')">
-      <div><div class="nm">${esc(l.homeowner_name||'--')}</div><div class="card-sub">${esc(town)} &middot; ${esc(l.dl_number)}${lastCall?' &middot; last call '+fmtDate(lastCall.contacted_at):''}</div></div>
-      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${calledBadge}
-      <span class="chev">${open?'&#9662;':'&#9656;'}</span>
-    </div>
-    <div class="card-body">
-      <div class="meta">
-        <div><div class="k">Lead source</div>${esc(l.lead_source||'--')}</div>
-        <div><div class="k">Last outcome</div>${esc(l.last_outcome||'--')}</div>
-        <div><div class="k">Last appt</div>${fmtDate(l.last_appt_date)}</div>
-        <div><div class="k">Direct Lead</div>${l.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(l.dl_sf_id))}">Open in SF &nearr; (phone here)</a>`:'<span class="card-sub">no SF link</span>'}</div>
-      </div>
-      ${cs.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:4px">Call history</div>'+cs.map(c=>`<div class="hist"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.homeowner_state?' &middot; '+esc(c.homeowner_state):''}${c.frustration_source?' &middot; '+esc(c.frustration_source):''}${c.notes?'<br>'+esc(c.notes):''}${c.next_step?'<br>Next: '+esc(c.next_step):''}</div>`).join(''):''}
-      <div class="logform">
+  const logForm = window.IS_MANAGER
+    ? '<div class="logform" style="font-size:12.5px;color:var(--muted)">Read-only manager view. Call logging is done by the rep.</div>'
+    : `<div class="logform">
         <h4>Log this call</h4>
         <div class="radios" id="oc-${esc(l.dl_number)}">
           <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Reached" checked>Reached</label>
@@ -211,7 +247,22 @@ function cardHtml(l){
           <div><label>Follow-up date</label><input id="fu-${esc(l.dl_number)}" type="date"></div>
         </div>
         <button class="btn-primary" onclick="saveCall('${esc(l.dl_number)}')">Log call</button>
+      </div>`;
+  return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
+    <div class="card-head" onclick="toggle('${esc(l.dl_number)}')">
+      <div><div class="nm">${esc(l.homeowner_name||'--')}</div><div class="card-sub">${esc(town)} &middot; ${esc(l.dl_number)}${lastCall?' &middot; last call '+fmtDate(lastCall.contacted_at):''}</div></div>
+      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${calledBadge}
+      <span class="chev">${open?'&#9662;':'&#9656;'}</span>
+    </div>
+    <div class="card-body">
+      <div class="meta">
+        <div><div class="k">Lead source</div>${esc(l.lead_source||'--')}</div>
+        <div><div class="k">Last outcome</div>${esc(l.last_outcome||'--')}</div>
+        <div><div class="k">Last appt</div>${fmtDate(l.last_appt_date)}</div>
+        <div><div class="k">Direct Lead</div>${l.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(l.dl_sf_id))}">Open in SF &nearr; (phone here)</a>`:'<span class="card-sub">no SF link</span>'}</div>
       </div>
+      ${cs.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:4px">Call history</div>'+cs.map(c=>`<div class="hist"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.homeowner_state?' &middot; '+esc(c.homeowner_state):''}${c.frustration_source?' &middot; '+esc(c.frustration_source):''}${c.notes?'<br>'+esc(c.notes):''}${c.next_step?'<br>Next: '+esc(c.next_step):''}</div>`).join(''):''}
+      ${logForm}
     </div>
   </div>`;
 }
