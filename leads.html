@@ -125,6 +125,25 @@
   .dispatch-bar .act{color:#fff;border-color:rgba(255,255,255,.3)}
   .dispatch-bar .act:hover{border-color:#fff;color:#fff}
   .rowchk{width:16px;height:16px;cursor:pointer}
+  .rep-ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:12px}
+  .rep-ov-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;box-shadow:var(--shadow);transition:border-color .15s}
+  .rep-ov-card:hover,.rep-ov-card.selected{border-color:var(--green)}
+  .rep-ov-name{font-weight:700;font-size:15px;margin-bottom:8px}
+  .rep-mini{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px}
+  .rep-mini span:last-child{font-weight:600;color:var(--ink)}
+  .qd-overlay{position:fixed;inset:0;background:rgba(15,32,56,.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
+  .qd-box{background:var(--surface);border-radius:12px;width:100%;max-width:660px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .qd-head{background:#1A2332;color:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between}
+  .qd-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700}
+  .qd-head .sub{color:rgba(255,255,255,.72);margin-top:2px}
+  .qd-body{padding:16px 20px;overflow-y:auto}
+  .dispatch-group{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .dispatch-group .gname{font-weight:700;font-size:14px}
+  .dispatch-group .gct{font-size:12px;color:var(--muted);margin-left:6px}
+  .dispatch-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .dispatch-row label{font-size:11px;color:var(--muted)}
+  .qd-num{width:62px;font-family:inherit;font-size:13px;padding:5px 6px;border:1px solid var(--border);border-radius:6px;text-align:center}
+  .qd-sel{font-family:inherit;font-size:13px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:#fff;max-width:150px}
   .msg-ok{background:rgba(120,200,50,.12);color:#3a7010;border:1px solid rgba(120,200,50,.4);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
   .msg-err{background:rgba(214,48,48,.08);color:#a02020;border:1px solid rgba(214,48,48,.3);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
   .intake-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--border)}
@@ -217,7 +236,8 @@
           <option value="unknown">Unknown source</option>
         </select>
         <label class="chk"><input type="checkbox" id="dupOnly" onchange="render()"> duplicates only</label>
-        <button class="act" id="expandAllBtn" onclick="toggleExpandAll()" style="margin-left:auto">Expand all</button>
+        <button class="act" onclick="openQuickDispatch()" style="margin-left:auto;border-color:var(--accent);color:var(--accent);font-weight:600">&#9889; Quick Dispatch</button>
+        <button class="act" id="expandAllBtn" onclick="toggleExpandAll()">Expand all</button>
       </div>
       <div id="dispatchBar" class="dispatch-bar" style="display:none">
         <strong id="dispatchCount">0 selected</strong>
@@ -230,6 +250,7 @@
     </div>
 
     <div id="tab-reps" class="tabpanel" style="display:none">
+      <div id="repOverview"></div>
       <div class="toolbar">
         <select id="repPick" onchange="renderRep()"><option value="">Select a rep...</option></select>
         <input type="search" id="repq" placeholder="Filter this rep's leads..." oninput="renderRep()" style="min-width:200px">
@@ -274,6 +295,16 @@
         <div id="intakeList" class="loading">Loading...</div>
       </div>
     </div>
+  </div>
+</div>
+
+<div id="qdModal" class="qd-overlay" style="display:none">
+  <div class="qd-box">
+    <div class="qd-head">
+      <div><div class="qd-title">&#9889; Quick Dispatch</div><div class="sub" id="qdSub"></div></div>
+      <button class="xbtn" onclick="closeQuickDispatch()" style="font-size:22px;color:#fff">&times;</button>
+    </div>
+    <div class="qd-body" id="qdBody"></div>
   </div>
 </div>
 
@@ -502,6 +533,7 @@ function setTab(t){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   document.querySelectorAll('.tabpanel').forEach(p=>{p.style.display=(p.id==='tab-'+t)?'block':'none';});
   if(t==='load')renderIntakeList();
+  if(t==='reps')renderRepOverview();
 }
 function toggleExpandAll(){
   expandAll=!expandAll;
@@ -549,6 +581,62 @@ async function bulkDispatch(){
   if(!done){toast('Not permitted (need manager access).');return;}
   toast(`Dispatched ${done} to ${rep}`);
   clearSel();renderKpis();renderDashDetail();render();
+}
+
+/* ── Quick Dispatch modal: group unassigned callable leads by disposition, assign first-N to a rep (mirrors the classic tool) ── */
+const QD_LABEL={deleted:'Deleted (pre-run)',noshow:'No Show',cancel:'Cancelled',new:'New (manual)',ready:'Scheduled',goback:'Go Back',nosale:'No Sale',ran:'Ran',other:'Other'};
+const QD_ORDER=['deleted','noshow','cancel','new'];
+function _qdGroups(){
+  const groups={};
+  for(const g of props){
+    if(g.primary.assigned_to)continue;
+    if(leadCategory(g)!=='callable')continue;
+    const st=g.primary.lifecycle_state||'other';
+    (groups[st]=groups[st]||[]).push(g);
+  }
+  return groups;
+}
+function openQuickDispatch(){renderQuickDispatch();document.getElementById('qdModal').style.display='flex';}
+function closeQuickDispatch(){document.getElementById('qdModal').style.display='none';}
+function renderQuickDispatch(){
+  const groups=_qdGroups();
+  const states=Object.keys(groups).sort((a,b)=>{const ia=QD_ORDER.indexOf(a),ib=QD_ORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
+  const tot=Object.values(groups).reduce((a,g)=>a+g.length,0);
+  document.getElementById('qdSub').textContent=tot?`${tot} unassigned callable leads -- assign a batch per disposition`:'';
+  const repOpts=people.map(n=>`<option>${esc(n)}</option>`).join('');
+  let html='';
+  for(const st of states){
+    const grp=groups[st];
+    html+=`<div class="dispatch-group">
+      <div><span class="gname">${esc(QD_LABEL[st]||st)}</span><span class="gct">${grp.length} unassigned</span></div>
+      <div class="dispatch-row">
+        <label>First</label><input type="number" id="qd-ct-${esc(st)}" class="qd-num" min="1" max="${grp.length}" value="${grp.length}">
+        <label>to</label><select id="qd-rep-${esc(st)}" class="qd-sel"><option value="">pick rep...</option>${repOpts}</select>
+        <button class="btn-primary" onclick="dispatchGroup('${esc(st)}')">Assign</button>
+      </div></div>`;
+  }
+  document.getElementById('qdBody').innerHTML=html||'<div class="empty">No unassigned callable leads to dispatch right now.</div>';
+}
+async function dispatchGroup(st){
+  const rep=document.getElementById('qd-rep-'+st).value;
+  if(!rep){toast('Pick a rep for this group');return;}
+  const grp=(_qdGroups()[st]||[]).slice().sort((a,b)=>(b.primary.last_appt_date||'').localeCompare(a.primary.last_appt_date||''));
+  const ct=Math.min(parseInt(document.getElementById('qd-ct-'+st).value||grp.length,10)||grp.length,grp.length);
+  const batch=grp.slice(0,ct);const dls=batch.map(g=>g.primary.dl_number);
+  if(!dls.length){toast('Nothing to assign');return;}
+  let direct=0;for(const g of batch)if(leadType(g)==='direct'&&(g.primary.original_rep||'')!==rep)direct++;
+  if(direct&&!confirm(`${direct} of these are DIRECT (rep-owned) leads -- dispatching reassigns them away from their owner. Continue?`))return;
+  let done=0;
+  for(let i=0;i<dls.length;i+=100){
+    const chunk=dls.slice(i,i+100);
+    const { data, error }=await sb.from('direct_leads').update({assigned_to:rep}).in('dl_number',chunk).select('dl_number');
+    if(error){toast('Dispatch failed: '+error.message);return;}
+    const ok=new Set((data||[]).map(r=>r.dl_number));done+=ok.size;
+    for(const g of props)if(ok.has(g.primary.dl_number)){g.primary.assigned_to=rep;g.dls.forEach(d=>{if(d.dl_number===g.primary.dl_number)d.assigned_to=rep;});}
+  }
+  if(!done){toast('Not permitted (need manager access).');return;}
+  toast(`${done} ${QD_LABEL[st]||st} assigned to ${rep}`);
+  renderQuickDispatch();renderKpis();renderDashDetail();render();
 }
 
 /* ── Table ── */
@@ -679,6 +767,33 @@ function render(){
 /* Reps tab is about who leads are dispatched to (assigned_to), not who set the
    appointment (original_rep). Only reps with assigned leads appear in the list. */
 function repOf(g){return g.primary.assigned_to||'';}
+/* All-reps summary at the top of the Reps tab (call-list metrics, like the classic tool's rep cards). */
+function renderRepOverview(){
+  const el=document.getElementById('repOverview');if(!el)return;
+  const byRep={};
+  for(const g of props){const r=repOf(g);if(r)(byRep[r]=byRep[r]||[]).push(g);}
+  const reps=Object.keys(byRep).sort((a,b)=>byRep[b].length-byRep[a].length);
+  if(!reps.length){el.innerHTML='<div class="panel"><div class="sub">No leads are assigned to a rep yet. Dispatch from the Leads tab and reps will appear here.</div></div>';return;}
+  const byOpp={};for(const c of contacts){(byOpp[c.opportunity_id]=byOpp[c.opportunity_id]||[]).push(c);}
+  const cur=document.getElementById('repPick');const selRep=cur?cur.value:'';
+  const card=rep=>{
+    const mine=byRep[rep];let callable=0,contacted=0,reached=0,appts=0,sold=0;
+    for(const g of mine){
+      if(leadCategory(g)==='callable')callable++; if(g.anySold)sold++;
+      const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
+      let hc=false,hr=false,ha=false;
+      for(const oid of ids)for(const c of (byOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set'){ha=true;hr=true;}else if(c.outcome==='Reached')hr=true;}
+      if(hc)contacted++; if(hr)reached++; if(ha)appts++;
+    }
+    const s=(l,v,c)=>`<div class="rep-mini"><span>${l}</span><span style="${c?'color:'+c+';font-weight:700':''}">${v}</span></div>`;
+    return `<div class="rep-ov-card${rep===selRep?' selected':''}" onclick="pickRep(this.dataset.rep)" data-rep="${esc(rep)}">
+      <div class="rep-ov-name">${esc(rep)}</div>
+      ${s('Assigned',mine.length)}${s('Callable now',callable,'#3f7a16')}${s('Contacted',contacted)}${s('Reached',reached,'#52961a')}${s('Appts set',appts,'#3a7010')}${s('Sold',sold)}
+    </div>`;
+  };
+  el.innerHTML=`<div class="panel"><h2>Reps with assigned leads <span class="sub">&middot; click to drill in</span></h2><div class="rep-ov-grid">${reps.map(card).join('')}</div></div>`;
+}
+function pickRep(r){const sel=document.getElementById('repPick');if(sel)sel.value=r;renderRep();renderRepOverview();}
 function catBadge(c){const M={callable:['Callable','b-callable'],scheduled:['Scheduled','b-sched'],review:['Review','b-review'],cooldown:['Cooldown','b-cooldown'],sold:['Sold','b-sold'],dnc:['DNC','b-dnc'],other:['Other','']};const m=M[c]||['--',''];return `<span class="badge ${m[1]}">${m[0]}</span>`;}
 function toggleRepDetail(key){
   const row=document.getElementById('rr-'+key);if(!row)return;
