@@ -107,6 +107,21 @@
   .bl-v{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
   .kpi.hot{border-color:var(--amber);background:rgba(200,140,0,.06)}
   .kpi.hot .n{color:#8a5800}
+  .frow{margin-bottom:11px}
+  .frow.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .frow label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+  .frow input,.frow select,.frow textarea{width:100%;font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;margin-top:3px;color:var(--ink)}
+  .frow textarea{resize:vertical}
+  .frow input:focus,.frow select:focus,.frow textarea:focus{outline:none;border-color:var(--accent)}
+  .btn-primary{background:var(--green);color:#0b1120;border:none;border-radius:8px;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+  .btn-primary:hover{filter:brightness(1.05)}
+  .btn-primary:disabled{opacity:.6;cursor:default}
+  .msg-ok{background:rgba(120,200,50,.12);color:#3a7010;border:1px solid rgba(120,200,50,.4);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+  .msg-err{background:rgba(214,48,48,.08);color:#a02020;border:1px solid rgba(214,48,48,.3);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+  .intake-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--border)}
+  .b-pending{background:rgba(200,140,0,.14);color:#8a5800}
+  .b-resolved{background:rgba(120,200,50,.18);color:#3a7010}
+  .b-rejected{background:rgba(214,48,48,.12);color:#a02020}
 </style>
 </head>
 <body>
@@ -208,7 +223,33 @@
     </div>
 
     <div id="tab-load" class="tabpanel" style="display:none">
-      <div class="panel"><div class="sub">Manual lead add is coming soon. Leads currently sync automatically from the parser.</div></div>
+      <div class="panel" style="max-width:700px">
+        <h2>Add a lead manually</h2>
+        <div class="sub" style="margin-bottom:14px">Queues a lead for the secure resolver, which dedupes it against existing properties and assigns a clean identity on the next sync. Use this for referrals or homes the appointment reports missed. (The address is hashed server-side, so manual adds go through a review queue rather than writing directly.) Bulk Salesforce lists still load through the server-side pipeline.</div>
+        <div id="loadMsg"></div>
+        <form id="loadForm" onsubmit="event.preventDefault();submitIntake()">
+          <div class="frow"><label>Homeowner name<input id="li_name" type="text" autocomplete="off" required></label></div>
+          <div class="frow"><label>Street address<input id="li_street" type="text" autocomplete="off" placeholder="15 Catherine Lane" required></label></div>
+          <div class="frow two">
+            <label>Town<input id="li_town" type="text" autocomplete="off" required></label>
+            <label>State<input id="li_state" type="text" value="CT" maxlength="2"></label>
+          </div>
+          <div class="frow two">
+            <label>Zip<input id="li_zip" type="text" inputmode="numeric" autocomplete="off"></label>
+            <label>DL # (if known)<input id="li_dl" type="text" autocomplete="off" placeholder="optional"></label>
+          </div>
+          <div class="frow two">
+            <label>Lead source<input id="li_source" type="text" autocomplete="off" placeholder="Referral, self-gen, ..."></label>
+            <label>Assign to<select id="li_assign"><option value="">Unassigned</option></select></label>
+          </div>
+          <div class="frow"><label>Note<textarea id="li_note" rows="2" placeholder="Optional context for the rep / QC team"></textarea></label></div>
+          <button type="submit" class="btn-primary" id="li_submit">Queue lead</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Recent intake <span class="sub" id="intakeCount"></span></h2>
+        <div id="intakeList" class="loading">Loading...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -312,6 +353,7 @@ async function initApp(){
     const repCount={};for(const g of props){const r=repOf(g);if(r)repCount[r]=(repCount[r]||0)+1;}
     const rp=document.getElementById('repPick');
     for(const r of Object.keys(repCount).sort((a,b)=>repCount[b]-repCount[a]))rp.appendChild(new Option(`${r} (${repCount[r]})`,r));
+    const la=document.getElementById('li_assign');for(const n of people)la.appendChild(new Option(n,n));
     renderKpis();renderTeamChart();renderDashDetail();render();
   }catch(err){
     document.getElementById('tableWrap').innerHTML='<div class="empty">Load failed: '+esc(err.message||err)+'</div>';
@@ -361,8 +403,8 @@ function renderDashDetail(){
     const r=g.primary.assigned_to||g.primary.original_rep||'Unassigned'; byRep[r]=(byRep[r]||0)+1;
     const t=g.property.town||'(unknown)'; byTown[t]=(byTown[t]||0)+1;
   }
-  const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Scheduled',sold:'Sold',dq:'DQ',other:'Other'};
-  const DISPO={noshow:'#e0644b',cancel:'#e2a23a',goback:'#3aa0d8',nosale:'#8a78d0',ran:'#9aa7b4',ready:'#2392cc',sold:'#5aa522',dq:'#b0b8c0',other:'#c2cad4'};
+  const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Scheduled',sold:'Sold',dq:'DQ',new:'New (manual)',other:'Other'};
+  const DISPO={noshow:'#e0644b',cancel:'#e2a23a',goback:'#3aa0d8',nosale:'#8a78d0',ran:'#9aa7b4',ready:'#2392cc',sold:'#5aa522',dq:'#b0b8c0',new:'#5aa522',other:'#c2cad4'};
   const card=(title,obj,labmap,limit,colorFn,accent)=>{
     const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const max=Math.max(1,...ent.map(e=>e[1]));
@@ -427,6 +469,7 @@ function repApptChart(rep){
 function setTab(t){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   document.querySelectorAll('.tabpanel').forEach(p=>{p.style.display=(p.id==='tab-'+t)?'block':'none';});
+  if(t==='load')renderIntakeList();
 }
 function toggleExpandAll(){
   expandAll=!expandAll;
@@ -436,7 +479,7 @@ function toggleExpandAll(){
 
 /* ── Table ── */
 const STATE={noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],goback:['Go Back','b-goback'],nosale:['No Sale','b-nosale']};
-function stateBadge(s){const m=STATE[s];if(m)return `<span class="badge ${m[1]}">${m[0]}</span>`;const lbl={ready:'Ready',ran:'Ran',sold:'Sold',dq:'DQ'}[s]||s||'--';return `<span class="badge">${esc(lbl)}</span>`;}
+function stateBadge(s){const m=STATE[s];if(m)return `<span class="badge ${m[1]}">${m[0]}</span>`;const lbl={ready:'Scheduled',ran:'Ran',sold:'Sold',dq:'DQ',new:'New'}[s]||s||'--';return `<span class="badge">${esc(lbl)}</span>`;}
 function buildDetail(g){
   const p=g.primary;
   const meta=[['Lead source',p.lead_source],['Set by',p.set_by],['Original rep',p.original_rep],['First appt',fmtDate(p.first_appt_date)],['Appointments',p.appt_count],['County',g.property.county]];
@@ -478,6 +521,7 @@ function leadCategory(g){
   if(g.dnc)return 'dnc';
   const st=g.primary.lifecycle_state||'';
   if(st==='ready')return 'scheduled';
+  if(st==='new')return 'callable';
   if(QC_STATES.has(st))return 'callable';
   if(SAT_STATES.has(st)){
     if(g.primary.redispatch_approved)return 'callable';
@@ -609,6 +653,38 @@ async function approveRedispatch(dlNumber){
   const g=props.find(x=>x.dls.some(d=>d.dl_number===dlNumber));
   if(g){g.dls.forEach(d=>{if(d.dl_number===dlNumber)d.redispatch_approved=true;});g.primary.redispatch_approved=true;}
   toast('Approved -- back on the callable list');renderKpis();renderDashDetail();render();
+}
+
+/* ── Load tab: manual lead intake (queued for the server-side resolver) ── */
+function val(id){return document.getElementById(id).value.trim();}
+async function submitIntake(){
+  const btn=document.getElementById('li_submit'),msg=document.getElementById('loadMsg');
+  const row={
+    created_by:ME||null,
+    homeowner_name:val('li_name'),street:val('li_street'),town:val('li_town'),
+    state:(val('li_state')||'CT').toUpperCase().slice(0,2),
+    zip:val('li_zip')||null,dl_number:val('li_dl')||null,
+    lead_source:val('li_source')||null,
+    assign_to:document.getElementById('li_assign').value||null,
+    note:val('li_note')||null,
+  };
+  if(!row.homeowner_name||!row.street||!row.town){msg.innerHTML='<div class="msg-err">Name, street, and town are required.</div>';return;}
+  btn.disabled=true;btn.textContent='Queuing...';
+  const { error }=await sb.from('lead_intake').insert(row);
+  btn.disabled=false;btn.textContent='Queue lead';
+  if(error){msg.innerHTML='<div class="msg-err">Could not queue: '+esc(error.message)+' (manager access required)</div>';return;}
+  msg.innerHTML='<div class="msg-ok">Queued. The resolver will dedupe and add it on the next sync.</div>';
+  document.getElementById('loadForm').reset();document.getElementById('li_state').value='CT';
+  toast('Lead queued for intake');renderIntakeList();
+}
+async function renderIntakeList(){
+  const el=document.getElementById('intakeList');if(!el)return;
+  const { data, error }=await sb.from('lead_intake').select('created_at,created_by,homeowner_name,town,dl_number,lead_source,assign_to,status,reject_reason').order('created_at',{ascending:false}).limit(50);
+  if(error){el.innerHTML='<div class="empty">Could not load intake: '+esc(error.message)+'</div>';return;}
+  const cnt=document.getElementById('intakeCount');if(cnt)cnt.textContent=data&&data.length?`(${data.length} most recent)`:'';
+  if(!data||!data.length){el.innerHTML='<div class="empty">No manual intake yet.</div>';return;}
+  const bcls={pending:'b-pending',resolved:'b-resolved',rejected:'b-rejected'};
+  el.innerHTML=data.map(r=>`<div class="intake-row"><div><span class="name">${esc(r.homeowner_name||'--')}</span> <span class="sub">&middot; ${esc(r.town||'--')}${r.dl_number?' &middot; '+esc(r.dl_number):''}${r.assign_to?' &middot; '+esc(r.assign_to):''}</span><div class="sub">${fmtDate(r.created_at)}${r.created_by?' &middot; by '+esc(r.created_by):''}${r.lead_source?' &middot; '+esc(r.lead_source):''}${r.status==='rejected'&&r.reject_reason?' &middot; '+esc(r.reject_reason):''}</div></div><div><span class="badge ${bcls[r.status]||''}">${esc(r.status)}</span></div></div>`).join('');
 }
 
 /* called by /auth-gate.js if present; harmless otherwise */
