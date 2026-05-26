@@ -666,7 +666,11 @@ function renderShadowQueueItem({ rep, shadow, date }) {
         </div>
         <span class="type-chip">Shadow</span>
       </div>
-      ${shadow.notes ? `<div class="detail-block"><div class="label">Notes</div>${escapeHtml(shadow.notes)}</div>` : ''}
+      ${[shadow.appointment_type, shadow.outcome, shadow.self_rating ? `Readiness ${shadow.self_rating}/5` : null].filter(Boolean).length ? `<div class="meta">${escapeHtml([shadow.appointment_type, shadow.outcome, shadow.self_rating ? `Readiness ${shadow.self_rating}/5` : null].filter(Boolean).join(' · '))}</div>` : ''}
+      ${shadow.notes ? `<div class="detail-block"><div class="label">Observed</div>${escapeHtml(shadow.notes)}</div>` : ''}
+      ${shadow.what_worked ? `<div class="detail-block"><div class="label">What worked</div>${escapeHtml(shadow.what_worked)}</div>` : ''}
+      ${shadow.objections_seen ? `<div class="detail-block"><div class="label">Objections</div>${escapeHtml(shadow.objections_seen)}</div>` : ''}
+      ${shadow.key_takeaways ? `<div class="detail-block"><div class="label">Key takeaways</div>${escapeHtml(shadow.key_takeaways)}</div>` : ''}
       <div class="actions">
         <button class="btn btn-primary btn-sm" onclick="approveShadow('${shadow.id}')">Approve</button>
         <button class="btn btn-danger btn-sm" onclick="denyShadow('${shadow.id}')">Deny</button>
@@ -866,7 +870,11 @@ function renderShadows() {
           </div>
           <span class="status-badge ${statusClass}">${s.status}</span>
         </div>
-        ${s.notes ? `<div class="detail-block"><div class="label">Rep notes</div>${escapeHtml(s.notes)}</div>` : ''}
+        ${[s.appointment_type, s.outcome, s.self_rating ? `Readiness ${s.self_rating}/5` : null].filter(Boolean).length ? `<div class="meta">${escapeHtml([s.appointment_type, s.outcome, s.self_rating ? `Readiness ${s.self_rating}/5` : null].filter(Boolean).join(' · '))}</div>` : ''}
+        ${s.notes ? `<div class="detail-block"><div class="label">Observed</div>${escapeHtml(s.notes)}</div>` : ''}
+        ${s.what_worked ? `<div class="detail-block"><div class="label">What worked</div>${escapeHtml(s.what_worked)}</div>` : ''}
+        ${s.objections_seen ? `<div class="detail-block"><div class="label">Objections</div>${escapeHtml(s.objections_seen)}</div>` : ''}
+        ${s.key_takeaways ? `<div class="detail-block"><div class="label">Key takeaways</div>${escapeHtml(s.key_takeaways)}</div>` : ''}
         ${s.manager_note ? `<div class="detail-block"><div class="label">Your note</div>${escapeHtml(s.manager_note)}</div>` : ''}
         ${s.status === 'pending' ? `
           <div class="actions">

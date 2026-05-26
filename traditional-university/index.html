@@ -509,10 +509,55 @@ main { padding: var(--s-7) 0 var(--s-8); min-height: 70vh; }
               <label>Duration (minutes)</label>
               <input type="number" id="sh-duration" min="1" placeholder="60">
             </div>
+            <div class="form-group">
+              <label>Appointment type</label>
+              <select id="sh-type">
+                <option value="">Select...</option>
+                <option>Solar</option>
+                <option>Roofing</option>
+                <option>Battery</option>
+                <option>Multiple</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>How did the appointment end?</label>
+              <select id="sh-outcome">
+                <option value="">Select...</option>
+                <option>Closed / sold</option>
+                <option>Follow-up scheduled</option>
+                <option>No sale</option>
+                <option>Not sure</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>How ready do you feel to run this yourself?</label>
+              <select id="sh-rating">
+                <option value="">Select...</option>
+                <option value="1">1 - Not yet</option>
+                <option value="2">2</option>
+                <option value="3">3 - Getting there</option>
+                <option value="4">4</option>
+                <option value="5">5 - Ready to run it</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
-            <label>Notes</label>
-            <textarea id="sh-notes" placeholder="What did you observe? What did you learn?"></textarea>
+            <label>What you observed</label>
+            <textarea id="sh-notes" placeholder="Walk through what happened on the appointment."></textarea>
+          </div>
+          <div class="form-group">
+            <label>What worked</label>
+            <textarea id="sh-worked" placeholder="What did the rep do well? The moments that landed."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Objections you saw</label>
+            <textarea id="sh-objections" placeholder="What objections came up, and how were they handled?"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Key takeaways</label>
+            <textarea id="sh-takeaways" placeholder="What will you apply to your own appointments?"></textarea>
           </div>
           <button type="submit" class="btn btn-primary">Submit shadow log</button>
           <div id="shadow-msg"></div>
@@ -1095,19 +1140,24 @@ function renderShadows() {
     list.innerHTML = `<div class="empty">No shadows logged yet.</div>`;
     return;
   }
-  list.innerHTML = state.shadows.map(s => `
+  list.innerHTML = state.shadows.map(s => {
+    const tags = [s.appointment_type, s.outcome, s.self_rating ? `Readiness ${s.self_rating}/5` : null].filter(Boolean).join(' · ');
+    return `
     <div class="list-item">
       <div class="main">
         <div class="title">Shadowed ${escapeHtml(s.shadowed_rep_name)}</div>
-        <div class="meta">${formatDate(s.shadow_date)}${s.duration_minutes ? ` · ${s.duration_minutes} min` : ''}</div>
-        ${s.notes ? `<div class="notes">${escapeHtml(s.notes)}</div>` : ''}
+        <div class="meta">${formatDate(s.shadow_date)}${s.duration_minutes ? ` · ${s.duration_minutes} min` : ''}${tags ? ` · ${escapeHtml(tags)}` : ''}</div>
+        ${s.notes ? `<div class="notes"><strong>Observed:</strong> ${escapeHtml(s.notes)}</div>` : ''}
+        ${s.what_worked ? `<div class="notes"><strong>What worked:</strong> ${escapeHtml(s.what_worked)}</div>` : ''}
+        ${s.objections_seen ? `<div class="notes"><strong>Objections:</strong> ${escapeHtml(s.objections_seen)}</div>` : ''}
+        ${s.key_takeaways ? `<div class="notes"><strong>Key takeaways:</strong> ${escapeHtml(s.key_takeaways)}</div>` : ''}
         ${s.manager_note ? `<div class="notes" style="color: var(--text-muted);"><strong>Manager:</strong> ${escapeHtml(s.manager_note)}</div>` : ''}
       </div>
       <span class="status-badge ${s.status === 'approved' ? 'status-approved' : s.status === 'denied' ? 'status-retake' : 'status-pending'}">
         ${s.status}
       </span>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 async function submitShadow(e) {
@@ -1115,7 +1165,7 @@ async function submitShadow(e) {
   const name = document.getElementById('sh-name').value.trim();
   const date = document.getElementById('sh-date').value;
   const dur = document.getElementById('sh-duration').value;
-  const notes = document.getElementById('sh-notes').value.trim();
+  const rating = document.getElementById('sh-rating').value;
   const msg = document.getElementById('shadow-msg');
   msg.innerHTML = '';
 
@@ -1124,7 +1174,13 @@ async function submitShadow(e) {
     shadowed_rep_name: name,
     shadow_date: date,
     duration_minutes: dur ? parseInt(dur) : null,
-    notes: notes || null,
+    appointment_type: document.getElementById('sh-type').value || null,
+    outcome: document.getElementById('sh-outcome').value || null,
+    self_rating: rating ? parseInt(rating) : null,
+    notes: document.getElementById('sh-notes').value.trim() || null,
+    what_worked: document.getElementById('sh-worked').value.trim() || null,
+    objections_seen: document.getElementById('sh-objections').value.trim() || null,
+    key_takeaways: document.getElementById('sh-takeaways').value.trim() || null,
   });
   if (error) {
     msg.innerHTML = `<div class="msg msg-error">${error.message}</div>`;
