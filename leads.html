@@ -106,7 +106,18 @@
   .bl-k{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .bl-bar{background:#f1f3ee;border-radius:4px;height:9px;overflow:hidden}
   .bl-bar>span{display:block;height:100%;background:var(--green);border-radius:4px}
+  .bl-bar.bl-stack{display:flex}
+  .bl-bar.bl-stack>span{border-radius:0}
   .bl-v{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+  .dp-bar{cursor:pointer}
+  .dp-bar.dp-sel{background:rgba(120,200,50,.20);border-radius:6px;box-shadow:inset 0 0 0 1px rgba(90,165,34,.55)}
+  .dash-scope{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:14px 2px 0}
+  .dash-scope b{color:var(--ink)}
+  .dash-scope input[type=date]{font-family:inherit;font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink)}
+  .btn-sm{font-family:inherit;font-size:12px;font-weight:600;padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer}
+  .btn-sm:hover{background:#f3f6ef}
+  .dleg{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);white-space:nowrap;margin-right:8px}
+  .dleg i{width:9px;height:9px;border-radius:2px;display:inline-block}
   .kpi.hot{border-color:var(--amber);background:rgba(200,140,0,.06)}
   .kpi.hot .n{color:#8a5800}
   .frow{margin-bottom:11px}
@@ -207,6 +218,15 @@
       <div class="panel">
         <h2>Team daily call activity &middot; last 21 days</h2>
         <div id="teamchart" class="loading">Loading...</div>
+        <div id="dashScopeBar" class="dash-scope">
+          <span>Scope of cards below:</span><b id="dashScopeLabel">All 21 days</b>
+          <span style="margin-left:6px">Range</span>
+          <input type="date" id="dashFrom" onchange="onDashRange()">
+          <span>to</span>
+          <input type="date" id="dashTo" onchange="onDashRange()">
+          <button class="btn-sm" onclick="clearDashScope()">Clear</button>
+          <span style="font-size:11px">Hover a bar to preview, click to pin a day (click again to remove).</span>
+        </div>
       </div>
       <div id="dashdetail"></div>
     </div>
@@ -457,7 +477,7 @@ function contactCount(g){
 
 /* ── KPIs (by category) ── */
 /* call-log lookup: opportunity_id -> its logged QC calls */
-function contactsByOpp(){const m={};for(const c of contacts){(m[c.opportunity_id]=m[c.opportunity_id]||[]).push(c);}return m;}
+function contactsByOpp(list){list=list||contacts;const m={};for(const c of list){(m[c.opportunity_id]=m[c.opportunity_id]||[]).push(c);}return m;}
 function renderKpis(){
   const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
   let unassigned=0,deletedCt=0;
@@ -482,19 +502,64 @@ function renderKpis(){
   ];
   document.getElementById('kpis').innerHTML=k.map(([l,n,c,col,tip])=>`<div class="kpi ${c||''}" style="border-top:3px solid ${col}" title="${esc(tip)}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
 }
+/* ── #3: daily-scope state for the breakdown cards below the chart ──
+   dashDays = pinned day keys (click a bar), dashRange = a from/to range,
+   dashHover = transient hover preview. Priority: pinned days > range > hover > all. */
+let dashDays=new Set(), dashRange={start:'',end:''}, dashHover='';
+function dashScopeActive(){return dashDays.size>0||!!dashRange.start||!!dashRange.end||!!dashHover;}
+function inDashScope(k){
+  if(!k)return false;
+  if(dashDays.size)return dashDays.has(k);
+  if(dashRange.start||dashRange.end)return k>=(dashRange.start||'0000-01-01')&&k<=(dashRange.end||'9999-12-31');
+  if(dashHover)return k===dashHover;
+  return true;
+}
+function scopedContacts(){return dashScopeActive()?contacts.filter(c=>inDashScope(String(c.contacted_at||'').slice(0,10))):contacts;}
+function dashScopeLabel(){
+  if(dashDays.size){const a=[...dashDays].sort();return a.length===1?fmtDate(a[0]):(a.length+' days pinned');}
+  if(dashRange.start||dashRange.end)return (dashRange.start?fmtDate(dashRange.start):'start')+' to '+(dashRange.end?fmtDate(dashRange.end):'today');
+  if(dashHover)return fmtDate(dashHover)+' (hover)';
+  return 'All 21 days';
+}
+function applyScope(){
+  renderDashDetail();
+  const lab=document.getElementById('dashScopeLabel');if(lab)lab.textContent=dashScopeLabel();
+  document.querySelectorAll('#teamchart .dp-bar').forEach(b=>{const k=b.dataset.daykey;b.classList.toggle('dp-sel',!!k&&dashDays.has(k));});
+}
+function wireTeamChartBars(){
+  document.querySelectorAll('#teamchart .dp-bar').forEach(b=>{
+    const k=b.dataset.daykey;if(!k)return;
+    b.classList.toggle('dp-sel',dashDays.has(k));
+    b.onmouseenter=()=>{if(dashDays.size||dashRange.start||dashRange.end)return;dashHover=k;applyScope();};
+    b.onmouseleave=()=>{if(dashHover){dashHover='';applyScope();}};
+    b.onclick=()=>{dashRange={start:'',end:''};const f=document.getElementById('dashFrom'),t=document.getElementById('dashTo');if(f)f.value='';if(t)t.value='';dashHover='';if(dashDays.has(k))dashDays.delete(k);else dashDays.add(k);applyScope();};
+  });
+}
+function onDashRange(){dashDays.clear();dashHover='';dashRange={start:(document.getElementById('dashFrom').value||''),end:(document.getElementById('dashTo').value||'')};applyScope();}
+function clearDashScope(){dashDays.clear();dashHover='';dashRange={start:'',end:''};const f=document.getElementById('dashFrom'),t=document.getElementById('dashTo');if(f)f.value='';if(t)t.value='';applyScope();}
+
 /* ── Dashboard breakdown cards ── */
 function renderDashDetail(){
-  const byCallable={},byType={},byRep={},byTown={};
+  const sc=scopedContacts();            /* #3: call-derived cards respect the active day/range scope */
+  const scByOpp=contactsByOpp(sc);
+  const byCallable={},byType={},byTown={},byRepOut={};
   for(const g of props){
     if(leadCategory(g)==='callable'){const st=g.primary.lifecycle_state||'other'; byCallable[st]=(byCallable[st]||0)+1;}
     const ty=leadType(g); const tl=ty==='direct'?'Direct':ty==='trad'?'Traditional':'Unknown'; byType[tl]=(byType[tl]||0)+1;
-    const r=g.primary.assigned_to||'Unassigned'; byRep[r]=(byRep[r]||0)+1;   /* relative to dispatch (assignment), not the appointment rep */
     const t=g.property.town||'(unknown)'; byTown[t]=(byTown[t]||0)+1;
+    /* #2: per rep -> best call outcome across this lead's opps, within scope */
+    const rep=g.primary.assigned_to||'Unassigned';
+    const r=byRepOut[rep]||(byRepOut[rep]={appt:0,reached:0,attempted:0,uncalled:0,total:0});
+    const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
+    let a=false,re=false,hc=false;
+    for(const oid of ids)for(const c of (scByOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set')a=true;else if(c.outcome==='Reached')re=true;}
+    if(a)r.appt++;else if(re)r.reached++;else if(hc)r.attempted++;else r.uncalled++;
+    r.total++;
   }
-  /* logged QC call outcomes (call-list activity, not appointment data) */
+  /* logged QC call outcomes (call-list activity, scoped) */
   const outc={},byFrust={},byHState={};
-  for(const c of contacts){const o=c.outcome||'Other';outc[o]=(outc[o]||0)+1;if(c.frustration_source)byFrust[c.frustration_source]=(byFrust[c.frustration_source]||0)+1;if(c.homeowner_state)byHState[c.homeowner_state]=(byHState[c.homeowner_state]||0)+1;}
-  const totCalls=contacts.length,connected=(outc['Reached']||0)+(outc['Appointment Set']||0),connRate=totCalls?Math.round(connected/totCalls*100):0;
+  for(const c of sc){const o=c.outcome||'Other';outc[o]=(outc[o]||0)+1;if(c.frustration_source)byFrust[c.frustration_source]=(byFrust[c.frustration_source]||0)+1;if(c.homeowner_state)byHState[c.homeowner_state]=(byHState[c.homeowner_state]||0)+1;}
+  const totCalls=sc.length,connected=(outc['Reached']||0)+(outc['Appointment Set']||0),connRate=totCalls?Math.round(connected/totCalls*100):0;
   /* one cohesive palette: green = good/go, steel = in-progress, slate = inert/neutral, amber = attention */
   const G={green:'linear-gradient(90deg,#5aa522,#7ec63f)',dgreen:'linear-gradient(90deg,#3f7a16,#5aa522)',steel:'linear-gradient(90deg,#3f6f96,#5a93bd)',slate:'linear-gradient(90deg,#6f7d8c,#95a3b1)',amber:'linear-gradient(90deg,#b8770f,#d99a2b)'};
   const STLAB={noshow:'No Show',cancel:'Cancelled',new:'New (manual)',deleted:'Deleted (pre-run)',ready:'Scheduled',goback:'Go Back',nosale:'No Sale',ran:'Ran',dq:'DQ',other:'Other'};
@@ -509,14 +574,27 @@ function renderDashDetail(){
     }).join('');
     return `<div class="dash-card" title="${esc(tip||'')}"><div class="dash-card-title">${esc(title)}</div>${rows||'<div class="sub">None yet</div>'}</div>`;
   };
+  /* #2: stacked by-rep card. Bar length = assigned leads; segments = best call
+     outcome per lead within scope (uncalled = no in-scope call on that lead). */
+  const RSEG=[['appt','#3f7a16','Appt set'],['reached','#7ec63f','Reached'],['attempted','#5a93bd','Attempted'],['uncalled','#d3dae0','Not called']];
+  const repCard=()=>{
+    const ent=Object.entries(byRepOut).sort((a,b)=>b[1].total-a[1].total).slice(0,10);
+    const max=Math.max(1,...ent.map(([,r])=>r.total));
+    const rows=ent.map(([rep,r])=>{
+      const segs=RSEG.map(([k,col,lab])=>r[k]?`<span style="width:${r[k]/max*100}%;background:${col}" title="${esc(lab)}: ${r[k]}"></span>`:'').join('');
+      return `<div class="bl-row"><span class="bl-k" title="${esc(rep)}">${esc(rep)}</span><span class="bl-bar bl-stack">${segs}</span><span class="bl-v">${r.total}</span></div>`;
+    }).join('');
+    const leg=RSEG.map(([k,col,lab])=>`<span class="dleg"><i style="background:${col}"></i>${esc(lab)}</span>`).join('');
+    return `<div class="dash-card" title="Each rep's assigned leads, split by best call outcome within the selected scope. Bar length = leads assigned."><div class="dash-card-title">By rep (assigned + outcomes)</div>${rows||'<div class="sub">None yet</div>'}<div style="margin-top:8px">${leg}</div></div>`;
+  };
   document.getElementById('dashdetail').innerHTML='<div class="dash-grid">'
-    +card(`Call outcomes (${connRate}% connect)`,outc,null,null,k=>OUTC[k]||G.slate,null,`Logged QC call results. Connect rate = (reached + appt set) / total calls = ${connected}/${totCalls}.`)
-    +card('Callable by disposition',byCallable,STLAB,null,k=>DISPO[k]||G.slate,null,'What the callable queue is made of, by why each lead is callable (deleted-before-ran, no-show, cancelled, fresh manual).')
-    +card('By lead type',byType,null,null,k=>k==='Direct'?G.amber:k==='Traditional'?G.green:G.slate,null,'Direct = rep-owned (do not dispatch). Traditional = company leads, freely dispatchable.')
-    +card('By rep (assigned)',byRep,null,10,k=>k==='Unassigned'?G.slate:G.steel,null,'How the list is dispatched. Unassigned = still in the pool to hand out.')
-    +card('Top towns',byTown,null,10,null,G.green,'Where the leads are, for geographic dispatch.')
-    +card('QC frustration sources',byFrust,null,10,null,G.amber,'Root-cause coaching intel logged on QC calls: lead-setter issues (misinformation, aggression, coaching) and call-center confirmation issues (no-confirm, over-confirming, high pressure). Populates as reps tag calls.')
-    +card('Homeowner states',byHState,null,10,null,G.slate,'How homeowners reacted on QC calls (receptive, not interested, already solar, hostile, DNC, etc.). Populates as reps tag calls.')
+    +card(`Call outcomes (${connRate}% connect)`,outc,null,null,k=>OUTC[k]||G.slate,null,`Logged QC call results in scope. Connect rate = (reached + appt set) / total calls = ${connected}/${totCalls}.`)
+    +repCard()
+    +card('Callable by disposition',byCallable,STLAB,null,k=>DISPO[k]||G.slate,null,'What the callable queue is made of (current state, all-time, not scoped).')
+    +card('By lead type',byType,null,null,k=>k==='Direct'?G.amber:k==='Traditional'?G.green:G.slate,null,'Direct = rep-owned (do not dispatch). Traditional = company leads, freely dispatchable. All-time.')
+    +card('Top towns',byTown,null,10,null,G.green,'Where the leads are, for geographic dispatch. All-time.')
+    +card('QC frustration sources',byFrust,null,10,null,G.amber,'Root-cause coaching intel logged on QC calls (in scope): lead-setter issues and call-center confirmation issues.')
+    +card('Homeowner states',byHState,null,10,null,G.slate,'How homeowners reacted on QC calls in scope (receptive, not interested, already solar, hostile, DNC, etc.).')
     +'</div>';
 }
 
@@ -545,7 +623,7 @@ function renderStackChart(slots,segs,footerHtml){
     const stackStyle=acc?`height:${acc}px;background:linear-gradient(to top,${stops.join(',')})`:'height:0';
     const lines=segs.slice().reverse().filter(g=>s.c[g.k]).map(g=>`${g.label}: ${s.c[g.k]}`).join('<br>');
     const tip=`<div class="dp-tip"><b>${dl}</b><br>${s.total} total${lines?'<br>'+lines:''}</div>`;
-    return `<div class="dp-bar">${tip}<div class="dp-stack" style="${stackStyle}"></div><div class="dp-xlabel${s.key===slots.todayKey?' dp-today':''}">${s.date.getDate()}</div></div>`;
+    return `<div class="dp-bar" data-daykey="${s.key}">${tip}<div class="dp-stack" style="${stackStyle}"></div><div class="dp-xlabel${s.key===slots.todayKey?' dp-today':''}">${s.date.getDate()}</div></div>`;
   }).join('');
   const legend=segs.slice().reverse().map(g=>`<span><i class="dp-dot ${g.cls}"></i>${g.label}</span>`).join('');
   return `<div class="dp-chart">${bars}</div><div class="dp-legend">${footerHtml||''}${legend}</div>`;
@@ -559,6 +637,7 @@ function renderTeamChart(){
   const el=document.getElementById('teamchart');
   el.classList.remove('loading');   /* drop the loading wrapper's padding + text-align:center so this container matches the (working) rep-chart panel */
   el.innerHTML=renderStackChart(slots,segs,footer);
+  wireTeamChartBars();   /* #3: hover/click bars to scope the cards below */
 }
 /* #10: per-rep CALL activity from contact_log (parallel to renderTeamChart), for the Reps drill-in. */
 function repCallChart(rep){
