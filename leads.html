@@ -95,6 +95,8 @@
   .bl-bar{background:#f1f3ee;border-radius:4px;height:9px;overflow:hidden}
   .bl-bar>span{display:block;height:100%;background:var(--green);border-radius:4px}
   .bl-v{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+  .kpi.hot{border-color:var(--amber);background:rgba(200,140,0,.06)}
+  .kpi.hot .n{color:#8a5800}
 </style>
 </head>
 <body>
@@ -159,6 +161,7 @@
         <input type="search" id="q" placeholder="Search name, town, DL#..." oninput="render()">
         <select id="fView" onchange="render()" title="What the call team should be working">
           <option value="callable">Callable now</option>
+          <option value="scheduled">Scheduled (appt set)</option>
           <option value="review">Needs review</option>
           <option value="cooldown">In cooldown</option>
           <option value="sold">Sold</option>
@@ -317,11 +320,11 @@ function contactCount(g){
 
 /* ── KPIs (by category) ── */
 function renderKpis(){
-  const cat={callable:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
-  let unassigned=0,dups=0;
-  for(const g of props){const c=leadCategory(g);cat[c]=(cat[c]||0)+1;if(g.dls.length>1)dups++;if(c==='callable'&&!g.primary.assigned_to)unassigned++;}
-  const k=[['Callable now',cat.callable],['Needs review',cat.review],['Cooldown',cat.cooldown],['Unassigned',unassigned],['Sold',cat.sold],['DNC',cat.dnc],['Total homes',props.length]];
-  document.getElementById('kpis').innerHTML=k.map(([l,n])=>`<div class="kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+  const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
+  let unassigned=0;
+  for(const g of props){const c=leadCategory(g);cat[c]=(cat[c]||0)+1;if(c==='callable'&&!g.primary.assigned_to)unassigned++;}
+  const k=[['Callable now',cat.callable],['Scheduled',cat.scheduled],['Needs review',cat.review,cat.review>0?'hot':''],['In cooldown',cat.cooldown],['Unassigned',unassigned],['Sold',cat.sold],['DNC',cat.dnc],['Total homes',props.length]];
+  document.getElementById('kpis').innerHTML=k.map(([l,n,c])=>`<div class="kpi ${c||''}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
 }
 /* ── Dashboard breakdown cards ── */
 function renderDashDetail(){
@@ -332,7 +335,7 @@ function renderDashDetail(){
     const r=g.primary.assigned_to||'Unassigned'; byRep[r]=(byRep[r]||0)+1;
     const t=g.property.town||'(unknown)'; byTown[t]=(byTown[t]||0)+1;
   }
-  const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Ready',sold:'Sold',dq:'DQ',other:'Other'};
+  const STLAB={noshow:'No Show',cancel:'Cancelled',goback:'Go Back',nosale:'No Sale',ran:'Ran',ready:'Scheduled',sold:'Sold',dq:'DQ',other:'Other'};
   const card=(title,obj,labmap,limit)=>{
     const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const max=Math.max(1,...ent.map(e=>e[1]));
@@ -404,7 +407,9 @@ function toggleDetail(key){
    QC re-engagement targets are leads that NEVER sat (no-show / cancel).
    Leads that sat / ran (Stage 2+: go-back, no-sale, ran) drop off for 14 days,
    then need a manager Redispatch before returning to the callable list.
-   "Stage 2+" is proxied via the sat/ran disposition (no raw SF stage in feed). */
+   "Stage 2+" is proxied via the sat/ran disposition (no raw SF stage in feed).
+   'ready' = an appointment is on the books with no outcome recorded yet
+   (scheduled / upcoming) -> NOT a QC-call target; held in its own Scheduled lens. */
 const SAT_STATES=new Set(['goback','nosale','ran']);
 const QC_STATES=new Set(['noshow','cancel']);
 const COOLDOWN_DAYS=14;
@@ -413,6 +418,7 @@ function leadCategory(g){
   if(g.anySold)return 'sold';
   if(g.dnc)return 'dnc';
   const st=g.primary.lifecycle_state||'';
+  if(st==='ready')return 'scheduled';
   if(QC_STATES.has(st))return 'callable';
   if(SAT_STATES.has(st)){
     if(g.primary.redispatch_approved)return 'callable';
