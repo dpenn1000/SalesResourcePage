@@ -74,19 +74,18 @@
   .tab{background:none;border:none;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;color:var(--muted);padding:12px 16px;border-bottom:2px solid transparent}
   .tab:hover{color:var(--ink)}
   .tab.active{color:var(--ink);border-bottom-color:var(--green)}
-  .dp-plot{display:flex;align-items:flex-end;gap:3px;height:152px;padding:8px 10px 0;background:linear-gradient(180deg,#ffffff,#f6f8f3);border:1px solid var(--border);border-bottom:2px solid #d3d9dd;border-radius:10px 10px 0 0}
-  .dp-col{flex:1;min-width:0;display:flex;align-items:flex-end;justify-content:center;height:100%;position:relative}
-  .dp-stack{width:66%;min-width:6px;border-radius:3px;overflow:hidden}
-  .dp-seg{display:block;width:100%}
-  .dp-seg.appt{background:linear-gradient(180deg,#5aa522,#3f7a16)}
+  .dp-chart{display:flex;align-items:flex-end;gap:3px;height:185px;padding:10px 10px 0;background:linear-gradient(180deg,#ffffff,#f6f8f3);border:1px solid var(--border);border-radius:10px}
+  .dp-bar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+  .dp-stack{display:flex;flex-direction:column-reverse;width:62%;min-width:6px}
+  .dp-seg{width:100%}
+  .dp-seg.appt{background:linear-gradient(180deg,#5aa522,#3f7a16);border-radius:2px 2px 0 0}
   .dp-seg.reached{background:linear-gradient(180deg,#9ad657,#74bd33)}
   .dp-seg.sched{background:linear-gradient(180deg,#5a93bd,#3f6f96)}
   .dp-seg.noanswer{background:linear-gradient(180deg,#9aa7b6,#7f8d9d)}
-  .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.4;white-space:nowrap;text-align:left;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
-  .dp-col:hover .dp-tip{display:block}
-  .dp-col:hover .dp-stack{filter:brightness(1.07) saturate(1.05)}
-  .dp-axis{display:flex;gap:3px;padding:3px 10px 6px;background:#fafbf9;border:1px solid var(--border);border-top:none;border-radius:0 0 10px 10px}
-  .dp-tick{flex:1;min-width:0;text-align:center;font-size:10px;color:#9aa7b4}
+  .dp-xlabel{font-size:10px;color:#9aa7b4;margin-top:4px}
+  .dp-tip{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A2332;color:#fff;padding:6px 9px;border-radius:7px;font-size:11px;line-height:1.4;white-space:nowrap;text-align:center;z-index:10;box-shadow:0 4px 12px rgba(15,32,56,.25);pointer-events:none}
+  .dp-bar:hover .dp-tip{display:block}
+  .dp-bar:hover .dp-stack{filter:brightness(1.07) saturate(1.05)}
   .dp-today{color:#C88C00;font-weight:700}
   .dp-legend{display:flex;gap:14px;margin:8px 2px 0;font-size:11px;color:var(--muted);flex-wrap:wrap}
   .dp-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
@@ -437,19 +436,22 @@ function buildDaySlots(win){
   return {list,byKey,todayKey:today.toISOString().slice(0,10)};
 }
 function renderStackChart(slots,segs,footerHtml){
-  const max=Math.max(1,...slots.list.map(s=>s.total)),H=126;
-  const h=n=>n?Math.max(3,Math.round(n/max*H)):0;
+  /* Structure mirrors the proven call-list-admin repDailyChart: each bar is a
+     vertical flex (.dp-bar) with the date label INSIDE it; segs render bottom-first
+     into a column-reverse .dp-stack. Do not switch to a row-flex / separate-axis
+     layout -- that reintroduced a sub-pixel offset on the top segment. */
+  const max=Math.max(1,...slots.list.map(s=>s.total)),H=140;
+  const h=n=>n?Math.max(2,Math.round(n/max*H)):0;
+  const seg=(n,cls)=>n?`<div class="dp-seg ${cls}" style="height:${h(n)}px"></div>`:'';
   const bars=slots.list.map(s=>{
     const dl=s.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    /* top-first DOM order: segs are listed bottom-first, so reverse for normal block flow (no flex -> no sub-pixel drift) */
-    const stack=segs.slice().reverse().map(g=>{const n=s.c[g.k]||0;return n?`<div class="dp-seg ${g.cls}" style="height:${h(n)}px"></div>`:'';}).join('');
+    const stack=segs.map(g=>seg(s.c[g.k]||0,g.cls)).join('');
     const lines=segs.slice().reverse().filter(g=>s.c[g.k]).map(g=>`${g.label}: ${s.c[g.k]}`).join('<br>');
     const tip=`<div class="dp-tip"><b>${dl}</b><br>${s.total} total${lines?'<br>'+lines:''}</div>`;
-    return `<div class="dp-col">${tip}<div class="dp-stack">${stack}</div></div>`;
+    return `<div class="dp-bar">${tip}<div class="dp-stack">${stack}</div><div class="dp-xlabel${s.key===slots.todayKey?' dp-today':''}">${s.date.getDate()}</div></div>`;
   }).join('');
-  const axis=slots.list.map(s=>`<div class="dp-tick${s.key===slots.todayKey?' dp-today':''}">${s.date.getDate()}</div>`).join('');
   const legend=segs.slice().reverse().map(g=>`<span><i class="dp-dot ${g.cls}"></i>${g.label}</span>`).join('');
-  return `<div class="dp-plot">${bars}</div><div class="dp-axis">${axis}</div><div class="dp-legend">${footerHtml||''}${legend}</div>`;
+  return `<div class="dp-chart">${bars}</div><div class="dp-legend">${footerHtml||''}${legend}</div>`;
 }
 function renderTeamChart(){
   const slots=buildDaySlots(21);
