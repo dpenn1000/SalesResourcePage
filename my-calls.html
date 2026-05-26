@@ -133,6 +133,8 @@ let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set();
 const HSTATES=['','Receptive / re-engaged','Not interested','Already has solar','Renter / not owner','Moving / selling','Hostile / rude','Hard no / stop calling','Wrong / bad number','DNC request'];
 const FSOURCES=['','Setter: misinformation','Setter: aggressive / pushy','Setter: needs coaching','Call center: no confirmation','Call center: over-confirming (too many texts/calls)','Call center: high pressure','Prior rep: bad experience','Other'];
 const DISPO={deleted:['Deleted (pre-run)','b-deleted'],noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],new:['New','b-new']};
+// Disposition options a rep/manager can set on the lead record (matches the lifecycle_state vocabulary the dashboard reads).
+const DISPO_EDIT=[['ready','Ready to dispatch'],['goback','Go-back scheduled'],['ran','Appointment ran'],['noshow','No show'],['cancel','Cancelled'],['nosale','No sale / not interested'],['sold','Sold'],['deleted','Deleted (pre-run)']];
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -250,6 +252,18 @@ function cardHtml(l){
         </div>
         <button class="btn-primary" onclick="saveCall('${esc(l.dl_number)}')">Log call</button>
       </div>`;
+  const leadForm = `<div class="logform" style="background:#fff7ef;border-color:#f0d9b8;margin-top:10px">
+        <h4>Update lead${window.IS_MANAGER?` <span style="font-weight:500;color:var(--muted);font-size:11px">for ${esc(VIEW_AS||'this rep')}</span>`:''}</h4>
+        <div class="frow"><label>Disposition</label><select id="ds-${esc(l.dl_number)}">
+          <option value="">Keep current (${esc(l.lifecycle_state||'--')})</option>
+          ${DISPO_EDIT.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('')}
+        </select></div>
+        <div class="frow two">
+          <div><label style="display:flex;align-items:center;gap:8px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink);font-weight:600;margin-top:18px"><input type="checkbox" id="sd-${esc(l.dl_number)}" onchange="var e=document.getElementById('sc-${esc(l.dl_number)}');e.disabled=!this.checked;if(this.checked&&!e.value)e.value=new Date().toISOString().slice(0,10)"> Mark sold from a call</label></div>
+          <div><label>Sold contract date</label><input id="sc-${esc(l.dl_number)}" type="date" disabled></div>
+        </div>
+        <button class="btn-primary" onclick="saveLead('${esc(l.dl_number)}')">Save lead update</button>
+      </div>`;
   return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
     <div class="card-head" onclick="toggle('${esc(l.dl_number)}')">
       <div><div class="nm">${esc(l.homeowner_name||'--')}</div><div class="card-sub">${esc(town)} &middot; ${esc(l.dl_number)}${lastCall?' &middot; last call '+fmtDate(lastCall.contacted_at):''}</div></div>
@@ -264,7 +278,7 @@ function cardHtml(l){
         <div><div class="k">Direct Lead</div>${l.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(l.dl_sf_id))}">Open in SF &nearr; (phone here)</a>`:'<span class="card-sub">no SF link</span>'}</div>
       </div>
       ${cs.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:4px">Call history</div>'+cs.map(c=>`<div class="hist"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.homeowner_state?' &middot; '+esc(c.homeowner_state):''}${c.frustration_source?' &middot; '+esc(c.frustration_source):''}${c.logged_by&&c.logged_by!==target?' &middot; <span style="color:var(--accent);font-weight:600">by '+esc(c.logged_by)+'</span>':''}${c.notes?'<br>'+esc(c.notes):''}${c.next_step?'<br>Next: '+esc(c.next_step):''}</div>`).join(''):''}
-      ${logForm}
+      ${logForm}${leadForm}
     </div>
   </div>`;
 }
@@ -303,6 +317,31 @@ async function saveCall(dl){
   };
   contacts.unshift(row);(byOpp[row.opportunity_id]=byOpp[row.opportunity_id]||[]).unshift(row);
   toast(window.IS_MANAGER?('Call logged for '+(VIEW_AS||'rep')):'Call logged');
+  renderKpis();render();
+}
+// Update the lead record itself (disposition + sold). Allowed by direct_leads RLS:
+// rep on own lead (assigned_update), manager on any (mgr_update), admin (admin_all).
+async function saveLead(dl){
+  const l=leads.find(x=>x.dl_number===dl);if(!l)return;
+  const target=window.IS_MANAGER?VIEW_AS:ME;
+  const card=document.getElementById('c-'+dl);
+  const btn=card?card.querySelector('button[onclick*="saveLead"]'):null;
+  const patch={updated_at:new Date().toISOString()};
+  const disp=document.getElementById('ds-'+dl).value;
+  if(disp)patch.lifecycle_state=disp;
+  if(document.getElementById('sd-'+dl).checked){
+    patch.sold=true;
+    patch.sold_at=new Date().toISOString();
+    patch.sold_contract_date=(document.getElementById('sc-'+dl).value||new Date().toISOString().slice(0,10));
+    if(target)patch.sold_rep=target;
+    if(!disp)patch.lifecycle_state='sold';
+  }
+  if(Object.keys(patch).length<=1){toast('Nothing to update');return;}
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  const { error }=await sb.from('direct_leads').update(patch).eq('dl_number',dl);
+  if(error){toast('Update failed: '+error.message);if(btn){btn.disabled=false;btn.textContent='Save lead update';}return;}
+  Object.assign(l,patch);
+  toast('Lead updated'+(window.IS_MANAGER&&VIEW_AS?(' for '+VIEW_AS):''));
   renderKpis();render();
 }
 function initAppGate(){}
