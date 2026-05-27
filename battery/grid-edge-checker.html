@@ -50,7 +50,7 @@
   .card-hint { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
 
   /* Step 1 - map */
-  .map-frame { width: 100%; height: 360px; border: 1px solid var(--border); border-radius: 10px; background: #f3f5f0; }
+  .map-frame { width: 100%; height: min(72vh, 680px); min-height: 560px; border: 1px solid var(--border); border-radius: 10px; background: #f3f5f0; }
   .map-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
   .btn { display: inline-flex; align-items: center; gap: 8px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; padding: 11px 16px; border-radius: 9px; border: none; cursor: pointer; text-decoration: none; }
   .btn-primary { background: var(--accent); color: #fff; }
@@ -102,7 +102,7 @@
 
   @media (max-width: 600px) {
     .page-title { font-size: 24px; }
-    .map-frame { height: 300px; }
+    .map-frame { height: 70vh; min-height: 440px; }
     .result-big { font-size: 22px; }
   }
 </style>
@@ -161,13 +161,35 @@
 
   <div class="page-eyebrow">Battery / ESS</div>
   <h1 class="page-title">Is this address on the Grid Edge?</h1>
-  <p class="page-desc">Grid Edge homes qualify for a <strong>$130/kWh</strong> enrollment incentive instead of $30/kWh, a 4&times; difference. Confirm it before you walk in. Two steps: find the circuit serving the home, then check it below.</p>
+  <p class="page-desc">Grid Edge homes qualify for a <strong>$130/kWh</strong> enrollment incentive instead of $30/kWh, a 4&times; difference. Confirm it before you walk in. Start with the quick visual check, then confirm the exact circuit for anything borderline.</p>
 
-  <!-- Step 1: circuit number -->
+  <!-- Step 1: quick visual check (Navigator) -->
   <div class="card">
-    <div class="card-step"><span class="dot">1</span> Find the circuit number</div>
+    <div class="card-step"><span class="dot">1</span> Quick check</div>
+    <div class="card-title">Is the home next to a colored line?</div>
+    <div class="card-hint">Search the address in the Eversource map. A home sitting on or right beside a <strong>blue or red line</strong> is very likely Grid Edge.</div>
+    <iframe id="navFrame" class="map-frame" title="Eversource Grid Edge Navigator map"
+      src="https://navigator.eversource-ct.envelio.com/?lang=en-us#8.31/41.52/-72.69"
+      referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="map-actions">
+      <a class="btn btn-primary" href="https://navigator.eversource-ct.envelio.com/?lang=en-us" target="_blank" rel="noopener">Open Eversource map in new tab &rarr;</a>
+      <a class="btn btn-ghost" href="https://www.arcgis.com/apps/webappviewer/index.html?id=3a03640640b6438aa231945444299a98" target="_blank" rel="noopener">United Illuminating map</a>
+    </div>
+    <div class="how">
+      <div class="how-label">How to read it</div>
+      <ol>
+        <li>Search the customer's address.</li>
+        <li>A <strong>blue or red line</strong> on or next to the parcel = likely Grid Edge. (UI: red lines.)</li>
+        <li>Borderline, or two homes close together? Confirm the exact circuit in Step 2, since adjacent parcels can be on different circuits.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Step 2: circuit number -->
+  <div class="card">
+    <div class="card-step"><span class="dot">2</span> Confirm the circuit</div>
     <div class="card-title">Look up the parcel's circuit</div>
-    <div class="card-hint">Enter the home's address in Eversource's Hosting Capacity Map, click the parcel, and read the <strong>circuit number</strong> from the popup.</div>
+    <div class="card-hint">For a definitive answer, enter the address in Eversource's Hosting Capacity Map, click the parcel, and read the <strong>circuit number</strong> from the popup.</div>
     <iframe id="mapFrame" class="map-frame" title="Eversource DG Hosting Capacity Map"
       src="https://eversource.maps.arcgis.com/apps/webappviewer/index.html?id=4a8523bc4d454ddaa5c1e3f9428d8d8f"
       loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
@@ -181,14 +203,14 @@
         <li>Search the customer's address in the map.</li>
         <li>Click directly on the home's parcel.</li>
         <li>In the popup, find the <strong>Circuit</strong> field (e.g. <strong>5R7</strong> or <strong>412M1</strong>).</li>
-        <li>Type the zip and that circuit below.</li>
+        <li>Type the zip and that circuit in Step 3 below.</li>
       </ol>
     </div>
   </div>
 
   <!-- Step 2: checker -->
   <div class="card">
-    <div class="card-step"><span class="dot">2</span> Check Grid Edge status</div>
+    <div class="card-step"><span class="dot">3</span> Check Grid Edge status</div>
     <div class="card-title">Zip code + circuit number</div>
     <div class="card-hint">Type the zip first. We'll show the Grid Edge circuits in that zip, then enter the parcel's circuit.</div>
 
