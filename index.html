@@ -6,6 +6,36 @@
   <title>CT Traditional | Sales Resource Center</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="/auth-gate.css">
+  <script>
+  /* Diagnostic: paint any uncaught error, unhandled rejection, or failed script load
+     on-screen instead of leaving a blank page, so problems are readable on devices
+     without a console. Installed before the auth scripts so it catches their failures
+     too (e.g. a network/extension blocking the Supabase CDN). */
+  (function(){
+    function showErr(msg){
+      try{
+        var d=document.getElementById('__errOverlay');
+        if(!d){
+          d=document.createElement('div');d.id='__errOverlay';
+          d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#7a0b0b;color:#fff;font:13px/1.5 system-ui,Arial,sans-serif;padding:12px 16px;max-height:55vh;overflow:auto;white-space:pre-wrap;box-shadow:0 -4px 16px rgba(0,0,0,.45)';
+          (document.body||document.documentElement).appendChild(d);
+        }
+        d.textContent='Page error (screenshot this and send it): '+msg;
+      }catch(_){}
+    }
+    window.addEventListener('error',function(e){
+      if(e&&e.target&&(e.target.tagName==='SCRIPT'||e.target.tagName==='LINK')){
+        showErr('Failed to load resource: '+(e.target.src||e.target.href||'unknown'));return;
+      }
+      var m=(e&&e.message)?e.message:'script error';
+      if(e&&e.filename)m+=' @ '+e.filename+':'+(e.lineno||0);
+      showErr(m);
+    },true);
+    window.addEventListener('unhandledrejection',function(e){
+      var r=e&&e.reason;showErr('Unhandled rejection: '+((r&&r.message)?r.message:String(r)));
+    });
+  })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/auth-gate.js"></script>
   <style>
