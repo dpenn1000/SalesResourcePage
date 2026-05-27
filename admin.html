@@ -260,6 +260,7 @@
       <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
       <button class="page-tab"        onclick="switchTab('tools')">Tools</button>
       <button class="page-tab"        onclick="switchTab('users')">Users</button>
+      <button class="page-tab"        onclick="switchTab('gridedge')">Grid Edge</button>
     </div>
   </div>
 
@@ -757,6 +758,45 @@
         <span class="tool-arrow">&#8599;</span>
       </a>
     </div>
+  </div>
+
+  <!-- Grid Edge data section -->
+  <div id="tabGridEdge" class="admin-inner" style="display:none">
+    <div class="panel-header">
+      <h2>Grid Edge Map Data</h2>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin:-6px 0 18px;line-height:1.6;">
+      Powers the rep-facing <a href="/battery/grid-edge-checker.html" target="_blank" rel="noopener" style="color:var(--accent,#29A9E1);font-weight:600;">Grid Edge Checker</a>.
+      Refresh once a year when CT ESS publishes the new Grid Edge Criteria Circuit Map. Paste the new map's zip + circuit list below; the checker uses the most recent version automatically.
+    </p>
+
+    <div id="geStatus" style="background:#f4f6f1;border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--text2);margin-bottom:20px;">Loading current data&hellip;</div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text2);margin-bottom:5px;">Map version</label>
+        <input id="geVersion" type="text" maxlength="12" placeholder="2026" style="width:120px;font-size:15px;font-weight:600;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;">
+      </div>
+      <div>
+        <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text2);margin-bottom:5px;">Utility</label>
+        <select id="geUtility" style="font-size:15px;font-weight:600;padding:10px 12px;border:1.5px solid var(--border);border-radius:9px;background:#fff;">
+          <option>Eversource</option>
+          <option>United Illuminating</option>
+        </select>
+      </div>
+    </div>
+
+    <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--text2);margin-bottom:5px;">Paste map data</label>
+    <p style="font-size:12px;color:var(--text2);margin:0 0 8px;line-height:1.5;">Accepts <code>zip,circuit</code> CSV lines or raw text copied from the map PDF. Each zip-then-circuit pair is detected automatically; stray zip labels are ignored.</p>
+    <textarea id="geInput" rows="8" placeholder="06001,5R7&#10;06339,412M1&#10;06810,28M1" style="width:100%;font-family:'DM Mono',ui-monospace,monospace;font-size:13px;padding:12px;border:1.5px solid var(--border);border-radius:10px;resize:vertical;"></textarea>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+      <button onclick="geParse()" style="font-size:14px;font-weight:700;padding:11px 18px;border-radius:9px;border:1px solid var(--border);background:#fff;cursor:pointer;">Parse &amp; preview</button>
+      <button id="geApplyBtn" onclick="geApply()" disabled style="font-size:14px;font-weight:700;padding:11px 18px;border-radius:9px;border:none;background:#29A9E1;color:#fff;cursor:pointer;opacity:0.5;">Replace data for this version</button>
+    </div>
+
+    <div id="gePreview" style="display:none;margin-top:16px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:13px;"></div>
+    <div id="geResult" style="display:none;margin-top:14px;font-size:14px;font-weight:600;"></div>
   </div>
 
 </div>
@@ -1672,7 +1712,7 @@ document.getElementById('bulkModal').addEventListener('click', e => {
 });
 
 function switchTab(tab) {
-  const order = ['resources', 'updates', 'feedback', 'tools', 'users'];
+  const order = ['resources', 'updates', 'feedback', 'tools', 'users', 'gridedge'];
   document.querySelectorAll('.page-tab').forEach((t, i) =>
     t.classList.toggle('active', order[i] === tab));
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
@@ -1680,9 +1720,96 @@ function switchTab(tab) {
   document.getElementById('tabFeedback').style.display  = tab === 'feedback'  ? 'block' : 'none';
   document.getElementById('tabTools').style.display     = tab === 'tools'     ? 'block' : 'none';
   document.getElementById('tabUsers').style.display     = tab === 'users'     ? 'block' : 'none';
+  document.getElementById('tabGridEdge').style.display  = tab === 'gridedge'  ? 'block' : 'none';
   if (tab === 'users') loadUsers();
   if (tab === 'updates') loadUpdates();
   if (tab === 'feedback') loadFeedback();
+  if (tab === 'gridedge') loadGridEdgeStatus();
+}
+
+// ── Grid Edge map data ─────────────────────────
+let GE_PARSED = [];
+
+async function loadGridEdgeStatus() {
+  const el = document.getElementById('geStatus');
+  el.textContent = 'Loading current data…';
+  const { data, error } = await sb
+    .from('grid_edge_circuits')
+    .select('utility,map_version')
+    .limit(20000);
+  if (error) { el.textContent = 'Could not load: ' + error.message; return; }
+  if (!data.length) { el.innerHTML = 'No Grid Edge data loaded yet.'; return; }
+  const g = {};
+  for (const r of data) {
+    const k = r.utility + ' · ' + r.map_version;
+    g[k] = (g[k] || 0) + 1;
+  }
+  const lines = Object.entries(g).sort().map(([k, n]) => '<strong>' + k + '</strong>: ' + n + ' listings').join('<br>');
+  el.innerHTML = 'Currently loaded:<br>' + lines;
+}
+
+function geParsePairs(text) {
+  const tokens = (text || '').toUpperCase().split(/[\s,;]+/).filter(Boolean);
+  const zipRe = /^0[0-9]{4}$/;
+  const circRe = /^[0-9]{1,3}[A-Z][0-9A-Z]{1,4}$/;
+  const pairs = [], seen = new Set();
+  for (let i = 0; i < tokens.length - 1; i++) {
+    if (zipRe.test(tokens[i]) && circRe.test(tokens[i + 1])) {
+      const key = tokens[i] + '|' + tokens[i + 1];
+      if (!seen.has(key)) { seen.add(key); pairs.push([tokens[i], tokens[i + 1]]); }
+      i++;
+    }
+  }
+  return pairs;
+}
+
+function geParse() {
+  const pairs = geParsePairs(document.getElementById('geInput').value);
+  GE_PARSED = pairs;
+  const prev = document.getElementById('gePreview');
+  const btn = document.getElementById('geApplyBtn');
+  document.getElementById('geResult').style.display = 'none';
+  prev.style.display = 'block';
+  if (!pairs.length) {
+    prev.innerHTML = 'No valid zip + circuit pairs found. Check the pasted text.';
+    btn.disabled = true; btn.style.opacity = '0.5';
+    return;
+  }
+  const zips = new Set(pairs.map(p => p[0]));
+  const sample = pairs.slice(0, 12).map(p => p[0] + ' → ' + p[1]).join(', ');
+  prev.innerHTML = '<strong>' + pairs.length + '</strong> unique pairs across <strong>' + zips.size +
+    '</strong> zips.<br><span style="color:#6B7280">Sample: ' + sample + (pairs.length > 12 ? ' …' : '') + '</span>';
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+async function geApply() {
+  if (!IS_ADMIN) { alert('Admin only.'); return; }
+  const version = (document.getElementById('geVersion').value || '').trim();
+  const utility = document.getElementById('geUtility').value;
+  if (!version) { alert('Enter a map version (e.g. 2026).'); return; }
+  if (!GE_PARSED.length) { alert('Parse some data first.'); return; }
+  if (!confirm('Replace all ' + utility + ' data for version ' + version + ' with ' + GE_PARSED.length +
+    ' pairs? This deletes any existing rows for that utility + version.')) return;
+
+  const result = document.getElementById('geResult');
+  result.style.display = 'block';
+  result.style.color = '#6B7280';
+  result.textContent = 'Saving…';
+
+  const del = await sb.from('grid_edge_circuits').delete().eq('utility', utility).eq('map_version', version);
+  if (del.error) { result.style.color = '#E84040'; result.textContent = 'Delete failed: ' + del.error.message; return; }
+
+  const rows = GE_PARSED.map(([zip, circuit]) => ({ zip, circuit, utility, map_version: version }));
+  for (let i = 0; i < rows.length; i += 500) {
+    const ins = await sb.from('grid_edge_circuits').insert(rows.slice(i, i + 500));
+    if (ins.error) { result.style.color = '#E84040'; result.textContent = 'Insert failed near row ' + i + ': ' + ins.error.message; return; }
+  }
+  result.style.color = '#5eba28';
+  result.textContent = '✓ Saved ' + rows.length + ' pairs for ' + utility + ' ' + version + '. The checker now uses version ' + version + '.';
+  GE_PARSED = [];
+  document.getElementById('geApplyBtn').disabled = true;
+  document.getElementById('geApplyBtn').style.opacity = '0.5';
+  loadGridEdgeStatus();
 }
 
 // ── Updates (Bulletins) ───────────────────────────

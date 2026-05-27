@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grid Edge Checker | Trinity Solar CT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:   #78C832;
+    --green-d: #5eba28;
+    --accent:  #29A9E1;
+    --ink:     #1A2332;
+    --muted:   #6b7a8d;
+    --border:  #DFE2DA;
+    --bg:      #EFF1EC;
+    --surface: #ffffff;
+    --amber:   #F5A623;
+    --radius:  12px;
+    --shadow:  0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  html { background: var(--bg); color: var(--ink); font-family: 'Manrope', sans-serif; font-size: 16px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+  body { min-height: 100vh; }
+
+  /* Header */
+  .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .header-inner { max-width: 880px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .logo-mark { width: 34px; height: 34px; background: var(--green); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: #0b1120; flex-shrink: 0; }
+  .header-text { flex: 1; min-width: 0; }
+  .header-title { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700; line-height: 1.15; }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .header-link { font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+  .header-link:hover { opacity: 0.8; }
+
+  .main { max-width: 880px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  .page-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-d); }
+  .page-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; line-height: 1.15; margin: 6px 0 8px; }
+  .page-desc { font-size: 15px; color: var(--muted); max-width: 60ch; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-top: 20px; }
+  .card-step { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .card-step .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+  .card-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+  .card-hint { font-size: 14px; color: var(--muted); margin-bottom: 14px; }
+
+  /* Step 1 - map */
+  .map-frame { width: 100%; height: 360px; border: 1px solid var(--border); border-radius: 10px; background: #f3f5f0; }
+  .map-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; padding: 11px 16px; border-radius: 9px; border: none; cursor: pointer; text-decoration: none; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--bg); }
+  .how { margin-top: 14px; padding: 14px 16px; background: rgba(41,169,225,0.06); border: 1px solid rgba(41,169,225,0.2); border-radius: 10px; }
+  .how-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); margin-bottom: 6px; }
+  .how ol { margin: 0; padding-left: 18px; font-size: 14px; }
+  .how li { margin: 3px 0; }
+
+  /* Step 2 - checker */
+  .field-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .field { flex: 1; min-width: 130px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 5px; }
+  .field input { width: 100%; font-family: 'Manrope', sans-serif; font-size: 19px; font-weight: 600; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--ink); }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .field input::placeholder { color: #b6bfc9; font-weight: 500; }
+
+  .chips-wrap { margin-top: 16px; display: none; }
+  .chips-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .chips-label strong { color: var(--ink); }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; padding: 7px 12px; border-radius: 8px; background: rgba(120,200,50,0.12); color: var(--green-d); border: 1px solid rgba(120,200,50,0.3); cursor: pointer; }
+  .chip:hover { background: rgba(120,200,50,0.22); }
+
+  /* Result */
+  .result { margin-top: 18px; border-radius: 12px; padding: 20px; display: none; }
+  .result.show { display: block; }
+  .result-big { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; line-height: 1.1; display: flex; align-items: center; gap: 10px; }
+  .result-sub { font-size: 14px; margin-top: 8px; line-height: 1.5; }
+  .r-yes { background: rgba(120,200,50,0.12); border: 1.5px solid var(--green); }
+  .r-yes .result-big { color: var(--green-d); }
+  .r-no { background: #f4f6f1; border: 1.5px solid var(--border); }
+  .r-no .result-big { color: var(--ink); }
+  .r-info { background: rgba(245,166,35,0.1); border: 1.5px solid var(--amber); }
+  .r-info .result-big { color: #b9791a; }
+  .result-icon { font-size: 28px; line-height: 1; }
+  .price-pill { display: inline-block; font-size: 13px; font-weight: 800; padding: 3px 10px; border-radius: 999px; margin-left: 4px; }
+  .pill-hi { background: var(--green); color: #0b1120; }
+  .pill-lo { background: #d8ddd4; color: var(--ink); }
+
+  /* Disclaimer */
+  .disclaimer { margin-top: 22px; font-size: 13px; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 16px; }
+  .disclaimer a { color: var(--accent); }
+  .ver { font-size: 12px; color: #9aa6b2; margin-top: 8px; }
+
+  .data-loading { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+  @media (max-width: 600px) {
+    .page-title { font-size: 24px; }
+    .map-frame { height: 300px; }
+    .result-big { font-size: 22px; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="page-header">
+  <div class="header-inner">
+    <div class="logo-mark">T</div>
+    <div class="header-text">
+      <div class="header-title">Grid Edge Checker</div>
+      <div class="header-sub">Trinity Solar CT &middot; CT Energy Storage Solutions</div>
+    </div>
+    <a class="header-link" href="/battery/general/ct-ess-consultant-training-v6.html">ESS Training &rarr;</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="page-eyebrow">Battery / ESS</div>
+  <h1 class="page-title">Is this address on the Grid Edge?</h1>
+  <p class="page-desc">Grid Edge homes qualify for a <strong>$130/kWh</strong> enrollment incentive instead of $30/kWh, a 4&times; difference. Confirm it before you walk in. Two steps: find the circuit serving the home, then check it below.</p>
+
+  <!-- Step 1: circuit number -->
+  <div class="card">
+    <div class="card-step"><span class="dot">1</span> Find the circuit number</div>
+    <div class="card-title">Look up the parcel's circuit</div>
+    <div class="card-hint">Enter the home's address in Eversource's Hosting Capacity Map, click the parcel, and read the <strong>circuit number</strong> from the popup.</div>
+    <iframe id="mapFrame" class="map-frame" title="Eversource DG Hosting Capacity Map"
+      src="https://eversource.maps.arcgis.com/apps/webappviewer/index.html?id=4a8523bc4d454ddaa5c1e3f9428d8d8f"
+      loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    <div class="map-actions">
+      <a class="btn btn-primary" href="https://eversource.maps.arcgis.com/apps/webappviewer/index.html?id=4a8523bc4d454ddaa5c1e3f9428d8d8f" target="_blank" rel="noopener">Open full map in new tab &rarr;</a>
+      <a class="btn btn-ghost" href="https://www.arcgis.com/apps/webappviewer/index.html?id=3a03640640b6438aa231945444299a98" target="_blank" rel="noopener">United Illuminating map</a>
+    </div>
+    <div class="how">
+      <div class="how-label">How to read it</div>
+      <ol>
+        <li>Search the customer's address in the map.</li>
+        <li>Click directly on the home's parcel.</li>
+        <li>In the popup, find the <strong>Circuit</strong> field (e.g. <strong>5R7</strong> or <strong>412M1</strong>).</li>
+        <li>Type the zip and that circuit below.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Step 2: checker -->
+  <div class="card">
+    <div class="card-step"><span class="dot">2</span> Check Grid Edge status</div>
+    <div class="card-title">Zip code + circuit number</div>
+    <div class="card-hint">Type the zip first. We'll show the Grid Edge circuits in that zip, then enter the parcel's circuit.</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="zipIn">Zip code</label>
+        <input id="zipIn" type="text" inputmode="numeric" maxlength="5" placeholder="06339" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="circIn">Circuit number</label>
+        <input id="circIn" type="text" maxlength="8" placeholder="412M1" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      </div>
+    </div>
+
+    <div id="chipsWrap" class="chips-wrap">
+      <div id="chipsLabel" class="chips-label"></div>
+      <div id="chips" class="chips"></div>
+    </div>
+
+    <div id="result" class="result">
+      <div class="result-big"><span id="resIcon" class="result-icon"></span><span id="resTitle"></span></div>
+      <div id="resSub" class="result-sub"></div>
+    </div>
+
+    <div id="dataLoading" class="data-loading">Loading 2025 map data&hellip;</div>
+  </div>
+
+  <div class="disclaimer">
+    The utility makes the final Grid Edge determination. Mapping is parcel-specific: adjacent parcels can be on different circuits. If a site is unclear, email <a href="mailto:energystoragesolutions@eversource.com">energystoragesolutions@eversource.com</a> to request verification.
+    <div class="ver">Based on the <span id="verYear">2025</span> Grid Edge Criteria Circuit Map (Eversource territory). Reviewed annually. <span id="verCount"></span></div>
+  </div>
+
+</main>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+let GE = {};          // zip -> Set of grid-edge circuits (uppercase)
+let GE_READY = false;
+
+function normCirc(s) { return (s || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); }
+function normZip(s)  { return (s || '').replace(/[^0-9]/g, '').slice(0, 5); }
+
+async function loadData() {
+  // pull all Eversource grid-edge pairs (small table) into memory
+  let from = 0, size = 1000, rows = [];
+  while (true) {
+    const { data, error } = await sb
+      .from('grid_edge_circuits')
+      .select('zip,circuit,map_version')
+      .eq('utility', 'Eversource')
+      .range(from, from + size - 1);
+    if (error) { document.getElementById('dataLoading').textContent = 'Could not load map data. Refresh to retry.'; return; }
+    rows = rows.concat(data);
+    if (data.length < size) break;
+    from += size;
+  }
+  // use the most recent map version on file
+  const latest = rows.reduce((m, r) => (r.map_version > m ? r.map_version : m), '');
+  let kept = 0;
+  for (const r of rows) {
+    if (r.map_version !== latest) continue;
+    const z = r.zip;
+    if (!GE[z]) GE[z] = new Set();
+    GE[z].add(normCirc(r.circuit));
+    kept++;
+  }
+  GE_READY = true;
+  document.getElementById('dataLoading').style.display = 'none';
+  document.getElementById('verCount').textContent = kept + ' circuit listings.';
+  document.getElementById('verYear').textContent = latest || '2025';
+  render();
+}
+
+function render() {
+  if (!GE_READY) return;
+  const zip = normZip(document.getElementById('zipIn').value);
+  const circ = normCirc(document.getElementById('circIn').value);
+  const chipsWrap = document.getElementById('chipsWrap');
+  const chipsLabel = document.getElementById('chipsLabel');
+  const chips = document.getElementById('chips');
+  const result = document.getElementById('result');
+
+  // chips: grid-edge circuits in this zip
+  if (zip.length === 5) {
+    const set = GE[zip];
+    if (set && set.size) {
+      const list = Array.from(set).sort();
+      chipsLabel.innerHTML = '<strong>' + zip + '</strong> has ' + list.length + ' Grid Edge circuit' + (list.length === 1 ? '' : 's') + '. Tap to check:';
+      chips.innerHTML = '';
+      for (const c of list) {
+        const b = document.createElement('button');
+        b.className = 'chip'; b.type = 'button'; b.textContent = c;
+        b.onclick = () => { document.getElementById('circIn').value = c; render(); };
+        chips.appendChild(b);
+      }
+      chipsWrap.style.display = 'block';
+    } else {
+      chipsWrap.style.display = 'none';
+    }
+  } else {
+    chipsWrap.style.display = 'none';
+  }
+
+  // result
+  result.className = 'result';
+  if (zip.length !== 5) { result.classList.remove('show'); return; }
+  const set = GE[zip];
+
+  if (!set || !set.size) {
+    // zip not in Eversource grid-edge data
+    show('r-info', '!', 'No Grid Edge circuits in this zip',
+      'The 2025 Eversource map lists no Grid Edge circuits for ' + zip + '. If this is United Illuminating territory, use the UI map above. Otherwise the address is <strong>Standard</strong>: $30/kWh enrollment.');
+    return;
+  }
+  if (!circ) {
+    show('r-info', '&#9660;', 'Now enter the circuit',
+      zip + ' has Grid Edge circuits. Tap one above or type the parcel’s circuit to confirm.');
+    return;
+  }
+  if (set.has(circ)) {
+    show('r-yes', '&#10003;', 'GRID EDGE',
+      'Circuit <strong>' + circ + '</strong> in ' + zip + ' is on the Grid Edge. <span class="price-pill pill-hi">$130/kWh</span> enrollment incentive, 4&times; standard. Lead with the neighborhood’s outage history.');
+  } else {
+    show('r-no', '&times;', 'Standard, not Grid Edge',
+      'Circuit <strong>' + circ + '</strong> is not on the 2025 Grid Edge list for ' + zip + '. <span class="price-pill pill-lo">$30/kWh</span> enrollment. Double-check the circuit on the map; if the parcel is borderline, request utility verification.');
+  }
+
+  function show(cls, icon, title, sub) {
+    result.className = 'result show ' + cls;
+    document.getElementById('resIcon').innerHTML = icon;
+    document.getElementById('resTitle').textContent = title;
+    document.getElementById('resSub').innerHTML = sub;
+  }
+}
+
+function initApp(profile, session) {
+  document.getElementById('zipIn').addEventListener('input', render);
+  document.getElementById('circIn').addEventListener('input', render);
+  loadData();
+}
+</script>
+</body>
+</html>
