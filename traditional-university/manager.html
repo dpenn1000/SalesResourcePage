@@ -273,6 +273,12 @@ table.data tbody tr:hover { background: #F5F7F0; }
 }
 .filter-row .chip.active { background: var(--ink); color: #FFFFFF; border-color: var(--ink); }
 
+.kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-3); margin-bottom: var(--s-5); }
+@media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+.kpi { background: #FFFFFF; border: 1px solid var(--hairline); border-radius: var(--r-sm); padding: var(--s-4); }
+.kpi .n { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+.kpi .n .sub { font-size: 1rem; font-weight: 600; color: var(--text-subtle); }
+.kpi .l { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; line-height: 1.4; }
 .page-footer { background: var(--ink); color: rgba(255,255,255,0.7); padding: var(--s-5) 0; text-align: center; font-size: 0.8125rem; }
 
 @media (max-width: 720px) {
@@ -353,7 +359,8 @@ table.data tbody tr:hover { background: #F5F7F0; }
 
 <nav class="tabs">
   <div class="wrap">
-    <button class="active" data-tab="queue" onclick="setTab('queue')">
+    <button class="active" data-tab="dashboard" onclick="setTab('dashboard')">Dashboard</button>
+    <button data-tab="queue" onclick="setTab('queue')">
       Review Queue <span class="count" id="queue-count" style="display:none;">0</span>
     </button>
     <button data-tab="reps" onclick="setTab('reps')">Reps</button>
@@ -367,8 +374,18 @@ table.data tbody tr:hover { background: #F5F7F0; }
 <main>
   <div class="wrap">
 
+    <!-- DASHBOARD -->
+    <div id="view-dashboard" class="view active">
+      <h2>University Dashboard</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        Adoption and progress at a glance. Spot who's certified, who's stalled, and who hasn't started yet.
+      </p>
+      <div id="dash-kpis" class="kpi-grid"></div>
+      <div id="dash-table-wrap"></div>
+    </div>
+
     <!-- QUEUE -->
-    <div id="view-queue" class="view active">
+    <div id="view-queue" class="view">
       <h2>Review Queue</h2>
       <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
         Everything that needs your attention. Quiz attempts, shadow logs, and open help requests.
@@ -562,6 +579,7 @@ window.initApp = async function (profile, session) {
   document.getElementById('header-name').textContent = mgr.name;
 
   await loadAll();
+  renderDashboard();
   renderQueue();
   renderReps();
   renderManagers();
@@ -576,7 +594,7 @@ async function loadAll() {
     supa.from('managers').select('*').order('created_at', { ascending: false }),
     supa.from('certs').select('*').order('order_index'),
     supa.from('cert_assignments').select('*'),
-    supa.from('quiz_attempts').select('*').in('status', ['pending_review']).order('submitted_at'),
+    supa.from('quiz_attempts').select('*').order('started_at', { ascending: false }),
     supa.from('shadow_logs').select('*').order('shadow_date', { ascending: false }),
     supa.from('help_requests').select('*').order('created_at', { ascending: false }),
   ]);
@@ -584,7 +602,8 @@ async function loadAll() {
   state.managers = mgrsRes.data || [];
   state.certs = certsRes.data || [];
   state.assignments = assignsRes.data || [];
-  state.pendingAttempts = attemptsRes.data || [];
+  state.allAttempts = attemptsRes.data || [];
+  state.pendingAttempts = state.allAttempts.filter(a => a.status === 'pending_review');
   state.shadows = shadowsRes.data || [];
   state.help = helpRes.data || [];
 
@@ -602,7 +621,80 @@ function setTab(tab) {
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + tab).classList.add('active');
+  if (tab === 'dashboard') renderDashboard();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard() {
+  const reps = state.reps || [];
+  const A = state.allAttempts || [];
+  const now = Date.now();
+  const STALE_DAYS = 14;
+
+  const rows = reps.map(rep => {
+    const assigned = state.assignments.filter(a => a.rep_id === rep.id);
+    const done = assigned.filter(a => a.status === 'approved');
+    const attempts = A.filter(a => a.rep_id === rep.id);
+    const passed = attempts.filter(a => a.status === 'approved');
+    const shadows = state.shadows.filter(s => s.rep_id === rep.id);
+    const dates = [...attempts.map(a => a.started_at), ...shadows.map(s => s.created_at)]
+      .filter(Boolean).map(d => new Date(d).getTime());
+    const last = dates.length ? Math.max(...dates) : null;
+    const lastDays = last ? Math.floor((now - last) / 86400000) : null;
+
+    let status, cls;
+    if (!assigned.length) { status = 'Unassigned'; cls = 'status-not-started'; }
+    else if (done.length === assigned.length) { status = 'Certified'; cls = 'status-approved'; }
+    else if (!attempts.length && !shadows.length) { status = 'Not started'; cls = 'status-in-progress'; }
+    else if (lastDays !== null && lastDays > STALE_DAYS) { status = 'Stalled'; cls = 'status-retake'; }
+    else { status = 'In progress'; cls = 'status-pending'; }
+
+    return { rep, assigned: assigned.length, done: done.length, attempts: attempts.length,
+             passed: passed.length, shadows: shadows.length, last, lastDays, status, cls };
+  });
+
+  const totalReps = reps.length;
+  const activeReps = rows.filter(r => r.attempts || r.shadows).length;
+  const certsEarned = rows.reduce((s, r) => s + r.done, 0);
+  const certifiedReps = rows.filter(r => r.status === 'Certified').length;
+  const needAttention = rows.filter(r => r.status === 'Stalled' || r.status === 'Not started').length;
+  const totalAttempts = A.length;
+  const passRate = totalAttempts ? Math.round((A.filter(a => a.status === 'approved').length / totalAttempts) * 100) : 0;
+  const totalShadows = (state.shadows || []).length;
+
+  const kpi = (n, l, color) => `<div class="kpi"><div class="n" style="color:${color}">${n}</div><div class="l">${l}</div></div>`;
+  document.getElementById('dash-kpis').innerHTML =
+    kpi(`${activeReps}<span class="sub">/${totalReps}</span>`, 'Reps active', 'var(--totalhome-blue-dark)') +
+    kpi(certifiedReps, 'Fully certified', 'var(--solar-green-dark)') +
+    kpi(certsEarned, 'Certs earned', 'var(--solar-green-dark)') +
+    kpi(needAttention, 'Need attention', needAttention ? 'var(--accent-rose)' : 'var(--text-muted)') +
+    kpi(totalAttempts, `Quiz attempts &middot; ${passRate}% passed`, 'var(--ink)') +
+    kpi(totalShadows, 'Shadows logged', 'var(--ink)');
+
+  const order = { 'Stalled': 0, 'Not started': 1, 'In progress': 2, 'Certified': 3, 'Unassigned': 4 };
+  rows.sort((a, b) => (order[a.status] - order[b.status]) || (a.rep.name || '').localeCompare(b.rep.name || ''));
+
+  const wrap = document.getElementById('dash-table-wrap');
+  if (!reps.length) { wrap.innerHTML = `<div class="empty">No reps yet. Add reps on the Reps tab.</div>`; return; }
+  wrap.innerHTML = `
+    <table class="data">
+      <thead><tr>
+        <th>Rep</th><th>Cohort day</th><th>Certs</th><th>Quizzes (passed/tried)</th><th>Shadows</th><th>Last activity</th><th>Status</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(r => `
+          <tr>
+            <td data-label="Rep"><strong>${escapeHtml(r.rep.name)}</strong></td>
+            <td data-label="Cohort day">${r.rep.cohort_start_date ? 'Day ' + daysSince(r.rep.cohort_start_date) : '--'}</td>
+            <td data-label="Certs">${r.done}/${r.assigned}</td>
+            <td data-label="Quizzes (passed/tried)">${r.passed}/${r.attempts}</td>
+            <td data-label="Shadows">${r.shadows}</td>
+            <td data-label="Last activity">${r.last ? (r.lastDays === 0 ? 'Today' : r.lastDays + 'd ago') : '<span style="color:var(--text-subtle)">None</span>'}</td>
+            <td data-label="Status"><span class="status-badge ${r.cls}">${r.status}</span></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
 }
 
 // ===================== QUEUE =====================
@@ -813,6 +905,7 @@ async function finalizeAttempt(attemptId, decision) {
 
   closeModal();
   await loadAll();
+  renderDashboard();
   renderQueue();
   renderReps();
   renderAssignments();
