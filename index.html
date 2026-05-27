@@ -554,7 +554,7 @@ async function initApp(profile, session) {
     grid.className = 'training-banner-grid cols-' + currentItems.length;
     grid.innerHTML = currentItems.map(r => {
       const desc = r.description ? `<div class="tile-desc">${escapeHtml(r.description)}</div>` : '';
-      return `<a class="training-banner-tile" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">
+      return `<a class="training-banner-tile" href="${escapeHtml(r.url)}"${linkAttrs(r.url)}>
         <div class="tile-name">${escapeHtml(r.name)}</div>
         ${desc}
         <div class="tile-cta">Open &rarr;</div>
@@ -619,6 +619,15 @@ function isNew(r) {
 function faviconUrl(url) {
   try { return `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`; }
   catch { return ''; }
+}
+
+// Internal resources open in the same tab (the return pill gets you back);
+// external resources keep opening in a new tab. Returns the attrs string.
+function linkAttrs(url) {
+  try {
+    return new URL(url, location.origin).origin === location.origin
+      ? '' : ' target="_blank" rel="noopener"';
+  } catch { return ' target="_blank" rel="noopener"'; }
 }
 
 function render() {
@@ -688,7 +697,7 @@ function render() {
         const urlSafe  = r.url.replace(/'/g, "\\'");
 
         if (hasImg) {
-          html += `<a class="card" href="${r.url}" target="_blank" rel="noopener" style="${delay}">
+          html += `<a class="card" href="${r.url}"${linkAttrs(r.url)} style="${delay}">
             ${newBadge}
             <div class="card-image"><img src="${r.image_url}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
             <div class="card-head" style="padding:10px 14px 0"><span class="card-type">${r.type||'Resource'}</span></div>
@@ -699,7 +708,7 @@ function render() {
             </div>
           </a>`;
         } else {
-          html += `<a class="card" href="${r.url}" target="_blank" rel="noopener" style="${delay}">
+          html += `<a class="card" href="${r.url}"${linkAttrs(r.url)} style="${delay}">
             ${newBadge}
             <div class="card-head">
               ${fav
