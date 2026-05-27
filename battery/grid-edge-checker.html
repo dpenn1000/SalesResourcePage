@@ -100,6 +100,12 @@
 
   .data-loading { font-size: 13px; color: var(--muted); margin-top: 10px; }
 
+  /* Utility toggle */
+  .util-toggle { display: inline-flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-top: 18px; }
+  .util-btn { font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700; padding: 10px 22px; border-radius: 9px; border: none; background: transparent; color: var(--muted); cursor: pointer; }
+  .util-btn.active { background: var(--green); color: #0b1120; }
+  .aid-note { margin-top: 14px; padding: 12px 14px; background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3); border-radius: 10px; font-size: 13px; color: #8a6516; line-height: 1.5; }
+
   @media (max-width: 600px) {
     .page-title { font-size: 24px; }
     .map-frame { height: 70vh; min-height: 440px; }
@@ -161,56 +167,85 @@
 
   <div class="page-eyebrow">Battery / ESS</div>
   <h1 class="page-title">Is this address on the Grid Edge?</h1>
-  <p class="page-desc">Grid Edge homes qualify for a <strong>$130/kWh</strong> enrollment incentive instead of $30/kWh, a 4&times; difference. Confirm it before you walk in. Start with the quick visual check, then confirm the exact circuit for anything borderline.</p>
+  <p class="page-desc">Grid Edge homes qualify for a <strong>$130/kWh</strong> enrollment incentive instead of $30/kWh, a 4&times; difference. Confirm it before you walk in. Pick the home's utility, find it on the map, then check the circuit below.</p>
 
-  <!-- Step 1: quick visual check (Navigator) -->
-  <div class="card">
-    <div class="card-step"><span class="dot">1</span> Quick check</div>
-    <div class="card-title">Is the home next to a colored line?</div>
-    <div class="card-hint">Search the address in the Eversource map. A home sitting on or right beside a <strong>blue or red line</strong> is very likely Grid Edge.</div>
-    <iframe id="navFrame" class="map-frame" title="Eversource Grid Edge Navigator map"
-      src="https://navigator.eversource-ct.envelio.com/?lang=en-us#8.31/41.52/-72.69"
-      referrerpolicy="no-referrer-when-downgrade"></iframe>
-    <div class="map-actions">
-      <a class="btn btn-primary" href="https://navigator.eversource-ct.envelio.com/?lang=en-us" target="_blank" rel="noopener">Open Eversource map in new tab &rarr;</a>
-      <a class="btn btn-ghost" href="https://www.arcgis.com/apps/webappviewer/index.html?id=3a03640640b6438aa231945444299a98" target="_blank" rel="noopener">United Illuminating map</a>
+  <div class="util-toggle" role="tablist" aria-label="Utility">
+    <button id="utilEV" class="util-btn active" type="button" onclick="setUtility('Eversource')">Eversource</button>
+    <button id="utilUI" class="util-btn" type="button" onclick="setUtility('United Illuminating')">United Illuminating</button>
+  </div>
+
+  <!-- Eversource maps -->
+  <div id="evMaps">
+    <!-- Step 1: quick visual check (Navigator) -->
+    <div class="card">
+      <div class="card-step"><span class="dot">1</span> Quick check</div>
+      <div class="card-title">Is the home next to a colored line?</div>
+      <div class="card-hint">Search the address in the Eversource map. A home sitting on or right beside a <strong>blue or red line</strong> is very likely Grid Edge.</div>
+      <iframe id="navFrame" class="map-frame" title="Eversource Grid Edge Navigator map"
+        src="https://navigator.eversource-ct.envelio.com/?lang=en-us#8.31/41.52/-72.69"
+        referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-actions">
+        <a class="btn btn-primary" href="https://navigator.eversource-ct.envelio.com/?lang=en-us" target="_blank" rel="noopener">Open Eversource map in new tab &rarr;</a>
+      </div>
+      <div class="how">
+        <div class="how-label">How to read it</div>
+        <ol>
+          <li>Search the customer's address.</li>
+          <li>A <strong>blue or red line</strong> on or next to the parcel = likely Grid Edge.</li>
+          <li>Borderline, or two homes close together? Confirm the exact circuit in Step 2, since adjacent parcels can be on different circuits.</li>
+        </ol>
+      </div>
     </div>
-    <div class="how">
-      <div class="how-label">How to read it</div>
-      <ol>
-        <li>Search the customer's address.</li>
-        <li>A <strong>blue or red line</strong> on or next to the parcel = likely Grid Edge. (UI: red lines.)</li>
-        <li>Borderline, or two homes close together? Confirm the exact circuit in Step 2, since adjacent parcels can be on different circuits.</li>
-      </ol>
+
+    <!-- Step 2: circuit number -->
+    <div class="card">
+      <div class="card-step"><span class="dot">2</span> Confirm the circuit</div>
+      <div class="card-title">Look up the parcel's circuit</div>
+      <div class="card-hint">For a definitive answer, enter the address in Eversource's Hosting Capacity Map, click the parcel, and read the <strong>circuit number</strong> from the popup.</div>
+      <iframe id="mapFrame" class="map-frame" title="Eversource DG Hosting Capacity Map"
+        src="https://eversource.maps.arcgis.com/apps/webappviewer/index.html?id=4a8523bc4d454ddaa5c1e3f9428d8d8f"
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-actions">
+        <a class="btn btn-primary" href="https://eversource.maps.arcgis.com/apps/webappviewer/index.html?id=4a8523bc4d454ddaa5c1e3f9428d8d8f" target="_blank" rel="noopener">Open full map in new tab &rarr;</a>
+      </div>
+      <div class="how">
+        <div class="how-label">How to read it</div>
+        <ol>
+          <li>Search the customer's address in the map.</li>
+          <li>Click directly on the home's parcel.</li>
+          <li>In the popup, find the <strong>Circuit</strong> field (e.g. <strong>5R7</strong> or <strong>412M1</strong>).</li>
+          <li>Type the zip and that circuit in Step 3 below.</li>
+        </ol>
+      </div>
     </div>
   </div>
 
-  <!-- Step 2: circuit number -->
-  <div class="card">
-    <div class="card-step"><span class="dot">2</span> Confirm the circuit</div>
-    <div class="card-title">Look up the parcel's circuit</div>
-    <div class="card-hint">For a definitive answer, enter the address in Eversource's Hosting Capacity Map, click the parcel, and read the <strong>circuit number</strong> from the popup.</div>
-    <iframe id="mapFrame" class="map-frame" title="Eversource DG Hosting Capacity Map"
-      src="https://eversource.maps.arcgis.com/apps/webappviewer/index.html?id=4a8523bc4d454ddaa5c1e3f9428d8d8f"
-      loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-    <div class="map-actions">
-      <a class="btn btn-primary" href="https://eversource.maps.arcgis.com/apps/webappviewer/index.html?id=4a8523bc4d454ddaa5c1e3f9428d8d8f" target="_blank" rel="noopener">Open full map in new tab &rarr;</a>
-      <a class="btn btn-ghost" href="https://www.arcgis.com/apps/webappviewer/index.html?id=3a03640640b6438aa231945444299a98" target="_blank" rel="noopener">United Illuminating map</a>
-    </div>
-    <div class="how">
-      <div class="how-label">How to read it</div>
-      <ol>
-        <li>Search the customer's address in the map.</li>
-        <li>Click directly on the home's parcel.</li>
-        <li>In the popup, find the <strong>Circuit</strong> field (e.g. <strong>5R7</strong> or <strong>412M1</strong>).</li>
-        <li>Type the zip and that circuit in Step 3 below.</li>
-      </ol>
+  <!-- United Illuminating map -->
+  <div id="uiMaps" style="display:none">
+    <div class="card">
+      <div class="card-step"><span class="dot">1</span> Find it on the UI map</div>
+      <div class="card-title">Is the home on a red line?</div>
+      <div class="card-hint">UI maps Grid Edge as <strong>red circuit lines</strong>. Search the address: if the home sits on or right beside a red line, it qualifies. The grid-edge circuits in the home's zip are listed in Step 2 as a guide.</div>
+      <iframe id="uiFrame" class="map-frame" title="United Illuminating Grid Edge map"
+        data-src="https://www.arcgis.com/apps/webappviewer/index.html?id=3a03640640b6438aa231945444299a98"
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="map-actions">
+        <a class="btn btn-primary" href="https://www.arcgis.com/apps/webappviewer/index.html?id=3a03640640b6438aa231945444299a98" target="_blank" rel="noopener">Open UI map in new tab &rarr;</a>
+      </div>
+      <div class="how">
+        <div class="how-label">How to read it</div>
+        <ol>
+          <li>Search the customer's address.</li>
+          <li>A <strong>red line</strong> on or next to the parcel = Grid Edge.</li>
+          <li>The map is the authority for UI. The zip list in Step 2 is a guide to narrow the search.</li>
+        </ol>
+      </div>
     </div>
   </div>
 
-  <!-- Step 2: checker -->
+  <!-- Step 3 (EV) / Step 2 (UI): checker -->
   <div class="card">
-    <div class="card-step"><span class="dot">3</span> Check Grid Edge status</div>
+    <div class="card-step"><span class="dot" id="checkStepNum">3</span> Check Grid Edge status</div>
     <div class="card-title">Zip code + circuit number</div>
     <div class="card-hint">Type the zip first. We'll show the Grid Edge circuits in that zip, then enter the parcel's circuit.</div>
 
@@ -224,6 +259,8 @@
         <input id="circIn" type="text" maxlength="8" placeholder="412M1" autocomplete="off" autocapitalize="characters" spellcheck="false">
       </div>
     </div>
+
+    <div id="uiAid" class="aid-note" style="display:none">United Illuminating maps Grid Edge visually. This zip list is derived from UI's circuit map to narrow your search. The UI map above is the authority, so confirm the home sits on a red line.</div>
 
     <div id="chipsWrap" class="chips-wrap">
       <div id="chipsLabel" class="chips-label"></div>
@@ -245,7 +282,7 @@
 
   <div class="disclaimer">
     The utility makes the final Grid Edge determination. Mapping is parcel-specific: adjacent parcels can be on different circuits. If a site is unclear, email <a href="mailto:energystoragesolutions@eversource.com">energystoragesolutions@eversource.com</a> to request verification.
-    <div class="ver">Based on the <span id="verYear">2025</span> Grid Edge Criteria Circuit Map (Eversource territory). Reviewed annually. <span id="verCount"></span></div>
+    <div class="ver">Based on the <span id="verYear">2025</span> Grid Edge map data (<span id="verTerr">Eversource territory</span>). Reviewed annually. <span id="verCount"></span></div>
   </div>
 
 </main>
@@ -254,69 +291,111 @@
 
 <script>
 // Required by /auth-gate.js -- called once after sign-in + role check pass.
-let GE = {};          // zip -> Set of grid-edge circuits (uppercase)
+let GE = { 'Eversource': {}, 'United Illuminating': {} };  // util -> zip -> Set(circuits)
+let META = {};                                             // util -> {year, count}
 let GE_READY = false;
+let currentUtil = 'Eversource';
+
+const UTIL = {
+  'Eversource': {
+    zipPh: '06339', circPh: '412M1',
+    noZip: (z) => 'The ' + yr() + ' Eversource map lists no Grid Edge circuits for ' + z + '. If this might be a United Illuminating address, switch utility above. Otherwise the address is <strong>Standard</strong>: $30/kWh enrollment.',
+    needCirc: (z) => z + ' has Grid Edge circuits. Tap one above or type the parcel’s circuit to confirm.',
+    yes: (c, z) => 'Circuit <strong>' + c + '</strong> in ' + z + ' is on the Grid Edge. <span class="price-pill pill-hi">$130/kWh</span> enrollment incentive, 4&times; standard. Lead with the neighborhood’s outage history.',
+    no:  (c, z) => 'Circuit <strong>' + c + '</strong> is not on the ' + yr() + ' Grid Edge list for ' + z + '. <span class="price-pill pill-lo">$30/kWh</span> enrollment. Double-check the circuit on the map; if borderline, request utility verification.'
+  },
+  'United Illuminating': {
+    zipPh: '06604', circPh: '545',
+    noZip: (z) => 'UI lists no Grid Edge circuits for ' + z + '. If this might be an Eversource address, switch utility above. Otherwise the address is <strong>Standard</strong>: $30/kWh enrollment.',
+    needCirc: (z) => z + ' has UI Grid Edge circuits running through it. Check the UI map above: if the home sits on a <strong>red line</strong>, it qualifies. Tap a circuit below if you have its ID.',
+    yes: (c, z) => 'Circuit <strong>' + c + '</strong> in ' + z + ' is a UI Grid Edge circuit. <span class="price-pill pill-hi">$130/kWh</span> enrollment incentive, 4&times; standard. Confirm the home sits on the red line on the UI map.',
+    no:  (c, z) => 'Circuit <strong>' + c + '</strong> is not a UI Grid Edge circuit for ' + z + '. <span class="price-pill pill-lo">$30/kWh</span>. Only homes on a red line on the UI map qualify.'
+  }
+};
+function yr() { return (META[currentUtil] || {}).year || '2025'; }
 
 function normCirc(s) { return (s || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); }
 function normZip(s)  { return (s || '').replace(/[^0-9]/g, '').slice(0, 5); }
 
 async function loadData() {
-  // pull all Eversource grid-edge pairs (small table) into memory
   let from = 0, size = 1000, rows = [];
   while (true) {
     const { data, error } = await sb
       .from('grid_edge_circuits')
-      .select('zip,circuit,map_version')
-      .eq('utility', 'Eversource')
+      .select('zip,circuit,utility,map_version')
       .range(from, from + size - 1);
     if (error) { document.getElementById('dataLoading').textContent = 'Could not load map data. Refresh to retry.'; return; }
     rows = rows.concat(data);
     if (data.length < size) break;
     from += size;
   }
-  // use the most recent map version on file
-  const latest = rows.reduce((m, r) => (r.map_version > m ? r.map_version : m), '');
-  let kept = 0;
-  for (const r of rows) {
-    if (r.map_version !== latest) continue;
-    const z = r.zip;
-    if (!GE[z]) GE[z] = new Set();
-    GE[z].add(normCirc(r.circuit));
-    kept++;
+  for (const u of ['Eversource', 'United Illuminating']) {
+    const ur = rows.filter(r => r.utility === u);
+    const latest = ur.reduce((m, r) => (r.map_version > m ? r.map_version : m), '');
+    let count = 0;
+    for (const r of ur) {
+      if (r.map_version !== latest) continue;
+      if (!GE[u][r.zip]) GE[u][r.zip] = new Set();
+      GE[u][r.zip].add(normCirc(r.circuit));
+      count++;
+    }
+    META[u] = { year: latest || '2025', count };
   }
   GE_READY = true;
   document.getElementById('dataLoading').style.display = 'none';
-  document.getElementById('verCount').textContent = kept + ' circuit listings.';
-  document.getElementById('verYear').textContent = latest || '2025';
+  applyUtilFooter();
+  render();
+}
+
+function applyUtilFooter() {
+  const m = META[currentUtil] || { year: '2025', count: 0 };
+  document.getElementById('verYear').textContent = m.year;
+  document.getElementById('verCount').textContent = m.count + ' circuit listings.';
+  document.getElementById('verTerr').textContent = currentUtil === 'Eversource'
+    ? 'Eversource territory' : 'United Illuminating territory, derived from UI circuit map';
+}
+
+function setUtility(u) {
+  currentUtil = u;
+  const ev = u === 'Eversource';
+  document.getElementById('utilEV').classList.toggle('active', ev);
+  document.getElementById('utilUI').classList.toggle('active', !ev);
+  document.getElementById('evMaps').style.display = ev ? 'block' : 'none';
+  document.getElementById('uiMaps').style.display = ev ? 'none' : 'block';
+  document.getElementById('uiAid').style.display  = ev ? 'none' : 'block';
+  document.getElementById('checkStepNum').textContent = ev ? '3' : '2';
+  if (!ev) { const f = document.getElementById('uiFrame'); if (f && !f.src && f.dataset.src) f.src = f.dataset.src; }
+  document.getElementById('zipIn').placeholder  = UTIL[u].zipPh;
+  document.getElementById('circIn').placeholder = UTIL[u].circPh;
+  document.getElementById('circIn').value = '';
+  applyUtilFooter();
   render();
 }
 
 function render() {
   if (!GE_READY) return;
+  const data = GE[currentUtil];
+  const cfg = UTIL[currentUtil];
   const zip = normZip(document.getElementById('zipIn').value);
   const circ = normCirc(document.getElementById('circIn').value);
   const chipsWrap = document.getElementById('chipsWrap');
-  const chipsLabel = document.getElementById('chipsLabel');
   const chips = document.getElementById('chips');
   const result = document.getElementById('result');
 
   // chips: grid-edge circuits in this zip
-  if (zip.length === 5) {
-    const set = GE[zip];
-    if (set && set.size) {
-      const list = Array.from(set).sort();
-      chipsLabel.innerHTML = '<strong>' + zip + '</strong> has ' + list.length + ' Grid Edge circuit' + (list.length === 1 ? '' : 's') + '. Tap to check:';
-      chips.innerHTML = '';
-      for (const c of list) {
-        const b = document.createElement('button');
-        b.className = 'chip'; b.type = 'button'; b.textContent = c;
-        b.onclick = () => { document.getElementById('circIn').value = c; render(); };
-        chips.appendChild(b);
-      }
-      chipsWrap.style.display = 'block';
-    } else {
-      chipsWrap.style.display = 'none';
+  const set = data[zip];
+  if (zip.length === 5 && set && set.size) {
+    const list = Array.from(set).sort();
+    document.getElementById('chipsLabel').innerHTML = '<strong>' + zip + '</strong> has ' + list.length +
+      ' Grid Edge circuit' + (list.length === 1 ? '' : 's') + '. Tap to check:';
+    chips.innerHTML = '';
+    for (const c of list) {
+      const b = document.createElement('button');
+      b.className = 'chip'; b.type = 'button'; b.textContent = c;
+      b.onclick = () => { document.getElementById('circIn').value = c; render(); };
+      chips.appendChild(b);
     }
+    chipsWrap.style.display = 'block';
   } else {
     chipsWrap.style.display = 'none';
   }
@@ -324,26 +403,10 @@ function render() {
   // result
   result.className = 'result';
   if (zip.length !== 5) { result.classList.remove('show'); return; }
-  const set = GE[zip];
-
-  if (!set || !set.size) {
-    // zip not in Eversource grid-edge data
-    show('r-info', '!', 'No Grid Edge circuits in this zip',
-      'The 2025 Eversource map lists no Grid Edge circuits for ' + zip + '. If this is United Illuminating territory, use the UI map above. Otherwise the address is <strong>Standard</strong>: $30/kWh enrollment.');
-    return;
-  }
-  if (!circ) {
-    show('r-info', '&#9660;', 'Now enter the circuit',
-      zip + ' has Grid Edge circuits. Tap one above or type the parcel’s circuit to confirm.');
-    return;
-  }
-  if (set.has(circ)) {
-    show('r-yes', '&#10003;', 'GRID EDGE',
-      'Circuit <strong>' + circ + '</strong> in ' + zip + ' is on the Grid Edge. <span class="price-pill pill-hi">$130/kWh</span> enrollment incentive, 4&times; standard. Lead with the neighborhood’s outage history.');
-  } else {
-    show('r-no', '&times;', 'Standard, not Grid Edge',
-      'Circuit <strong>' + circ + '</strong> is not on the 2025 Grid Edge list for ' + zip + '. <span class="price-pill pill-lo">$30/kWh</span> enrollment. Double-check the circuit on the map; if the parcel is borderline, request utility verification.');
-  }
+  if (!set || !set.size) { show('r-info', '!', 'No Grid Edge circuits in this zip', cfg.noZip(zip)); return; }
+  if (!circ) { show('r-info', '&#9660;', 'This zip has Grid Edge circuits', cfg.needCirc(zip)); return; }
+  if (set.has(circ)) show('r-yes', '&#10003;', 'GRID EDGE', cfg.yes(circ, zip));
+  else show('r-no', '&times;', 'Standard, not Grid Edge', cfg.no(circ, zip));
 
   function show(cls, icon, title, sub) {
     result.className = 'result show ' + cls;
