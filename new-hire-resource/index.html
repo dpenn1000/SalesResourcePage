@@ -317,6 +317,29 @@ body {
 }
 .doc-kv tr:first-child th, .doc-kv tr:first-child td { border-top: none; }
 
+/* ============ Figures / screenshots ============ */
+.doc-figure { margin: 16px 0 24px; }
+.doc-figure img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 14px rgba(15,32,56,0.07);
+}
+.doc-figure figcaption {
+  font-size: 13px; color: var(--text-muted);
+  line-height: 1.5; margin-top: 8px;
+  padding-left: 2px;
+}
+.doc-step-num {
+  display: inline-block;
+  min-width: 26px; height: 26px; line-height: 26px;
+  text-align: center; margin-right: 10px;
+  background: var(--solar-green); color: var(--ink);
+  border-radius: 6px; font-weight: 700; font-size: 14px;
+  vertical-align: 2px;
+}
+
 /* ============ Footer ============ */
 .site-footer {
   max-width: 1200px; margin: 0 auto;
@@ -640,6 +663,7 @@ body {
 <p class="doc-p"><a class="download-btn" href="https://trinity-solar.lightning.force.com/lightning/r/Report/00OPl00000EtXEbMAN/view?queryScope=userFolders" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span>Open CT TODAY report</span></a></p>
 <h2 class="doc-h2">Shared apps</h2>
 <ul class="doc-list doc-bullets"><li>Site Capture, primary field tool</li></ul>
+<p class="doc-p"><a class="download-btn" href="https://sitecapture.com/" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg><span>Open Site Capture</span></a></p>
 <h2 class="doc-h2">Skedulo setup</h2>
 <p class="doc-p">Get Skedulo installed and logged in on Day 1 so the trainee is ready to close out jobs from their first ride-along.</p>
 <table class="doc-kv"><tbody><tr><th>Team name</th><td>trinitysolar</td></tr><tr><th>Custom domain (at login)</th><td>trinity-solar</td></tr><tr><th>Sign-in method</th><td>SSO</td></tr><tr><th>Verification</th><td>Use the code emailed to you after you hit sign in</td></tr></tbody></table>
@@ -715,46 +739,174 @@ body {
     </a>
   </header>
   <div class="doc-content">
-    <p class="doc-p">This is the process that gets you from quoting the job to submitting the deal cleanly. A deal submitted clean means you get paid in weeks instead of months. Do every step with the homeowner.</p>
-<aside class="doc-callout callout-ink"><h4 class="callout-title">Quick list</h4><p>Move to Contract  •  Credit Status  •  Sign Agreements  •  Activate Account  •  Salesforce Sync  •  Trinity Documents  •  Energy Audit Form  •  Profit Sharing / W9  •  Save each other in your phones  •  Box  •  Salesforce  •  Site Capture</p></aside>
-<h2 class="doc-h2">1. Move to Contract</h2>
-<p class="doc-p">Work through One Button to reach the quote page. Click “Next” to move the deal into contract status.</p>
-<h2 class="doc-h2">2. Credit Status</h2>
-<p class="doc-muted">If this is a cash deal, skip to step 5.</p>
-<p class="doc-p">Click the credit icon. It walks you through running credit. When credit passes, you will receive an email. The homeowner will receive an email whether they pass or fail.</p>
-<h2 class="doc-h2">3. Sign Agreements (LightReach or non-cash)</h2>
-<p class="doc-muted">If this is a cash deal, skip to step 5.</p>
-<ol class="doc-list doc-numbers"><li>Wait for the credit icon to change (don’t proceed if credit didn’t pass).</li><li>Click the blue Submit Quote button. Only after credit has passed.</li><li>A pen icon appears under Sign Finance Partner Contract. Click it, choose In Person, and the agreement opens.</li><li>Read through the agreement with the homeowner. Have them initial everywhere prompted.</li><li>The agreement is emailed to you. Open that email and countersign it.</li></ol>
-<h2 class="doc-h2">4. Activate Account (LightReach only)</h2>
-<p class="doc-p">Done on the homeowner’s phone. They’ll have several emails from LightReach or Palmetto. Open the one that says Activate Account. They’ll answer follow-up questions, validate identity, and add a bank account to their profile.</p>
-<h2 class="doc-h2">5. Salesforce Sync</h2>
-<p class="doc-p">Click the sync icon. This links Salesforce with any finance partners and auto-populates the forms for Trinity Documents. Wait a moment. When it completes, you’ll see the sync confirmation screen.</p>
-<h2 class="doc-h2">6. Create Trinity Documents</h2>
-<p class="doc-p">Click the Trinity Documents button. If step 5 wasn’t done correctly, you’ll see an error. If step 5 was done right, you’ll see the document list. This creates the combo pack and any cash contracts.</p>
-<aside class="doc-callout callout-green"><h4 class="callout-title">How to explain the combo pack</h4><p>“Nothing in this series of documents is a contract. These are forms that say some version of this:</p><p>you are the homeowner, you are on the electric bill, we are the installer, this bank owns the system. These are documents that will go to the state, the city, and the electric company, basically you agreeing to let us act as your agent.”</p></aside>
+<p class="doc-eyebrow">To be done with the homeowner</p>
+<p class="doc-p">This is the process that takes you from quoting the job to submitting the deal cleanly. A deal submitted clean gets you paid in weeks instead of months.</p>
+<aside class="doc-callout callout-ink"><h4 class="callout-title">The 13 steps</h4><p>1. Move to Contract &nbsp;&bull;&nbsp; 2. Credit Status &nbsp;&bull;&nbsp; 3. Sign Agreements &nbsp;&bull;&nbsp; 4. Activate Account &nbsp;&bull;&nbsp; 5. Salesforce Sync &nbsp;&bull;&nbsp; 6. Trinity Documents &nbsp;&bull;&nbsp; 7. Energy Audit Form &nbsp;&bull;&nbsp; 8. Profit Sharing / W9 &nbsp;&bull;&nbsp; 9. Save Each Other in Your Phones &nbsp;&bull;&nbsp; 10. Box &nbsp;&bull;&nbsp; 11. Salesforce: the Submit &nbsp;&bull;&nbsp; 12. Site Capture &nbsp;&bull;&nbsp; 13. Skedulo</p></aside>
+<h2 class="doc-h2"><span class="doc-step-num">1</span>Move to Contract</h2>
+<p class="doc-p">Work through One Button to reach the quote page.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-01.png" alt="The quote page in One Button. Follow the red arrows and click Next to move the deal into contract status." loading="lazy">
+  <figcaption>The quote page in One Button. Follow the red arrows and click Next to move the deal into contract status.</figcaption>
+</figure>
+<p class="doc-p">Click <strong>Next</strong>. This moves the deal into contract status.</p>
+<h2 class="doc-h2"><span class="doc-step-num">2</span>Credit Status</h2>
+<p class="doc-muted">Cash deal? Skip to Step 5.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-02.png" alt="Click the credit icon (red arrow). It walks you through running credit." loading="lazy">
+  <figcaption>Click the credit icon (red arrow). It walks you through running credit.</figcaption>
+</figure>
+<p class="doc-p">Click the credit icon. It walks you through running credit. When credit passes, you receive an email. The homeowner receives an email whether they pass or fail.</p>
+<h2 class="doc-h2"><span class="doc-step-num">3</span>Sign Agreements (LightReach or any non-cash deal)</h2>
+<p class="doc-muted">Cash deal? Skip to Step 5.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-03.png" alt="Look for the red A, B, C icons." loading="lazy">
+  <figcaption>Look for the red A, B, C icons.</figcaption>
+</figure>
+<ol class="doc-list doc-numbers"><li>The credit icon changes once credit passes. Do not move past this point if credit did not pass.</li><li>Click the blue <strong>Submit Quote</strong> button, only after credit has passed.</li><li><strong>Sign Finance Partner Contract.</strong> After you click Submit Quote, a pen icon appears here. Click it, choose In Person, and the agreement pops up. Read through it and have the homeowner initial everywhere they are prompted. The agreement is emailed to you. You must go into that email and countersign it.</li></ol>
+<h2 class="doc-h2"><span class="doc-step-num">4</span>Activate Account (LightReach only)</h2>
+<p class="doc-p">Done on the homeowner&rsquo;s phone. By now they have several emails from LightReach or Palmetto. Have them open the one that prompts them to <strong>Activate Account</strong>. They answer a few follow-up questions, validate their identity, and add a bank account to their profile.</p>
+<h2 class="doc-h2"><span class="doc-step-num">5</span>Salesforce Sync</h2>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-04.png" alt="Click the sync icon (red arrow)." loading="lazy">
+  <figcaption>Click the sync icon (red arrow).</figcaption>
+</figure>
+<p class="doc-p">Click the sync icon. This links Salesforce with any finance partners and auto-populates the forms for the Trinity Documents.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-05.png" alt="It takes a minute to sync. Once it finishes, you see this screen." loading="lazy">
+  <figcaption>It takes a minute to sync. Once it finishes, you see this screen.</figcaption>
+</figure>
+<h2 class="doc-h2"><span class="doc-step-num">6</span>Create Trinity Documents</h2>
+<p class="doc-p">This also creates the cash contracts.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-06.png" alt="Click the Trinity Documents button (red arrow)." loading="lazy">
+  <figcaption>Click the Trinity Documents button (red arrow).</figcaption>
+</figure>
+<p class="doc-p">If Step 5 was not done correctly, you get this error:</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-07.png" alt="The error you see when the Step 5 sync was missed." loading="lazy">
+  <figcaption>The error you see when the Step 5 sync was missed.</figcaption>
+</figure>
+<p class="doc-p">If Step 5 was done correctly, you see this screen. It creates the combo pack and any cash contracts.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-08.png" alt="Trinity Documents created -- the combo pack plus any cash contracts." loading="lazy">
+  <figcaption>Trinity Documents created -- the combo pack plus any cash contracts.</figcaption>
+</figure>
+<aside class="doc-callout callout-green"><h4 class="callout-title">How to explain the combo pack</h4><p>&ldquo;Nothing in this series of documents is a contract. These are all forms that say some version of: you are the homeowner, you are on the electric bill, we are the installer, this bank owns the system. They go to the state, the city, and the electric company. Basically you agreeing to let us act as your agent.&rdquo;</p></aside>
 <p class="doc-p">Two signing options:</p>
-<ul class="doc-list doc-bullets"><li><span class="ink"><strong>In-person signing. </strong></span>Read through everything with the homeowner and have them sign on your device. You countersign after.</li><li><span class="ink"><strong>Send for signature. </strong></span>The docs come to you first, then auto-send to the homeowner after you sign.</li></ul>
-<h2 class="doc-h2">7. Energy Audit Form</h2>
-<p class="doc-p">Mandatory. The State of CT requires it to approve the solar application. The audit itself is performed by the state’s vendor (currently CMC), not by us.</p>
-<p class="doc-p">Filling out this form triggers a call from the audit company to schedule with the homeowner. The audit company answers all questions during that call.</p>
-<aside class="doc-callout callout-warm"><h4 class="callout-title">What to tell the homeowner</h4><p>There is no cost and no obligation to buy anything. But the audit must be scheduled, or the state will not approve our application for the job.</p></aside>
-<p class="doc-p">Use: docs.google.com/forms/...viewform. If the homeowner is tech-savvy, bring it up on your device and fill out together. If not, text it for them to complete.</p>
-<h2 class="doc-h2">8. Profit Sharing and W9</h2>
-<p class="doc-p">Review the program (again):</p>
-<table class="doc-kv"><tbody><tr><th>Roof referral</th><td>$500</td></tr><tr><th>First solar referral</th><td>$1,000</td></tr><tr><th>Each additional solar referral</th><td>$2,000</td></tr></tbody></table>
-<aside class="doc-callout callout-blue"><h4 class="callout-title">How to ask</h4><p>“The best practice is for you to start a group text between me and your friend. I’ll take it from there. I’m very low-key.”</p></aside>
-<p class="doc-p">W9: “In order for our company to pay you, we need to have a W9 on file.” Use trinitysolar.com/documentupload. Fill out and submit.</p>
-<h2 class="doc-h2">9. Save each other in your phones</h2>
-<p class="doc-p">Take a picture of you with the homeowner. Explain that you save it to their contact in your phone. Make it fun. Save their info (email, physical address, everything) and mark them as a Trinity Customer.</p>
-<h2 class="doc-h2">10. Box: your virtual filing cabinet</h2>
-<p class="doc-p">Take screenshots and save three items into the Sales Docs folder, labeled exactly:</p>
-<ul class="doc-list doc-bullets"><li><span class="ink"><strong>a: design </strong></span>(design values must be visible)</li><li><span class="ink"><strong>b: bill </strong></span>(all pages, crystal clear)</li><li><span class="ink"><strong>c: ppa </strong></span>(one sheet)</li></ul>
-<h2 class="doc-h2">11. Salesforce: the submit</h2>
-<p class="doc-p">Crucial. Doing this correctly submits the job to sales ops and gets everything moving. Getting you paid in weeks not months.</p>
-<ol class="doc-list doc-numbers"><li>On the Opportunity page, hit Edit.</li><li>Click First Appointment Completed.</li><li>Under Opportunity Progress Details: Stage 4 › Contracted. Stage Status › Signed.</li><li>Key Dates and Milestones: fill in Contract Signed Date.</li><li>Salesperson Notes: initials + today’s date + detailed notes. Update this every time something happens during the process.</li><li>Hit Save. If something’s wrong, you’ll be prompted to fix it.</li><li>Scroll to Calendar Events (right side). Click New Solar Install. Click ahead ~45 days. Choose a date not already filled with installs. Record Type › Solar Install › Create Event.</li><li>Back on the Opportunity page, wait for the calendar to process. You should get a text confirmation.</li><li>Click Buttons at the top. Choose Submit for Contract Review. Wait for the confirmation pop-up. Click Details. The Contract Submitted button turns green with a checkmark.</li></ol>
-<h2 class="doc-h2">12. Site Capture</h2>
+<ul class="doc-list doc-bullets"><li><span class="ink"><strong>In-person signing.</strong></span> Read through everything and have the homeowner sign on your device. Then countersign.</li><li><span class="ink"><strong>Send for signature.</strong></span> The docs go to you to sign first. Once you do, they auto-send to the homeowner&rsquo;s email to sign.</li></ul>
+<h2 class="doc-h2"><span class="doc-step-num">7</span>Energy Audit Form</h2>
+<p class="doc-p">Mandatory. The State of CT requires it to approve the solar application. Energy audits happen independently of our timelines and are not performed by us. The state uses its own vendor (currently CMC).</p>
+<p class="doc-p">Filling out this form triggers a call from the audit company to the homeowner to schedule. They answer all questions on that call.</p>
+<aside class="doc-callout callout-warm"><h4 class="callout-title">What to tell the homeowner</h4><p>&ldquo;The state wants you to have an energy audit so you know what options and rebates are available for upgrades like windows or insulation. There is no cost and no obligation to buy anything. But it has to get scheduled, or the state will not approve the application.&rdquo;</p></aside>
+<p class="doc-p">Use the form at <a href="https://docs.google.com/forms/d/e/1FAIpQLScgKBQM9jMGhGU_e6hvlylRI7hWOvtVGCz0yL1gPxcXAiptuw/viewform" target="_blank" rel="noopener">docs.google.com/forms/&hellip;viewform</a>. If your homeowner is tech-savvy, pull it up on your device and fill it out together. If not, text it to them.</p>
+<h2 class="doc-h2"><span class="doc-step-num">8</span>Profit Sharing Program / W9</h2>
+<p class="doc-p">Review the profit-sharing program (again):</p>
+<table class="doc-kv"><tbody><tr><th>Roof referral</th><td>$500</td></tr><tr><th>First solar referral</th><td>$1,000</td></tr><tr><th>Every solar referral after</th><td>$2,000</td></tr></tbody></table>
+<aside class="doc-callout callout-blue"><h4 class="callout-title">How to ask</h4><p>&ldquo;The best practice is for you to start a group text between me and your friend. I&rsquo;ll take it from there. I&rsquo;m very low key.&rdquo;</p></aside>
+<p class="doc-p"><strong>W9.</strong> &ldquo;In order for our company to pay you, we need a W9 on file.&rdquo; Use <a href="https://www.trinitysolar.com/documentupload" target="_blank" rel="noopener">trinitysolar.com/documentupload</a>. Fill it out and hit the blue <strong>Submit Sign Request</strong> button. Same rule of thumb: fill it out together on your device, or text it to them.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-09.png" alt="Submit the W9 with the blue Submit Sign Request button." loading="lazy">
+  <figcaption>Submit the W9 with the blue Submit Sign Request button.</figcaption>
+</figure>
+<h2 class="doc-h2"><span class="doc-step-num">9</span>Save Each Other in Your Phones</h2>
+<p class="doc-p">Take a picture of you with the homeowner. Tell them you&rsquo;re saving it to their contact in your phone. Make it fun. Save all of their info -- email, physical address, everything -- as a <strong>Trinity Customer</strong> in your phone.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-10.png" alt="Save the homeowner as a Trinity Customer, photo and all." loading="lazy">
+  <figcaption>Save the homeowner as a Trinity Customer, photo and all.</figcaption>
+</figure>
+<h2 class="doc-h2"><span class="doc-step-num">10</span>Box: your virtual filing cabinet</h2>
+<p class="doc-p">Take screenshots and save three items into the <strong>Sales Docs</strong> folder, labeled exactly:</p>
+<ul class="doc-list doc-bullets"><li><span class="ink"><strong>a: design</strong></span></li><li><span class="ink"><strong>b: bill</strong></span></li><li><span class="ink"><strong>c: ppa</strong></span> one sheet</li></ul>
+<p class="doc-p"><strong>a: The design.</strong> Design values must be visible.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-11.png" alt="a: design -- the design values must be visible." loading="lazy">
+  <figcaption>a: design -- the design values must be visible.</figcaption>
+</figure>
+<p class="doc-p"><strong>b: The bill.</strong> All pages, crystal clear.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-12.png" alt="b: bill -- all pages, crystal clear." loading="lazy">
+  <figcaption>b: bill -- all pages, crystal clear.</figcaption>
+</figure>
+<p class="doc-p"><strong>c: The PPA one sheet.</strong></p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-13.png" alt="c: ppa -- the one sheet." loading="lazy">
+  <figcaption>c: ppa -- the one sheet.</figcaption>
+</figure>
+<h2 class="doc-h2"><span class="doc-step-num">11</span>Salesforce: the Submit</h2>
+<p class="doc-p">This step is crucial and has many points to hit. Doing them correctly submits the job to our sales ops team and gets everything moving. This is what gets you paid in weeks, not months.</p>
+<p class="doc-p">On the Opportunity page, hit <strong>Edit</strong>.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-14.png" alt="Opportunity page -- hit Edit." loading="lazy">
+  <figcaption>Opportunity page -- hit Edit.</figcaption>
+</figure>
+<p class="doc-p">Click <strong>First Appointment Completed</strong>.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-15.png" alt="Click First Appointment Completed." loading="lazy">
+  <figcaption>Click First Appointment Completed.</figcaption>
+</figure>
+<p class="doc-p">Scroll down to <strong>Opportunity Progress Details</strong>. Move the job to <strong>Stage 4: Contracted</strong> and <strong>Stage Status: Signed</strong>.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-16.png" alt="Set Stage to 4: Contracted and Stage Status to Signed." loading="lazy">
+  <figcaption>Set Stage to 4: Contracted and Stage Status to Signed.</figcaption>
+</figure>
+<p class="doc-p">Scroll down to <strong>Key Dates and Milestones</strong>. Fill out the <strong>Contract Signed Date</strong> field.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-17.png" alt="Fill out the Contract Signed Date field." loading="lazy">
+  <figcaption>Fill out the Contract Signed Date field.</figcaption>
+</figure>
+<p class="doc-p">Scroll down to <strong>Salesperson Notes</strong>. This is crucial. Put your initials and today&rsquo;s date, then leave detailed notes. Any time something happens during this process, note it here with initials and dates.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-18.png" alt="Salesperson Notes -- initials, date, and detailed notes." loading="lazy">
+  <figcaption>Salesperson Notes -- initials, date, and detailed notes.</figcaption>
+</figure>
+<p class="doc-p">Hit <strong>Save</strong>. If something was done incorrectly, it prompts you to fix it.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-19.png" alt="Hit Save. It flags anything that needs fixing." loading="lazy">
+  <figcaption>Hit Save. It flags anything that needs fixing.</figcaption>
+</figure>
+<p class="doc-p">Scroll all the way down and look to the right for the <strong>Calendar Events</strong> field.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-20.png" alt="Find the Calendar Events field on the right." loading="lazy">
+  <figcaption>Find the Calendar Events field on the right.</figcaption>
+</figure>
+<p class="doc-p">Click <strong>New Solar Install</strong>.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-21.png" alt="Click New Solar Install." loading="lazy">
+  <figcaption>Click New Solar Install.</figcaption>
+</figure>
+<p class="doc-p">Click ahead to about 45 days out.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-22.png" alt="Click ahead to roughly 45 days out." loading="lazy">
+  <figcaption>Click ahead to roughly 45 days out.</figcaption>
+</figure>
+<p class="doc-p">Pick a date that is not already full of installs. A pop-up appears. Set <strong>Record Type</strong> to <strong>Solar Install</strong>, then click the blue <strong>Create Event</strong> button.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-23.png" alt="Set Record Type to Solar Install, then Create Event." loading="lazy">
+  <figcaption>Set Record Type to Solar Install, then Create Event.</figcaption>
+</figure>
+<p class="doc-p">Wait a moment for it to process. Then go back to the Opportunity page (the browser back arrow). Wait again for the calendar date to process. You should get a text. Back on the main Opportunity page, click <strong>Buttons</strong> at the top of the screen.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-24.png" alt="Click Buttons at the top of the Opportunity page." loading="lazy">
+  <figcaption>Click Buttons at the top of the Opportunity page.</figcaption>
+</figure>
+<p class="doc-p">A submenu pops up. Click <strong>Submit for Contract Review</strong>.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-25.png" alt="Click Submit for Contract Review." loading="lazy">
+  <figcaption>Click Submit for Contract Review.</figcaption>
+</figure>
+<p class="doc-p">Wait a moment. You will see a message that the job has been submitted. Click the <strong>Details</strong> button.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-26.png" alt="Once submitted, click the Details button." loading="lazy">
+  <figcaption>Once submitted, click the Details button.</figcaption>
+</figure>
+<p class="doc-p">The <strong>Contract Submitted</strong> button turns green with a checkmark. The job is submitted.</p>
+<figure class="doc-figure">
+  <img src="paperwork-img/shot-27.png" alt="Contract Submitted turns green with a checkmark -- you are done." loading="lazy">
+  <figcaption>Contract Submitted turns green with a checkmark -- you are done.</figcaption>
+</figure>
+<h2 class="doc-h2"><span class="doc-step-num">12</span>Site Capture</h2>
 <p class="doc-p">Done on your phone or device. The app walks you through every step. Practice this with a mentor before you run it live.</p>
-<h2 class="doc-h2">13. Skedulo</h2>
+<h2 class="doc-h2"><span class="doc-step-num">13</span>Skedulo</h2>
 <p class="doc-p">Before you leave the home, close the job out in Skedulo. In Outcome Notes, leave your initials, the date, and a brief description of the sit.</p>
   </div>
 </article>
