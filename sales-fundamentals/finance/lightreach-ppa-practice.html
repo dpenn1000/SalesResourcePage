@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LightReach PPA · Practice Copy · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --warn: #E9A648;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --paper: #fdfcf9;
+  --paper-tint: #f5f3eb;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.14);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 110px; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: #ecebe2;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header { background: var(--ink); color: #fff; border-bottom: 3px solid var(--green); }
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .logo { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; }
+.brand .divider { width: 1px; height: 20px; background: rgba(255,255,255,0.25); }
+.brand .team { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.65); }
+.page-title { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+.toc-nav { background: #f8f7ef; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.toc-nav .wrap { display: flex; gap: 4px; padding: 0 24px; }
+.toc-nav a { white-space: nowrap; font-size: 12.5px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 10px 11px; border-bottom: 2px solid transparent; }
+.toc-nav a:hover { color: var(--ink); border-bottom-color: var(--green); }
+
+.banner { background: linear-gradient(150deg, var(--ink), var(--ink-soft)); color: #fff; padding: 36px 0 38px; }
+.banner .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green); }
+.banner h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: clamp(28px, 4.4vw, 40px); line-height: 1.1; margin: 10px 0 14px; }
+.banner h1 em { font-style: italic; color: var(--green); }
+.banner p { font-size: 16px; max-width: 64ch; color: rgba(255,255,255,0.86); }
+.banner .badge-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.banner .badge { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 7px 14px; border-radius: 999px; }
+.banner .b-sample { background: var(--warn); color: #2b1a04; }
+.banner .b-info { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+
+.doc { background: var(--paper); margin: 22px auto; max-width: 920px; box-shadow: var(--shadow-md); border: 1px solid #d6d2c1; border-radius: var(--r-md); padding: 44px 56px; position: relative; }
+.doc .envelope { font-size: 11px; color: var(--subtle); letter-spacing: 0.04em; border-bottom: 1px solid var(--line-soft); padding-bottom: 8px; margin-bottom: 18px; }
+.doc .brand-strip { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.doc .brand-strip .left { font-family: 'Fraunces', serif; font-size: 18px; color: var(--ink); }
+.doc .brand-strip .right { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.doc .product { font-family: 'Fraunces', serif; font-style: italic; color: var(--green-dk); font-size: 14px; margin-bottom: 2px; }
+.doc .agreement-line { font-size: 12.5px; color: var(--muted); margin-bottom: 22px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+
+h2.sec-h { font-family: 'Manrope', sans-serif; font-size: 17px; font-weight: 800; color: var(--ink); text-transform: uppercase; letter-spacing: 0.08em; margin: 28px 0 10px; position: relative; padding-right: 36px; }
+h2.sec-h .ssub { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--green-dk); margin-bottom: 4px; }
+h3.sub-h { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); margin: 16px 0 6px; }
+p.body { font-size: 14px; color: var(--text); margin-bottom: 10px; line-height: 1.6; }
+p.body.muted-p { color: var(--muted); font-size: 13.5px; }
+ul.body, ol.body { margin: 6px 0 12px 22px; }
+ul.body li, ol.body li { font-size: 13.5px; color: var(--text); padding: 3px 0; line-height: 1.55; }
+
+.terms { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; margin: 16px 0; background: #fff; }
+.terms .cell { padding: 16px 14px; border-right: 1px solid var(--line); }
+.terms .cell:last-child { border-right: none; }
+.terms .val { font-family: 'Fraunces', serif; font-size: 22px; color: var(--ink); }
+.terms .lab { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 16px; }
+.col-head { font-family: 'Fraunces', serif; font-size: 17px; color: var(--ink); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.col.promise .col-head { color: var(--green-dk); }
+.col.agree .col-head { color: var(--blue-dk); }
+.pts { list-style: none; }
+.pts li { font-size: 12.5px; color: var(--text); padding: 6px 0 6px 22px; position: relative; line-height: 1.45; border-bottom: 1px dashed var(--line-soft); }
+.pts li:before { content: ""; position: absolute; left: 4px; top: 12px; width: 6px; height: 6px; border-radius: 50%; }
+.col.promise .pts li:before { background: var(--green); }
+.col.agree .pts li:before { background: var(--blue); }
+.pts li.star { font-weight: 700; color: var(--ink); }
+.pts li.star:before { background: var(--warn) !important; box-shadow: 0 0 0 3px rgba(233,166,72,0.16); }
+
+.kv { width: 100%; border-collapse: collapse; margin: 14px 0; }
+.kv th, .kv td { border-bottom: 1px solid var(--line-soft); padding: 8px 10px; font-size: 13px; text-align: left; vertical-align: top; }
+.kv th { width: 38%; font-weight: 700; color: var(--ink); background: var(--paper-tint); }
+.kv td { color: var(--text); }
+
+.initials { background: var(--paper-tint); border: 1px dashed var(--line); border-radius: var(--r-md); padding: 12px 14px; margin: 14px 0; display: flex; gap: 14px; align-items: center; font-size: 12px; color: var(--muted); }
+.initials .ln { flex: 1 1 160px; border-bottom: 1.5px solid var(--ink); height: 22px; max-width: 220px; }
+.initials .lbl { font-weight: 700; color: var(--ink); text-transform: uppercase; letter-spacing: 0.06em; font-size: 11px; }
+
+.sigblock { background: var(--paper-tint); border: 1px dashed var(--line); border-radius: var(--r-md); padding: 18px; margin-top: 18px; }
+.sigblock .row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.sigblock .field { }
+.sigblock .field .ln { border-bottom: 1.5px solid var(--ink); height: 26px; }
+.sigblock .field .lbl { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.exhibit-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 12px; }
+.exhibit-table th, .exhibit-table td { border: 1px solid var(--line); padding: 6px 8px; text-align: center; }
+.exhibit-table thead th { background: var(--paper-tint); font-weight: 700; color: var(--ink); }
+.exhibit-table td { color: var(--text); }
+.exhibit-table td.y { font-weight: 700; }
+
+.notice-box { background: #FFF8EC; border: 1px solid var(--warn); border-left: 4px solid var(--warn); border-radius: var(--r-md); padding: 16px 20px; margin: 18px 0; }
+.notice-box .nb-h { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); margin-bottom: 6px; }
+.notice-box p { font-size: 13.5px; color: var(--text); }
+
+.bold-notice { font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-size: 13px; color: var(--ink); margin: 12px 0; }
+
+.page-break { text-align: center; font-size: 11px; color: var(--subtle); letter-spacing: 0.1em; margin: 30px 0 22px; }
+.page-break:before, .page-break:after { content: ""; display: inline-block; width: 60px; height: 1px; background: var(--line); vertical-align: middle; margin: 0 12px; }
+
+/* Annotation flags + cards (same mechanic as flagship) */
+.annot { position: relative; }
+.annot-trigger { display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; font-size: 13px; font-weight: 800; text-align: center; line-height: 24px; cursor: pointer; box-shadow: var(--shadow-sm); position: absolute; right: 0; top: -2px; border: none; outline: none; }
+.annot-trigger:focus-visible { box-shadow: 0 0 0 3px rgba(41,169,225,0.4); }
+.annot-trigger:hover { transform: scale(1.08); }
+.annot.section-annot { display: block; }
+.annot-card {
+  display: none; position: absolute; right: 0; top: 30px;
+  width: min(440px, 92vw); background: var(--ink); color: #fff;
+  border-radius: var(--r-lg); box-shadow: var(--shadow-lg);
+  padding: 20px 22px; z-index: 50; text-align: left;
+}
+.annot-card:before { content: ""; position: absolute; top: -7px; right: 8px; width: 14px; height: 14px; background: var(--ink); transform: rotate(45deg); }
+.annot.is-open .annot-card { display: block; }
+@media (hover: hover) and (pointer: fine) { .annot:hover .annot-card { display: block; } }
+.annot-card .c-sec { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); }
+.annot-card .c-title { font-family: 'Fraunces', serif; font-size: 19px; margin: 4px 0 12px; }
+.annot-card .c-block { margin-bottom: 12px; }
+.annot-card .c-lab { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
+.annot-card .c-say { font-size: 14.5px; line-height: 1.5; color: #fff; border-left: 3px solid var(--green); padding-left: 12px; font-style: italic; }
+.annot-card ul { list-style: none; margin: 4px 0 0; }
+.annot-card ul li { font-size: 13px; color: rgba(255,255,255,0.86); padding: 4px 0 4px 16px; position: relative; line-height: 1.45; }
+.annot-card ul li:before { content: ""; position: absolute; left: 2px; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: var(--blue); }
+.annot-card ul li.warnpt:before { background: var(--warn); }
+.annot-card .c-foot { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.14); }
+
+.hint-bar { background: #fff; border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 20px; margin: 18px 0; font-size: 13.5px; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+.hint-bar .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(120,200,50,0.18); flex: none; }
+
+.site-footer { background: var(--ink); color: rgba(255,255,255,0.6); font-size: 13px; text-align: center; padding: 24px; margin-top: 30px; }
+
+@media (max-width: 760px) {
+  .doc { padding: 28px 22px; }
+  .terms, .cols { grid-template-columns: 1fr; }
+  .terms .cell { border-right: none; border-bottom: 1px solid var(--line); }
+  .terms .cell:last-child { border-bottom: none; }
+  .sigblock .row { grid-template-columns: 1fr; }
+  .annot-card { position: static; width: 100%; margin-top: 8px; }
+  .annot-card:before { display: none; }
+  .annot-trigger { position: static; margin-left: 8px; vertical-align: middle; }
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">Practice Copy · LightReach PPA</div>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#page1">Summary</a>
+      <a href="#parties">Parties</a>
+      <a href="#s3">System</a>
+      <a href="#s4">Payments</a>
+      <a href="#s5">Obligations</a>
+      <a href="#s8">Transfer</a>
+      <a href="#s9">Ownership</a>
+      <a href="#s26">Right to Cancel</a>
+      <a href="#sig">Signature</a>
+      <a href="#exF">Exhibit F</a>
+      <a href="#exG">Exhibit G</a>
+    </div>
+  </nav>
+</header>
+
+<section class="banner">
+  <div class="wrap">
+    <span class="eyebrow">Practice copy · Run the walk</span>
+    <h1>A full LightReach PPA, <em>annotated</em> for practice</h1>
+    <p>This is a redacted, end-to-end copy of a Connecticut LightReach PPA. Every key section carries a hover-card with the say-it line and the on-demand points. Walk it like you would at the table, and use the cards as your safety net.</p>
+    <div class="badge-row">
+      <span class="badge b-sample">Sample · No real customer data</span>
+      <span class="badge b-info">Sample figures for practice only</span>
+    </div>
+  </div>
+</section>
+
+<div class="hint-bar">
+  <span class="dot"></span> Each section header has a green "?" flag. Hover to peek; tap to pin the card open; tap anywhere else to close. Orange bullets mark the lead points to land.
+</div>
+
+<!-- PAGE 1: SUMMARY -->
+<article class="doc" id="page1">
+  <div class="envelope">Docusign Envelope ID: SAMPLE-PRACTICE-COPY-NOT-A-REAL-AGREEMENT</div>
+  <div class="brand-strip">
+    <div class="left">Palmetto LightReach</div>
+    <div class="right">Page 1 of 36</div>
+  </div>
+  <div class="product">'Predictable Payment'</div>
+  <div class="agreement-line">Power Purchase Agreement (PPA) &middot; Connecticut v4.x</div>
+
+  <table class="kv">
+    <tbody>
+      <tr><th>Customer Name &amp; Address</th><td>Sample Homeowner<br>123 Example Road, Your Town, CT 06000</td></tr>
+      <tr><th>Installation Location</th><td>123 Example Road, Your Town, CT 06000</td></tr>
+      <tr><th>Date</th><td>Month DD, YYYY</td></tr>
+    </tbody>
+  </table>
+
+  <p class="body muted-p">This page contains a summary of the core PPA terms. This document is only a summary, not a binding contract. The full terms and conditions are contained in the PPA itself, and they prevail over this summary.</p>
+
+  <!-- ANNOTATED TERMS BOX -->
+  <h2 class="sec-h annot section-annot">
+    <span class="ssub">Summary page</span>Key terms
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">Summary page &middot; Key terms</div>
+      <div class="c-title">Mirror the problem, then let the box answer it</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"You told me the problem was your rate, your monthly bill, those summer peaks, and where pricing is headed. Here's what this fixes."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">Play back what they named</div>
+        <ul>
+          <li>Their rate</li>
+          <li>Their monthly bill</li>
+          <li>Their seasonal peak months</li>
+          <li>Their annual cost</li>
+          <li>Their fear of future pricing</li>
+        </ul>
+      </div>
+      <div class="c-foot">Lead with the $0 down. These four numbers should match what you showed on the design.</div>
+    </div>
+  </h2>
+  <div class="terms">
+    <div class="cell"><div class="val">$0.00</div><div class="lab">Amount due at signing &amp; install</div></div>
+    <div class="cell"><div class="val">$0.180</div><div class="lab">Rate per kWh, Year One</div></div>
+    <div class="cell"><div class="val">$157.50</div><div class="lab">Monthly Payment, Year One</div></div>
+    <div class="cell"><div class="val">25 Years</div><div class="lab">Agreement Term</div></div>
+  </div>
+
+  <!-- ANNOTATED COLUMNS -->
+  <div class="cols">
+    <div class="col promise">
+      <div class="col-head">LightReach Promise</div>
+      <h2 class="sec-h annot section-annot" style="font-size:11px;margin-top:2px">
+        <span style="display:none">.</span>
+        <button class="annot-trigger" aria-label="Open annotation">?</button>
+        <div class="annot-card">
+          <div class="c-sec">Summary page &middot; LightReach Promise</div>
+          <div class="c-title">"This side is everything we take on"</div>
+          <div class="c-block">
+            <div class="c-lab">Say it like this</div>
+            <p class="c-say">"This whole side of the page is what we're responsible for. You'll see it's almost all of it."</p>
+          </div>
+          <div class="c-block">
+            <div class="c-lab">Slow down on the two protections</div>
+            <ul>
+              <li class="warnpt">Performance guarantee: underproduce and we pay you the difference.</li>
+              <li class="warnpt">Warranty, insurance, and repairs, free, for 25 years.</li>
+            </ul>
+          </div>
+          <div class="c-foot">Frame as risk removal: production, repairs, upfront cost, permitting, all on us.</div>
+        </div>
+      </h2>
+      <ul class="pts">
+        <li>LightReach and/or our Certified Installer agrees to install a 9.000 kW DC solar system on your home.</li>
+        <li>LightReach and/or our Certified Installer estimate the system will produce 10,500 kWh in first year of operation.</li>
+        <li>There are no upfront fees. You do not pay any equipment or installation costs. We do.</li>
+        <li>LightReach owns the system, and you are agreeing to purchase the power it generates at a predictable and transparent rate.</li>
+        <li>LightReach will charge you an initial rate of $0.180 per kWh.</li>
+        <li>Your initial LightReach Predictable Payment Monthly Bill will be $157.50 per month.</li>
+        <li class="star">If the system does not produce as expected, LightReach has a performance guarantee and will credit you the difference at your per kWh rate (See Exhibit G).</li>
+        <li>The kWh rate you pay LightReach will rise 2.99% per year for the Term of the Agreement (See Exhibit F).</li>
+        <li>Your Predictable Payment Monthly Bill will therefore rise at the same annual rate (See Exhibit F).</li>
+        <li>The term of this Agreement is (25) years.</li>
+        <li>LightReach and/or our Certified Installer will acquire all necessary permits and approvals for safe installation and utility interconnection.</li>
+        <li>LightReach and/or our Certified Installer will engineer and procure equipment in accordance with all applicable building codes and standards for your State and local jurisdiction.</li>
+        <li class="star">LightReach and/or our Certified Installer warrants, insures, and repairs the system at no additional cost to you throughout the term.</li>
+      </ul>
+    </div>
+
+    <div class="col agree">
+      <div class="col-head">You Agree</div>
+      <h2 class="sec-h annot section-annot" style="font-size:11px;margin-top:2px">
+        <span style="display:none">.</span>
+        <button class="annot-trigger" aria-label="Open annotation">?</button>
+        <div class="annot-card">
+          <div class="c-sec">Summary page &middot; You Agree</div>
+          <div class="c-title">"This is your side, and it's short"</div>
+          <div class="c-block">
+            <div class="c-lab">Say it like this</div>
+            <p class="c-say">"If this sounded too good to be true, here's the part people worry about. There's no catch hiding in it."</p>
+          </div>
+          <div class="c-block">
+            <div class="c-lab">Three honesty points, say them out loud</div>
+            <ul>
+              <li class="warnpt">Two bills: they will still get a utility bill.</li>
+              <li class="warnpt">Residual utility charges don't disappear.</li>
+              <li class="warnpt">Internet keeps production reporting, which protects their guarantee.</li>
+            </ul>
+          </div>
+          <div class="c-foot">Hand them the "What's the Catch" sheet here.</div>
+        </div>
+      </h2>
+      <ul class="pts">
+        <li>You have the right to cancel this Agreement within (10) days after the Effective Date of this Agreement.</li>
+        <li>The solar system is owned and operated by LightReach. You cannot claim the system as yours for any purpose.</li>
+        <li>To return any documents we send you for e-signature, such as permit and utility application forms, within (7) days of receiving them.</li>
+        <li>To be responsible for any conditions at your Property that might disrupt a safe and efficient installation.</li>
+        <li>To be reasonably available to schedule site visits, installation, and inspection appointments.</li>
+        <li class="star">Once the system is operating, you will receive two monthly electricity bills: one from your electric utility company (Eversource or United Illuminating) and one from LightReach.</li>
+        <li class="star">The solar system will provide power to offset household usage, but you may still incur monthly fixed or excess charges from your electric utility.</li>
+        <li>You can transfer the PPA to a new homeowner, by informing LightReach and having a new homeowner complete a credit check and a transfer assignment.</li>
+        <li>You cannot remove, modify, or perform maintenance to the system without explicit authorization from LightReach.</li>
+        <li>You agree not to do anything to the property that would damage or otherwise obstruct the system's performance.</li>
+        <li class="star">To maintain and make available a functioning internet connection.</li>
+      </ul>
+    </div>
+  </div>
+</article>
+
+<!-- PAGE 2: PARTIES -->
+<article class="doc" id="parties">
+  <div class="brand-strip">
+    <div class="left">Palmetto LightReach</div>
+    <div class="right">Page 2 of 36</div>
+  </div>
+  <div class="product">'Predictable Payment'</div>
+  <div class="agreement-line">Power Purchase Agreement (PPA) &middot; Connecticut v4.x</div>
+
+  <h3 class="sub-h">Homeowner</h3>
+  <p class="body">Name: Sample Homeowner</p>
+  <h3 class="sub-h">Co-Homeowner (if any)</h3>
+  <p class="body">Name: ____________________________________________</p>
+
+  <table class="kv">
+    <tbody>
+      <tr><th>Certified Installer / Contractor</th><td>Trinity Solar LLC</td></tr>
+      <tr><th>Contractor Address</th><td>2211 Allenwood Road, Wall Township, NJ 07719</td></tr>
+      <tr><th>Contractor License Number(s)</th><td>HIC.0671385, ELC.0195559-E1</td></tr>
+      <tr><th>Contractor Phone Number</th><td>(877) 786-7283</td></tr>
+      <tr><th>Salesperson Name</th><td>Your Name</td></tr>
+      <tr><th>Salesperson Registration Number</th><td>Trinity</td></tr>
+    </tbody>
+  </table>
+
+  <p class="body">This power purchase agreement (this "Agreement" or "PPA") is the agreement between a Homeowner or Co-Homeowner (Homeowner and Co-Homeowner and "you" and "your") and Palmetto Solar, LLC, DBA LightReach, License No. HIC 0653142 (together with its successors and assigns, "LightReach" or "we," "us" and "our"), entered into as of Month DD, YYYY ("Effective Date") covering the date to you of the power produced by the solar panel system described herein (the "System").</p>
+
+  <p class="body">LightReach and its Certified Installer ("Installer", "Contractor", "Subcontractor" or "Certified Partner") will install the System at your property located at: 123 Example Road, Your Town, CT 06000.</p>
+
+  <p class="body">This Agreement consists of the terms and conditions outlined in the table of contents and the following Exhibits:</p>
+  <ul class="body">
+    <li>Exhibit A &middot; Electronic Funds Transfer or Credit Card Payment Authorization</li>
+    <li>Exhibit B &middot; Limited Warranty</li>
+    <li>Exhibit C &middot; Notice of Cancellation</li>
+    <li>Exhibit D &middot; HOA Release</li>
+    <li>Exhibit E &middot; Connecticut Disclosure Statement</li>
+    <li>Exhibit F &middot; Predictable Payment PPA Rate Statement &amp; Monthly Payment Schedule</li>
+    <li>Exhibit G &middot; Performance and Production Guarantee</li>
+    <li>Exhibit H &middot; Additional Products</li>
+  </ul>
+</article>
+
+<!-- BODY -->
+<article class="doc">
+  <div class="brand-strip">
+    <div class="left">Palmetto LightReach</div>
+    <div class="right">Pages 4 to 23</div>
+  </div>
+  <div class="product">'Predictable Payment'</div>
+  <div class="agreement-line">Power Purchase Agreement (PPA) &middot; Connecticut v4.x</div>
+
+  <h2 class="sec-h"><span class="ssub">PPA Section 1</span>Introduction</h2>
+  <p class="body">This Power Purchase Agreement is entered into by and between you and Palmetto Solar, LLC, DBA LightReach, as of the Effective Date for the sale and purchase of all electric energy generated by the System to be installed on or at your Home. LightReach agrees to sell to you, and you agree to buy from LightReach, all of the power produced by the System on the terms and conditions described in this Power Purchase Agreement.</p>
+  <p class="body muted-p">You may manage your obligations and communications via LightReach's online customer portal at palmetto.com/products/palmetto-app, or email help@palmetto.com.</p>
+
+  <h2 class="sec-h"><span class="ssub">PPA Section 2</span>PPA Term</h2>
+  <p class="body">LightReach agrees to sell you power generated by the System for a minimum of twenty-five (25) years following your Interconnection Date. The PPA Term begins on the "Interconnection Date," which is the date that the System has been approved by your utility to be connected to the utility grid and begin generating power.</p>
+  <p class="body muted-p"><strong>Approximate Start Date:</strong> installation commences within thirty (30) business days from the date that the later of all permits are issued, any required HOA approval letter is received, or all materials are delivered.</p>
+  <p class="body muted-p"><strong>Approximate Interconnection Date:</strong> all work to install the System shall be completed as soon as possible after but in no event more than three (3) months from the Commencement Date.</p>
+
+  <h2 id="s3" class="sec-h annot section-annot">
+    <span class="ssub">PPA Section 3</span>System Description; Additional Products
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">PPA Section 3</div>
+      <div class="c-title">System &amp; Additional Products</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"This confirms the system we designed, the size and equipment. Initial right here."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">If they stop</div>
+        <ul>
+          <li>Approved-manufacturer list with substitution rights. You're guaranteed the performance, not a part number.</li>
+          <li class="warnpt">Battery: backs up designated circuits only, holds a 20% reserve, not guaranteed for every outage, never for life-support.</li>
+        </ul>
+      </div>
+      <div class="c-foot">First initials. Show them exactly where, every time.</div>
+    </div>
+  </h2>
+  <p class="body"><strong>Estimated Solar System Size:</strong> 9.000 kW DC</p>
+  <p class="body"><strong>Equipment Description:</strong></p>
+  <ul class="body">
+    <li>Micro inverter, string inverter, or optimized string inverter</li>
+    <li>High-efficiency all-black solar panels</li>
+    <li>Racking and balance of materials required for installation</li>
+  </ul>
+  <p class="body muted-p">Your inverter system may be from any LightReach-approved manufacturer (including Enphase, SolarEdge, Tesla, or equivalent). Your panels may be from any LightReach-approved manufacturer (including Canadian Solar, Q Cell, Trina, LG, Silfab, REC, Panasonic, Mission, Jinko, and others). LightReach and its Certified Installer may substitute equipment depending upon availability. Should a substitution materially change the production or cost of the System, either party may exercise the option to terminate.</p>
+
+  <p class="body"><strong>Additional Products:</strong> This Agreement [ DOES / DOES NOT ] include additional products described in Exhibit H (the "Additional Products").</p>
+
+  <p class="body muted-p">If Additional Products include one or more batteries: each battery will draw its charge from the System and provide power dependent on the state of charge. Each battery will power its designated circuits only and not your entire Home. LightReach will establish a reasonable reserve level for your battery (at minimum, 20% of the battery). LIGHTREACH DOES NOT WARRANT OR GUARANTEE THAT BATTERY BACKUP POWER WILL BE AVAILABLE WITHOUT INTERRUPTION DURING EVERY POWER OUTAGE. DO NOT DEPEND ON BATTERY BACKUP POWER TO POWER LIFE SUPPORT OR OTHER MEDICAL EQUIPMENT.</p>
+
+  <div class="initials">
+    <span class="lbl">Homeowner Initials</span>
+    <div class="ln"></div>
+    <span class="lbl">Co-Homeowner Initials</span>
+    <div class="ln"></div>
+  </div>
+
+  <h2 id="s4" class="sec-h annot section-annot">
+    <span class="ssub">PPA Section 4</span>PPA Payments, Amounts, Purchase, Prepayment &amp; Renewal
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">PPA Section 4</div>
+      <div class="c-title">Payments</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"$0 deposit, it comes out automatically each month, and here are a couple of practical things."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">If they stop</div>
+        <ul>
+          <li class="warnpt">Set up autopay, or it's $15 more a month.</li>
+          <li>Tax credits belong to the owner. Standard for a product you don't own.</li>
+          <li>Buyout at fair market value from year 5. Prepay at a 5% discount.</li>
+        </ul>
+      </div>
+      <div class="c-foot">Autopay is the one to land proactively.</div>
+    </div>
+  </h2>
+  <p class="body"><strong>a. No Deposit.</strong> There is no deposit for this Agreement.</p>
+  <p class="body"><strong>b. Pricing.</strong> During the first year of the term, the purchase price is $0.180 per kWh. After the first year, the price per kWh will increase in accordance with Exhibit F.</p>
+  <p class="body muted-p">Your Monthly Payment will be the product of the annual price per kWh multiplied by the estimated kWh output for the calendar year ("Estimated Annual Production") divided by twelve (12) months, plus any applicable taxes.</p>
+  <p class="body"><strong>c. Taxes.</strong> Any applicable sales, transaction, or property taxes are your responsibility. All Tax Credits, incentives, RECs, capacity rights, value of solar tariffs, net metering benefits, and any other applicable benefits are exclusively the property of LightReach and its partners.</p>
+  <p class="body"><strong>d. Payment Method; Late Payment.</strong> The Monthly Payment amount assumes automatic payments. If you pay by any other method, your Monthly Payment will be increased by fifteen dollars ($15.00). A late payment fee of $25 will be assessed after the twentieth (20th) day past due.</p>
+  <p class="body"><strong>e. Purchase Request.</strong> If you are not in default, you may request to purchase the System at the fifth (5th) anniversary of the Interconnection Date, any time after, or if you sell the Home. The purchase price will be the fair market value of the System.</p>
+  <p class="body"><strong>f. Prepayment.</strong> At any time, you may prepay all expected Monthly Payments at a five percent (5%) discount, as set forth in Exhibit F.</p>
+  <p class="body"><strong>g. Renewal.</strong> The Agreement will be automatically renewed for an additional one (1) year term at the end of the Initial Term, with 60 days' notice and options to renew, allow auto-renewal, or not renew.</p>
+
+  <div class="initials">
+    <span class="lbl">Homeowner Initials</span>
+    <div class="ln"></div>
+    <span class="lbl">Co-Homeowner Initials</span>
+    <div class="ln"></div>
+  </div>
+
+  <h2 id="s5" class="sec-h annot section-annot">
+    <span class="ssub">PPA Section 5</span>PPA Obligations
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">PPA Section 5</div>
+      <div class="c-title">Your Obligations</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"This is the detailed version of that short list. Same deal, just the legal language."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">If they stop</div>
+        <ul>
+          <li class="warnpt">Roof and structural integrity is the homeowner's. Settle this in the driveway, not here.</li>
+          <li>Keep trees trimmed so production holds.</li>
+          <li>Data sharing runs the system and proves the guarantee.</li>
+        </ul>
+      </div>
+      <div class="c-foot">The roof opens with "How do you feel about your roof?" outside. See the Roofing module.</div>
+    </div>
+  </h2>
+  <p class="body"><strong>a. System, Home and Property Maintenance.</strong> You agree to:</p>
+  <ul class="body">
+    <li>Only have the System repaired pursuant to the Limited Warranty.</li>
+    <li>Keep trees, bushes, and hedges trimmed so the System receives as much sunlight as it did when installed.</li>
+    <li>Keep panels and modules clear of debris, animals, and infestation.</li>
+    <li>Not modify your Home or landscaping in a way that shades the System.</li>
+    <li>Be responsible for the structural integrity of the Home where the System is installed, including any structural or electrical modifications necessary to prepare your home and roof.</li>
+    <li>Comply with any HOA requirements (Exhibit D).</li>
+    <li>Not remove any markings or identification tags.</li>
+    <li>Permit LightReach reasonable inspection access.</li>
+    <li>Maintain a functioning indoor Internet connection with one available wired Ethernet port and standard AC power outlet within ninety (90) feet of the System's AC/DC inverter(s).</li>
+    <li>Cooperate with utility interconnection, parallel operation approval, and any Tax Credit applications.</li>
+    <li>Authorize use and sharing of System Data for business purposes including operation, incentives, and partner services.</li>
+  </ul>
+  <p class="body"><strong>b. LightReach Obligations.</strong> LightReach will install the System per plans, provide a production meter, insure the System against damage (with exceptions), require Certified Installers to maintain workers compensation, employers liability, commercial general liability ($1M per occurrence, $2M annual aggregate), and commercial automobile liability ($1M), and not place a lien on your Home or Property.</p>
+
+  <h2 class="sec-h"><span class="ssub">PPA Section 6</span>Conditions Prior to Installation of the System</h2>
+  <p class="body">LightReach's obligations are subject to obtaining all necessary permits, approvals, utility interconnection authorization, and a successful site condition review. LightReach may terminate this Agreement if conditions are not satisfied.</p>
+
+  <h2 class="sec-h"><span class="ssub">PPA Section 7</span>Warranty</h2>
+  <p class="body">LightReach provides the Limited Warranty attached as Exhibit B. The Limited Warranty is your sole and exclusive remedy for defects in materials and workmanship for the System.</p>
+
+  <h2 id="s8" class="sec-h annot section-annot">
+    <span class="ssub">PPA Section 8</span>Transfer
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">PPA Sections 8 &amp; 10</div>
+      <div class="c-title">Transfer &amp; Selling Your Home</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"If you ever sell, you've got options built in. Usually the buyer just takes it over."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">If they stop</div>
+        <ul>
+          <li>Buyer assumes the PPA with a quick credit check.</li>
+          <li>Or buy the system and sell the home with it owned.</li>
+        </ul>
+      </div>
+      <div class="c-foot">Already handled in the consult. Full detail lives in the "If I Sell My Home?" objection card.</div>
+    </div>
+  </h2>
+  <p class="body">You may transfer this PPA to a new homeowner upon sale of the Home. The new homeowner must complete a credit check and execute a transfer assignment with LightReach. Until the transfer is completed, you remain responsible under this Agreement.</p>
+
+  <h2 id="s9" class="sec-h annot section-annot">
+    <span class="ssub">PPA Section 9</span>Ownership of the System: Tax Credits, Rebates and Capacity Rights
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">PPA Section 9</div>
+      <div class="c-title">Ownership &amp; Tax Credits</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"This says LightReach owns the system and the incentives that come with it. That ownership is why we carry all the cost and risk, not you."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">If they stop</div>
+        <ul>
+          <li>Any credits or incentives, now or later, belong to the owner.</li>
+        </ul>
+      </div>
+      <div class="c-foot">Reframe: ownership is the engine of their whole deal, not a loss.</div>
+    </div>
+  </h2>
+  <p class="body">LightReach owns the System for all purposes. You acknowledge that LightReach owns all Tax Credits, environmental attributes, renewable energy certificates, capacity rights, and any other rights or benefits arising from the System.</p>
+
+  <h2 id="s10" class="sec-h"><span class="ssub">PPA Section 10</span>Selling Your Home</h2>
+  <p class="body">If you sell the Home, you may: (i) transfer the PPA to the buyer subject to credit approval and execution of a transfer assignment; (ii) purchase the System at fair market value and sell the Home with the System owned; or (iii) prepay the remaining Monthly Payments at the discount set forth in Exhibit F.</p>
+
+  <h2 class="sec-h"><span class="ssub">PPA Section 11</span>Loss or Damage</h2>
+  <p class="body">LightReach bears the risk of loss or damage to the System, except where caused by your gross negligence, your intentional damage, or your failure to adhere to your System, Home, and Property Maintenance obligations under Section 5.</p>
+
+  <h2 class="sec-h"><span class="ssub">PPA Section 12</span>Limitation of Liability</h2>
+  <p class="body muted-p">IN NO EVENT SHALL EITHER PARTY BE LIABLE TO THE OTHER FOR INCIDENTAL, CONSEQUENTIAL, INDIRECT, SPECIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATING TO THIS AGREEMENT. EACH PARTY'S TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNTS PAID OR PAYABLE UNDER THIS AGREEMENT IN THE TWELVE MONTHS PRECEDING THE CLAIM.</p>
+
+  <h2 class="sec-h"><span class="ssub">PPA Sections 13 to 14</span>Default and Remedies</h2>
+  <p class="body">Either party may default by failing to perform a material obligation under this Agreement. Default may include failure to pay, refusal of access, removal of the System without authorization, or breach of representations. Remedies include cure rights, acceleration of remaining Monthly Payments at the discounted prepayment amount, removal of the System, and reasonable enforcement costs.</p>
+
+  <h2 class="sec-h"><span class="ssub">PPA Section 15</span>Returning the System at the End or Upon Termination</h2>
+  <p class="body">Upon expiration or termination, you may purchase the System at fair market value, renew the Agreement under Section 4(g), or allow LightReach to remove the System at LightReach's expense, restoring your roof to a watertight condition.</p>
+
+  <h2 class="sec-h"><span class="ssub">PPA Sections 16 to 25</span>Additional Terms</h2>
+  <p class="body muted-p">Includes Additional Agreements, Applicable Law and Arbitration, Waiver and Severability, Notices, Entire Agreement, Headings and Interpretation, Publicity, Communications Equipment, Counterparts, and Further Assurances. Standard provisions found in commercial home-improvement and energy agreements.</p>
+
+  <h2 id="s26" class="sec-h annot section-annot">
+    <span class="ssub">PPA Section 26</span>Additional Rights to Cancel
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">PPA Section 26</div>
+      <div class="c-title">Right to Cancel</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"You've got 10 days to cancel for any reason. Full refund, no questions. If anything doesn't sit right after we leave, you're covered."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">If they stop</div>
+        <ul>
+          <li>Written notice before midnight of the 10th day, email or the Exhibit C form.</li>
+          <li>Confirm no blank spaces and that they get a complete copy.</li>
+        </ul>
+      </div>
+      <div class="c-foot">See the No-Cancellation framing on the walk-through page.</div>
+    </div>
+  </h2>
+  <p class="body bold-notice">You may cancel this Agreement and receive a full refund of any deposit paid by mailing (or emailing, to help@palmetto.com) a notice to LightReach (which may be in the form attached hereto as Exhibit C). The notice must say that you do not want the goods or services and must be mailed before midnight of the tenth (10th) day after you sign this Agreement.</p>
+
+  <div class="bold-notice">Do not sign this contract if there are any blank spaces.</div>
+
+  <div class="notice-box">
+    <div class="nb-h">Statutory Notice</div>
+    <p>YOU, THE HOMEOWNER, MAY CANCEL THIS TRANSACTION AT ANY TIME PRIOR TO MIDNIGHT OF THE TENTH DAY AFTER THE DATE OF THIS TRANSACTION. SEE ATTACHED NOTICE OF CANCELLATION FORM (EXHIBIT C) FOR AN EXPLANATION OF THIS RIGHT.</p>
+  </div>
+
+  <!-- SIGNATURE -->
+  <h2 id="sig" class="sec-h annot section-annot">
+    Signature Block
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">Signature</div>
+      <div class="c-title">"Putting it in writing"</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"Everything we just covered, this is where it goes in writing. You're confirming you've seen all of it and you've got a complete copy. Sign right here."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">Mechanics</div>
+        <ul>
+          <li>Lead them to every signature and initial.</li>
+          <li>Confirm no blank spaces.</li>
+          <li>Make sure they leave with the complete signed copy.</li>
+          <li class="warnpt">Right after the pen goes down: a real congratulations + photo.</li>
+        </ul>
+      </div>
+      <div class="c-foot">If the consultation did its job, this is anticlimactic. They're nodding, not deliberating.</div>
+    </div>
+  </h2>
+
+  <div class="sigblock">
+    <div class="row">
+      <div class="field"><div class="ln"></div><div class="lbl">Homeowner signature</div></div>
+      <div class="field"><div class="ln"></div><div class="lbl">Palmetto Solar, LLC, DBA LightReach</div></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <div class="field"><div class="ln"></div><div class="lbl">Date</div></div>
+      <div class="field"><div class="ln"></div><div class="lbl">LightReach Authorized Signer &middot; Title &middot; Date</div></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <div class="field"><div class="ln"></div><div class="lbl">Co-Homeowner signature (if any)</div></div>
+      <div class="field"><div class="ln"></div><div class="lbl">Home Improvement Contract Salesperson</div></div>
+    </div>
+  </div>
+</article>
+
+<!-- EXHIBIT C -->
+<article class="doc">
+  <div class="brand-strip">
+    <div class="left">Exhibit C</div>
+    <div class="right">Notice of Cancellation</div>
+  </div>
+  <h2 class="sec-h">Notice of Cancellation</h2>
+  <p class="body">You may cancel this transaction, without any penalty or obligation, within ten (10) days from the date of the Agreement. If you cancel, any payments made by you under the Agreement will be returned within ten (10) days following receipt by the contractor of your cancellation notice.</p>
+  <p class="body">To cancel this transaction, mail or deliver a signed and dated copy of this Notice of Cancellation, or any other written notice, to LightReach at 1616 Camden Rd, Suite 300, Charlotte, NC 28203 not later than midnight of (date).</p>
+  <p class="body muted-p">This notice of cancellation shall also be valid if you e-mail it to LightReach at help@palmetto.com.</p>
+</article>
+
+<!-- EXHIBIT E -->
+<article class="doc">
+  <div class="brand-strip">
+    <div class="left">Exhibit E</div>
+    <div class="right">Connecticut Disclosure Statement</div>
+  </div>
+  <h2 class="sec-h annot section-annot">
+    Connecticut Disclosure Statement
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">Exhibit E</div>
+      <div class="c-title">CT-specific disclosures</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"This is the Connecticut-required disclosure of LightReach's corporate structure and affiliated home-improvement contractors."</p>
+      </div>
+      <div class="c-foot">Standard state requirement. Usually doesn't surface in conversation.</div>
+    </div>
+  </h2>
+  <p class="body muted-p">Corporate Disclosure: A comprehensive list of the Palmetto Solar, LLC DBA LightReach members and a disclosure of each corporation, limited liability company, partnership, sole proprietorship, or other legal entity, which is or has been a home improvement contractor in which LightReach's members are or have been a shareholder, member, partner, or owner during the previous five years.</p>
+  <p class="body"><strong>Affiliated Company:</strong> PlugPV LLC, HIC #0653296</p>
+</article>
+
+<!-- EXHIBIT F -->
+<article class="doc" id="exF">
+  <div class="brand-strip">
+    <div class="left">Exhibit F</div>
+    <div class="right">Rate Schedule &amp; Monthly Payment Schedule</div>
+  </div>
+  <h2 class="sec-h annot section-annot">
+    Predictable Payment PPA Rate Schedule
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">Exhibit F</div>
+      <div class="c-title">Rate &amp; Monthly Payment Schedule</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"This is your rate schedule in writing, every year, for the full term. No surprises."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">If they stop</div>
+        <ul>
+          <li>The rate moves on the escalator we agreed to, nothing else.</li>
+          <li>The prepayment column shows what you'd owe to buy it out at any point.</li>
+        </ul>
+      </div>
+      <div class="c-foot">Sample figures only. Real numbers come from your design.</div>
+    </div>
+  </h2>
+  <table class="kv">
+    <tbody>
+      <tr><th>Deposit upon contract signature</th><td>$0</td></tr>
+      <tr><th>First Year Solar Energy kWh Rate</th><td>$0.180 / kWh</td></tr>
+      <tr><th>First Year Monthly Solar Payment</th><td>$157.50 / mo</td></tr>
+      <tr><th>First Year Monthly Battery Payment</th><td>$0.00 / mo</td></tr>
+      <tr><th>Annual Payment Escalator Rate</th><td>2.99% / yr</td></tr>
+    </tbody>
+  </table>
+
+  <table class="exhibit-table">
+    <thead>
+      <tr><th>Year</th><th>Rate ($/kWh)</th><th>Est. Annual kWh</th><th>Monthly Solar ($)</th><th>Monthly Battery ($)</th><th>Total Monthly ($)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="y">1</td><td>0.180</td><td>10,500</td><td>157.50</td><td>0.00</td><td>157.50</td></tr>
+      <tr><td class="y">2</td><td>0.185</td><td>10,447</td><td>161.06</td><td>0.00</td><td>161.06</td></tr>
+      <tr><td class="y">3</td><td>0.191</td><td>10,395</td><td>164.69</td><td>0.00</td><td>164.69</td></tr>
+      <tr><td class="y">5</td><td>0.202</td><td>10,291</td><td>173.36</td><td>0.00</td><td>173.36</td></tr>
+      <tr><td class="y">10</td><td>0.234</td><td>10,031</td><td>195.40</td><td>0.00</td><td>195.40</td></tr>
+      <tr><td class="y">15</td><td>0.271</td><td>9,775</td><td>220.21</td><td>0.00</td><td>220.21</td></tr>
+      <tr><td class="y">20</td><td>0.314</td><td>9,525</td><td>248.06</td><td>0.00</td><td>248.06</td></tr>
+      <tr><td class="y">25</td><td>0.364</td><td>9,281</td><td>279.39</td><td>0.00</td><td>279.39</td></tr>
+    </tbody>
+  </table>
+  <p class="body muted-p">Sample figures, condensed view. Real agreements include every year 1 through 25 with the prepayment amount column.</p>
+</article>
+
+<!-- EXHIBIT G -->
+<article class="doc" id="exG">
+  <div class="brand-strip">
+    <div class="left">Exhibit G</div>
+    <div class="right">Performance and Production Guarantee</div>
+  </div>
+  <h2 class="sec-h annot section-annot">
+    Performance and Production Guarantee
+    <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="annot-card">
+      <div class="c-sec">Exhibit G</div>
+      <div class="c-title">Performance Guarantee</div>
+      <div class="c-block">
+        <div class="c-lab">Say it like this</div>
+        <p class="c-say">"Your production number is confirmed by our Remote Assessment Team. They use advanced design tools and stay conservative when they analyze your site. And the guarantee is your written protection in the unlikely event something falls short."</p>
+      </div>
+      <div class="c-block">
+        <div class="c-lab">If they stop</div>
+        <ul>
+          <li>Every 3 years we true up actual vs. guaranteed and credit any shortfall at your rate.</li>
+          <li>Surplus banks forward. Extra production is yours, free.</li>
+          <li>Hail is covered. A tree you let shade it is not.</li>
+        </ul>
+      </div>
+      <div class="c-foot">Two protections, same direction: the estimate is built to be beaten, the guarantee sits under it for the rare miss.</div>
+    </div>
+  </h2>
+  <p class="body">LightReach guarantees that, during the Term of this Agreement, the System will generate kilowatt-hours (kWh) as set forth in the table below. To calculate the guaranteed amount of kWh for an applicable three-year period ("Guaranteed kWh") we will take the applicable year's Total kWh in the chart below minus the Total kWh from three years prior. The guarantee assumes module and System production degradation of 1% per year.</p>
+
+  <table class="exhibit-table">
+    <thead>
+      <tr><th>Year</th><th>Performance Guarantee (Total Estimated kWh to Date)</th><th>Credit Rate ($/kWh)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="y">3</td><td>31,108</td><td>0.180</td></tr>
+      <tr><td class="y">6</td><td>61,287</td><td>0.180</td></tr>
+      <tr><td class="y">9</td><td>90,558</td><td>0.180</td></tr>
+      <tr><td class="y">12</td><td>118,940</td><td>0.180</td></tr>
+      <tr><td class="y">15</td><td>146,455</td><td>0.180</td></tr>
+      <tr><td class="y">18</td><td>173,121</td><td>0.180</td></tr>
+      <tr><td class="y">21</td><td>198,960</td><td>0.180</td></tr>
+      <tr><td class="y">24</td><td>223,989</td><td>0.180</td></tr>
+      <tr><td class="y">25</td><td>232,210</td><td>0.180</td></tr>
+    </tbody>
+  </table>
+
+  <p class="body"><strong>A.</strong> If at the end of each successive 36-month anniversary the cumulative Actual kWh generated is less than the Guaranteed kWh, LightReach will credit your account the difference multiplied by the Energy Price per kWh for that interval year.</p>
+  <p class="body"><strong>B.</strong> If the Actual kWh is greater than the Guaranteed kWh during any 36 month period, the surplus carries over to offset any future deficits. If, over the course of the Term, the System produces more energy than the Guaranteed Output, the additional energy is yours at no additional cost.</p>
+  <p class="body"><strong>C.</strong> Exhibit G is your sole and exclusive remedy for the System's failure to produce the Guaranteed kWh. You shall not be eligible for the remedy under Exhibit G if you are in default, or if the failure to produce is caused by a Force Majeure Event, foreign objects damaging the System (excluding hail, which is covered), or other conditions beyond LightReach's control.</p>
+</article>
+
+</div><!-- /#appWrap -->
+
+<footer class="site-footer">
+  Trinity Solar &middot; CT Traditional &middot; Practice copy &middot; Internal training use only
+</footer>
+
+<script>
+function initApp(profile, session) { initAnnotations(); }
+
+var __annotInit = false;
+function initAnnotations() {
+  if (__annotInit) return;
+  __annotInit = true;
+  var annots = document.querySelectorAll('.annot');
+  annots.forEach(function(el) {
+    var trigger = el.querySelector('.annot-trigger');
+    if (trigger) {
+      trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isOpen = el.classList.contains('is-open');
+        document.querySelectorAll('.annot.is-open').forEach(function(o) { o.classList.remove('is-open'); });
+        if (!isOpen) el.classList.add('is-open');
+      });
+      trigger.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); trigger.click(); }
+        if (e.key === 'Escape') { el.classList.remove('is-open'); }
+      });
+    }
+    var card = el.querySelector('.annot-card');
+    if (card) card.addEventListener('click', function(e) { e.stopPropagation(); });
+  });
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.annot.is-open').forEach(function(o) { o.classList.remove('is-open'); });
+  });
+}
+
+// Preview fallback: reveal content when the auth gate is absent.
+// Never runs on production, the live page stays fully gated.
+(function() {
+  if (/(^|\.)ct-resource-page\.com$/.test(location.hostname)) return;
+  function reveal() {
+    var ls = document.getElementById('loginScreen'); if (ls) ls.style.display = 'none';
+    var cp = document.getElementById('changePasswordScreen'); if (cp) cp.style.display = 'none';
+    var app = document.getElementById('appWrap');
+    if (app && getComputedStyle(app).display === 'none') app.style.display = 'block';
+    initAnnotations();
+  }
+  window.addEventListener('load', function() { setTimeout(reveal, 300); });
+})();
+</script>
+
+</body>
+</html>

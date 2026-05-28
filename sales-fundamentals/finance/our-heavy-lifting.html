@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Our Heavy Lifting · What We Promise · Trinity Solar</title>
+<style>
+  :root {
+    --bg: #f7f3ec;
+    --card: #ffffff;
+    --ink: #211c16;
+    --body: #4a4339;
+    --muted: #897f70;
+    --accent: #c98a2b;
+    --accent-deep: #8a5a14;
+    --accent-pale: #f4e6c8;
+    --hairline: #e7ddca;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--body);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .toolbar {
+    max-width: 880px;
+    margin: 18px auto 0;
+    padding: 0 24px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .print-btn {
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    color: var(--accent-deep);
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .print-btn:hover {
+    background: var(--accent-pale);
+    border-color: var(--accent);
+  }
+
+  .sheet {
+    max-width: 880px;
+    margin: 18px auto 56px;
+    background: var(--card);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 48px 52px 44px;
+    box-shadow: 0 18px 50px rgba(60, 42, 12, 0.07);
+  }
+
+  .wordmark {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .wordmark .sun {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 45%, #f3c34f, var(--accent) 70%);
+    box-shadow: 0 0 0 3px rgba(201, 138, 43, 0.18);
+    flex: none;
+  }
+
+  .kicker {
+    margin: 26px 0 10px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 1.18;
+    color: var(--ink);
+    margin: 0 0 16px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--accent-deep);
+  }
+
+  .lede {
+    font-size: 16.5px;
+    color: var(--body);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .catch {
+    margin: 30px 0 32px;
+    background: linear-gradient(180deg, #fdf8ee, #faf2e1);
+    border: 1px solid var(--accent-pale);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .catch .q {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 19px;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+  .catch .a {
+    font-size: 15.5px;
+    color: var(--body);
+    margin: 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .item {
+    display: flex;
+    gap: 14px;
+    background: #fffdf9;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .num {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent-pale);
+    color: var(--accent-deep);
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .item h3 {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 2px 0 5px;
+    line-height: 1.3;
+  }
+  .item p {
+    font-size: 13.5px;
+    color: var(--body);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .close {
+    margin-top: 30px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    text-align: center;
+  }
+  .close p {
+    font-family: var(--serif);
+    font-size: 17.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 60ch;
+    margin: 0 auto;
+  }
+  .close .punch {
+    color: var(--accent-deep);
+    font-style: italic;
+  }
+
+  .foot {
+    margin-top: 26px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .foot strong { color: var(--accent-deep); }
+
+  @media (max-width: 640px) {
+    .sheet { padding: 32px 24px; }
+    h1 { font-size: 27px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    @page { size: letter; margin: 0.5in; }
+    html, body { background: #fff; }
+    .toolbar { display: none; }
+    .sheet {
+      margin: 0;
+      max-width: none;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+    }
+    h1 { font-size: 28px; }
+    .catch { margin: 18px 0 20px; }
+    .grid { gap: 10px; }
+    .item { padding: 11px 14px; break-inside: avoid; }
+    .item p { font-size: 12px; }
+    .close { margin-top: 20px; padding-top: 16px; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+  <div class="toolbar">
+    <button class="print-btn" onclick="window.print()">Print this page</button>
+  </div>
+
+  <main class="sheet">
+
+    <div class="wordmark"><span class="sun"></span> Trinity Solar</div>
+
+    <p class="kicker">Our side of the deal</p>
+    <h1>It's a 25-year agreement.<br /><em>Here's everything we carry.</em></h1>
+    <p class="lede">
+      Going solar with us isn't a hope or a handshake. It's a long, written commitment.
+      Here's the part people don't always realize: almost all of that commitment is ours.
+      We design the system, install it, own it, insure it, repair it, and guarantee it produces.
+      You buy the power. That's the deal.
+    </p>
+
+    <div class="catch">
+      <p class="q">"Wait, what do you actually do?"</p>
+      <p class="a">
+        Almost everything. Here it is, all six big pieces, in plain English. No fine print, nothing hiding behind it.
+      </p>
+    </div>
+
+    <div class="grid">
+
+      <div class="item">
+        <div class="num">1</div>
+        <div>
+          <h3>We install the system, and we own it.</h3>
+          <p>The panels go on your roof, but the equipment is ours. There's nothing for you to buy, finance, or maintain. We own and operate the whole system for the full 25 years.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">2</div>
+        <div>
+          <h3>You pay nothing upfront.</h3>
+          <p>No deposit, no equipment cost, no install fee. Nothing at signing. Nothing on install day. You start paying only after the system is on and generating power for you.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">3</div>
+        <div>
+          <h3>Your rate is locked. Your bill is predictable.</h3>
+          <p>You buy power from the system at a rate we agree to in writing. Your rate and your monthly bill move on a schedule that's set the day you sign. No utility surprises.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">4</div>
+        <div>
+          <h3>If it underproduces, we pay you.</h3>
+          <p>Our production guarantee. If the system ever makes less power than we promised, we credit you the difference at your rate. That's written into the agreement, every year, for the whole term.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">5</div>
+        <div>
+          <h3>We warranty, insure, and repair the system.</h3>
+          <p>Free, for 25 years. If anything breaks, we fix it. If anything gets damaged, that's on us. The system is insured separately, so it doesn't ride on your homeowner's policy and your premiums aren't affected. You never see a repair bill.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">6</div>
+        <div>
+          <h3>We handle all the red tape.</h3>
+          <p>Permits, engineering, electrical and structural reviews, utility approvals, every code requirement, every form. You don't track any of it. We do the work, you stay out of the paperwork.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="close">
+      <p>
+        Twenty-five years of design, install, ownership, insurance, repair, and a written guarantee.
+        <span class="punch">We handle the heavy lifting. You handle a few simple things.</span>
+        That's the deal, and it's a good one.
+      </p>
+    </div>
+
+    <p class="foot">
+      Questions about anything here? Ask. We'd rather over-explain than leave you wondering.<br />
+      <strong>Trinity Solar</strong> &nbsp;&middot;&nbsp; Your rep: ____________________ &nbsp;&middot;&nbsp; Phone: ____________________
+    </p>
+
+  </main>
+
+</div><!-- /#appWrap -->
+
+<script>
+function initApp(profile, session) { /* static page */ }
+
+// Preview fallback: reveal content when the auth gate is absent.
+// Never runs on production, the live page stays fully gated.
+(function() {
+  if (/(^|\.)ct-resource-page\.com$/.test(location.hostname)) return;
+  function reveal() {
+    var ls = document.getElementById('loginScreen'); if (ls) ls.style.display = 'none';
+    var cp = document.getElementById('changePasswordScreen'); if (cp) cp.style.display = 'none';
+    var app = document.getElementById('appWrap');
+    if (app && getComputedStyle(app).display === 'none') app.style.display = 'block';
+  }
+  window.addEventListener('load', function() { setTimeout(reveal, 300); });
+})();
+</script>
+
+</body>
+</html>

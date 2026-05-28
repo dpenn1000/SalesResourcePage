@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>What's the Catch · Your Simple Part · Trinity Solar</title>
+<style>
+  :root {
+    --bg: #f7f3ec;
+    --card: #ffffff;
+    --ink: #211c16;
+    --body: #4a4339;
+    --muted: #897f70;
+    --accent: #c98a2b;
+    --accent-deep: #8a5a14;
+    --accent-pale: #f4e6c8;
+    --hairline: #e7ddca;
+    --serif: Georgia, "Times New Roman", serif;
+    --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--body);
+    font-family: var(--sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .toolbar {
+    max-width: 880px;
+    margin: 18px auto 0;
+    padding: 0 24px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .print-btn {
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    color: var(--accent-deep);
+    background: #fff;
+    border: 1px solid var(--hairline);
+    border-radius: 999px;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .print-btn:hover {
+    background: var(--accent-pale);
+    border-color: var(--accent);
+  }
+
+  .sheet {
+    max-width: 880px;
+    margin: 18px auto 56px;
+    background: var(--card);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 48px 52px 44px;
+    box-shadow: 0 18px 50px rgba(60, 42, 12, 0.07);
+  }
+
+  .wordmark {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-deep);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .wordmark .sun {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 45%, #f3c34f, var(--accent) 70%);
+    box-shadow: 0 0 0 3px rgba(201, 138, 43, 0.18);
+    flex: none;
+  }
+
+  .kicker {
+    margin: 26px 0 10px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 34px;
+    line-height: 1.18;
+    color: var(--ink);
+    margin: 0 0 16px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--accent-deep);
+  }
+
+  .lede {
+    font-size: 16.5px;
+    color: var(--body);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .catch {
+    margin: 30px 0 32px;
+    background: linear-gradient(180deg, #fdf8ee, #faf2e1);
+    border: 1px solid var(--accent-pale);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px 24px;
+  }
+  .catch .q {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 19px;
+    color: var(--ink);
+    margin: 0 0 6px;
+  }
+  .catch .a {
+    font-size: 15.5px;
+    color: var(--body);
+    margin: 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .item {
+    display: flex;
+    gap: 14px;
+    background: #fffdf9;
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .num {
+    flex: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent-pale);
+    color: var(--accent-deep);
+    font-family: var(--serif);
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+  .item h3 {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 2px 0 5px;
+    line-height: 1.3;
+  }
+  .item p {
+    font-size: 13.5px;
+    color: var(--body);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .close {
+    margin-top: 30px;
+    padding-top: 24px;
+    border-top: 1px solid var(--hairline);
+    text-align: center;
+  }
+  .close p {
+    font-family: var(--serif);
+    font-size: 17.5px;
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 60ch;
+    margin: 0 auto;
+  }
+  .close .punch {
+    color: var(--accent-deep);
+    font-style: italic;
+  }
+
+  .foot {
+    margin-top: 26px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .foot strong { color: var(--accent-deep); }
+
+  @media (max-width: 640px) {
+    .sheet { padding: 32px 24px; }
+    h1 { font-size: 27px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    @page { size: letter; margin: 0.5in; }
+    html, body { background: #fff; }
+    .toolbar { display: none; }
+    .sheet {
+      margin: 0;
+      max-width: none;
+      border: none;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 0;
+    }
+    h1 { font-size: 28px; }
+    .catch { margin: 18px 0 20px; }
+    .grid { gap: 10px; }
+    .item { padding: 11px 14px; break-inside: avoid; }
+    .item p { font-size: 12px; }
+    .close { margin-top: 20px; padding-top: 16px; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+  <div class="toolbar">
+    <button class="print-btn" onclick="window.print()">Print this page</button>
+  </div>
+
+  <main class="sheet">
+
+    <div class="wordmark"><span class="sun"></span> Trinity Solar</div>
+
+    <p class="kicker">The honest conversation</p>
+    <h1>Solar isn't magic.<br /><em>Here's the honest version.</em></h1>
+    <p class="lede">
+      If a deal sounds too good to be true, you should ask questions. So let's be straight with you.
+      Solar will lower what you spend on power, but it isn't free and it isn't magic. It's a fair trade:
+      we take on the hard, expensive part, and in return we count on you for a few simple, reasonable things.
+    </p>
+
+    <div class="catch">
+      <p class="q">"Okay, so what's the catch?"</p>
+      <p class="a">
+        Honestly, there isn't one hiding in the fine print. There's just your side of a normal agreement.
+        Here it is, all six pieces, in plain English.
+      </p>
+    </div>
+
+    <div class="grid">
+
+      <div class="item">
+        <div class="num">1</div>
+        <div>
+          <h3>Take care of your home, the way you already do.</h3>
+          <p>Your panels will sit on your roof for decades. Keep your home in good shape like any owner does, and they'll keep doing their job. Going solar doesn't change the fact that you own and care for your house.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">2</div>
+        <div>
+          <h3>Yes, you still have a monthly payment.</h3>
+          <p>Solar isn't free electricity. It trades a large, unpredictable utility bill for a smaller, steadier solar payment. Please pay it on time, the same way you always have.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">3</div>
+        <div>
+          <h3>Let us in when your system needs attention.</h3>
+          <p>It's rare, but if your system ever needs service, our team has to be able to reach it. Just give us access to your property when we ask.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">4</div>
+        <div>
+          <h3>Birds, bees, and squirrels are still your call.</h3>
+          <p>Same as today: pests are part of owning a home. If something tries to nest near your panels, handle it the way you would anywhere else on your property. (Ask us about critter guards if you'd like them.)</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">5</div>
+        <div>
+          <h3>Please stay off the roof.</h3>
+          <p>Don't climb up to clean or repair anything yourself. It isn't safe, and it's genuinely our job. If something looks wrong, call us and we'll take care of it.</p>
+        </div>
+      </div>
+
+      <div class="item">
+        <div class="num">6</div>
+        <div>
+          <h3>Stay in touch while we get you running.</h3>
+          <p>Going solar takes a few visits, a few signatures, and a couple of inspections. The quicker you respond when we reach out, the quicker your system is on and saving you money.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="close">
+      <p>
+        That's the entire list. No magic, no mystery, no surprise fees buried on page nine.
+        <span class="punch">We handle the heavy lifting. You handle these few simple things.</span>
+        That's the deal, and it's a good one.
+      </p>
+    </div>
+
+    <p class="foot">
+      Questions about anything here? Ask. We'd rather over-explain than leave you wondering.<br />
+      <strong>Trinity Solar</strong> &nbsp;&middot;&nbsp; Your rep: ____________________ &nbsp;&middot;&nbsp; Phone: ____________________
+    </p>
+
+  </main>
+
+</div><!-- /#appWrap -->
+
+<script>
+function initApp(profile, session) { /* static page */ }
+
+// Preview fallback: reveal content when the auth gate is absent.
+// Never runs on production, the live page stays fully gated.
+(function() {
+  if (/(^|\.)ct-resource-page\.com$/.test(location.hostname)) return;
+  function reveal() {
+    var ls = document.getElementById('loginScreen'); if (ls) ls.style.display = 'none';
+    var cp = document.getElementById('changePasswordScreen'); if (cp) cp.style.display = 'none';
+    var app = document.getElementById('appWrap');
+    if (app && getComputedStyle(app).display === 'none') app.style.display = 'block';
+  }
+  window.addEventListener('load', function() { setTimeout(reveal, 300); });
+})();
+</script>
+
+</body>
+</html>
