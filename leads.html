@@ -582,16 +582,25 @@ function renderDashDetail(){
   };
   /* #2: stacked by-rep card. Bar length = assigned leads; segments = best call
      outcome per lead within scope (uncalled = no in-scope call on that lead). */
-  const RSEG=[['appt','#3f7a16','Appt set'],['reached','#7ec63f','Reached'],['attempted','#5a93bd','Attempted'],['uncalled','#d3dae0','Not called']];
+  /* When a daily/range scope is active, the bar reflects CALLS IN SCOPE (segments
+     scale to the busiest rep's in-scope activity, no "Not called" filler). With no
+     scope, the bar is assigned-leads with the uncalled bucket. */
+  const RSEG_FULL=[['appt','#3f7a16','Appt set'],['reached','#7ec63f','Reached'],['attempted','#5a93bd','Attempted'],['uncalled','#d3dae0','Not called']];
+  const RSEG_ACTIVE=[['appt','#3f7a16','Appt set'],['reached','#7ec63f','Reached'],['attempted','#5a93bd','Attempted']];
   const repCard=()=>{
-    const ent=Object.entries(byRepOut).sort((a,b)=>b[1].total-a[1].total).slice(0,10);
-    const max=Math.max(1,...ent.map(([,r])=>r.total));
-    const rows=ent.map(([rep,r])=>{
+    const scoped=dashScopeActive();
+    const RSEG=scoped?RSEG_ACTIVE:RSEG_FULL;
+    const totalFor=r=>scoped?(r.appt+r.reached+r.attempted):r.total;
+    const ent=Object.entries(byRepOut).map(([rep,r])=>[rep,r,totalFor(r)]).filter(([,,t])=>!scoped||t>0).sort((a,b)=>b[2]-a[2]).slice(0,10);
+    const max=Math.max(1,...ent.map(([,,t])=>t));
+    const rows=ent.map(([rep,r,t])=>{
       const segs=RSEG.map(([k,col,lab])=>r[k]?`<span style="width:${r[k]/max*100}%;background:${col}" title="${esc(lab)}: ${r[k]}"></span>`:'').join('');
-      return `<div class="bl-row"><span class="bl-k" title="${esc(rep)}">${esc(rep)}</span><span class="bl-bar bl-stack">${segs}</span><span class="bl-v">${r.total}</span></div>`;
+      return `<div class="bl-row"><span class="bl-k" title="${esc(rep)}">${esc(rep)}</span><span class="bl-bar bl-stack">${segs}</span><span class="bl-v">${t}</span></div>`;
     }).join('');
     const leg=RSEG.map(([k,col,lab])=>`<span class="dleg"><i style="background:${col}"></i>${esc(lab)}</span>`).join('');
-    return `<div class="dash-card" title="Each rep's assigned leads, split by best call outcome within the selected scope. Bar length = leads assigned."><div class="dash-card-title">By rep (assigned + outcomes)</div>${rows||'<div class="sub">None yet</div>'}<div style="margin-top:8px">${leg}</div></div>`;
+    const title=scoped?'By rep (calls in scope)':'By rep (assigned + outcomes)';
+    const tip=scoped?"Each rep's call activity within the selected scope. Bar = total calls in scope; segments = outcome mix.":"Each rep's assigned leads, split by best call outcome. Bar length = leads assigned.";
+    return `<div class="dash-card" title="${esc(tip)}"><div class="dash-card-title">${esc(title)}</div>${rows||'<div class="sub">No rep activity in scope</div>'}<div style="margin-top:8px">${leg}</div></div>`;
   };
   document.getElementById('dashdetail').innerHTML='<div class="dash-grid">'
     +card(`Call outcomes (${connRate}% connect)`,outc,null,null,k=>OUTC[k]||G.slate,null,`Logged QC call results in scope. Connect rate = (reached + appt set) / total calls = ${connected}/${totCalls}.`)
