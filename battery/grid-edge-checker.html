@@ -106,6 +106,13 @@
   .util-btn.active { background: var(--green); color: #0b1120; }
   .aid-note { margin-top: 14px; padding: 12px 14px; background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3); border-radius: 10px; font-size: 13px; color: #8a6516; line-height: 1.5; }
 
+  /* Zoomed-out iframe wrapper (so the in-app consent box fits in view) */
+  .map-zoom { position: relative; width: 100%; height: min(78vh, 720px); min-height: 600px;
+    overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: #f3f5f0; }
+  .map-zoom iframe { position: absolute; top: 0; left: 0; width: 154%; height: 154%;
+    transform: scale(0.65); transform-origin: 0 0; border: 0; }
+  @media (max-width: 600px) { .map-zoom { height: 72vh; min-height: 480px; } }
+
   @media (max-width: 600px) {
     .page-title { font-size: 24px; }
     .map-frame { height: 70vh; min-height: 440px; }
@@ -180,12 +187,14 @@
     <div class="card">
       <div class="card-step"><span class="dot">1</span> Quick check</div>
       <div class="card-title">Is the home next to a colored line?</div>
-      <div class="card-hint">Search the address in the Eversource map. A home sitting on or right beside a <strong>blue or red line</strong> is very likely Grid Edge.</div>
-      <iframe id="navFrame" class="map-frame" title="Eversource Grid Edge Navigator map"
-        src="https://navigator.eversource-ct.envelio.com/?lang=en-us#8.31/41.52/-72.69"
-        referrerpolicy="no-referrer-when-downgrade"></iframe>
+      <div class="card-hint">On first load, accept the <strong>location consent box</strong> at the bottom of the map. Then search the address: a home on or right beside a <strong>blue or red line</strong> is very likely Grid Edge.</div>
+      <div class="map-zoom">
+        <iframe id="navFrame" title="Eversource Grid Edge Navigator map"
+          src="https://navigator.eversource-ct.envelio.com/?lang=en-us#8.31/41.52/-72.69"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
       <div class="map-actions">
-        <a class="btn btn-primary" href="https://navigator.eversource-ct.envelio.com/?lang=en-us" target="_blank" rel="noopener">Open Eversource map in new tab &rarr;</a>
+        <a class="btn btn-primary" href="https://navigator.eversource-ct.envelio.com/?lang=en-us" target="_blank" rel="noopener">Open full map in new tab &rarr;</a>
       </div>
       <div class="how">
         <div class="how-label">How to read it</div>
