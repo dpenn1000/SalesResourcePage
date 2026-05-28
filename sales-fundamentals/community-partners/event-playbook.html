@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Event Playbook -- Trinity Solar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #78C832;
+    --green-deep: #5eba28;
+    --blue: #29A9E1;
+    --ink: #1A2332;
+    --ink-soft: #3A4555;
+    --surface: #EFF1EC;
+    --border: #DFE2DA;
+    --paper: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--surface); color: var(--ink); font-family: 'Manrope', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body { padding: 32px 24px; }
+  .page { max-width: 1180px; margin: 0 auto; background: var(--paper); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(26,35,50,0.04), 0 12px 40px rgba(26,35,50,0.06); }
+  .display { font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -0.01em; }
+
+  /* Header */
+  .header { padding: 32px 80px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark { width: 38px; height: 38px; border-radius: 10px; background: var(--ink); color: var(--green); display: grid; place-items: center; font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; }
+  .brand-name { font-weight: 700; font-size: 15px; letter-spacing: 0.02em; }
+  .brand-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .header-meta { font-size: 12px; color: var(--ink-soft); text-align: right; }
+
+  /* Hero */
+  .hero { padding: 80px 80px 64px; background: linear-gradient(180deg, var(--paper) 0%, #F6F8F2 100%); border-bottom: 1px solid var(--border); }
+  .hero-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-deep); background: rgba(120, 200, 50, 0.12); padding: 6px 12px; border-radius: 999px; margin-bottom: 22px; }
+  .hero-title { font-size: 56px; line-height: 1.05; max-width: 880px; }
+  .hero-title .accent { color: var(--green-deep); }
+  .hero-sub { font-size: 19px; line-height: 1.5; color: var(--ink-soft); max-width: 760px; margin-top: 22px; }
+
+  /* Stat grid */
+  .stats { padding: 48px 80px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-bottom: 1px solid var(--border); }
+  .stat { padding: 8px 28px; border-right: 1px solid var(--border); }
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child { border-right: none; padding-right: 0; }
+  .stat-num { font-family: 'Fraunces', serif; font-weight: 600; font-size: 40px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+  .stat-label { font-size: 13px; color: var(--ink-soft); margin-top: 10px; line-height: 1.45; }
+
+  /* Stage nav */
+  .stagenav { padding: 28px 80px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 10px; background: #F6F8F2; }
+  .stagenav a { font-size: 12.5px; font-weight: 600; color: var(--ink-soft); text-decoration: none; background: var(--paper); border: 1px solid var(--border); padding: 8px 14px; border-radius: 999px; transition: all 0.15s ease; }
+  .stagenav a:hover { color: var(--green-deep); border-color: var(--green); }
+
+  /* Section */
+  .section { padding: 72px 80px; border-bottom: 1px solid var(--border); scroll-margin-top: 24px; }
+  .section-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; }
+  .section-eyebrow .num { color: var(--green-deep); }
+  .section-title { font-size: 32px; line-height: 1.15; max-width: 760px; }
+  .section-lead { font-size: 16px; color: var(--ink-soft); margin-top: 14px; max-width: 720px; line-height: 1.6; }
+
+  /* Cards grid */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 40px; }
+  .card { background: var(--surface); border-radius: 14px; padding: 32px 30px; }
+  .card-num { font-family: 'Fraunces', serif; font-weight: 600; font-size: 32px; color: var(--green-deep); line-height: 1; }
+  .card-title { font-weight: 700; font-size: 16px; margin-top: 14px; }
+  .card-body { font-size: 14.5px; color: var(--ink-soft); margin-top: 10px; line-height: 1.6; }
+  .card-body strong { color: var(--ink); }
+
+  /* Script block */
+  .script { background: var(--ink); color: var(--paper); border-radius: 14px; padding: 28px 32px; margin-top: 28px; }
+  .script-tag { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 14px; }
+  .script-line { font-family: 'Fraunces', serif; font-weight: 400; font-size: 20px; line-height: 1.5; }
+  .script-line + .script-line { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .script-note { font-family: 'Manrope', sans-serif; font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 14px; line-height: 1.55; }
+
+  /* Do / Don't */
+  .dd { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+  .dd-col { border-radius: 14px; padding: 28px 30px; }
+  .dd-do { background: rgba(120,200,50,0.10); border: 1px solid rgba(120,200,50,0.35); }
+  .dd-dont { background: rgba(232,64,64,0.06); border: 1px solid rgba(232,64,64,0.25); }
+  .dd-head { font-weight: 800; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 18px; }
+  .dd-do .dd-head { color: var(--green-deep); }
+  .dd-dont .dd-head { color: #C0392B; }
+  .dd-col ul { list-style: none; }
+  .dd-col li { font-size: 14.5px; color: var(--ink-soft); line-height: 1.55; padding: 10px 0 10px 26px; position: relative; border-top: 1px solid var(--border); }
+  .dd-col li:first-child { border-top: none; }
+  .dd-do li::before { content: "+"; position: absolute; left: 0; top: 9px; color: var(--green-deep); font-weight: 800; }
+  .dd-dont li::before { content: "x"; position: absolute; left: 2px; top: 9px; color: #C0392B; font-weight: 800; }
+
+  /* Checklist */
+  .checklist { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 48px; }
+  .check-item { display: flex; gap: 16px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+  .check-box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--green); color: var(--green-deep); display: grid; place-items: center; font-size: 13px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .check-text strong { font-size: 15px; font-weight: 700; display: block; margin-bottom: 4px; }
+  .check-text span { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* Numbered flow */
+  .flow { margin-top: 36px; }
+  .flow-step { display: grid; grid-template-columns: 56px 1fr; gap: 24px; padding: 24px 0; border-bottom: 1px solid var(--border); }
+  .flow-step:last-child { border-bottom: none; }
+  .flow-n { font-family: 'Fraunces', serif; font-weight: 600; font-size: 30px; color: var(--green-deep); line-height: 1; }
+  .flow-h { font-weight: 700; font-size: 17px; }
+  .flow-b { font-size: 14.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.6; }
+  .flow-b strong { color: var(--ink); }
+
+  /* Callout */
+  .note { margin-top: 32px; background: rgba(41,169,225,0.07); border: 1px solid rgba(41,169,225,0.3); border-radius: 14px; padding: 24px 28px; }
+  .note-tag { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+  .note-body { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
+  .note-body strong { color: var(--ink); }
+
+  /* Rules table */
+  .rules { margin-top: 36px; }
+  .rule-row { display: grid; grid-template-columns: 200px 1fr; gap: 28px; padding: 20px 0; border-bottom: 1px solid var(--border); }
+  .rule-row:first-child { border-top: 1px solid var(--border); }
+  .rule-k { font-weight: 700; font-size: 15px; }
+  .rule-v { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
+  .rule-v strong { color: var(--ink); }
+
+  /* Payout strip */
+  .payouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+  .pay { background: var(--ink); color: var(--paper); border-radius: 14px; padding: 32px 30px; }
+  .pay-num { font-family: 'Fraunces', serif; font-weight: 600; font-size: 44px; color: var(--green); line-height: 1; }
+  .pay-when { font-weight: 700; font-size: 15px; margin-top: 14px; }
+  .pay-desc { font-size: 13.5px; color: rgba(255,255,255,0.65); margin-top: 8px; line-height: 1.55; }
+
+  /* CTA */
+  .cta { padding: 80px; text-align: center; background: linear-gradient(135deg, var(--green) 0%, var(--green-deep) 100%); color: var(--paper); }
+  .cta-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 34px; line-height: 1.15; max-width: 640px; margin: 0 auto; }
+  .cta-sub { font-size: 17px; margin-top: 16px; opacity: 0.92; max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.55; }
+
+  /* Footer */
+  .footer { padding: 28px 80px; font-size: 12px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 24px; }
+
+  @media print {
+    body { background: white; }
+    .page { max-width: none; }
+    .section, .hero, .cta { page-break-inside: avoid; }
+    .stagenav { display: none; }
+  }
+  @media (max-width: 900px) {
+    body { padding: 16px; }
+    .hero-title { font-size: 34px; }
+    .stats, .grid3, .grid2, .dd, .checklist, .payouts { grid-template-columns: 1fr; }
+    .header, .hero, .section, .stats, .stagenav, .cta, .footer { padding-left: 28px; padding-right: 28px; }
+    .stat { padding: 16px 0 !important; border-right: none !important; border-bottom: 1px solid var(--border); }
+    .rule-row { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<div class="page">
+
+  <header class="header">
+    <div class="brand">
+      <div class="brand-mark">T</div>
+      <div>
+        <div class="brand-name">TRINITY SOLAR</div>
+        <div class="brand-sub">Communities Division -- Rep Training</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      Community Event Playbook<br>
+      Field reps &middot; v1 May 2026
+    </div>
+  </header>
+
+  <section class="hero">
+    <span class="hero-eyebrow">Event to install, start to finish</span>
+    <h1 class="display hero-title">Work the table.<br><span class="accent">Sit the appointment. Close the deal.</span></h1>
+    <p class="hero-sub">A community event is the easiest lead you will ever get and the easiest one to lose. The homeowner already trusts the organization that invited them. Your job is six moves: set up, draw them in, have a real conversation, capture the lead, lock the appointment so it actually sits, and close. This is how the people who win events do it.</p>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-num">$100</div>
+      <div class="stat-label">To the organization for every consultation that happens</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">$1,000</div>
+      <div class="stat-label">To the organization when the homeowner installs</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">24 hrs</div>
+      <div class="stat-label">To enter every lead in the portal, or the org gets no credit</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">$836K+</div>
+      <div class="stat-label">Raised for partner organizations since 2018</div>
+    </div>
+  </section>
+
+  <nav class="stagenav">
+    <a href="#setup">1 &middot; Set Up the Table</a>
+    <a href="#approach">2 &middot; Draw Them In</a>
+    <a href="#conversation">3 &middot; The Conversation</a>
+    <a href="#capture">4 &middot; Capture the Lead</a>
+    <a href="#confirm">5 &middot; Sit the Appointment</a>
+    <a href="#close">6 &middot; Close the Deal</a>
+    <a href="#rules">Rules &amp; Compliance</a>
+    <a href="#certify">Get Certified</a>
+  </nav>
+
+  <!-- STAGE 1 -->
+  <section class="section" id="setup">
+    <div class="section-eyebrow"><span class="num">Stage 01</span> &middot; Before anyone walks up</div>
+    <h2 class="display section-title">Set up the table so it does half the work for you.</h2>
+    <p class="section-lead">People decide whether to stop before you say a word. The table, the energy, and the first three seconds are the pitch before the pitch. You are a guest of the organization, so look the part: clean, branded, and welcoming, not a sales booth people swerve around.</p>
+
+    <div class="grid3">
+      <div class="card">
+        <div class="card-num">01</div>
+        <div class="card-title">Look like you belong.</div>
+        <div class="card-body">Trinity gear, a clean cloth, the organization's name visible. Make it obvious you are <strong>here for them, raising money for them</strong>. The cause is your opener, not the panels.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <div class="card-title">Have the sign-up sheet ready.</div>
+        <div class="card-body">Clean sheet, working pens, clipboard. Name, address, phone, email, notes. If it is messy or illegible later, the lead and the org's credit are both gone.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <div class="card-title">Get your state right.</div>
+        <div class="card-body">Charisma is a decision you make before the first person arrives. Walk in warm, curious, and genuinely glad to be there. People match the energy you bring. Bring the energy you want back.</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="note-tag">The mindset that wins events</div>
+      <div class="note-body">You are not "selling solar" at a folding table. You are <strong>helping a homeowner help an organization they already care about</strong>, and they save money doing it. Lead with the cause, stay in service, and the appointment is a natural next step instead of a hard ask.</div>
+    </div>
+  </section>
+
+  <!-- STAGE 2 -->
+  <section class="section" id="approach">
+    <div class="section-eyebrow"><span class="num">Stage 02</span> &middot; The first ten seconds</div>
+    <h2 class="display section-title">Draw them in. Do not pounce.</h2>
+    <p class="section-lead">The fastest way to lose a table is to chase. Open with the cause and a low-pressure invitation. Charisma is simple in practice: make the other person feel good about themselves. Smile first, be interested before you are interesting, and match their pace and energy before you try to shift it.</p>
+
+    <div class="script">
+      <div class="script-tag">Open with the cause</div>
+      <div class="script-line">"Hey, good to see you. We are helping raise money for [Organization] today. Are you a member, or just here for the event?"</div>
+      <div class="script-line">"Cool thing is, it costs you nothing. When a homeowner does a free, no-obligation consultation, [Organization] gets $100, and $1,000 if you ever decide to move forward. This program has raised over $825,000 for groups like this one."</div>
+      <div class="script-note">Notice what you did not do: you did not pitch solar, talk price, or ask them to buy anything. You handed them an easy way to support a cause and made it free. That is the whole opener.</div>
+    </div>
+
+    <div class="dd">
+      <div class="dd-col dd-do">
+        <div class="dd-head">Do</div>
+        <ul>
+          <li>Smile and make them feel welcome before you say anything about solar.</li>
+          <li>Match their energy first. Loud crowd, bring energy. Quiet person, slow down.</li>
+          <li>Ask a question and actually listen to the answer.</li>
+          <li>Lead with the cause and the fact that it is free.</li>
+          <li>Stay relaxed. Relaxed is contagious, and so is pressure.</li>
+        </ul>
+      </div>
+      <div class="dd-col dd-dont">
+        <div class="dd-head">Don't</div>
+        <ul>
+          <li>Monologue. The second you are talking at them, you have lost them.</li>
+          <li>Open with price, panels, or "are you interested in solar?"</li>
+          <li>Stand behind the table like a wall. Come around, be a person.</li>
+          <li>Chase someone who is clearly walking. Wave, smile, let them come back.</li>
+          <li>Pitch the install. Your only goal here is a real conversation.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- STAGE 3 -->
+  <section class="section" id="conversation">
+    <div class="section-eyebrow"><span class="num">Stage 03</span> &middot; Build the relationship</div>
+    <h2 class="display section-title">Have a conversation, not a presentation.</h2>
+    <p class="section-lead">The appointment sits because of the relationship you build right here, not because of anything in the CRM. People keep appointments with people they like and trust. Your job at the table is to become a person they would actually answer the phone for. You do that by listening more than you talk and controlling the narrative without dominating it.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Ask, then listen.</div>
+        <div class="card-body">"How long have you been in the home?" "Are your bills creeping up like everyone's?" "Ever looked into solar before?" Let them talk. Every answer is something you use later to confirm and to close. The best reps at our events talk less than the homeowner.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Mirror them.</div>
+        <div class="card-body">Match tone, pace, and body language. If they lean in, lean in. If they are skeptical, do not steamroll, acknowledge it. Mirroring builds trust faster than any fact about a panel ever will.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Run the company of yes.</div>
+        <div class="card-body">Ask questions that earn easy yeses. "Want to lower your bill if it made sense?" "Want to support [Org] while you are at it?" Small yeses stack into a comfortable yes to the appointment.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Control the narrative.</div>
+        <div class="card-body">Detailed questions on price, panels, and tax stuff are a trap at the table. Deflect with respect: "Great question, that is exactly what the consultation is for. Let me get you with someone who can run your real numbers."</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="note-tag">Why this matters more than the script</div>
+      <div class="note-body">A lead that is just a name on a sheet is a coin flip. A lead who <strong>liked you, laughed with you, and gave you their phone on purpose</strong> shows up. Every minute you spend being genuinely interested in the homeowner is what makes the appointment real later. The relationship is the product at this stage.</div>
+    </div>
+  </section>
+
+  <!-- STAGE 4 -->
+  <section class="section" id="capture">
+    <div class="section-eyebrow"><span class="num">Stage 04</span> &middot; Lock in the lead</div>
+    <h2 class="display section-title">Capture the lead, and get into each other's phones.</h2>
+    <p class="section-lead">This is the single most important move at the whole event. Collect a complete, legible lead and, before they walk away, put your number in their phone and theirs in yours. The personal phone connection is what keeps the appointment alive between today and the call.</p>
+
+    <div class="checklist">
+      <div class="check-item">
+        <div class="check-box">&check;</div>
+        <div class="check-text"><strong>Full name</strong><span>Spelled right. You will use it to confirm and on the install paperwork.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box">&check;</div>
+        <div class="check-text"><strong>Address</strong><span>The home you would put solar on. Needed for the design and the org's credit.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box">&check;</div>
+        <div class="check-text"><strong>Phone</strong><span>Confirm it on the spot by texting them right there. See next box.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box">&check;</div>
+        <div class="check-text"><strong>Email</strong><span>For the proposal and confirmation. Print it, do not let it be a guess.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box">&check;</div>
+        <div class="check-text"><strong>Notes</strong><span>Solar interest, roof age, shade and trees, battery interest, timing. Detail here makes you look sharp on the call.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box">&check;</div>
+        <div class="check-text"><strong>Referred-by, if any</strong><span>If someone connected to the org sent them, write "Referred by [name]" in notes.</span></div>
+      </div>
+    </div>
+
+    <div class="script">
+      <div class="script-tag">The phone exchange -- do this every time</div>
+      <div class="script-line">"Let me make this easy. I'm going to text you right now so you have my number, and I'll save yours. That way when our team calls to set the time, you already know who I am and it is not some random number you ignore."</div>
+      <div class="script-note">Now you are a name in their phone, not an unknown caller. This is the difference between a lead that sits and a lead that ghosts. It is also a real, consented, person-to-person relationship, exactly what we want, not a blast from a system.</div>
+    </div>
+
+    <div class="note">
+      <div class="note-tag">Set the expectation before they leave</div>
+      <div class="note-body">Say it plainly, every time: <strong>"Someone from our team will call you in the next few days to set up the free consultation. Please pick up, it will be quick."</strong> A homeowner who is expecting the call answers the call. One who forgot does not.</div>
+    </div>
+  </section>
+
+  <!-- STAGE 5 -->
+  <section class="section" id="confirm">
+    <div class="section-eyebrow"><span class="num">Stage 05</span> &middot; Make it sit</div>
+    <h2 class="display section-title">An appointment that is set is not an appointment that sits.</h2>
+    <p class="section-lead">Most events die here. The lead gets entered, the call center calls, the homeowner does not pick up, and a real opportunity quietly disappears. The reps who win do not hand the relationship off and hope. They stay the human the homeowner already knows, all the way to the front door.</p>
+
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-n">1</div>
+        <div>
+          <div class="flow-h">Enter the lead within 24 hours.</div>
+          <div class="flow-b">Same night if you can. Into the portal, complete and legible, with your notes. <strong>If it is not in the portal, the organization gets no credit and the appointment may never get scheduled.</strong> Photograph the sign-up sheet and send it to your DM as backup.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-n">2</div>
+        <div>
+          <div class="flow-h">Send a friendly text within a day.</div>
+          <div class="flow-b">From the number they already saved at the table. "Hey [name], great meeting you at the [event] today, thanks for supporting [Org]. Our team will reach out to lock in your free consult. Any questions, just text me." Short, warm, human. You are keeping the relationship warm, not selling.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-n">3</div>
+        <div>
+          <div class="flow-h">Confirm the appointment when it is set.</div>
+          <div class="flow-b">Once the time is on the calendar, confirm it directly with the homeowner. Make sure <strong>both decision-makers will be home</strong>. A consult with only one spouse there is a consult that has to happen twice, if it happens at all.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-n">4</div>
+        <div>
+          <div class="flow-h">Reconfirm the day before.</div>
+          <div class="flow-b">A quick text the day before, looking forward to it, here is the time. This one message saves more appointments than anything else you will do. People do not cancel on a person they like, they just no-show a stranger. Be the person.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-n">5</div>
+        <div>
+          <div class="flow-h">Show up ready.</div>
+          <div class="flow-b">Reread your notes from the table before you knock. Names, kids, the bill complaint, the roof, the reason they stopped at all. Walking in already knowing them turns a cold sales call into a continued conversation.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="note-tag">Stay in your lane on the texting</div>
+      <div class="note-body">The follow-up that works is <strong>personal, one-to-one, from the relationship you built at the table</strong>, because they gave you their number and expect to hear from you. That is different from automated marketing blasts, which we do not do. Keep it human, keep it relevant to your conversation, and stop the moment someone says they are not interested.</div>
+    </div>
+  </section>
+
+  <!-- STAGE 6 -->
+  <section class="section" id="close">
+    <div class="section-eyebrow"><span class="num">Stage 06</span> &middot; At the kitchen table</div>
+    <h2 class="display section-title">Close the business you already half-closed at the event.</h2>
+    <p class="section-lead">If you ran stages one through five well, you are not closing a stranger, you are finishing a conversation with someone who already likes you and already wants to help their organization. The close is the easy part when the front end is done right.</p>
+
+    <div class="grid3">
+      <div class="card">
+        <div class="card-num">01</div>
+        <div class="card-title">Reconnect to the cause.</div>
+        <div class="card-body">Open by reminding them what this is about. They are saving money <strong>and</strong> putting $1,000 toward [Org] if they move forward. The decision feels good, not just smart.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <div class="card-title">Tie it back to their words.</div>
+        <div class="card-body">Use what they told you at the table. "You said the bills keep climbing, here is exactly what that looks like over the next ten years versus going solar." Their reason, in their words, beats your pitch.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <div class="card-title">Handle objections, then ask.</div>
+        <div class="card-body">Most objections are timing or trust, both of which the relationship already softened. Acknowledge, answer simply, then ask for the business. You earned the right to ask. Ask.</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="note-tag">Go deeper on the close</div>
+      <div class="note-body">Objection handling, financing the right partner, and reading the buyer are covered in <strong>Field Mastery</strong>. Pair this playbook with <a href="/sales-fundamentals/field-mastery/solar-objections.html" style="color:var(--blue);font-weight:600;">Solar Objections</a> and <a href="/sales-fundamentals/field-mastery/know-your-buyer.html" style="color:var(--blue);font-weight:600;">Know Your Buyer</a> before your next event.</div>
+    </div>
+  </section>
+
+  <!-- PAYOUTS -->
+  <section class="section">
+    <div class="section-eyebrow">What's at stake on every lead</div>
+    <h2 class="display section-title">The math the homeowner is helping with.</h2>
+    <p class="section-lead">Know these numbers cold. They are your opener, your reconfirm, and your close, all in one. The homeowner is not just shopping solar, they are funding a cause they care about.</p>
+    <div class="payouts">
+      <div class="pay">
+        <div class="pay-num">$100</div>
+        <div class="pay-when">When the consultation happens</div>
+        <div class="pay-desc">Paid to the organization for every completed, no-obligation consultation. The homeowner does not have to buy a thing.</div>
+      </div>
+      <div class="pay">
+        <div class="pay-num">$1,000</div>
+        <div class="pay-when">When they install</div>
+        <div class="pay-desc">Paid to the organization when the homeowner moves forward and goes solar. This is where the real fundraising happens.</div>
+      </div>
+      <div class="pay">
+        <div class="pay-num">$500</div>
+        <div class="pay-when">Per roof installation</div>
+        <div class="pay-desc">Contributed for every roof install that comes through the program. Roofs count too, so do not screen them out.</div>
+      </div>
+    </div>
+
+    <div class="note">
+      <div class="note-tag">Referrals and Refer-a-Friend</div>
+      <div class="note-body">If a homeowner connected to the org wants to send a friend, it <strong>must</strong> go through the partnership portal or the org gets nothing. Enter the referrer in notes as "Referred by [name]" and tell them a W9 is needed if an install happens. Through Refer-a-Friend: <strong>$100 to the org, $500 to the partner, $500 to the referring homeowner</strong>, and $1,000 each to the partner and referring homeowner for every additional referral that installs.</div>
+    </div>
+  </section>
+
+  <!-- RULES -->
+  <section class="section" id="rules">
+    <div class="section-eyebrow">Non-negotiables</div>
+    <h2 class="display section-title">The rules that protect the lead, the org, and you.</h2>
+    <p class="section-lead">Get the relationship right and still lose everything by skipping the basics. These are not suggestions.</p>
+
+    <div class="rules">
+      <div class="rule-row">
+        <div class="rule-k">Enter every lead in the portal</div>
+        <div class="rule-v">Within <strong>24 hours</strong>, complete and legible. <strong>No portal entry = no credit for the organization</strong>, and often no scheduled appointment. This is the one rule that, if broken, undoes the entire event.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-k">Photograph the sign-up sheets</div>
+        <div class="rule-v">After the event, take clear photos of every sheet and send them to your DM. <strong>Lori Scala &middot; 203-895-8968</strong>. This is your backup if anything gets lost.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-k">Set the call expectation</div>
+        <div class="rule-v">Tell every homeowner: "Someone will call you in the next few days, please answer." A warned homeowner picks up. A surprised one does not.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-k">Referrals go through the portal</div>
+        <div class="rule-v">Always. Enter "Referred by [name]" in notes. Mention the W9 if it installs. We never want a partner to feel a lead was taken from them, and the org only gets paid if it is logged correctly.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-k">Keep follow-up personal and consented</div>
+        <div class="rule-v">The texts that work are one-to-one, from the number they saved, about the conversation you had. Stop immediately if they opt out. No automated blasts, no spam.</div>
+      </div>
+      <div class="rule-row">
+        <div class="rule-k">Questions or support</div>
+        <div class="rule-v"><strong>Lori Scala</strong> &middot; 203-895-8968 &middot; Lori.Scala@Trinity-Solar.com. When in doubt, ask before the event, not after.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CERTIFY -->
+  <section class="section" id="certify">
+    <div class="section-eyebrow">Before you work an event solo</div>
+    <h2 class="display section-title">Earn your event certification.</h2>
+    <p class="section-lead">Reading this once is not the same as being ready to run a table. Three steps to certified, signed off by your DM.</p>
+
+    <div class="grid3">
+      <div class="card">
+        <div class="card-num">01</div>
+        <div class="card-title">Know the playbook.</div>
+        <div class="card-body">Walk your DM through the six stages and the payout numbers from memory. If you can teach it back, you know it.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">02</div>
+        <div class="card-title">Role-play the table.</div>
+        <div class="card-body">Run the opener, the conversation, the phone exchange, and the reconfirm as a live role-play. Get coached on the parts that feel stiff.</div>
+      </div>
+      <div class="card">
+        <div class="card-num">03</div>
+        <div class="card-title">Shadow a real event.</div>
+        <div class="card-body">Work alongside a certified rep at an actual event before you run one alone. Watch how they draw people in and lock the phone exchange.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <h2 class="cta-title">Set up. Draw them in. Capture. Confirm. Close.</h2>
+    <p class="cta-sub">Six moves, every event, every time. Do them in order and the appointment sits and the deal closes itself. Now go raise some money for a good cause.</p>
+  </section>
+
+  <footer class="footer">
+    <div>Trinity Solar Communities Division &middot; Rep Training &middot; Community Event Playbook</div>
+    <div>Internal use only &middot; v1 May 2026</div>
+  </footer>
+
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session) { /* static page; nothing to init */ }
+</script>
+
+</body>
+</html>
