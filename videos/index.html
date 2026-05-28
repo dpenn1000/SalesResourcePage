@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Library &middot; CT Traditional</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<link rel="stylesheet" href="/auth-gate.css">
+<style>
+  :root {
+    --green:#78C832; --green-dk:#5FA520;
+    --blue:#29A9E1; --blue-dk:#1E8BBC;
+    --gold:#F5A623;
+    --ink:#0F2038; --ink-soft:#1A2942;
+    --text:#1A1F2E; --muted:#5B6576; --subtle:#8B94A3;
+    --surface:#F7F8F4; --warm:#FAFBF7; --white:#FFFFFF;
+    --line:#DFE2DA; --line-soft:#E8EBE3;
+    --r-sm:6px; --r-md:10px; --r-lg:14px;
+    --shadow-sm:0 1px 3px rgba(15,32,56,0.07);
+    --shadow-md:0 6px 18px rgba(15,32,56,0.10);
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
+    background:var(--surface); color:var(--text);
+    -webkit-font-smoothing:antialiased; line-height:1.55;
+  }
+  h1,h2,h3 { font-family:'Fraunces',Georgia,serif; font-weight:500; letter-spacing:-0.01em; color:var(--ink); }
+  h1 { font-size:clamp(1.7rem,3vw,2.3rem); font-weight:400; line-height:1.1; }
+  h2 { font-size:1.35rem; font-weight:500; line-height:1.2; }
+  a { color:var(--blue-dk); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  .wrap { max-width:1180px; margin:0 auto; padding:0 22px; }
+
+  /* HEADER */
+  .page-header { background:var(--ink); color:#fff; padding:14px 0; border-bottom:3px solid var(--green); position:sticky; top:0; z-index:50; }
+  .page-header .wrap { display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+  .brand { display:flex; align-items:center; gap:14px; }
+  .brand .logo { font-family:'Fraunces',serif; font-size:1.05rem; font-weight:600; color:#fff; letter-spacing:0.02em; }
+  .brand .divider { width:1px; height:24px; background:rgba(255,255,255,0.2); }
+  .brand .team { font-family:'Fraunces',serif; font-size:0.9rem; font-weight:400; color:rgba(255,255,255,0.7); }
+  .back-link {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:0.82rem; font-weight:600; color:rgba(255,255,255,0.6);
+    padding:6px 12px; border-radius:6px;
+    background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12);
+    transition:background 0.15s, color 0.15s;
+  }
+  .back-link:hover { background:rgba(255,255,255,0.12); color:#fff; text-decoration:none; }
+
+  /* HERO */
+  .hero { padding:38px 0 22px; background:linear-gradient(to bottom, var(--white) 0%, var(--surface) 100%); border-bottom:1px solid var(--line); }
+  .hero .eyebrow { font-size:0.72rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--green-dk); display:block; margin-bottom:6px; }
+  .hero p.lede { color:var(--muted); max-width:680px; margin-top:8px; font-size:1rem; }
+
+  /* TOOLS BAR */
+  .tools-bar { background:var(--white); border-bottom:1px solid var(--line); padding:14px 0; position:sticky; top:64px; z-index:40; }
+  .tools-bar .wrap { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .search-wrap { flex:1; min-width:220px; position:relative; }
+  .search-wrap input {
+    width:100%; font-family:inherit; font-size:0.95rem;
+    padding:9px 14px 9px 38px;
+    border:1px solid var(--line); border-radius:8px; background:var(--white); color:var(--text); outline:none;
+    transition:border-color 0.15s;
+  }
+  .search-wrap input:focus { border-color:var(--blue); }
+  .search-wrap .icon {
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    color:var(--subtle); font-size:0.95rem; pointer-events:none;
+  }
+  .chips { display:flex; gap:6px; flex-wrap:wrap; }
+  .chip {
+    padding:6px 12px; border-radius:999px;
+    border:1px solid var(--line); background:var(--white);
+    font-size:0.78rem; font-weight:600; color:var(--muted);
+    cursor:pointer; transition:all 0.12s; white-space:nowrap;
+  }
+  .chip:hover { border-color:var(--green); color:var(--ink); }
+  .chip.active { background:var(--ink); color:#fff; border-color:var(--ink); }
+  .sort-wrap { display:flex; align-items:center; gap:8px; margin-left:auto; }
+  .sort-wrap label { font-size:0.78rem; font-weight:600; color:var(--muted); }
+  .sort-wrap select {
+    font-family:inherit; font-size:0.85rem; padding:6px 10px;
+    border:1px solid var(--line); border-radius:6px;
+    background:var(--white); color:var(--text); cursor:pointer; outline:none;
+  }
+
+  /* MAIN */
+  main { padding:24px 0 64px; }
+  .section-head { display:flex; align-items:baseline; gap:10px; margin:18px 0 12px; }
+  .section-head .pip { width:9px; height:9px; border-radius:50%; background:var(--green); }
+  .section-head h2 { font-size:1.15rem; font-weight:600; color:var(--ink); }
+  .section-head .count { font-size:0.78rem; color:var(--subtle); font-weight:600; }
+  .result-note { font-size:0.82rem; color:var(--muted); margin:6px 0 14px; }
+
+  /* GRID */
+  .vid-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
+  .vid-card {
+    background:var(--white); border:1px solid var(--line); border-radius:var(--r-md);
+    overflow:hidden; cursor:pointer; box-shadow:var(--shadow-sm);
+    transition:transform 0.12s, box-shadow 0.12s, border-color 0.12s;
+    display:flex; flex-direction:column;
+  }
+  .vid-card:hover { transform:translateY(-2px); box-shadow:var(--shadow-md); border-color:var(--green); }
+  .vid-thumb {
+    position:relative; aspect-ratio:16/9; background:linear-gradient(135deg, #1A2942 0%, #0F2038 100%);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+  }
+  .vid-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .vid-thumb .play {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:54px; height:54px; border-radius:50%;
+    background:rgba(15,32,56,0.78); border:2px solid rgba(255,255,255,0.85);
+    display:flex; align-items:center; justify-content:center;
+    transition:background 0.15s, transform 0.15s;
+  }
+  .vid-card:hover .vid-thumb .play { background:var(--green); transform:translate(-50%,-50%) scale(1.05); }
+  .vid-thumb .play::after {
+    content:''; display:block; width:0; height:0;
+    border-left:14px solid #fff; border-top:9px solid transparent; border-bottom:9px solid transparent;
+    margin-left:4px;
+  }
+  .vid-thumb .duration {
+    position:absolute; bottom:8px; right:8px;
+    background:rgba(15,32,56,0.85); color:#fff;
+    font-size:0.7rem; font-weight:700; padding:3px 7px; border-radius:4px;
+    font-variant-numeric:tabular-nums;
+  }
+  .vid-body { padding:12px 14px 14px; display:flex; flex-direction:column; gap:8px; flex:1; }
+  .vid-title { font-size:0.95rem; font-weight:600; color:var(--ink); line-height:1.35; }
+  .vid-meta { display:flex; gap:6px; flex-wrap:wrap; margin-top:auto; }
+  .tag {
+    font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;
+    padding:3px 8px; border-radius:999px; background:var(--line-soft); color:var(--muted);
+  }
+  .tag.cat-Salesforce  { background:#E8F4FB; color:var(--blue-dk); }
+  .tag.cat-Tools       { background:#EFF8E5; color:var(--green-dk); }
+  .tag.cat-Process     { background:#FDE8F0; color:#9B1B5A; }
+  .tag.cat-Monitoring  { background:#FEF3DC; color:#8A5E15; }
+  .tag.dated           { background:#FBE8EA; color:#C94F5A; }
+
+  .vid-card mark { background:#FFF6CC; color:var(--ink); padding:0 2px; border-radius:2px; font-style:normal; }
+
+  .empty { padding:60px 20px; text-align:center; color:var(--muted); background:var(--white); border:1px dashed var(--line); border-radius:var(--r-md); }
+
+  /* ARCHIVE */
+  details.archive {
+    margin-top:36px; background:var(--white); border:1px solid var(--line); border-radius:var(--r-md);
+    padding:0; overflow:hidden;
+  }
+  details.archive summary {
+    list-style:none; cursor:pointer; padding:14px 18px;
+    display:flex; align-items:center; gap:10px;
+    font-weight:600; color:var(--muted); font-size:0.9rem;
+    border-bottom:1px solid transparent;
+  }
+  details.archive[open] summary { border-bottom-color:var(--line); }
+  details.archive summary::-webkit-details-marker { display:none; }
+  details.archive summary .caret { font-size:0.75rem; color:var(--subtle); transition:transform 0.15s; }
+  details.archive[open] summary .caret { transform:rotate(90deg); }
+  details.archive summary .arc-note { font-weight:400; color:var(--subtle); font-size:0.82rem; margin-left:auto; }
+  details.archive .arc-body { padding:14px 18px 18px; }
+
+  /* MODAL */
+  .modal-back {
+    position:fixed; inset:0; background:rgba(15,32,56,0.78);
+    display:none; align-items:center; justify-content:center;
+    z-index:1000; padding:20px;
+  }
+  .modal-back.open { display:flex; }
+  .modal {
+    background:var(--ink); border-radius:var(--r-md); width:100%; max-width:980px;
+    overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,0.5);
+    display:flex; flex-direction:column;
+  }
+  .modal-head {
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:12px 16px; background:#0A1828; color:#fff;
+  }
+  .modal-head .mt { font-family:'Fraunces',serif; font-size:1rem; font-weight:500; color:#fff; }
+  .modal-head .mc {
+    background:none; border:1px solid rgba(255,255,255,0.2); color:rgba(255,255,255,0.85);
+    font-family:inherit; font-size:0.85rem; padding:5px 12px; border-radius:6px; cursor:pointer;
+  }
+  .modal-head .mc:hover { background:rgba(255,255,255,0.1); color:#fff; }
+  .modal-frame { position:relative; aspect-ratio:16/9; background:#000; }
+  .modal-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+  @media (max-width: 720px) {
+    .tools-bar { position:static; }
+    .sort-wrap { margin-left:0; }
+    .vid-grid { grid-template-columns:1fr 1fr; gap:12px; }
+  }
+  @media (max-width: 480px) {
+    .vid-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen"></div>
+<div id="changePasswordScreen" style="display:none"></div>
+
+<div id="appWrap" style="display:none">
+
+<header class="page-header">
+  <div class="wrap">
+    <div class="brand">
+      <span class="logo">CT Traditional</span>
+      <span class="divider"></span>
+      <span class="team">Sales Resource Center</span>
+    </div>
+    <a class="back-link" href="/">&larr; Back to Resources</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Training</span>
+    <h1>Video Library</h1>
+    <p class="lede">Short how-to videos covering Salesforce, our internal tools, and process. Search, filter, or pick a video below.</p>
+  </div>
+</section>
+
+<div class="tools-bar">
+  <div class="wrap">
+    <div class="search-wrap">
+      <span class="icon">&#128269;</span>
+      <input type="text" id="searchInput" placeholder="Search videos..." oninput="onSearch(this.value)">
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="sort-wrap">
+      <label for="sortSelect">Sort</label>
+      <select id="sortSelect" onchange="render()">
+        <option value="default">Default</option>
+        <option value="name">A to Z</option>
+        <option value="duration_asc">Shortest first</option>
+        <option value="duration_desc">Longest first</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="result-note" id="resultNote"></div>
+    <div id="activeContainer"></div>
+
+    <details class="archive" id="archiveBlock">
+      <summary>
+        <span class="caret">&#9656;</span>
+        <span>Archive</span>
+        <span class="arc-note" id="arcNote"></span>
+      </summary>
+      <div class="arc-body">
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">Older videos that may be out of date. Kept for reference until refreshed or retired.</p>
+        <div id="archiveContainer"></div>
+      </div>
+    </details>
+  </div>
+</main>
+
+</div><!-- /#appWrap -->
+
+<div class="modal-back" id="modalBack" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="mt" id="modalTitle"></span>
+      <button class="mc" onclick="closeModal()">Close &times;</button>
+    </div>
+    <div class="modal-frame">
+      <iframe id="modalFrame" allowfullscreen frameborder="0" allow="autoplay; fullscreen"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+// Video catalog. Hardcoded for the preliminary build.
+// Migration target: a Supabase video_library table managed from admin.html.
+const VIDEOS = [
+  { id:'89a1146229834ee1b0a4f18978fc82ff', title:'SB4 Calc How To',                                                  duration:69,  cat:'Tools',       archived:false },
+  { id:'b4bd074549ea4a8998ba2e743e7aae60', title:'8PM Incomplete Review (Salesforce)',                              duration:50,  cat:'Salesforce',  archived:false, dated:'March 2026' },
+  { id:'9ad2f4cb02f74100aa6b62a9807602f2', title:'How to Create a Monitoring Case',                                 duration:200, cat:'Monitoring',  archived:false },
+  { id:'cb6bd9761e4941ff86ee53fde9ea5ad8', title:'Roof Quote Example',                                              duration:252, cat:'Tools',       archived:false },
+  { id:'5c45236fbc7a4f70941f6fd8211b6353', title:'OneDraw, Set as Detached Structure',                              duration:64,  cat:'Tools',       archived:false },
+  { id:'7d206bf59a1846ada29065070995eaea', title:'Calendars for CTC',                                               duration:161, cat:'Salesforce',  archived:false },
+  { id:'ced0294e03ea4788b81812cb72aa4903', title:'Automated Report Subscriptions in Salesforce Lightning',         duration:83,  cat:'Salesforce',  archived:false },
+  { id:'01837bbe38e04cf699a639cfd31abbbd', title:'Roof Calculator Demo',                                            duration:179, cat:'Tools',       archived:true },
+  { id:'d89f83405abc4ed48bdccec40de08e1f', title:'Creating Leads in the Help Desk System',                         duration:135, cat:'Process',     archived:true },
+  { id:'8dc3a5682f6c41f2adc6e473b2385ea0', title:'Track C Review and Action Items',                                duration:243, cat:'Process',     archived:true },
+  { id:'b4c5c67d72a148d9a5eface9bc57501b', title:'Electrical and Structural Reviews: Action Items and Updates',    duration:297, cat:'Process',     archived:true },
+];
+
+const CATS = ['All', 'Salesforce', 'Tools', 'Process', 'Monitoring'];
+let activeCat = 'All';
+let searchQ = '';
+
+function fmtDuration(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function escapeHtml(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function highlight(text, q) {
+  if (!q) return escapeHtml(text);
+  const safe = escapeHtml(text);
+  const safeQ = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return safe.replace(new RegExp('(' + safeQ + ')', 'gi'), '<mark>$1</mark>');
+}
+
+function loomThumb(id) {
+  return 'https://cdn.loom.com/sessions/thumbnails/' + id + '-with-play.gif';
+}
+
+function buildChips() {
+  const wrap = document.getElementById('chips');
+  wrap.innerHTML = CATS.map(c => {
+    const cls = 'chip' + (c === activeCat ? ' active' : '');
+    return '<button class="' + cls + '" onclick="setCat(\'' + c + '\')">' + c + '</button>';
+  }).join('');
+}
+
+function setCat(c) {
+  activeCat = c;
+  buildChips();
+  render();
+}
+
+function onSearch(v) {
+  searchQ = v.toLowerCase().trim();
+  render();
+}
+
+function cardHtml(v) {
+  const tagDated = v.dated ? '<span class="tag dated">Dated &middot; ' + escapeHtml(v.dated) + '</span>' : '';
+  return '<a class="vid-card" href="#" onclick="openModal(\'' + v.id + '\', this.querySelector(\'.vid-title\').textContent); return false;">' +
+    '<div class="vid-thumb">' +
+      '<img src="' + loomThumb(v.id) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">' +
+      '<div class="play"></div>' +
+      '<div class="duration">' + fmtDuration(v.duration) + '</div>' +
+    '</div>' +
+    '<div class="vid-body">' +
+      '<div class="vid-title">' + highlight(v.title, searchQ) + '</div>' +
+      '<div class="vid-meta">' +
+        '<span class="tag cat-' + v.cat + '">' + v.cat + '</span>' +
+        tagDated +
+      '</div>' +
+    '</div>' +
+  '</a>';
+}
+
+function getSorted(arr) {
+  const s = document.getElementById('sortSelect').value;
+  const c = arr.slice();
+  if (s === 'name')           return c.sort((a,b) => a.title.localeCompare(b.title));
+  if (s === 'duration_asc')   return c.sort((a,b) => a.duration - b.duration);
+  if (s === 'duration_desc')  return c.sort((a,b) => b.duration - a.duration);
+  return c;
+}
+
+function filter(list) {
+  return list.filter(v => {
+    if (activeCat !== 'All' && v.cat !== activeCat) return false;
+    if (searchQ && !(v.title.toLowerCase().includes(searchQ) || v.cat.toLowerCase().includes(searchQ))) return false;
+    return true;
+  });
+}
+
+function render() {
+  const active   = filter(VIDEOS.filter(v => !v.archived));
+  const archived = filter(VIDEOS.filter(v =>  v.archived));
+
+  // Result note
+  const note = document.getElementById('resultNote');
+  if (searchQ || activeCat !== 'All') {
+    const total = active.length + archived.length;
+    note.textContent = total + ' video' + (total === 1 ? '' : 's') + ' match' +
+      (searchQ ? ' "' + searchQ + '"' : '') +
+      (activeCat !== 'All' ? ' in ' + activeCat : '');
+  } else {
+    note.textContent = '';
+  }
+
+  // Active
+  const activeWrap = document.getElementById('activeContainer');
+  if (active.length === 0 && (searchQ || activeCat !== 'All')) {
+    activeWrap.innerHTML = '<div class="empty"><strong>No active videos match.</strong><br>Try clearing the search or category, or check the Archive below.</div>';
+  } else if (active.length === 0) {
+    activeWrap.innerHTML = '';
+  } else {
+    const sorted = getSorted(active);
+    activeWrap.innerHTML =
+      '<div class="section-head"><span class="pip"></span><h2>Library</h2><span class="count">' + active.length + '</span></div>' +
+      '<div class="vid-grid">' + sorted.map(cardHtml).join('') + '</div>';
+  }
+
+  // Archive
+  const arcWrap = document.getElementById('archiveContainer');
+  const arcBlock = document.getElementById('archiveBlock');
+  document.getElementById('arcNote').textContent = archived.length + ' video' + (archived.length === 1 ? '' : 's');
+  if (archived.length === 0) {
+    arcWrap.innerHTML = '<p style="color:var(--subtle); font-size:0.88rem;">Nothing in the archive matches your filter.</p>';
+  } else {
+    const sorted = getSorted(archived);
+    arcWrap.innerHTML = '<div class="vid-grid">' + sorted.map(cardHtml).join('') + '</div>';
+  }
+}
+
+function openModal(id, title) {
+  const back = document.getElementById('modalBack');
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalFrame').src = 'https://www.loom.com/embed/' + id + '?autoplay=1';
+  back.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalBack').classList.remove('open');
+  document.getElementById('modalFrame').src = '';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// auth-gate.js calls this once authenticated.
+async function initApp(profile, session) {
+  buildChips();
+  render();
+}
+</script>
+
+</body>
+</html>
