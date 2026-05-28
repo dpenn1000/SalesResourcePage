@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constant Contact · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --red: #E84040;
+  --red-dk: #C53030;
+  --warn: #E9A648;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --surface: #F7F8F4;
+  --warm: #FAFBF7;
+  --white: #FFFFFF;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 96px; } /* clears sticky header on TOC jumps */
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--surface);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: clamp(2rem, 4.5vw, 3.25rem); font-variation-settings: "opsz" 144; line-height: 1.05; font-weight: 400; }
+h2 { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-variation-settings: "opsz" 72; line-height: 1.15; font-weight: 500; margin-bottom: 14px; }
+h3 { font-size: 1.2rem; font-weight: 600; line-height: 1.3; margin-bottom: 10px; }
+h4 { font-family: 'Manrope', sans-serif; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; color: var(--ink); }
+p { margin-bottom: 12px; color: var(--text); }
+ul, ol { padding-left: 22px; margin-bottom: 12px; }
+li { margin-bottom: 6px; color: var(--text); }
+strong { font-weight: 700; color: var(--ink); }
+em { font-style: italic; }
+a { color: var(--blue-dk); text-decoration: none; }
+.eyebrow {
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 10px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 22px; }
+
+/* HEADER */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header {
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 0;
+  border-bottom: 3px solid var(--red);
+}
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .logo { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+.brand .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.2); }
+.brand .team { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.7); }
+.page-title { font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* TOC NAV */
+.toc-nav {
+  background: linear-gradient(to bottom, #fff 0%, var(--warm) 100%);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 4px 12px rgba(15,32,56,0.05);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.toc-nav::-webkit-scrollbar { display: none; }
+.toc-nav .wrap { display: flex; gap: 0; align-items: stretch; }
+.toc-nav a {
+  font-size: 0.8125rem; font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 13px 16px;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex; align-items: center; gap: 7px;
+}
+.toc-nav a .num {
+  font-size: 0.66rem; font-weight: 800;
+  background: var(--line); color: var(--muted);
+  border-radius: 999px; padding: 1px 7px; line-height: 1.45;
+}
+.toc-nav a:hover { color: var(--ink); border-bottom-color: var(--red); }
+.toc-nav a.active { color: var(--ink); border-bottom-color: var(--red); }
+
+/* HERO */
+.hero {
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-soft) 100%);
+  color: #fff;
+  padding: 28px 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 40% at 20% 50%, rgba(232,64,64,0.16) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 80% 50%, rgba(41,169,225,0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero .wrap { position: relative; z-index: 1; }
+.hero .eyebrow { color: var(--red); }
+.hero h1 { color: #fff; max-width: 820px; margin-bottom: 22px; }
+.hero h1 em { font-style: italic; background: linear-gradient(135deg, var(--red), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.hero .lede { font-size: 1.15rem; line-height: 1.55; color: rgba(255,255,255,0.78); max-width: 640px; }
+.hero .lede strong { color: #fff; font-weight: 600; }
+
+/* PRINCIPLE STRIP */
+.principles { background: var(--white); border-bottom: 1px solid var(--line); }
+.principles .wrap { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+.principle {
+  padding: 28px 18px;
+  text-align: center;
+  border-right: 1px solid var(--line-soft);
+}
+.principle:last-child { border-right: none; }
+.principle .num { font-family: 'Fraunces', serif; font-size: 2.2rem; font-weight: 400; color: var(--red); line-height: 1; margin-bottom: 8px; }
+.principle .num.alt { color: var(--blue); }
+.principle .label { font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+.principle .sub { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+@media (max-width: 720px) {
+  .principles .wrap { grid-template-columns: repeat(2, 1fr); }
+  .principle { border-right: 1px solid var(--line-soft); border-bottom: 1px solid var(--line-soft); }
+  .principle:nth-child(2n) { border-right: none; }
+  .principle:last-child { grid-column: span 2; border-right: none; border-bottom: none; }
+}
+
+/* SECTIONS */
+.section { padding: 28px 0 64px; border-bottom: 1px solid var(--line); }
+.section.alt { background: var(--warm); }
+.section-header { margin-bottom: 32px; max-width: 760px; }
+.section-header p { color: var(--muted); font-size: 1.05rem; margin: 0; }
+
+/* CARDS */
+.card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 24px 28px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.card.green-left { border-left: 4px solid var(--green); }
+.card.blue-left { border-left: 4px solid var(--blue); }
+.card.ink-left { border-left: 4px solid var(--ink); }
+.card.warm-left { border-left: 4px solid var(--warn); }
+.card.red-left { border-left: 4px solid var(--red); }
+.card h3 { margin-bottom: 10px; }
+
+/* GRID LAYOUTS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 900px) { .three-col { grid-template-columns: 1fr; } }
+
+/* PULL QUOTE */
+.pullquote {
+  font-family: 'Fraunces', serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--ink);
+  padding: 30px 36px;
+  border-left: 4px solid var(--red);
+  background: var(--warm);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  margin: 24px 0;
+}
+.pullquote .attr {
+  display: block;
+  font-family: 'Manrope', sans-serif;
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 14px;
+}
+
+/* TIP STRIP */
+.tip {
+  background: linear-gradient(135deg, rgba(232,64,64,0.06), rgba(41,169,225,0.06));
+  border: 1px solid rgba(232,64,64,0.22);
+  border-radius: var(--r-md);
+  padding: 14px 20px;
+  font-size: 0.95rem;
+  margin: 14px 0;
+}
+.tip strong { color: var(--red-dk); }
+
+/* OUTCOMES GRID */
+.outcomes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 16px; }
+@media (max-width: 720px) { .outcomes { grid-template-columns: 1fr; } }
+.outcome-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.outcome-card .icon { font-size: 1.4rem; line-height: 1; }
+.outcome-card h4 { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink); margin: 0; }
+.outcome-card p { font-size: 0.88rem; color: var(--muted); margin: 0; line-height: 1.45; }
+.outcome-card.win { border-top: 3px solid var(--green); }
+.outcome-card.partial { border-top: 3px solid var(--blue); }
+.outcome-card.minimal { border-top: 3px solid var(--warn); }
+
+/* STEPS / JOURNEY */
+.steps { display: grid; gap: 14px; }
+.step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  align-items: start;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.step .num { font-family: 'Fraunces', serif; font-size: 2.1rem; font-weight: 400; color: var(--red); line-height: 1; }
+.step .body h4 { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--ink); margin-bottom: 4px; }
+.step .body p { margin: 0; font-size: 0.95rem; color: var(--text); }
+.step .stage {
+  display: inline-block;
+  font-size: 0.64rem; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--blue-dk); background: rgba(41,169,225,0.10);
+  border-radius: 999px; padding: 2px 9px; margin-bottom: 6px;
+}
+.step .stage.none { color: var(--muted); background: var(--surface); }
+
+/* SCRIPT BLOCK */
+.script {
+  background: rgba(41,169,225,0.06);
+  border-left: 3px solid var(--blue);
+  padding: 12px 18px;
+  margin: 10px 0;
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+
+/* MESSAGE LIBRARY */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 14px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.filter-pill {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.filter-pill:hover { color: var(--ink); border-color: var(--ink); }
+.filter-pill.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.notes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+@media (max-width: 720px) { .notes { grid-template-columns: 1fr; } }
+.note-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  position: relative;
+  transition: opacity 0.2s;
+}
+.note-card.hidden { display: none; }
+.note-card .tag {
+  display: inline-block;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+.note-card .meta { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--subtle); margin-left: 8px; }
+.note-card .title { font-weight: 700; color: var(--ink); margin: 0 0 2px; }
+.tag.sit { background: rgba(120,200,50,0.14); color: var(--green-dk); }
+.tag.sign { background: rgba(232,64,64,0.12); color: var(--red-dk); }
+.tag.build { background: rgba(41,169,225,0.12); color: var(--blue-dk); }
+.tag.install { background: rgba(233,166,72,0.18); color: #B07A1E; }
+.tag.finish { background: rgba(120,200,50,0.14); color: var(--green-dk); }
+.tag.referral { background: var(--ink); color: #fff; }
+
+/* CLOSER STRIP */
+.closer {
+  background: var(--ink);
+  color: #fff;
+  padding: 60px 0;
+  text-align: center;
+}
+.closer h2 { color: #fff; margin-bottom: 28px; }
+.closer .one-liners { display: grid; gap: 12px; max-width: 720px; margin: 0 auto; text-align: left; }
+.closer .one {
+  background: rgba(255,255,255,0.04);
+  border-left: 3px solid var(--red);
+  padding: 12px 22px;
+  font-family: 'Fraunces', serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  color: rgba(255,255,255,0.92);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.closer .signoff {
+  margin-top: 36px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* FOOTER */
+.foot { padding: 30px 0; text-align: center; font-size: 0.82rem; color: var(--muted); background: var(--warm); }
+
+.divider-rule {
+  height: 2px;
+  background: linear-gradient(to right, var(--red), var(--blue));
+  border: none;
+  margin: 30px 0;
+  opacity: 0.4;
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">Sales Resource · Customer Experience</div>
+    </div>
+  </div>
+
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#why"><span class="num">1</span> Why It Wins</a>
+      <a href="#journey"><span class="num">2</span> The Journey</a>
+      <a href="#remorse"><span class="num">3</span> The 24-Hour Call</a>
+      <a href="#library"><span class="num">4</span> Message Library</a>
+      <a href="#referrals"><span class="num">5</span> Referrals</a>
+      <a href="#discipline"><span class="num">6</span> Running It</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Customer Experience · Constant Contact</span>
+    <h1>The Customer <em>Journey</em></h1>
+    <p class="lede">
+      A solar project runs five to six months from signature to switch-on. Constant Contact is how you stay in the room the whole way.
+      <br><br>
+      <strong>Reach out before they wonder.</strong> A customer who hears from you on schedule does not cancel, and they send you their neighbors. Every engagement below does one job: keep them informed, confident, and glad they signed.
+    </p>
+  </div>
+</section>
+
+<!-- PRINCIPLE STRIP -->
+<section class="principles">
+  <div class="wrap">
+    <div class="principle">
+      <div class="num">01</div>
+      <div class="label">Proactive</div>
+      <div class="sub">Reach out before they worry</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">02</div>
+      <div class="label">Consistent</div>
+      <div class="sub">Every stage, every customer</div>
+    </div>
+    <div class="principle">
+      <div class="num">03</div>
+      <div class="label">Human</div>
+      <div class="sub">A person, not a portal</div>
+    </div>
+    <div class="principle">
+      <div class="num alt">04</div>
+      <div class="label">Honest</div>
+      <div class="sub">Set the real timeline</div>
+    </div>
+    <div class="principle">
+      <div class="num">05</div>
+      <div class="label">Referral-Ready</div>
+      <div class="sub">Every touch plants a seed</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 1: WHY -->
+<section class="section" id="why">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 1 · The Case for Touches</span>
+      <h2>Silence Is What Loses the Deal</h2>
+      <p>The longest stretch of a solar project is the wait. Months pass between the signature and the switch-on, and an uninformed customer fills that silence with doubt. The cadence replaces doubt with progress.</p>
+    </div>
+
+    <div class="pullquote">
+      "The sale is not finished when they sign. It's finished when they refer you."
+      <span class="attr">The Customer-Touch Standard</span>
+    </div>
+
+    <div class="card green-left">
+      <h3>What the cadence buys you</h3>
+      <ul style="margin:0;">
+        <li><strong>Fewer cancels.</strong> The 24-hour call catches buyer's remorse before it hardens into a cancellation.</li>
+        <li><strong>A calm customer through a long build.</strong> Five to six months of silence breeds doubt. Scheduled updates replace it with a sense of forward motion.</li>
+        <li><strong>Reviews and referrals.</strong> A customer who felt handled says yes when you ask for the Google review and the neighbor's name.</li>
+      </ul>
+    </div>
+
+    <div class="card blue-left">
+      <h3>The one rule</h3>
+      <p style="margin:0;">Never let the customer wonder what's happening. If a stage will take weeks, tell them that before they ask. A heads-up about a delay reads as competence. A delay they discover on their own reads as a problem.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 2: THE JOURNEY -->
+<section class="section alt" id="journey">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 2 · The Map</span>
+      <h2>Fifteen Touches, Start to Finish</h2>
+      <p>Each engagement maps to a stage in Salesforce, so you always know where the customer is and what to send next. The full copy for every one lives in the <a href="#library">Message Library</a> below.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <span class="stage none">Before the sit</span>
+          <h4>Go-Back Confirmation</h4>
+          <p>Confirm the time and ask them to have their most recent electric bill ready. The bill is what lets you show real numbers instead of estimates.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="body">
+          <span class="stage">Salesforce: Submitted</span>
+          <h4>The 24-Hour Call</h4>
+          <p>A phone call, never a text. Reinforce the decision and answer the questions that surfaced overnight. <a href="#remorse">How to run it.</a></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="body">
+          <span class="stage">Salesforce: Uploaded</span>
+          <h4>Submitted and Tracking</h4>
+          <p>Text. The project is now with Quality Control for a structural and electrical review, then on to design.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div class="body">
+          <span class="stage">Salesforce: Site Review</span>
+          <h4>Engineering</h4>
+          <p>Text. The project moved to design and engineering to prep the application phase. Name the small chance of utility restrictions before it becomes a surprise.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">5</div>
+        <div class="body">
+          <span class="stage">Salesforce: Site Review</span>
+          <h4>Upgrades and Obstacles</h4>
+          <p>Only when the home needs electrical or roof work. Frame it as value done at install pricing, not as a snag.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">6</div>
+        <div class="body">
+          <span class="stage">Salesforce: Work In Progress</span>
+          <h4>Preliminary Application</h4>
+          <p>Text. Permits are underway across state, utility, and town. Explain that they process in sequence so the wait makes sense.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">7</div>
+        <div class="body">
+          <span class="stage">Salesforce: Work In Progress</span>
+          <h4>Utility Approved</h4>
+          <p>Text. Utility approval is in, town permit is next. Cite the typical town timeline from the Salesforce AHJ page so the number is real.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">8</div>
+        <div class="body">
+          <span class="stage none">Fully approved</span>
+          <h4>Confirm Installation</h4>
+          <p>State, town, and utility all cleared. Lock the install date and ask for a couple of options that work for them.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">9</div>
+        <div class="body">
+          <span class="stage none">Now they're family</span>
+          <h4>Referral Reminder</h4>
+          <p>Open the Friends and Family program and invite them to bring people to install day. <a href="#referrals">The full program.</a></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">10</div>
+        <div class="body">
+          <span class="stage none">Install day</span>
+          <h4>Install Day</h4>
+          <p>Welcome them to the family. Crew on site in the morning, you stop by midday, neighbors welcome to watch.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">11</div>
+        <div class="body">
+          <span class="stage none">Post-install</span>
+          <h4>What's to Come</h4>
+          <p>Panels are up, but there's one stretch left: QC review, the system plaque, and inspection. Ask them to stay quick on scheduling.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">12</div>
+        <div class="body">
+          <span class="stage none">After inspection</span>
+          <h4>On to PTO</h4>
+          <p>Inspection passed. The town issues a municipal release, the utility schedules the net meter. The finish line is in view.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">13</div>
+        <div class="body">
+          <span class="stage none">Switch-on</span>
+          <h4>Permission to Operate</h4>
+          <p>The system is live. Call them, flip the switch together, and set expectations for the first bill.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">14</div>
+        <div class="body">
+          <span class="stage none">2-3 months out</span>
+          <h4>First-Bill Check-In</h4>
+          <p>Walk them through the first bill so they see the savings on paper, then ask for the Google review.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">15</div>
+        <div class="body">
+          <span class="stage none">3-6 months out</span>
+          <h4>Long Check-In</h4>
+          <p>Check in by call, text, or in person. Confirm the system's running well and plug for referrals.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 3: THE 24-HOUR CALL -->
+<section class="section" id="remorse">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 3 · The One That Matters Most</span>
+      <h2>The 24-Hour Buyer's Remorse Call</h2>
+      <p>This is the single most important touch in the journey. After the excitement of signing wears off, the customer is at their most vulnerable to second-guessing. Your job is to get there first.</p>
+    </div>
+
+    <div class="card red-left">
+      <h3>Why it carries the whole cadence</h3>
+      <p style="margin:0;">Remorse creeps in within a day. A friend plants a doubt, a number gets re-read, the quiet after a big decision starts to feel like a mistake. A proactive call closes that gap before it opens. A reactive call, made only after they reach out worried, is already a step behind.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <h4>Schedule it before you leave the home</h4>
+          <p>Set a specific time while you're still at the table. Naming the time builds trust and puts you on the hook to follow through.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="body">
+          <h4>Follow through exactly when promised</h4>
+          <p>Call at the time you named, not around it. The kept promise is the message. It tells them the rest of the project will run the same way.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="body">
+          <h4>Listen, then lead</h4>
+          <p>Ask how they're feeling. Address whatever surfaced overnight. Reaffirm why solar is the right call for their home and their numbers, in their words, not a pitch.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip">
+      <strong>The goal of the call:</strong> they hang up feeling seen, supported, and confident. They didn't just sign paperwork. They made a smart, future-focused decision with someone they can count on. Leave them sure of both.
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 4: MESSAGE LIBRARY -->
+<section class="section alt" id="library">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 4 · Copy and Send</span>
+      <h2>The Message Library</h2>
+      <p>Starting points for every engagement. Personalize the bracketed fields before you send. Filter by phase, find your stage, make it sound like you.</p>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-pill active" data-filter="all">All</button>
+      <button class="filter-pill" data-filter="sit">Lock the sit</button>
+      <button class="filter-pill" data-filter="sign">After they sign</button>
+      <button class="filter-pill" data-filter="build">Build and permits</button>
+      <button class="filter-pill" data-filter="install">Install</button>
+      <button class="filter-pill" data-filter="finish">Finish line</button>
+      <button class="filter-pill" data-filter="referral">Referrals</button>
+    </div>
+
+    <div class="notes" id="notes-grid">
+
+      <div class="note-card" data-cat="sit">
+        <span class="tag sit">Lock the sit</span><span class="meta">Text</span>
+        <p class="title">Go-Back Confirmation</p>
+        <div class="script">Hey [Customer], great meeting you the other day. 👍 Quick reminder, we're all set for our follow-up [Day] at [Time]. If you can have your most recent electric bill handy, that helps us lock in the best savings for your home. Looking forward to walking you both through your options. See you then. [Your name], Trinity Solar</div>
+      </div>
+
+      <div class="note-card" data-cat="sign">
+        <span class="tag sign">After they sign</span><span class="meta">Phone call</span>
+        <p class="title">The 24-Hour Call</p>
+        <p style="margin:0; color:var(--muted); font-size:0.9rem;">This one is a call, not a script to send. Schedule a specific time before you leave the home, then call and reinforce the decision. See <a href="#remorse">The 24-Hour Call</a> for how to run it.</p>
+      </div>
+
+      <div class="note-card" data-cat="sign">
+        <span class="tag sign">After they sign</span><span class="meta">Text</span>
+        <p class="title">Submitted and Tracking</p>
+        <div class="script">Hey [Customer], great news. 🎉 Your project's been submitted and is now with our Quality Control team for a full structural and electrical review. Once it clears, it heads to design and engineering. Some projects take up to 5-6 months depending on permits and approvals, but we're on it, and I'll guide you through the whole journey.</div>
+      </div>
+
+      <div class="note-card" data-cat="build">
+        <span class="tag build">Build and permits</span><span class="meta">Text</span>
+        <p class="title">Engineering</p>
+        <div class="script">Hi [Customer], quick update. Your project officially moved to our Design and Engineering team to prep the next application phase. 🚀 There's still a small chance we run into utility restrictions, but you're with Trinity Solar, 30 years strong and second to none at finding solutions when obstacles come up. Things are moving, and I'll keep you posted every step. You're in great hands.</div>
+      </div>
+
+      <div class="note-card" data-cat="build">
+        <span class="tag build">Build and permits</span><span class="meta">Text · conditional</span>
+        <p class="title">Upgrades and Obstacles</p>
+        <div class="script">Good afternoon [Customer]. As we talked about, every home is unique 🏡, and sometimes we find opportunities to upgrade things like your electrical service ⚡ or roof structure to bring the home up to today's codes and safety standards. Your project does need some additional work. The good news: because it's done as part of your solar installation ☀️, the cost is far lower than hiring outside contractors on your own, and it adds long-term value and safety. ✅ Let's connect today so I can walk you through what it means.</div>
+      </div>
+
+      <div class="note-card" data-cat="build">
+        <span class="tag build">Build and permits</span><span class="meta">Text</span>
+        <p class="title">Preliminary Application</p>
+        <div class="script">It's application time. 📝 Your engineering letter, plan set, and required permits are underway across state, utility, and town. Applications process in sequence, utility before town, so thanks for your patience through this stage. We're tracking everything, and I'm here if you need anything. We're getting there.</div>
+      </div>
+
+      <div class="note-card" data-cat="build">
+        <span class="tag build">Build and permits</span><span class="meta">Text</span>
+        <p class="title">Utility Approved</p>
+        <div class="script">Happy [Day], [Customer]. Great news, we just got utility approval. 🙌 Now we're prepping your town permit application. Your town typically takes about [Salesforce AHJ Page] days to approve. This part's in their hands, but we'll stay on it and keep you updated. One step closer. We got you. 👍</div>
+      </div>
+
+      <div class="note-card" data-cat="install">
+        <span class="tag install">Install</span><span class="meta">Text</span>
+        <p class="title">Confirm Installation</p>
+        <div class="script">Hey [Customer], amazing news. 🎉 You're fully approved by the State, Town, and Utility, and we're ready to go. Huge milestone. ✅ Now let's lock in your installation date. Many installs finish in a single day; if we need more time, we'll work around your schedule. Give me a quick call or text me a couple of dates that work, and we'll line it up. I'll be there on install day to make sure everything kicks off smoothly. 🙌</div>
+      </div>
+
+      <div class="note-card" data-cat="referral">
+        <span class="tag referral">Referrals</span><span class="meta">Text</span>
+        <p class="title">Referral Reminder</p>
+        <div class="script">Quick reminder. 🚨 Now that you're part of the Trinity Solar family ☀️, you've unlocked our Friends and Family Referral Program: $1,000 for your first referral, $2,000 for every one after. Feel free to invite friends or family to your install day to see it up close. Let me know how many are coming, I'm buying lunch. 🥪</div>
+      </div>
+
+      <div class="note-card" data-cat="install">
+        <span class="tag install">Install</span><span class="meta">Text</span>
+        <p class="title">Install Day</p>
+        <div class="script">Congratulations. 🎉 Today's the day, welcome to the Trinity Solar family. Our crew will be on site between 8-9am, and I'll stop by around 11am to check in and make sure everything runs smoothly. Feel free to invite curious friends or neighbors to swing by. Before we begin, our team lead reviews the layout with you; give the green light and we get to work. Any questions, call or text me. 📲</div>
+      </div>
+
+      <div class="note-card" data-cat="finish">
+        <span class="tag finish">Finish line</span><span class="meta">Text</span>
+        <p class="title">What's to Come</p>
+        <div class="script">Thanks again for making install day a pleasure. 🙌 Now that your panels are up, I know you're ready to start producing. There's one final stretch: our QC team reviews the install, creates your system plaque, and preps for inspection. We'll reach out soon to coordinate a time that works for you, the inspector, and our electrician. Keep an eye out and be quick to confirm so we keep things moving. Almost there. ⚡</div>
+      </div>
+
+      <div class="note-card" data-cat="finish">
+        <span class="tag finish">Finish line</span><span class="meta">Text</span>
+        <p class="title">On to PTO</p>
+        <div class="script">Woohoo. 🎉 You passed inspection. Next, the town issues a municipal release to the utility, who then schedules your net meter install. Once we get the green light, Permission to Operate, I'll call you right away and swing by so we can flip the switch together. 🔌 So close.</div>
+      </div>
+
+      <div class="note-card" data-cat="finish">
+        <span class="tag finish">Finish line</span><span class="meta">Text</span>
+        <p class="title">Permission to Operate</p>
+        <div class="script">CONGRATULATIONS. 🎉 You're officially Permission to Operate, and your system is live. I'll call you to flip the switch and walk you through what to expect on your first bill. Welcome to the family. And you know the drill now, anyone you send my way, I take great care of.</div>
+      </div>
+
+      <div class="note-card" data-cat="finish">
+        <span class="tag finish">Finish line</span><span class="meta">Text</span>
+        <p class="title">First-Bill Check-In</p>
+        <div class="script">Hey [Customer], a couple of months in, how's everything feeling? I'd love to walk through your first bill with you so you can see the savings on paper. And if the experience has been a good one, a quick Google review means the world to us. 🌎</div>
+      </div>
+
+      <div class="note-card" data-cat="finish">
+        <span class="tag finish">Finish line</span><span class="meta">Call or text</span>
+        <p class="title">Long Check-In</p>
+        <div class="script">Hey [Customer], checking in now that you've had the system for a few months. Everything running well? If you know anyone, family, friends, neighbors, who's tired of their electric bill, I'd love to help them the way I helped you.</div>
+      </div>
+
+      <div class="note-card" data-cat="referral">
+        <span class="tag referral">Referrals</span><span class="meta">Text · to a referral</span>
+        <p class="title">Referral Intro</p>
+        <div class="script">Hi [Name], your [relationship] [Referrer] asked me to reach out about the solar program I helped qualify their home for. They mentioned you had some questions and some interest. What can I help you with? [Your name], Trinity Solar</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 5: REFERRALS -->
+<section class="section" id="referrals">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 5 · The Compounding Touch</span>
+      <h2>Friends and Family Referrals</h2>
+      <p>Every engagement plants the seed; this is where it pays. A customer you carried cleanly through the journey is your best source of the next one.</p>
+    </div>
+
+    <div class="three-col">
+      <div class="card green-left" style="margin:0;">
+        <h3 style="margin-bottom:4px;">$1,000</h3>
+        <p style="margin:0; color:var(--muted); font-size:0.92rem;">First referral that signs.</p>
+      </div>
+      <div class="card blue-left" style="margin:0;">
+        <h3 style="margin-bottom:4px;">$2,000</h3>
+        <p style="margin:0; color:var(--muted); font-size:0.92rem;">Every referral after the first.</p>
+      </div>
+      <div class="card ink-left" style="margin:0;">
+        <h3 style="margin-bottom:4px;">$5,000</h3>
+        <p style="margin:0; color:var(--muted); font-size:0.92rem;">Three referrals. The first plus two more.</p>
+      </div>
+    </div>
+
+    <div class="card warm-left" style="margin-top:18px;">
+      <h3>When to ask</h3>
+      <p style="margin:0;">Open the program the moment they're family, at the Confirm Installation touch, and invite them to install day to watch the crew work. Ask again at switch-on, when the relief and goodwill peak. The customer who just flipped the switch is the easiest yes you'll get.</p>
+    </div>
+
+    <div class="card ink-left">
+      <h3>Pre-screen before you send anyone out</h3>
+      <p>A referral that gets disqualified at the door costs you the goodwill you just earned. One quick text to your customer protects it: "Before I reach out, would any of these be an issue for them?"</p>
+      <div class="outcomes">
+        <div class="outcome-card win">
+          <div class="icon">☀️</div>
+          <h4>Sunlight</h4>
+          <p>Roof gets real sun, not heavy shade all day.</p>
+        </div>
+        <div class="outcome-card partial">
+          <div class="icon">🏠</div>
+          <h4>Roof condition</h4>
+          <p>In decent shape, or open to handling it together.</p>
+        </div>
+        <div class="outcome-card minimal">
+          <div class="icon">📊</div>
+          <h4>Credit 650+</h4>
+          <p>Roughly in range to qualify for the program.</p>
+        </div>
+        <div class="outcome-card win">
+          <div class="icon">⚡</div>
+          <h4>Bill $70+</h4>
+          <p>Enough monthly usage for the math to work.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION 6: RUNNING IT -->
+<section class="section alt" id="discipline">
+  <div class="wrap">
+    <div class="section-header">
+      <span class="eyebrow">Part 6 · The Discipline</span>
+      <h2>Running the Cadence</h2>
+      <p>The templates are a floor, not a ceiling. What separates a rep whose customers stay calm from one whose customers panic is how the cadence gets run.</p>
+    </div>
+
+    <div class="two-col">
+      <div class="card blue-left" style="margin:0;">
+        <h3>Personalize every send</h3>
+        <p style="margin:0;">Fill the brackets. Their name, the real date, the town's actual timeline from the Salesforce AHJ page. A template sent raw reads as a mass blast. The same words with their details read as a person who's paying attention.</p>
+      </div>
+      <div class="card red-left" style="margin:0;">
+        <h3>Match the channel</h3>
+        <p style="margin:0;">Status updates go by text. The 24-hour reassurance goes by phone, every time. That call is the one touch you never downgrade to a text, because the voice is the reassurance.</p>
+      </div>
+      <div class="card green-left" style="margin:0;">
+        <h3>Schedule, don't wing it</h3>
+        <p style="margin:0;">Set the next touch before you finish the current one. The 24-hour call gets a specific time named before you leave the table. A cadence you run from memory is a cadence you'll drop the week you get busy.</p>
+      </div>
+      <div class="card warm-left" style="margin:0;">
+        <h3>Sound like you</h3>
+        <p style="margin:0;">Energy and emojis are fine; the brand uses them. The message should still sound like the same person who sat at their table, not a system update. Read it out loud before you send. If it sounds like a robot, rewrite it.</p>
+      </div>
+    </div>
+
+    <div class="tip" style="margin-top:18px;">
+      <strong>Be reachable.</strong> Half of remorse is a customer who can't get an answer. Stay responsive between touches. A customer who knows you'll pick up doesn't spiral, and doesn't go looking for a competitor to calm them down.
+    </div>
+  </div>
+</section>
+
+<!-- CLOSER -->
+<section class="closer">
+  <div class="wrap">
+    <span class="eyebrow" style="color: var(--red);">The Cadence in One Breath</span>
+    <h2>One-Sentence Reminders</h2>
+    <div class="one-liners">
+      <div class="one">Reach out before they wonder.</div>
+      <div class="one">The 24-hour call kills remorse before it sets.</div>
+      <div class="one">Never let the customer wonder what's happening.</div>
+      <div class="one">Five months of silence breeds doubt. Fill it with progress.</div>
+      <div class="one">The reassurance is a phone call, not a text.</div>
+      <div class="one">A handled customer refers you. The sale ends there, not at the signature.</div>
+    </div>
+    <div class="signoff">CT Traditional · Trinity Solar · Built for the field</div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Distilled from the CT Traditional customer-touch framework, delivered through Constant Contact.
+  </div>
+</footer>
+
+<script>
+// Active section highlighting
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.toc-nav a');
+
+function highlightActiveSection() {
+  let current = '';
+  const scrollPos = window.scrollY + 200;
+  sections.forEach(section => {
+    const top = section.offsetTop;
+    const height = section.offsetHeight;
+    if (scrollPos >= top && scrollPos < top + height) {
+      current = section.getAttribute('id');
+    }
+  });
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+    if (link.getAttribute('href') === '#' + current) {
+      link.classList.add('active');
+    }
+  });
+}
+window.addEventListener('scroll', highlightActiveSection);
+window.addEventListener('load', highlightActiveSection);
+
+// Message library filter
+const filterPills = document.querySelectorAll('.filter-pill');
+const noteCards = document.querySelectorAll('#library .note-card');
+
+filterPills.forEach(pill => {
+  pill.addEventListener('click', () => {
+    filterPills.forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    const filter = pill.dataset.filter;
+    noteCards.forEach(card => {
+      if (filter === 'all' || card.dataset.cat === filter) {
+        card.classList.remove('hidden');
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+  });
+});
+</script>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session) { /* static page; nothing to init */ }
+</script>
+
+</body>
+</html>
