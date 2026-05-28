@@ -88,7 +88,7 @@ ul.body li, ol.body li { font-size: 13.5px; color: var(--text); padding: 3px 0; 
 .terms .lab { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
 
 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 16px; }
-.col-head { font-family: 'Fraunces', serif; font-size: 17px; color: var(--ink); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.col-head { font-family: 'Fraunces', serif; font-size: 17px; color: var(--ink); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); position: relative; padding-right: 44px; }
 .col.promise .col-head { color: var(--green-dk); }
 .col.agree .col-head { color: var(--blue-dk); }
 .pts { list-style: none; }
@@ -131,10 +131,15 @@ ul.body li, ol.body li { font-size: 13.5px; color: var(--text); padding: 3px 0; 
 
 /* Annotation flags + cards (same mechanic as flagship) */
 .annot { position: relative; }
-.annot-trigger { display: inline-block; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; font-size: 13px; font-weight: 800; text-align: center; line-height: 24px; cursor: pointer; box-shadow: var(--shadow-sm); position: absolute; right: 0; top: -2px; border: none; outline: none; }
+.annot-trigger { display: inline-block; width: 30px; height: 30px; border-radius: 50%; background: var(--green); color: #fff; font-size: 15px; font-weight: 800; text-align: center; line-height: 30px; cursor: pointer; box-shadow: var(--shadow-sm); position: absolute; right: 0; top: -4px; border: none; outline: none; }
+.annot-trigger:before { content: ""; position: absolute; inset: -12px; border-radius: 50%; }
 .annot-trigger:focus-visible { box-shadow: 0 0 0 3px rgba(41,169,225,0.4); }
 .annot-trigger:hover { transform: scale(1.08); }
 .annot.section-annot { display: block; }
+.col.annot { position: relative; }
+.col-head .annot-trigger { top: 50%; transform: translateY(-50%); }
+.col-head .annot-trigger:hover { transform: translateY(-50%) scale(1.08); }
+.col-head .annot-card { top: calc(100% + 8px); }
 .annot-card {
   display: none; position: absolute; right: 0; top: 30px;
   width: min(440px, 92vw); background: var(--ink); color: #fff;
@@ -308,11 +313,8 @@ ul.body li, ol.body li { font-size: 13.5px; color: var(--text); padding: 3px 0; 
 
   <!-- ANNOTATED COLUMNS -->
   <div class="cols">
-    <div class="col promise">
-      <div class="col-head">LightReach Promise</div>
-      <h2 class="sec-h annot section-annot" style="font-size:11px;margin-top:2px">
-        <span style="display:none">.</span>
-        <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="col promise annot section-annot">
+      <div class="col-head">LightReach Promise<button class="annot-trigger" aria-label="Open LightReach Promise annotation">?</button>
         <div class="annot-card">
           <div class="c-sec">Summary page &middot; LightReach Promise</div>
           <div class="c-title">"This side is everything we take on"</div>
@@ -329,7 +331,7 @@ ul.body li, ol.body li { font-size: 13.5px; color: var(--text); padding: 3px 0; 
           </div>
           <div class="c-foot">Frame as risk removal: production, repairs, upfront cost, permitting, all on us.</div>
         </div>
-      </h2>
+      </div>
       <ul class="pts">
         <li>LightReach and/or our Certified Installer agrees to install a 9.000 kW DC solar system on your home.</li>
         <li>LightReach and/or our Certified Installer estimate the system will produce 10,500 kWh in first year of operation.</li>
@@ -347,11 +349,8 @@ ul.body li, ol.body li { font-size: 13.5px; color: var(--text); padding: 3px 0; 
       </ul>
     </div>
 
-    <div class="col agree">
-      <div class="col-head">You Agree</div>
-      <h2 class="sec-h annot section-annot" style="font-size:11px;margin-top:2px">
-        <span style="display:none">.</span>
-        <button class="annot-trigger" aria-label="Open annotation">?</button>
+    <div class="col agree annot section-annot">
+      <div class="col-head">You Agree<button class="annot-trigger" aria-label="Open You Agree annotation">?</button>
         <div class="annot-card">
           <div class="c-sec">Summary page &middot; You Agree</div>
           <div class="c-title">"This is your side, and it's short"</div>
@@ -369,7 +368,7 @@ ul.body li, ol.body li { font-size: 13.5px; color: var(--text); padding: 3px 0; 
           </div>
           <div class="c-foot">Hand them the "What's the Catch" sheet here.</div>
         </div>
-      </h2>
+      </div>
       <ul class="pts">
         <li>You have the right to cancel this Agreement within (10) days after the Effective Date of this Agreement.</li>
         <li>The solar system is owned and operated by LightReach. You cannot claim the system as yours for any purpose.</li>
