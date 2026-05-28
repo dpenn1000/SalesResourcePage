@@ -412,7 +412,7 @@ async function changePassword(){
 }
 
 /* PostgREST caps a single response at 1000 rows; page through so we get every lead. */
-const SEL_DL='dl_number,dl_sf_id,property_id,homeowner_name,lead_source,set_by,original_rep,first_appt_date,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,appointments,redispatch_approved,opportunity_ids,sold,sold_contract_date,sold_rep,properties(property_id,town,county,dnc,sold,quality_flags)';
+const SEL_DL='dl_number,dl_sf_id,property_id,homeowner_name,lead_source,set_by,original_rep,first_appt_date,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,appointments,redispatch_approved,opportunity_ids,sold,sold_contract_date,sold_rep,language,properties(property_id,town,county,dnc,sold,quality_flags)';
 async function fetchAllDL(){
   let out=[],from=0,size=1000;
   while(true){
@@ -739,15 +739,33 @@ async function bulkDispatch(){
 }
 
 /* ── Quick Dispatch modal: group unassigned callable leads by disposition, assign first-N to a rep (mirrors the classic tool) ── */
-const QD_LABEL={deleted:'Deleted (pre-run)',noshow:'No Show',cancel:'Cancelled',new:'New (manual)',ready:'Scheduled',goback:'Go Back',nosale:'No Sale',ran:'Ran',other:'Other'};
-const QD_ORDER=['deleted','noshow','cancel','new'];
+const QD_LABEL={spanish:'Spanish-speaking',deleted:'Deleted (pre-run)',noshow:'No Show',cancel:'Cancelled',new:'New (manual)',ready:'Scheduled',goback:'Go Back',nosale:'No Sale',ran:'Ran',other:'Other'};
+const QD_ORDER=['spanish','deleted','noshow','cancel','new'];
+/* Reps who speak Spanish. Put them at the top of the rep picker when dispatching
+   the Spanish-speaking group. Edit this array when the roster changes. */
+const SPANISH_REPS=['Miguel Rivera','Jose Lopez','Michael Garcia','Jhonatan Rodriguez-Perez'];
+function _qdRepOptsFor(st){
+  if(st==='spanish'){
+    const sp=SPANISH_REPS.filter(n=>people.includes(n));
+    const others=people.filter(n=>!sp.includes(n));
+    return '<optgroup label="Spanish-speaking reps">'+sp.map(n=>`<option>${esc(n)}</option>`).join('')+'</optgroup>'
+         +(others.length?'<optgroup label="Other reps">'+others.map(n=>`<option>${esc(n)}</option>`).join('')+'</optgroup>':'');
+  }
+  return people.map(n=>`<option>${esc(n)}</option>`).join('');
+}
 function _qdGroups(){
-  const groups={};
+  /* Always seed the Spanish group so the row appears even when empty -- makes the
+     language-routing capability visible, and it fills as Spanish-tagged callable
+     leads come in. A Spanish lead lands ONLY in this group (not its disposition
+     group too) so it cannot be double-dispatched. */
+  const groups={spanish:[]};
   for(const g of props){
     if(g.primary.assigned_to)continue;
     if(leadCategory(g)!=='callable')continue;
+    const lang=(g.primary.language||'').toLowerCase();
     const st=g.primary.lifecycle_state||'other';
-    (groups[st]=groups[st]||[]).push(g);
+    if(lang==='spanish') groups['spanish'].push(g);
+    else (groups[st]=groups[st]||[]).push(g);
   }
   return groups;
 }
@@ -766,7 +784,7 @@ function renderQuickDispatch(){
       <div><span class="gname">${esc(QD_LABEL[st]||st)}</span><span class="gct">${grp.length} unassigned</span></div>
       <div class="dispatch-row">
         <label>First</label><input type="number" id="qd-ct-${esc(st)}" class="qd-num" min="1" max="${grp.length}" value="${grp.length}">
-        <label>to</label><select id="qd-rep-${esc(st)}" class="qd-sel"><option value="">pick rep...</option>${repOpts}</select>
+        <label>to</label><select id="qd-rep-${esc(st)}" class="qd-sel"><option value="">pick rep...</option>${_qdRepOptsFor(st)}</select>
         <button class="btn-primary" onclick="dispatchGroup('${esc(st)}')">Assign</button>
       </div></div>`;
   }
