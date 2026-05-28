@@ -114,7 +114,7 @@ body {
 .col.promise .pts li:before { background: var(--green); }
 .col.agree .pts li:before { background: var(--blue); }
 .pts li.star { font-weight: 700; color: var(--ink); }
-.pts li.star:after { content: "Lead point"; position: absolute; right: 0; top: 8px; font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn); }
+.pts li.star:before { background: var(--warn) !important; box-shadow: 0 0 0 3px rgba(233,166,72,0.16); }
 
 /* Annotated blocks + cards */
 .annot { position: relative; cursor: pointer; outline: none; transition: box-shadow 0.15s, border-color 0.15s; }
@@ -291,7 +291,7 @@ body {
     <h2 class="sec-h2">This page does 80% of the work</h2>
     <p class="sec-p">The summary page is built to be walked. The four-box snapshot, then the two columns: what <strong>we</strong> take on, and the few simple things <strong>they</strong> agree to. Hover or tap any block below to open its card.</p>
 
-    <div class="hint"><span class="dot"></span> Hover a block to peek. Tap it to pin the card open. Tap anywhere else to close.</div>
+    <div class="hint"><span class="dot"></span> Hover a block to peek. Tap it to pin the card open. Tap anywhere else to close. Orange bullets mark the lead points to land.</div>
 
     <div class="contract">
       <div class="contract-head">
@@ -312,7 +312,7 @@ body {
         <div class="cell"><div class="val">$___.__</div><div class="lab">Monthly Payment, Year One</div></div>
         <div class="cell"><div class="val">25 Years</div><div class="lab">Agreement Term</div></div>
         <div class="card">
-          <div class="c-sec">Section 2 · Key-terms box</div>
+          <div class="c-sec">Summary page · Key terms</div>
           <div class="c-title">Mirror the problem, then let the box answer it</div>
           <div class="c-block">
             <div class="c-lab">Say it like this</div>
@@ -355,7 +355,7 @@ body {
               <li class="star">We warranty, insure, and repair the system at no cost to you for the full term.</li>
             </ul>
             <div class="card">
-              <div class="c-sec">Section 3 · The heavy lifting</div>
+              <div class="c-sec">Summary page · LightReach Promise</div>
               <div class="c-title">"This side is everything we take on"</div>
               <div class="c-block">
                 <div class="c-lab">Say it like this</div>
@@ -392,7 +392,7 @@ body {
               <li class="star">Keep a working internet connection available.</li>
             </ul>
             <div class="card">
-              <div class="c-sec">Section 4 · Your simple part</div>
+              <div class="c-sec">Summary page · You Agree</div>
               <div class="c-title">"This is your side, and it's short"</div>
               <div class="c-block">
                 <div class="c-lab">Say it like this</div>
@@ -433,7 +433,7 @@ body {
     <div class="lib">
 
       <div class="lib-card">
-        <div class="num">Section 5 · PPA Section 3</div>
+        <div class="num">PPA Section 3</div>
         <h3>System &amp; Additional Products</h3>
         <p class="say">"This confirms the system we designed, the size and equipment. Initial right here."</p>
         <div class="lab">If they stop</div>
@@ -445,7 +445,7 @@ body {
       </div>
 
       <div class="lib-card">
-        <div class="num">Section 6 · PPA Section 4</div>
+        <div class="num">PPA Section 4</div>
         <h3>Payments</h3>
         <p class="say">"$0 deposit, it comes out automatically each month, and here are a couple of practical things."</p>
         <div class="lab">If they stop</div>
@@ -458,7 +458,7 @@ body {
       </div>
 
       <div class="lib-card">
-        <div class="num">Section 7 · PPA Section 5</div>
+        <div class="num">PPA Section 5</div>
         <h3>Your Obligations</h3>
         <p class="say">"This is the detailed version of that short list. Same deal, just the legal language."</p>
         <div class="lab">If they stop</div>
@@ -471,7 +471,7 @@ body {
       </div>
 
       <div class="lib-card">
-        <div class="num">Section 8 · PPA Sections 8 &amp; 10</div>
+        <div class="num">PPA Sections 8 &amp; 10</div>
         <h3>Transfer &amp; Selling Your Home</h3>
         <p class="say">"If you ever sell, you've got options built in. Usually the buyer just takes it over."</p>
         <div class="lab">If they stop</div>
@@ -483,7 +483,7 @@ body {
       </div>
 
       <div class="lib-card">
-        <div class="num">Section 9 · PPA Section 9</div>
+        <div class="num">PPA Section 9</div>
         <h3>Ownership &amp; Tax Credits</h3>
         <p class="say">"This says LightReach owns the system and the incentives that come with it. That ownership is why we carry all the cost and risk, not you."</p>
         <div class="lab">If they stop</div>
@@ -494,7 +494,7 @@ body {
       </div>
 
       <div class="lib-card">
-        <div class="num">Section 10 · Exhibit G</div>
+        <div class="num">Exhibit G</div>
         <h3>Performance Guarantee</h3>
         <p class="say">"Your production number is confirmed by our Remote Assessment Team. They use advanced design tools and stay conservative when they analyze your site. The guarantee is your written protection in the unlikely event something falls short."</p>
         <div class="lab">If they stop</div>
@@ -507,7 +507,7 @@ body {
       </div>
 
       <div class="lib-card">
-        <div class="num">Section 11 · PPA Sections 7, 11, 12</div>
+        <div class="num">PPA Sections 7, 11 &amp; 12</div>
         <h3>Warranty, Loss &amp; Liability</h3>
         <p class="say">"The system is warrantied, insured, and repaired at no cost for the full 25 years. If it breaks, we fix it. You never see a repair bill."</p>
         <div class="lab">If they stop</div>
@@ -519,7 +519,7 @@ body {
       </div>
 
       <div class="lib-card">
-        <div class="num">Section 12 · PPA Section 26</div>
+        <div class="num">PPA Section 26</div>
         <h3>Right to Cancel</h3>
         <p class="say">"You've got 10 days to cancel for any reason. Full refund, no questions. If anything doesn't sit right after we leave, you're covered."</p>
         <div class="lab">If they stop</div>
