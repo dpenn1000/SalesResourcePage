@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walk the LightReach PPA · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --red: #E84040;
+  --warn: #E9A648;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --surface: #F7F8F4;
+  --warm: #FAFBF7;
+  --white: #FFFFFF;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.14);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 110px; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--surface);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* Header */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header { background: var(--ink); color: #fff; border-bottom: 3px solid var(--green); }
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .logo { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; }
+.brand .divider { width: 1px; height: 22px; background: rgba(255,255,255,0.25); }
+.brand .team { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.65); }
+.page-title { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+.toc-nav { background: var(--warm); border-bottom: 1px solid var(--line); overflow-x: auto; }
+.toc-nav .wrap { display: flex; gap: 6px; padding: 0 24px; }
+.toc-nav a { white-space: nowrap; font-size: 13px; font-weight: 600; color: var(--muted); text-decoration: none; padding: 12px 12px; border-bottom: 2px solid transparent; }
+.toc-nav a:hover { color: var(--ink); border-bottom-color: var(--green); }
+
+/* Hero */
+.hero { background: linear-gradient(150deg, var(--ink), var(--ink-soft)); color: #fff; padding: 52px 0 56px; }
+.hero .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green); }
+.hero h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: clamp(32px, 5vw, 50px); line-height: 1.08; margin: 14px 0 18px; }
+.hero h1 em { font-style: italic; color: var(--green); }
+.hero .lede { font-size: 18px; max-width: 60ch; color: rgba(255,255,255,0.86); }
+
+/* Generic section */
+.section { padding: 48px 0; }
+.section.alt { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.sec-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-dk); }
+.sec-h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(24px, 3.4vw, 34px); color: var(--ink); margin: 8px 0 14px; line-height: 1.14; }
+.sec-p { font-size: 16.5px; color: var(--text); max-width: 70ch; margin-bottom: 14px; }
+.sec-p strong { color: var(--ink); }
+
+/* Thesis callout */
+.thesis { background: var(--ink); color: #fff; border-radius: var(--r-lg); padding: 28px 32px; margin: 8px 0 4px; }
+.thesis .big { font-family: 'Fraunces', serif; font-size: 22px; line-height: 1.35; color: #fff; }
+.thesis .big em { color: var(--green); font-style: italic; }
+
+/* Two-speed */
+.speeds { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.speed { background: var(--warm); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px 22px; }
+.speed .tag { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+.speed.default .tag { color: var(--green-dk); }
+.speed.demand .tag { color: var(--blue-dk); }
+.speed h3 { font-size: 17px; color: var(--ink); margin: 6px 0 6px; }
+.speed p { font-size: 14.5px; color: var(--muted); }
+
+/* Interactive contract */
+.contract { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow-md); padding: 28px; margin-top: 22px; position: relative; }
+.contract-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 2px solid var(--ink); padding-bottom: 14px; margin-bottom: 20px; flex-wrap: wrap; }
+.contract-head .doc-id { font-family: 'Fraunces', serif; font-size: 20px; color: var(--ink); }
+.contract-head .doc-id span { color: var(--muted); font-family: 'Manrope'; font-size: 12px; display: block; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; }
+.sample-tag { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--warn); border: 1px solid var(--warn); border-radius: 999px; padding: 5px 12px; }
+.hint { font-size: 13px; color: var(--subtle); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+.hint .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(120,200,50,0.18); flex: none; }
+
+/* Key terms box */
+.terms { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+.terms .cell { padding: 16px 14px; border-right: 1px solid var(--line); }
+.terms .cell:last-child { border-right: none; }
+.terms .val { font-family: 'Fraunces', serif; font-size: 22px; color: var(--ink); }
+.terms .lab { font-size: 11.5px; color: var(--muted); margin-top: 4px; line-height: 1.3; }
+
+/* Promise / Agree columns */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+.col-head { font-family: 'Fraunces', serif; font-size: 18px; color: var(--ink); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.col.promise .col-head { color: var(--green-dk); }
+.col.agree .col-head { color: var(--blue-dk); }
+.pts { list-style: none; }
+.pts li { font-size: 13.5px; color: var(--text); padding: 7px 0 7px 22px; position: relative; line-height: 1.45; border-bottom: 1px dashed var(--line-soft); }
+.pts li:before { content: ""; position: absolute; left: 4px; top: 13px; width: 6px; height: 6px; border-radius: 50%; }
+.col.promise .pts li:before { background: var(--green); }
+.col.agree .pts li:before { background: var(--blue); }
+.pts li.star { font-weight: 700; color: var(--ink); }
+.pts li.star:after { content: "Lead point"; position: absolute; right: 0; top: 8px; font-size: 9px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--warn); }
+
+/* Annotated blocks + cards */
+.annot { position: relative; cursor: pointer; outline: none; transition: box-shadow 0.15s, border-color 0.15s; }
+.annot:focus-visible { box-shadow: 0 0 0 3px rgba(41,169,225,0.4); }
+.annot .annot-flag { position: absolute; top: -10px; right: -10px; width: 26px; height: 26px; border-radius: 50%; background: var(--green); color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-sm); z-index: 3; }
+.annot:hover { border-color: var(--green) !important; }
+.annot .card { display: none; position: absolute; left: 0; top: calc(100% + 10px); width: min(440px, 92vw); background: var(--ink); color: #fff; border-radius: var(--r-lg); box-shadow: var(--shadow-lg); padding: 20px 22px; z-index: 50; text-align: left; cursor: default; }
+.annot.right .card { left: auto; right: 0; }
+.annot .card:before { content: ""; position: absolute; top: -7px; left: 24px; width: 14px; height: 14px; background: var(--ink); transform: rotate(45deg); }
+.annot.right .card:before { left: auto; right: 24px; }
+.annot.is-open .card { display: block; }
+@media (hover: hover) and (pointer: fine) { .annot:hover .card { display: block; } }
+.card .c-sec { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); }
+.card .c-title { font-family: 'Fraunces', serif; font-size: 19px; margin: 4px 0 12px; }
+.card .c-block { margin-bottom: 12px; }
+.card .c-lab { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue); margin-bottom: 4px; }
+.card .c-say { font-size: 14.5px; line-height: 1.5; color: #fff; border-left: 3px solid var(--green); padding-left: 12px; font-style: italic; }
+.card ul { list-style: none; margin: 4px 0 0; }
+.card ul li { font-size: 13px; color: rgba(255,255,255,0.86); padding: 4px 0 4px 16px; position: relative; line-height: 1.45; }
+.card ul li:before { content: ""; position: absolute; left: 2px; top: 11px; width: 5px; height: 5px; border-radius: 50%; background: var(--blue); }
+.card ul li.warnpt:before { background: var(--warn); }
+.card .c-foot { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.14); }
+
+/* Signature strip */
+.sig { margin-top: 20px; border: 1px dashed var(--line); border-radius: var(--r-md); padding: 18px; background: var(--warm); }
+.sig .row { display: flex; gap: 14px; flex-wrap: wrap; }
+.sig .field { flex: 1 1 220px; }
+.sig .line { border-bottom: 1.5px solid var(--ink); height: 24px; }
+.sig .flab { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+/* Congrats */
+.congrats { margin-top: 22px; background: linear-gradient(135deg, var(--green), var(--blue)); color: #fff; border-radius: var(--r-lg); padding: 26px 30px; }
+.congrats h3 { font-family: 'Fraunces', serif; font-size: 24px; margin-bottom: 8px; }
+.congrats p { font-size: 15.5px; color: rgba(255,255,255,0.94); max-width: 64ch; }
+
+/* Section library cards */
+.lib { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 22px; }
+.lib-card { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; box-shadow: var(--shadow-sm); }
+.lib-card .num { font-family: 'Fraunces', serif; font-size: 13px; font-weight: 600; color: var(--green-dk); }
+.lib-card h3 { font-size: 17px; color: var(--ink); margin: 4px 0 10px; }
+.lib-card .say { font-size: 14px; font-style: italic; color: var(--text); border-left: 3px solid var(--green); padding-left: 12px; margin-bottom: 12px; line-height: 1.5; }
+.lib-card .lab { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-dk); margin-bottom: 4px; }
+.lib-card ul { list-style: none; }
+.lib-card ul li { font-size: 13px; color: var(--muted); padding: 3px 0 3px 16px; position: relative; line-height: 1.45; }
+.lib-card ul li:before { content: ""; position: absolute; left: 2px; top: 10px; width: 5px; height: 5px; border-radius: 50%; background: var(--blue); }
+.lib-card ul li.warnpt:before { background: var(--warn); }
+.lib-card .foot { font-size: 12px; color: var(--subtle); margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+
+/* Compliance note */
+.guard { background: #FFF8EC; border: 1px solid var(--warn); border-left: 4px solid var(--warn); border-radius: var(--r-md); padding: 20px 24px; margin-top: 20px; }
+.guard h4 { font-size: 14px; color: var(--ink); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.guard p { font-size: 14.5px; color: var(--text); max-width: 74ch; }
+
+/* Resources */
+.res { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 22px; }
+.res a { display: block; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 20px; text-decoration: none; box-shadow: var(--shadow-sm); transition: transform 0.1s, box-shadow 0.15s; }
+.res a:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.res a .t { font-size: 15px; font-weight: 700; color: var(--ink); }
+.res a .d { font-size: 13px; color: var(--muted); margin-top: 4px; }
+.res a .soon { font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--warn); }
+
+.site-footer { background: var(--ink); color: rgba(255,255,255,0.6); font-size: 13px; text-align: center; padding: 28px 24px; }
+
+@media (max-width: 760px) {
+  .speeds, .cols, .terms { grid-template-columns: 1fr; }
+  .terms .cell { border-right: none; border-bottom: 1px solid var(--line); }
+  .terms .cell:last-child { border-bottom: none; }
+  .annot .card { position: static; width: 100%; margin-top: 12px; }
+  .annot .card:before { display: none; }
+  .annot .annot-flag { top: -8px; right: -8px; }
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">Sales Resource · The Agreement</div>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#why">Why master it</a>
+      <a href="#page1">The first page</a>
+      <a href="#library">Section library</a>
+      <a href="#cancel">No-cancellation</a>
+      <a href="#close">The close</a>
+      <a href="#resources">Resources</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Closing · Rep Mastery</span>
+    <h1>Walk the <em>LightReach PPA</em></h1>
+    <p class="lede">Know this agreement like the back of your hand. Plant every key point during the consultation, and the signing becomes what it should be: putting in writing what you already talked about.</p>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="section" id="why">
+  <div class="wrap">
+    <span class="sec-eyebrow">The idea</span>
+    <h2 class="sec-h2">Mastery is what kills hesitation</h2>
+    <p class="sec-p">You learn all 36 pages cold not so you can recite them, but so you never stall when a homeowner pauses. By signing, trust is already built. Most customers won't scrutinize every line. Keep it simple, keep moving, and be ready to explain any section in one clean breath the moment they stop on it.</p>
+
+    <div class="thesis">
+      <p class="big">The agreement is where we <em>put everything we talked about in writing</em>. When the customer recognizes every point because you planted it earlier, you've already won.</p>
+    </div>
+
+    <div class="speeds">
+      <div class="speed default">
+        <div class="tag">Default speed</div>
+        <h3>Light, and moving</h3>
+        <p>Name the section, tie it to what you already covered, keep going. This is how you run most of the page.</p>
+      </div>
+      <div class="speed demand">
+        <div class="tag">On-demand speed</div>
+        <h3>Instant, when they stop</h3>
+        <p>If they pause on something, explain it clearly and confidently, then move on. Hesitation is the only real failure here.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 1 INTERACTIVE -->
+<section class="section alt" id="page1">
+  <div class="wrap">
+    <span class="sec-eyebrow">The first page</span>
+    <h2 class="sec-h2">This page does 80% of the work</h2>
+    <p class="sec-p">The summary page is built to be walked. The four-box snapshot, then the two columns: what <strong>we</strong> take on, and the few simple things <strong>they</strong> agree to. Hover or tap any block below to open its card.</p>
+
+    <div class="hint"><span class="dot"></span> Hover a block to peek. Tap it to pin the card open. Tap anywhere else to close.</div>
+
+    <div class="contract">
+      <div class="contract-head">
+        <div class="doc-id"><span>Palmetto LightReach</span>Predictable Payment PPA · Connecticut v4.x</div>
+        <div class="sample-tag">Sample · blanks intentional</div>
+      </div>
+
+      <!-- WHAT IT IS -->
+      <p class="sec-p" style="font-size:15px;margin-bottom:18px">
+        <strong>What this is, in one line:</strong> you're not buying equipment, you're buying the power your roof makes, at a locked, predictable rate. LightReach owns the system, Trinity installs and stands behind it, and for 25 years you just pay for the clean energy it produces.
+      </p>
+
+      <!-- KEY TERMS BOX (annotated) -->
+      <div class="terms annot" tabindex="0" role="button" aria-label="Key terms summary, open explanation">
+        <span class="annot-flag">?</span>
+        <div class="cell"><div class="val">$0.00</div><div class="lab">Amount due at signing &amp; install</div></div>
+        <div class="cell"><div class="val">$0.___</div><div class="lab">Rate per kWh, Year One</div></div>
+        <div class="cell"><div class="val">$___.__</div><div class="lab">Monthly Payment, Year One</div></div>
+        <div class="cell"><div class="val">25 Years</div><div class="lab">Agreement Term</div></div>
+        <div class="card">
+          <div class="c-sec">Section 2 · Key-terms box</div>
+          <div class="c-title">Mirror the problem, then let the box answer it</div>
+          <div class="c-block">
+            <div class="c-lab">Say it like this</div>
+            <p class="c-say">"You told me the problem was your rate, your monthly bill, those summer peaks, and where pricing is headed. Here's what this fixes."</p>
+          </div>
+          <div class="c-block">
+            <div class="c-lab">Before the numbers, play back what they named</div>
+            <ul>
+              <li>Their rate</li>
+              <li>Their monthly bill</li>
+              <li>Their seasonal peak months</li>
+              <li>Their annual cost</li>
+              <li>Their fear of future pricing</li>
+            </ul>
+          </div>
+          <div class="c-foot">Lead with the $0 down. These four numbers should match what you showed on the design. If they want more, they'll ask.</div>
+        </div>
+      </div>
+
+      <!-- TWO COLUMNS -->
+      <div class="cols">
+        <!-- PROMISE -->
+        <div class="col promise">
+          <div class="col-head">LightReach Promise</div>
+          <div class="annot" tabindex="0" role="button" aria-label="LightReach Promise, open explanation">
+            <span class="annot-flag">?</span>
+            <ul class="pts">
+              <li>Install your solar system.</li>
+              <li>Estimate first-year production.</li>
+              <li>No upfront fees. You pay no equipment or install costs.</li>
+              <li>LightReach owns the system. You buy the power at a predictable rate.</li>
+              <li>Your initial rate per kWh.</li>
+              <li>Your initial monthly payment.</li>
+              <li class="star">Performance guarantee: if it underproduces, we credit you the difference at your rate.</li>
+              <li>Your rate rises a set percent per year.</li>
+              <li>Your monthly bill rises at that same rate.</li>
+              <li>25-year term.</li>
+              <li>We acquire all permits and approvals.</li>
+              <li>We engineer and procure equipment to code.</li>
+              <li class="star">We warranty, insure, and repair the system at no cost to you for the full term.</li>
+            </ul>
+            <div class="card">
+              <div class="c-sec">Section 3 · The heavy lifting</div>
+              <div class="c-title">"This side is everything we take on"</div>
+              <div class="c-block">
+                <div class="c-lab">Say it like this</div>
+                <p class="c-say">"This whole side of the page is what we're responsible for. You'll see it's almost all of it."</p>
+              </div>
+              <div class="c-block">
+                <div class="c-lab">Slow down on the two protections</div>
+                <ul>
+                  <li class="warnpt">Performance guarantee: underproduce and we pay you the difference.</li>
+                  <li class="warnpt">Warranty, insurance, and repairs, free, for 25 years.</li>
+                </ul>
+              </div>
+              <div class="c-foot">Frame the column as risk removal: production, repairs, upfront cost, permitting, all on us. Every promise here is a benefit you already sold.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AGREE -->
+        <div class="col agree">
+          <div class="col-head">You Agree</div>
+          <div class="annot right" tabindex="0" role="button" aria-label="You Agree column, open explanation">
+            <span class="annot-flag">?</span>
+            <ul class="pts">
+              <li>You have 10 days to cancel after the Effective Date.</li>
+              <li>LightReach owns and operates the system.</li>
+              <li>Return e-signature documents within 7 days.</li>
+              <li>Be responsible for property conditions that affect a safe install.</li>
+              <li>Be reasonably available for visits, install, and inspections.</li>
+              <li class="star">You'll get two bills: one from your utility, one from LightReach.</li>
+              <li class="star">You may still owe fixed or excess utility charges.</li>
+              <li>You can transfer the PPA when you sell.</li>
+              <li>Don't remove, modify, or service the system yourself.</li>
+              <li>Don't do anything that blocks the system's performance.</li>
+              <li class="star">Keep a working internet connection available.</li>
+            </ul>
+            <div class="card">
+              <div class="c-sec">Section 4 · Your simple part</div>
+              <div class="c-title">"This is your side, and it's short"</div>
+              <div class="c-block">
+                <div class="c-lab">Say it like this</div>
+                <p class="c-say">"If this sounded too good to be true, here's the part people worry about. There's no catch hiding in it."</p>
+              </div>
+              <div class="c-block">
+                <div class="c-lab">Three honesty points, say them out loud</div>
+                <ul>
+                  <li class="warnpt">Two bills: they will still get a utility bill.</li>
+                  <li class="warnpt">Residual utility charges don't disappear.</li>
+                  <li class="warnpt">Internet keeps production reporting, which protects their guarantee.</li>
+                </ul>
+              </div>
+              <div class="c-foot">Hand them the "What's the Catch" sheet here. It already turns these 11 points into six plain-English pieces.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIGNATURE -->
+      <div class="sig">
+        <div class="row">
+          <div class="field"><div class="line"></div><div class="flab">Homeowner signature</div></div>
+          <div class="field"><div class="line"></div><div class="flab">Date</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION LIBRARY -->
+<section class="section" id="library">
+  <div class="wrap">
+    <span class="sec-eyebrow">Section library</span>
+    <h2 class="sec-h2">The rest of the document, one card each</h2>
+    <p class="sec-p">Behind the first page, the body sections and exhibits are mostly the legal long-form of what you already covered. Run them at default speed. Each card gives you the one line to say, plus what to have ready if they stop.</p>
+
+    <div class="lib">
+
+      <div class="lib-card">
+        <div class="num">Section 5 · PPA Section 3</div>
+        <h3>System &amp; Additional Products</h3>
+        <p class="say">"This confirms the system we designed, the size and equipment. Initial right here."</p>
+        <div class="lab">If they stop</div>
+        <ul>
+          <li>Approved-manufacturer list, with substitution rights, but you're guaranteed the performance.</li>
+          <li class="warnpt">Battery (rising with the Construct 5 ESS incentive): backs up designated circuits only, holds a 20% reserve, not guaranteed for every outage, never for life-support.</li>
+        </ul>
+        <div class="foot">First initials. Show them exactly where, every time.</div>
+      </div>
+
+      <div class="lib-card">
+        <div class="num">Section 6 · PPA Section 4</div>
+        <h3>Payments</h3>
+        <p class="say">"$0 deposit, it comes out automatically each month, and here are a couple of practical things."</p>
+        <div class="lab">If they stop</div>
+        <ul>
+          <li class="warnpt">Set up autopay, or it's $15 more a month.</li>
+          <li>Tax credits belong to the owner. Standard for a product you don't own.</li>
+          <li>Buyout at fair market value from year 5. Prepay at a 5% discount.</li>
+        </ul>
+        <div class="foot">Autopay is the one to land proactively.</div>
+      </div>
+
+      <div class="lib-card">
+        <div class="num">Section 7 · PPA Section 5</div>
+        <h3>Your Obligations</h3>
+        <p class="say">"This is the detailed version of that short list. Same deal, just the legal language."</p>
+        <div class="lab">If they stop</div>
+        <ul>
+          <li class="warnpt">Roof and structural integrity is the homeowner's, settle this in the driveway, not here.</li>
+          <li>Keep trees trimmed so production holds.</li>
+          <li>Data sharing runs the system and proves the guarantee.</li>
+        </ul>
+        <div class="foot">The roof opens with "How do you feel about your roof?" outside. See the Roofing module.</div>
+      </div>
+
+      <div class="lib-card">
+        <div class="num">Section 8 · PPA Sections 8 &amp; 10</div>
+        <h3>Transfer &amp; Selling Your Home</h3>
+        <p class="say">"If you ever sell, you've got options built in. Usually the buyer just takes it over."</p>
+        <div class="lab">If they stop</div>
+        <ul>
+          <li>Buyer assumes the PPA with a quick credit check.</li>
+          <li>Or buy the system and sell the home with it owned.</li>
+        </ul>
+        <div class="foot">Already handled in the consult. Full detail lives in the "If I Sell My Home?" objection card.</div>
+      </div>
+
+      <div class="lib-card">
+        <div class="num">Section 9 · PPA Section 9</div>
+        <h3>Ownership &amp; Tax Credits</h3>
+        <p class="say">"This says LightReach owns the system and the incentives that come with it. That ownership is why we carry all the cost and risk, not you."</p>
+        <div class="lab">If they stop</div>
+        <ul>
+          <li>Any credits or incentives, now or later, belong to the owner.</li>
+        </ul>
+        <div class="foot">Reframe: ownership is the engine of their whole deal, not a loss.</div>
+      </div>
+
+      <div class="lib-card">
+        <div class="num">Section 10 · Exhibit G</div>
+        <h3>Performance Guarantee</h3>
+        <p class="say">"Your production number is confirmed by our Remote Assessment Team. They use advanced design tools and stay conservative when they analyze your site. The guarantee is your written protection in the unlikely event something falls short."</p>
+        <div class="lab">If they stop</div>
+        <ul>
+          <li>Every 3 years we true up actual vs. guaranteed and credit any shortfall at your rate.</li>
+          <li>Surplus banks forward. Extra production is yours, free.</li>
+          <li>Hail is covered. A tree you let shade it is not.</li>
+        </ul>
+        <div class="foot">Two protections, same direction: the estimate is built to be beaten, the guarantee sits under it for the rare miss.</div>
+      </div>
+
+      <div class="lib-card">
+        <div class="num">Section 11 · PPA Sections 7, 11, 12</div>
+        <h3>Warranty, Loss &amp; Liability</h3>
+        <p class="say">"The system is warrantied, insured, and repaired at no cost for the full 25 years. If it breaks, we fix it. You never see a repair bill."</p>
+        <div class="lab">If they stop</div>
+        <ul>
+          <li>Insured separately, not on their homeowner's policy.</li>
+          <li>Coverage assumes they hold up the simple obligations.</li>
+        </ul>
+        <div class="foot">Land the separate insurance. It removes a worry they didn't know they had.</div>
+      </div>
+
+      <div class="lib-card">
+        <div class="num">Section 12 · PPA Section 26</div>
+        <h3>Right to Cancel</h3>
+        <p class="say">"You've got 10 days to cancel for any reason. Full refund, no questions. If anything doesn't sit right after we leave, you're covered."</p>
+        <div class="lab">If they stop</div>
+        <ul>
+          <li>Written notice before midnight of the 10th day, email or the Exhibit C form.</li>
+          <li>Confirm no blank spaces, and that they get a complete copy.</li>
+        </ul>
+        <div class="foot">A reversible decision is an easier decision. See the no-cancellation framing below.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- NO CANCELLATION -->
+<section class="section alt" id="cancel">
+  <div class="wrap">
+    <span class="sec-eyebrow">Where strong reps diverge</span>
+    <h2 class="sec-h2">The no-cancellation framing</h2>
+    <p class="sec-p">The 10-day right is real and you honor it out loud. Then you give the customer a deliberate moment to confirm they're ready, before either side starts spending.</p>
+
+    <div class="contract" style="box-shadow:none">
+      <div class="c-block">
+        <div class="lab" style="font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue-dk);margin-bottom:6px">Say it like this</div>
+        <p class="say" style="font-size:16px;font-style:italic;border-left:3px solid var(--green);padding-left:14px;color:var(--text);line-height:1.55">
+          "You do have a 10-day right to cancel, and Trinity stands behind it. If a real emergency forces your hand, nobody's going to charge you. But personally, I run a no-cancellation policy, and here's why. The moment I leave tonight, we go to work for you. Applications, engineering, permits, electrical and structural reviews, utility approvals. We start spending money on your project right away. So if any part of you is thinking you might want to cancel, I'd rather we stop right here and work through it. What's left that we haven't talked about?"
+        </p>
+        <p class="say" style="font-size:16px;font-style:italic;border-left:3px solid var(--blue);padding-left:14px;color:var(--text);line-height:1.55;margin-top:14px">
+          "And understand how this works from here. This is a qualification process. Signing tonight doesn't mean you're approved. You're not fully approved until your installation actually starts. So let's make sure everything's solid before I take this back and put the team on it."
+        </p>
+      </div>
+
+      <div class="lib" style="margin-top:18px">
+        <div class="lib-card">
+          <h3>Why it works</h3>
+          <ul>
+            <li>It's your best shot at hidden objections. A quietly unsure customer nods, signs, and cancels three days later. This pulls the doubt out while you can still handle it.</li>
+            <li>The takeaway flips the frame. They stop feeling sold and start feeling like they have to qualify.</li>
+            <li>The work-starts-now point is true, so it lands. Name the specific work.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="guard">
+      <h4>Integrity, not pressure (keep this visible)</h4>
+      <p>This pause exists for the customer. It's a deliberate checkpoint to confirm they're truly committed and that nothing's been left unaddressed before either side invests. You're handing them a clean moment to say "wait, I'm not sure," which is the opposite of forcing a signature through. You honor the 10-day right out loud, every time. The framing is about commitment and surfacing concerns, never a claim that they can't cancel. A customer who hears it this way feels respected, not cornered.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSE -->
+<section class="section" id="close">
+  <div class="wrap">
+    <span class="sec-eyebrow">The close</span>
+    <h2 class="sec-h2">Make the signature a win</h2>
+    <p class="sec-p">If the consultation did its job, the signature is anticlimactic in the best way. They're nodding, not deliberating. Lead them to every signature and initial, confirm no blank spaces, make sure they leave with a complete copy.</p>
+
+    <div class="congrats">
+      <h3>Congratulations</h3>
+      <p>"You just locked in your power for the next 25 years, and you did it without spending a dime today. Welcome to the Trinity family. Let's grab a photo, you'll want to remember this one."</p>
+    </div>
+    <p class="sec-p" style="margin-top:16px;font-size:14.5px;color:var(--muted)">A genuine celebration reinforces the decision and starves buyer's remorse before the 10-day window. Mean it. Keep it to a line or two, no performed excitement. Then flow into the photo and saving each other's contacts.</p>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section class="section alt" id="resources">
+  <div class="wrap">
+    <span class="sec-eyebrow">Pairs with</span>
+    <h2 class="sec-h2">Companion resources</h2>
+    <div class="res">
+      <a href="#" onclick="return false">
+        <div class="t">What's the Catch <span class="soon">· wiring</span></div>
+        <div class="d">Customer-facing one-pager for the "You Agree" side.</div>
+      </a>
+      <a href="#" onclick="return false">
+        <div class="t">Our Heavy Lifting <span class="soon">· building</span></div>
+        <div class="d">Companion sheet for the LightReach Promise side.</div>
+      </a>
+      <a href="/sales-fundamentals/field-mastery/solar-objections.html">
+        <div class="t">Objection library</div>
+        <div class="d">Full detail lives here. The walk-through just points to it.</div>
+      </a>
+      <a href="#" onclick="return false">
+        <div class="t">Redacted sample PPA <span class="soon">· building</span></div>
+        <div class="d">A full, PII-free copy to study end to end.</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /#appWrap -->
+
+<footer class="site-footer">
+  Trinity Solar · CT Traditional · Internal training use only
+</footer>
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session) { initAnnotations(); }
+
+var __annotInit = false;
+function initAnnotations() {
+  if (__annotInit) return;
+  __annotInit = true;
+  var annots = document.querySelectorAll('.annot');
+  annots.forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var isOpen = el.classList.contains('is-open');
+      document.querySelectorAll('.annot.is-open').forEach(function(o) { o.classList.remove('is-open'); });
+      if (!isOpen) el.classList.add('is-open');
+    });
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      if (e.key === 'Escape') { el.classList.remove('is-open'); }
+    });
+    var card = el.querySelector('.card');
+    if (card) card.addEventListener('click', function(e) { e.stopPropagation(); });
+  });
+  document.addEventListener('click', function() {
+    document.querySelectorAll('.annot.is-open').forEach(function(o) { o.classList.remove('is-open'); });
+  });
+}
+
+// Preview fallback: render content when the auth gate is not present.
+// Never runs on the production domain, so the live page stays fully gated.
+(function() {
+  if (/(^|\.)ct-resource-page\.com$/.test(location.hostname)) return;
+  function reveal() {
+    var ls = document.getElementById('loginScreen'); if (ls) ls.style.display = 'none';
+    var cp = document.getElementById('changePasswordScreen'); if (cp) cp.style.display = 'none';
+    var app = document.getElementById('appWrap');
+    if (app && getComputedStyle(app).display === 'none') app.style.display = 'block';
+    initAnnotations();
+  }
+  window.addEventListener('load', function() { setTimeout(reveal, 300); });
+})();
+</script>
+
+</body>
+</html>
