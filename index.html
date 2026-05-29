@@ -361,6 +361,65 @@
     footer a { color: var(--text2); text-decoration: none; }
     footer a:hover { color: var(--text); }
 
+    /* Shell + left rail (rail shows on desktop; horizontal cat-nav shows below) */
+    .shell { max-width: 1240px; margin: 0 auto; }
+    .side-rail { display: none; }
+
+    /* Recents -- "Jump back in" */
+    .recents { margin-bottom: 22px; }
+    .recents-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text2); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+    }
+    .recents-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+    .recents-row::-webkit-scrollbar { height: 6px; }
+    .recents-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; }
+    .recent-chip {
+      flex-shrink: 0; display: flex; align-items: center; gap: 9px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 9px;
+      padding: 9px 13px; text-decoration: none; color: var(--text); max-width: 230px;
+      box-shadow: var(--shadow); transition: box-shadow 0.15s, transform 0.15s, border-color 0.15s;
+    }
+    .recent-chip:hover { box-shadow: var(--shadow-h); transform: translateY(-2px); border-color: #b0b8ab; }
+    .recent-chip img, .recent-chip .rc-icon {
+      width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; object-fit: contain; background: var(--bg);
+    }
+    .recent-chip .rc-icon { display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .recent-chip .rc-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Keyboard-active search result */
+    .card.kbd-active { box-shadow: 0 0 0 2px var(--green), var(--shadow-h); transform: translateY(-3px); border-color: var(--green); }
+
+    @media (min-width: 900px) {
+      .cat-nav { display: none; }
+      .shell { display: flex; align-items: flex-start; gap: 24px; padding: 24px 24px 56px; }
+      main { flex: 1; min-width: 0; padding: 0 !important; }
+      .side-rail {
+        display: block; position: sticky; top: 70px; width: 212px; flex-shrink: 0;
+      }
+      .rail-section-label {
+        font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+        color: var(--text2); padding: 0 12px 8px;
+      }
+      .rail-btn {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px;
+        width: 100%; text-align: left; background: transparent; border: none;
+        border-left: 3px solid transparent; border-radius: 0 7px 7px 0;
+        padding: 9px 12px; margin-bottom: 2px; cursor: pointer;
+        font-size: 13px; font-weight: 600; color: var(--text2); transition: background 0.12s, color 0.12s;
+      }
+      .rail-btn:hover { background: var(--card); color: var(--text); }
+      .rail-btn.active { background: var(--card); color: var(--text); box-shadow: var(--shadow); }
+      .rail-btn[data-cat="All"].active      { border-left-color: var(--header); }
+      .rail-btn[data-cat="Solar"].active    { border-left-color: var(--green); }
+      .rail-btn[data-cat="Roofing"].active  { border-left-color: var(--orange); }
+      .rail-btn[data-cat="Battery"].active  { border-left-color: var(--blue); }
+      .rail-btn[data-cat="Sales Fundamentals"].active { border-left-color: var(--pink); }
+      .rail-btn[data-cat="University"].active { border-left-color: var(--teal); }
+      .rail-count { font-size: 10px; font-weight: 700; color: var(--text2); background: var(--border); padding: 1px 7px; border-radius: 10px; }
+      .rail-btn.active .rail-count { background: #EDFAD6; color: #4A8A14; }
+    }
+
     /* Responsive */
     @media (max-width: 640px) {
       .header-inner { padding: 12px 14px; gap: 10px; }
@@ -435,7 +494,22 @@
   </div>
 </header>
 
+<div class="shell">
+  <aside class="side-rail" id="sideRail">
+    <div class="rail-section-label">Categories</div>
+    <button class="rail-btn active" data-cat="All"      onclick="setCat('All')">All Resources <span class="rail-count" id="rcnt-All"></span></button>
+    <button class="rail-btn"        data-cat="Solar"    onclick="setCat('Solar')">&#9728; Solar <span class="rail-count" id="rcnt-Solar"></span></button>
+    <button class="rail-btn"        data-cat="Roofing"  onclick="setCat('Roofing')">&#127968; Roofing <span class="rail-count" id="rcnt-Roofing"></span></button>
+    <button class="rail-btn"        data-cat="Battery"  onclick="setCat('Battery')">&#128267; Battery <span class="rail-count" id="rcnt-Battery"></span></button>
+    <button class="rail-btn"        data-cat="Sales Fundamentals" onclick="setCat('Sales Fundamentals')">&#129504; Sales Fundamentals <span class="rail-count" id="rcnt-Sales-Fundamentals"></span></button>
+    <button class="rail-btn"        data-cat="University" onclick="setCat('University')">&#127891; University <span class="rail-count" id="rcnt-University"></span></button>
+  </aside>
+
 <main>
+  <div class="recents" id="recentsRow" style="display:none">
+    <div class="recents-label">&#128340; Jump back in</div>
+    <div class="recents-row" id="recentsInner"></div>
+  </div>
   <a id="updatesBridge" href="/updates/" style="display:none;align-items:center;gap:12px;padding:11px 18px;margin:0 auto 16px;max-width:1200px;background:linear-gradient(135deg,rgba(245,166,35,0.10),rgba(120,200,50,0.06));border:1px solid rgba(245,166,35,0.28);border-radius:8px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s,background 0.15s;"
      onmouseover="this.style.borderColor='#C8851A';"
      onmouseout="this.style.borderColor='rgba(245,166,35,0.28)';">
@@ -472,6 +546,7 @@
     <div class="state-box"><p>Loading resources&hellip;</p></div>
   </div>
 </main>
+</div><!-- /.shell -->
 
 <footer>
   CT Traditional Sales Resource Center &nbsp;&middot;&nbsp;
@@ -507,10 +582,56 @@ document.getElementById('footerYear').textContent = now.getFullYear();
 
 document.addEventListener('keydown', e => {
   if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
-    e.preventDefault(); document.getElementById('searchInput').focus();
+    e.preventDefault(); document.getElementById('searchInput').focus(); return;
   }
-  if (e.key === 'Escape') clearSearch();
+  if (e.key === 'Escape') { clearSearch(); return; }
+  // Arrow + Enter navigate the flat search results (only while a query is active).
+  if (!searchQ) return;
+  if (e.key === 'ArrowDown')      { e.preventDefault(); setKbd(kbdIndex < 0 ? 0 : kbdIndex + 1); }
+  else if (e.key === 'ArrowUp')   { e.preventDefault(); setKbd(kbdIndex < 0 ? 0 : kbdIndex - 1); }
+  else if (e.key === 'Enter') {
+    const cards = resultCards();
+    if (cards.length) { e.preventDefault(); cards[kbdIndex >= 0 ? kbdIndex : 0].click(); }
+  }
 });
+
+// ── Recents ("Jump back in") ──────────────────────
+const RECENTS_KEY = 'ctrp_recents';
+function loadRecents() { try { return JSON.parse(localStorage.getItem(RECENTS_KEY)) || []; } catch { return []; } }
+function recordRecent(r) {
+  if (!r) return;
+  let list = loadRecents().filter(x => x.id !== r.id);
+  list.unshift({ id: r.id, name: r.name, url: r.url, type: r.type, image_url: r.image_url, image_type: r.image_type });
+  localStorage.setItem(RECENTS_KEY, JSON.stringify(list.slice(0, 8)));
+}
+function renderRecents() {
+  const wrap = document.getElementById('recentsRow');
+  const inner = document.getElementById('recentsInner');
+  const list = loadRecents().slice(0, 6);
+  // Only on the default landing surface: All category, no active query.
+  if (!list.length || searchQ || activeCat !== 'All') { wrap.style.display = 'none'; return; }
+  inner.innerHTML = list.map(r => {
+    const fav   = r.image_url && r.image_type === 'favicon' ? r.image_url : faviconUrl(r.url);
+    const emoji = TYPE_EMOJI[r.type] || '&#128204;';
+    const icon  = fav
+      ? `<img src="${fav}" alt="" loading="lazy" onerror="this.outerHTML='<span class=rc-icon>${emoji}</span>'">`
+      : `<span class="rc-icon">${emoji}</span>`;
+    return `<a class="recent-chip" href="${r.url}"${linkAttrs(r.url)} data-id="${r.id}">
+      ${icon}<span class="rc-name">${escapeHtml(r.name)}</span></a>`;
+  }).join('');
+  wrap.style.display = 'block';
+}
+
+// ── Keyboard navigation of search results ─────────
+let kbdIndex = -1;
+function resultCards() { return Array.from(document.querySelectorAll('#container a.card')); }
+function setKbd(i) {
+  const cards = resultCards();
+  if (!cards.length) { kbdIndex = -1; return; }
+  kbdIndex = (i + cards.length) % cards.length;
+  cards.forEach((c, n) => c.classList.toggle('kbd-active', n === kbdIndex));
+  cards[kbdIndex].scrollIntoView({ block: 'nearest' });
+}
 
 function escapeHtml(s) {
   return String(s == null ? '' : s)
@@ -546,17 +667,31 @@ async function initApp(profile, session) {
   }
   all = data || [];
   document.getElementById('cnt-All').textContent = all.length;
+  const rcntAll = document.getElementById('rcnt-All');
+  if (rcntAll) rcntAll.textContent = all.length;
   CAT_ORDER.forEach(cat => {
+    const n = all.filter(r => r.category === cat).length;
     const el = document.getElementById('cnt-' + cat.replace(/ /g, '-'));
-    if (el) el.textContent = all.filter(r => r.category === cat).length;
+    if (el) el.textContent = n;
+    const rel = document.getElementById('rcnt-' + cat.replace(/ /g, '-'));
+    if (rel) rel.textContent = n;
   });
+
+  // Record a "recent" whenever any resource link is opened (capture phase runs
+  // before same-tab navigation, so the localStorage write lands).
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[data-id]');
+    if (!a) return;
+    const r = all.find(x => x.id === a.dataset.id);
+    if (r) { recordRecent(r); renderRecents(); }
+  }, true);
   const currentItems = all.filter(r => r.is_current).slice(0, 4);
   if (currentItems.length > 0) {
     const grid = document.getElementById('trainingBannerGrid');
     grid.className = 'training-banner-grid cols-' + currentItems.length;
     grid.innerHTML = currentItems.map(r => {
       const desc = r.description ? `<div class="tile-desc">${escapeHtml(r.description)}</div>` : '';
-      return `<a class="training-banner-tile" href="${escapeHtml(r.url)}"${linkAttrs(r.url)}>
+      return `<a class="training-banner-tile" href="${escapeHtml(r.url)}"${linkAttrs(r.url)} data-id="${r.id}">
         <div class="tile-name">${escapeHtml(r.name)}</div>
         ${desc}
         <div class="tile-cta">Open &rarr;</div>
@@ -572,7 +707,7 @@ async function initApp(profile, session) {
 
 function setCat(cat) {
   activeCat = cat; activeType = '';
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
+  document.querySelectorAll('.cat-btn, .rail-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === cat));
   render();
 }
 
@@ -687,7 +822,7 @@ function cardHtml(r, i, crumb) {
     : '';
 
   if (hasImg) {
-    return `<a class="card" href="${r.url}"${linkAttrs(r.url)} style="${delay}">
+    return `<a class="card" href="${r.url}"${linkAttrs(r.url)} data-id="${r.id}" style="${delay}">
       ${newBadge}
       <div class="card-image"><img src="${r.image_url}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
       <div class="card-head" style="padding:10px 14px 0"><span class="card-type">${r.type||'Resource'}</span></div>
@@ -699,7 +834,7 @@ function cardHtml(r, i, crumb) {
       </div>
     </a>`;
   }
-  return `<a class="card" href="${r.url}"${linkAttrs(r.url)} style="${delay}">
+  return `<a class="card" href="${r.url}"${linkAttrs(r.url)} data-id="${r.id}" style="${delay}">
     ${newBadge}
     <div class="card-head">
       ${fav
@@ -741,6 +876,7 @@ function linkAttrs(url) {
 
 function render() {
   currentTerms = searchQ ? searchQ.split(/\s+/).filter(Boolean) : [];
+  renderRecents();
 
   // Category + type chips still scope the pool; search ranks within that scope.
   const scope = all.filter(r => {
@@ -786,6 +922,7 @@ function render() {
     </div>`;
     html += `<div class="cards">${scored.map((x, i) => cardHtml(x.r, i, true)).join('')}</div>`;
     document.getElementById('container').innerHTML = html;
+    setKbd(0);
     return;
   }
 
