@@ -38,6 +38,7 @@
   .b-deleted{background:rgba(214,48,48,.12);color:#a02020}.b-noshow{background:rgba(214,48,48,.1);color:#a02020}
   .b-cancel{background:rgba(200,140,0,.12);color:#8a5800}.b-new{background:rgba(120,200,50,.18);color:#3a7010}
   .b-done{background:rgba(120,200,50,.16);color:#3a7010}
+  .b-lang{background:rgba(41,169,225,.14);color:#1070a0}
   .chev{margin-left:auto;color:var(--muted);font-size:13px}
   .card-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
   .card.open .card-body{display:block}
@@ -217,7 +218,7 @@ async function loadLeads(){
   const target = window.IS_MANAGER ? VIEW_AS : ME;   // managers view a chosen rep; reps view themselves
   if(!target) return;                                // manager hasn't picked a rep yet
   try{
-    const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,properties(town,county,dnc)';
+    const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,language,properties(town,county,dnc)';
     const [{data:dl,error:e1},{data:cl}] = await Promise.all([
       sb.from('direct_leads').select(SEL).not('assigned_to','is',null).order('last_appt_date',{ascending:false,nullsFirst:false}),
       sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source').order('contacted_at',{ascending:false}),
@@ -296,7 +297,7 @@ function cardHtml(l){
   return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
     <div class="card-head" onclick="toggle('${esc(l.dl_number)}')">
       <div><div class="nm">${esc(l.homeowner_name||'--')}</div><div class="card-sub">${esc(town)} &middot; ${esc(l.dl_number)}${lastCall?' &middot; last call '+fmtDate(lastCall.contacted_at):''}</div></div>
-      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${calledBadge}
+      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${calledBadge}${(l.language||'').toLowerCase()==='spanish'?' <span class="badge b-lang">Spanish</span>':''}
       <span class="chev">${open?'&#9662;':'&#9656;'}</span>
     </div>
     <div class="card-body">

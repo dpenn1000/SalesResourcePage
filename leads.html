@@ -119,6 +119,7 @@
   .btn-sm:disabled{opacity:.5;cursor:default}
   .dleg{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--muted);white-space:nowrap;margin-right:8px}
   .dleg i{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .b-lang{background:rgba(41,169,225,.14);color:#1070a0}
   .timeline{display:flex;flex-direction:column;margin-top:4px}
   .tl-evt{font-size:12.5px;color:var(--ink);padding:5px 0;border-top:1px solid var(--border)}
   .tl-badge{display:inline-block;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-right:6px;vertical-align:middle}
@@ -753,19 +754,31 @@ function _qdRepOptsFor(st){
   }
   return people.map(n=>`<option>${esc(n)}</option>`).join('');
 }
+/* Spanish-language badge for lead rows + the detail header. Renders only when any
+   DL on the property has language='spanish'. */
+function langBadge(g){
+  const isSp=(g.primary&&(g.primary.language||'').toLowerCase()==='spanish')||((g.dls||[]).some(d=>(d.language||'').toLowerCase()==='spanish'));
+  return isSp?' <span class="badge b-lang">Spanish</span>':'';
+}
 function _qdGroups(){
-  /* Always seed the Spanish group so the row appears even when empty -- makes the
-     language-routing capability visible, and it fills as Spanish-tagged callable
-     leads come in. A Spanish lead lands ONLY in this group (not its disposition
-     group too) so it cannot be double-dispatched. */
+  /* Spanish-routing trumps the standard callable filter: dispatch Spanish-tagged
+     unassigned leads from a broader pool (callable + goback + nosale) so the
+     group has something to work with even when there are no fresh deleted/no-show
+     Spanish leads. A Spanish lead lands ONLY in this group (not its disposition
+     group too) so it cannot be double-dispatched. The 'spanish' bucket is seeded
+     empty so the row appears regardless. */
   const groups={spanish:[]};
+  const SPANISH_OK=new Set(['deleted','noshow','cancel','new','goback','nosale']);
   for(const g of props){
     if(g.primary.assigned_to)continue;
-    if(leadCategory(g)!=='callable')continue;
     const lang=(g.primary.language||'').toLowerCase();
     const st=g.primary.lifecycle_state||'other';
-    if(lang==='spanish') groups['spanish'].push(g);
-    else (groups[st]=groups[st]||[]).push(g);
+    if(lang==='spanish'){
+      if(SPANISH_OK.has(st)) groups['spanish'].push(g);
+      continue;
+    }
+    if(leadCategory(g)!=='callable')continue;
+    (groups[st]=groups[st]||[]).push(g);
   }
   return groups;
 }
@@ -818,7 +831,9 @@ function stateBadge(s){const m=STATE[s];if(m)return `<span class="badge ${m[1]}"
 function buildDetail(g){
   const p=g.primary;
   const meta=[['Lead source',p.lead_source],['Set by',p.set_by],['Original rep',p.original_rep],['First appt',fmtDate(p.first_appt_date)],['Appointments',p.appt_count],['County',g.property.county]];
-  let h='<div class="dgrid">'+meta.map(([k,v])=>`<div><div class="k">${esc(k)}</div>${esc(v==null||v===''?'--':v)}</div>`).join('')+'</div>';
+  const _lb=langBadge(g);
+  let h=_lb?`<div style="margin-bottom:8px">${_lb}</div>`:'';
+  h+='<div class="dgrid">'+meta.map(([k,v])=>`<div><div class="k">${esc(k)}</div>${esc(v==null||v===''?'--':v)}</div>`).join('')+'</div>';
   h+='<div class="dhdr">Appointments &amp; notes'+(g.dls.length>1?` &middot; ${g.dls.length} direct leads at this property`:'')+'</div>';
   for(const d of g.dls){
     h+=`<div class="dl-row">${esc(d.dl_number)} &middot; ${stateBadge(d.lifecycle_state)} &middot; ${esc(d.homeowner_name||'')} &middot; rep ${esc(d.original_rep||'--')} &middot; ${esc(d.assigned_to||'unassigned')}${d.dl_sf_id?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(d.dl_sf_id))}">SF &nearr;</a>`:''}</div>`;
@@ -943,7 +958,7 @@ function render(){
     const key=g.property.property_id||p.dl_number;propByKey[key]=g;
     h+=`<tr class="${g.anySold?'row-sold':''}" id="r-${esc(key)}">
       <td style="text-align:center"><input type="checkbox" class="rowchk" data-dl="${esc(p.dl_number)}" ${selected.has(p.dl_number)?'checked':''} onchange="toggleSel('${esc(p.dl_number)}',this.checked)"></td>
-      <td><button class="xbtn" onclick="toggleDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${dup}${sold}${dnc}${flag}${typeBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
+      <td><button class="xbtn" onclick="toggleDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${dup}${sold}${dnc}${flag}${typeBadge(g)}${langBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
       <td>${esc(town)}${county}${ooState}</td>
       <td>${stateBadge(p.lifecycle_state)}</td>
       <td><span class="badge ${g.primary.status==='do_not_call'?'b-dnc':''}">${esc(p.status||'pending')}</span></td>
@@ -1028,7 +1043,7 @@ function renderRep(){
   if(!rows.length)tbl+='<tr><td colspan="7" class="empty">No leads match this filter.</td></tr>';
   for(const g of rows){
     const p=g.primary;const key=g.property.property_id||p.dl_number;propByKey[key]=g;
-    tbl+=`<tr class="${g.anySold?'row-sold':''}" id="rr-${esc(key)}"><td><button class="xbtn" onclick="toggleRepDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${g.dls.length>1?` <span class="badge b-dup">${g.dls.length}</span>`:''}${typeBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
+    tbl+=`<tr class="${g.anySold?'row-sold':''}" id="rr-${esc(key)}"><td><button class="xbtn" onclick="toggleRepDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${g.dls.length>1?` <span class="badge b-dup">${g.dls.length}</span>`:''}${typeBadge(g)}${langBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
       <td>${esc(g.property.town||'--')}</td>
       <td>${stateBadge(p.lifecycle_state)}</td>
       <td>${catBadge(leadCategory(g))}</td>
