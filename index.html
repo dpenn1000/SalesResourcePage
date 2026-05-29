@@ -571,6 +571,13 @@ const sb = window.sb;
 
 const CAT_ORDER  = ['Solar', 'Roofing', 'Battery', 'Sales Fundamentals', 'University', 'Control Your Business'];
 const CAT_COLOR  = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', 'Sales Fundamentals': '#C4457A', University: '#0E9B8A', 'Control Your Business': '#8B5CF6' };
+
+// Optional per-category subcategory ordering. Subcategories listed here render
+// in this order; anything else falls back to first-seen / alphabetical at the
+// end. Pin a subcategory to the top of a category here.
+const SUBCAT_ORDER = {
+  Battery: ['Tools & Portals'],
+};
 const TYPE_EMOJI = {
   'Calculator': '&#129518;', 'Map Tool': '&#128506;', 'Reference Portal': '&#128279;',
   'Reference Doc': '&#128196;', 'Form': '&#128203;', 'Document': '&#128209;',
@@ -962,7 +969,16 @@ function render() {
       <div class="section-count">${count}</div>
     </div>`;
 
-    Object.entries(subs).forEach(([sub, items]) => {
+    // Subcategory render order: explicit priority list first (from
+    // SUBCAT_ORDER), then everything else alphabetically.
+    const priority = SUBCAT_ORDER[cat] || [];
+    const subKeys  = Object.keys(subs);
+    const ordered  = [
+      ...priority.filter(s => subKeys.includes(s)),
+      ...subKeys.filter(s => !priority.includes(s)).sort((a, b) => a.localeCompare(b)),
+    ];
+    ordered.forEach(sub => {
+      const items = subs[sub];
       if (Object.keys(subs).length > 1 || sub !== 'General')
         html += `<div class="sub-label">${sub}</div>`;
       html += `<div class="cards cat-${cat.replace(/ /g,'-')}">`;

@@ -169,13 +169,86 @@
 
     /* Tools tab */
     .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 6px; }
-    .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px 14px; text-decoration: none; color: var(--text); display: flex; flex-direction: column; gap: 8px; transition: all 0.15s; position: relative; }
-    .tool-card:hover { border-color: var(--green); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    .tool-card {
+      /* Default (uncategorized) palette falls back to gray neutrals. */
+      --cat-color: #94A3B8;
+      --cat-tint:  rgba(148, 163, 184, 0.08);
+      --cat-edge:  rgba(148, 163, 184, 0.18);
+      background:
+        linear-gradient(135deg, transparent 0%, transparent 55%, var(--cat-tint) 100%),
+        var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px 14px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Top-left accent stripe -- the primary grouping signal across cards. */
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 38%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--cat-color) 0%, transparent 100%);
+      border-radius: var(--radius) 0 0 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    /* Bottom-right geometric wedge -- bookends the grouping signal. */
+    .tool-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 0 0 28px 28px;
+      border-color: transparent transparent var(--cat-edge) transparent;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .tool-card > * { position: relative; z-index: 2; }
+    .tool-card:hover { border-color: var(--cat-color); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
     .tool-icon { font-size: 22px; line-height: 1; }
-    .tool-type { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--text2); text-transform: uppercase; }
+    .tool-type {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--cat-color);
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tool-type::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 2px;
+      background: var(--cat-color);
+      opacity: 0.85;
+    }
     .tool-name { font-size: 14px; font-weight: 700; color: var(--text); }
-    .tool-arrow { position: absolute; top: 14px; right: 14px; color: var(--text2); font-size: 14px; transition: color 0.15s; }
-    .tool-card:hover .tool-arrow { color: var(--green); }
+    .tool-arrow { position: absolute; top: 14px; right: 14px; color: var(--text2); font-size: 14px; transition: color 0.15s; z-index: 3; }
+    .tool-card:hover .tool-arrow { color: var(--cat-color); }
+
+    /* Per-category palettes. Each color tints the gradient corner, the top
+       stripe, the chip dot + text, and the hover border. Chosen to stay
+       readable on the warm off-white background while making each family of
+       tools instantly recognizable. */
+    .tool-card.cat-coaching { --cat-color: #5EA51E; --cat-tint: rgba(120, 200, 50, 0.11); --cat-edge: rgba(120, 200, 50, 0.22); }
+    .tool-card.cat-manager  { --cat-color: #1f8fc0; --cat-tint: rgba(41, 169, 225, 0.11); --cat-edge: rgba(41, 169, 225, 0.22); }
+    .tool-card.cat-hub      { --cat-color: #C77F0F; --cat-tint: rgba(245, 166, 35, 0.12); --cat-edge: rgba(245, 166, 35, 0.24); }
+    .tool-card.cat-reps     { --cat-color: #0E7490; --cat-tint: rgba(6,  182, 212, 0.11); --cat-edge: rgba(6,  182, 212, 0.22); }
+    .tool-card.cat-mobile   { --cat-color: #4F46E5; --cat-tint: rgba(99, 102, 241, 0.10); --cat-edge: rgba(99, 102, 241, 0.20); }
+    .tool-card.cat-internal { --cat-color: #475569; --cat-tint: rgba(100, 116, 139, 0.09); --cat-edge: rgba(100, 116, 139, 0.18); }
+    .tool-card.cat-all      { --cat-color: #7C3AED; --cat-tint: rgba(139, 92, 246, 0.10); --cat-edge: rgba(139, 92, 246, 0.20); }
 
     /* Page tabs */
     .page-tabs { background: var(--card); border-bottom: 1px solid var(--border); }
@@ -658,55 +731,55 @@
     </div>
     <p style="color:var(--text2);font-size:13px;margin:-6px 0 18px;">Quick links to admin and rep-facing pages that aren't surfaced from the main resource grid.</p>
     <div class="tools-grid">
-      <a class="tool-card" href="/leads.html">
+      <a class="tool-card cat-manager" href="/leads.html">
         <div class="tool-icon">&#127960;</div>
         <span class="tool-type">Managers</span>
         <div class="tool-name">Lead Manager</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="/my-calls.html">
+      <a class="tool-card cat-reps" href="/my-calls.html">
         <div class="tool-icon">&#128242;</div>
         <span class="tool-type">Reps</span>
         <div class="tool-name">My Call List</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="/management/flips/">
+      <a class="tool-card cat-internal" href="/management/flips/">
         <div class="tool-icon">&#128260;</div>
         <span class="tool-type">Internal</span>
         <div class="tool-name">Flip Deals</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="/lead-audit/">
+      <a class="tool-card cat-internal" href="/lead-audit/">
         <div class="tool-icon">&#128269;</div>
         <span class="tool-type">Internal</span>
         <div class="tool-name">Lead Audit</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="/solutions/">
+      <a class="tool-card cat-all" href="/solutions/">
         <div class="tool-icon">&#128161;</div>
         <span class="tool-type">All</span>
         <div class="tool-name">Solutions Center</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="/traditional-university/manager.html">
+      <a class="tool-card cat-manager" href="/traditional-university/manager.html">
         <div class="tool-icon">&#127891;</div>
         <span class="tool-type">Manager</span>
         <div class="tool-name">University Manager</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="/reps/">
+      <a class="tool-card cat-manager" href="/reps/">
         <div class="tool-icon">&#128101;</div>
         <span class="tool-type">Manager</span>
         <div class="tool-name">Rep Console</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="/forms/">
+      <a class="tool-card cat-manager" href="/forms/">
         <div class="tool-icon">&#128203;</div>
         <span class="tool-type">Manager</span>
         <div class="tool-name">Forms</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="/sales-fundamentals/master-reference/">
+      <a class="tool-card cat-all" href="/sales-fundamentals/master-reference/">
         <div class="tool-icon">&#128218;</div>
         <span class="tool-type">All</span>
         <div class="tool-name">Sales Ops Master Reference</div>
@@ -719,43 +792,49 @@
       <p style="color:var(--text2);font-size:12px;margin:0;">Coaching + analytics tools served from the home-office server at <code>tools.ct-resource-page.com</code>. Same Supabase login -- you'll be prompted to sign in once on this subdomain.</p>
     </div>
     <div class="tools-grid">
-      <a class="tool-card" href="https://tools.ct-resource-page.com/manager" target="_blank" rel="noopener">
+      <a class="tool-card cat-hub" href="https://tools.ct-resource-page.com/" target="_blank" rel="noopener">
         <div class="tool-icon">&#127968;</div>
         <span class="tool-type">Hub</span>
         <div class="tool-name">Manager Hub</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="https://tools.ct-resource-page.com/dashboard" target="_blank" rel="noopener">
+      <a class="tool-card cat-coaching" href="https://tools.ct-resource-page.com/dashboard" target="_blank" rel="noopener">
         <div class="tool-icon">&#128202;</div>
         <span class="tool-type">Coaching</span>
-        <div class="tool-name">Coaching Dashboard</div>
+        <div class="tool-name">Appointment Dashboard</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="https://tools.ct-resource-page.com/performance-dashboard" target="_blank" rel="noopener">
+      <a class="tool-card cat-coaching" href="https://tools.ct-resource-page.com/performance-dashboard" target="_blank" rel="noopener">
         <div class="tool-icon">&#128200;</div>
         <span class="tool-type">Coaching</span>
         <div class="tool-name">Performance Dashboard</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="https://tools.ct-resource-page.com/rep-review" target="_blank" rel="noopener">
+      <a class="tool-card cat-coaching" href="https://tools.ct-resource-page.com/rep-review" target="_blank" rel="noopener">
         <div class="tool-icon">&#128221;</div>
         <span class="tool-type">Coaching</span>
         <div class="tool-name">Rep Review</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="https://tools.ct-resource-page.com/forms" target="_blank" rel="noopener">
+      <a class="tool-card cat-coaching" href="https://tools.ct-resource-page.com/forms" target="_blank" rel="noopener">
         <div class="tool-icon">&#128203;</div>
         <span class="tool-type">Coaching</span>
         <div class="tool-name">Coaching Forms</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="https://tools.ct-resource-page.com/go-back-analyzer" target="_blank" rel="noopener">
+      <a class="tool-card cat-coaching" href="https://tools.ct-resource-page.com/go-back-analyzer" target="_blank" rel="noopener">
         <div class="tool-icon">&#128194;</div>
         <span class="tool-type">Coaching</span>
         <div class="tool-name">Go-Back Analyzer</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card" href="https://tools.ct-resource-page.com/mobile" target="_blank" rel="noopener">
+      <a class="tool-card cat-coaching" href="https://tools.ct-resource-page.com/drive-time" target="_blank" rel="noopener">
+        <div class="tool-icon">&#128506;</div>
+        <span class="tool-type">Coaching</span>
+        <div class="tool-name">Appointment Mapping</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
+      <a class="tool-card cat-mobile" href="https://tools.ct-resource-page.com/mobile" target="_blank" rel="noopener">
         <div class="tool-icon">&#128241;</div>
         <span class="tool-type">Mobile</span>
         <div class="tool-name">Mobile PWA</div>
