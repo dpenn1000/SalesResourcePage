@@ -367,7 +367,7 @@ let propByKey = {};    // row key -> property group (lazy detail expand)
 let expandAll = false; // Leads tab: expand-all toggle
 let ME = '';           // current manager name (review attribution)
 
-function showOnly(id){for(const s of ['loginScreen','changePasswordScreen','appWrap']){const el=document.getElementById(s);if(el)el.style.display=(s===id)?(s==='appWrap'?'block':'block'):'none';}}
+function showOnly(id){for(const s of ['loginScreen','changePasswordScreen','appWrap']){const el=document.getElementById(s);if(el)el.style.display=(s===id)?(s==='appWrap'?'block':'flex'):'none';}}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function fmtDate(d){if(!d)return '--';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});}catch(e){return d;}}
