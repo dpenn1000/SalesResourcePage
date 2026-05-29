@@ -311,6 +311,8 @@
 
     .card-name { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--text); padding: 8px 14px; flex: 1; }
     .card-name mark { background: #EDFAD6; color: #4A8A14; padding: 0 2px; border-radius: 2px; font-style: normal; }
+    .card-crumb { font-size: 10px; color: var(--text2); padding: 0 14px 4px; letter-spacing: 0.02em; }
+    .card-crumb mark { background: #EDFAD6; color: #4A8A14; padding: 0 1px; border-radius: 2px; font-style: normal; }
 
     .card-footer { display: flex; align-items: center; justify-content: space-between; padding: 6px 14px 12px; }
     .card-arrow  { font-size: 14px; color: var(--text2); }
@@ -602,9 +604,116 @@ function getSorted(arr) {
   return c;
 }
 
-function hl(text, q) {
-  if (!q) return text;
-  return text.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>');
+let currentTerms = [];
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function hl(text, terms) {
+  if (!terms || !terms.length) return text;
+  const re = new RegExp('(' + terms.map(escRe).join('|') + ')', 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+
+// True if a and b are within one edit (insert/delete/substitute). Cheap typo tolerance.
+function within1(a, b) {
+  if (a === b) return true;
+  const la = a.length, lb = b.length;
+  if (Math.abs(la - lb) > 1) return false;
+  let i = 0, j = 0, edits = 0;
+  while (i < la && j < lb) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++edits > 1) return false;
+    if (la > lb) i++;
+    else if (lb > la) j++;
+    else { i++; j++; }
+  }
+  if (i < la || j < lb) edits++;
+  return edits <= 1;
+}
+
+const SEARCH_WEIGHTS = { name: 10, keywords: 6, subcategory: 4, type: 3, description: 2 };
+
+// Score a resource against the query terms. Every term must match somewhere (AND),
+// or the row is excluded (returns 0). Whole-word > prefix > substring > typo-near.
+function searchScore(r, terms) {
+  const fields = {
+    name:        (r.name || '').toLowerCase(),
+    keywords:    (r.keywords || '').toLowerCase(),
+    subcategory: (r.subcategory || '').toLowerCase(),
+    type:        (r.type || '').toLowerCase(),
+    description: (r.description || '').toLowerCase(),
+  };
+  const words = {};
+  for (const k in fields) words[k] = fields[k].split(/[^a-z0-9]+/).filter(Boolean);
+
+  let total = 0;
+  for (const term of terms) {
+    let best = 0;
+    for (const k in fields) {
+      const text = fields[k];
+      if (!text) continue;
+      let s = 0;
+      if (text.includes(term)) {
+        s = 0.6;
+        for (const w of words[k]) {
+          if (w === term) { s = 1.0; break; }
+          if (w.startsWith(term)) s = Math.max(s, 0.85);
+        }
+      } else if (term.length >= 4) {
+        for (const w of words[k]) {
+          if (within1(w, term)) { s = Math.max(s, 0.5); break; }
+        }
+      }
+      if (s > 0) best = Math.max(best, s * SEARCH_WEIGHTS[k]);
+    }
+    if (best === 0) return 0;
+    total += best;
+  }
+  return total;
+}
+
+// Single card builder shared by the grouped browse view and the flat search view.
+// crumb=true adds a "Category · Subcategory" line (used when results are ungrouped).
+function cardHtml(r, i, crumb) {
+  const hasImg   = r.image_url && (r.image_type === 'og' || r.image_type === 'custom');
+  const fav      = r.image_url && r.image_type === 'favicon' ? r.image_url : faviconUrl(r.url);
+  const emoji    = TYPE_EMOJI[r.type] || '&#128204;';
+  const newBadge = isNew(r) ? '<span class="new-badge">New</span>' : '';
+  const delay    = `animation-delay:${i * 0.04}s`;
+  const nameHl   = hl(r.name, currentTerms);
+  const urlSafe  = r.url.replace(/'/g, "\\'");
+  const crumbHtml = crumb
+    ? `<div class="card-crumb">${hl(escapeHtml(r.category + ' · ' + (r.subcategory || 'General')), currentTerms)}</div>`
+    : '';
+
+  if (hasImg) {
+    return `<a class="card" href="${r.url}"${linkAttrs(r.url)} style="${delay}">
+      ${newBadge}
+      <div class="card-image"><img src="${r.image_url}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
+      <div class="card-head" style="padding:10px 14px 0"><span class="card-type">${r.type||'Resource'}</span></div>
+      <div class="card-name">${nameHl}</div>
+      ${crumbHtml}
+      <div class="card-footer">
+        <span class="card-arrow">&#8599;</span>
+        <button class="copy-btn" onclick="copyUrl(event,'${urlSafe}')">Copy link</button>
+      </div>
+    </a>`;
+  }
+  return `<a class="card" href="${r.url}"${linkAttrs(r.url)} style="${delay}">
+    ${newBadge}
+    <div class="card-head">
+      ${fav
+        ? `<img class="card-favicon" src="${fav}" alt="" loading="lazy" onerror="this.outerHTML='<div class=card-icon>${emoji}</div>'">`
+        : `<div class="card-icon">${emoji}</div>`}
+      <span class="card-type">${r.type||'Resource'}</span>
+    </div>
+    <div class="card-name">${nameHl}</div>
+    ${crumbHtml}
+    <div class="card-footer">
+      <span class="card-arrow">&#8599;</span>
+      <button class="copy-btn" onclick="copyUrl(event,'${urlSafe}')">Copy link</button>
+    </div>
+  </a>`;
 }
 
 function copyUrl(e, url) {
@@ -631,17 +740,17 @@ function linkAttrs(url) {
 }
 
 function render() {
-  let filtered = all.filter(r => {
+  currentTerms = searchQ ? searchQ.split(/\s+/).filter(Boolean) : [];
+
+  // Category + type chips still scope the pool; search ranks within that scope.
+  const scope = all.filter(r => {
     if (activeCat !== 'All' && r.category !== activeCat) return false;
     if (activeType && r.type !== activeType) return false;
-    if (searchQ) return [r.name, r.type, r.description, r.subcategory]
-      .some(v => (v||'').toLowerCase().includes(searchQ));
     return true;
   });
 
   const pool  = activeCat === 'All' ? all : all.filter(r => r.category === activeCat);
   const types = [...new Set(pool.map(r => r.type).filter(Boolean))].sort();
-
   const showFilter = types.length > 0 && (activeCat !== 'All' || types.length > 1);
   if (showFilter) {
     document.getElementById('filterBar').style.display = 'flex';
@@ -652,17 +761,46 @@ function render() {
     document.getElementById('filterBar').style.display = 'none';
   }
 
-  document.getElementById('resultCount').textContent =
-    filtered.length !== all.length ? `${filtered.length} result${filtered.length !== 1 ? 's' : ''}` : '';
+  // Query present: flat, ranked, cross-section results with a breadcrumb per card.
+  if (searchQ) {
+    const scored = scope
+      .map(r => ({ r, s: searchScore(r, currentTerms) }))
+      .filter(x => x.s > 0)
+      .sort((a, b) => b.s - a.s
+        || (a.r.sort_order || 0) - (b.r.sort_order || 0)
+        || a.r.name.localeCompare(b.r.name));
 
-  if (!filtered.length) {
+    document.getElementById('resultCount').textContent =
+      `${scored.length} result${scored.length !== 1 ? 's' : ''}`;
+
+    if (!scored.length) {
+      document.getElementById('container').innerHTML =
+        `<div class="state-box"><h3>No resources found</h3><p>Try a different search or filter.</p></div>`;
+      return;
+    }
+
+    let html = `<div class="section-head">
+      <div class="section-pip" style="background:var(--header)"></div>
+      <div class="section-label">Search Results</div>
+      <div class="section-count">${scored.length}</div>
+    </div>`;
+    html += `<div class="cards">${scored.map((x, i) => cardHtml(x.r, i, true)).join('')}</div>`;
+    document.getElementById('container').innerHTML = html;
+    return;
+  }
+
+  // No query: grouped browse view.
+  document.getElementById('resultCount').textContent =
+    scope.length !== all.length ? `${scope.length} result${scope.length !== 1 ? 's' : ''}` : '';
+
+  if (!scope.length) {
     document.getElementById('container').innerHTML =
-      `<div class="state-box"><h3>No resources found</h3><p>Try a different search or filter.</p></div>`;
+      `<div class="state-box"><h3>No resources found</h3><p>Try a different filter.</p></div>`;
     return;
   }
 
   const grouped = {};
-  getSorted(filtered).forEach(r => {
+  getSorted(scope).forEach(r => {
     if (!grouped[r.category]) grouped[r.category] = {};
     const sub = r.subcategory || 'General';
     if (!grouped[r.category][sub]) grouped[r.category][sub] = [];
@@ -685,45 +823,8 @@ function render() {
     Object.entries(subs).forEach(([sub, items]) => {
       if (Object.keys(subs).length > 1 || sub !== 'General')
         html += `<div class="sub-label">${sub}</div>`;
-
       html += `<div class="cards cat-${cat.replace(/ /g,'-')}">`;
-      items.forEach((r, i) => {
-        const hasImg   = r.image_url && (r.image_type === 'og' || r.image_type === 'custom');
-        const fav      = r.image_url && r.image_type === 'favicon' ? r.image_url : faviconUrl(r.url);
-        const emoji    = TYPE_EMOJI[r.type] || '&#128204;';
-        const newBadge = isNew(r) ? '<span class="new-badge">New</span>' : '';
-        const delay    = `animation-delay:${i * 0.04}s`;
-        const nameHl   = hl(r.name, searchQ);
-        const urlSafe  = r.url.replace(/'/g, "\\'");
-
-        if (hasImg) {
-          html += `<a class="card" href="${r.url}"${linkAttrs(r.url)} style="${delay}">
-            ${newBadge}
-            <div class="card-image"><img src="${r.image_url}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></div>
-            <div class="card-head" style="padding:10px 14px 0"><span class="card-type">${r.type||'Resource'}</span></div>
-            <div class="card-name">${nameHl}</div>
-            <div class="card-footer">
-              <span class="card-arrow">&#8599;</span>
-              <button class="copy-btn" onclick="copyUrl(event,'${urlSafe}')">Copy link</button>
-            </div>
-          </a>`;
-        } else {
-          html += `<a class="card" href="${r.url}"${linkAttrs(r.url)} style="${delay}">
-            ${newBadge}
-            <div class="card-head">
-              ${fav
-                ? `<img class="card-favicon" src="${fav}" alt="" loading="lazy" onerror="this.outerHTML='<div class=card-icon>${emoji}</div>'">`
-                : `<div class="card-icon">${emoji}</div>`}
-              <span class="card-type">${r.type||'Resource'}</span>
-            </div>
-            <div class="card-name">${nameHl}</div>
-            <div class="card-footer">
-              <span class="card-arrow">&#8599;</span>
-              <button class="copy-btn" onclick="copyUrl(event,'${urlSafe}')">Copy link</button>
-            </div>
-          </a>`;
-        }
-      });
+      items.forEach((r, i) => { html += cardHtml(r, i, false); });
       html += `</div>`;
     });
   });

@@ -319,6 +319,10 @@
           <label>Description (optional)</label>
           <textarea id="fDesc" placeholder="Brief note shown in the training banner..."></textarea>
         </div>
+        <div class="form-full">
+          <label>Search keywords (optional)</label>
+          <input type="text" id="fKeywords" placeholder="Aliases and acronyms reps might search: HES, energy audit, low income, interconnection">
+        </div>
 
         <!-- ── Image picker ── -->
         <div class="form-full img-picker">
@@ -1325,6 +1329,7 @@ function showForm(row) {
   document.getElementById('fSub').value      = row ? (row.subcategory||'') : '';
   document.getElementById('fSort').value     = row ? row.sort_order : 0;
   document.getElementById('fDesc').value     = row ? (row.description||'') : '';
+  document.getElementById('fKeywords').value = row ? (row.keywords||'') : '';
   document.getElementById('fActive').checked  = row ? row.active : true;
   document.getElementById('fCurrent').checked = row ? row.is_current : false;
   document.getElementById('formError').style.display = 'none';
@@ -1420,6 +1425,7 @@ async function saveResource() {
     subcategory: document.getElementById('fSub').value.trim() || 'General',
     sort_order:  parseInt(document.getElementById('fSort').value) || 0,
     description: document.getElementById('fDesc').value.trim() || null,
+    keywords:    document.getElementById('fKeywords').value.trim() || null,
     active:      document.getElementById('fActive').checked,
     is_current:  document.getElementById('fCurrent').checked,
     image_url:   imageUrl || null,
@@ -1565,6 +1571,7 @@ function parseBulkCSV(text) {
   const typeIdx = header.findIndex(h => h === 'type');
   const subIdx  = header.findIndex(h => h.includes('sub'));
   const descIdx = header.findIndex(h => h.includes('desc'));
+  const kwIdx   = header.findIndex(h => h.includes('keyword'));
 
   if (nameIdx < 0 || urlIdx < 0 || catIdx < 0 || typeIdx < 0) {
     showBulkError('CSV must have at least these columns: Name, URL, Category, Type');
@@ -1582,6 +1589,7 @@ function parseBulkCSV(text) {
       type:        (cols[typeIdx] || '').trim(),
       subcategory: subIdx  >= 0 ? (cols[subIdx]  || '').trim() : '',
       description: descIdx >= 0 ? (cols[descIdx] || '').trim() : '',
+      keywords:    kwIdx   >= 0 ? (cols[kwIdx]   || '').trim() : '',
       errors:      [],
     };
 
@@ -1677,6 +1685,7 @@ async function bulkAction() {
         type:        row.type,
         subcategory: row.subcategory || 'General',
         description: row.description || null,
+        keywords:    row.keywords || null,
         active:      true,
         is_current:  false,
         image_url:   imageUrl,
