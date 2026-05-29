@@ -433,14 +433,16 @@ async function initApp(){
     let dls;
     try{ dls = await fetchAllDL(); }
     catch(e1){document.getElementById('tableWrap').innerHTML='<div class="empty">Error loading leads: '+esc(e1.message)+'</div>';return;}
-    const [{ data: cl }, { data: mgrs }, { data: reps }] = await Promise.all([
+    const [{ data: cl }, { data: peopleRows }] = await Promise.all([
       sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source'),
-      sb.from('managers').select('name').order('name'),
-      sb.from('reps').select('name').order('name'),
+      // Stage D: source the dispatch picker from `people` (the unified rep+manager
+      // table), active only. One query, survives Stage E dropping reps/managers.
+      sb.from('people').select('name').eq('status','active').order('name'),
     ]);
     contacts = cl || [];
+    // Dedupe defensively in case two people share a display name.
     const seen=new Set();people=[];
-    for(const p of [...(mgrs||[]),...(reps||[])]){if(p&&p.name&&!seen.has(p.name)){seen.add(p.name);people.push(p.name);}}
+    for(const p of (peopleRows||[])){if(p&&p.name&&!seen.has(p.name)){seen.add(p.name);people.push(p.name);}}
     groupByProperty(dls||[]);
     const rsel=document.getElementById('fRep');
     for(const n of people){rsel.appendChild(new Option(n,n));}
