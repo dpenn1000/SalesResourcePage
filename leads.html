@@ -217,6 +217,7 @@
     <button class="tab active" data-tab="dashboard" onclick="setTab('dashboard')">Dashboard</button>
     <button class="tab" data-tab="leads" onclick="setTab('leads')">Leads</button>
     <button class="tab" data-tab="reps" onclick="setTab('reps')">Reps</button>
+    <button class="tab" data-tab="qc" onclick="setTab('qc')">QC Review</button>
     <button class="tab" data-tab="load" onclick="setTab('load')">Load</button>
   </div>
   <div class="wrap">
@@ -293,6 +294,19 @@
         </select>
       </div>
       <div id="repBody"><div class="empty">Pick a rep to see their lead-call detail: a 30-day appointment activity graph and every lead tied to them.</div></div>
+    </div>
+
+    <div id="tab-qc" class="tabpanel" style="display:none">
+      <div class="toolbar">
+        <input type="search" id="qcq" placeholder="Search customer, town, note..." oninput="renderQc()">
+        <select id="qcOutc" onchange="renderQc()" title="Call outcome"><option value="">All outcomes</option></select>
+        <select id="qcState" onchange="renderQc()" title="Homeowner reaction"><option value="">Any homeowner state</option></select>
+        <select id="qcFrust" onchange="renderQc()" title="Frustration source"><option value="">Any frustration</option></select>
+        <select id="qcRep" onchange="renderQc()" title="Logging rep"><option value="">All reps</option></select>
+        <label class="chk"><input type="checkbox" id="qcFrustOnly" onchange="renderQc()"> frustrated only</label>
+      </div>
+      <div id="qcSummary" class="sub" style="margin:6px 0 10px"></div>
+      <div id="qcBody"><div class="empty">Loading QC calls...</div></div>
     </div>
 
     <div id="tab-load" class="tabpanel" style="display:none">
@@ -434,7 +448,7 @@ async function initApp(){
     try{ dls = await fetchAllDL(); }
     catch(e1){document.getElementById('tableWrap').innerHTML='<div class="empty">Error loading leads: '+esc(e1.message)+'</div>';return;}
     const [{ data: cl }, { data: peopleRows }] = await Promise.all([
-      sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source'),
+      sb.from('contact_log').select('id,opportunity_id,opp_name,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source,logged_by'),
       // Stage D: source the dispatch picker from `people` (the unified rep+manager
       // table), active only. One query, survives Stage E dropping reps/managers.
       sb.from('people').select('name').eq('status','active').order('name'),
@@ -688,11 +702,108 @@ function repApptChart(rep){
   const any=slots.list.some(s=>s.total);
   return any?renderStackChart(slots,segs,''):'<div class="empty">No appointment activity in the last 30 days.</div>';
 }
+/* ── QC Review tab: call-centric view for surfacing frustrated customers,
+   homeowner reactions, and the notes behind them. Each row links to the
+   full lead detail via buildDetail(), reusing the timeline + appointment
+   history that the Leads tab uses. Filters populate dynamically from the
+   actual contact_log values so new states/frustration sources flow in
+   without code edits. ── */
+function renderQc(){
+  const q=(document.getElementById('qcq').value||'').trim().toLowerCase();
+  const fState=document.getElementById('qcState').value;
+  const fFrust=document.getElementById('qcFrust').value;
+  const fRep=document.getElementById('qcRep').value;
+  const fOutc=document.getElementById('qcOutc').value;
+  const frustOnly=document.getElementById('qcFrustOnly').checked;
+
+  /* refresh dropdowns from current data; preserve the user's pick across re-renders */
+  const allStates=new Set(),allFrusts=new Set(),allReps=new Set(),allOutc=new Set();
+  for(const c of contacts){
+    if(c.homeowner_state)allStates.add(c.homeowner_state);
+    if(c.frustration_source)allFrusts.add(c.frustration_source);
+    if(c.logged_by)allReps.add(c.logged_by);
+    if(c.outcome)allOutc.add(c.outcome);
+  }
+  _qcSync('qcState','Any homeowner state',allStates,fState);
+  _qcSync('qcFrust','Any frustration',allFrusts,fFrust);
+  _qcSync('qcRep','All reps',allReps,fRep);
+  _qcSync('qcOutc','All outcomes',allOutc,fOutc);
+
+  /* filter + decorate */
+  const rows=[];
+  for(const c of contacts){
+    const state=c.homeowner_state||'';
+    const frust=c.frustration_source||'';
+    if(frustOnly && !frust)continue;
+    if(fState && state!==fState)continue;
+    if(fFrust && frust!==fFrust)continue;
+    const idx=oppToProp[c.opportunity_id];
+    const g=(idx!=null)?props[idx]:null;
+    const repAttr=c.logged_by||(g&&g.primary.assigned_to)||'';
+    if(fRep && repAttr!==fRep)continue;
+    const outc=c.outcome||'';
+    if(fOutc && outc!==fOutc)continue;
+    const customer=c.opp_name||(g&&g.primary.homeowner_name)||'';
+    const town=(g&&g.property.town)||'';
+    if(q){
+      const hay=(customer+' '+town+' '+(c.notes||'')).toLowerCase();
+      if(!hay.includes(q))continue;
+    }
+    rows.push({c,g,customer,town,repAttr,state,frust,outc});
+  }
+  rows.sort((a,b)=>String(b.c.contacted_at||'').localeCompare(String(a.c.contacted_at||'')));
+
+  const totalFrust=contacts.filter(c=>c.frustration_source).length;
+  document.getElementById('qcSummary').textContent=
+    `${rows.length} call${rows.length===1?'':'s'} match (of ${contacts.length} total, ${totalFrust} with frustration logged)`;
+
+  const body=document.getElementById('qcBody');
+  if(!rows.length){body.innerHTML='<div class="empty">No QC calls match these filters.</div>';return;}
+
+  let h='<table><thead><tr><th>When</th><th>Customer</th><th>Town</th><th>Outcome</th><th>Homeowner state</th><th>Frustration</th><th>Logged by</th><th>Notes</th></tr></thead><tbody>';
+  for(const r of rows){
+    const c=r.c;
+    const key='qc-'+(c.id||(c.opportunity_id+'-'+c.contacted_at));
+    const full=c.notes||'';
+    const snip=full.length>90?full.slice(0,90)+'...':full;
+    const customerCell=r.g
+      ? `<button class="xbtn" onclick="qcExpand('${esc(key)}','${esc(c.opportunity_id||'')}')" title="Show lead history">&#9656;</button> <span class="name">${esc(r.customer||'--')}</span>`
+      : `<span class="name">${esc(r.customer||'--')}</span> <span class="sub">(lead not loaded)</span>`;
+    h+=`<tr id="r-${esc(key)}">
+      <td>${esc(fmtDate(c.contacted_at))}</td>
+      <td>${customerCell}</td>
+      <td>${esc(r.town||'--')}</td>
+      <td>${esc(r.outc||'--')}</td>
+      <td>${r.state?`<span class="badge b-goback">${esc(r.state)}</span>`:'<span class="sub">--</span>'}</td>
+      <td>${r.frust?`<span class="badge b-noshow">${esc(r.frust)}</span>`:'<span class="sub">--</span>'}</td>
+      <td>${esc(r.repAttr||'--')}</td>
+      <td title="${esc(full)}">${esc(snip)}</td>
+    </tr>`;
+  }
+  h+='</tbody></table>';
+  body.innerHTML=h;
+}
+function _qcSync(id,allLabel,values,cur){
+  const sel=document.getElementById(id);if(!sel)return;
+  const opts=[`<option value="">${esc(allLabel)}</option>`];
+  for(const v of [...values].sort())opts.push(`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(v)}</option>`);
+  sel.innerHTML=opts.join('');
+}
+function qcExpand(key,opp){
+  const row=document.getElementById('r-'+key);if(!row)return;
+  const next=row.nextElementSibling;
+  if(next&&next.classList.contains('detail')){next.remove();return;}
+  const idx=oppToProp[opp];const g=(idx!=null)?props[idx]:null;
+  if(!g){row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="8"><div class="sub">No lead context for this call (the opportunity is no longer in scope).</div></td></tr>');return;}
+  row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="8">'+buildDetail(g)+'</td></tr>');
+}
+
 function setTab(t){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   document.querySelectorAll('.tabpanel').forEach(p=>{p.style.display=(p.id==='tab-'+t)?'block':'none';});
   if(t==='load')renderIntakeList();
   if(t==='reps')renderRepOverview();
+  if(t==='qc')renderQc();
 }
 function toggleExpandAll(){
   expandAll=!expandAll;
