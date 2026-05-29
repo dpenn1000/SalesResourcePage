@@ -168,7 +168,13 @@
     #toast.show { opacity: 1; transform: translateY(0); }
 
     /* Tools tab */
-    .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 6px; }
+    .tools-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 6px;
+    }
     .tool-card {
       /* Default (uncategorized) palette falls back to gray neutrals. */
       --cat-color: #94A3B8;
@@ -188,6 +194,12 @@
       transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
       position: relative;
       overflow: hidden;
+      /* Flex-item sizing -- target 240px, allow 220-280px range. Combined
+         with the parent's justify-content: center, incomplete rows center
+         themselves instead of left-aligning. */
+      flex: 1 1 240px;
+      min-width: 220px;
+      max-width: 280px;
     }
     /* Top-left accent stripe -- the primary grouping signal across cards. */
     .tool-card::before {
@@ -787,22 +799,11 @@
         <div class="tool-name">Lead Audit</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
+      <!-- Row 2: Utility (teal) -->
       <a class="tool-card cat-utility" href="/solutions/">
         <div class="tool-icon">&#128161;</div>
         <span class="tool-type">Utility</span>
         <div class="tool-name">Solutions Center</div>
-        <span class="tool-arrow">&#8599;</span>
-      </a>
-      <a class="tool-card cat-rep" href="/traditional-university/manager.html">
-        <div class="tool-icon">&#127891;</div>
-        <span class="tool-type">Rep / University</span>
-        <div class="tool-name">University Manager</div>
-        <span class="tool-arrow">&#8599;</span>
-      </a>
-      <a class="tool-card cat-rep" href="/reps/">
-        <div class="tool-icon">&#128101;</div>
-        <span class="tool-type">Rep / University</span>
-        <div class="tool-name">Rep Console</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
       <a class="tool-card cat-utility" href="/forms/">
@@ -815,6 +816,19 @@
         <div class="tool-icon">&#128218;</div>
         <span class="tool-type">Utility</span>
         <div class="tool-name">Sales Ops Master Reference</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
+      <!-- Row 3: Rep / University (purple) -->
+      <a class="tool-card cat-rep" href="/traditional-university/manager.html">
+        <div class="tool-icon">&#127891;</div>
+        <span class="tool-type">Rep / University</span>
+        <div class="tool-name">University Manager</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
+      <a class="tool-card cat-rep" href="/reps/">
+        <div class="tool-icon">&#128101;</div>
+        <span class="tool-type">Rep / University</span>
+        <div class="tool-name">Rep Console</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
     </div>
