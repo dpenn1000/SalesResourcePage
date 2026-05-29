@@ -576,19 +576,19 @@ function renderDashDetail(){
     const r=byRepOut[rep]||(byRepOut[rep]={appt:0,reached:0,attempted:0,uncalled:0,total:0});
     const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
     let a=false,re=false,hc=false;
-    for(const oid of ids)for(const c of (scByOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set')a=true;else if(c.outcome==='Reached')re=true;}
+    for(const oid of ids)for(const c of (scByOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set')a=true;else if(c.outcome==='Reached'||c.outcome==='Has Interest')re=true;}
     if(a)r.appt++;else if(re)r.reached++;else if(hc)r.attempted++;else r.uncalled++;
     r.total++;
   }
   /* logged QC call outcomes (call-list activity, scoped) */
   const outc={},byFrust={},byHState={};
   for(const c of sc){const o=c.outcome||'Other';outc[o]=(outc[o]||0)+1;if(c.frustration_source)byFrust[c.frustration_source]=(byFrust[c.frustration_source]||0)+1;if(c.homeowner_state)byHState[c.homeowner_state]=(byHState[c.homeowner_state]||0)+1;}
-  const totCalls=sc.length,connected=(outc['Reached']||0)+(outc['Appointment Set']||0),connRate=totCalls?Math.round(connected/totCalls*100):0;
+  const totCalls=sc.length,connected=(outc['Reached']||0)+(outc['Has Interest']||0)+(outc['Appointment Set']||0),connRate=totCalls?Math.round(connected/totCalls*100):0;
   /* one cohesive palette: green = good/go, steel = in-progress, slate = inert/neutral, amber = attention */
   const G={green:'linear-gradient(90deg,#5aa522,#7ec63f)',dgreen:'linear-gradient(90deg,#3f7a16,#5aa522)',steel:'linear-gradient(90deg,#3f6f96,#5a93bd)',slate:'linear-gradient(90deg,#6f7d8c,#95a3b1)',amber:'linear-gradient(90deg,#b8770f,#d99a2b)'};
   const STLAB={noshow:'No Show',cancel:'Cancelled',new:'New (manual)',deleted:'Deleted (pre-run)',ready:'Scheduled',goback:'Go Back',nosale:'No Sale',ran:'Ran',dq:'DQ',other:'Other'};
   const DISPO={deleted:G.amber,noshow:G.amber,cancel:G.amber,new:G.green,other:G.slate};
-  const OUTC={'Appointment Set':G.dgreen,'Reached':G.green,'No Answer':G.slate};
+  const OUTC={'Appointment Set':G.dgreen,'Has Interest':G.steel,'Reached':G.green,'No Answer':G.slate};
   const card=(title,obj,labmap,limit,colorFn,accent,tip)=>{
     const ent=Object.entries(obj).sort((a,b)=>b[1]-a[1]);
     const max=Math.max(1,...ent.map(e=>e[1]));
