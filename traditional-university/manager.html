@@ -561,10 +561,14 @@ window.initApp = async function (profile, session) {
   state.session = session;
 
   // auth-gate verified the profile; we still need the full managers row.
-  const { data: mgr } = await supa.from('managers')
+  // Stage E: source identity from `people`. Alias parent_id -> parent_manager_id
+  // for any downstream code that still uses the old column name.
+  const { data: mgr } = await supa.from('people')
     .select('*')
     .eq('auth_user_id', session.user.id)
+    .eq('role', 'manager')
     .maybeSingle();
+  if (mgr) mgr.parent_manager_id = mgr.parent_id;
 
   if (!mgr) {
     document.getElementById('appWrap').innerHTML =
@@ -590,16 +594,18 @@ window.initApp = async function (profile, session) {
 
 async function loadAll() {
   const [repsRes, mgrsRes, certsRes, assignsRes, attemptsRes, shadowsRes, helpRes] = await Promise.all([
-    supa.from('reps').select('*').order('created_at', { ascending: false }),
-    supa.from('managers').select('*').order('created_at', { ascending: false }),
+    supa.from('people').select('*').eq('role','rep').order('created_at', { ascending: false }),
+    supa.from('people').select('*').eq('role','manager').order('created_at', { ascending: false }),
     supa.from('certs').select('*').order('order_index'),
     supa.from('cert_assignments').select('*'),
     supa.from('quiz_attempts').select('*').order('started_at', { ascending: false }),
     supa.from('shadow_logs').select('*').order('shadow_date', { ascending: false }),
     supa.from('help_requests').select('*').order('created_at', { ascending: false }),
   ]);
-  state.reps = repsRes.data || [];
-  state.managers = mgrsRes.data || [];
+  // Alias people.parent_id -> manager_id / parent_manager_id so existing
+  // renderers that reference those field names keep working unchanged.
+  state.reps = (repsRes.data || []).map(r => Object.assign(r, { manager_id: r.parent_id }));
+  state.managers = (mgrsRes.data || []).map(m => Object.assign(m, { parent_manager_id: m.parent_id }));
   state.certs = certsRes.data || [];
   state.assignments = assignsRes.data || [];
   state.allAttempts = attemptsRes.data || [];
@@ -1027,8 +1033,13 @@ function renderHelp() {
 }
 
 // ===================== REPS =====================
+// Stage E: user CRUD retired. Canonical surface is admin.html -> Users.
+function _ucRetired(){ alert('User management has moved to Admin → Users. You will be redirected there.'); window.location.href = '/admin.html'; }
+
 async function addRep(e) {
-  e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
+  _ucRetired(); return;
+  // legacy body retained dead-code-style for git history; unreachable.
   const name = document.getElementById('rep-name').value.trim();
   const nickname = document.getElementById('rep-nickname').value.trim().toLowerCase();
   const email = document.getElementById('rep-email').value.trim().toLowerCase() || null;
@@ -1156,6 +1167,7 @@ function editRep(id) {
 }
 
 async function saveRep(id) {
+  _ucRetired(); return;
   const name = document.getElementById('edit-rep-name').value.trim();
   const nickname = document.getElementById('edit-rep-nickname').value.trim().toLowerCase();
   const email = document.getElementById('edit-rep-email').value.trim().toLowerCase() || null;
@@ -1179,6 +1191,7 @@ async function saveRep(id) {
 }
 
 async function deleteRep(id) {
+  _ucRetired(); return;
   const rep = state.reps.find(r => r.id === id);
   if (!confirm(`Permanently delete ${rep?.name}? This removes ALL of their training history: quiz attempts, shadow logs, uploads, and help messages. This cannot be undone.`)) return;
   const { error } = await supa.from('reps').delete().eq('id', id);
@@ -1224,7 +1237,8 @@ function renderManagers() {
 }
 
 async function addManager(e) {
-  e.preventDefault();
+  if (e && e.preventDefault) e.preventDefault();
+  _ucRetired(); return;
   const name = document.getElementById('mgr-name').value.trim();
   const nickname = document.getElementById('mgr-nickname').value.trim().toLowerCase();
   const email = document.getElementById('mgr-email').value.trim().toLowerCase() || null;
@@ -1298,6 +1312,7 @@ function editManager(id) {
 }
 
 async function saveManager(id) {
+  _ucRetired(); return;
   const name = document.getElementById('edit-mgr-name').value.trim();
   const nickname = document.getElementById('edit-mgr-nickname').value.trim().toLowerCase();
   const email = document.getElementById('edit-mgr-email').value.trim().toLowerCase() || null;
@@ -1325,6 +1340,7 @@ async function saveManager(id) {
 }
 
 async function deleteManager(id) {
+  _ucRetired(); return;
   if (id === state.manager.id) { alert("You can't remove yourself."); return; }
   const mgr = state.managers.find(m => m.id === id);
   if (!confirm(`Remove ${mgr?.name} as a manager? They'll lose access to this portal.`)) return;
