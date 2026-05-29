@@ -556,8 +556,9 @@ function renderDashDetail(){
     if(leadCategory(g)==='callable'){const st=g.primary.lifecycle_state||'other'; byCallable[st]=(byCallable[st]||0)+1;}
     const ty=leadType(g); const tl=ty==='direct'?'Direct':ty==='trad'?'Traditional':'Unknown'; byType[tl]=(byType[tl]||0)+1;
     const t=g.property.town||'(unknown)'; byTown[t]=(byTown[t]||0)+1;
-    /* #2: per rep -> best call outcome across this lead's opps, within scope */
-    const rep=g.primary.assigned_to||'Unassigned';
+    /* #2: per rep -> best call outcome across this lead's opps, within scope.
+       Unassigned leads are excluded; the rep card is rep-only. */
+    const rep=g.primary.assigned_to;if(!rep)continue;
     const r=byRepOut[rep]||(byRepOut[rep]={appt:0,reached:0,attempted:0,uncalled:0,total:0});
     const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
     let a=false,re=false,hc=false;
