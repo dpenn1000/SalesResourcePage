@@ -80,6 +80,7 @@
   .dp-stack{width:62%;min-width:6px}
   .dp-seg{width:100%}
   .dp-seg.appt{background:#4e8f1f}
+  .dp-seg.interest{background:#5a93bd}
   .dp-seg.reached{background:#8ed44f}
   .dp-seg.sched{background:#5a8fb5}
   .dp-seg.noanswer{background:#9aa7b6}
@@ -90,7 +91,7 @@
   .dp-today{color:#C88C00;font-weight:700}
   .dp-legend{display:flex;gap:14px;margin:8px 2px 0;font-size:11px;color:var(--muted);flex-wrap:wrap}
   .dp-legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle}
-  .dp-dot.appt{background:#4e8f1f}.dp-dot.reached{background:#8ed44f}.dp-dot.sched{background:#5a8fb5}.dp-dot.noanswer{background:#9aa7b6}
+  .dp-dot.appt{background:#4e8f1f}.dp-dot.interest{background:#5a93bd}.dp-dot.reached{background:#8ed44f}.dp-dot.sched{background:#5a8fb5}.dp-dot.noanswer{background:#9aa7b6}
   .b-sched{background:rgba(41,169,225,.14);color:#1070a0}
   .b-callable{background:rgba(120,200,50,.18);color:#3a7010}
   .b-direct{background:rgba(184,119,15,.16);color:#8a5800;border:1px solid rgba(184,119,15,.45)}
@@ -573,11 +574,11 @@ function renderDashDetail(){
     /* #2: per rep -> best call outcome across this lead's opps, within scope.
        Unassigned leads are excluded; the rep card is rep-only. */
     const rep=g.primary.assigned_to;if(!rep)continue;
-    const r=byRepOut[rep]||(byRepOut[rep]={appt:0,reached:0,attempted:0,uncalled:0,total:0});
+    const r=byRepOut[rep]||(byRepOut[rep]={appt:0,interest:0,reached:0,attempted:0,uncalled:0,total:0});
     const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
-    let a=false,re=false,hc=false;
-    for(const oid of ids)for(const c of (scByOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set')a=true;else if(c.outcome==='Reached'||c.outcome==='Has Interest')re=true;}
-    if(a)r.appt++;else if(re)r.reached++;else if(hc)r.attempted++;else r.uncalled++;
+    let a=false,hi=false,re=false,hc=false;
+    for(const oid of ids)for(const c of (scByOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set')a=true;else if(c.outcome==='Has Interest')hi=true;else if(c.outcome==='Reached')re=true;}
+    if(a)r.appt++;else if(hi)r.interest++;else if(re)r.reached++;else if(hc)r.attempted++;else r.uncalled++;
     r.total++;
   }
   /* logged QC call outcomes (call-list activity, scoped) */
@@ -603,12 +604,12 @@ function renderDashDetail(){
   /* When a daily/range scope is active, the bar reflects CALLS IN SCOPE (segments
      scale to the busiest rep's in-scope activity, no "Not called" filler). With no
      scope, the bar is assigned-leads with the uncalled bucket. */
-  const RSEG_FULL=[['appt','#3f7a16','Appt set'],['reached','#7ec63f','Reached'],['attempted','#5a93bd','Attempted'],['uncalled','#d3dae0','Not called']];
-  const RSEG_ACTIVE=[['appt','#3f7a16','Appt set'],['reached','#7ec63f','Reached'],['attempted','#5a93bd','Attempted']];
+  const RSEG_FULL=[['appt','#3f7a16','Appt set'],['interest','#5a93bd','Has interest'],['reached','#7ec63f','Reached'],['attempted','#8694a3','Attempted'],['uncalled','#d3dae0','Not called']];
+  const RSEG_ACTIVE=[['appt','#3f7a16','Appt set'],['interest','#5a93bd','Has interest'],['reached','#7ec63f','Reached'],['attempted','#8694a3','Attempted']];
   const repCard=()=>{
     const scoped=dashScopeActive();
     const RSEG=scoped?RSEG_ACTIVE:RSEG_FULL;
-    const totalFor=r=>scoped?(r.appt+r.reached+r.attempted):r.total;
+    const totalFor=r=>scoped?(r.appt+r.interest+r.reached+r.attempted):r.total;
     const ent=Object.entries(byRepOut).map(([rep,r])=>[rep,r,totalFor(r)]).filter(([,,t])=>!scoped||t>0).sort((a,b)=>b[2]-a[2]).slice(0,10);
     const max=Math.max(1,...ent.map(([,,t])=>t));
     const rows=ent.map(([rep,r,t])=>{
@@ -648,7 +649,7 @@ function renderStackChart(slots,segs,footerHtml){
      .dp-seg.* classes; segs are bottom-first, so the gradient runs to top. */
   const max=Math.max(1,...slots.list.map(s=>s.total)),H=140;
   const h=n=>n?Math.max(2,Math.round(n/max*H)):0;
-  const COL={appt:'#4e8f1f',reached:'#8ed44f',sched:'#5a8fb5',noanswer:'#9aa7b6'};
+  const COL={appt:'#4e8f1f',interest:'#5a93bd',reached:'#8ed44f',sched:'#5a8fb5',noanswer:'#9aa7b6'};
   const bars=slots.list.map(s=>{
     const dl=s.date.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
     let acc=0;const stops=[];
@@ -663,8 +664,8 @@ function renderStackChart(slots,segs,footerHtml){
 }
 function renderTeamChart(){
   const slots=buildDaySlots(21);
-  for(const c of contacts){const s=slots.byKey[String(c.contacted_at||'').slice(0,10)];if(!s)continue;const o=c.outcome;const k=o==='Appointment Set'?'appt':(o==='Reached'?'reached':'noanswer');s.c[k]=(s.c[k]||0)+1;s.total++;}
-  const segs=[{k:'noanswer',cls:'noanswer',label:'No answer'},{k:'reached',cls:'reached',label:'Reached'},{k:'appt',cls:'appt',label:'Appt set'}];
+  for(const c of contacts){const s=slots.byKey[String(c.contacted_at||'').slice(0,10)];if(!s)continue;const o=c.outcome;const k=o==='Appointment Set'?'appt':(o==='Has Interest'?'interest':(o==='Reached'?'reached':'noanswer'));s.c[k]=(s.c[k]||0)+1;s.total++;}
+  const segs=[{k:'noanswer',cls:'noanswer',label:'No answer'},{k:'reached',cls:'reached',label:'Reached'},{k:'interest',cls:'interest',label:'Has interest'},{k:'appt',cls:'appt',label:'Appt set'}];
   const tot=slots.list.reduce((a,s)=>{a.c+=s.total;a.r+=(s.c.reached||0)+(s.c.appt||0);a.a+=(s.c.appt||0);return a;},{c:0,r:0,a:0});
   const footer=`<span style="margin-right:auto;color:var(--ink);font-weight:600">${tot.c} calls &middot; ${tot.r} connected &middot; ${tot.a} appts set</span>`;
   const el=document.getElementById('teamchart');
@@ -677,9 +678,9 @@ function repCallChart(rep){
   const slots=buildDaySlots(30);
   const ids=new Set();
   for(const g of props){if(repOf(g)!==rep)continue;for(const d of g.dls){(d.opportunity_ids||[]).forEach(o=>ids.add(o));ids.add(d.dl_number);}}
-  for(const c of contacts){if(!ids.has(c.opportunity_id))continue;const s=slots.byKey[String(c.contacted_at||'').slice(0,10)];if(!s)continue;const k=c.outcome==='Appointment Set'?'appt':(c.outcome==='Reached'?'reached':'noanswer');s.c[k]=(s.c[k]||0)+1;s.total++;}
+  for(const c of contacts){if(!ids.has(c.opportunity_id))continue;const s=slots.byKey[String(c.contacted_at||'').slice(0,10)];if(!s)continue;const k=c.outcome==='Appointment Set'?'appt':(c.outcome==='Has Interest'?'interest':(c.outcome==='Reached'?'reached':'noanswer'));s.c[k]=(s.c[k]||0)+1;s.total++;}
   if(!slots.list.some(s=>s.total))return '<div class="sub" style="padding:10px 2px">No calls logged in the last 30 days.</div>';
-  const segs=[{k:'noanswer',cls:'noanswer',label:'No answer / VM / SMS'},{k:'reached',cls:'reached',label:'Reached'},{k:'appt',cls:'appt',label:'Appt set'}];
+  const segs=[{k:'noanswer',cls:'noanswer',label:'No answer / VM / SMS'},{k:'reached',cls:'reached',label:'Reached'},{k:'interest',cls:'interest',label:'Has interest'},{k:'appt',cls:'appt',label:'Appt set'}];
   const tot=slots.list.reduce((a,s)=>{a.c+=s.total;a.r+=(s.c.reached||0)+(s.c.appt||0);a.a+=(s.c.appt||0);return a;},{c:0,r:0,a:0});
   const footer=`<span style="margin-right:auto;color:var(--ink);font-weight:600">${tot.c} calls &middot; ${tot.r} connected &middot; ${tot.a} appts set</span>`;
   return renderStackChart(slots,segs,footer);
@@ -1109,7 +1110,7 @@ function renderRepOverview(){
       if(leadCategory(g)==='callable')callable++; if(g.anySold)sold++;
       const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
       let hc=false,hr=false,ha=false;
-      for(const oid of ids)for(const c of (byOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set'){ha=true;hr=true;}else if(c.outcome==='Reached')hr=true;}
+      for(const oid of ids)for(const c of (byOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set'){ha=true;hr=true;}else if(c.outcome==='Reached'||c.outcome==='Has Interest')hr=true;}
       if(hc)contacted++; if(hr)reached++; if(ha)appts++;
     }
     const s=(l,v,c)=>`<div class="rep-mini"><span>${l}</span><span style="${c?'color:'+c+';font-weight:700':''}">${v}</span></div>`;
@@ -1139,7 +1140,7 @@ function renderRep(){
   const sat=cat.sold+cat.review+cat.cooldown;const conv=sat?Math.round(cat.sold/sat*100):0;
   /* #10: the Reps drill-in leads with CALL activity (contact_log), not appt/sale data. */
   const _ids=new Set();for(const g of mine)for(const d of g.dls){(d.opportunity_ids||[]).forEach(o=>_ids.add(o));_ids.add(d.dl_number);}
-  let _calls=0,_conn=0,_appt=0;for(const c of contacts){if(!_ids.has(c.opportunity_id))continue;_calls++;if(c.outcome==='Reached'||c.outcome==='Appointment Set')_conn++;if(c.outcome==='Appointment Set')_appt++;}
+  let _calls=0,_conn=0,_appt=0;for(const c of contacts){if(!_ids.has(c.opportunity_id))continue;_calls++;if(c.outcome==='Reached'||c.outcome==='Has Interest'||c.outcome==='Appointment Set')_conn++;if(c.outcome==='Appointment Set')_appt++;}
   const _cr=_calls?Math.round(_conn/_calls*100):0;
   /* #1: count this rep's uncalled (no logged call), non-sold leads, for the Recall button. */
   const _byOpp=contactsByOpp();let _uncalled=0;
