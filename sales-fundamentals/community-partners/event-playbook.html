@@ -35,7 +35,7 @@
   /* Hero */
   .hero { padding: 80px 80px 64px; background: linear-gradient(180deg, var(--paper) 0%, #F6F8F2 100%); border-bottom: 1px solid var(--border); }
   .hero-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-deep); background: rgba(120, 200, 50, 0.12); padding: 6px 12px; border-radius: 999px; margin-bottom: 22px; }
-  .hero-title { font-size: 56px; line-height: 1.05; max-width: 880px; }
+  .hero-title { font-size: clamp(28px, 7vw, 56px); line-height: 1.05; max-width: 880px; }
   .hero-title .accent { color: var(--green-deep); }
   .hero-sub { font-size: 19px; line-height: 1.5; color: var(--ink-soft); max-width: 760px; margin-top: 22px; }
 
@@ -140,13 +140,52 @@
     .section, .hero, .cta { page-break-inside: avoid; }
     .stagenav { display: none; }
   }
+  /* Tablet */
   @media (max-width: 900px) {
     body { padding: 16px; }
-    .hero-title { font-size: 34px; }
+    .header, .hero, .stats, .stagenav, .section, .cta, .footer { padding-left: 40px; padding-right: 40px; }
+    .hero { padding-top: 56px; padding-bottom: 48px; }
+    .stats { padding-top: 36px; padding-bottom: 36px; }
+    .section { padding-top: 56px; padding-bottom: 56px; }
+    .cta { padding-top: 64px; padding-bottom: 64px; }
+    .hero-sub { font-size: 17px; }
+    .stats, .grid3, .payouts { grid-template-columns: 1fr 1fr; }
+    .grid2, .dd, .checklist { grid-template-columns: 1fr; }
+    .stat { padding: 16px 20px !important; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .stat:nth-child(2n) { border-right: none; }
+    .stat:nth-child(n+3) { border-bottom: none; }
+    .rule-row { grid-template-columns: 160px 1fr; gap: 20px; }
+  }
+
+  /* Phone */
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .page { border-radius: 12px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 24px; padding-bottom: 24px; }
+    .header-meta { text-align: left; }
+    .header, .hero, .stats, .stagenav, .section, .cta, .footer { padding-left: 22px; padding-right: 22px; }
+    .hero { padding-top: 40px; padding-bottom: 36px; }
+    .hero-eyebrow { margin-bottom: 16px; }
+    .hero-sub { font-size: 16px; margin-top: 18px; }
+    .stagenav { padding-top: 20px; padding-bottom: 20px; }
+    .section { padding-top: 44px; padding-bottom: 44px; }
+    .cta { padding-top: 52px; padding-bottom: 52px; }
+    .section-title { font-size: 25px; }
+    .cta-title { font-size: 27px; }
     .stats, .grid3, .grid2, .dd, .checklist, .payouts { grid-template-columns: 1fr; }
-    .header, .hero, .section, .stats, .stagenav, .cta, .footer { padding-left: 28px; padding-right: 28px; }
     .stat { padding: 16px 0 !important; border-right: none !important; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: none; }
+    .stat-num { font-size: 34px; }
+    .card, .dd-col { padding: 24px 22px; }
+    .script { padding: 24px 22px; }
+    .script-line { font-size: 18px; }
+    .note { padding: 20px 22px; }
+    .pay { padding: 26px 24px; }
+    .pay-num { font-size: 38px; }
+    .flow-step { grid-template-columns: 38px 1fr; gap: 16px; }
+    .flow-n { font-size: 25px; }
     .rule-row { grid-template-columns: 1fr; gap: 6px; }
+    .footer { flex-direction: column; gap: 8px; }
   }
 </style>
 <meta name="robots" content="noindex, nofollow">
