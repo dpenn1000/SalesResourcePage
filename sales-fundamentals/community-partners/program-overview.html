@@ -35,7 +35,7 @@
   /* Hero */
   .hero { padding: 80px 80px 64px; background: linear-gradient(180deg, var(--paper) 0%, #F6F8F2 100%); border-bottom: 1px solid var(--border); }
   .hero-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-deep); background: rgba(120, 200, 50, 0.12); padding: 6px 12px; border-radius: 999px; margin-bottom: 22px; }
-  .hero-title { font-size: 56px; line-height: 1.05; max-width: 880px; }
+  .hero-title { font-size: clamp(28px, 7vw, 56px); line-height: 1.05; max-width: 880px; }
   .hero-title .accent { color: var(--green-deep); }
   .hero-sub { font-size: 19px; line-height: 1.5; color: var(--ink-soft); max-width: 720px; margin-top: 22px; }
 
@@ -110,14 +110,49 @@
     .page { max-width: none; }
     .section, .hero, .chart-block, .cta { page-break-inside: avoid; }
   }
+  /* Tablet */
   @media (max-width: 900px) {
     body { padding: 16px; }
-    .hero-title { font-size: 36px; }
-    .stats, .how-grid, .partners, .cats, .why { grid-template-columns: 1fr 1fr; }
+    .header, .hero, .section, .stats, .chart-block, .cta, .footer { padding-left: 40px; padding-right: 40px; }
+    .hero { padding-top: 56px; padding-bottom: 48px; }
+    .stats { padding-top: 36px; padding-bottom: 36px; }
+    .section { padding-top: 56px; padding-bottom: 56px; }
+    .chart-block { padding-top: 56px; padding-bottom: 56px; }
+    .cta { padding-top: 64px; padding-bottom: 64px; }
+    .stats, .how-grid, .partners, .why { grid-template-columns: 1fr 1fr; }
     .cats { grid-template-columns: 1fr 1fr; }
-    .header, .hero, .section, .stats, .chart-block, .cta, .footer { padding-left: 32px; padding-right: 32px; }
-    .stat { padding: 16px 20px !important; border-right: 1px solid var(--border) !important; border-bottom: 1px solid var(--border); }
-    .partner { padding: 18px 20px !important; }
+    .stat { padding: 16px 20px !important; border-right: 1px solid var(--border) !important; border-bottom: 1px solid var(--border) !important; }
+    .stat:nth-child(2n) { border-right: none !important; }
+    .stat:nth-child(n+3) { border-bottom: none !important; }
+    .partner { padding: 16px 20px !important; border-right: 1px solid var(--border) !important; border-bottom: 1px solid var(--border) !important; }
+    .partner:nth-child(2n) { border-right: none !important; }
+  }
+
+  /* Phone */
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .page { border-radius: 12px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 24px; padding-bottom: 24px; }
+    .header-meta { text-align: left; }
+    .header, .hero, .section, .stats, .chart-block, .cta, .footer { padding-left: 22px; padding-right: 22px; }
+    .hero { padding-top: 40px; padding-bottom: 36px; }
+    .hero-eyebrow { margin-bottom: 16px; }
+    .hero-sub { font-size: 16px; margin-top: 18px; }
+    .section { padding-top: 44px; padding-bottom: 44px; }
+    .chart-block { padding-top: 44px; padding-bottom: 44px; }
+    .cta { padding: 52px 22px; }
+    .section-title { font-size: 25px; }
+    .cta-title { font-size: 27px; }
+    .stats, .how-grid, .partners, .cats, .why { grid-template-columns: 1fr; }
+    .stat { padding: 16px 0 !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+    .stat:last-child { border-bottom: none !important; }
+    .stat-num { font-size: 36px; }
+    .how-card { padding: 28px 24px; }
+    .partner { padding: 16px 0 !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+    .why { gap: 0; }
+    .chart-row { grid-template-columns: 46px 1fr 80px; gap: 12px; }
+    .chart-year, .chart-val { font-size: 14px; }
+    .footer { flex-direction: column; gap: 8px; }
   }
 </style>
 <meta name="robots" content="noindex, nofollow">
@@ -207,17 +242,17 @@
     <h2 class="display section-title">Three steps. Nothing to install on your end.</h2>
     <div class="how-grid">
       <div class="how-card">
-        <div class="how-num">01</div>
+        <div class="how-num">1</div>
         <div class="how-title">A member names your organization.</div>
         <div class="how-body">When a member of your community asks Trinity Solar for a quote, they tell us who sent them. That is the whole referral.</div>
       </div>
       <div class="how-card">
-        <div class="how-num">02</div>
+        <div class="how-num">2</div>
         <div class="how-title">Trinity does the work.</div>
         <div class="how-body">Custom proposal, design, permits, install, paperwork, warranty. Your member saves on their electric bill. You stay out of it.</div>
       </div>
       <div class="how-card">
-        <div class="how-num">03</div>
+        <div class="how-num">3</div>
         <div class="how-title">Your organization gets paid.</div>
         <div class="how-body">A check arrives when the appointment happens, and again when the install closes. The top partners on the program have collected $80,000 or more.</div>
       </div>
