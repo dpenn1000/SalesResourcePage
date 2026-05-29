@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMC Energy Audit &middot; CT Traditional</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<style>
+:root {
+  --green: #78C832; --green-dk: #5FA520;
+  --blue: #29A9E1;  --blue-dk: #1E8BBC;
+  --gold: #F5A623;  --gold-dk: #C8851A;
+  --teal: #0E9B8A;
+  --ink: #0F2038;   --ink-soft: #1A2942;
+  --text: #1A1F2E;  --muted: #5B6576; --subtle: #8B94A3;
+  --surface: #F7F8F4; --warm: #FAFBF7; --white: #FFFFFF;
+  --line: #DFE2DA;  --line-soft: #E8EBE3;
+  --r-sm: 4px; --r-md: 8px; --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 12px 32px rgba(15,32,56,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px; line-height: 1.6; color: var(--text);
+  background: var(--surface); -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+h1 { font-size: clamp(2rem, 4vw, 2.9rem); font-variation-settings: "opsz" 144; line-height: 1.08; font-weight: 400; }
+h2 { font-size: clamp(1.4rem, 2.4vw, 1.75rem); font-weight: 500; line-height: 1.18; }
+h3 { font-size: 1.12rem; font-weight: 600; line-height: 1.3; }
+p { color: var(--text); }
+a { color: var(--blue-dk); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 22px; }
+
+/* HEADER */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header { background: var(--ink); color: #fff; padding: 14px 0; border-bottom: 3px solid var(--gold); }
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .logo { font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
+.brand .divider { width: 1px; height: 26px; background: rgba(255,255,255,0.2); }
+.brand .team { font-family: 'Fraunces', serif; font-size: 0.95rem; font-weight: 400; color: rgba(255,255,255,0.7); }
+.page-title { font-family: 'Manrope', sans-serif; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+
+/* HERO */
+.hero {
+  background:
+    radial-gradient(circle at 88% 8%, rgba(120,200,50,0.22) 0%, transparent 52%),
+    linear-gradient(135deg, #122544 0%, #16335a 55%, #14584f 100%);
+  color: #fff; padding: 52px 0 56px; position: relative; overflow: hidden;
+}
+.hero .wrap { position: relative; z-index: 1; }
+.hero .eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--green); background: rgba(120,200,50,0.12);
+  border: 1px solid rgba(120,200,50,0.34); padding: 6px 13px; border-radius: 999px; margin-bottom: 18px;
+}
+.hero h1 { color: #fff; max-width: 18ch; margin-bottom: 16px; }
+.hero h1 em { font-style: italic; color: var(--green); }
+.hero .lede { font-size: 1.12rem; color: rgba(255,255,255,0.82); max-width: 60ch; line-height: 1.55; }
+.hero-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 0.95rem;
+  padding: 13px 22px; border-radius: 10px; cursor: pointer; border: 1px solid transparent;
+  text-decoration: none; transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.btn:hover { text-decoration: none; transform: translateY(-1px); }
+.btn-primary { background: var(--green); color: var(--ink); border-color: var(--green-dk); box-shadow: 0 6px 18px rgba(120,200,50,0.32); }
+.btn-primary:hover { background: var(--green-dk); color: #fff; }
+.btn-ghost { background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.22); }
+.btn-ghost:hover { background: rgba(255,255,255,0.16); }
+.btn-arrow { font-size: 1.05rem; line-height: 1; }
+
+/* MAIN */
+main { padding: 0 0 72px; }
+
+/* TWO-PATH BAND */
+.paths { margin-top: -34px; position: relative; z-index: 5; }
+.paths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 720px) { .paths-grid { grid-template-columns: 1fr; } }
+.path-card {
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg); padding: 22px 24px; display: flex; flex-direction: column;
+}
+.path-card .path-num {
+  font-family: 'Fraunces', serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--gold-dk); margin-bottom: 8px;
+}
+.path-card h3 { margin-bottom: 6px; }
+.path-card p { font-size: 0.92rem; color: var(--muted); line-height: 1.5; flex: 1; }
+.path-card .path-action { margin-top: 16px; }
+
+/* SECTIONS */
+.section { margin-top: 48px; }
+.section-eyebrow {
+  font-size: 0.74rem; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 8px;
+}
+.section h2 { margin-bottom: 14px; }
+.section p { font-size: 1.02rem; line-height: 1.7; color: var(--text); margin-bottom: 14px; }
+.section p:last-child { margin-bottom: 0; }
+.lead-emph { font-size: 1.08rem; color: var(--ink-soft); font-weight: 600; }
+
+/* CALLOUT */
+.callout {
+  border-left: 4px solid var(--gold); background: var(--warm);
+  border-radius: 0 var(--r-md) var(--r-md) 0; padding: 18px 22px; margin: 22px 0;
+}
+.callout.green { border-left-color: var(--green); }
+.callout.blue  { border-left-color: var(--blue); }
+.callout strong { color: var(--ink); }
+.callout .callout-head { font-family: 'Fraunces', serif; font-size: 1.05rem; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.callout p { font-size: 0.96rem; margin-bottom: 0; color: var(--text); }
+
+/* BENEFIT GRID */
+.benefit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+@media (max-width: 720px) { .benefit-grid { grid-template-columns: 1fr; } }
+.benefit {
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 18px; box-shadow: var(--shadow-sm);
+}
+.benefit .b-icon { font-size: 1.5rem; line-height: 1; margin-bottom: 10px; display: block; }
+.benefit h4 { font-size: 0.98rem; color: var(--ink-soft); margin-bottom: 5px; }
+.benefit p { font-size: 0.88rem; color: var(--muted); line-height: 1.5; margin: 0; }
+
+/* STEPS */
+.steps { counter-reset: step; margin-top: 18px; display: grid; gap: 12px; }
+.step {
+  display: flex; gap: 15px; align-items: flex-start;
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px 18px;
+}
+.step::before {
+  counter-increment: step; content: counter(step);
+  flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--ink); color: #fff; font-family: 'Fraunces', serif; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+}
+.step .step-body h4 { font-size: 1rem; color: var(--ink-soft); margin-bottom: 3px; }
+.step .step-body p { font-size: 0.92rem; color: var(--muted); margin: 0; line-height: 1.5; }
+
+/* RESOURCE LIST */
+.res-list { display: grid; gap: 10px; margin-top: 18px; }
+.res-item {
+  display: flex; align-items: center; gap: 15px;
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md);
+  padding: 15px 18px; box-shadow: var(--shadow-sm); transition: border-color 0.12s, box-shadow 0.12s, transform 0.12s;
+}
+.res-item:hover { border-color: var(--green); box-shadow: var(--shadow-md); transform: translateY(-1px); text-decoration: none; }
+.res-item .res-emoji { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+.res-item .res-body { flex: 1; min-width: 0; }
+.res-item .res-name { font-weight: 700; color: var(--ink); font-size: 0.98rem; }
+.res-item .res-desc { font-size: 0.84rem; color: var(--muted); }
+.res-item .res-arrow { color: var(--green-dk); font-weight: 800; font-size: 1.1rem; flex-shrink: 0; }
+
+/* CONTACT CARD */
+.contact-card {
+  background: linear-gradient(135deg, #14304f 0%, #14584f 100%); color: #fff;
+  border-radius: var(--r-lg); padding: 26px 28px; margin-top: 18px;
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+}
+.contact-card .cc-main { flex: 1; min-width: 220px; }
+.contact-card .cc-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); margin-bottom: 6px; }
+.contact-card h3 { color: #fff; font-size: 1.3rem; margin-bottom: 4px; }
+.contact-card .cc-sub { color: rgba(255,255,255,0.72); font-size: 0.92rem; }
+.contact-card .cc-rows { display: grid; gap: 8px; margin-top: 4px; }
+.contact-card .cc-row { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; }
+.contact-card .cc-row a { color: #fff; font-weight: 600; }
+.contact-card .cc-row .cc-k { color: rgba(255,255,255,0.55); width: 64px; flex-shrink: 0; font-size: 0.82rem; }
+
+footer { text-align: center; padding: 28px 22px; font-size: 0.8rem; color: var(--subtle); border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">Energy Audit &middot; CMC Energy</div>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">&#9889; Connecticut Solar Program</span>
+    <h1>The energy audit is a <em>free upgrade</em> that keeps the job moving.</h1>
+    <p class="lede">
+      Every Connecticut solar customer needs a Home Energy Solutions audit on file. It is a no-cost
+      benefit that lowers their bill, and it is the step the state checks before interconnection is
+      approved. Schedule it at the table and the install never gets held up waiting on it.
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScgKBQM9jMGhGU_e6hvlylRI7hWOvtVGCz0yL1gPxcXAiptuw/viewform" target="_blank" rel="noopener">
+        Schedule the audit with CMC <span class="btn-arrow">&rarr;</span>
+      </a>
+      <a class="btn btn-ghost" href="#how">How it works</a>
+    </div>
+  </div>
+</section>
+
+<main>
+  <div class="wrap">
+
+    <!-- TWO PATHS -->
+    <section class="paths">
+      <div class="paths-grid">
+        <div class="path-card">
+          <div class="path-num">Path 1 &middot; At the table</div>
+          <h3>Fill out the form with the customer</h3>
+          <p>
+            Sit down together and complete the CMC request form right there. One submission and CMC
+            takes it from there. No homework for the customer, no waiting on a callback.
+          </p>
+          <div class="path-action">
+            <a class="btn btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLScgKBQM9jMGhGU_e6hvlylRI7hWOvtVGCz0yL1gPxcXAiptuw/viewform" target="_blank" rel="noopener">
+              Open the request form <span class="btn-arrow">&rarr;</span>
+            </a>
+          </div>
+        </div>
+        <div class="path-card">
+          <div class="path-num">Path 2 &middot; Call it in</div>
+          <h3>Call CMC from the home</h3>
+          <p>
+            Prefer to talk it through? Reach out to CMC while you are still with the customer and get
+            the audit on the calendar before you leave. Contact details are at the bottom of this page.
+          </p>
+          <div class="path-action">
+            <a class="btn btn-ghost" href="#contact" style="background:#EEF1EC;color:var(--ink);border-color:var(--line);">
+              CMC contact info <span class="btn-arrow">&rarr;</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT IS THE PROGRAM -->
+    <section class="section" id="how">
+      <div class="section-eyebrow">The program</div>
+      <h2>Where the audit fits in Connecticut's solar program</h2>
+      <p>
+        Connecticut runs its residential solar through the state's Renewable Energy Solutions tariff,
+        administered by Eversource and United Illuminating. It is the program that pays the customer
+        for the energy their system produces. To qualify a home for that program and clear it for
+        interconnection, the state requires a completed Home Energy Solutions (HES) energy assessment
+        on file for the property.
+      </p>
+      <p>
+        That assessment is the energy audit. <strong>CMC Energy</strong> is the partner who performs
+        it. A technician walks the home, takes care of immediate efficiency upgrades on the spot, and
+        documents the visit so the property is checked off the state's list.
+      </p>
+      <div class="callout green">
+        <div class="callout-head">It is not an extra cost to the customer.</div>
+        <p>
+          The audit is a covered benefit, not a line item on the proposal. For income-eligible
+          households there is a dedicated no-cost program (the HES-IE application is linked below).
+          Frame it the way it deserves: a free home upgrade that comes bundled with going solar.
+        </p>
+      </div>
+    </section>
+
+    <!-- WHY IT'S REQUIRED FOR INTERCONNECTION -->
+    <section class="section">
+      <div class="section-eyebrow">Why it gates the install</div>
+      <h2>No audit on file, no interconnection approval</h2>
+      <p>
+        Interconnection is the utility's sign-off that lets the system turn on and start producing.
+        The HES assessment is one of the boxes the state and utility check before that approval comes
+        through. If it is missing, the file sits, and the customer's brand-new system waits.
+      </p>
+      <p class="lead-emph">
+        This is exactly why we schedule it at the point of sale instead of after.
+      </p>
+      <p>
+        When the audit is requested the same day the customer signs, it runs in parallel with
+        permitting and engineering rather than becoming a surprise blocker at the finish line. Getting
+        it done early is the single cleanest way to keep a job from stalling on the way to turn-on.
+      </p>
+    </section>
+
+    <!-- CALL ANYWAY -->
+    <section class="section">
+      <div class="section-eyebrow">Common misread</div>
+      <h2>Schedule it even if they think they don't need one</h2>
+      <p>
+        Two situations come up constantly, and the answer is the same for both: <strong>still get it
+        scheduled.</strong>
+      </p>
+      <div class="callout blue">
+        <div class="callout-head">"We already had an energy audit."</div>
+        <p>
+          Maybe so, but it may be too old to count, or it may not be the assessment the program
+          recognizes. CMC has to verify what is actually on file and confirm it meets the requirement
+          before the property can be checked off. Put in the request and let them confirm.
+        </p>
+      </div>
+      <div class="callout blue">
+        <div class="callout-head">"Our house is new, it doesn't need one."</div>
+        <p>
+          A newer or efficient home still has to be verified and recorded. The program does not skip
+          the step because a house looks new. CMC checks the home, documents it, and clears it off the
+          list. Without that confirmation on file, the interconnection paperwork has a hole in it.
+        </p>
+      </div>
+      <p>
+        The takeaway for the rep is simple: there is no version of this where skipping the call is the
+        right move. Request it for every customer and let CMC sort out what the home actually needs.
+      </p>
+    </section>
+
+    <!-- CUSTOMER BENEFIT -->
+    <section class="section">
+      <div class="section-eyebrow">What the customer gets</div>
+      <h2>A genuine benefit, not a hoop to jump through</h2>
+      <p>
+        Sell it as what it is. The audit is one of the better fringe benefits of going solar with us,
+        and it costs the customer nothing.
+      </p>
+      <div class="benefit-grid">
+        <div class="benefit">
+          <span class="b-icon">&#128176;</span>
+          <h4>Lower bills</h4>
+          <p>On-the-spot efficiency upgrades shrink the home's energy use before the panels even turn on.</p>
+        </div>
+        <div class="benefit">
+          <span class="b-icon">&#128161;</span>
+          <h4>Free home upgrades</h4>
+          <p>LED swaps, weatherization, and sealing handled during the visit at no cost to the homeowner.</p>
+        </div>
+        <div class="benefit">
+          <span class="b-icon">&#9989;</span>
+          <h4>A clear path to turn-on</h4>
+          <p>The state requirement gets satisfied early, so nothing holds the interconnection up later.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY IT MATTERS / BIG PICTURE -->
+    <section class="section">
+      <div class="section-eyebrow">The bigger picture</div>
+      <h2>Why this matters beyond one install</h2>
+      <p>
+        Connecticut pairs solar with efficiency on purpose. A panel array offsets what a home uses, but
+        a tighter, more efficient home uses less to begin with. The audit is how the state makes sure
+        every solar home is also an efficient one, so the clean energy we add actually moves the needle
+        instead of just covering waste.
+      </p>
+      <p>
+        For the customer, that is a lower bill and a more comfortable house. For the grid, it is real
+        demand coming off the system. And for us, every audit we schedule cleanly is one more job that
+        reaches turn-on without friction. Doing this step well is good for the homeowner, good for the
+        program, and good for our pipeline all at once.
+      </p>
+    </section>
+
+    <!-- HOW IT WORKS / STEPS -->
+    <section class="section">
+      <div class="section-eyebrow">At the table</div>
+      <h2>The rep's playbook</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-body">
+            <h4>Position it as a free benefit</h4>
+            <p>Tell the customer a no-cost energy audit comes with going solar, and it lowers their bill.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-body">
+            <h4>Schedule it then and there</h4>
+            <p>Open the CMC request form and submit it with the customer, or call CMC from the home.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-body">
+            <h4>Do it for every customer</h4>
+            <p>Even if they say they have had one or have a new home. CMC verifies and checks the box.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-body">
+            <h4>Income-eligible? Use the HES-IE form</h4>
+            <p>For qualifying households, complete the no-cost HES-IE application linked below.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="section" id="resources">
+      <div class="section-eyebrow">Forms &amp; links</div>
+      <h2>Resources</h2>
+      <div class="res-list">
+        <a class="res-item" href="https://docs.google.com/forms/d/e/1FAIpQLScgKBQM9jMGhGU_e6hvlylRI7hWOvtVGCz0yL1gPxcXAiptuw/viewform" target="_blank" rel="noopener">
+          <span class="res-emoji">&#128221;</span>
+          <span class="res-body">
+            <span class="res-name">CMC Audit Request Form</span>
+            <span class="res-desc">Submit a call request to CMC with the customer. Primary scheduling path.</span>
+          </span>
+          <span class="res-arrow">&rarr;</span>
+        </a>
+        <a class="res-item" href="/solar/cmc-energy-audit/forms/hes-ie-application-english.pdf" target="_blank" rel="noopener">
+          <span class="res-emoji">&#128203;</span>
+          <span class="res-body">
+            <span class="res-name">HES-IE Application &middot; English</span>
+            <span class="res-desc">Home Energy Solutions, Income Eligible. No-cost program for qualifying households.</span>
+          </span>
+          <span class="res-arrow">&rarr;</span>
+        </a>
+        <a class="res-item" href="/solar/cmc-energy-audit/forms/hes-ie-application-spanish.pdf" target="_blank" rel="noopener">
+          <span class="res-emoji">&#128203;</span>
+          <span class="res-body">
+            <span class="res-name">HES-IE Application &middot; Spanish (Fillable)</span>
+            <span class="res-desc">Solicitud HES-IE en espa&ntilde;ol. Formulario rellenable para hogares elegibles.</span>
+          </span>
+          <span class="res-arrow">&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section" id="contact">
+      <div class="section-eyebrow">Who to reach</div>
+      <h2>CMC Energy contact</h2>
+      <div class="contact-card">
+        <div class="cc-main">
+          <div class="cc-label">Our CMC partner</div>
+          <h3>Amy Conroy</h3>
+          <div class="cc-sub">CMC Energy Services &middot; Connecticut Home Energy Solutions</div>
+        </div>
+        <div class="cc-rows">
+          <div class="cc-row"><span class="cc-k">Email</span> <a href="mailto:aconroy@cmcenergy.com">aconroy@cmcenergy.com</a></div>
+          <div class="cc-row"><span class="cc-k">Web</span> <a href="https://www.cmcenergy.com" target="_blank" rel="noopener">cmcenergy.com</a></div>
+          <div class="cc-row"><span class="cc-k">Request</span> <a href="https://docs.google.com/forms/d/e/1FAIpQLScgKBQM9jMGhGU_e6hvlylRI7hWOvtVGCz0yL1gPxcXAiptuw/viewform" target="_blank" rel="noopener">Audit request form</a></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  CT Traditional Sales Resource Center &middot; CMC Energy Audit &middot; Internal use only
+</footer>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session) { /* static page; nothing to init */ }
+</script>
+</body>
+</html>
