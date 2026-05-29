@@ -279,6 +279,7 @@
     .cat-Roofing .card:hover { border-color: #E8863A; }
     .cat-Training .card:hover { border-color: #8B5CF6; }
     .cat-Sales-Psychology .card:hover { border-color: #C4457A; }
+    .cat-Control-Your-Business .card:hover { border-color: #8B5CF6; }
 
     .card-image { width: 100%; height: 110px; overflow: hidden; background: var(--bg); flex-shrink: 0; }
     .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -298,6 +299,7 @@
     .cat-Roofing .card-icon { background: #FDEEDD; }
     .cat-Training .card-icon { background: #EDE9FE; }
     .cat-Sales-Psychology .card-icon { background: #FDE8F0; }
+    .cat-Control-Your-Business .card-icon { background: #EDE9FE; }
 
     .card-type {
       font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
@@ -308,6 +310,7 @@
     .cat-Roofing .card-type { background: #FDEEDD; color: #A05415; }
     .cat-Training .card-type { background: #EDE9FE; color: #5B21B6; }
     .cat-Sales-Psychology .card-type { background: #FDE8F0; color: #9B1B5A; }
+    .cat-Control-Your-Business .card-type { background: #EDE9FE; color: #5B21B6; }
 
     .card-name { font-size: 13px; font-weight: 600; line-height: 1.35; color: var(--text); padding: 8px 14px; flex: 1; }
     .card-name mark { background: #EDFAD6; color: #4A8A14; padding: 0 2px; border-radius: 2px; font-style: normal; }
@@ -490,6 +493,7 @@
       <button class="cat-btn"        data-cat="Battery"  onclick="setCat('Battery')">&#128267; Battery <span class="cat-count" id="cnt-Battery"></span></button>
       <button class="cat-btn"        data-cat="Sales Fundamentals" onclick="setCat('Sales Fundamentals')">&#129504; Sales Fundamentals <span class="cat-count" id="cnt-Sales-Fundamentals"></span></button>
       <button class="cat-btn"        data-cat="University" onclick="setCat('University')">&#127891; University <span class="cat-count" id="cnt-University"></span></button>
+      <button class="cat-btn"        data-cat="Control Your Business" onclick="setCat('Control Your Business')">&#127919; Control Your Business <span class="cat-count" id="cnt-Control-Your-Business"></span></button>
     </div>
   </div>
 </header>
@@ -503,6 +507,7 @@
     <button class="rail-btn"        data-cat="Battery"  onclick="setCat('Battery')">&#128267; Battery <span class="rail-count" id="rcnt-Battery"></span></button>
     <button class="rail-btn"        data-cat="Sales Fundamentals" onclick="setCat('Sales Fundamentals')">&#129504; Sales Fundamentals <span class="rail-count" id="rcnt-Sales-Fundamentals"></span></button>
     <button class="rail-btn"        data-cat="University" onclick="setCat('University')">&#127891; University <span class="rail-count" id="rcnt-University"></span></button>
+    <button class="rail-btn"        data-cat="Control Your Business" onclick="setCat('Control Your Business')">&#127919; Control Your Business <span class="rail-count" id="rcnt-Control-Your-Business"></span></button>
   </aside>
 
 <main>
@@ -564,8 +569,8 @@
 // refresh races.
 const sb = window.sb;
 
-const CAT_ORDER  = ['Solar', 'Roofing', 'Battery', 'Sales Fundamentals', 'University'];
-const CAT_COLOR  = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', 'Sales Fundamentals': '#C4457A', University: '#0E9B8A' };
+const CAT_ORDER  = ['Solar', 'Roofing', 'Battery', 'Sales Fundamentals', 'University', 'Control Your Business'];
+const CAT_COLOR  = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', 'Sales Fundamentals': '#C4457A', University: '#0E9B8A', 'Control Your Business': '#8B5CF6' };
 const TYPE_EMOJI = {
   'Calculator': '&#129518;', 'Map Tool': '&#128506;', 'Reference Portal': '&#128279;',
   'Reference Doc': '&#128196;', 'Form': '&#128203;', 'Document': '&#128209;',
