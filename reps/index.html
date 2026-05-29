@@ -248,18 +248,22 @@ window.initApp = async function (profile, session) {
 };
 
 async function loadData() {
+  // Stage E: source identity from `people`. The rest of this file still uses
+  // the field name `manager_id` (the rep's manager), so we alias parent_id ->
+  // manager_id on the result rows to keep downstream code working unchanged.
   const [repsRes, mgrsRes, actRes] = await Promise.all([
-    supa.from('reps')
-      .select('id, auth_user_id, name, username, email, status, manager_id, cohort_start_date, must_change_password')
+    supa.from('people')
+      .select('id, auth_user_id, name, username, email, status, parent_id, cohort_start_date, must_change_password')
+      .eq('role', 'rep')
       .order('name'),
-    supa.from('managers').select('id, name'),
+    supa.from('people').select('id, name').eq('role', 'manager'),
     supa.from('user_activity')
       .select('auth_user_id, created_at')
       .eq('event_type', 'sign_in')
       .order('created_at', { ascending: false })
       .limit(5000),
   ]);
-  REPS = repsRes.data || [];
+  REPS = (repsRes.data || []).map(r => Object.assign(r, { manager_id: r.parent_id }));
   MANAGERS = (mgrsRes.data || []).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   MGR_BY_ID = {};
   (mgrsRes.data || []).forEach(m => { MGR_BY_ID[m.id] = m.name; });

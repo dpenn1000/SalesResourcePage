@@ -249,11 +249,11 @@ async function loadOnce() {
   const todayIso = todayStart.toISOString();
   const since24h = new Date(Date.now() - 24*3600*1000).toISOString();
 
-  const [{ data: contacts }, { data: leads }, { data: mgrs }, { data: reps }, { data: activity }] = await Promise.all([
+  // Stage E: one identity query instead of merging two tables.
+  const [{ data: contacts }, { data: leads }, { data: ppl }, { data: activity }] = await Promise.all([
     sb.from('contact_log').select('opportunity_id, outcome, contacted_at').gte('contacted_at', todayIso),
     sb.from('direct_leads').select('opportunity_ids, dl_number, assigned_to').not('assigned_to','is',null),
-    sb.from('managers').select('name, auth_user_id'),
-    sb.from('reps').select('name, auth_user_id'),
+    sb.from('people').select('name, auth_user_id').not('auth_user_id','is',null),
     sb.from('user_activity').select('auth_user_id, event_type, created_at').gt('created_at', since24h).order('created_at', { ascending: false }),
   ]);
 
@@ -264,7 +264,7 @@ async function loadOnce() {
   // Build user roster (skip Dan's personal Gmail backdoor and any without auth_user_id)
   const seen = new Set();
   users = [];
-  for (const u of [...(mgrs || []), ...(reps || [])]) {
+  for (const u of (ppl || [])) {
     if (!u.name || seen.has(u.name) || !u.auth_user_id) continue;
     seen.add(u.name); users.push(u);
   }

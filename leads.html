@@ -376,8 +376,8 @@ function fmtDate(d){if(!d)return '--';try{return new Date(d).toLocaleDateString(
 sb.auth.onAuthStateChange((_e, session)=>{
   if(session){
     setTimeout(async()=>{
-      const { data: mgr } = await sb.from('managers').select('is_admin, name, must_change_password').eq('auth_user_id', session.user.id).maybeSingle();
-      if(!mgr){const el=document.getElementById('loginError');el.textContent='Account not authorized for this tool. Contact Dan.';el.style.display='block';await sb.auth.signOut();return;}
+      const { data: mgr } = await sb.from('people').select('role, is_admin, name, must_change_password').eq('auth_user_id', session.user.id).maybeSingle();
+      if(!mgr || mgr.role !== 'manager'){const el=document.getElementById('loginError');el.textContent='Account not authorized for this tool. Contact Dan.';el.style.display='block';await sb.auth.signOut();return;}
       if(mgr.must_change_password){showOnly('changePasswordScreen');return;}
       IS_ADMIN=!!mgr.is_admin;
       showOnly('appWrap');
@@ -408,7 +408,7 @@ async function changePassword(){
   const { error:pwErr }=await sb.auth.updateUser({password:np});
   if(pwErr){btn.disabled=false;btn.textContent='Update Password';errEl.textContent=pwErr.message;errEl.style.display='block';return;}
   const { data:{ user } }=await sb.auth.getUser();
-  await sb.from('managers').update({must_change_password:false}).eq('auth_user_id',user.id);
+  await sb.rpc('clear_must_change_password');
   showOnly('appWrap');if(!appStarted){appStarted=true;initApp();}
 }
 

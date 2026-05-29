@@ -969,12 +969,14 @@ function tierLabel(t) {
 async function loadUserLookup() {
   // Pull both tables so we can render any auth_user_id we encounter.
   // Also cache the full manager hierarchy so we can compute escalation targets.
+  // Stage E: source identity from `people`. Existing readers downstream use
+  // `parent_manager_id` for the manager chain; alias parent_id -> that.
   const [mgrs, reps] = await Promise.all([
-    sb.from('managers').select('id, auth_user_id, name, tier, parent_manager_id').not('auth_user_id', 'is', null),
-    sb.from('reps').select('auth_user_id, name').not('auth_user_id', 'is', null),
+    sb.from('people').select('id, auth_user_id, name, tier, parent_id').eq('role','manager').not('auth_user_id', 'is', null),
+    sb.from('people').select('auth_user_id, name').eq('role','rep').not('auth_user_id', 'is', null),
   ]);
   State.userLookup.clear();
-  State.managerHierarchy = mgrs.data || [];
+  State.managerHierarchy = (mgrs.data || []).map(m => Object.assign(m, { parent_manager_id: m.parent_id }));
   for (const m of (mgrs.data || [])) {
     State.userLookup.set(m.auth_user_id, { name: m.name, kind: 'manager', tier: m.tier });
   }

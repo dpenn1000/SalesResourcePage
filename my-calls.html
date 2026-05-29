@@ -193,7 +193,7 @@ async function setupViewAs(){
   bar.style.display = 'flex';
   document.getElementById('userLabel').textContent = '· manager view';
   document.getElementById('list').innerHTML = '<div class="empty">Pick a rep above to view their call list.</div>';
-  const { data, error } = await sb.from('reps').select('name').eq('status','active').order('name');
+  const { data, error } = await sb.from('people').select('name').eq('status','active').eq('role','rep').order('name');
   if (error) { document.getElementById('list').innerHTML = '<div class="empty">Could not load reps: ' + esc(error.message) + '</div>'; return; }
   sel.innerHTML = '<option value="">Select a rep...</option>' +
     (data||[]).map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('');

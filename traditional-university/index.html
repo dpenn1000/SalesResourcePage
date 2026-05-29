@@ -669,11 +669,15 @@ window.initApp = async function (profile, session) {
 
   // auth-gate already verified the profile; we still need the full reps row
   // (id, cohort, etc.) for the FK-scoped queries below.
+  // Stage E: source identity from `people`. Alias parent_id -> manager_id for
+  // any downstream code that still references the old field name.
   const { data: rep, error } = await supa
-    .from('reps')
+    .from('people')
     .select('*')
     .eq('auth_user_id', session.user.id)
+    .eq('role', 'rep')
     .maybeSingle();
+  if (rep) rep.manager_id = rep.parent_id;
 
   if (error || !rep) {
     document.getElementById('appWrap').innerHTML =
