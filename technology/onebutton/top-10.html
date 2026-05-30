@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>oneBUTTON Top 10 · Technology · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #78C832;
+  --green-dk: #5FA520;
+  --blue: #29A9E1;
+  --blue-dk: #1E8BBC;
+  --red: #E84040;
+  --red-dk: #C62F2F;
+  --warn: #E9A648;
+  --warn-dk: #C9871F;
+  --ink: #0F2038;
+  --ink-soft: #1A2942;
+  --ink-deep: #0A1626;
+  --text: #1A1F2E;
+  --muted: #5B6576;
+  --subtle: #8B94A3;
+  --surface: #F7F8F4;
+  --warm: #FAFBF7;
+  --white: #FFFFFF;
+  --line: #DFE2DA;
+  --line-soft: #E8EBE3;
+  --screen: #0C1A2E;
+  --screen-line: #1E3350;
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(15,32,56,0.06);
+  --shadow-md: 0 4px 14px rgba(15,32,56,0.08);
+  --shadow-lg: 0 14px 40px rgba(15,32,56,0.14);
+  --mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+section[id] { scroll-margin-top: 110px; }
+body {
+  font-family: 'Manrope', -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--surface);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* Header */
+.site-header { position: sticky; top: 0; z-index: 200; }
+.page-header { background: var(--ink-deep); color: #fff; border-bottom: 3px solid var(--green); }
+.page-header .wrap { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .logo { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 600; }
+.brand .divider { width: 1px; height: 22px; background: rgba(255,255,255,0.25); }
+.brand .team { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.65); }
+.page-title { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; color: rgba(120,200,50,0.9); }
+.page-title:before { content: "> "; color: var(--green); }
+.toc-nav { background: var(--ink); border-bottom: 1px solid var(--screen-line); overflow-x: auto; }
+.toc-nav .wrap { display: flex; gap: 6px; padding: 0 24px; }
+.toc-nav a { white-space: nowrap; font-family: var(--mono); font-size: 12.5px; color: rgba(255,255,255,0.62); text-decoration: none; padding: 11px 12px; border-bottom: 2px solid transparent; }
+.toc-nav a:hover { color: #fff; border-bottom-color: var(--green); }
+
+/* Hero */
+.hero { position: relative; background: linear-gradient(155deg, var(--ink-deep), var(--ink-soft)); color: #fff; padding: 56px 0 60px; overflow: hidden; }
+.hero:before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(120,200,50,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(41,169,225,0.05) 1px, transparent 1px); background-size: 44px 44px; mask-image: radial-gradient(circle at 80% 0%, #000, transparent 70%); pointer-events: none; }
+.hero .wrap { position: relative; }
+.hero .eyebrow { font-family: var(--mono); font-size: 12.5px; font-weight: 500; letter-spacing: 0.08em; color: var(--green); display: inline-flex; align-items: center; gap: 9px; }
+.hero .eyebrow .blip { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px rgba(120,200,50,0.2); animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.hero h1 { font-family: 'Fraunces', serif; font-weight: 400; font-size: clamp(32px, 5vw, 52px); line-height: 1.06; margin: 16px 0 18px; }
+.hero h1 em { font-style: italic; color: var(--green); }
+.hero .lede { font-size: 18px; max-width: 62ch; color: rgba(255,255,255,0.85); }
+.hero .stat-row { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 26px; }
+.hero .stat { font-family: var(--mono); }
+.hero .stat .n { font-size: 26px; color: #fff; }
+.hero .stat .l { font-size: 12px; color: rgba(255,255,255,0.6); letter-spacing: 0.04em; margin-top: 2px; }
+
+/* Sections */
+.section { padding: 48px 0; }
+.section.alt { background: var(--white); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.sec-eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--green-dk); }
+.sec-h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: clamp(24px, 3.4vw, 34px); color: var(--ink); margin: 8px 0 14px; line-height: 1.14; }
+.sec-p { font-size: 16.5px; color: var(--text); max-width: 72ch; margin-bottom: 14px; }
+.sec-p strong { color: var(--ink); }
+
+/* Thesis */
+.thesis { background: var(--ink); color: #fff; border-radius: var(--r-lg); padding: 26px 30px; margin: 14px 0 4px; position: relative; overflow: hidden; }
+.thesis:before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--green); }
+.thesis .big { font-family: 'Fraunces', serif; font-size: 22px; line-height: 1.36; color: #fff; }
+.thesis .big em { color: var(--green); font-style: italic; }
+
+/* Signal legend */
+.legend { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 22px; }
+.legend .sig { background: var(--warm); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; }
+.legend .sig .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; margin-right: 8px; vertical-align: middle; }
+.legend .sig .lab { font-family: var(--mono); font-size: 12.5px; font-weight: 500; color: var(--ink); }
+.legend .sig .desc { font-size: 12.5px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+.dot.s-green { background: var(--green); }
+.dot.s-amber { background: var(--warn); }
+.dot.s-red { background: var(--red); }
+.dot.s-blue { background: var(--blue); }
+
+/* Diagnostic cards */
+.diag { display: grid; gap: 16px; margin-top: 24px; }
+.card { background: var(--white); border: 1px solid var(--line); border-left: 4px solid var(--subtle); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: 22px 24px; }
+.card.s-green { border-left-color: var(--green); }
+.card.s-amber { border-left-color: var(--warn); }
+.card.s-red { border-left-color: var(--red); }
+.card.s-blue { border-left-color: var(--blue); }
+.card-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.card .code { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--subtle); }
+.card h3 { font-size: 18.5px; color: var(--ink); line-height: 1.25; flex: 1 1 280px; }
+.card .pill { font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.pill.s-green { background: #EFF8E5; color: var(--green-dk); }
+.pill.s-amber { background: #FCF3E2; color: var(--warn-dk); }
+.pill.s-red { background: #FBE9E9; color: var(--red-dk); }
+.pill.s-blue { background: #E8F4FB; color: var(--blue-dk); }
+
+/* On-screen string panel */
+.screen { background: var(--screen); border: 1px solid var(--screen-line); border-radius: var(--r-md); padding: 13px 15px; margin: 14px 0; display: flex; gap: 11px; align-items: flex-start; }
+.screen .scr-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.4); padding-top: 2px; white-space: nowrap; }
+.screen .scr-txt { font-family: var(--mono); font-size: 13.5px; color: #DDE7C9; line-height: 1.5; }
+.screen .scr-txt .blink { color: var(--green); }
+
+.card .what { font-size: 14.5px; color: var(--muted); margin-bottom: 12px; line-height: 1.55; }
+.card .what b { color: var(--ink); font-weight: 700; }
+.fix-lab { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue-dk); margin-bottom: 7px; }
+.fix { list-style: none; }
+.fix li { font-size: 14px; color: var(--text); padding: 5px 0 5px 22px; position: relative; line-height: 1.5; }
+.fix li:before { content: ""; position: absolute; left: 4px; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.fix li.warn:before { background: var(--warn); box-shadow: 0 0 0 3px rgba(233,166,72,0.16); }
+.fix li b { color: var(--ink); }
+.card .foot { font-size: 12.5px; color: var(--subtle); margin-top: 13px; padding-top: 11px; border-top: 1px solid var(--line-soft); }
+.card .foot b { color: var(--muted); }
+.route-chip { font-family: var(--mono); font-size: 11.5px; color: var(--ink); background: var(--warm); border: 1px solid var(--line); border-radius: 999px; padding: 2px 9px; }
+
+/* Drift alert (item 4) */
+.alert { background: linear-gradient(150deg, #2A1313, var(--ink-deep)); color: #fff; border-radius: var(--r-lg); padding: 30px 32px; margin-top: 26px; border: 1px solid rgba(232,64,64,0.4); }
+.alert .tag { font-family: var(--mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; color: #FF8A8A; display: inline-flex; align-items: center; gap: 9px; }
+.alert .tag .blip { width: 9px; height: 9px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 4px rgba(232,64,64,0.22); animation: pulse 1.8s ease-in-out infinite; }
+.alert h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 25px; margin: 12px 0 12px; line-height: 1.16; }
+.alert p { font-size: 15px; color: rgba(255,255,255,0.86); max-width: 76ch; margin-bottom: 12px; }
+.alert p b { color: #fff; }
+.alert .branch { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.alert .br { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--r-md); padding: 16px 18px; }
+.alert .br .h { font-family: var(--mono); font-size: 12px; letter-spacing: 0.04em; margin-bottom: 7px; }
+.alert .br.ok .h { color: var(--green); }
+.alert .br.bad .h { color: #FF8A8A; }
+.alert .br p { font-size: 13.5px; color: rgba(255,255,255,0.82); margin: 0; }
+.alert .kicker { font-size: 14.5px; color: #fff; border-left: 3px solid var(--red); padding-left: 13px; margin-top: 18px; font-style: italic; }
+
+/* Benign list */
+.benign { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 22px; }
+.benign .b { background: var(--warm); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 20px; }
+.benign .b .msg { font-family: var(--mono); font-size: 13px; color: var(--ink); margin-bottom: 7px; line-height: 1.45; }
+.benign .b .exp { font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+
+/* Routing */
+.routes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 22px; }
+.route { background: var(--white); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px 22px; box-shadow: var(--shadow-sm); }
+.route .where { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 8px; }
+.route .where .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+.route ul { list-style: none; }
+.route ul li { font-size: 13.5px; color: var(--muted); padding: 4px 0 4px 16px; position: relative; line-height: 1.45; }
+.route ul li:before { content: ""; position: absolute; left: 2px; top: 10px; width: 5px; height: 5px; border-radius: 50%; background: var(--subtle); }
+
+/* Resources */
+.res { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 22px; }
+.res a { display: block; background: var(--white); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 20px; text-decoration: none; box-shadow: var(--shadow-sm); transition: transform 0.1s, box-shadow 0.15s; }
+.res a:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.res a .t { font-size: 15px; font-weight: 700; color: var(--ink); }
+.res a .d { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+.site-footer { background: var(--ink-deep); color: rgba(255,255,255,0.55); font-size: 13px; text-align: center; padding: 28px 24px; }
+.site-footer .mono { font-family: var(--mono); color: rgba(120,200,50,0.7); }
+
+@media (max-width: 820px) {
+  .legend, .alert .branch, .routes { grid-template-columns: 1fr; }
+  .legend { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 520px) {
+  .legend { grid-template-columns: 1fr; }
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </div>
+      <div class="page-title">technology / onebutton / top-10</div>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#read">How to read this</a>
+      <a href="#top10">The Top 10</a>
+      <a href="#drift">The drift trap</a>
+      <a href="#benign">Not even an error</a>
+      <a href="#route">Where to take it</a>
+      <a href="#resources">Resources</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="blip"></span> TECHNOLOGY · ONEBUTTON · FIELD REFERENCE</span>
+    <h1>The Top 10 things that look <em>broken</em> but aren't</h1>
+    <p class="lede">Most "errors" in oneBUTTON aren't bugs. They're a missing step, a wrong spot, or a sync that hasn't caught up yet. Here are the ten that come up most, what each one actually means, and the fix that works. Ranked by how often reps hit them.</p>
+    <div class="stat-row">
+      <div class="stat"><div class="n">~55%</div><div class="l">of reported errors are not bugs</div></div>
+      <div class="stat"><div class="n">10</div><div class="l">patterns cover most of it</div></div>
+      <div class="stat"><div class="n">1</div><div class="l">of them can actually cost you (No. 4)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO READ -->
+<section class="section" id="read">
+  <div class="wrap">
+    <span class="sec-eyebrow">// how to read this</span>
+    <h2 class="sec-h2">Read the signal first</h2>
+    <p class="sec-p">Every entry below carries a signal light. It tells you, before you read another word, whether this is a thirty-second self-fix, something to verify, a stop-and-protect-the-deal moment, or a vendor problem that was never yours. Match the message on your screen to the entry, then run the fix.</p>
+
+    <div class="thesis">
+      <p class="big">When you can name what oneBUTTON is actually doing, you stop fighting it. <em>Most of these you fix yourself, faster than it takes to write the support ticket.</em></p>
+    </div>
+
+    <div class="legend">
+      <div class="sig"><div class="lab"><span class="dot s-green"></span> Self-fix</div><div class="desc">You can clear it yourself in under a minute.</div></div>
+      <div class="sig"><div class="lab"><span class="dot s-amber"></span> Verify</div><div class="desc">Do a check or a careful step before you proceed.</div></div>
+      <div class="sig"><div class="lab"><span class="dot s-red"></span> Stop</div><div class="desc">This can cost the deal. Slow down and confirm.</div></div>
+      <div class="sig"><div class="lab"><span class="dot s-blue"></span> Not you</div><div class="desc">Vendor or platform. Wait it out, don't rebuild.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TOP 10 -->
+<section class="section alt" id="top10">
+  <div class="wrap">
+    <span class="sec-eyebrow">// the ranked ten</span>
+    <h2 class="sec-h2">What it means, and the fix that works</h2>
+
+    <div class="diag">
+
+      <!-- 1 -->
+      <div class="card s-green">
+        <div class="card-head">
+          <span class="code">No. 01</span>
+          <h3>Credit passed in LightReach, but oneBUTTON won't let you sign</h3>
+          <span class="pill s-green">Self-fix</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">Credit needs to be ran  ·  agreement section blank  ·  submit-quote button gone</span></div>
+        <p class="what">LightReach doesn't always push the updated credit status back to oneBUTTON. The credit is fine. OB just hasn't heard about it. This is the single most-reported issue in the whole channel.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li>Click <b>Finance Partner Sync</b> to re-pull the credit. It comes in within 15 to 20 seconds and the agreement opens.</li>
+          <li class="warn">Don't route through the LightReach portal, and don't rebuild the deal.</li>
+        </ul>
+        <div class="foot"><b>Still stuck after a re-sync?</b> <span class="route-chip">BT chat + DL#</span></div>
+      </div>
+
+      <!-- 2 -->
+      <div class="card s-amber">
+        <div class="card-head">
+          <span class="code">No. 02</span>
+          <h3>"Pitch out of tolerance," 0 panels, or the design won't load</h3>
+          <span class="pill s-amber">Verify</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">One or more arrays have a pitch that is not between 5&deg; and 45&deg;</span></div>
+        <p class="what">The design never made it from oneDRAW into oneBUTTON, so OB is reading an empty design (0 panels, bad pitch). The pitch usually isn't the real problem.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li>Refinalize the design in oneDRAW, refresh the oneBUTTON design page, hit <b>Save</b>.</li>
+          <li class="warn">If OB says the design is locked (Pre-Install Certified), you can't save it yourself. Chatter the RSA on the Salesforce opportunity.</li>
+          <li>On the pitch number: the system enforces 45&deg;. LightReach has agreed to allow 50&deg; but hasn't been updated yet. If a real pitch between 45&deg; and 50&deg; is blocking you, flag your manager.</li>
+        </ul>
+        <div class="foot"><b>Design problems route to:</b> <span class="route-chip">RSA via SF chatter</span></div>
+      </div>
+
+      <!-- 3 -->
+      <div class="card s-green">
+        <div class="card-head">
+          <span class="code">No. 03</span>
+          <h3>"Some error occurred in create lead request" / "Sales person not assigned"</h3>
+          <span class="pill s-green">Self-fix</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">Some error occured in Create lead request</span></div>
+        <p class="what">Almost always the same cause: the <b>Trinity Salesperson</b> field on the Salesforce opportunity is empty, or your assignment hasn't synced yet. Being the opportunity owner isn't enough.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li>Assign yourself as <b>Trinity Salesperson</b> in Salesforce, wait for the sync, retry.</li>
+          <li>If it's set and still failing: clear the field, save, re-enter your name, save again, then refresh oneBUTTON.</li>
+        </ul>
+        <div class="foot"><b>Still failing:</b> <span class="route-chip">BT chat + DL#</span></div>
+      </div>
+
+      <!-- 4 (summary card, full breakdown below) -->
+      <div class="card s-red">
+        <div class="card-head">
+          <span class="code">No. 04</span>
+          <h3>The combined packet shows the wrong design (smaller than you sold)</h3>
+          <span class="pill s-red">Stop</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">Combined packet renders a smaller system than the one you sold</span></div>
+        <p class="what">This one is different from the rest of the list. It is <b>not</b> a glitch you can regenerate away, and it is the one that can actually cost you. A wrong design in the packet almost always means the <b>finance contract underneath is wrong too.</b></p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li class="warn">Check the <b>signed finance contract's system size</b> in Salesforce against what you sold. There is no trustworthy quick fix here.</li>
+        </ul>
+        <div class="foot"><b>Read the full breakdown:</b> <a href="#drift" style="color:var(--red-dk);font-weight:700;text-decoration:none">The drift trap &rarr;</a></div>
+      </div>
+
+      <!-- 5 -->
+      <div class="card s-amber">
+        <div class="card-head">
+          <span class="code">No. 05</span>
+          <h3>The combined pack never showed up in Box</h3>
+          <span class="pill s-amber">Verify</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">No combined pack, no audit-trail email, Box folder empty after signing</span></div>
+        <p class="what">Four things cause this, most common first: a signer hasn't actually finished (often a secondary contact); the Box folders weren't created; a new quote voided the old contract and restarted signing; or the opportunity was open in two tabs.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li class="warn">Check for a <b>pending signer first.</b> The pack only lands in Box after every signer completes.</li>
+          <li>Don't close your laptop until the final "complete" confirmation. One tab, one editor per opportunity.</li>
+          <li>If folders are missing, re-finalize the design to regenerate them.</li>
+        </ul>
+        <div class="foot"><b>Everyone signed and it's still missing:</b> <span class="route-chip">BT chat + DL#</span></div>
+      </div>
+
+      <!-- 6 -->
+      <div class="card s-green">
+        <div class="card-head">
+          <span class="code">No. 06</span>
+          <h3>"Customer is not in one button" / can't find it / 2nd meter missing</h3>
+          <span class="pill s-green">Self-fix</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">Customer is not in one button</span></div>
+        <p class="what">You just created the opportunity (or a second meter) and it's not there yet. Nothing's broken. Salesforce-to-oneBUTTON sync runs on a delay.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li>Wait. New opportunities take about <b>45 to 90 minutes</b>, an assignment change about 10 to 15.</li>
+          <li>Open it using the <b>oneBUTTON link from Salesforce</b>, not by searching the name, and confirm you're the Trinity Salesperson.</li>
+        </ul>
+        <div class="foot"><b>Over 90 minutes:</b> <span class="route-chip">BT chat + DL#</span></div>
+      </div>
+
+      <!-- 7 -->
+      <div class="card s-blue">
+        <div class="card-head">
+          <span class="code">No. 07</span>
+          <h3>Everything's spinning and you can't quote (and neither can your teammates)</h3>
+          <span class="pill s-blue">Not you</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">We are experiencing loading delays with the portal...</span></div>
+        <p class="what">The portal keeps spinning, quotes won't generate. The tell: other reps are reporting the exact same thing in the same window. That means LightReach or oneBUTTON is down, not your deal. On one 55-minute outage, six reps panicked independently.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li>Wait a few minutes and retry.</li>
+          <li class="warn">Don't rebuild the deal, and don't re-report. If a teammate already flagged it, BT knows.</li>
+        </ul>
+        <div class="foot"><b>Tell:</b> several reps, same issue, same window.</div>
+      </div>
+
+      <!-- 8 -->
+      <div class="card s-amber">
+        <div class="card-head">
+          <span class="code">No. 08</span>
+          <h3>Can't change the primary, remove a signer, or fix an email after credit</h3>
+          <span class="pill s-amber">Verify</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">Cannot change primary contact  ·  unable to remove second signer</span></div>
+        <p class="what">Once credit is in flight, identity locks. You can't pull off an accidental second signer, correct the email, or swap a title name for a legal name.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li class="warn"><b>Prevention beats the cure:</b> before you run credit, confirm the exact legal name on title and the correct email.</li>
+          <li>After the fact: a dev reset and a new lead (post in BT chat with the DL# and who should be primary), or for a name-on-title mismatch, LightReach makes the change on their side.</li>
+        </ul>
+        <div class="foot"><b>Reset path:</b> <span class="route-chip">BT chat + DL#</span></div>
+      </div>
+
+      <!-- 9 -->
+      <div class="card s-green">
+        <div class="card-head">
+          <span class="code">No. 09</span>
+          <h3>Second meter at the same address won't sync</h3>
+          <span class="pill s-green">Self-fix</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">failed to sync... a contract has already been created</span></div>
+        <p class="what">Two meters, same street address, and the second one fails because OB thinks a contract already exists. The second meter is reusing the first meter's finance lead. Only one contract can live on one lead.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li>On Finance Partner Sync, uncheck "Select Lead" and click <b>Create New Finance Partner Lead</b> so the second system gets its own.</li>
+        </ul>
+        <div class="foot"><b>If contacts are locked/duplicated:</b> <span class="route-chip">BT chat + DL#</span></div>
+      </div>
+
+      <!-- 10 -->
+      <div class="card s-green">
+        <div class="card-head">
+          <span class="code">No. 10</span>
+          <h3>"Slope data for this site is not available" / roof squares won't pull</h3>
+          <span class="pill s-green">Self-fix</span>
+        </div>
+        <div class="screen"><span class="scr-tag">on screen</span><span class="scr-txt">Slope data for this site is not available, Please enter override value to proceed.</span></div>
+        <p class="what">A roof-square or slope error blocks the quote. EagleView didn't return roof data for the address.</p>
+        <div class="fix-lab">The fix</div>
+        <ul class="fix">
+          <li>Run the roof-square refresh (the "Refreshing Roof Squares in OB/OD" Scribe guide), or enter a known Normal/Low override.</li>
+          <li class="warn">When you override, leave a field <b>blank</b> if you don't know it. Don't type 0. A 0 reads as a real value and breaks the quote.</li>
+        </ul>
+        <div class="foot"><b>Persisting roof data gaps:</b> <span class="route-chip">RSA via SF chatter</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- DRIFT TRAP -->
+<section class="section" id="drift">
+  <div class="wrap">
+    <span class="sec-eyebrow">// no. 04, in full</span>
+    <h2 class="sec-h2">The drift trap</h2>
+    <p class="sec-p">Of the ten, this is the only one that can quietly cost you a deal, so it gets its own breakdown. The packet pulling the wrong design is the symptom. The cause sits upstream, in the finance contract.</p>
+
+    <div class="alert">
+      <span class="tag"><span class="blip"></span> CONTRACT INTEGRITY</span>
+      <h3>When the packet shows the wrong size, the contract underneath is usually wrong too</h3>
+      <p>When you push a design and run credit, the finance partner <b>locks that system.</b> If the design changes after that and doesn't get pushed back to the finance partner, oneBUTTON shows the new system while the finance partner still holds the old one. The quote, the contract, and the packet all serve the old, locked design. The packet is just where you finally see it.</p>
+      <p>So <b>regenerating the packet does nothing,</b> because it re-pulls the same wrong contract. And re-saving the design does not fix a finance contract that is already locked.</p>
+      <div class="branch">
+        <div class="br ok">
+          <div class="h">&#10003; Signed contract is correct</div>
+          <p>The packet is just stale paper. Post in BT chat to refresh the design intent on the packet. Nothing else owed.</p>
+        </div>
+        <div class="br bad">
+          <div class="h">&#10007; Signed contract is wrong</div>
+          <p>The customer needs to be re-signed on the right system. Void the wrong contract, build a corrected quote, and re-sign. Post in BT chat with the DL# so dev can clear the way.</p>
+        </div>
+      </div>
+      <p class="kicker">"It looks right now" is not the same as "the signed contract is right." We have seen deals where the rep thought it was handled and the customer was never actually signed on the system they bought. Always verify the signed contract.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BENIGN -->
+<section class="section alt" id="benign">
+  <div class="wrap">
+    <span class="sec-eyebrow">// false alarms</span>
+    <h2 class="sec-h2">These scare people and mean nothing</h2>
+    <div class="benign">
+      <div class="b">
+        <div class="msg">"No Contracts have been generated for this opportunity."</div>
+        <div class="exp">You haven't advanced a quote to contract yet. Do that and it fills in.</div>
+      </div>
+      <div class="b">
+        <div class="msg">"Below the Floor" / "Pricing Below the Floor"</div>
+        <div class="exp">Informational only. If your price is at or above the floor, proceed.</div>
+      </div>
+      <div class="b">
+        <div class="msg">Roof cost rounding looks "off"</div>
+        <div class="exp">oneBUTTON mirrors the roofing calculator. Same inputs, same totals. Expected.</div>
+      </div>
+      <div class="b">
+        <div class="msg">"No button for title search"</div>
+        <div class="exp">Title is already populated and synced. Nothing to do.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROUTING -->
+<section class="section" id="route">
+  <div class="wrap">
+    <span class="sec-eyebrow">// when it really isn't you</span>
+    <h2 class="sec-h2">Where to take it</h2>
+    <p class="sec-p">Half of getting unstuck is knowing which door to knock on. One issue per post, every time.</p>
+    <div class="routes">
+      <div class="route">
+        <div class="where"><span class="dot s-amber"></span> RSA via Salesforce chatter</div>
+        <ul>
+          <li>Setbacks, trees, production</li>
+          <li>"Won't save" after Pre-Install Certified</li>
+          <li>Anything oneDRAW / design</li>
+        </ul>
+      </div>
+      <div class="route">
+        <div class="where"><span class="dot s-blue"></span> Trinity helpdesk</div>
+        <ul>
+          <li>Box and Salesforce</li>
+          <li>Sales Calendar</li>
+          <li>Email deliverability</li>
+        </ul>
+      </div>
+      <div class="route">
+        <div class="where"><span class="dot s-green"></span> BT chat, with the DL#</div>
+        <ul>
+          <li>Anything genuinely oneBUTTON</li>
+          <li>Include a screenshot</li>
+          <li>One issue per post</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section class="section alt" id="resources">
+  <div class="wrap">
+    <span class="sec-eyebrow">// pairs with</span>
+    <h2 class="sec-h2">Companion resources</h2>
+    <div class="res">
+      <a href="/sales-fundamentals/finance/lightreach-ppa.html">
+        <div class="t">Walk the LightReach PPA</div>
+        <div class="d">The agreement oneBUTTON produces, walked page by page.</div>
+      </a>
+      <a href="/traditional-university/">
+        <div class="t">Trinity University · Tech track</div>
+        <div class="d">Where oneBUTTON lives in your Tech Certification.</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+</div><!-- /#appWrap -->
+
+<footer class="site-footer">
+  Trinity Solar · CT Traditional · Internal training use only · <span class="mono">technology/onebutton/top-10</span>
+</footer>
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session) {}
+
+// Preview fallback: render content when the auth gate is not present.
+// Never runs on the production domain, so the live page stays fully gated.
+(function() {
+  if (/(^|\.)ct-resource-page\.com$/.test(location.hostname)) return;
+  function reveal() {
+    var ls = document.getElementById('loginScreen'); if (ls) ls.style.display = 'none';
+    var cp = document.getElementById('changePasswordScreen'); if (cp) cp.style.display = 'none';
+    var app = document.getElementById('appWrap');
+    if (app && getComputedStyle(app).display === 'none') app.style.display = 'block';
+  }
+  window.addEventListener('load', function() { setTimeout(reveal, 300); });
+})();
+</script>
+
+</body>
+</html>
