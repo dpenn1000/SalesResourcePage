@@ -811,8 +811,11 @@ async function initApp(profile, session) {
   const drawerRepText = document.getElementById('drawerRepToolText');
   if (repLink) {
     let href = null, label = null;
-    if (window.IS_MANAGER)   { href = '/reps/';         label = 'Rep Console'; }
-    else if (window.IS_REP)  { href = '/my-calls.html'; label = 'My Calls';    }
+    // Managers go to the Rep Console oversight roster. Reps land on My Page
+    // (the personal dashboard: metrics, notes, addressables). My Calls is
+    // still reachable from inside /me/.
+    if (window.IS_MANAGER)   { href = '/reps/'; label = 'Rep Console'; }
+    else if (window.IS_REP)  { href = '/me/';   label = 'My Page';     }
     if (href) {
       repLink.href = href;
       repLink.textContent = label;

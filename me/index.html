@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1A2332">
+<title>My Page - CT Traditional</title>
+<link rel="stylesheet" href="/auth-gate.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #f5f3ee;
+    --card:      #ffffff;
+    --border:    #d8d2c4;
+    --text:      #1A2332;
+    --text2:     #5B6576;
+    --text3:     #8a93a0;
+    --header:    #1A2332;
+    --green:     #78C832;
+    --green-dk:  #4A8A14;
+    --green-bg:  #EDFAD6;
+    --blue:      #29A9E1;
+    --blue-bg:   #d8f1fb;
+    --amber:     #f5a623;
+    --amber-bg:  #fff3d8;
+    --red:       #e85630;
+    --red-bg:    #ffe2d8;
+    --pink:      #e85690;
+    --teal:      #2eae9e;
+    --radius:    10px;
+    --shadow:    0 1px 3px rgba(0,0,0,0.05);
+    --shadow-h:  0 4px 16px rgba(0,0,0,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  header {
+    background: var(--header);
+    color: #fff;
+    padding: 14px 16px;
+    padding-top: max(14px, env(safe-area-inset-top));
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  }
+  .header-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    max-width: 880px; margin: 0 auto;
+  }
+  .logo-mark { display: flex; flex-direction: column; gap: 2px; line-height: 1; }
+  .logo-ct   { font-family: Georgia, serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+  .logo-trad { font-size: 8px; font-weight: 700; color: var(--green); letter-spacing: 5px; text-transform: uppercase; }
+  .header-title { font-size: 12px; color: rgba(255,255,255,0.55); white-space: nowrap; letter-spacing: 0.5px; }
+  .header-back {
+    font-size: 12px; color: rgba(255,255,255,0.55); text-decoration: none;
+    padding: 7px 12px; border: 1px solid rgba(255,255,255,0.14); border-radius: 7px;
+    white-space: nowrap;
+  }
+  .header-back:hover { color: #fff; border-color: rgba(255,255,255,0.32); }
+
+  main {
+    max-width: 880px; margin: 0 auto;
+    padding: 18px 14px 60px;
+  }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #243047 0%, #1A2332 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -40px; right: -40px;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(120,200,50,0.25) 0%, transparent 70%);
+  }
+  .hero-name { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; position: relative; }
+  .hero-meta { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; position: relative; }
+  .hero-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; position: relative; }
+  .tag {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    padding: 3px 9px; border-radius: 20px; background: rgba(255,255,255,0.10);
+    color: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.14);
+  }
+  .tag.green { background: rgba(120,200,50,0.18); color: #c8f0a8; border-color: rgba(120,200,50,0.36); }
+  .tag.amber { background: rgba(245,166,35,0.18); color: #ffd789; border-color: rgba(245,166,35,0.36); }
+
+  /* Section card */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #fdfcf8 0%, #f9f7f0 100%);
+  }
+  .section-title {
+    font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--text2);
+  }
+  .section-pill {
+    font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+    background: var(--bg); color: var(--text2); border: 1px solid var(--border);
+  }
+  .section-pill.green { background: var(--green-bg); color: var(--green-dk); border-color: var(--green); }
+  .section-pill.amber { background: var(--amber-bg); color: #b06800; border-color: var(--amber); }
+  .section-pill.red   { background: var(--red-bg);   color: #a13c1d; border-color: var(--red); }
+  .section-body { padding: 16px 18px 18px; }
+
+  /* Key metrics grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .metric {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 11px 13px;
+  }
+  .metric.green { background: var(--green-bg); border-color: var(--green); }
+  .metric.amber { background: var(--amber-bg); border-color: var(--amber); }
+  .metric.red   { background: var(--red-bg);   border-color: var(--red); }
+  .metric-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); }
+  .metric-value { font-size: 22px; font-weight: 800; color: var(--text); margin-top: 2px; letter-spacing: -0.01em; line-height: 1.1; }
+  .metric-sub   { font-size: 11px; color: var(--text2); margin-top: 3px; font-weight: 500; }
+  .metric-sub.up   { color: var(--green-dk); }
+  .metric-sub.down { color: #a13c1d; }
+
+  /* Stack-up row (rank) */
+  .stack-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0; border-top: 1px solid var(--border); font-size: 13px;
+    margin-top: 12px;
+  }
+  .stack-row:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+  .stack-row .lbl { color: var(--text2); font-weight: 600; }
+  .stack-row .val { font-weight: 700; color: var(--text); }
+  .stack-row .val .rank { font-size: 11px; color: var(--text2); font-weight: 600; margin-left: 5px; }
+
+  /* Addressable items */
+  .addr {
+    border-left: 3px solid var(--border);
+    background: var(--bg);
+    border-radius: 0 9px 9px 0;
+    padding: 11px 13px;
+    margin-bottom: 9px;
+    position: relative;
+  }
+  .addr:last-child { margin-bottom: 0; }
+  .addr.p-high   { border-left-color: var(--red);   background: var(--red-bg); }
+  .addr.p-medium { border-left-color: var(--amber); background: var(--amber-bg); }
+  .addr.p-low    { border-left-color: var(--blue);  background: var(--blue-bg); }
+  .addr-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .addr-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
+  .addr-body  { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+  .addr-meta  { font-size: 10px; color: var(--text3); margin-top: 6px; letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600; }
+  .addr-resolve {
+    background: var(--card); border: 1px solid var(--border); color: var(--text2);
+    font-size: 11px; font-weight: 700; padding: 5px 11px; border-radius: 6px;
+    cursor: pointer; white-space: nowrap;
+  }
+  .addr-resolve:hover { color: var(--green-dk); border-color: var(--green); }
+
+  /* Notes feed */
+  .note {
+    border-top: 1px solid var(--border);
+    padding: 13px 0;
+  }
+  .note:first-child { border-top: none; padding-top: 0; }
+  .note:last-child  { padding-bottom: 0; }
+  .note-meta { font-size: 10px; font-weight: 700; color: var(--text2); letter-spacing: 0.5px; text-transform: uppercase; }
+  .note-meta .pinned { color: var(--amber); margin-right: 6px; }
+  .note-body { font-size: 13px; color: var(--text); margin-top: 5px; line-height: 1.55; white-space: pre-wrap; }
+
+  /* University progress bar */
+  .progress {
+    background: var(--bg);
+    border-radius: 20px;
+    height: 9px; overflow: hidden;
+    margin-top: 7px; border: 1px solid var(--border);
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--green) 0%, var(--green-dk) 100%);
+    border-radius: 20px; transition: width 0.4s ease;
+  }
+
+  /* Cert / quiz / call list rows */
+  .list-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .list-row:first-child { border-top: none; padding-top: 0; }
+  .list-row:last-child  { padding-bottom: 0; }
+  .list-row .l-name { font-weight: 600; color: var(--text); }
+  .list-row .l-sub  { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .list-row .l-right {
+    font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+    background: var(--bg); color: var(--text2); border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .list-row .l-right.green { background: var(--green-bg); color: var(--green-dk); border-color: var(--green); }
+  .list-row .l-right.amber { background: var(--amber-bg); color: #b06800; border-color: var(--amber); }
+
+  /* Empty state */
+  .empty {
+    padding: 18px 14px;
+    text-align: center;
+    color: var(--text2);
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 9px;
+    line-height: 1.5;
+  }
+  .empty.success { background: var(--green-bg); border-color: var(--green); color: var(--green-dk); font-weight: 600; }
+
+  /* Loader */
+  .loading {
+    display: flex; align-items: center; justify-content: center;
+    padding: 18px; color: var(--text2); font-size: 12px;
+  }
+  .loading::before {
+    content: ''; width: 14px; height: 14px;
+    border: 2px solid var(--green); border-top-color: transparent;
+    border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 9px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Small responsive */
+  @media (min-width: 600px) {
+    .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 900px) {
+    .metrics-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none"></div>
+<div id="changePasswordScreen" style="display:none"></div>
+
+<div id="appWrap" style="display:none">
+
+<header>
+  <div class="header-inner">
+    <div class="logo-mark">
+      <span class="logo-ct">CT</span>
+      <span class="logo-trad">Traditional</span>
+    </div>
+    <span class="header-title">My Page</span>
+    <a class="header-back" href="/">Back to Resources</a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-name" id="heroName">Loading...</div>
+    <div class="hero-meta" id="heroMeta"></div>
+    <div class="hero-tags" id="heroTags"></div>
+  </div>
+
+  <!-- KEY METRICS + STACK-UP -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Key Metrics</div>
+      <div class="section-pill" id="metricsPill">--</div>
+    </div>
+    <div class="section-body" id="metricsBody">
+      <div class="loading">Loading metrics...</div>
+    </div>
+  </div>
+
+  <!-- NEED TO ADDRESS -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Need to Address</div>
+      <div class="section-pill" id="addrPill">--</div>
+    </div>
+    <div class="section-body" id="addrBody">
+      <div class="loading">Loading action items...</div>
+    </div>
+  </div>
+
+  <!-- MANAGER NOTES -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Manager Notes</div>
+      <div class="section-pill" id="notesPill">--</div>
+    </div>
+    <div class="section-body" id="notesBody">
+      <div class="loading">Loading notes...</div>
+    </div>
+  </div>
+
+  <!-- UNIVERSITY -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">University</div>
+      <div class="section-pill" id="uniPill">--</div>
+    </div>
+    <div class="section-body" id="uniBody">
+      <div class="loading">Loading University progress...</div>
+    </div>
+  </div>
+
+  <!-- CALL ACTIVITY -->
+  <div class="section">
+    <div class="section-head">
+      <div class="section-title">Call Activity</div>
+      <div class="section-pill" id="callPill">--</div>
+    </div>
+    <div class="section-body" id="callBody">
+      <div class="loading">Loading call activity...</div>
+    </div>
+  </div>
+
+</main>
+
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script>
+// ============================================================================
+// initApp(profile, session) -- called by auth-gate.js after sign-in.
+// ============================================================================
+const $ = (id) => document.getElementById(id);
+const esc = (s) => (s == null ? '' : String(s)
+  .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+  .replace(/"/g,'&quot;').replace(/'/g,'&#39;'));
+
+function fmtDate(s){
+  if (!s) return '--';
+  const d = new Date(s); if (isNaN(d)) return '--';
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+function fmtRel(s){
+  if (!s) return 'never';
+  const d = new Date(s); if (isNaN(d)) return 'never';
+  const days = Math.round((Date.now() - d.getTime()) / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7)   return days + 'd ago';
+  if (days < 30)  return Math.round(days/7) + 'w ago';
+  if (days < 365) return Math.round(days/30) + 'mo ago';
+  return Math.round(days/365) + 'y ago';
+}
+function fmtTenure(start){
+  if (!start) return null;
+  const d = new Date(start); if (isNaN(d)) return null;
+  const months = Math.max(0, Math.round((Date.now() - d.getTime()) / (1000*60*60*24*30)));
+  if (months < 1) return 'new this month';
+  if (months < 12) return months + ' month' + (months===1?'':'s');
+  const y = Math.floor(months/12), m = months%12;
+  return y + 'y' + (m ? ' ' + m + 'mo' : '');
+}
+const fmtMoney = (v) => v == null ? '--' : '$' + Math.round(v).toLocaleString();
+const fmtPPA   = (v) => v == null ? '--' : '$' + Number(v).toFixed(3);
+const fmtNum   = (v) => v == null ? '--' : Number(v).toLocaleString();
+
+async function initApp(profile, session) {
+  // ── HERO ──
+  const me = await loadMyPerson();
+  if (!me) {
+    $('heroName').textContent = 'Unable to load your profile';
+    $('heroMeta').textContent = 'Contact your manager if this persists.';
+    return;
+  }
+  renderHero(me);
+
+  // ── Fire all section loaders in parallel ──
+  Promise.allSettled([
+    loadAndRenderMetrics(me),
+    loadAndRenderAddressables(me),
+    loadAndRenderNotes(me),
+    loadAndRenderUniversity(me),
+    loadAndRenderCallActivity(me)
+  ]);
+}
+
+async function loadMyPerson() {
+  // Identity comes from the people row keyed on the authenticated user.
+  // The hero also resolves the manager name from parent_id (self-join).
+  const session = window.AUTH_SESSION;
+  if (!session || !session.user) return null;
+  const { data, error } = await sb.from('people')
+    .select('id, name, role, tier, status, cohort_start_date, spd_slug, parent_id')
+    .eq('auth_user_id', session.user.id)
+    .maybeSingle();
+  if (error || !data) {
+    console.warn('[me] loadMyPerson', error);
+    return null;
+  }
+  let parentName = null;
+  if (data.parent_id) {
+    const { data: m } = await sb.from('people')
+      .select('name').eq('id', data.parent_id).maybeSingle();
+    parentName = m ? m.name : null;
+  }
+  return { ...data, parent_name: parentName };
+}
+
+function renderHero(me){
+  $('heroName').textContent = me.name || 'Rep';
+  const metaBits = [];
+  if (me.role)         metaBits.push(me.role + (me.tier ? ' / ' + me.tier : ''));
+  if (me.parent_name)  metaBits.push('Reports to ' + me.parent_name);
+  if (me.cohort_start_date) {
+    const t = fmtTenure(me.cohort_start_date);
+    if (t) metaBits.push('Tenure ' + t);
+  }
+  $('heroMeta').textContent = metaBits.join('  -  ');
+
+  const tags = [];
+  if (me.status === 'active') tags.push('<span class="tag green">active</span>');
+  else if (me.status) tags.push('<span class="tag">' + esc(me.status) + '</span>');
+  if (me.spd_slug)    tags.push('<span class="tag">' + esc(me.spd_slug) + '</span>');
+  $('heroTags').innerHTML = tags.join('');
+}
+
+// ============================================================================
+// KEY METRICS
+// ============================================================================
+async function loadAndRenderMetrics(me){
+  const { data } = await sb.from('rep_perf_snapshots')
+    .select('*').eq('rep_id', me.id)
+    .order('snapshot_date', { ascending: false })
+    .limit(1).maybeSingle();
+
+  const body = $('metricsBody');
+  if (!data) {
+    body.innerHTML = '<div class="empty">No performance snapshot yet. Snapshots are written after each Performance Parser run on the desktop. Your manager can trigger one if you need a current view.</div>';
+    $('metricsPill').textContent = 'pending';
+    return;
+  }
+  $('metricsPill').textContent = fmtDate(data.snapshot_date);
+  $('metricsPill').className = 'section-pill green';
+
+  // Headline metric cards
+  const tiles = [];
+  const teamN = data.team_count || null;
+  const rankTxt = (r) => (r != null && teamN) ? ' (#' + r + ' / ' + teamN + ')' : '';
+
+  tiles.push(metric('Contracts', fmtNum(data.contracts) + rankTxt(data.contracts_rank),
+    data.team_avg_contracts != null ? 'team avg ' + Number(data.team_avg_contracts).toFixed(1) : '',
+    teamColor(data.contracts, data.team_avg_contracts)));
+
+  tiles.push(metric('kW Sold', (data.kw != null ? Number(data.kw).toFixed(1) : '--') + rankTxt(data.kw_rank),
+    data.team_avg_kw != null ? 'team avg ' + Number(data.team_avg_kw).toFixed(1) : '',
+    teamColor(data.kw, data.team_avg_kw)));
+
+  tiles.push(metric('Avg PPA', fmtPPA(data.avg_ppa) + rankTxt(data.ppa_rank),
+    (data.ppa_gap != null ? (data.ppa_gap >= 0 ? '+' : '') + '$' + data.ppa_gap.toFixed(3) + ' vs target' : ''),
+    ppaCardColor(data.ppa_gap)));
+
+  if (data.balance != null) {
+    tiles.push(metric('Book', fmtMoney(data.balance),
+      data.comm_status ? data.comm_status + ' status' : '',
+      bookCardColor(data.balance)));
+  }
+
+  if (data.track_assessment) {
+    tiles.push(metric('Project Track', data.track_assessment, 'A-track vs holds',
+      trackColor(data.track_assessment)));
+  }
+
+  body.innerHTML =
+    '<div class="metrics-grid">' + tiles.join('') + '</div>' +
+    renderStackUp(data);
+}
+
+function metric(label, value, sub, cls){
+  return '<div class="metric ' + (cls || '') + '">' +
+    '<div class="metric-label">' + esc(label) + '</div>' +
+    '<div class="metric-value">' + value + '</div>' +
+    (sub ? '<div class="metric-sub">' + esc(sub) + '</div>' : '') +
+    '</div>';
+}
+function teamColor(mine, avg){
+  if (mine == null || avg == null) return '';
+  const ratio = avg ? (mine / avg) : 1;
+  if (ratio >= 1.10) return 'green';
+  if (ratio >= 0.90) return '';
+  return 'amber';
+}
+function ppaCardColor(gap){
+  if (gap == null) return '';
+  if (gap >= 0) return 'green';
+  return 'red';
+}
+function bookCardColor(bal){
+  if (bal == null) return '';
+  if (bal > 10000) return 'green';
+  if (bal > 1000)  return 'amber';
+  return 'red';
+}
+function trackColor(assess){
+  if (!assess) return '';
+  if (assess === 'Excellent' || assess === 'Good') return 'green';
+  if (assess === 'Needs Attention') return 'amber';
+  return 'red';
+}
+function renderStackUp(d){
+  const rows = [];
+  if (d.contracts_rank != null && d.team_count) rows.push(['Contracts rank', '#' + d.contracts_rank + ' of ' + d.team_count]);
+  if (d.kw_rank        != null && d.team_count) rows.push(['kW rank',        '#' + d.kw_rank        + ' of ' + d.team_count]);
+  if (d.ppa_rank       != null && d.team_count) rows.push(['PPA rank',       '#' + d.ppa_rank       + ' of ' + d.team_count]);
+  if (!rows.length) return '';
+  return '<div style="margin-top:16px">' +
+    rows.map(r => '<div class="stack-row"><span class="lbl">' + esc(r[0]) + '</span><span class="val">' + esc(r[1]) + '</span></div>').join('') +
+    '</div>';
+}
+
+// ============================================================================
+// NEED TO ADDRESS
+// ============================================================================
+async function loadAndRenderAddressables(me){
+  const { data } = await sb.from('rep_addressables')
+    .select('id, title, body, priority, status, due_date, created_at, author_id, resolved_at')
+    .eq('rep_id', me.id)
+    .order('status', { ascending: true })
+    .order('priority', { ascending: false })
+    .order('created_at', { ascending: false });
+
+  const body = $('addrBody');
+  const all = data || [];
+  const open = all.filter(a => a.status === 'open');
+
+  if (!open.length){
+    body.innerHTML = '<div class="empty success">No open items. You\'re all clear.</div>';
+    $('addrPill').textContent = '0 open';
+    $('addrPill').className   = 'section-pill green';
+    return;
+  }
+
+  $('addrPill').textContent = open.length + ' open';
+  $('addrPill').className   = 'section-pill ' + (open.some(a => a.priority === 'high') ? 'red' : 'amber');
+
+  body.innerHTML = open.map(a =>
+    '<div class="addr p-' + esc(a.priority || 'medium') + '" data-id="' + esc(a.id) + '">' +
+    '  <div class="addr-head">' +
+    '    <div class="addr-title">' + esc(a.title) + '</div>' +
+    '    <button class="addr-resolve" data-resolve="' + esc(a.id) + '">Mark Resolved</button>' +
+    '  </div>' +
+    (a.body ? '<div class="addr-body">' + esc(a.body) + '</div>' : '') +
+    '  <div class="addr-meta">' +
+    esc((a.priority || 'medium').toUpperCase()) + ' / ' + fmtRel(a.created_at) +
+    (a.due_date ? '  /  due ' + fmtDate(a.due_date) : '') +
+    '  </div>' +
+    '</div>'
+  ).join('');
+
+  body.querySelectorAll('[data-resolve]').forEach(btn => {
+    btn.addEventListener('click', () => resolveAddressable(btn.dataset.resolve, me));
+  });
+}
+async function resolveAddressable(id, me){
+  const { error } = await sb.from('rep_addressables').update({
+    status: 'resolved',
+    resolved_at: new Date().toISOString(),
+    resolved_by: me.id
+  }).eq('id', id);
+  if (error){ alert('Could not mark resolved: ' + error.message); return; }
+  await loadAndRenderAddressables(me);
+}
+
+// ============================================================================
+// MANAGER NOTES
+// ============================================================================
+async function loadAndRenderNotes(me){
+  const { data } = await sb.from('rep_notes')
+    .select('id, body, pinned, author_id, created_at, updated_at')
+    .eq('rep_id', me.id)
+    .order('pinned', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  const body = $('notesBody');
+  if (!data || !data.length){
+    body.innerHTML = '<div class="empty">No notes from your manager yet.</div>';
+    $('notesPill').textContent = '0';
+    return;
+  }
+  $('notesPill').textContent = data.length;
+  $('notesPill').className   = 'section-pill';
+
+  // Resolve author names in one extra round trip
+  const authorIds = Array.from(new Set(data.map(n => n.author_id).filter(Boolean)));
+  let authorMap = {};
+  if (authorIds.length){
+    const { data: authors } = await sb.from('people')
+      .select('id, name').in('id', authorIds);
+    if (authors){
+      authorMap = Object.fromEntries(authors.map(a => [a.id, a.name]));
+    }
+  }
+
+  body.innerHTML = data.map(n => {
+    const author = authorMap[n.author_id] || 'Manager';
+    return '<div class="note">' +
+      '<div class="note-meta">' +
+      (n.pinned ? '<span class="pinned">PINNED</span>' : '') +
+      esc(author) + '  /  ' + fmtRel(n.created_at) +
+      '</div>' +
+      '<div class="note-body">' + esc(n.body) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// ============================================================================
+// UNIVERSITY
+// ============================================================================
+async function loadAndRenderUniversity(me){
+  const [{ data: certs }, { data: quizzes }, { data: shadows }, { data: helpOpen }] = await Promise.all([
+    sb.from('cert_assignments').select('id, status, assigned_at, completed_at, cert_id').eq('rep_id', me.id),
+    sb.from('quiz_attempts').select('id, status, auto_score, auto_max, submitted_at').eq('rep_id', me.id),
+    sb.from('shadow_logs').select('id, shadow_date, outcome, status').eq('rep_id', me.id).order('shadow_date', { ascending: false }).limit(3),
+    sb.from('help_requests').select('id, message, created_at').eq('rep_id', me.id).eq('status', 'open')
+  ]);
+  const allCerts = certs || [];
+  const done = allCerts.filter(c => c.status === 'completed').length;
+  const total = allCerts.length;
+  const pct = total ? Math.round(100 * done / total) : 0;
+  $('uniPill').textContent = done + ' / ' + total + ' certs';
+  $('uniPill').className   = 'section-pill ' + (total === 0 ? '' : (done === total ? 'green' : 'amber'));
+
+  const recentQuiz = (quizzes || []).filter(q => q.submitted_at).sort((a,b) => (b.submitted_at||'').localeCompare(a.submitted_at||''))[0];
+  const recentShadow = (shadows || [])[0];
+
+  $('uniBody').innerHTML =
+    '<div class="list-row"><div><div class="l-name">Cert Progress</div><div class="l-sub">' + done + ' of ' + total + ' assigned</div></div><div class="l-right ' + (done === total && total > 0 ? 'green' : (total > 0 ? 'amber' : '')) + '">' + pct + '%</div></div>' +
+    '<div class="progress" style="margin-bottom:14px"><div class="progress-fill" style="width:' + pct + '%"></div></div>' +
+    (recentQuiz
+      ? '<div class="list-row"><div><div class="l-name">Latest Quiz</div><div class="l-sub">' + fmtRel(recentQuiz.submitted_at) + ' / ' + esc(recentQuiz.status || '') + '</div></div><div class="l-right ' + ((recentQuiz.auto_score / (recentQuiz.auto_max || 1)) >= 0.8 ? 'green' : 'amber') + '">' +
+        (recentQuiz.auto_max ? Math.round(100 * recentQuiz.auto_score / recentQuiz.auto_max) + '%' : '--') +
+        '</div></div>'
+      : '<div class="list-row"><div><div class="l-name">Quizzes</div><div class="l-sub">No attempts yet</div></div></div>') +
+    (recentShadow
+      ? '<div class="list-row"><div><div class="l-name">Last Shadow</div><div class="l-sub">' + fmtDate(recentShadow.shadow_date) + ' / ' + esc(recentShadow.outcome || '') + '</div></div><div class="l-right">' + esc(recentShadow.status || '') + '</div></div>'
+      : '<div class="list-row"><div><div class="l-name">Shadow Logs</div><div class="l-sub">None recorded</div></div></div>') +
+    ((helpOpen && helpOpen.length)
+      ? '<div class="list-row"><div><div class="l-name">Open Help Requests</div><div class="l-sub">awaiting response</div></div><div class="l-right amber">' + helpOpen.length + '</div></div>'
+      : '');
+}
+
+// ============================================================================
+// CALL ACTIVITY
+// ============================================================================
+async function loadAndRenderCallActivity(me){
+  const { data: leads } = await sb.from('direct_leads')
+    .select('dl_number, homeowner_name, status, lifecycle_state, last_outcome, last_appt_date, appt_count, sold')
+    .eq('assignee_id', me.id)
+    .order('last_appt_date', { ascending: false, nullsFirst: false })
+    .limit(8);
+
+  const all = leads || [];
+  const sold = all.filter(l => l.sold).length;
+  $('callPill').textContent = all.length + ' leads / ' + sold + ' sold';
+  $('callPill').className = 'section-pill ' + (sold > 0 ? 'green' : '');
+
+  // Window 90d activity counts via contact_log (logged_by uses name)
+  const session = window.AUTH_SESSION;
+  const { data: contacts } = await sb.from('contact_log')
+    .select('id, contacted_at, outcome, opp_name')
+    .eq('logged_by', me.name)
+    .gte('contacted_at', new Date(Date.now() - 90 * 86400000).toISOString())
+    .order('contacted_at', { ascending: false })
+    .limit(5);
+
+  const leadRows = all.length
+    ? all.map(l =>
+      '<div class="list-row">' +
+      '  <div><div class="l-name">' + esc(l.homeowner_name || l.dl_number || '--') + '</div>' +
+      '       <div class="l-sub">' + esc(l.lifecycle_state || '--') + (l.last_outcome ? ' / ' + esc(l.last_outcome) : '') + '</div></div>' +
+      '  <div class="l-right' + (l.sold ? ' green' : '') + '">' +
+      (l.sold ? 'SOLD' : (l.last_appt_date ? fmtRel(l.last_appt_date) : 'no appt')) +
+      '  </div>' +
+      '</div>'
+    ).join('')
+    : '<div class="empty">No leads assigned right now.</div>';
+
+  const contactRows = (contacts && contacts.length)
+    ? '<div style="margin-top:14px"><div class="metric-label" style="margin-bottom:7px">Recent Contacts</div>' +
+      contacts.map(c =>
+        '<div class="list-row">' +
+        '  <div><div class="l-name">' + esc(c.opp_name || '(unknown)') + '</div>' +
+        '       <div class="l-sub">' + esc(c.outcome || '--') + '</div></div>' +
+        '  <div class="l-right">' + fmtRel(c.contacted_at) + '</div>' +
+        '</div>'
+      ).join('') + '</div>'
+    : '';
+
+  // CTA: open the live call queue (the work surface for the lead list)
+  const cta = '<div style="margin-top:14px;text-align:right">' +
+    '<a href="/my-calls.html" style="display:inline-block;padding:9px 16px;background:var(--header);color:#fff;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;text-decoration:none">Open My Calls Queue --&gt;</a>' +
+    '</div>';
+
+  $('callBody').innerHTML = leadRows + contactRows + cta;
+}
+</script>
+
+</body>
+</html>
