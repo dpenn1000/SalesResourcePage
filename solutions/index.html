@@ -1919,6 +1919,96 @@ async function doSuggestCategory() {
   }
 }
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => {
+      const s = String(r.result || '');
+      const comma = s.indexOf(',');
+      resolve(comma >= 0 ? s.slice(comma + 1) : s);
+    };
+    r.onerror = () => reject(new Error('Could not read the file'));
+    r.readAsDataURL(file);
+  });
+}
+
+async function doDraftFromFile(file) {
+  const status = $('aiDraftStatus');
+  const setStatus = (html, color) => { if (status) { status.innerHTML = html; status.style.color = color || 'var(--muted)'; } };
+
+  if (file.size > 10 * 1024 * 1024) {
+    setStatus('That file is over 10 MB. Export a smaller PDF or paste the text instead.', 'var(--red)');
+    return;
+  }
+
+  const name = file.name || 'file';
+  const mime = file.type || '';
+  const isImg = mime.startsWith('image/');
+  const isPdf = mime === 'application/pdf' || /\.pdf$/i.test(name);
+  const isWord = /\.(docx?|rtf|pages)$/i.test(name) || mime.indexOf('officedocument.wordprocessing') >= 0 || mime === 'application/msword';
+
+  if (isWord) {
+    setStatus('Word docs can\'t be read directly. Save it as a PDF and upload that, or paste the text into Problem and use Suggest category.', 'var(--red)');
+    return;
+  }
+
+  setStatus('<em>Reading the file and drafting&hellip; usually 10-20 seconds.</em>');
+  try {
+    let params;
+    if (isImg) {
+      params = { content_kind: 'image', filename: name, mime_type: mime || 'image/png', data: await fileToBase64(file) };
+    } else if (isPdf) {
+      params = { content_kind: 'pdf', filename: name, mime_type: 'application/pdf', data: await fileToBase64(file) };
+    } else {
+      const text = await file.text();
+      if (!text.trim()) { setStatus('That file looks empty.', 'var(--red)'); return; }
+      params = { content_kind: 'text', filename: name, text };
+    }
+    const { draft } = await callAi('draft_from_file', params);
+    if (!draft) throw new Error('No draft returned');
+    applyDraftToForm(draft);
+    let msg = '<div><span class="ai-marker">AI</span><strong>Draft filled in</strong> &middot; confidence: ' + escapeHtml(draft.confidence || 'medium') + '. Review and edit before submitting.</div>';
+    if (draft.notes) msg += '<div style="margin-top:4px;color:var(--muted);">' + escapeHtml(draft.notes) + '</div>';
+    setStatus(msg, 'var(--ink)');
+  } catch (e) {
+    setStatus('Draft failed: ' + escapeHtml(e.message || String(e)), 'var(--red)');
+  }
+}
+
+function applyDraftToForm(draft) {
+  if (draft.title && $('fTitle')) $('fTitle').value = draft.title;
+  if (draft.problem && $('fProblem')) $('fProblem').value = draft.problem;
+  if (typeof draft.impact === 'string' && $('fImpact')) $('fImpact').value = draft.impact;
+  if (draft.severity) {
+    const r = document.querySelector('input[name="fSev"][value="' + draft.severity + '"]');
+    if (r) r.checked = true;
+  }
+  // Category / subcategory: only set if the suggested id actually exists.
+  const catSel = $('fCat');
+  if (draft.category_id && catSel && Array.from(catSel.options).some(o => o.value === draft.category_id)) {
+    catSel.value = draft.category_id;
+    refreshSubcatOptions();
+    const subSel = $('fSub');
+    if (draft.subcategory_id && subSel && Array.from(subSel.options).some(o => o.value === draft.subcategory_id)) {
+      subSel.value = draft.subcategory_id;
+    }
+  }
+  // Solutions: rebuild from the draft (replaces the seeded empty block).
+  if (Array.isArray(draft.solutions) && draft.solutions.length) {
+    PendingSolutions.length = 0;
+    $('solList').innerHTML = '';
+    for (const sd of draft.solutions) {
+      addSolutionBlock({
+        title: sd.title || '',
+        summary: sd.summary || '',
+        components: Array.isArray(sd.components)
+          ? sd.components.map(c => ({ title: (c && c.title) || '', body: (c && c.body) || '' }))
+          : [],
+      });
+    }
+  }
+}
+
 function showWorkingModal(title, sub) {
   const shroud = el('div', { class: 'modal-shroud' });
   const card = el('div', { class: 'modal-card', style: 'max-width:480px;text-align:center;padding:40px 32px;' });
@@ -2230,6 +2320,25 @@ window.openNewSubmission = function openNewSubmission() {
     'HR, compensation, and personnel concerns go through HR. Not here.'
   ));
 
+  // AI: draft the whole form from an uploaded file (PDF, screenshot, text, email).
+  card.appendChild(el('div', { class: 'suggest-banner', style: 'display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;' },
+    el('div', { style: 'flex:1;min-width:220px;' },
+      el('div', { style: 'font-weight:600;color:var(--ink);' }, 'Start from a file'),
+      el('div', { style: 'font-size:0.8rem;color:var(--muted);' }, 'Upload a PDF, screenshot, or text/email and AI will pre-fill the fields below. You review and edit everything before submitting.'),
+      el('div', { id: 'aiDraftStatus', style: 'font-size:0.82rem;margin-top:4px;' }),
+    ),
+    el('label', { class: 'btn ai-btn small', style: 'cursor:pointer;white-space:nowrap;' },
+      el('span', { class: 'ai-marker' }, 'AI'),
+      document.createTextNode(' Draft from file'),
+      el('input', {
+        type: 'file', id: 'fDraftFile',
+        accept: 'image/*,application/pdf,.txt,.md,.eml,.csv,.json,.html,.htm,.log,text/*',
+        style: 'display:none;',
+        onchange: (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) doDraftFromFile(f); },
+      }),
+    ),
+  ));
+
   // Title
   card.appendChild(el('div', { class: 'field' },
     el('label', { html: 'Title <span class="req">*</span>' }),
@@ -2432,9 +2541,10 @@ function removeAtt(id) {
 const PendingSolutions = []; // { _id, title, summary, components: [{ _id, title, body }] }
 let solSeq = 0, compSeq = 0;
 
-function addSolutionBlock() {
+function addSolutionBlock(init) {
+  init = init || {};
   const id = ++solSeq;
-  const sol = { _id: id, title: '', summary: '', components: [] };
+  const sol = { _id: id, title: init.title || '', summary: init.summary || '', components: [] };
   PendingSolutions.push(sol);
   const block = el('div', { class: 'editor-block', 'data-sol-id': id });
   const head = el('div', { class: 'block-head' },
@@ -2446,18 +2556,19 @@ function addSolutionBlock() {
   block.appendChild(head);
   block.appendChild(el('div', { class: 'field' },
     el('label', { html: 'Solution title <span class="req">*</span>' }),
-    el('input', { type: 'text', placeholder: 'What is the solution?', oninput: (e) => sol.title = e.target.value }),
+    el('input', { type: 'text', value: sol.title, placeholder: 'What is the solution?', oninput: (e) => sol.title = e.target.value }),
   ));
   block.appendChild(el('div', { class: 'field' },
     el('label', {}, 'Summary'),
-    el('textarea', { placeholder: 'Optional short overview.', oninput: (e) => sol.summary = e.target.value }),
+    el('textarea', { placeholder: 'Optional short overview.', oninput: (e) => sol.summary = e.target.value }, sol.summary),
   ));
   const compList = el('div', { 'data-comp-list': id });
   block.appendChild(compList);
   block.appendChild(el('button', { type: 'button', class: 'btn ghost small', style: 'margin-top:6px;', onclick: () => addComponentBlock(id) }, '+ Add component'));
   $('solList').appendChild(block);
-  // Seed one component
-  addComponentBlock(id);
+  // Seed components: pre-fill from init when provided, else one empty component.
+  const seed = (Array.isArray(init.components) && init.components.length) ? init.components : [undefined];
+  for (const c of seed) addComponentBlock(id, c);
 }
 
 function removeSolution(id) {
@@ -2471,11 +2582,12 @@ function removeSolution(id) {
   });
 }
 
-function addComponentBlock(solId) {
+function addComponentBlock(solId, init) {
+  init = init || {};
   const sol = PendingSolutions.find(s => s._id === solId);
   if (!sol) return;
   const cid = ++compSeq;
-  const c = { _id: cid, title: '', body: '' };
+  const c = { _id: cid, title: init.title || '', body: init.body || '' };
   sol.components.push(c);
   const list = document.querySelector('[data-comp-list="' + solId + '"]');
   const node = el('div', { class: 'component-editor', 'data-comp-id': cid },
@@ -2487,11 +2599,11 @@ function addComponentBlock(solId) {
     ),
     el('div', { class: 'field' },
       el('label', { html: 'Component title <span class="req">*</span>' }),
-      el('input', { type: 'text', placeholder: 'e.g. "Update training", "Change SF stage rule"', oninput: (e) => c.title = e.target.value }),
+      el('input', { type: 'text', value: c.title, placeholder: 'e.g. "Update training", "Change SF stage rule"', oninput: (e) => c.title = e.target.value }),
     ),
     el('div', { class: 'field' },
       el('label', {}, 'Detail'),
-      el('textarea', { placeholder: 'What does this part actually do?', oninput: (e) => c.body = e.target.value }),
+      el('textarea', { placeholder: 'What does this part actually do?', oninput: (e) => c.body = e.target.value }, c.body),
     ),
   );
   list.appendChild(node);
