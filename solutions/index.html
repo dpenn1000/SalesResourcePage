@@ -1952,6 +1952,11 @@ async function doDraftFromFile(file) {
     return;
   }
 
+  // The sourced file is evidence too: attach it so it uploads with the
+  // submission. Skip if this exact file is already in the list (re-draft).
+  const alreadyAttached = PendingAttachments.some(a => a.file && a.file.name === file.name && a.file.size === file.size);
+  if (!alreadyAttached) addFileRows([file]);
+
   setStatus('<em>Reading the file and drafting&hellip; usually 10-20 seconds.</em>');
   try {
     let params;
