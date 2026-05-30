@@ -276,6 +276,12 @@
 </header>
 
 <main>
+  <!-- View-As banner: only shown when ?rep=slug is in the URL and the viewer is a manager/admin -->
+  <div id="viewAsBanner" style="display:none;background:#fff3d8;border:1px solid #f5a623;color:#8a5a00;border-radius:9px;padding:11px 14px;margin-bottom:14px;font-size:13px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <span><strong style="color:#5a3d00">Viewing as another rep.</strong> <span id="viewAsBannerSub" style="font-weight:500">Notes and metrics are read-only here.</span></span>
+    <a href="/me/" style="padding:7px 14px;background:#1A2332;color:#fff;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">Back to my page</a>
+  </div>
+
   <!-- HERO -->
   <div class="hero">
     <div class="hero-name" id="heroName">Loading...</div>
@@ -382,15 +388,27 @@ const fmtMoney = (v) => v == null ? '--' : '$' + Math.round(v).toLocaleString();
 const fmtPPA   = (v) => v == null ? '--' : '$' + Number(v).toFixed(3);
 const fmtNum   = (v) => v == null ? '--' : Number(v).toLocaleString();
 
+// View-as state: when a manager/admin visits /me/?rep=<slug>, we load THAT
+// person's data instead of the signed-in user's. RLS still gates -- the
+// viewer must be in the rep's management chain (or admin).
+let IS_VIEW_AS = false;
+
 async function initApp(profile, session) {
-  // ── HERO ──
-  const me = await loadMyPerson();
+  const qs = new URLSearchParams(location.search);
+  const viewSlug = qs.get('rep');
+
+  // ── HERO + identity (own or viewed) ──
+  const me = viewSlug ? await loadPersonBySlug(viewSlug, profile) : await loadMyPerson();
   if (!me) {
-    $('heroName').textContent = 'Unable to load your profile';
-    $('heroMeta').textContent = 'Contact your manager if this persists.';
+    $('heroName').textContent = viewSlug ? 'Could not view this rep' : 'Unable to load your profile';
+    $('heroMeta').textContent = viewSlug
+      ? 'Either the slug is wrong or you do not have permission to view this rep.'
+      : 'Contact your manager if this persists.';
     return;
   }
+  IS_VIEW_AS = !!viewSlug;
   renderHero(me);
+  renderViewAsBanner(me, profile);
 
   // ── Fire all section loaders in parallel ──
   Promise.allSettled([
@@ -400,6 +418,37 @@ async function initApp(profile, session) {
     loadAndRenderUniversity(me),
     loadAndRenderCallActivity(me)
   ]);
+}
+
+function renderViewAsBanner(me, profile){
+  if (!IS_VIEW_AS) return;
+  const banner = $('viewAsBanner');
+  if (!banner) return;
+  const sub = $('viewAsBannerSub');
+  if (sub) sub.textContent = 'Looking at ' + (me.name || 'this rep') +
+    '. Notes and metrics are read-only here -- use Rep 360 on the desktop to write notes or set action items.';
+  banner.style.display = 'flex';
+}
+
+async function loadPersonBySlug(slug, profile){
+  // Manager / admin view-as path. RLS already gates: the caller must be in
+  // the rep's management chain or admin. If they're not, the query returns
+  // no rows and we surface a permission message.
+  if (!window.IS_MANAGER && !window.IS_ADMIN){
+    return null;
+  }
+  const { data, error } = await sb.from('people')
+    .select('id, name, role, tier, status, cohort_start_date, spd_slug, parent_id')
+    .eq('spd_slug', slug)
+    .maybeSingle();
+  if (error || !data) return null;
+  let parentName = null;
+  if (data.parent_id){
+    const { data: m } = await sb.from('people')
+      .select('name').eq('id', data.parent_id).maybeSingle();
+    parentName = m ? m.name : null;
+  }
+  return { ...data, parent_name: parentName };
 }
 
 async function loadMyPerson() {
@@ -564,7 +613,9 @@ async function loadAndRenderAddressables(me){
     '<div class="addr p-' + esc(a.priority || 'medium') + '" data-id="' + esc(a.id) + '">' +
     '  <div class="addr-head">' +
     '    <div class="addr-title">' + esc(a.title) + '</div>' +
-    '    <button class="addr-resolve" data-resolve="' + esc(a.id) + '">Mark Resolved</button>' +
+    (IS_VIEW_AS
+      ? ''
+      : '    <button class="addr-resolve" data-resolve="' + esc(a.id) + '">Mark Resolved</button>') +
     '  </div>' +
     (a.body ? '<div class="addr-body">' + esc(a.body) + '</div>' : '') +
     '  <div class="addr-meta">' +
@@ -574,9 +625,11 @@ async function loadAndRenderAddressables(me){
     '</div>'
   ).join('');
 
-  body.querySelectorAll('[data-resolve]').forEach(btn => {
-    btn.addEventListener('click', () => resolveAddressable(btn.dataset.resolve, me));
-  });
+  if (!IS_VIEW_AS) {
+    body.querySelectorAll('[data-resolve]').forEach(btn => {
+      btn.addEventListener('click', () => resolveAddressable(btn.dataset.resolve, me));
+    });
+  }
 }
 async function resolveAddressable(id, me){
   const { error } = await sb.from('rep_addressables').update({
@@ -714,8 +767,11 @@ async function loadAndRenderCallActivity(me){
       ).join('') + '</div>'
     : '';
 
-  // CTA: open the live call queue (the work surface for the lead list)
-  const cta = '<div style="margin-top:14px;text-align:right">' +
+  // CTA: open the live call queue (the rep's work surface). Hidden in
+  // view-as mode -- the manager already has their own queue elsewhere and
+  // /my-calls.html would show theirs, not this rep's.
+  const cta = IS_VIEW_AS ? '' :
+    '<div style="margin-top:14px;text-align:right">' +
     '<a href="/my-calls.html" style="display:inline-block;padding:9px 16px;background:var(--header);color:#fff;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;text-decoration:none">Open My Calls Queue --&gt;</a>' +
     '</div>';
 

@@ -550,6 +550,112 @@
       .cat-btn .cat-label-desktop { display: inline; }
     }
     @media (max-width: 380px) { .cards { grid-template-columns: 1fr; } }
+
+    /* Personalized greeting card (reps) */
+    .me-greeting {
+      display: none;
+      background: linear-gradient(135deg, #1A2332 0%, #243047 60%, #2c3a55 100%);
+      color: #fff;
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 22px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 4px 16px rgba(26, 35, 50, 0.18);
+      animation: fadeUp 0.4s ease both;
+    }
+    .me-greeting::before {
+      content: ''; position: absolute; top: -60px; right: -50px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(120, 200, 50, 0.28) 0%, transparent 70%);
+    }
+    .me-greeting-top {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 14px; position: relative; flex-wrap: wrap;
+    }
+    .me-greeting-text { min-width: 220px; flex: 1; }
+    .me-greeting-eyebrow {
+      font-size: 10px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--green); opacity: 0.85;
+    }
+    .me-greeting-name {
+      font-size: 22px; font-weight: 800; letter-spacing: -0.01em;
+      margin-top: 4px; line-height: 1.15;
+    }
+    .me-greeting-sub {
+      font-size: 13px; color: rgba(255, 255, 255, 0.65);
+      margin-top: 6px; line-height: 1.5;
+    }
+    .me-greeting-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 18px; background: var(--green); color: #fff;
+      border-radius: 9px; font-size: 13px; font-weight: 800;
+      letter-spacing: 0.5px; text-decoration: none;
+      transition: background 0.15s, transform 0.15s;
+      flex-shrink: 0;
+    }
+    .me-greeting-cta:hover { background: #6BB820; transform: translateY(-1px); }
+    .me-greeting-stats {
+      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px;
+      position: relative;
+    }
+    .me-greeting-stat {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 12px; background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 20px; font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    .me-greeting-stat.amber { background: rgba(245, 166, 35, 0.18); border-color: rgba(245, 166, 35, 0.36); color: #ffdd9c; }
+    .me-greeting-stat.green { background: rgba(120, 200, 50, 0.18); border-color: rgba(120, 200, 50, 0.36); color: #c8f0a8; }
+    .me-greeting-stat .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+    }
+
+    /* View As (managers) */
+    .view-as {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px 16px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+      animation: fadeUp 0.4s ease both;
+    }
+    .view-as-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; margin-bottom: 12px;
+    }
+    .view-as-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text2);
+    }
+    .view-as-count {
+      font-size: 11px; background: var(--border); color: var(--text2);
+      padding: 2px 9px; border-radius: 20px; font-weight: 700;
+    }
+    .view-as-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 8px;
+    }
+    .view-as-card {
+      display: flex; flex-direction: column; gap: 3px;
+      padding: 10px 12px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 8px;
+      text-decoration: none; color: var(--text);
+      transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
+    }
+    .view-as-card:hover {
+      border-color: var(--header); transform: translateY(-1px);
+      box-shadow: var(--shadow-h);
+    }
+    .view-as-card .vac-name { font-size: 13px; font-weight: 700; }
+    .view-as-card .vac-meta { font-size: 11px; color: var(--text2); }
+    .view-as-empty {
+      padding: 16px; text-align: center; color: var(--text2);
+      font-size: 12px; background: var(--bg);
+      border: 1px dashed var(--border); border-radius: 8px; line-height: 1.5;
+    }
   </style>
 </head>
 <body>
@@ -660,6 +766,28 @@
   </aside>
 
 <main>
+  <!-- Greeting card for signed-in reps. Personalized; one-tap to /me/. -->
+  <div class="me-greeting" id="meGreeting">
+    <div class="me-greeting-top">
+      <div class="me-greeting-text">
+        <div class="me-greeting-eyebrow" id="meGreetingEyebrow">Your Page</div>
+        <div class="me-greeting-name" id="meGreetingName">Welcome</div>
+        <div class="me-greeting-sub" id="meGreetingSub">Metrics, action items, and manager notes in one place.</div>
+      </div>
+      <a class="me-greeting-cta" href="/me/" id="meGreetingCta">Open My Page &rarr;</a>
+    </div>
+    <div class="me-greeting-stats" id="meGreetingStats"></div>
+  </div>
+
+  <!-- View As: managers see their direct reports as clickable cards -->
+  <div class="view-as" id="viewAs">
+    <div class="view-as-head">
+      <div class="view-as-label">View As &mdash; your team</div>
+      <div class="view-as-count" id="viewAsCount">0</div>
+    </div>
+    <div id="viewAsBody"></div>
+  </div>
+
   <div class="recents" id="recentsRow" style="display:none">
     <div class="recents-label">&#128340; Jump back in</div>
     <div class="recents-row" id="recentsInner"></div>
@@ -816,6 +944,11 @@ async function initApp(profile, session) {
     // still reachable from inside /me/.
     if (window.IS_MANAGER)   { href = '/reps/'; label = 'Rep Console'; }
     else if (window.IS_REP)  { href = '/me/';   label = 'My Page';     }
+
+  // Greeting card (reps) + View As section (managers). Fire-and-forget;
+  // the rest of the page renders regardless.
+  if (window.IS_REP) renderRepGreeting(profile).catch(e => console.warn('[greeting]', e));
+  else if (window.IS_MANAGER) renderViewAs(profile).catch(e => console.warn('[viewAs]', e));
     if (href) {
       repLink.href = href;
       repLink.textContent = label;
@@ -1153,6 +1286,119 @@ function toast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ─── Greeting card for signed-in reps ──────────────────────────────
+async function renderRepGreeting(profile) {
+  const card = document.getElementById('meGreeting');
+  if (!card) return;
+
+  const firstName = (profile && profile.name) ? String(profile.name).split(/\s+/)[0] : 'Rep';
+  document.getElementById('meGreetingName').textContent =
+    'Hey ' + firstName + ', your page is ready.';
+
+  // Get this rep's people row + lightweight counts (open addressables + latest snapshot)
+  const session = window.AUTH_SESSION;
+  let me = null;
+  if (session && session.user) {
+    const { data } = await sb.from('people')
+      .select('id, spd_slug').eq('auth_user_id', session.user.id).maybeSingle();
+    me = data;
+  }
+  if (!me) { card.style.display = 'block'; return; }
+
+  // Two cheap reads: open action items + latest perf snapshot date
+  const [{ data: openItems }, { data: snap }] = await Promise.all([
+    sb.from('rep_addressables').select('id', { count: 'exact', head: true })
+      .eq('rep_id', me.id).eq('status', 'open'),
+    sb.from('rep_perf_snapshots').select('snapshot_date, contracts_rank, team_count')
+      .eq('rep_id', me.id).order('snapshot_date', { ascending: false }).limit(1).maybeSingle()
+  ]);
+
+  // openItems is a head:true query -- the row count lives on the underlying response
+  // but Supabase JS exposes it via the from(...).select call with count option.
+  // We re-issue with count:exact for accuracy.
+  let openCount = 0;
+  try {
+    const { count } = await sb.from('rep_addressables').select('id', { count: 'exact', head: true })
+      .eq('rep_id', me.id).eq('status', 'open');
+    openCount = count || 0;
+  } catch (_) { /* leave at 0 */ }
+
+  const stats = [];
+  if (openCount > 0) {
+    stats.push('<span class="me-greeting-stat amber"><span class="dot"></span>' +
+      openCount + ' open action item' + (openCount === 1 ? '' : 's') + '</span>');
+  } else {
+    stats.push('<span class="me-greeting-stat green"><span class="dot"></span>No open items</span>');
+  }
+  if (snap && snap.contracts_rank && snap.team_count) {
+    stats.push('<span class="me-greeting-stat">Rank #' + snap.contracts_rank +
+      ' of ' + snap.team_count + ' on contracts</span>');
+  } else if (snap && snap.snapshot_date) {
+    stats.push('<span class="me-greeting-stat">Metrics updated ' + relTime(snap.snapshot_date) + '</span>');
+  }
+  document.getElementById('meGreetingStats').innerHTML = stats.join('');
+
+  card.style.display = 'block';
+}
+
+// ─── View As section for managers ───────────────────────────────────
+async function renderViewAs(profile) {
+  const section = document.getElementById('viewAs');
+  if (!section) return;
+
+  const session = window.AUTH_SESSION;
+  if (!session || !session.user) return;
+
+  const { data: me } = await sb.from('people')
+    .select('id').eq('auth_user_id', session.user.id).maybeSingle();
+  if (!me) return;
+
+  // Pull direct reports
+  const { data: reports } = await sb.from('people')
+    .select('id, name, role, spd_slug, status')
+    .eq('parent_id', me.id).eq('status', 'active')
+    .order('name');
+
+  const body = document.getElementById('viewAsBody');
+  const count = document.getElementById('viewAsCount');
+  if (!reports || !reports.length) {
+    body.innerHTML = '<div class="view-as-empty">No direct reports linked to you yet. Set <code>people.parent_id</code> for your team to populate this list (admin tool).</div>';
+    count.textContent = '0';
+    section.style.display = 'block';
+    return;
+  }
+
+  count.textContent = reports.length;
+  body.innerHTML =
+    '<div class="view-as-grid">' +
+    reports.map(r => {
+      const slug = r.spd_slug || '';
+      const href = slug ? '/me/?rep=' + encodeURIComponent(slug) : '#';
+      const meta = r.role + (slug ? ' / ' + slug : '');
+      return '<a class="view-as-card" href="' + href + '">' +
+        '<div class="vac-name">' + escapeHtml(r.name) + '</div>' +
+        '<div class="vac-meta">' + escapeHtml(meta) + '</div>' +
+        '</a>';
+    }).join('') +
+    '</div>';
+  section.style.display = 'block';
+}
+
+function escapeHtml(s) {
+  return (s == null ? '' : String(s))
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function relTime(s) {
+  if (!s) return '';
+  const d = new Date(s); if (isNaN(d)) return '';
+  const days = Math.round((Date.now() - d.getTime()) / 86400000);
+  if (days === 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 7)   return days + ' days ago';
+  return Math.round(days / 7) + ' weeks ago';
 }
 
 // ─── Mobile drawer (tools / quick links) ────────────────────────
