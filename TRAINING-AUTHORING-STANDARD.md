@@ -58,18 +58,23 @@ Four research findings drive every rule below. Know the why so you can make good
 
 ---
 
-## 5. Pillar 3 — Spacing and layout (high density, mobile reactive)
+## 5. Pillar 3 — Spacing and layout (the slide model)
 
-- **Limit padding and vertical margin.** Tight, purposeful spacing. Maximize usable space; no swimming through whitespace.
-- **Use the full desktop width.** CSS Grid / Flex layouts that actively fill wide screens, then stack cleanly on mobile via fluid sizing or media queries.
-- **No decorative graphics or empty filler.** Every element focuses on the learning material.
-- **Standard layout primitives:** `step-grid` (numbered process), `compare-grid` (side-by-side), `card-grid` (auto-fit cards). All collapse to one column on mobile.
+Every module is a **slide.** Think PowerPoint: one objective, filling the screen, readable across a room. This serves the meeting use case *and* makes the page a faster reference, because the answer is one nav-click away and already framed on screen.
+
+- **One module = one viewport slide.** A module fills the screen width and *aims to fit one screen tall.* Center the content vertically. If content genuinely can't fit (a long table), it may overflow, but design to avoid it: tighten copy, go multi-column, or split into two slides.
+- **Fill the width, fight the height.** Spread content horizontally to keep it short vertically. Default to side-by-side: `card-grid`, `compare-grid`, `step-grid`, and **multi-column lists** (`list-cols`). A single tall column is the failure mode.
+- **Multi-column lists.** Even bullet lists use columns (`list-cols`) so they consume width, not height. Collapse to one column on mobile.
+- **Large, simple type.** Base size is bumped for legibility across a room. Short lines, high contrast, no fine print. If a manager can't read it from the back, it's too small.
+- **Scroll-snap on desktop.** Modules snap into place; the TOC nav steps slide-to-slide like a deck. **Mobile relaxes** to normal vertical scroll (a phone is close-up, not across-the-room): snap off, slides go auto-height, grids and `list-cols` collapse to one column.
+- **Limit padding and vertical margin.** Tight, purposeful spacing. No swimming through whitespace, and no decorative graphics or filler.
+- **Layout primitives:** `card-grid` (auto-fit cards), `compare-grid` (side-by-side), `step-grid` (numbered process), `list-cols` (multi-column list). All fill width on desktop, all collapse to one column on mobile.
 
 ---
 
 ## 6. Pillar 4 — Retention and modes (one source, four jobs)
 
-The same page serves four settings: **in-home lookup, solo study, manager-led meeting (wide screen), and mobile.** Content is authored once; *mode* is a presentation concern, never duplicated content.
+The same page serves four settings: **in-home lookup, solo study, manager-led meeting (wide screen), and mobile.** Content is authored once; *mode* is a presentation concern, never duplicated content. The page is a **slide deck** (Section 5); Reading mode and Presenter mode are two render states of that one deck.
 
 - **Default = clean scannable reference.** Optimized for the in-home "find the answer fast" job. Nothing interactive gets in the way.
 - **Recall is collapsible.** Use `<details class="recall-check">` with a `<summary>` question and the answer inside. Native, zero-JS, accessible. Collapsed by default, so it stays out of the way in scan mode, expands for a solo self-test, or the manager asks the room then reveals.
@@ -114,6 +119,7 @@ Build only from these. Add to this list deliberately, never inline a one-off.
 | `step-grid` / `step` | `ol` / `li` | Numbered process | `<ol class="step-grid"><li class="step">…</li></ol>` |
 | `compare-grid` | `div` | Side-by-side comparison | `<div class="compare-grid"><div class="training-card">…</div>…</div>` |
 | `card-grid` | `div` | Auto-fit set of cards | `<div class="card-grid">…</div>` |
+| `list-cols` | `ul` | Multi-column bullet list (fills width) | `<ul class="list-cols">…</ul>` |
 | `objection-handling` | `aside` | Pushback + counter-strategy | `<aside class="objection-handling"><p class="objection">…</p><p class="counter">…</p></aside>` |
 | `script-example` | `blockquote` | Verbatim words to say | `<blockquote class="script-example">"…"</blockquote>` |
 | `metric-callout` | `div` | A number/ratio/stat | `<div class="metric-callout"><span class="figure">16</span><span class="caption">…</span></div>` |

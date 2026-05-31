@@ -10,8 +10,7 @@
 <style>
 /* ============================================================
    DESIGN TOKENS  (theme swap = edit here only)
-   Interim embedded sheet. Class names match TRAINING-AUTHORING-STANDARD.md
-   so extraction to /training-system.css is a lift-and-shift.
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
    ============================================================ */
 :root {
   --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
@@ -22,22 +21,22 @@
   --r-sm:4px; --r-md:8px; --r-lg:12px;
   --shadow:0 1px 2px rgba(15,32,56,.06);
   --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
-  --maxw:1240px;
+  --maxw:1320px; --header-h:86px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-section[id]{scroll-margin-top:92px}
-body{font-family:var(--sans);font-size:16px;line-height:1.5;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.12}
-h1{font-size:clamp(1.9rem,4vw,3rem);font-weight:400}
-h2{font-size:clamp(1.4rem,2.4vw,2rem);margin-bottom:var(--space-2)}
-h3{font-size:1.1rem;font-weight:600;margin-bottom:var(--space-1)}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
 p{margin-bottom:var(--space-2)}
 ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
 li{margin-bottom:var(--space-1)}
 strong{font-weight:700;color:var(--ink)}
-.eyebrow{font-size:.7rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-4)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
 
 /* HEADER + TOC */
 .site-header{position:sticky;top:0;z-index:200}
@@ -51,29 +50,30 @@ strong{font-weight:700;color:var(--ink)}
 .toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
 .toc-nav::-webkit-scrollbar{display:none}
 .toc-nav .wrap{display:flex;gap:0}
-.toc-nav a{font-size:.8rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
 .toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
 .toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
 
-/* HERO */
-.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;padding:var(--space-5) 0}
-.hero h1{color:#fff;max-width:18ch;margin-bottom:var(--space-3)}
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
 .hero h1 em{font-style:italic;color:var(--amber)}
-.hero .lede{font-size:1.1rem;color:rgba(255,255,255,.82);max-width:62ch}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
 .hero .lede strong{color:#fff}
 
-/* MODULES */
+/* MODULE = SLIDE */
 .training-page{display:block}
-.module{padding:var(--space-5) 0;border-bottom:1px solid var(--line)}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
 .module:nth-child(even){background:var(--warm)}
-.module>.wrap>h2{max-width:30ch}
-.module .intro{color:var(--muted);font-size:1rem;max-width:70ch;margin-bottom:var(--space-4)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
 
-/* GRIDS */
-.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:var(--space-3)}
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
-.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-3);list-style:none;padding:0}
-@media(max-width:760px){.compare-grid{grid-template-columns:1fr}}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
 
 /* TRAINING CARD */
 .training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
@@ -81,77 +81,84 @@ strong{font-weight:700;color:var(--ink)}
 .training-card--green{border-left-color:var(--green)}
 .training-card--ink{border-left-color:var(--ink)}
 .training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
 
 /* STEP */
 .step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
-.step h3{font-family:var(--serif)}
-.step .src{display:inline-block;font-family:var(--sans);font-size:.76rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
 
 /* SCRIPT EXAMPLE */
-.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0}
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
 .script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
 
-/* METRIC CALLOUT */
-.metric-callout{display:inline-flex;flex-direction:column;background:var(--ink);color:#fff;border-radius:var(--r-md);padding:var(--space-2) var(--space-3);min-width:90px}
-.metric-callout .figure{font-family:var(--serif);font-size:1.8rem;line-height:1;color:var(--amber)}
-.metric-callout .caption{font-size:.74rem;color:rgba(255,255,255,.8);margin-top:4px}
-
 /* OBJECTION HANDLING */
-.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow);margin-top:var(--space-2)}
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
 .objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
 
-/* DO / DONT */
-.do-dont{display:grid;grid-template-columns:1fr;gap:0;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow)}
-.doc-table{width:100%;border-collapse:collapse;font-size:.9rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
-.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 14px;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.doc-table td{padding:11px 14px;border-bottom:1px solid var(--line-soft);vertical-align:top}
-.doc-table td:first-child{font-weight:700;color:var(--ink)}
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
 .doc-table tr:last-child td{border-bottom:none}
 .doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
 
 /* CHECKLIST */
-.checklist{list-style:none;padding:0;background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
-.checklist li{position:relative;padding-left:26px}
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
 .checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
 
 /* CALLOUT */
-.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:.92rem;margin-top:var(--space-3)}
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
 .callout strong{color:var(--amber)}
 .callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
 .callout--compliance strong{color:var(--deep-blue)}
 
-/* RECALL CHECK (native details) */
+/* RECALL CHECK */
 .recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
-.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
 .recall-check summary::-webkit-details-marker{display:none}
 .recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
 .recall-check[open] summary::before{content:"\25BC"}
-.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:.95rem}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
 .recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
 
-/* MANAGER PROMPT (Presenter Mode only) */
+/* MANAGER PROMPT (Presenter only) */
 .manager-prompt{display:none}
 
-/* KEY TAKEAWAYS */
-.key-takeaways{background:var(--ink-deep);color:#fff;padding:var(--space-5) 0}
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
 .key-takeaways .eyebrow{color:var(--amber)}
 .key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
 .checklist-head{margin-top:var(--space-4)}
-.key-takeaways ul{list-style:none;padding:0;display:grid;gap:var(--space-2);max-width:80ch}
-.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:10px 18px;font-family:var(--serif);font-style:italic;color:rgba(255,255,255,.92)}
 
-.foot{padding:var(--space-4) 0;text-align:center;font-size:.8rem;color:var(--muted);background:var(--warm)}
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
 
 /* ============================================================
    PRESENTER MODE  (manager-led wide screen)
    ============================================================ */
-body.presenter{font-size:19px}
+body.presenter{font-size:22px}
 body.presenter .toc-nav,body.presenter .recall-check{display:none}
-body.presenter .module{padding:48px 0}
-body.presenter h1{font-size:3.4rem}
-body.presenter h2{font-size:2.4rem}
-body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.05rem;color:var(--ink)}
-body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.66rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
 </style>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/auth-gate.css">
@@ -212,7 +219,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
   </nav>
 </header>
 
-<header class="hero">
+<header class="hero" id="top">
   <div class="wrap">
     <span class="eyebrow">Finance · Deal Complexity</span>
     <h1>Understanding <em>Title Work</em></h1>
@@ -260,33 +267,38 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
       <h2>Deeds, Owners, and the Words That Matter</h2>
       <p class="intro">You don't need to be a title attorney. Recognize a few terms and you can read a property record and know who signs.</p>
 
-      <div class="compare-grid">
+      <div class="card-grid">
         <div class="training-card">
           <h3>How ownership transfers</h3>
           <ul>
             <li><strong>Grantor gives, grantee gets,</strong> through a deed.</li>
             <li><strong>Warranty Deed:</strong> the strong one. Seller guarantees clear ownership. Most home purchases.</li>
-            <li><strong>Quitclaim Deed:</strong> transfers whatever interest exists, no guarantees. Common in family transfers, divorce, and moving a home into a Trust or LLC. Look closer when you see one.</li>
+            <li><strong>Quitclaim Deed:</strong> transfers whatever interest exists, no guarantees. Common in family, divorce, and Trust/LLC moves. Look closer.</li>
           </ul>
         </div>
         <div class="training-card">
           <h3>Owner vs. borrower</h3>
           <ul>
-            <li><strong>The note is the loan;</strong> the mortgage is what's recorded against the property.</li>
+            <li><strong>The note is the loan;</strong> the mortgage is recorded against the property.</li>
             <li><strong>All owners are on the mortgage,</strong> but not all owners are borrowers.</li>
-            <li><strong>The deed decides the signer.</strong> Being on the loan does not make someone a signer. Being on the deed does.</li>
+            <li><strong>The deed decides the signer.</strong> Being on the loan doesn't. Being on the deed does.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Where the record lives</h3>
+          <ul>
+            <li><strong>Deeds get recorded</strong> with the town clerk.</li>
+            <li><strong>Each gets a Book and Page</strong> number, the document's address.</li>
+            <li><strong>Anyone can pull it,</strong> so ownership is something you verify, not just ask about.</li>
           </ul>
         </div>
       </div>
 
-      <div class="training-card training-card--ink">
-        <h3>Where the record lives</h3>
-        <p><strong>Deeds get recorded</strong> with the town or city clerk and assigned a <strong>Book and Page number</strong>, the document's address. Give that number to anyone and they can pull the exact deed. That's why ownership is something you verify, not just ask about.</p>
-      </div>
+      <div class="manager-prompt">Pull up a real property record on screen. Find the Book and Page. Who are the grantees?</div>
 
       <details class="recall-check">
         <summary>You see a recent Quitclaim Deed. What does it tell you?</summary>
-        <p class="answer"><span class="label">Answer</span>Ownership likely changed outside a normal sale, a divorce, a family transfer, or a move into a Trust/LLC. Confirm who's actually on title now before assuming.</p>
+        <p class="answer"><span class="label">Answer</span>Ownership likely changed outside a normal sale: divorce, family transfer, or a move into a Trust/LLC. Confirm who's on title now before assuming.</p>
       </details>
     </div>
   </section>
@@ -305,7 +317,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </li>
         <li class="step">
           <h3>Town Clerk</h3>
-          <p><strong>The land records.</strong> Deeds, mortgages, Book/Page numbers. Confirm the actual deed and how it's held.</p>
+          <p><strong>The land records.</strong> Deeds, mortgages, Book/Page numbers. Confirm the deed and how it's held.</p>
           <span class="src">"[Town] Town Clerk"</span>
         </li>
         <li class="step">
@@ -315,18 +327,18 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </li>
         <li class="step">
           <h3>Town GIS</h3>
-          <p><strong>The mapping system.</strong> Owner, parcel, satellite view. Great way to confirm the right home before you go.</p>
+          <p><strong>The mapping system.</strong> Owner, parcel, satellite view. Confirm the right home before you go.</p>
           <span class="src">"[Town] GIS"</span>
         </li>
       </ol>
 
-      <div class="callout"><strong>The two-minute habit:</strong> pull the property, note every name on title, and check whether the owner is a person or an entity (you'll see "Smith Family Trust" or "123 Main LLC"). Now you walk in knowing who signs and what to ask for.</div>
+      <div class="callout"><strong>The two-minute habit:</strong> note every name on title and check whether the owner is a person or an entity ("Smith Family Trust" or "123 Main LLC"). Now you walk in knowing who signs.</div>
 
-      <div class="manager-prompt">Pick a real upcoming appointment. Look it up live on the screen right now. Who's on title?</div>
+      <div class="manager-prompt">Pick a real upcoming appointment. Look it up live right now. Who's on title?</div>
 
       <details class="recall-check">
         <summary>Name two sources to confirm an owner, and what each adds.</summary>
-        <p class="answer"><span class="label">Answer</span>Any two: Vision Appraisal (fast owner + history), Town Clerk (the actual deed + Book/Page), My Tax Bill (name cross-check), Town GIS (parcel + confirm the right house).</p>
+        <p class="answer"><span class="label">Answer</span>Any two: Vision Appraisal (fast owner + history), Town Clerk (the deed + Book/Page), My Tax Bill (name cross-check), Town GIS (parcel + confirm the right house).</p>
       </details>
     </div>
   </section>
@@ -342,20 +354,26 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
           <h3>What's different</h3>
           <ul>
             <li><strong>The deed shows the LLC owns</strong> the home, not the people living there.</li>
-            <li><strong>A person with authority signs</strong> for it, usually a managing member.</li>
+            <li><strong>A person with authority signs,</strong> usually a managing member.</li>
             <li><strong>Proof isn't recorded</strong> at the town. It's in the formation papers.</li>
           </ul>
         </div>
         <div class="training-card training-card--amber">
           <h3>What you collect</h3>
-          <p><strong>The deed plus the LLC's formation documents</strong> (Articles of Organization, operating agreement if any) showing who's authorized. Get them from the homeowner, not the clerk. Ask early.</p>
-          <blockquote class="script-example"><span class="who">Rep · asking for the docs</span>"Looks like the home's in an LLC, totally common. To set this up clean, I'll need a copy of the LLC's formation paperwork so the right person signs. Can you dig that out before we meet?"</blockquote>
+          <ul>
+            <li><strong>The deed</strong> showing the LLC owns the home.</li>
+            <li><strong>Formation documents</strong> (Articles of Organization, operating agreement) showing who's authorized.</li>
+            <li><strong>From the homeowner,</strong> not the clerk. Ask early.</li>
+          </ul>
+          <blockquote class="script-example"><span class="who">Rep · asking for the docs</span>"Looks like the home's in an LLC, totally common. I'll need a copy of the formation paperwork so the right person signs. Can you dig that out before we meet?"</blockquote>
         </div>
       </div>
 
+      <div class="manager-prompt">Role-play the doc ask. How do you make it feel routine, not invasive?</div>
+
       <details class="recall-check">
         <summary>The home is in an LLC. Who signs, and what do you need?</summary>
-        <p class="answer"><span class="label">Answer</span>An authorized member (usually the managing member) signs, plus the LLC's formation documents proving that authority. You get those from the homeowner.</p>
+        <p class="answer"><span class="label">Answer</span>An authorized member (usually the managing member) signs, plus the LLC's formation documents proving that authority. Get those from the homeowner.</p>
       </details>
     </div>
   </section>
@@ -377,16 +395,20 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </div>
         <div class="training-card training-card--amber">
           <h3>What you collect</h3>
-          <p><strong>The deed plus the trust documents</strong> naming the trustee and their powers. Treat it gently. This paperwork can tie to a loss or to aging, so ask with care.</p>
+          <ul>
+            <li><strong>The deed</strong> showing the trust holds the home.</li>
+            <li><strong>Trust documents</strong> naming the trustee and their powers.</li>
+            <li><strong>Ask with care.</strong> This paperwork can tie to a loss or to aging.</li>
+          </ul>
           <blockquote class="script-example"><span class="who">Rep · asking for the docs</span>"I see the home's in a family trust, smart planning. To make sure we have the right signer, I'll need a copy of the trust paperwork at some point. No rush tonight."</blockquote>
         </div>
       </div>
 
-      <div class="callout"><strong>You don't read these documents.</strong> You collect them and hand them to the title team. Know one is needed and ask for it without making it awkward.</div>
+      <div class="manager-prompt">A widow tells you the home is in her late husband's trust. What's your next move?</div>
 
       <details class="recall-check">
         <summary>Who signs for a Trust, and how is that different from an LLC?</summary>
-        <p class="answer"><span class="label">Answer</span>The named trustee signs (you need the trust documents). An LLC needs an authorized member plus formation papers. Both sets of documents come from the homeowner, not the town.</p>
+        <p class="answer"><span class="label">Answer</span>The named trustee signs (you need the trust documents). An LLC needs an authorized member plus formation papers. Both come from the homeowner, not the town.</p>
       </details>
     </div>
   </section>
@@ -412,9 +434,9 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
       </table>
 
       <h3 class="checklist-head">Pre-appointment title checklist</h3>
-      <ul class="checklist">
+      <ul class="checklist list-cols">
         <li>Looked up the property; noted every name on title.</li>
-        <li>Confirmed owner is a person or an entity (LLC / Trust).</li>
+        <li>Confirmed owner is a person or an entity.</li>
         <li>If an entity, asked for the formation or trust documents.</li>
         <li>Confirmed all deeded owners will sign, or made a plan.</li>
         <li>Checked for recent changes: Quitclaim, divorce, passing, sale.</li>
@@ -433,18 +455,17 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
 
 </main>
 
-<section class="key-takeaways">
+<section class="key-takeaways" id="recap">
   <div class="wrap">
     <span class="eyebrow">The Field Manual</span>
     <h2>Key Takeaways</h2>
     <ul>
       <li>Everyone on the deed signs. That one rule prevents most title problems.</li>
       <li>The deed decides the signer, not the loan.</li>
-      <li>Ownership is public record. Confirm it yourself: Vision Appraisal, Town Clerk, My Tax Bill, GIS.</li>
+      <li>Confirm ownership yourself: Vision Appraisal, Town Clerk, My Tax Bill, GIS.</li>
       <li>LLC or Trust means extra documents, and they come from the homeowner.</li>
       <li>Trust = trustee signs. LLC = authorized member signs. Confirm who.</li>
       <li>You gather and flag. The title team rules on hard cases.</li>
-      <li>Catch it in the living room, not at install.</li>
     </ul>
   </div>
 </section>
