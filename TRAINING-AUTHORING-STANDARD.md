@@ -79,6 +79,7 @@ The same page serves four settings: **in-home lookup, solo study, manager-led me
 - **Default = clean scannable reference.** Optimized for the in-home "find the answer fast" job. Nothing interactive gets in the way.
 - **Recall is collapsible.** Use `<details class="recall-check">` with a `<summary>` question and the answer inside. Native, zero-JS, accessible. Collapsed by default, so it stays out of the way in scan mode, expands for a solo self-test, or the manager asks the room then reveals.
 - **Presenter Mode is a body class.** A toggle adds `body.presenter`: larger type, higher contrast, full-width, and it reveals `<div class="manager-prompt">` elements (discussion questions for the manager) that are `display:none` in normal reading. Same file, reshaped for the meeting screen.
+- **Presenter Mode strips page chrome.** It hides the TOC nav and the site-back button (`#site-back-btn`), and resets `--header-h` to the now-shorter header (the nav bar is gone) so no dead band appears under the header. A deck shows content, not navigation.
 - **Manager prompts** live in the markup but hide by default; they surface only in Presenter Mode.
 - **Phone push is Phase 2.** Live "manager triggers a question to reps' phones" is possible on the existing Supabase + auth stack, but it needs a session/push layer. Scope it later; do not block v1 on it.
 
