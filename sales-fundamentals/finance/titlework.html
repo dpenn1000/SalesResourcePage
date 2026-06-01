@@ -55,7 +55,7 @@ strong{font-weight:700;color:var(--ink)}
 .toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
 
 /* HERO (slide) */
-.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
 .hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
 .hero h1 em{font-style:italic;color:var(--amber)}
 .hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
@@ -147,7 +147,7 @@ body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
 /* ============================================================
    PRESENTER MODE  (manager-led wide screen)
    ============================================================ */
-body.presenter{font-size:22px;--header-h:56px}
+body.presenter{font-size:22px}
 body.presenter .toc-nav,body.presenter .recall-check{display:none}
 body.presenter #site-back-btn{display:none}
 body.presenter h1{font-size:4rem}
@@ -494,6 +494,13 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
 // Stop the browser from restoring scroll when the auth gate reveals content late.
 if('scrollRestoration' in history)history.scrollRestoration='manual';
 
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
 // TOC scroll-spy
 const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
 function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
@@ -501,7 +508,7 @@ addEventListener('scroll',spy);addEventListener('load',spy);
 
 // Presenter Mode toggle
 const pBtn=document.getElementById('presentBtn');
-if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode'});
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
 
 // Deck navigation (prev / next slide)
 const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
@@ -514,7 +521,7 @@ if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEve
 addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
 
 // Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
-function initApp(profile,session){window.scrollTo(0,0);syncDeck()}
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
 </script>
 
 </body>
