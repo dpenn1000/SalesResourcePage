@@ -81,6 +81,8 @@ The same page serves four settings: **in-home lookup, solo study, manager-led me
 - **Presenter Mode is a body class.** A toggle adds `body.presenter`: larger type, higher contrast, full-width, and it reveals `<div class="manager-prompt">` elements (discussion questions for the manager) that are `display:none` in normal reading. Same file, reshaped for the meeting screen.
 - **Presenter Mode strips page chrome.** It hides the TOC nav and the site-back button (`#site-back-btn`), and resets `--header-h` to the now-shorter header (the nav bar is gone) so no dead band appears under the header. A deck shows content, not navigation.
 - **Manager prompts** live in the markup but hide by default; they surface only in Presenter Mode.
+- **Deck navigation.** Provide fixed prev/next arrows (bottom-right, clear of the bottom-left site-back button) that step slide-to-slide via `scrollIntoView`. Arrow keys (and PageUp/PageDown) do the same. Buttons disable at the deck ends.
+- **Reset scroll when the gate opens.** The auth gate reveals content a few seconds after load, so set `history.scrollRestoration='manual'` and call `window.scrollTo(0,0)` inside `initApp`. Otherwise the browser restores the last scroll position and the deck "jumps" mid-load.
 - **Phone push is Phase 2.** Live "manager triggers a question to reps' phones" is possible on the existing Supabase + auth stack, but it needs a session/push layer. Scope it later; do not block v1 on it.
 
 Every module ends with **either** a `recall-check` (self-test) **or** a `key-takeaways` recap. Important modules get both.

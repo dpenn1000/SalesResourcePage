@@ -136,6 +136,14 @@ strong{font-weight:700;color:var(--ink)}
 
 .foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
 
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
 /* ============================================================
    PRESENTER MODE  (manager-led wide screen)
    ============================================================ */
@@ -475,18 +483,38 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
   <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Deal Complexity series</div>
 </footer>
 
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
 </div><!-- /#appWrap -->
 
 <script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
 // TOC scroll-spy
 const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
 function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
 addEventListener('scroll',spy);addEventListener('load',spy);
+
 // Presenter Mode toggle
 const pBtn=document.getElementById('presentBtn');
 if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode'});
-// Required by auth-gate.js
-function initApp(profile,session){}
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){window.scrollTo(0,0);syncDeck()}
 </script>
 
 </body>
