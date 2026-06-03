@@ -253,7 +253,7 @@ async function loadData() {
   // manager_id on the result rows to keep downstream code working unchanged.
   const [repsRes, mgrsRes, actRes] = await Promise.all([
     supa.from('people')
-      .select('id, auth_user_id, name, username, email, status, parent_id, cohort_start_date, must_change_password')
+      .select('id, auth_user_id, name, username, email, status, parent_id, cohort_start_date, must_change_password, spd_slug')
       .eq('role', 'rep')
       .order('name'),
     supa.from('people').select('id, name').eq('role', 'manager'),
@@ -336,7 +336,12 @@ function repCard(r) {
   const callsLabel = (r.callsToday == null)
     ? '<span class="cc-none">--</span>'
     : `<b class="cc-today${r.callsToday > 0 ? ' cc-active' : ''}">${r.callsToday}</b> today <span class="cc-week">&middot; ${r.calls7d} (7d)</span>`;
-  const rr = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(r.username || '')}`;
+  // Rep Review keys reps by spd_slug (e.g. ziemba_a), NOT username (aziemba).
+  // Only emit the handoff link when a slug exists; otherwise it would land on
+  // Rep Review's empty state.
+  const rrLink = r.spd_slug
+    ? `<a class="rr-link" href="${REP_REVIEW_BASE}?rep=${encodeURIComponent(r.spd_slug)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Rep Review &#8599;</a>`
+    : '';
   const u = (r.username || '').replace(/[^a-zA-Z0-9_-]/g, '');
   const aria = escapeHtml(`View detail for ${r.name || r.username || 'rep'}`);
   return `
@@ -356,7 +361,7 @@ function repCard(r) {
       </div>
       <div class="actions">
         <span class="view-detail">View detail <span class="arr">&rarr;</span></span>
-        <a class="rr-link" href="${rr}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Rep Review &#8599;</a>
+        ${rrLink}
       </div>
     </div>`;
 }
@@ -374,7 +379,15 @@ async function openRep(username) {
   document.getElementById('repDetail').style.display = 'block';
   document.getElementById('detailName').textContent = D_REP.name || username;
   document.getElementById('detailUser').textContent = username;
-  document.getElementById('detailRR').href = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(username)}`;
+  // Rep Review keys by spd_slug, not username. Hide the handoff if unslugged.
+  const _rrEl = document.getElementById('detailRR');
+  if (D_REP.spd_slug) {
+    _rrEl.href = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(D_REP.spd_slug)}`;
+    _rrEl.style.display = '';
+  } else {
+    _rrEl.removeAttribute('href');
+    _rrEl.style.display = 'none';
+  }
   document.getElementById('detailBody').innerHTML = '<div class="d-empty">Loading...</div>';
   renderTabBar(); window.scrollTo(0, 0);
   D_DATA = await loadRepDetail(D_REP);
