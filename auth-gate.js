@@ -93,8 +93,13 @@
     // kept for signature compatibility; the RPC reads auth.uid() from the JWT.
     const { data, error } = await sb.rpc('get_user_profile');
     if (error) {
+      // The RPC itself errored -- almost always an expired/revoked token (e.g.
+      // the user's session was invalidated by a password reset), which makes the
+      // request fall back to `anon` (no EXECUTE on get_user_profile). This is a
+      // SESSION problem, NOT an authorization one. Signal it distinctly so the
+      // gate does not tell a legitimately-authorized user they are "not authorized".
       console.warn('[auth-gate] get_user_profile error:', error.message);
-      return null;
+      return { _sessionError: true };
     }
     const row = Array.isArray(data) ? data[0] : data;
     if (!row) return null;
@@ -209,6 +214,13 @@
     // them inside this callback deadlocks the SDK (sign-in hangs forever).
     setTimeout(async () => {
       const profile = await loadProfile(session);
+      if (profile && profile._sessionError) {
+        // Token/RPC failure (expired or password-reset-revoked session). Clear the
+        // dead session so the next sign-in is clean, and tell the user the truth.
+        showLoginError('Your session expired. Please sign in again.');
+        await sb.auth.signOut();
+        return;
+      }
       if (!profile) {
         showLoginError("Your account isn't authorized for this app. Contact Dan if you need access.");
         await sb.auth.signOut();
