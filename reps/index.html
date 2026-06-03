@@ -215,7 +215,7 @@
           <h2 id="detailName"></h2>
           <span class="un" id="detailUser"></span>
         </div>
-        <a class="rr-link" id="detailRR" href="#" target="_blank" rel="noopener">Open in Rep Review &#8599;</a>
+        <a class="rr-link" id="detailRR" href="#" target="_blank" rel="noopener">Open in Rep 360 &#8599;</a>
       </div>
       <div class="detail-tabs" id="detailTabs"></div>
       <div id="detailBody"></div>
@@ -227,7 +227,10 @@
 // Shared auth-gate client (single session). auth-gate.js provides window.sb,
 // window.IS_MANAGER, window.signIn / signOut / changePassword.
 const supa = window.sb;
-const REP_REVIEW_BASE = 'https://tools.ct-resource-page.com/rep-review';
+// Rep Review was retired into Rep 360 (2026-06-03). Both key by spd_slug, so
+// the handoff is unchanged; only the destination moved. /rep-review also
+// redirects to /rep-360 server-side as a safety net for old links.
+const REP360_BASE = 'https://tools.ct-resource-page.com/rep-360';
 
 let REPS = [], MANAGERS = [], MGR_BY_ID = {}, LAST_SEEN = {}, CALL_COUNTS = {};
 
@@ -336,11 +339,11 @@ function repCard(r) {
   const callsLabel = (r.callsToday == null)
     ? '<span class="cc-none">--</span>'
     : `<b class="cc-today${r.callsToday > 0 ? ' cc-active' : ''}">${r.callsToday}</b> today <span class="cc-week">&middot; ${r.calls7d} (7d)</span>`;
-  // Rep Review keys reps by spd_slug (e.g. ziemba_a), NOT username (aziemba).
+  // Rep 360 keys reps by spd_slug (e.g. ziemba_a), NOT username (aziemba).
   // Only emit the handoff link when a slug exists; otherwise it would land on
-  // Rep Review's empty state.
+  // Rep 360's empty state.
   const rrLink = r.spd_slug
-    ? `<a class="rr-link" href="${REP_REVIEW_BASE}?rep=${encodeURIComponent(r.spd_slug)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Rep Review &#8599;</a>`
+    ? `<a class="rr-link" href="${REP360_BASE}?rep=${encodeURIComponent(r.spd_slug)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Rep 360 &#8599;</a>`
     : '';
   const u = (r.username || '').replace(/[^a-zA-Z0-9_-]/g, '');
   const aria = escapeHtml(`View detail for ${r.name || r.username || 'rep'}`);
@@ -379,10 +382,10 @@ async function openRep(username) {
   document.getElementById('repDetail').style.display = 'block';
   document.getElementById('detailName').textContent = D_REP.name || username;
   document.getElementById('detailUser').textContent = username;
-  // Rep Review keys by spd_slug, not username. Hide the handoff if unslugged.
+  // Rep 360 keys by spd_slug, not username. Hide the handoff if unslugged.
   const _rrEl = document.getElementById('detailRR');
   if (D_REP.spd_slug) {
-    _rrEl.href = `${REP_REVIEW_BASE}?rep=${encodeURIComponent(D_REP.spd_slug)}`;
+    _rrEl.href = `${REP360_BASE}?rep=${encodeURIComponent(D_REP.spd_slug)}`;
     _rrEl.style.display = '';
   } else {
     _rrEl.removeAttribute('href');
