@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scheduling -- Trinity Solar CT</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="/site-back.js" defer></script>
+<style>
+  :root{
+    --green:#78C832; --accent:#29A9E1; --ink:#1A2332; --muted:#6b7a8d;
+    --border:#DFE2DA; --bg:#EFF1EC; --surface:#fff; --radius:10px;
+    --shadow:0 1px 4px rgba(0,0,0,.07); --red:#D63030; --amber:#C88C00;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{background:var(--bg); font-family:'Manrope',sans-serif; font-size:15px; line-height:1.5; color:var(--ink);}
+  h1,h2,h3,h4{font-family:'Fraunces',serif; font-weight:600;}
+  .hdr{background:var(--surface); border-bottom:1px solid var(--border); padding:12px 20px; position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:14px;}
+  .logo{width:32px; height:32px; background:var(--green); border-radius:7px; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:700; color:#0b1120; font-size:14px;}
+  .htitle{font-family:'Fraunces',serif; font-size:18px; font-weight:700; flex:1;}
+  .htitle small{display:block; font-family:'Manrope'; font-size:12px; color:var(--muted); font-weight:500;}
+  .hbtn{font-size:13px; color:var(--accent); background:none; border:none; font-weight:600; cursor:pointer;}
+  .wrap{max-width:1180px; margin:0 auto; padding:18px 16px 80px;}
+  .banner{background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--green); border-radius:var(--radius); padding:12px 16px; margin-bottom:16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  .banner b{font-size:16px;}
+  .pill{display:inline-block; font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; letter-spacing:.02em;}
+  .pill.not_started{background:#eceff1; color:var(--muted);}
+  .pill.draft{background:#fff3d6; color:var(--amber);}
+  .pill.submitted{background:#d8edff; color:#1b6fb3;}
+  .pill.approved{background:#e2f5d3; color:#3f8f1e;}
+  .pill.changes_requested{background:#ffe0dc; color:var(--red);}
+  .pill.open{background:#e2f5d3; color:#3f8f1e;}
+  .pill.locked{background:#eceff1; color:var(--muted);}
+  .tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
+  .tab{padding:8px 16px; border:1px solid var(--border); background:var(--surface); border-radius:999px; font-weight:600; font-size:13px; cursor:pointer; color:var(--muted);}
+  .tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; box-shadow:var(--shadow);}
+  .weekhd{font-family:'Fraunces',serif; font-size:15px; font-weight:700; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border);}
+  .daygrid{display:grid; grid-template-columns:repeat(6,1fr); gap:8px;}
+  .day{border:1px solid var(--border); border-radius:8px; padding:8px;}
+  .day .dlabel{font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:5px;}
+  .day select{width:100%; padding:6px 4px; border:1px solid var(--border); border-radius:6px; font-family:'Manrope'; font-size:13px; background:#fff; color:var(--ink);}
+  .day select:disabled{background:#f4f5f2; color:var(--muted);}
+  .day.off{background:#fafbf9;}
+  .legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--muted);}
+  .legend span b{color:var(--ink);}
+  .actionbar{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:6px;}
+  .btn{padding:9px 18px; border-radius:8px; border:none; font-weight:700; font-size:14px; cursor:pointer;}
+  .btn-primary{background:var(--green); color:#0b1120;}
+  .btn-primary:disabled{background:#cfe6b4; cursor:not-allowed;}
+  .btn-ghost{background:#fff; border:1px solid var(--border); color:var(--ink);}
+  .att{display:flex; align-items:center; gap:8px; font-size:13px;}
+  .att input{width:16px; height:16px;}
+  .note{font-size:13px; color:var(--red); background:#fff3f1; border:1px solid #ffd3cc; border-radius:8px; padding:8px 12px;}
+  table.tracker{width:100%; border-collapse:collapse; font-size:13px;}
+  table.tracker th, table.tracker td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);}
+  table.tracker th{font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); font-weight:700;}
+  table.tracker tr:hover td{background:#fafbf9;}
+  .combined{overflow-x:auto;}
+  table.cgrid{border-collapse:collapse; font-size:11px; white-space:nowrap;}
+  table.cgrid th, table.cgrid td{border:1px solid var(--border); padding:2px 4px; text-align:center;}
+  table.cgrid th.rep, table.cgrid td.rep{text-align:left; position:sticky; left:0; background:var(--surface); font-weight:600; min-width:140px; z-index:1;}
+  table.cgrid th.wk{background:#f1f4ee;}
+  table.cgrid td select{border:none; background:transparent; font-size:11px; font-family:'Manrope'; width:100%; cursor:pointer;}
+  .cell-off{color:#b3bcb0;}
+  .cell-all{color:#3f8f1e; font-weight:700;}
+  .muted{color:var(--muted); font-size:13px;}
+  .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+  .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; z-index:200; opacity:0; transition:opacity .2s; pointer-events:none;}
+  .toast.show{opacity:1;}
+  .empty{padding:40px; text-align:center; color:var(--muted);}
+  input[type=date]{padding:7px; border:1px solid var(--border); border-radius:6px; font-family:'Manrope';}
+  .iconbtn{font-size:12px; padding:4px 9px; border-radius:6px; border:1px solid var(--border); background:#fff; cursor:pointer; font-weight:600;}
+  .iconbtn.approve{color:#3f8f1e; border-color:#b6e09a;}
+  .iconbtn.changes{color:var(--red); border-color:#ffc9c2;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Scheduling</h2>
+    <p>Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one (at least 8 characters).</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+  <header class="hdr">
+    <div class="logo">T</div>
+    <div class="htitle">Scheduling<small id="userLabel"></small></div>
+    <button class="hbtn" onclick="signOut()">Sign out</button>
+  </header>
+  <div class="wrap">
+    <div id="periodBanner" class="banner" style="display:none"></div>
+    <div id="tabBar" class="tabs" style="display:none"></div>
+    <div id="view"><div class="empty">Loading...</div></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const sb = window.sb;
+const DOWS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const S = {
+  me:null, period:null, shifts:[], shiftCodes:[],
+  myEntries:{}, mySub:null,
+  reps:[], allEntries:{}, subs:{},   // manager state
+  tab:'mine'
+};
+
+// ---- date helpers (work_date is 'YYYY-MM-DD'; avoid UTC parsing) ----
+function isoAdd(iso, n){ const [y,m,d]=iso.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+n); return fmtISO(dt); }
+function fmtISO(dt){ return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
+function fmtMD(iso){ const [,m,d]=iso.split('-').map(Number); return m+'/'+d; }
+function fmtMDY(iso){ const [y,m,d]=iso.split('-').map(Number); return m+'/'+d+'/'+y; }
+function dayDate(period, week, dow){ return isoAdd(period.start_date, week*7 + dow); }
+
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+window.initApp = async function(profile, session){
+  document.getElementById('userLabel').textContent = profile.name + (profile.kind==='manager'?' (Manager)':'');
+  // load my people row + shift types + current open period
+  const uid = session.user.id;
+  const [meRes, shiftRes, perRes] = await Promise.all([
+    sb.from('people').select('id,spd_slug,name,sf_name,role,division,sales_office').eq('auth_user_id', uid).maybeSingle(),
+    sb.from('sched_shift_types').select('*').eq('active',true).order('sort'),
+    sb.from('sched_periods').select('*').eq('status','open').order('start_date',{ascending:false}).limit(1).maybeSingle()
+  ]);
+  S.me = meRes.data;
+  S.shifts = shiftRes.data || [];
+  S.shiftCodes = S.shifts.map(s=>s.code);
+  S.period = perRes.data;
+
+  renderBanner();
+  if(!S.period){ document.getElementById('view').innerHTML='<div class="card empty">No open scheduling period right now. A manager needs to open one.</div>'; return; }
+
+  const inRoster = S.me && S.me.sales_office; // only roster reps fill a grid
+  if(window.IS_MANAGER){
+    buildTabs(inRoster);
+    if(inRoster){ S.tab='mine'; } else { S.tab='tracker'; }
+    await switchTab(S.tab);
+  } else {
+    S.tab='mine';
+    await loadMine(); renderMine();
+  }
+};
+
+function renderBanner(){
+  const b=document.getElementById('periodBanner');
+  if(!S.period){ b.style.display='none'; return; }
+  b.style.display='flex';
+  b.innerHTML = `<b>${esc(S.period.label||'Current period')}</b>
+    <span class="pill ${S.period.status}">${S.period.status}</span>
+    <span class="muted">${S.period.num_weeks} weeks &middot; ${esc(S.period.region)}</span>`;
+}
+
+// ===================== TABS (manager) =====================
+function buildTabs(inRoster){
+  const bar=document.getElementById('tabBar'); bar.style.display='flex';
+  const tabs=[];
+  if(inRoster) tabs.push(['mine','My Schedule']);
+  tabs.push(['tracker','Ready to Submit'],['combined','Combined Grid'],['export','Export & Period']);
+  bar.innerHTML = tabs.map(([k,l])=>`<button class="tab ${k===S.tab?'active':''}" data-tab="${k}">${l}</button>`).join('');
+  bar.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
+}
+async function switchTab(tab){
+  S.tab=tab;
+  document.querySelectorAll('#tabBar .tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
+  const v=document.getElementById('view'); v.innerHTML='<div class="empty">Loading...</div>';
+  if(tab==='mine'){ await loadMine(); renderMine(); }
+  else if(tab==='tracker'){ await loadManagerData(); renderTracker(); }
+  else if(tab==='combined'){ await loadManagerData(); renderCombined(); }
+  else if(tab==='export'){ await loadManagerData(); renderExport(); }
+}
+
+// ===================== REP: MY SCHEDULE =====================
+async function loadMine(){
+  S.myEntries={}; S.mySub=null;
+  if(!S.me) return;
+  const [e,s]=await Promise.all([
+    sb.from('sched_entries').select('work_date,shift_code').eq('period_id',S.period.id).eq('person_id',S.me.id),
+    sb.from('sched_submissions').select('*').eq('period_id',S.period.id).eq('person_id',S.me.id).maybeSingle()
+  ]);
+  (e.data||[]).forEach(r=>S.myEntries[r.work_date]=r.shift_code);
+  S.mySub=s.data;
+}
+function shiftOptions(sel){ return S.shifts.map(s=>`<option value="${esc(s.code)}" ${s.code===sel?'selected':''}>${esc(s.label)}</option>`).join(''); }
+
+function renderMine(){
+  if(!S.me || !S.me.sales_office){
+    document.getElementById('view').innerHTML='<div class="card empty">You are not on the CT availability roster, so there is nothing to fill here.</div>';
+    return;
+  }
+  const status=(S.mySub&&S.mySub.status)||'not_started';
+  const locked = (status==='submitted'||status==='approved') || S.period.status!=='open';
+  let html='';
+  html+=`<div class="card"><div class="row" style="justify-content:space-between">
+      <div class="row"><span class="pill ${status}">${status.replace('_',' ')}</span>
+      <span class="muted">${esc(S.me.sf_name||S.me.name)} &middot; ${esc(S.me.sales_office)}</span></div>
+      <button class="btn btn-ghost" id="copyBtn" ${locked?'disabled':''}>Copy last period</button>
+    </div></div>`;
+  if(status==='changes_requested' && S.mySub && S.mySub.note){
+    html+=`<div class="card"><div class="note"><b>Changes requested:</b> ${esc(S.mySub.note)}</div></div>`;
+  }
+  if(locked && status!=='not_started'){
+    html+=`<div class="card"><div class="muted">Your schedule is ${status==='approved'?'approved':'submitted'} and locked. Ask your manager to reopen it if you need a change.</div></div>`;
+  }
+  for(let w=0; w<S.period.num_weeks; w++){
+    const mon=dayDate(S.period,w,0), sat=dayDate(S.period,w,5);
+    html+=`<div class="card"><div class="weekhd">Week ${w+1} &middot; ${fmtMD(mon)} - ${fmtMD(sat)}</div><div class="daygrid">`;
+    for(let d=0; d<6; d++){
+      const iso=dayDate(S.period,w,d); const cur=S.myEntries[iso]||'Off All-Day';
+      const off = cur==='Off All-Day';
+      html+=`<div class="day ${off?'off':''}"><div class="dlabel">${DOWS[d].slice(0,3)} ${fmtMD(iso)}</div>
+        <select data-date="${iso}" ${locked?'disabled':''}>${shiftOptions(cur)}</select></div>`;
+    }
+    html+=`</div></div>`;
+  }
+  // legend
+  html+=`<div class="card"><div class="weekhd">Shift times</div><div class="legend">`+
+    S.shifts.filter(s=>s.weekday_start).map(s=>`<span><b>${esc(s.label)}:</b> ${s.weekday_start.slice(0,5)}-${s.weekday_end.slice(0,5)} (Sat ${s.saturday_start?s.saturday_start.slice(0,5)+'-'+s.saturday_end.slice(0,5):'n/a'})</span>`).join('')+
+    `</div></div>`;
+  // submit bar
+  if(!locked){
+    html+=`<div class="card"><div class="actionbar">
+      <label class="att"><input type="checkbox" id="attest"> I have reviewed all the above dates, and I'm not missing any birthdays, anniversaries, or appointments. This is ready to submit.</label>
+      <button class="btn btn-primary" id="submitBtn" disabled>Submit schedule</button>
+    </div></div>`;
+  }
+  document.getElementById('view').innerHTML=html;
+
+  // wire selects (autosave one entry on change)
+  document.querySelectorAll('#view .day select').forEach(sel=>{
+    sel.onchange=async()=>{
+      const iso=sel.dataset.date, code=sel.value;
+      sel.closest('.day').classList.toggle('off', code==='Off All-Day');
+      try{
+        await sb.rpc('sched_save_entries',{p_period_id:S.period.id, p_entries:[{work_date:iso, shift_code:code}]});
+        S.myEntries[iso]=code; toast('Saved');
+      }catch(err){ toast('Save failed: '+(err.message||err)); }
+    };
+  });
+  const copyBtn=document.getElementById('copyBtn');
+  if(copyBtn) copyBtn.onclick=async()=>{
+    copyBtn.disabled=true;
+    try{ const {data}=await sb.rpc('sched_copy_previous',{p_period_id:S.period.id});
+      toast(data>0?`Copied ${data} days`:'No previous schedule found');
+      await loadMine(); renderMine();
+    }catch(err){ toast('Copy failed: '+(err.message||err)); copyBtn.disabled=false; }
+  };
+  const att=document.getElementById('attest'), submitBtn=document.getElementById('submitBtn');
+  if(att){ att.onchange=()=>submitBtn.disabled=!att.checked; }
+  if(submitBtn) submitBtn.onclick=async()=>{
+    submitBtn.disabled=true;
+    try{ await sb.rpc('sched_submit',{p_period_id:S.period.id, p_attested:true});
+      toast('Submitted'); await loadMine(); renderMine();
+    }catch(err){ toast('Submit failed: '+(err.message||err)); submitBtn.disabled=false; }
+  };
+}
+
+// ===================== MANAGER DATA =====================
+async function loadManagerData(){
+  const [reps,ent,subs]=await Promise.all([
+    sb.from('people').select('id,name,sf_name,spd_slug,division,sales_office').eq('status','active').like('sales_office','CT%').order('sales_office').order('name'),
+    sb.from('sched_entries').select('person_id,work_date,shift_code').eq('period_id',S.period.id),
+    sb.from('sched_submissions').select('*').eq('period_id',S.period.id)
+  ]);
+  S.reps=reps.data||[];
+  S.allEntries={}; (ent.data||[]).forEach(r=>{ (S.allEntries[r.person_id]=S.allEntries[r.person_id]||{})[r.work_date]=r.shift_code; });
+  S.subs={}; (subs.data||[]).forEach(r=>S.subs[r.person_id]=r);
+}
+
+// ===================== MANAGER: TRACKER =====================
+function renderTracker(){
+  let offices=[...new Set(S.reps.map(r=>r.sales_office))];
+  const done=S.reps.filter(r=>['submitted','approved'].includes((S.subs[r.id]||{}).status)).length;
+  let html=`<div class="card"><div class="row" style="justify-content:space-between">
+    <div><b>${done} of ${S.reps.length}</b> <span class="muted">submitted or approved</span></div>
+    <select id="offFilter" class="iconbtn"><option value="">All offices</option>${offices.map(o=>`<option>${esc(o)}</option>`).join('')}</select>
+    </div></div>`;
+  html+=`<div class="card"><table class="tracker"><thead><tr>
+    <th>Rep</th><th>Office</th><th>Status</th><th>Submitted</th><th>Actions</th></tr></thead><tbody id="trackBody"></tbody></table></div>`;
+  document.getElementById('view').innerHTML=html;
+  const draw=()=>{
+    const f=document.getElementById('offFilter').value;
+    const rows=S.reps.filter(r=>!f||r.sales_office===f);
+    document.getElementById('trackBody').innerHTML=rows.map(r=>{
+      const sub=S.subs[r.id]||{}; const st=sub.status||'not_started';
+      const when=sub.submitted_at?new Date(sub.submitted_at).toLocaleDateString():'';
+      let actions='';
+      if(st==='submitted'){ actions=`<button class="iconbtn approve" data-act="approve" data-id="${r.id}">Approve</button> <button class="iconbtn changes" data-act="changes" data-id="${r.id}">Request changes</button>`; }
+      else if(st==='approved'){ actions=`<button class="iconbtn" data-act="reopen" data-id="${r.id}">Reopen</button>`; }
+      return `<tr><td>${esc(r.sf_name||r.name)}</td><td>${esc(r.sales_office)}</td>
+        <td><span class="pill ${st}">${st.replace('_',' ')}</span></td><td>${when}</td><td>${actions}</td></tr>`;
+    }).join('') || `<tr><td colspan="5" class="muted">No reps.</td></tr>`;
+    document.querySelectorAll('#trackBody .iconbtn').forEach(b=>b.onclick=()=>trackerAction(b.dataset.id,b.dataset.act));
+  };
+  document.getElementById('offFilter').onchange=draw; draw();
+}
+async function trackerAction(personId, act){
+  try{
+    if(act==='approve'){ await sb.rpc('sched_review',{p_period_id:S.period.id,p_person_id:personId,p_action:'approve',p_note:null}); }
+    else if(act==='reopen'){ await sb.rpc('sched_review',{p_period_id:S.period.id,p_person_id:personId,p_action:'request_changes',p_note:'Reopened by manager'}); }
+    else if(act==='changes'){ const note=prompt('What changes are needed?'); if(note===null) return; await sb.rpc('sched_review',{p_period_id:S.period.id,p_person_id:personId,p_action:'request_changes',p_note:note}); }
+    toast('Updated'); await loadManagerData(); renderTracker();
+  }catch(err){ toast('Failed: '+(err.message||err)); }
+}
+
+// ===================== MANAGER: COMBINED GRID =====================
+function cellClass(code){ return code==='Off All-Day'?'cell-off':(code==='All-Day'?'cell-all':''); }
+function renderCombined(){
+  const editable = S.period.status==='open';
+  let head1='<th class="rep">Rep</th>', head2='<th class="rep"></th>';
+  for(let w=0; w<S.period.num_weeks; w++){
+    head1+=`<th class="wk" colspan="6">Wk ${w+1} (${fmtMD(dayDate(S.period,w,0))})</th>`;
+    for(let d=0; d<6; d++) head2+=`<th>${DOWS[d].slice(0,2)}</th>`;
+  }
+  let body='';
+  for(const r of S.reps){
+    const ent=S.allEntries[r.id]||{};
+    let tds=`<td class="rep">${esc(r.sf_name||r.name)}</td>`;
+    for(let w=0; w<S.period.num_weeks; w++){
+      for(let d=0; d<6; d++){
+        const iso=dayDate(S.period,w,d); const code=ent[iso]||'Off All-Day';
+        if(editable){
+          tds+=`<td><select data-id="${r.id}" data-date="${iso}" class="${cellClass(code)}">${shiftOptions(code)}</select></td>`;
+        } else {
+          tds+=`<td class="${cellClass(code)}">${esc(code.replace('Shift ','S').replace('Off All-Day','--').replace('All-Day','ALL'))}</td>`;
+        }
+      }
+    }
+    body+=`<tr>${tds}</tr>`;
+  }
+  document.getElementById('view').innerHTML=`<div class="card combined">
+    <div class="muted" style="margin-bottom:8px">${editable?'Click any cell to change it. Saves immediately.':'Period is locked (read-only).'}</div>
+    <table class="cgrid"><thead><tr>${head1}</tr><tr>${head2}</tr></thead><tbody>${body}</tbody></table></div>`;
+  if(editable){
+    document.querySelectorAll('#view .cgrid select').forEach(sel=>{
+      sel.onchange=async()=>{
+        const id=sel.dataset.id, iso=sel.dataset.date, code=sel.value;
+        sel.className=cellClass(code);
+        try{ await sb.rpc('sched_manager_set_entries',{p_period_id:S.period.id,p_person_id:id,p_entries:[{work_date:iso,shift_code:code}]});
+          (S.allEntries[id]=S.allEntries[id]||{})[iso]=code; toast('Saved');
+        }catch(err){ toast('Failed: '+(err.message||err)); }
+      };
+    });
+  }
+}
+
+// ===================== MANAGER: EXPORT & PERIOD =====================
+function renderExport(){
+  let html=`<div class="card"><div class="weekhd">Export for Salesforce + Skedulo</div>
+    <p class="muted">Downloads an .xlsx in the Final Sales Calendar layout. Avail_Hours and Go_Back are left blank -- corporate computes those by rank and availability.</p>
+    <div class="actionbar"><button class="btn btn-primary" id="dlBtn">Download .xlsx</button></div></div>`;
+  html+=`<div class="card"><div class="weekhd">Period</div>
+    <div class="row"><span class="pill ${S.period.status}">${S.period.status}</span>
+    <span>${esc(S.period.label)}</span>
+    <button class="btn btn-ghost" id="lockBtn">${S.period.status==='open'?'Lock period':'Unlock period'}</button></div></div>`;
+  html+=`<div class="card"><div class="weekhd">Open a new period</div>
+    <div class="row"><label class="muted">First Monday:</label><input type="date" id="newStart">
+    <button class="btn btn-ghost" id="createBtn">Create 4-week period</button></div></div>`;
+  document.getElementById('view').innerHTML=html;
+  document.getElementById('dlBtn').onclick=exportXlsx;
+  document.getElementById('lockBtn').onclick=async()=>{
+    try{ await sb.rpc('sched_lock_period',{p_period_id:S.period.id, p_unlock:S.period.status!=='open'});
+      const {data}=await sb.from('sched_periods').select('*').eq('id',S.period.id).maybeSingle(); S.period=data; renderBanner(); renderExport(); toast('Updated');
+    }catch(err){ toast('Failed: '+(err.message||err)); }
+  };
+  document.getElementById('createBtn').onclick=async()=>{
+    const v=document.getElementById('newStart').value; if(!v){ toast('Pick a Monday'); return; }
+    try{ const {data}=await sb.rpc('sched_create_period',{p_start_date:v}); toast('Period created');
+      const {data:p}=await sb.from('sched_periods').select('*').eq('id',data).maybeSingle(); S.period=p; renderBanner(); await switchTab('export');
+    }catch(err){ toast('Failed: '+(err.message||err)); }
+  };
+}
+async function exportXlsx(){
+  let rows;
+  try{ const {data,error}=await sb.rpc('sched_get_export',{p_period_id:S.period.id}); if(error) throw error; rows=data||[]; }
+  catch(err){ toast('Export failed: '+(err.message||err)); return; }
+  const W=S.period.num_weeks;
+  // row1: week bands; row2: headers
+  const r1=['Sales Rep Details','',''];
+  const r2=['Division','Sales Office','Sales Representative Name'];
+  for(let w=0; w<W; w++){
+    const mon=dayDate(S.period,w,0);
+    r1.push('Week '+(w+1)+' - '+fmtMDY(mon)); for(let i=0;i<7;i++) r1.push('');
+    DOWS.forEach(dn=>r2.push('Wk_'+(w+1)+'_'+dn));
+    r2.push('Wk_'+(w+1)+'_Avail_Hours','Wk_'+(w+1)+'_Go_Back');
+  }
+  const aoa=[r1,r2];
+  rows.forEach(rec=>{
+    const cells=rec.cells||[]; const line=[rec.division||'',rec.office||'',rec.name||''];
+    for(let w=0; w<W; w++){ for(let d=0; d<6; d++) line.push(cells[w*6+d]||'Off All-Day'); line.push('',''); }
+    aoa.push(line);
+  });
+  const ws=XLSX.utils.aoa_to_sheet(aoa);
+  // merges: A1:C1 + each week band (8 cols)
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:2}}];
+  for(let w=0; w<W; w++){ const c=3+w*8; ws['!merges'].push({s:{r:0,c},e:{r:0,c:c+7}}); }
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Sales Schedule');
+  XLSX.writeFile(wb, 'CT Sales Calendar - '+S.period.start_date+'.xlsx');
+  toast('Downloaded');
+}
+</script>
+</body>
+</html>
