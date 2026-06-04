@@ -2885,7 +2885,7 @@ async function deleteFeedback(id) {
     const statusClass = r.status === 'active' ? 'active' : 'inactive';
     const isMgr = (r.role || '') === 'manager';
     const roleTag = isMgr ? (r.is_admin ? 'Admin' : 'Manager') : 'Rep';
-    const cohort = r.cohort_start_date ? `Day ${daysSince(r.cohort_start_date)} of 90` : '--';
+    const cohort = cohortLabel(r.cohort_start_date);
     // Managers have no call rollup -- show "--" rather than break.
     const callsLabel = (r.callsToday == null)
       ? '<span class="cc-none">--</span>'
@@ -2998,7 +2998,7 @@ async function deleteFeedback(id) {
       ${dRow('Role', escapeHtml(roleLine))}
       ${dRow('Status', escapeHtml(r.status || '--'))}
       ${dRow('Manager', escapeHtml(r.manager || '--'))}
-      ${dRow('Cohort', r.cohort_start_date ? `${fmtDate(r.cohort_start_date)} &middot; day ${daysSince(r.cohort_start_date)} of 90` : '--')}
+      ${dRow('Cohort', r.cohort_start_date ? `${fmtDate(r.cohort_start_date)} &middot; ${cohortLabel(r.cohort_start_date)}` : '--')}
       ${dRow('Last sign-in', lastSeenLabel(r.lastSeen))}
       ${dRow('Must change password', r.must_change_password ? 'Yes' : 'No')}
     </div>`;
@@ -3415,6 +3415,15 @@ async function deleteFeedback(id) {
   }
   function daysSince(d) { return Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 86400000)); }
   function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '--'; }
+  // "Day N of 90" only inside the onboarding window; tenure for veterans, so
+  // an old start date doesn't read as a nonsensical "Day 3000 of 90".
+  function cohortLabel(d) {
+    if (!d) return '--';
+    const days = daysSince(d);
+    if (days <= 90) return 'Day ' + days + ' of 90';
+    if (days >= 365) return (days / 365).toFixed(1) + ' yr tenure';
+    return Math.round(days / 30) + ' mo tenure';
+  }
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
       ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
