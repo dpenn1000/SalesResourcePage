@@ -614,51 +614,6 @@
       width: 7px; height: 7px; border-radius: 50%; background: currentColor;
     }
 
-    /* View As (managers) */
-    .view-as {
-      display: none;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 18px 16px;
-      margin-bottom: 22px;
-      box-shadow: var(--shadow);
-      animation: fadeUp 0.4s ease both;
-    }
-    .view-as-head {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px; margin-bottom: 12px;
-    }
-    .view-as-label {
-      font-size: 11px; font-weight: 800; letter-spacing: 2px;
-      text-transform: uppercase; color: var(--text2);
-    }
-    .view-as-count {
-      font-size: 11px; background: var(--border); color: var(--text2);
-      padding: 2px 9px; border-radius: 20px; font-weight: 700;
-    }
-    .view-as-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 8px;
-    }
-    .view-as-card {
-      display: flex; flex-direction: column; gap: 3px;
-      padding: 10px 12px; background: var(--bg);
-      border: 1px solid var(--border); border-radius: 8px;
-      text-decoration: none; color: var(--text);
-      transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
-    }
-    .view-as-card:hover {
-      border-color: var(--header); transform: translateY(-1px);
-      box-shadow: var(--shadow-h);
-    }
-    .view-as-card .vac-name { font-size: 13px; font-weight: 700; }
-    .view-as-card .vac-meta { font-size: 11px; color: var(--text2); }
-    .view-as-empty {
-      padding: 16px; text-align: center; color: var(--text2);
-      font-size: 12px; background: var(--bg);
-      border: 1px dashed var(--border); border-radius: 8px; line-height: 1.5;
-    }
   </style>
 </head>
 <body>
@@ -780,15 +735,6 @@
       <a class="me-greeting-cta" href="/me/" id="meGreetingCta">Open My Page &rarr;</a>
     </div>
     <div class="me-greeting-stats" id="meGreetingStats"></div>
-  </div>
-
-  <!-- View As: managers see their direct reports as clickable cards -->
-  <div class="view-as" id="viewAs">
-    <div class="view-as-head">
-      <div class="view-as-label">View As &mdash; your team</div>
-      <div class="view-as-count" id="viewAsCount">0</div>
-    </div>
-    <div id="viewAsBody"></div>
   </div>
 
   <div class="recents" id="recentsRow" style="display:none">
@@ -958,10 +904,9 @@ async function initApp(profile, session) {
     if (window.IS_MANAGER)   { href = '/reps/'; label = 'Rep Console'; }
     else if (window.IS_REP)  { href = '/me/';   label = 'My Page';     }
 
-  // Greeting card (reps) + View As section (managers). Fire-and-forget;
-  // the rest of the page renders regardless.
+  // Greeting card (reps). Fire-and-forget; the rest of the page renders regardless.
+  // (Managers get their team view from Rep 360 / Rep Console, not here.)
   if (window.IS_REP) renderRepGreeting(profile).catch(e => console.warn('[greeting]', e));
-  else if (window.IS_MANAGER) renderViewAs(profile).catch(e => console.warn('[viewAs]', e));
     if (href) {
       repLink.href = href;
       repLink.textContent = label;
@@ -1354,49 +1299,6 @@ async function renderRepGreeting(profile) {
   document.getElementById('meGreetingStats').innerHTML = stats.join('');
 
   card.style.display = 'block';
-}
-
-// ─── View As section for managers ───────────────────────────────────
-async function renderViewAs(profile) {
-  const section = document.getElementById('viewAs');
-  if (!section) return;
-
-  const session = window.AUTH_SESSION;
-  if (!session || !session.user) return;
-
-  const { data: me } = await sb.from('people')
-    .select('id').eq('auth_user_id', session.user.id).maybeSingle();
-  if (!me) return;
-
-  // Pull direct reports
-  const { data: reports } = await sb.from('people')
-    .select('id, name, role, spd_slug, status')
-    .eq('parent_id', me.id).eq('status', 'active')
-    .order('name');
-
-  const body = document.getElementById('viewAsBody');
-  const count = document.getElementById('viewAsCount');
-  if (!reports || !reports.length) {
-    body.innerHTML = '<div class="view-as-empty">No direct reports linked to you yet. Set <code>people.parent_id</code> for your team to populate this list (admin tool).</div>';
-    count.textContent = '0';
-    section.style.display = 'block';
-    return;
-  }
-
-  count.textContent = reports.length;
-  body.innerHTML =
-    '<div class="view-as-grid">' +
-    reports.map(r => {
-      const slug = r.spd_slug || '';
-      const href = slug ? '/me/?rep=' + encodeURIComponent(slug) : '#';
-      const meta = r.role + (slug ? ' / ' + slug : '');
-      return '<a class="view-as-card" href="' + href + '">' +
-        '<div class="vac-name">' + escapeHtml(r.name) + '</div>' +
-        '<div class="vac-meta">' + escapeHtml(meta) + '</div>' +
-        '</a>';
-    }).join('') +
-    '</div>';
-  section.style.display = 'block';
 }
 
 function escapeHtml(s) {
