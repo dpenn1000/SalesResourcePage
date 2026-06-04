@@ -862,6 +862,11 @@
           <option value="rep">Reps</option>
           <option value="manager">Managers</option>
         </select>
+        <select id="officeFilter">
+          <option value="">All offices</option>
+          <option value="CTN">CT-North</option>
+          <option value="CTC">CT-Central</option>
+        </select>
         <select id="mgrFilter">
           <option value="">All managers</option>
         </select>
@@ -2781,7 +2786,7 @@ async function deleteFeedback(id) {
   const REP360_BASE = 'https://tools.ct-resource-page.com/rep-360';
   const MANAGE_USERS_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-users';
 
-  let REPS = [], MANAGERS = [], MGR_BY_ID = {}, LAST_SEEN = {}, CALL_COUNTS = {};
+  let REPS = [], MANAGERS = [], MGR_BY_ID = {}, LAST_SEEN = {}, CALL_COUNTS = {}, PEOPLE_BY_ID = {};
   let LOADED = false;
 
   // Called from switchTab('users'). Loads (once per tab open) then renders.
@@ -2812,6 +2817,8 @@ async function deleteFeedback(id) {
         .limit(5000),
     ]);
     REPS = (peopleRes.data || []).map(r => Object.assign(r, { manager_id: r.parent_id }));
+    // id -> person, for walking the management chain (office derivation, chain display).
+    PEOPLE_BY_ID = {}; REPS.forEach(p => { PEOPLE_BY_ID[p.id] = p; });
     MANAGERS = (mgrsRes.data || []).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     MGR_BY_ID = {};
     (mgrsRes.data || []).forEach(m => { MGR_BY_ID[m.id] = m.name; });
@@ -2843,8 +2850,10 @@ async function deleteFeedback(id) {
     const sort = document.getElementById('sort').value;
     const mgr = (document.getElementById('mgrFilter') || {}).value || '';
     const roleF = (document.getElementById('roleFilter') || {}).value || '';
+    const officeF = (document.getElementById('officeFilter') || {}).value || '';
     let rows = REPS.map(decorate);
     if (roleF) rows = rows.filter(r => (r.role || '') === roleF);
+    if (officeF) rows = rows.filter(r => officeOf(r) === officeF);
     if (q) rows = rows.filter(r =>
       (r.name || '').toLowerCase().includes(q) || (r.username || '').toLowerCase().includes(q));
     if (mgr === '__none__') rows = rows.filter(r => !r.manager_id);
@@ -2863,7 +2872,7 @@ async function deleteFeedback(id) {
       const tb = b.lastSeen ? new Date(b.lastSeen).getTime() : 0;
       return sort === 'recent' ? (tb - ta) : (ta - tb);
     });
-    const filtered = (q || mgr || roleF);
+    const filtered = (q || mgr || roleF || officeF);
     document.getElementById('count').textContent =
       `${rows.length} ${rows.length === 1 ? 'person' : 'people'}${filtered ? ' (filtered)' : ''}`;
     const grid = document.getElementById('repGrid');
@@ -2885,6 +2894,7 @@ async function deleteFeedback(id) {
     const statusClass = r.status === 'active' ? 'active' : 'inactive';
     const isMgr = (r.role || '') === 'manager';
     const roleTag = isMgr ? (r.is_admin ? 'Admin' : 'Manager') : 'Rep';
+    const office = officeOf(r);
     const cohort = cohortLabel(r.cohort_start_date);
     // Managers have no call rollup -- show "--" rather than break.
     const callsLabel = (r.callsToday == null)
@@ -2902,7 +2912,7 @@ async function deleteFeedback(id) {
         <div class="top">
           <div>
             <div class="nm">${escapeHtml(r.name || '(no name)')}</div>
-            <div class="un">${escapeHtml(r.username || '')} &middot; ${escapeHtml(roleTag)}</div>
+            <div class="un">${escapeHtml(r.username || '')} &middot; ${escapeHtml(roleTag)}${office ? ' &middot; ' + escapeHtml(office) : ''}</div>
           </div>
           <span class="badge ${statusClass}">${escapeHtml(r.status || 'unknown')}</span>
         </div>
@@ -3007,15 +3017,18 @@ async function deleteFeedback(id) {
       const opts = MANAGERS.map(m =>
         `<option value="${m.id}"${m.id === r.manager_id ? ' selected' : ''}>${escapeHtml(m.name || '')}</option>`).join('');
       const cohortVal = r.cohort_start_date ? String(r.cohort_start_date).slice(0, 10) : '';
+      const initMgr = r.manager_id ? PEOPLE_BY_ID[r.manager_id] : null;
+      const initChain = chainDisplayHtml(r.name || 'This person', initMgr);
       return card + `
       <div class="d-card edit-card">
         <div class="section-h" style="margin-top:4px">Edit assignment</div>
         <div id="editErr" class="auth-error" style="display:none"></div>
         <label class="edit-label" for="editMgr">Manager</label>
-        <select id="editMgr" class="edit-input">
+        <select id="editMgr" class="edit-input" onchange="onEditMgrChange()">
           <option value="">-- none --</option>
           ${opts}
         </select>
+        <div id="editChain" style="font-size:0.82rem;color:var(--ink);margin-top:8px;line-height:1.5">${initChain}</div>
         <label class="edit-label" for="editCohort">Cohort start date</label>
         <input type="date" id="editCohort" class="edit-input" value="${cohortVal}">
         <div class="edit-actions">
@@ -3424,6 +3437,37 @@ async function deleteFeedback(id) {
     if (days >= 365) return (days / 365).toFixed(1) + ' yr tenure';
     return Math.round(days / 30) + ' mo tenure';
   }
+
+  // ── Office is DERIVED from the management chain: which ADM you roll up to. ──
+  // Add a username -> office entry when a new ADM / office is created; no
+  // stored column to drift. CT-North = Anthony's branch, CT-Central = Charles's.
+  const OFFICE_BY_ADM = { avenditto: 'CTN', cjromanos: 'CTC' };
+  function chainPeople(r) {
+    const out = []; let cur = r, g = 0;
+    while (cur && g++ < 12) { out.push(cur); cur = cur.parent_id ? PEOPLE_BY_ID[cur.parent_id] : null; }
+    return out;
+  }
+  function officeOf(r) {
+    if (!r) return '';
+    for (const p of chainPeople(r)) { if (OFFICE_BY_ADM[p.username]) return OFFICE_BY_ADM[p.username]; }
+    return '';
+  }
+  // Chain display "Rep -> Watrous -> Charles -> Dan -> Melvin -- CTC" for the
+  // assignment editor. mgr is the chosen manager (the rep hangs above it).
+  function chainDisplayHtml(repName, mgr) {
+    if (!mgr) return '<span class="d-k">No manager -- this person is not in a management chain.</span>';
+    const names = [repName].concat(chainPeople(mgr).map(p => p.name || p.username || '?'));
+    const office = officeOf(mgr);
+    return '<span class="d-k">Chain:</span> ' + names.map(escapeHtml).join(' &rarr; ')
+      + (office ? ' &middot; <strong>' + escapeHtml(office === 'CTN' ? 'CT-North' : office === 'CTC' ? 'CT-Central' : office) + '</strong>' : '');
+  }
+  // Live-update the chain preview when the manager dropdown changes.
+  function onEditMgrChange() {
+    const sel = document.getElementById('editMgr'), out = document.getElementById('editChain');
+    if (!sel || !out) return;
+    const mgr = sel.value ? PEOPLE_BY_ID[sel.value] : null;
+    out.innerHTML = chainDisplayHtml((D_REP && D_REP.name) || 'This person', mgr);
+  }
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
       ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
@@ -3435,6 +3479,7 @@ async function deleteFeedback(id) {
   // its own element reads so a stray early call is harmless.
   document.getElementById('search').addEventListener('input', render);
   document.getElementById('roleFilter').addEventListener('change', render);
+  document.getElementById('officeFilter').addEventListener('change', render);
   document.getElementById('mgrFilter').addEventListener('change', render);
   document.getElementById('sort').addEventListener('change', render);
 
@@ -3446,6 +3491,7 @@ async function deleteFeedback(id) {
   window.setDetailTab = setDetailTab;
   window.saveAssignment = saveAssignment;
   window.toggleEdit = toggleEdit;
+  window.onEditMgrChange = onEditMgrChange;
   window.togglePw = togglePw;
   window.resetRepPassword = resetRepPassword;
   window.toggleRepStatus = toggleRepStatus;
