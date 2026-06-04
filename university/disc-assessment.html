@@ -92,6 +92,13 @@
   .coach-row{padding:8px 0;border-top:1px solid rgba(255,255,255,0.05);font-size:13.5px;color:var(--text)}
   .coach-key{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--solar);display:block;margin-bottom:2px}
 
+  .road-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+  @media(max-width:560px){.road-grid{grid-template-columns:1fr}}
+  .road-card{border:1px solid rgba(255,255,255,0.08);border-left:4px solid;border-radius:6px;padding:14px 16px;background:#0d1826}
+  .road-to{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+  .road-fit{font-size:13.5px;color:#fff;font-weight:600;margin-bottom:6px}
+  .road-move{font-size:13px;color:var(--muted);line-height:1.6}
+
   .callout{background:rgba(245,166,35,0.08);border:1px solid var(--border);border-radius:6px;padding:18px 22px;margin:18px 0;font-size:13.5px;color:var(--text)}
   .callout strong{color:var(--solar)}
 
@@ -219,6 +226,8 @@
       </div>
 
       <div id="coachZone"></div>
+
+      <div id="roadmapZone"></div>
 
       <div class="callout" id="consistencyNote" style="display:none"></div>
 
@@ -412,6 +421,37 @@ const COACH = {
     underserve:"Expressive and Driver buyers. One wants the story and the vision, the other just wants the bottom line."}
 };
 
+// ===================== ROADMAP (how YOUR style flexes to each buyer) =====================
+// ROADMAP[repStyle][buyerStyle] = { fit, move }. 4x4: how a rep of each primary
+// style adapts to each of the four buyer types. Drawn from Know Your Buyer.
+const ROADMAP = {
+  D:{
+    D:{fit:'Same wavelength',move:'You both want speed and the bottom line. Give the number, the ROI, and a direct ask. Just don’t turn it into a contest. Let them feel like they made the call.'},
+    I:{fit:'Half a step slower',move:'They buy the vision, not just the math. Paint the picture and let them get excited before you close. Your bluntness can flatten their energy if you rush it.'},
+    S:{fit:'Your sharpest mismatch',move:'Your pace reads as pressure. Slow way down, build trust first, and never push. Their hesitation is a request for reassurance, not an objection to overpower. Offer the joint appointment.'},
+    C:{fit:'Stretch',move:'They want proof, not confidence. Trade "trust me" for the spec sheet and let them verify. Big claims and speed only trigger their skepticism.'}
+  },
+  I:{
+    D:{fit:'Stretch',move:'Cut the buildup. Lead with the result and the number, then a crisp ask. To a Driver, your energy reads as fluff until you have shown the bottom line.'},
+    I:{fit:'Same wavelength',move:'Match the energy and sell the vision together. The only risk is that two excited people never actually decide, so you be the one who lands the close.'},
+    S:{fit:'Dial it down',move:'They like warmth but your intensity can overwhelm. Lower the volume, slow the pace, and make it about their family and peace of mind. Give them room to process.'},
+    C:{fit:'Your sharpest mismatch',move:'Hype repels them. Drop the showmanship, bring specifics and proof, and let their questions lead. Enthusiasm without data reads as a red flag.'}
+  },
+  S:{
+    D:{fit:'Your sharpest mismatch',move:'Skip the warmup and lead with the result and the number. Make a direct ask and do not soften it. To a Driver, rapport-building first reads as stalling.'},
+    I:{fit:'Easy flex',move:'Often your second nature. Match the energy and sell the vision. Just do not let the warmth slow the momentum. When they get excited, close while it is hot.'},
+    S:{fit:'Home turf',move:'They will trust you fast and it will feel great. The trap is that two Amiables talk all day and never decide. You have to drive to the joint appointment and the actual ask.'},
+    C:{fit:'Your growth edge',move:'Rapport will not carry this one. Bring the numbers, the warranty, the production model. Slow down, drop the pressure, and let them verify.'}
+  },
+  C:{
+    D:{fit:'Stretch',move:'Lead with the conclusion and the ROI, then offer detail only if they ask. Do not bury a Driver in data or they will check out before you finish.'},
+    I:{fit:'Your sharpest mismatch',move:'They want the story and the outcome, not the spec sheet. Bring energy, paint the picture, and save the detail for later. A spec dump kills their excitement.'},
+    S:{fit:'Stretch',move:'They need warmth and trust before facts. Build the relationship first, lean on stories and references, then bring the data. Leading with numbers feels cold to them.'},
+    C:{fit:'Same wavelength',move:'Go deep, show your verification, and respect their process. The risk is that two analyticals over-study it and never close, so set a clear decision point.'}
+  }
+};
+const ROAD_COLORVAR = { D:'red', I:'solar', S:'green', C:'blue' };
+
 // ===================== HELPERS =====================
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 const $=id=>document.getElementById(id);
@@ -570,6 +610,22 @@ function showResults(r){
       <div class="coach-row"><span class="coach-key">Watch for</span>${c.watch}</div>
       <div class="coach-row"><span class="coach-key">The fix</span>${c.fix}</div>
       <div class="coach-row"><span class="coach-key">Buyers you'll naturally under-serve</span>${c.underserve}</div>
+    </div>`;
+
+  // roadmap: how this rep's primary style flexes to each of the four buyer types
+  const rm = ROADMAP[r.primary];
+  $('roadmapZone').innerHTML =
+    `<div class="card">
+      <div class="card-title">Your Roadmap: Flexing to Every Buyer</div>
+      <p class="lead" style="margin-bottom:14px">You lead as the ${P.name}. That is your strength with buyers like you, and your blind spot with the rest. Here is how to adapt to each type you meet in the field. The mismatches are where the deals hide.</p>
+      <div class="road-grid">
+        ${['D','I','S','C'].map(b => `
+          <div class="road-card" style="border-left-color:var(--${ROAD_COLORVAR[b]})">
+            <div class="road-to c-${b}">You &rarr; ${b} &middot; ${STYLE[b].name}${b===r.primary?' (like you)':''}</div>
+            <div class="road-fit">${rm[b].fit}</div>
+            <div class="road-move">${rm[b].move}</div>
+          </div>`).join('')}
+      </div>
     </div>`;
 
   if(r.consistency_flag){
