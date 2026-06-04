@@ -386,7 +386,7 @@ async function loadManagerData(){
     const demand={}; ['S1','S2','S3'].forEach(s=>demand[s]=(S.demand[s]&&S.demand[s].appt_count)||0);
     const wdays=(S.demand.S1&&S.demand.S1.window_days)||1;
     const rows=coverageRows(supRaw, S.period.num_weeks*6, demand, wdays, S.targets);
-    S.shiftStatus={}; rows.forEach(r=>S.shiftStatus[r.s]=r.tag);
+    S.shiftStatus={}; rows.forEach(r=>S.shiftStatus[r.s]={ratio:covRatio(r.reps,r.target), reps:r.reps, target:r.target});
   } else { S.shiftStatus=null; }
 }
 
