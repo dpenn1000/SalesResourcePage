@@ -48,6 +48,12 @@
   .day select{width:100%; padding:6px 4px; border:1px solid var(--border); border-radius:6px; font-family:'Manrope'; font-size:13px; background:#fff; color:var(--ink);}
   .day select:disabled{background:#f4f5f2; color:var(--muted);}
   .day.off{background:#fafbf9;}
+  .day.rate-help{border-left:4px solid var(--green); background:#f1f9e9;}
+  .day.rate-sat{border-left:4px solid var(--amber); background:#fff7e8;}
+  .cchip{font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px;}
+  .cchip.help{background:rgba(94,186,40,.16); color:#3f8f1e;}
+  .cchip.sat{background:rgba(200,140,0,.16); color:#9a6a00;}
+  .cchip.okk{background:#eceff1; color:var(--muted);}
   .legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12px; color:var(--muted);}
   .legend span b{color:var(--ink);}
   .actionbar{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:6px;}
@@ -238,21 +244,38 @@ async function loadMine(){
   ]);
   (e.data||[]).forEach(r=>S.myEntries[r.work_date]=r.shift_code);
   S.mySub=s.data;
+  S.shiftStatus=null;
+  try{ const {data}=await sb.rpc('sched_coverage_summary',{p_period_id:S.period.id}); S.shiftStatus=shiftStatusFromSummary(data); }catch(e2){}
 }
-function shiftOptions(sel){ return S.shifts.map(s=>`<option value="${esc(s.code)}" ${s.code===sel?'selected':''}>${esc(s.label)}</option>`).join(''); }
+function shiftOptions(sel, shiftStatus){
+  return S.shifts.map(s=>{
+    let suffix='';
+    if(shiftStatus){ const r=rateCode(s.code, shiftStatus); if(r==='help') suffix=' -- needed'; else if(r==='sat') suffix=' -- well covered'; }
+    return `<option value="${esc(s.code)}" ${s.code===sel?'selected':''}>${esc(s.label)}${suffix}</option>`;
+  }).join('');
+}
 
 // The rep availability grid (week cards + legend). Shared by the rep's own
 // My Schedule view and the manager Rep View preview (disabled=true => read-only).
-function repWeekCardsHTML(entries, disabled){
+function repWeekCardsHTML(entries, disabled, shiftStatus){
   let html='';
+  if(shiftStatus){
+    const chip=(s)=>{ const t=shiftStatus[s]; const cls=t==='under'?'help':(t==='over'?'sat':'okk'); const lbl=t==='under'?'needed':(t==='over'?'well covered':'balanced');
+      return `<span class="cchip ${cls}">${SHIFT_META[s].name} &middot; ${lbl}</span>`; };
+    html+=`<div class="card" style="background:#f6f8f3"><b>Where the team needs coverage right now:</b>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">${chip('S1')}${chip('S2')}${chip('S3')}</div>
+      <div class="muted" style="margin-top:8px;font-size:12px">Shifts marked <b>needed</b> (green) are short on coverage -- picking those helps the team book more. Cells below are tinted the same way, and the dropdowns flag each option.</div></div>`;
+  }
   for(let w=0; w<S.period.num_weeks; w++){
     const mon=dayDate(S.period,w,0), sat=dayDate(S.period,w,5);
     html+=`<div class="card"><div class="weekhd">Week ${w+1} &middot; ${fmtMD(mon)} - ${fmtMD(sat)}</div><div class="daygrid">`;
     for(let d=0; d<6; d++){
       const iso=dayDate(S.period,w,d); const cur=entries[iso]||'Off All-Day';
       const off = cur==='Off All-Day';
-      html+=`<div class="day ${off?'off':''}"><div class="dlabel">${DOWS[d].slice(0,3)} ${fmtMD(iso)}</div>
-        <select data-date="${iso}" ${disabled?'disabled':''}>${shiftOptions(cur)}</select></div>`;
+      const rate=rateCode(cur, shiftStatus);
+      const rcls = rate==='help'?'rate-help':(rate==='sat'?'rate-sat':'');
+      html+=`<div class="day ${off?'off':''} ${rcls}"><div class="dlabel">${DOWS[d].slice(0,3)} ${fmtMD(iso)}</div>
+        <select data-date="${iso}" ${disabled?'disabled':''}>${shiftOptions(cur, shiftStatus)}</select></div>`;
     }
     html+=`</div></div>`;
   }
@@ -281,7 +304,7 @@ function renderMine(){
   if(locked && status!=='not_started'){
     html+=`<div class="card"><div class="muted">Your schedule is ${status==='approved'?'approved':'submitted'} and locked. Ask your manager to reopen it if you need a change.</div></div>`;
   }
-  html+=repWeekCardsHTML(S.myEntries, locked);
+  html+=repWeekCardsHTML(S.myEntries, locked, S.shiftStatus);
   // submit bar
   if(!locked){
     html+=`<div class="card"><div class="actionbar">
@@ -295,8 +318,11 @@ function renderMine(){
   // wire selects (autosave one entry on change)
   document.querySelectorAll('#view .day select').forEach(sel=>{
     sel.onchange=async()=>{
-      const iso=sel.dataset.date, code=sel.value;
-      sel.closest('.day').classList.toggle('off', code==='Off All-Day');
+      const iso=sel.dataset.date, code=sel.value, day=sel.closest('.day');
+      day.classList.toggle('off', code==='Off All-Day');
+      const rate=rateCode(code, S.shiftStatus);
+      day.classList.toggle('rate-help', rate==='help');
+      day.classList.toggle('rate-sat', rate==='sat');
       try{
         await sb.rpc('sched_save_entries',{p_period_id:S.period.id, p_entries:[{work_date:iso, shift_code:code}]});
         S.myEntries[iso]=code; toast('Saved');
@@ -340,11 +366,39 @@ async function loadManagerData(){
     else { const c=(S.demandCounty[r.scope]=S.demandCounty[r.scope]||{appts:0,window_days:r.window_days,by:{}}); c.appts+=r.appt_count; c.by[r.shift]=r.appt_count; }
   });
   S.targets={}; (tgt.data||[]).forEach(r=>{ if(r.target_per_day!=null) S.targets[r.shift]=Number(r.target_per_day); });
+  // shift coverage status (for the Rep View preview color-grading)
+  const supRaw={S1:0,S2:0,S3:0};
+  for(const pid in S.allEntries){ const e=S.allEntries[pid];
+    for(const d in e){ const code=e[d]; for(const s of ['S1','S2','S3']) if(SHIFT_COVERS[s].includes(code)) supRaw[s]++; } }
+  if(Object.keys(S.demand).length){
+    const demand={}; ['S1','S2','S3'].forEach(s=>demand[s]=(S.demand[s]&&S.demand[s].appt_count)||0);
+    const wdays=(S.demand.S1&&S.demand.S1.window_days)||1;
+    const rows=coverageRows(supRaw, S.period.num_weeks*6, demand, wdays, S.targets);
+    S.shiftStatus={}; rows.forEach(r=>S.shiftStatus[r.s]=r.tag);
+  } else { S.shiftStatus=null; }
 }
 
 // ===================== MANAGER: COVERAGE GAUGE =====================
 const SHIFT_COVERS={S1:['All-Day','Shift 1','Shift 1&2','Shift 1&3'], S2:['All-Day','Shift 2','Shift 1&2','Shift 2&3'], S3:['All-Day','Shift 3','Shift 2&3','Shift 1&3']};
 const SHIFT_META={S1:{name:'Shift 1',time:'10a-2p'}, S2:{name:'Shift 2',time:'1-5p'}, S3:{name:'Shift 3',time:'4-8p'}};
+// which schedule shifts each day-code covers
+const SHIFT_OF_CODE={'Shift 1':['S1'],'Shift 2':['S2'],'Shift 3':['S3'],'Shift 1&2':['S1','S2'],'Shift 2&3':['S2','S3'],'Shift 1&3':['S1','S3'],'All-Day':['S1','S2','S3'],'Off All-Day':[]};
+// rate a day-code against current coverage: 'help' (covers an understaffed shift),
+// 'sat' (only covers over-saturated shifts), 'ok' (balanced), or null (off/no data)
+function rateCode(code, shiftStatus){
+  if(!shiftStatus) return null;
+  const sh=SHIFT_OF_CODE[code]||[]; if(!sh.length) return null;
+  const st=sh.map(s=>shiftStatus[s]);
+  if(st.includes('under')) return 'help';
+  if(st.includes('over')) return 'sat';
+  return 'ok';
+}
+function shiftStatusFromSummary(data){
+  if(!data||!data.shifts) return null;
+  const sup={},dem={}; ['S1','S2','S3'].forEach(s=>{ sup[s]=(data.shifts[s]||{}).supply_rep_days||0; dem[s]=(data.shifts[s]||{}).demand||0; });
+  const rows=coverageRows(sup, data.n_days, dem, data.window_days, data.targets||{});
+  const m={}; rows.forEach(r=>m[r.s]=r.tag); return m;
+}
 // Shared coverage math. supRepDays = rep-days available per shift; demand = appt counts.
 // target/day = demand-proportional share of the reps you have scheduled (config-free).
 function coverageRows(supRepDays, nDays, demand, wDays, targets){
@@ -471,7 +525,7 @@ function renderRepView(){
         <span class="muted">${esc(rep.sf_name||rep.name)} &middot; ${esc(rep.sales_office||'')}${rep.base_county?' &middot; lives in '+esc(rep.base_county):''}</span></div>
         ${sub.submitted_at?`<span class="muted">submitted ${new Date(sub.submitted_at).toLocaleDateString()}</span>`:''}</div></div>`;
     if(status==='changes_requested' && sub.note){ h+=`<div class="card"><div class="note"><b>Changes requested:</b> ${esc(sub.note)}</div></div>`; }
-    h+=repWeekCardsHTML(ent, true);
+    h+=repWeekCardsHTML(ent, true, S.shiftStatus);
     document.getElementById('repPreview').innerHTML=h;
   };
   document.getElementById('repPick').onchange=draw; draw();
