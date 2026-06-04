@@ -282,6 +282,7 @@ function renderMine(){
     </div></div>`;
   }
   document.getElementById('view').innerHTML=html;
+  repCoverageNudge();   // gentle team-coverage banner (best-effort, via summary RPC)
 
   // wire selects (autosave one entry on change)
   document.querySelectorAll('#view .day select').forEach(sel=>{
@@ -329,28 +330,51 @@ async function loadManagerData(){
 // ===================== MANAGER: COVERAGE GAUGE =====================
 const SHIFT_COVERS={S1:['All-Day','Shift 1','Shift 1&2','Shift 1&3'], S2:['All-Day','Shift 2','Shift 1&2','Shift 2&3'], S3:['All-Day','Shift 3','Shift 2&3','Shift 1&3']};
 const SHIFT_META={S1:{name:'Shift 1',time:'10a-2p'}, S2:{name:'Shift 2',time:'1-5p'}, S3:{name:'Shift 3',time:'4-8p'}};
+// Shared coverage math. supRepDays = rep-days available per shift; demand = appt counts.
+// target/day = demand-proportional share of the reps you have scheduled (config-free).
+function coverageRows(supRepDays, nDays, demand, wDays){
+  const reps={}, dem={};
+  ['S1','S2','S3'].forEach(s=>{ reps[s]=(supRepDays[s]||0)/(nDays||1); dem[s]=demand[s]||0; });
+  const totReps=reps.S1+reps.S2+reps.S3;
+  const totDem=(dem.S1+dem.S2+dem.S3)||1;
+  return ['S1','S2','S3'].map(s=>{
+    const demShare=dem[s]/totDem, supShare=totReps>0?reps[s]/totReps:0;
+    const demDay=dem[s]/(wDays||1), target=demShare*totReps, gap=reps[s]-target;
+    const load=reps[s]>0?demDay/reps[s]:null;
+    let tag='ok',txt='aligned';
+    if(totReps>0){ if(supShare-demShare<=-0.06){tag='under';txt='understaffed';} else if(supShare-demShare>=0.06){tag='over';txt='overstaffed';} }
+    return {s,dem:dem[s],demDay,demShare,reps:reps[s],supShare,target,gap,load,tag,txt};
+  });
+}
+// Rep-facing nudge: reps can't read team entries (RLS), so pull the aggregate via the
+// SECURITY DEFINER summary RPC and surface a gentle banner when a shift is light.
+async function repCoverageNudge(){
+  if(!S.period || S.period.status!=='open') return;
+  try{
+    const {data}=await sb.rpc('sched_coverage_summary',{p_period_id:S.period.id});
+    if(!data || !data.shifts) return;
+    const sup={}, dem={};
+    ['S1','S2','S3'].forEach(s=>{ sup[s]=(data.shifts[s]||{}).supply_rep_days||0; dem[s]=(data.shifts[s]||{}).demand||0; });
+    const rows=coverageRows(sup, data.n_days, dem, data.window_days);
+    const under=rows.filter(r=>r.tag==='under').sort((a,b)=>a.gap-b.gap);
+    if(!under.length) return;
+    const names=under.map(u=>`${SHIFT_META[u.s].name} (${SHIFT_META[u.s].time})`).join(' and ');
+    const view=document.getElementById('view'); if(!view) return;
+    const banner=el(`<div class="card" style="border-left:4px solid var(--amber);background:#fffaf0"><b>Team coverage tip:</b> ${names} ${under.length>1?'are':'is'} light this period compared with where appointments land. If it works for your week, adding availability there helps the whole team book more.</div>`);
+    view.insertBefore(banner, view.firstChild);
+  }catch(e){ /* nudge is best-effort */ }
+}
 function renderCoverage(){
   const ndays=S.period.num_weeks*6;
-  // live supply from submitted/draft entries
+  // live supply from submitted/draft entries (manager can read all)
   const supRaw={S1:0,S2:0,S3:0};
   for(const pid in S.allEntries){ const e=S.allEntries[pid];
     for(const d in e){ const code=e[d]; for(const s of ['S1','S2','S3']) if(SHIFT_COVERS[s].includes(code)) supRaw[s]++; } }
-  const supDay={}; ['S1','S2','S3'].forEach(s=>supDay[s]=supRaw[s]/ndays);
-  const totSup=supDay.S1+supDay.S2+supDay.S3||1;
   const haveDemand=Object.keys(S.demand||{}).length>0;
-  const dem={}; ['S1','S2','S3'].forEach(s=>dem[s]=(S.demand[s]&&S.demand[s].appt_count)||0);
+  const demand={}; ['S1','S2','S3'].forEach(s=>demand[s]=(S.demand[s]&&S.demand[s].appt_count)||0);
   const wdays=(S.demand.S1&&S.demand.S1.window_days)||1;
-  const demDay={}; ['S1','S2','S3'].forEach(s=>demDay[s]=dem[s]/wdays);
-  const totDem=dem.S1+dem.S2+dem.S3||1;
+  const rows=coverageRows(supRaw, ndays, demand, wdays);
   const submitted=S.reps.filter(r=>['submitted','approved'].includes((S.subs[r.id]||{}).status)).length;
-
-  const rows=['S1','S2','S3'].map(s=>{
-    const demShare=dem[s]/totDem, supShare=supDay[s]/totSup, gap=supShare-demShare;
-    const load=supDay[s]>0?demDay[s]/supDay[s]:null;  // appts per available rep per day
-    let tag='ok',txt='aligned';
-    if(haveDemand){ if(gap<=-0.06){tag='under';txt='understaffed';} else if(gap>=0.06){tag='over';txt='overstaffed';} }
-    return {s,dem:dem[s],demShare,demDay:demDay[s],reps:supDay[s],supShare,load,tag,txt};
-  });
 
   let html=`<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start">
       <div><div class="weekhd" style="border:0;margin:0;padding:0">Coverage &mdash; ${esc(S.period.label||'')}</div>
@@ -361,22 +385,25 @@ function renderCoverage(){
     html+=`<div class="card"><div class="muted">No demand baseline yet. Run the Coverage Map builder (<code>coverage_builder.py</code>) to publish appointment demand, then this gauge fills in.</div></div>`;
   } else {
     html+=`<div class="card"><table class="cov">
-      <thead><tr><th>Shift</th><th>Demand / day</th><th>Demand mix</th><th>Reps / day</th><th>Capacity mix</th><th>Appts per rep</th><th>Read</th></tr></thead>
+      <thead><tr><th>Shift</th><th>Demand / day</th><th>Demand mix</th><th>Reps / day</th><th>Capacity mix</th><th>Target / day</th><th>Gap</th><th>Appts / rep</th><th>Read</th></tr></thead>
       <tbody>${rows.map(r=>`<tr>
         <td class="county">${SHIFT_META[r.s].name}<span class="muted" style="font-weight:400"> &middot; ${SHIFT_META[r.s].time}</span></td>
         <td class="mono">${r.demDay.toFixed(1)}<span class="muted" style="font-size:11px"> (${r.dem})</span></td>
         <td><div class="covbar"><i style="width:${Math.round(r.demShare*100)}%;background:var(--accent)"></i></div><span class="muted mono" style="font-size:11px">${Math.round(r.demShare*100)}%</span></td>
         <td class="mono">${r.reps.toFixed(1)}</td>
         <td><div class="covbar"><i style="width:${Math.round(r.supShare*100)}%;background:var(--green)"></i></div><span class="muted mono" style="font-size:11px">${Math.round(r.supShare*100)}%</span></td>
+        <td class="mono">${r.target.toFixed(1)}</td>
+        <td class="mono" style="font-weight:700;color:${r.gap<=-0.3?'#c22':(r.gap>=0.3?'#9a6a00':'var(--muted)')}">${(r.gap>=0?'+':'')+r.gap.toFixed(1)}</td>
         <td class="mono">${r.load==null?'--':r.load.toFixed(2)}</td>
         <td><span class="covflag ${r.tag}">${r.txt}</span></td></tr>`).join('')}</tbody></table>
-      <div class="muted" style="margin-top:10px;font-size:12px">Demand = historical appointments by shift (${esc((S.demand.S1&&S.demand.S1.window_label)||'')}). Reps/day = average reps scheduled to be available that shift across the period. <b>Appts per rep</b> &gt; 1 means more demand than scheduled coverage. Read flags compare the demand mix to the capacity mix -- a shift gets <b>understaffed</b> when you have proportionally fewer reps than appointments there.</div>
+      <div class="muted" style="margin-top:10px;font-size:12px">Demand = historical appointments by shift (${esc((S.demand.S1&&S.demand.S1.window_label)||'')}). Reps/day = reps scheduled to be available that shift on a typical day. <b>Target/day</b> spreads the reps you have scheduled across shifts in proportion to demand; <b>Gap</b> is reps/day minus target (negative = short). <b>Appts/rep</b> &gt; 1 means more demand than coverage.</div>
     </div>`;
-    // headline nudge
-    const under=rows.filter(r=>r.tag==='under').sort((a,b)=>b.dem-a.dem)[0];
-    const over=rows.find(r=>r.tag==='over');
+    // quantitative headline
+    const under=rows.filter(r=>r.tag==='under').sort((a,b)=>a.gap-b.gap)[0];
+    const over=rows.filter(r=>r.tag==='over').sort((a,b)=>b.gap-a.gap)[0];
     if(under){
-      html+=`<div class="card" style="border-left:4px solid var(--red)"><b>Coverage gap:</b> ${SHIFT_META[under.s].name} (${SHIFT_META[under.s].time}) is ${Math.round(under.demShare*100)}% of demand but only ${Math.round(under.supShare*100)}% of scheduled capacity${over?`, while ${SHIFT_META[over.s].name} is overstaffed`:''}. Consider shifting reps${over?` from ${SHIFT_META[over.s].name}`:''} into ${SHIFT_META[under.s].name}.</div>`;
+      const move=over?Math.max(1,Math.round(Math.min(Math.abs(under.gap),over.gap))):null;
+      html+=`<div class="card" style="border-left:4px solid var(--red)"><b>Coverage gap:</b> ${SHIFT_META[under.s].name} (${SHIFT_META[under.s].time}) is short about <b>${Math.abs(under.gap).toFixed(1)} reps/day</b> (have ${under.reps.toFixed(1)}, target ${under.target.toFixed(1)})${over?`, while ${SHIFT_META[over.s].name} has about ${over.gap.toFixed(1)}/day to spare`:''}.${move?` Moving roughly ${move} rep${move>1?'s':''}/day from ${SHIFT_META[over.s].name} into ${SHIFT_META[under.s].name} would balance it.`:''}</div>`;
     }
   }
   document.getElementById('view').innerHTML=html;
