@@ -392,6 +392,14 @@
     }
     .recent-chip .rc-icon { display: flex; align-items: center; justify-content: center; font-size: 13px; }
     .recent-chip .rc-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* "Jump back in" lives in the desktop sidebar rail (under Categories): stack
+       vertically as full-width chips instead of the horizontal scroll row. */
+    .side-rail .recents { margin: 22px 0 0; }
+    .side-rail .recents-label { padding: 0 12px 8px; margin-bottom: 0; font-size: 10px; letter-spacing: 1.5px; }
+    .side-rail .recents-row { flex-direction: column; overflow-x: visible; gap: 6px; padding: 0 4px; }
+    .side-rail .recent-chip { max-width: none; width: 100%; box-shadow: none; }
+    .side-rail .recent-chip:hover { transform: none; box-shadow: var(--shadow); }
+    .side-rail .recent-chip .rc-name { min-width: 0; }
 
     /* Keyboard-active search result */
     .card.kbd-active { box-shadow: 0 0 0 2px var(--green), var(--shadow-h); transform: translateY(-3px); border-color: var(--green); }
@@ -721,6 +729,12 @@
     <button class="rail-btn"        data-cat="University" onclick="setCat('University')">&#127891; University <span class="rail-count" id="rcnt-University"></span></button>
     <button class="rail-btn"        data-cat="Technology" onclick="setCat('Technology')">&#128187; Technology <span class="rail-count" id="rcnt-Technology"></span></button>
     <button class="rail-btn"        data-cat="Control Your Business" onclick="setCat('Control Your Business')">&#127919; Control Your Business <span class="rail-count" id="rcnt-Control-Your-Business"></span></button>
+
+    <!-- Jump back in: recently-opened resources, in the rail under Categories (desktop) -->
+    <div class="recents" id="recentsRow" style="display:none">
+      <div class="recents-label">&#128340; Jump back in</div>
+      <div class="recents-row" id="recentsInner"></div>
+    </div>
   </aside>
 
 <main>
@@ -737,10 +751,6 @@
     <div class="me-greeting-stats" id="meGreetingStats"></div>
   </div>
 
-  <div class="recents" id="recentsRow" style="display:none">
-    <div class="recents-label">&#128340; Jump back in</div>
-    <div class="recents-row" id="recentsInner"></div>
-  </div>
   <a id="updatesBridge" href="/updates/" style="display:none;align-items:center;gap:12px;padding:11px 18px;margin:0 auto 16px;max-width:1200px;background:linear-gradient(135deg,rgba(245,166,35,0.10),rgba(120,200,50,0.06));border:1px solid rgba(245,166,35,0.28);border-radius:8px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s,background 0.15s;"
      onmouseover="this.style.borderColor='#C8851A';"
      onmouseout="this.style.borderColor='rgba(245,166,35,0.28)';">
