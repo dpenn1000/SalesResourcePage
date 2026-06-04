@@ -108,7 +108,13 @@
       name: row.name,
       is_admin: !!row.is_admin,
       is_active: !!row.is_active,
-      must_change_password: !!row.must_change_password
+      must_change_password: !!row.must_change_password,
+      // Multi-state scoping: get_user_profile() now also returns the caller's
+      // state membership + national flag. Surfaced as window globals below so
+      // any page can filter to the viewer's state(s). RLS already enforces the
+      // boundary server-side; these are for client-side UX (filters, headers).
+      states: Array.isArray(row.states) ? row.states : [],
+      is_national: !!row.is_national
     };
   }
 
@@ -238,6 +244,8 @@
       window.IS_ADMIN = profile.is_admin;
       window.IS_MANAGER = profile.kind === 'manager';
       window.IS_REP = profile.kind === 'rep';
+      window.AUTH_STATES = profile.states || [];      // e.g. ['CT'] -- viewer's state scope
+      window.AUTH_IS_NATIONAL = !!profile.is_national; // true => sees all states (VP/admin)
       window.AUTH_PROFILE = profile;
       window.AUTH_SESSION = session;
       showOnly('appWrap');
@@ -261,6 +269,37 @@
       }
     }, 0);
   });
+
+  // ── Bootstrap: no-session safety net ─────────────────────────────────
+  // The UI above is driven entirely by onAuthStateChange. For a logged-out
+  // visitor the only trigger is the INITIAL_SESSION event, which is not a
+  // reliable reveal on every @supabase/supabase-js@2 CDN build -- so a
+  // session-less load can hang on a permanent blank page (no screen shown).
+  // Incident 2026-06-04: reps who signed out or were password-reset saw a
+  // blank page on every device/browser. Resolve the session explicitly on
+  // load and reveal the login screen ourselves when there is none. Idempotent
+  // with the handler: it only acts when no session exists and no screen is up.
+  (function bootstrapGate() {
+    function run() {
+      sb.auth.getSession().then(function (res) {
+        var session = res && res.data && res.data.session;
+        if (session) return; // a real session -> onAuthStateChange owns the UI
+        var app = document.getElementById('appWrap');
+        var cpw = document.getElementById('changePasswordScreen');
+        var appShown = app && getComputedStyle(app).display !== 'none';
+        var cpwShown = cpw && getComputedStyle(cpw).display !== 'none';
+        if (!appShown && !cpwShown) {
+          appStarted = false;
+          showOnly('loginScreen');
+        }
+      }).catch(function () { showOnly('loginScreen'); });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run);
+    } else {
+      run();
+    }
+  })();
 
   window.signIn = async function signIn() {
     // Forgiving normalization for iPhone keyboards + autocorrect + autofill:
