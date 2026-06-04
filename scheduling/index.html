@@ -212,7 +212,7 @@ function buildTabs(inRoster){
   const bar=document.getElementById('tabBar'); bar.style.display='flex';
   const tabs=[];
   if(inRoster) tabs.push(['mine','My Schedule']);
-  tabs.push(['tracker','Ready to Submit'],['coverage','Coverage'],['combined','Combined Grid'],['export','Export & Period']);
+  tabs.push(['tracker','Ready to Submit'],['coverage','Coverage'],['combined','Combined Grid'],['repview','Rep View'],['export','Export & Period']);
   bar.innerHTML = tabs.map(([k,l])=>`<button class="tab ${k===S.tab?'active':''}" data-tab="${k}">${l}</button>`).join('');
   bar.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
 }
@@ -223,6 +223,7 @@ async function switchTab(tab){
   if(tab==='mine'){ await loadMine(); renderMine(); }
   else if(tab==='tracker'){ await loadManagerData(); renderTracker(); }
   else if(tab==='coverage'){ await loadManagerData(); renderCoverage(); }
+  else if(tab==='repview'){ await loadManagerData(); renderRepView(); }
   else if(tab==='combined'){ await loadManagerData(); renderCombined(); }
   else if(tab==='export'){ await loadManagerData(); renderExport(); }
 }
@@ -239,6 +240,27 @@ async function loadMine(){
   S.mySub=s.data;
 }
 function shiftOptions(sel){ return S.shifts.map(s=>`<option value="${esc(s.code)}" ${s.code===sel?'selected':''}>${esc(s.label)}</option>`).join(''); }
+
+// The rep availability grid (week cards + legend). Shared by the rep's own
+// My Schedule view and the manager Rep View preview (disabled=true => read-only).
+function repWeekCardsHTML(entries, disabled){
+  let html='';
+  for(let w=0; w<S.period.num_weeks; w++){
+    const mon=dayDate(S.period,w,0), sat=dayDate(S.period,w,5);
+    html+=`<div class="card"><div class="weekhd">Week ${w+1} &middot; ${fmtMD(mon)} - ${fmtMD(sat)}</div><div class="daygrid">`;
+    for(let d=0; d<6; d++){
+      const iso=dayDate(S.period,w,d); const cur=entries[iso]||'Off All-Day';
+      const off = cur==='Off All-Day';
+      html+=`<div class="day ${off?'off':''}"><div class="dlabel">${DOWS[d].slice(0,3)} ${fmtMD(iso)}</div>
+        <select data-date="${iso}" ${disabled?'disabled':''}>${shiftOptions(cur)}</select></div>`;
+    }
+    html+=`</div></div>`;
+  }
+  html+=`<div class="card"><div class="weekhd">Shift times</div><div class="legend">`+
+    S.shifts.filter(s=>s.weekday_start).map(s=>`<span><b>${esc(s.label)}:</b> ${s.weekday_start.slice(0,5)}-${s.weekday_end.slice(0,5)} (Sat ${s.saturday_start?s.saturday_start.slice(0,5)+'-'+s.saturday_end.slice(0,5):'n/a'})</span>`).join('')+
+    `</div></div>`;
+  return html;
+}
 
 function renderMine(){
   if(!S.me || !S.me.sales_office){
@@ -259,21 +281,7 @@ function renderMine(){
   if(locked && status!=='not_started'){
     html+=`<div class="card"><div class="muted">Your schedule is ${status==='approved'?'approved':'submitted'} and locked. Ask your manager to reopen it if you need a change.</div></div>`;
   }
-  for(let w=0; w<S.period.num_weeks; w++){
-    const mon=dayDate(S.period,w,0), sat=dayDate(S.period,w,5);
-    html+=`<div class="card"><div class="weekhd">Week ${w+1} &middot; ${fmtMD(mon)} - ${fmtMD(sat)}</div><div class="daygrid">`;
-    for(let d=0; d<6; d++){
-      const iso=dayDate(S.period,w,d); const cur=S.myEntries[iso]||'Off All-Day';
-      const off = cur==='Off All-Day';
-      html+=`<div class="day ${off?'off':''}"><div class="dlabel">${DOWS[d].slice(0,3)} ${fmtMD(iso)}</div>
-        <select data-date="${iso}" ${locked?'disabled':''}>${shiftOptions(cur)}</select></div>`;
-    }
-    html+=`</div></div>`;
-  }
-  // legend
-  html+=`<div class="card"><div class="weekhd">Shift times</div><div class="legend">`+
-    S.shifts.filter(s=>s.weekday_start).map(s=>`<span><b>${esc(s.label)}:</b> ${s.weekday_start.slice(0,5)}-${s.weekday_end.slice(0,5)} (Sat ${s.saturday_start?s.saturday_start.slice(0,5)+'-'+s.saturday_end.slice(0,5):'n/a'})</span>`).join('')+
-    `</div></div>`;
+  html+=repWeekCardsHTML(S.myEntries, locked);
   // submit bar
   if(!locked){
     html+=`<div class="card"><div class="actionbar">
@@ -315,16 +323,23 @@ function renderMine(){
 
 // ===================== MANAGER DATA =====================
 async function loadManagerData(){
-  const [reps,ent,subs,dem]=await Promise.all([
-    sb.from('people').select('id,name,sf_name,spd_slug,division,sales_office').eq('status','active').like('sales_office','CT%').order('sales_office').order('name'),
+  const region=S.period.region||'CT';
+  const [reps,ent,subs,dem,tgt]=await Promise.all([
+    sb.from('people').select('id,name,sf_name,spd_slug,division,sales_office,base_county').eq('status','active').like('sales_office','CT%').order('sales_office').order('name'),
     sb.from('sched_entries').select('person_id,work_date,shift_code').eq('period_id',S.period.id),
     sb.from('sched_submissions').select('*').eq('period_id',S.period.id),
-    sb.from('sched_demand_baseline').select('*').eq('region',S.period.region||'CT').eq('scope','state')
+    sb.from('sched_demand_baseline').select('*').eq('region',region),
+    sb.from('sched_shift_targets').select('*').eq('region',region)
   ]);
   S.reps=reps.data||[];
   S.allEntries={}; (ent.data||[]).forEach(r=>{ (S.allEntries[r.person_id]=S.allEntries[r.person_id]||{})[r.work_date]=r.shift_code; });
   S.subs={}; (subs.data||[]).forEach(r=>S.subs[r.person_id]=r);
-  S.demand={}; (dem.data||[]).forEach(r=>S.demand[r.shift]=r);
+  S.demand={}; S.demandCounty={};
+  (dem.data||[]).forEach(r=>{
+    if(r.scope==='state'){ S.demand[r.shift]=r; }
+    else { const c=(S.demandCounty[r.scope]=S.demandCounty[r.scope]||{appts:0,window_days:r.window_days,by:{}}); c.appts+=r.appt_count; c.by[r.shift]=r.appt_count; }
+  });
+  S.targets={}; (tgt.data||[]).forEach(r=>{ if(r.target_per_day!=null) S.targets[r.shift]=Number(r.target_per_day); });
 }
 
 // ===================== MANAGER: COVERAGE GAUGE =====================
@@ -332,18 +347,21 @@ const SHIFT_COVERS={S1:['All-Day','Shift 1','Shift 1&2','Shift 1&3'], S2:['All-D
 const SHIFT_META={S1:{name:'Shift 1',time:'10a-2p'}, S2:{name:'Shift 2',time:'1-5p'}, S3:{name:'Shift 3',time:'4-8p'}};
 // Shared coverage math. supRepDays = rep-days available per shift; demand = appt counts.
 // target/day = demand-proportional share of the reps you have scheduled (config-free).
-function coverageRows(supRepDays, nDays, demand, wDays){
+function coverageRows(supRepDays, nDays, demand, wDays, targets){
+  targets=targets||{};
   const reps={}, dem={};
   ['S1','S2','S3'].forEach(s=>{ reps[s]=(supRepDays[s]||0)/(nDays||1); dem[s]=demand[s]||0; });
   const totReps=reps.S1+reps.S2+reps.S3;
   const totDem=(dem.S1+dem.S2+dem.S3)||1;
   return ['S1','S2','S3'].map(s=>{
     const demShare=dem[s]/totDem, supShare=totReps>0?reps[s]/totReps:0;
-    const demDay=dem[s]/(wDays||1), target=demShare*totReps, gap=reps[s]-target;
-    const load=reps[s]>0?demDay/reps[s]:null;
+    const demDay=dem[s]/(wDays||1), propTarget=demShare*totReps;
+    const explicit=(targets[s]!=null)?Number(targets[s]):null;
+    const target=explicit!=null?explicit:propTarget;
+    const gap=reps[s]-target, load=reps[s]>0?demDay/reps[s]:null;
     let tag='ok',txt='aligned';
-    if(totReps>0){ if(supShare-demShare<=-0.06){tag='under';txt='understaffed';} else if(supShare-demShare>=0.06){tag='over';txt='overstaffed';} }
-    return {s,dem:dem[s],demDay,demShare,reps:reps[s],supShare,target,gap,load,tag,txt};
+    if(target>0 || totReps>0){ if(gap<=-0.6){tag='under';txt='understaffed';} else if(gap>=0.6){tag='over';txt='overstaffed';} }
+    return {s,dem:dem[s],demDay,demShare,reps:reps[s],supShare,target,propTarget,explicit,gap,load,tag,txt};
   });
 }
 // Rep-facing nudge: reps can't read team entries (RLS), so pull the aggregate via the
@@ -355,7 +373,7 @@ async function repCoverageNudge(){
     if(!data || !data.shifts) return;
     const sup={}, dem={};
     ['S1','S2','S3'].forEach(s=>{ sup[s]=(data.shifts[s]||{}).supply_rep_days||0; dem[s]=(data.shifts[s]||{}).demand||0; });
-    const rows=coverageRows(sup, data.n_days, dem, data.window_days);
+    const rows=coverageRows(sup, data.n_days, dem, data.window_days, data.targets||{});
     const under=rows.filter(r=>r.tag==='under').sort((a,b)=>a.gap-b.gap);
     if(!under.length) return;
     const names=under.map(u=>`${SHIFT_META[u.s].name} (${SHIFT_META[u.s].time})`).join(' and ');
@@ -373,7 +391,7 @@ function renderCoverage(){
   const haveDemand=Object.keys(S.demand||{}).length>0;
   const demand={}; ['S1','S2','S3'].forEach(s=>demand[s]=(S.demand[s]&&S.demand[s].appt_count)||0);
   const wdays=(S.demand.S1&&S.demand.S1.window_days)||1;
-  const rows=coverageRows(supRaw, ndays, demand, wdays);
+  const rows=coverageRows(supRaw, ndays, demand, wdays, S.targets);
   const submitted=S.reps.filter(r=>['submitted','approved'].includes((S.subs[r.id]||{}).status)).length;
 
   let html=`<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start">
@@ -392,11 +410,11 @@ function renderCoverage(){
         <td><div class="covbar"><i style="width:${Math.round(r.demShare*100)}%;background:var(--accent)"></i></div><span class="muted mono" style="font-size:11px">${Math.round(r.demShare*100)}%</span></td>
         <td class="mono">${r.reps.toFixed(1)}</td>
         <td><div class="covbar"><i style="width:${Math.round(r.supShare*100)}%;background:var(--green)"></i></div><span class="muted mono" style="font-size:11px">${Math.round(r.supShare*100)}%</span></td>
-        <td class="mono">${r.target.toFixed(1)}</td>
+        <td><input type="number" min="0" step="0.5" class="tgtinput" data-shift="${r.s}" value="${r.explicit!=null?r.explicit:''}" placeholder="${r.propTarget.toFixed(1)}" title="${r.explicit!=null?'Manager-set target':'Auto (demand-proportional). Type to override.'}" style="width:52px;padding:4px;border:1px solid var(--border);border-radius:5px;font-size:12px;text-align:right;font-family:inherit"></td>
         <td class="mono" style="font-weight:700;color:${r.gap<=-0.3?'#c22':(r.gap>=0.3?'#9a6a00':'var(--muted)')}">${(r.gap>=0?'+':'')+r.gap.toFixed(1)}</td>
         <td class="mono">${r.load==null?'--':r.load.toFixed(2)}</td>
         <td><span class="covflag ${r.tag}">${r.txt}</span></td></tr>`).join('')}</tbody></table>
-      <div class="muted" style="margin-top:10px;font-size:12px">Demand = historical appointments by shift (${esc((S.demand.S1&&S.demand.S1.window_label)||'')}). Reps/day = reps scheduled to be available that shift on a typical day. <b>Target/day</b> spreads the reps you have scheduled across shifts in proportion to demand; <b>Gap</b> is reps/day minus target (negative = short). <b>Appts/rep</b> &gt; 1 means more demand than coverage.</div>
+      <div class="muted" style="margin-top:10px;font-size:12px">Demand = historical appointments by shift (${esc((S.demand.S1&&S.demand.S1.window_label)||'')}). Reps/day = reps scheduled to be available that shift on a typical day. <b>Target/day</b> is editable -- leave blank for an auto demand-proportional target, or type a number to set your own. <b>Gap</b> = reps/day minus target (negative = short); <b>Appts/rep</b> &gt; 1 means more demand than coverage.</div>
     </div>`;
     // quantitative headline
     const under=rows.filter(r=>r.tag==='under').sort((a,b)=>a.gap-b.gap)[0];
@@ -405,8 +423,58 @@ function renderCoverage(){
       const move=over?Math.max(1,Math.round(Math.min(Math.abs(under.gap),over.gap))):null;
       html+=`<div class="card" style="border-left:4px solid var(--red)"><b>Coverage gap:</b> ${SHIFT_META[under.s].name} (${SHIFT_META[under.s].time}) is short about <b>${Math.abs(under.gap).toFixed(1)} reps/day</b> (have ${under.reps.toFixed(1)}, target ${under.target.toFixed(1)})${over?`, while ${SHIFT_META[over.s].name} has about ${over.gap.toFixed(1)}/day to spare`:''}.${move?` Moving roughly ${move} rep${move>1?'s':''}/day from ${SHIFT_META[over.s].name} into ${SHIFT_META[under.s].name} would balance it.`:''}</div>`;
     }
+    // per-county presence (Phase C)
+    const counties=Object.keys(S.demandCounty||{});
+    if(counties.length){
+      const based={}; S.reps.forEach(r=>{ if(r.base_county) based[r.base_county]=(based[r.base_county]||0)+1; });
+      const crows=counties.map(c=>{
+        const dd=S.demandCounty[c], demDay=dd.appts/(dd.window_days||1), b=based[c]||0;
+        const perBased=b>0?demDay/b:null;
+        let tag='ok',txt='OK';
+        if(b===0 && dd.appts>=20){tag='under';txt='No local';}
+        else if(perBased!=null && perBased>5){tag='over';txt='Thin';}
+        return {c,demDay,appts:dd.appts,b,perBased,tag,txt};
+      }).sort((a,b)=>b.appts-a.appts);
+      html+=`<div class="card"><div class="weekhd">By county &middot; demand vs reps based there</div>
+        <div class="muted" style="margin-bottom:8px;font-size:12px">Reps based = home county (county-level, non-PII). Reps cover beyond where they live, so this is a local-presence read, not territory. The launcher Coverage Map has the full geographic picture (heat, drive times, who actually served each county).</div>
+        <table class="cov"><thead><tr><th>County</th><th>Demand / day</th><th>Appts</th><th>Reps based</th><th>Demand per based rep</th><th>Read</th></tr></thead>
+        <tbody>${crows.map(r=>`<tr><td class="county">${esc(r.c)}</td><td class="mono">${r.demDay.toFixed(1)}</td><td class="mono">${r.appts}</td><td class="mono">${r.b}</td><td class="mono">${r.perBased==null?'--':r.perBased.toFixed(1)}</td><td><span class="covflag ${r.tag}">${r.txt}</span></td></tr>`).join('')}</tbody></table></div>`;
+    }
   }
   document.getElementById('view').innerHTML=html;
+  // wire editable shift targets (managers)
+  document.querySelectorAll('#view .tgtinput').forEach(inp=>{
+    inp.onchange=async()=>{
+      const shift=inp.dataset.shift, v=inp.value.trim();
+      try{ await sb.rpc('sched_set_shift_target',{p_shift:shift, p_target: v===''?null:Number(v)});
+        await loadManagerData(); renderCoverage(); toast('Target saved');
+      }catch(err){ toast('Failed: '+(err.message||err)); }
+    };
+  });
+}
+
+// ===================== MANAGER: REP VIEW (preview) =====================
+function renderRepView(){
+  if(!S.reps.length){ document.getElementById('view').innerHTML='<div class="card empty">No reps in scope.</div>'; return; }
+  const opts=S.reps.map(r=>`<option value="${r.id}">${esc(r.sf_name||r.name)} -- ${esc(r.sales_office||'')} (${((S.subs[r.id]||{}).status||'not started').replace('_',' ')})</option>`).join('');
+  document.getElementById('view').innerHTML=`<div class="card"><div class="row" style="gap:10px;align-items:center">
+      <label class="muted" style="font-weight:600">Preview a rep's view:</label>
+      <select id="repPick" style="padding:8px;border:1px solid var(--border);border-radius:8px;font-family:'Manrope';min-width:300px;font-size:14px">${opts}</select>
+    </div>
+    <div class="muted" style="margin-top:6px;font-size:12px">Read-only preview of exactly what the rep sees on their My Schedule tab when they enter availability.</div></div>
+    <div id="repPreview"></div>`;
+  const draw=()=>{
+    const id=document.getElementById('repPick').value, rep=S.reps.find(r=>r.id===id)||{};
+    const ent=S.allEntries[id]||{}, sub=S.subs[id]||{}, status=sub.status||'not_started';
+    let h=`<div class="card"><div class="row" style="justify-content:space-between">
+        <div class="row"><span class="pill ${status}">${status.replace('_',' ')}</span>
+        <span class="muted">${esc(rep.sf_name||rep.name)} &middot; ${esc(rep.sales_office||'')}${rep.base_county?' &middot; lives in '+esc(rep.base_county):''}</span></div>
+        ${sub.submitted_at?`<span class="muted">submitted ${new Date(sub.submitted_at).toLocaleDateString()}</span>`:''}</div></div>`;
+    if(status==='changes_requested' && sub.note){ h+=`<div class="card"><div class="note"><b>Changes requested:</b> ${esc(sub.note)}</div></div>`; }
+    h+=repWeekCardsHTML(ent, true);
+    document.getElementById('repPreview').innerHTML=h;
+  };
+  document.getElementById('repPick').onchange=draw; draw();
 }
 
 // ===================== MANAGER: TRACKER =====================
