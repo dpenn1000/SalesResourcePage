@@ -281,7 +281,10 @@
     .cat-Sales-Psychology .card:hover { border-color: #C4457A; }
     .cat-Control-Your-Business .card:hover { border-color: #8B5CF6; }
 
-    .card-image { width: 100%; height: 110px; overflow: hidden; background: var(--bg); flex-shrink: 0; }
+    /* 16:9 box matches the thumbnail art (1200x675) so nothing is cover-cropped.
+       Previously a fixed 110px height letterboxed the art and clipped ~27% off
+       top and bottom -- the subtitle line got cut off on every card. */
+    .card-image { width: 100%; aspect-ratio: 1200 / 675; overflow: hidden; background: var(--bg); flex-shrink: 0; }
     .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 13px 14px 0; }
