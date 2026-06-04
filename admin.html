@@ -25,6 +25,13 @@
       --bg: #EFF1EC; --card: #FFFFFF; --header: #1A2332;
       --green: #78C832; --blue: #29A9E1;
       --text: #1A2332; --text2: #6B7280; --border: #DFE2DA; --radius: 10px;
+      /* Extra tokens used by the folded-in People surface (Rep Console).
+         admin.html historically lacked these; the values match the console's
+         own :root so the surface renders identically. Safe global additions --
+         names do not collide with admin's --card/--header/--text/--text2. */
+      --ink: #1A2332; --muted: #6b7a8d; --subtle: #9aa6b4;
+      --surface: #ffffff; --green-dark: #5FA520; --hairline: #E5E8E0;
+      --shadow: 0 1px 3px rgba(15,32,56,0.07);
     }
 
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -320,6 +327,124 @@
       .form-grid { grid-template-columns: 1fr; }
       .form-full { grid-column: auto; }
     }
+  </style>
+
+  <!-- ============================================================
+       People surface (folded-in Rep Console). Every rule is scoped
+       under #tabUsers so it cannot affect the other admin tabs and
+       so the console's generic class names (.badge, .pill, .btn-edit,
+       .btn-save, .toolbar, .dtab, .d-item, etc.) cannot collide with
+       admin.html's own classes of the same name. The console's :root
+       block was intentionally skipped -- its variables live in admin's
+       :root above. Source: reps/index.html (lines ~36-139).
+       ============================================================ -->
+  <style>
+  #tabUsers .toolbar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  #tabUsers .toolbar input, #tabUsers .toolbar select { font-family:inherit; font-size:0.9rem; padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink); margin:0; width:auto; }
+  #tabUsers .toolbar input { flex:1; min-width:200px; }
+  #tabUsers .toolbar input:focus, #tabUsers .toolbar select:focus { outline:none; border-color:var(--blue); }
+  #tabUsers .count { color:var(--muted); font-size:0.8rem; margin-bottom:14px; }
+
+  #tabUsers .rep-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+  #tabUsers .rep-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; cursor:pointer; transition:transform 0.12s, box-shadow 0.12s, border-color 0.12s; }
+  #tabUsers .rep-card:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(15,32,56,0.1); border-color:var(--green); }
+  #tabUsers .rep-card .top { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+  #tabUsers .rep-card .nm { font-weight:700; font-size:1.02rem; color:var(--ink); }
+  #tabUsers .rep-card .un { font-size:0.78rem; color:var(--subtle); font-family:'DM Mono',monospace; }
+  #tabUsers .badge { font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  #tabUsers .badge.active { background:#EFF8E5; color:var(--green-dark); }
+  #tabUsers .badge.inactive { background:#FBE8EA; color:#C94F5A; }
+  #tabUsers .rep-meta { display:flex; flex-direction:column; gap:4px; font-size:0.82rem; color:var(--muted); }
+  #tabUsers .rep-meta .row { display:flex; justify-content:space-between; gap:10px; }
+  #tabUsers .rep-meta .row .k { color:var(--subtle); }
+  #tabUsers .rep-meta .row .v { color:var(--ink); text-align:right; }
+  #tabUsers .cc-active { color:var(--green-dark); }
+  #tabUsers .cc-week { color:var(--subtle); font-weight:400; }
+  #tabUsers .cc-none { color:var(--subtle); }
+  #tabUsers .rep-card .actions { margin-top:2px; padding-top:10px; border-top:1px solid var(--hairline); display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  #tabUsers .view-detail { font-size:0.82rem; font-weight:700; color:var(--green-dark); display:inline-flex; align-items:center; gap:6px; user-select:none; }
+  #tabUsers .view-detail .arr { transition:transform 0.12s; }
+  #tabUsers .rep-card:hover .view-detail .arr { transform:translateX(3px); }
+  #tabUsers .rr-link { display:inline-flex; align-items:center; gap:5px; font-size:0.78rem; font-weight:600; color:var(--muted); text-decoration:none; }
+  #tabUsers .rr-link:hover { color:var(--green-dark); text-decoration:underline; }
+
+  #tabUsers .notice { background:var(--surface); border:1px dashed var(--border); border-radius:var(--radius); padding:40px 24px; text-align:center; color:var(--muted); }
+  #tabUsers .notice h2 { color:var(--ink); margin-bottom:8px; font-size:1.2rem; }
+
+  /* Detail view */
+  #tabUsers .detail-top { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:6px; }
+  #tabUsers .back-btn { background:none; border:none; cursor:pointer; font-family:inherit; font-size:0.85rem; color:var(--muted); padding:4px 0; display:inline-flex; align-items:center; gap:6px; }
+  #tabUsers .back-btn:hover { color:var(--ink); }
+  #tabUsers .detail-top h2 { font-size:1.5rem; color:var(--ink); }
+  #tabUsers .detail-top .un { font-size:0.8rem; color:var(--subtle); font-family:'DM Mono',monospace; }
+  #tabUsers .detail-tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid var(--border); margin:14px 0 18px; }
+  #tabUsers .dtab { background:none; border:none; cursor:pointer; font-family:inherit; font-size:0.875rem; font-weight:500; color:var(--muted); padding:10px 14px; border-bottom:2px solid transparent; }
+  #tabUsers .dtab:hover { color:var(--ink); }
+  #tabUsers .dtab.active { color:var(--ink); border-bottom-color:var(--green); font-weight:600; }
+  #tabUsers .d-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:8px 18px; box-shadow:var(--shadow); }
+  #tabUsers .d-row { display:flex; justify-content:space-between; gap:14px; padding:11px 0; border-bottom:1px solid var(--hairline); font-size:0.9rem; }
+  #tabUsers .d-row:last-child { border-bottom:none; }
+  #tabUsers .d-k { color:var(--subtle); }
+  #tabUsers .d-v { color:var(--ink); font-weight:500; text-align:right; }
+  #tabUsers .d-list { display:flex; flex-direction:column; gap:8px; }
+  #tabUsers .d-item { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 14px; box-shadow:var(--shadow); }
+  #tabUsers .d-item .it-top { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+  #tabUsers .d-item .it-title { font-weight:600; color:var(--ink); font-size:0.92rem; }
+  #tabUsers .d-item .it-meta { font-size:0.78rem; color:var(--muted); margin-top:3px; }
+  #tabUsers .d-item .it-note { font-size:0.85rem; color:var(--ink); margin-top:6px; }
+  #tabUsers .pill { font-size:0.66rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; padding:3px 9px; border-radius:999px; background:var(--hairline); color:var(--muted); white-space:nowrap; }
+  #tabUsers .pill.ok { background:#EFF8E5; color:var(--green-dark); }
+  #tabUsers .pill.warn { background:#FEF3DC; color:#8A5E15; }
+  #tabUsers .pill.bad { background:#FBE8EA; color:#C94F5A; }
+  #tabUsers .pill.info { background:#E8F4FB; color:#1E8BBC; }
+  #tabUsers .d-empty { color:var(--subtle); font-size:0.875rem; padding:18px 2px; }
+  #tabUsers .section-h { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--subtle); margin:18px 0 8px; }
+
+  /* Call Work tab */
+  #tabUsers .cw-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(90px,1fr)); gap:10px; margin:6px 0 4px; }
+  #tabUsers .cw-stat { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; box-shadow:var(--shadow); }
+  #tabUsers .cw-stat-v { font-size:1.25rem; font-weight:700; color:var(--ink); line-height:1.1; display:flex; align-items:baseline; gap:6px; }
+  #tabUsers .cw-stat-v.cw-stat-text { font-size:0.95rem; }
+  #tabUsers .cw-stat-sub { font-size:0.72rem; font-weight:600; color:var(--green-dark); }
+  #tabUsers .cw-stat-l { font-size:0.7rem; color:var(--subtle); text-transform:uppercase; letter-spacing:0.06em; margin-top:3px; }
+  #tabUsers .cw-chart { display:flex; align-items:flex-end; gap:4px; height:150px; padding:8px 6px 0; background:var(--surface); border:1px solid var(--border); border-radius:10px; box-shadow:var(--shadow); }
+  #tabUsers .cw-bar { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; position:relative; }
+  #tabUsers .cw-tip { display:none; position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:6px 9px; border-radius:7px; font-size:0.7rem; line-height:1.35; white-space:nowrap; text-align:center; z-index:5; box-shadow:0 4px 12px rgba(15,32,56,0.25); pointer-events:none; }
+  #tabUsers .cw-bar:hover .cw-tip { display:block; }
+  #tabUsers .cw-stack { display:flex; flex-direction:column-reverse; width:64%; min-width:6px; }
+  #tabUsers .cw-seg { width:100%; }
+  #tabUsers .cw-seg.appt { background:var(--green); border-radius:2px 2px 0 0; }
+  #tabUsers .cw-seg.reached { background:var(--blue); }
+  #tabUsers .cw-seg.noanswer { background:#cbd3dc; }
+  #tabUsers .cw-xlabel { font-size:0.6rem; color:var(--subtle); margin-top:4px; }
+  #tabUsers .cw-today { color:var(--green-dark); font-weight:700; }
+  #tabUsers .cw-legend { display:flex; gap:14px; margin:8px 2px 0; font-size:0.72rem; color:var(--muted); }
+  #tabUsers .cw-legend i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; vertical-align:middle; }
+  #tabUsers .cw-dot.appt { background:var(--green); }
+  #tabUsers .cw-dot.reached { background:var(--blue); }
+  #tabUsers .cw-dot.noanswer { background:#cbd3dc; }
+  #tabUsers .cw-day { margin-bottom:14px; }
+  #tabUsers .cw-day-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:6px 2px; border-bottom:1px solid var(--hairline); margin-bottom:8px; }
+  #tabUsers .cw-day-head span:first-child { font-weight:700; font-size:0.9rem; color:var(--ink); }
+  #tabUsers .cw-day-meta { font-size:0.76rem; color:var(--muted); }
+
+  /* Admin: edit assignment + account actions */
+  #tabUsers .edit-trigger { margin-top:12px; }
+  #tabUsers .btn-edit { font-family:inherit; font-size:0.82rem; font-weight:600; color:var(--green-dark); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 14px; cursor:pointer; }
+  #tabUsers .btn-edit:hover { border-color:var(--green); }
+  #tabUsers .btn-del-person { font-family:inherit; font-size:0.82rem; font-weight:600; color:#C94F5A; background:var(--surface); border:1px solid #F3C9CE; border-radius:8px; padding:8px 14px; cursor:pointer; }
+  #tabUsers .btn-del-person:hover { border-color:#C94F5A; }
+  #tabUsers .edit-card { margin-top:12px; display:flex; flex-direction:column; }
+  #tabUsers .edit-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--subtle); margin:12px 0 4px; }
+  #tabUsers .edit-input { font-family:inherit; font-size:0.9rem; padding:9px 12px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--ink); max-width:340px; margin:0; }
+  #tabUsers .edit-input:focus { outline:none; border-color:var(--blue); }
+  #tabUsers .edit-actions { display:flex; align-items:center; gap:12px; margin-top:16px; }
+  #tabUsers .btn-save { font-family:inherit; font-size:0.85rem; font-weight:700; color:#fff; background:var(--green-dark); border:none; border-radius:8px; padding:9px 18px; cursor:pointer; }
+  #tabUsers .btn-save:hover { background:var(--green); }
+  #tabUsers .btn-save:disabled { opacity:0.6; cursor:default; }
+  #tabUsers .btn-cancel { font-family:inherit; font-size:0.85rem; font-weight:600; color:var(--muted); background:none; border:none; cursor:pointer; padding:9px 4px; }
+  #tabUsers .btn-cancel:hover { color:var(--ink); }
+  #tabUsers .acct-actions { display:flex; gap:10px; flex-wrap:wrap; }
   </style>
 </head>
 <body>
@@ -721,53 +846,53 @@
     </div>
   </div>
 
-  <!-- Users section -->
+  <!-- People surface (folded-in Rep Console). Master-detail: one roster
+       (#console), one detail record (#repDetail). The flat users table this
+       replaced was an earlier, weaker version of the same roster. Markup
+       sourced from reps/index.html lines ~190-222, extended with a role
+       filter + "Add person" button. JS lives in the isolated IIFE near
+       </body> (window.loadPeople, openRep, etc.). -->
   <div id="tabUsers" class="admin-inner" style="display:none">
-    <div class="team-header">
-      <h2>Users</h2>
-      <button class="btn-add" onclick="showAddUserForm()">+ Add User</button>
+    <!-- Roster (list view) -->
+    <div id="console">
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="Search by name or username...">
+        <select id="roleFilter">
+          <option value="">All people</option>
+          <option value="rep">Reps</option>
+          <option value="manager">Managers</option>
+        </select>
+        <select id="mgrFilter">
+          <option value="">All managers</option>
+        </select>
+        <select id="sort">
+          <option value="name">Sort: Name (A-Z)</option>
+          <option value="calls_today">Sort: Calls today</option>
+          <option value="calls_7d">Sort: Calls (7 days)</option>
+          <option value="recent">Sort: Recently active</option>
+          <option value="stale">Sort: Least active</option>
+          <option value="cohort">Sort: Cohort (newest)</option>
+          <option value="status">Sort: Status</option>
+        </select>
+        <button class="btn-add" onclick="addPerson()">+ Add person</button>
+      </div>
+      <div class="count" id="count"></div>
+      <div class="rep-grid" id="repGrid"></div>
     </div>
 
-    <div style="margin-bottom:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-      <input type="text" id="userFilterQ" placeholder="Search by name or username..." oninput="renderUsersTable()"
-             style="flex:1;min-width:200px;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px">
-      <select id="userFilterKind" onchange="renderUsersTable()"
-              style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#fff">
-        <option value="">All kinds</option>
-        <option value="manager">Managers</option>
-        <option value="rep">Reps</option>
-      </select>
-      <select id="userFilterStatus" onchange="renderUsersTable()"
-              style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;background:#fff">
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-        <option value="">All</option>
-      </select>
+    <!-- Per-person detail -->
+    <div id="repDetail" style="display:none">
+      <div class="detail-top">
+        <div>
+          <button class="back-btn" onclick="backToList()">&larr; All people</button>
+          <h2 id="detailName"></h2>
+          <span class="un" id="detailUser"></span>
+        </div>
+        <a class="rr-link" id="detailRR" href="#" target="_blank" rel="noopener">Open in Rep 360 &#8599;</a>
+      </div>
+      <div class="detail-tabs" id="detailTabs"></div>
+      <div id="detailBody"></div>
     </div>
-
-    <div class="team-table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Kind</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Last Sign-in</th>
-            <th>Sign-ins</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="usersTableBody">
-          <tr><td colspan="7" class="team-empty">Loading...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <p style="font-size:11px;color:var(--text2);margin-top:14px">
-      Starter password for new users is <code>Trinity1</code>. They'll be forced to change it on first sign-in.
-      Any password you set later resets the force-change flag too -- treat admin-set passwords as one-time handoffs.
-    </p>
   </div>
 
   <!-- Tools section -->
@@ -827,10 +952,10 @@
         <div class="tool-name">University Manager</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card cat-rep" href="/reps/">
+      <a class="tool-card cat-rep" href="admin.html?tab=users" onclick="event.preventDefault(); switchTab('users');">
         <div class="tool-icon">&#128101;</div>
         <span class="tool-type">Rep / University</span>
-        <div class="tool-name">Rep Console</div>
+        <div class="tool-name">People (Reps &amp; Managers)</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
     </div>
@@ -1066,7 +1191,11 @@ window.initApp = function (profile, session) {
   document.getElementById('userLabel').textContent =
     profile.name || (session.user && session.user.email) || '';
   loadResources();
-  switchTab('tools'); // default the admin page to the Tools tab on load
+  // Honor ?tab=<name> deep-links (e.g. admin.html?tab=users from the Tools
+  // card or a Rep Console redirect). Falls back to the Tools tab.
+  const TABS = ['resources', 'updates', 'feedback', 'tools', 'users', 'gridedge'];
+  const wantTab = new URLSearchParams(location.search).get('tab');
+  switchTab(TABS.includes(wantTab) ? wantTab : 'tools');
 };
 
 // changePassword is provided by /auth-gate.js. The old inline version updated
@@ -1857,7 +1986,7 @@ function switchTab(tab) {
   document.getElementById('tabTools').style.display     = tab === 'tools'     ? 'block' : 'none';
   document.getElementById('tabUsers').style.display     = tab === 'users'     ? 'block' : 'none';
   document.getElementById('tabGridEdge').style.display  = tab === 'gridedge'  ? 'block' : 'none';
-  if (tab === 'users') loadUsers();
+  if (tab === 'users') { if (window.loadPeople) window.loadPeople(); }
   if (tab === 'updates') loadUpdates();
   if (tab === 'feedback') loadFeedback();
   if (tab === 'gridedge') loadGridEdgeStatus();
@@ -2287,82 +2416,21 @@ async function callEdge(payload) {
   return res.json();
 }
 
-// ── Users data ────────────────────────────────────
-let USERS = [];
-let currentUserId = null;
-
-async function loadUsers() {
-  currentUserId = (await sb.auth.getSession()).data.session?.user?.id;
-  document.getElementById('usersTableBody').innerHTML =
-    '<tr><td colspan="7" class="team-empty">Loading...</td></tr>';
-  const result = await callEdge({ action: 'list' });
-  if (result.error) { toast('Error: ' + result.error); return; }
-  USERS = result.users || [];
-  renderUsersTable();
-}
-
-function renderUsersTable() {
-  const q = (document.getElementById('userFilterQ')?.value || '').toLowerCase();
-  const kindFilter = document.getElementById('userFilterKind')?.value || '';
-  const statusFilter = document.getElementById('userFilterStatus')?.value || '';
-
-  let rows = USERS.filter(u => {
-    if (kindFilter && u.kind !== kindFilter) return false;
-    if (statusFilter && u.status !== statusFilter) return false;
-    if (q) {
-      const hay = `${u.name||''} ${u.username||''} ${u.email||''}`.toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
-  rows.sort((a,b) => (a.name||'').localeCompare(b.name||''));
-
-  if (!rows.length) {
-    document.getElementById('usersTableBody').innerHTML =
-      '<tr><td colspan="7" class="team-empty">No users match.</td></tr>';
-    return;
-  }
-
-  document.getElementById('usersTableBody').innerHTML = rows.map(u => {
-    const isYou = u.auth_user_id === currentUserId;
-    const lastSignIn = u.last_sign_in
-      ? new Date(u.last_sign_in).toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })
-      : '<span style="color:var(--text2);font-style:italic">Never</span>';
-    const roleBadge = u.kind === 'manager'
-      ? (u.is_admin
-          ? '<span style="display:inline-block;padding:2px 8px;background:#FEF3C7;color:#92400E;border-radius:9px;font-size:11px;font-weight:600">Admin</span>'
-          : '<span style="display:inline-block;padding:2px 8px;background:#DBEAFE;color:#1E40AF;border-radius:9px;font-size:11px;font-weight:600">Manager</span>')
-      : '<span style="display:inline-block;padding:2px 8px;background:#E0E7EF;color:#374151;border-radius:9px;font-size:11px;font-weight:600">Rep</span>';
-    const statusBadge = u.status === 'active'
-      ? '<span style="display:inline-block;padding:2px 8px;background:#D1FAE5;color:#065F46;border-radius:9px;font-size:11px;font-weight:600">Active</span>'
-      : '<span style="display:inline-block;padding:2px 8px;background:#FEE2E2;color:#991B1B;border-radius:9px;font-size:11px;font-weight:600">Inactive</span>';
-    const adminLabel = u.is_admin ? 'Demote admin' : (u.kind === 'manager' ? 'Make admin' : 'Promote to manager');
-
-    return `
-    <tr>
-      <td>
-        <div style="font-weight:600">${escapeHtml(u.name||'')}${isYou ? ' <span class="you-badge">You</span>' : ''}</div>
-        <div style="font-size:11px;color:var(--text2)">@${escapeHtml(u.username||u.email||'')}</div>
-      </td>
-      <td style="font-size:12px">${u.kind === 'manager' ? 'Manager' : 'Rep'}</td>
-      <td>${roleBadge}</td>
-      <td>${statusBadge}</td>
-      <td style="font-size:12px;color:var(--text2);white-space:nowrap">${lastSignIn}</td>
-      <td style="font-size:12px">${u.sign_in_count || 0}</td>
-      <td>
-        ${isYou
-          ? '<span style="font-size:11px;color:var(--text2)">Current account</span>'
-          : `<div class="row-actions" style="display:flex;gap:4px;flex-wrap:wrap">
-              <button class="btn-row btn-edit" onclick="showActivityModal('${u.auth_user_id}','${escapeAttr(u.name||'')}')">Activity</button>
-              <button class="btn-row btn-edit" onclick="showSetPasswordModal('${u.auth_user_id}','${escapeAttr(u.name||'')}','${escapeAttr(u.username||'')}')">Reset PW</button>
-              <button class="btn-row btn-edit" onclick="toggleAdmin('${u.auth_user_id}', ${u.kind === 'manager'}, ${!!u.is_admin})">${adminLabel}</button>
-              <button class="btn-row btn-edit" onclick="toggleStatus('${u.auth_user_id}','${u.status}','${escapeAttr(u.name||'')}')">${u.status === 'active' ? 'Deactivate' : 'Activate'}</button>
-              <button class="btn-row btn-del" onclick="showDeleteModal('${u.auth_user_id}','${escapeAttr(u.name||'')}')">Delete</button>
-             </div>`}
-      </td>
-    </tr>`;
-  }).join('');
-}
+// ── Users surface ─────────────────────────────────
+// The flat users TABLE and its per-row actions (loadUsers, renderUsersTable,
+// showAddUserForm/createUser/showSetPasswordModal/savePassword/toggleAdmin/
+// toggleStatus/showDeleteModal/confirmDelete/showActivityModal, plus the
+// showCredentialCard/copyCredentials pair) were REMOVED when the Rep Console
+// was folded into the Users tab as a master-detail "People" surface. That
+// surface lives in the isolated IIFE near </body> (entry point
+// window.loadPeople, called from switchTab('users')) and implements
+// create / promote-demote / delete / reset-password / activate inline (via
+// its own callManageUsers helper). The generic modal core below (openModal/
+// closeModal/setModalError/setModalLoading + the #adminModal markup) and the
+// callEdge/EDGE_URL helper are now DORMANT -- their only callers were the
+// removed user functions -- but are left defined (not called at load time, no
+// ReferenceError risk) as ready-made shared infrastructure. The Feedback tab
+// uses its own closeFeedbackModal, not this one.
 
 // ── Modal core ────────────────────────────────────
 function openModal(title, bodyHtml, confirmLabel, confirmStyle, onConfirm) {
@@ -2397,255 +2465,6 @@ function setModalLoading(btn, loading, label) {
 document.getElementById('adminModal').addEventListener('click', e => {
   if (e.target === document.getElementById('adminModal')) closeModal();
 });
-
-// ── Add User modal ────────────────────────────────
-function showAddUserForm() {
-  openModal(
-    'Add User',
-    `<div style="display:flex;flex-direction:column;gap:12px">
-      <div>
-        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">FULL NAME *</label>
-        <input type="text" id="uName" placeholder="Jane Smith" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
-      </div>
-      <div>
-        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">USERNAME *</label>
-        <input type="text" id="uUsername" placeholder="jsmith" autocapitalize="none" autocorrect="off" spellcheck="false" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:inherit">
-        <p style="font-size:11px;color:#6B7280;margin-top:5px">Lowercase. Will become &lt;username&gt;@ct-resource-page.com in the auth system.</p>
-      </div>
-      <div>
-        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">KIND *</label>
-        <select id="uKind" onchange="document.getElementById('uAdminWrap').style.display = this.value === 'manager' ? 'block' : 'none'" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;background:#fff;font-family:inherit">
-          <option value="rep">Rep</option>
-          <option value="manager">Manager</option>
-        </select>
-      </div>
-      <div id="uAdminWrap" style="display:none">
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
-          <input type="checkbox" id="uIsAdmin"> Also promote to admin
-        </label>
-        <p style="font-size:11px;color:#6B7280;margin-top:5px">Admins can manage users, edit resources, post bulletins, and see all activity.</p>
-      </div>
-      <div>
-        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">STARTER PASSWORD</label>
-        <input type="text" id="uPassword" value="Trinity1" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:monospace">
-        <p style="font-size:11px;color:#6B7280;margin-top:5px">User must change on first sign-in. Share via Slack/phone, not email.</p>
-      </div>
-    </div>`,
-    'Create User',
-    'background:#78C832;color:#fff;',
-    createUser
-  );
-}
-
-async function createUser() {
-  const name     = document.getElementById('uName').value.trim();
-  const username = document.getElementById('uUsername').value.trim().toLowerCase();
-  const kind     = document.getElementById('uKind').value;
-  const is_admin = kind === 'manager' && document.getElementById('uIsAdmin').checked;
-  const password = document.getElementById('uPassword').value || 'Trinity1';
-  const btn      = document.getElementById('modalConfirmBtn');
-  document.getElementById('modalError').style.display = 'none';
-
-  if (!name || !username) return setModalError('Name and username are required.');
-  if (!/^[a-z0-9_-]+$/.test(username)) return setModalError('Username can only contain lowercase letters, digits, hyphens, and underscores.');
-  if (password.length < 8) return setModalError('Password must be at least 8 characters.');
-
-  setModalLoading(btn, true, 'Create User');
-  const result = await callEdge({ action: 'create', kind, name, username, is_admin, password });
-  setModalLoading(btn, false, 'Create User');
-
-  if (result.error) return setModalError(result.error);
-
-  closeModal();
-  await loadUsers();
-  showCredentialCard(username, password);
-}
-
-// ── Set password modal ────────────────────────────
-function showSetPasswordModal(userId, name, username) {
-  openModal(
-    'Reset password: ' + name,
-    `<div style="display:flex;flex-direction:column;gap:12px">
-      <div>
-        <label style="display:block;font-size:11px;font-weight:600;color:#6B7280;margin-bottom:5px;letter-spacing:0.5px">NEW PASSWORD</label>
-        <input type="text" id="pwField" value="Trinity1" style="width:100%;padding:9px 12px;border:1px solid #DFE2DA;border-radius:7px;font-size:13px;outline:none;font-family:monospace">
-        <p style="font-size:11px;color:#6B7280;margin-top:5px">Sets a new password AND forces them to change it on next sign-in. Share via Slack/phone.</p>
-      </div>
-    </div>`,
-    'Set Password',
-    'background:#1A2332;color:#fff;',
-    () => savePassword(userId, name, username)
-  );
-}
-
-async function savePassword(userId, name, username) {
-  const password = document.getElementById('pwField').value;
-  const btn      = document.getElementById('modalConfirmBtn');
-  document.getElementById('modalError').style.display = 'none';
-  if (password.length < 8) return setModalError('Password must be at least 8 chars.');
-
-  setModalLoading(btn, true, 'Set Password');
-  const result = await callEdge({ action: 'set_password', auth_user_id: userId, password });
-  setModalLoading(btn, false, 'Set Password');
-  if (result.error) return setModalError(result.error);
-
-  closeModal();
-  await loadUsers();
-  // Same share-these-credentials card as user creation, so a reset is a clean handoff.
-  showCredentialCard(username || name, password, 'Password reset for ' + name + ' -- share the new credentials now');
-}
-
-// ── Toggle admin / promote to manager ─────────────
-async function toggleAdmin(userId, isManager, currentIsAdmin) {
-  if (!isManager) {
-    if (!confirm('Promote this rep to manager? They will gain access to manager-only data.')) return;
-    const result = await callEdge({ action: 'set_kind', auth_user_id: userId, new_kind: 'manager' });
-    if (result.error) { toast('Error: ' + result.error); return; }
-    await loadUsers();
-    toast('Promoted to manager.');
-    return;
-  }
-  const newAdmin = !currentIsAdmin;
-  const verb = newAdmin ? 'promote to admin' : 'demote from admin';
-  if (!confirm(`Are you sure you want to ${verb}?`)) return;
-  const result = await callEdge({ action: 'set_role', auth_user_id: userId, is_admin: newAdmin });
-  if (result.error) { toast('Error: ' + result.error); return; }
-  await loadUsers();
-  toast(newAdmin ? 'Promoted to admin.' : 'Demoted from admin.');
-}
-
-// ── Toggle status (activate / deactivate) ─────────
-async function toggleStatus(userId, currentStatus, name) {
-  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-  const verb = newStatus === 'active' ? 'reactivate' : 'deactivate';
-  const consequence = newStatus === 'active'
-    ? 'They can sign in again.'
-    : 'They will be unable to sign in. Existing sessions expire within an hour.';
-  if (!confirm(`${verb.charAt(0).toUpperCase() + verb.slice(1)} ${name}? ${consequence}`)) return;
-  const result = await callEdge({ action: 'set_status', auth_user_id: userId, status: newStatus });
-  if (result.error) { toast('Error: ' + result.error); return; }
-  await loadUsers();
-  toast(`${name} ${verb}d.`);
-}
-
-// ── Delete modal ──────────────────────────────────
-function showDeleteModal(userId, name) {
-  openModal(
-    'Delete ' + name + '?',
-    `<div style="font-size:13px;line-height:1.6;color:#1A2332">
-      <p>Are you sure you want to <strong>permanently delete</strong> ${escapeHtml(name)}?</p>
-      <p style="margin-top:10px;color:#6B7280;font-size:12px">
-        This removes their auth account, profile, and all activity history. Cannot be undone.
-        If you only want to revoke access, deactivate instead.
-      </p>
-    </div>`,
-    'Delete Permanently',
-    'background:#EF4444;color:#fff;',
-    () => confirmDelete(userId, name)
-  );
-}
-
-async function confirmDelete(userId, name) {
-  const btn = document.getElementById('modalConfirmBtn');
-  setModalLoading(btn, true, 'Delete Permanently');
-  const result = await callEdge({ action: 'delete', auth_user_id: userId });
-  setModalLoading(btn, false, 'Delete Permanently');
-  if (result.error) return setModalError(result.error);
-  closeModal();
-  await loadUsers();
-  toast(`${name} deleted.`);
-}
-
-// ── Activity modal ────────────────────────────────
-async function showActivityModal(userId, name) {
-  openModal(
-    'Activity: ' + name,
-    `<div style="min-width:520px"><p style="font-size:12px;color:#6B7280">Loading...</p></div>`,
-    'Close',
-    'background:#1A2332;color:#fff;',
-    closeModal
-  );
-  const result = await callEdge({ action: 'get_activity', auth_user_id: userId, limit: 100 });
-  if (result.error) {
-    document.getElementById('modalBody').innerHTML = `<p style="color:#991B1B">${escapeHtml(result.error)}</p>`;
-    return;
-  }
-  const summary = result.summary || {};
-  const events = result.events || [];
-  const summaryHtml = Object.entries(summary).map(([type, count]) =>
-    `<span style="display:inline-block;padding:4px 9px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-size:11px;font-weight:600;margin-right:6px;margin-bottom:6px">${escapeHtml(type)}: ${count}</span>`
-  ).join('') || '<span style="font-size:12px;color:#6B7280">No events yet.</span>';
-  const eventsHtml = events.length
-    ? events.map(e => {
-        const dt = new Date(e.created_at);
-        const dateStr = dt.toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
-        const url = e.page_url || '';
-        const metaStr = e.metadata && Object.keys(e.metadata).length
-          ? ` <span style="color:#6B7280">${escapeHtml(JSON.stringify(e.metadata).slice(0, 160))}</span>`
-          : '';
-        return `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
-          <span style="display:inline-block;width:150px;color:#6B7280">${dateStr}</span>
-          <strong>${escapeHtml(e.event_type)}</strong>
-          <span style="color:#374151;margin-left:6px">${escapeHtml(url)}</span>${metaStr}
-        </div>`;
-      }).join('')
-    : '<p style="font-size:12px;color:#6B7280">No activity yet.</p>';
-  document.getElementById('modalBody').innerHTML = `
-    <div style="min-width:520px">
-      <div style="margin-bottom:14px">${summaryHtml}</div>
-      <div style="max-height:400px;overflow-y:auto">${eventsHtml}</div>
-    </div>`;
-}
-
-// ── Credential card (shown after create OR password reset) ──────────
-function showCredentialCard(username, password, heading) {
-  heading = heading || 'Account created -- share these credentials now';
-  const existing = document.getElementById('credentialCard');
-  if (existing) existing.remove();
-  const card = document.createElement('div');
-  card.id = 'credentialCard';
-  card.style.cssText = 'background:#FFF8E7;border:1px solid #F5C842;border-radius:10px;padding:20px 22px;margin-bottom:22px;';
-  card.innerHTML = `
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-      <span style="font-size:18px">&#9888;</span>
-      <strong style="font-size:14px;color:#1A2332">${escapeHtml(heading)}</strong>
-    </div>
-    <p style="font-size:12px;color:#6B7280;margin-bottom:14px;line-height:1.6">
-      This is the only time this password will be shown here. Share via Slack / phone / in-person -- never email. They'll be prompted to change it on first sign-in.
-    </p>
-    <div style="background:#fff;border:1px solid #DFE2DA;border-radius:7px;padding:14px 16px;margin-bottom:14px;font-family:monospace;font-size:13px;line-height:2.2">
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">SIGN-IN URL</span><br>https://ct-resource-page.com/</div>
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">USERNAME</span><br>${escapeHtml(username)}</div>
-      <div><span style="color:#6B7280;font-family:sans-serif;font-size:11px;font-weight:600;letter-spacing:0.5px">PASSWORD</span><br>${escapeHtml(password)}</div>
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button onclick="copyCredentials('${username.replace(/'/g,"\\'")}','${password.replace(/'/g,"\\'")}',this)"
-        style="padding:8px 16px;background:#1A2332;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">
-        Copy
-      </button>
-      <button onclick="document.getElementById('credentialCard').remove()"
-        style="padding:8px 14px;background:transparent;border:1px solid #DFE2DA;border-radius:7px;font-size:12px;font-weight:600;color:#6B7280;cursor:pointer">
-        Dismiss
-      </button>
-    </div>`;
-  const teamHeader = document.querySelector('#tabUsers .team-header');
-  if (teamHeader) teamHeader.insertAdjacentElement('afterend', card);
-  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
-
-function copyCredentials(username, password, btn) {
-  const text = [
-    'CT Resource Page',
-    'Sign-in URL: https://ct-resource-page.com/',
-    'Username: ' + username,
-    'Password: ' + password,
-    '(You will be asked to set a new password on first sign-in.)'
-  ].join('\n');
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'Copied!';
-    setTimeout(() => { btn.textContent = 'Copy'; }, 2200);
-  });
-}
 
 
 // ── Feedback queue ────────────────────────────────
@@ -2939,6 +2758,692 @@ async function deleteFeedback(id) {
       }
     } catch {}
   }, 1500);
+})();
+</script>
+
+<!-- ================================================================
+     PEOPLE SURFACE (folded-in Rep Console)
+     Isolated IIFE: a bug in here cannot break admin's main script.
+     - Shares the auth-gate Supabase client via window.sb.
+     - Markup lives in #tabUsers (roster #console + detail #repDetail).
+     - Entry point: window.loadPeople() (called from switchTab('users')).
+     - Inline onclick handlers resolve to the window.* functions exposed
+       at the bottom of the IIFE.
+     - Object is Person: loads reps AND managers; tolerates managers that
+       have no calls / cohort / spd_slug.
+     Source: reps/index.html lines ~226-794, adapted.
+     ================================================================ -->
+<script>
+(function () {
+  // Shared auth-gate client (single session). auth-gate.js provides window.sb
+  // + window.IS_MANAGER / window.IS_ADMIN.
+  const supa = window.sb;
+  const REP360_BASE = 'https://tools.ct-resource-page.com/rep-360';
+  const MANAGE_USERS_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-users';
+
+  let REPS = [], MANAGERS = [], MGR_BY_ID = {}, LAST_SEEN = {}, CALL_COUNTS = {};
+  let LOADED = false;
+
+  // Called from switchTab('users'). Loads (once per tab open) then renders.
+  async function loadData() {
+    await fetchData();
+    populateMgrFilter();
+    render();
+    LOADED = true;
+    // Deep-link: admin.html?tab=users&rep=<username> opens that person's detail.
+    const rq = new URLSearchParams(location.search).get('rep');
+    if (rq) openRep(rq);
+  }
+
+  async function fetchData() {
+    // The object is Person: load reps AND managers from `people`. The rest of
+    // this file uses `manager_id` (the person's manager) so we alias
+    // parent_id -> manager_id on each row to keep downstream code unchanged.
+    const [peopleRes, mgrsRes, actRes] = await Promise.all([
+      supa.from('people')
+        .select('id, auth_user_id, name, username, email, status, role, parent_id, cohort_start_date, must_change_password, spd_slug, is_admin')
+        .in('role', ['rep', 'manager'])
+        .order('name'),
+      supa.from('people').select('id, name').eq('role', 'manager'),
+      supa.from('user_activity')
+        .select('auth_user_id, created_at')
+        .eq('event_type', 'sign_in')
+        .order('created_at', { ascending: false })
+        .limit(5000),
+    ]);
+    REPS = (peopleRes.data || []).map(r => Object.assign(r, { manager_id: r.parent_id }));
+    MANAGERS = (mgrsRes.data || []).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    MGR_BY_ID = {};
+    (mgrsRes.data || []).forEach(m => { MGR_BY_ID[m.id] = m.name; });
+    LAST_SEEN = {};
+    (actRes.data || []).forEach(a => {
+      if (a.auth_user_id && !LAST_SEEN[a.auth_user_id]) LAST_SEEN[a.auth_user_id] = a.created_at;
+    });
+    // Per-rep call rollup (today / 7d). Guarded so a failure can never blank
+    // the roster. Managers simply won't have an entry here.
+    CALL_COUNTS = {};
+    try {
+      const { data: ccData } = await supa.rpc('get_rep_call_counts');
+      (ccData || []).forEach(c => { if (c.rep_name) CALL_COUNTS[c.rep_name] = c; });
+    } catch (e) { console.warn('[people] get_rep_call_counts failed:', e); }
+  }
+
+  function decorate(r) {
+    const cc = CALL_COUNTS[r.name] || null;
+    return { ...r,
+      manager: r.manager_id ? (MGR_BY_ID[r.manager_id] || '') : '',
+      lastSeen: LAST_SEEN[r.auth_user_id] || null,
+      callsToday: cc ? Number(cc.calls_today) : null,
+      calls7d: cc ? Number(cc.calls_7d) : null,
+      lastCall: cc ? cc.last_call : null };
+  }
+
+  function render() {
+    const q = (document.getElementById('search').value || '').trim().toLowerCase();
+    const sort = document.getElementById('sort').value;
+    const mgr = (document.getElementById('mgrFilter') || {}).value || '';
+    const roleF = (document.getElementById('roleFilter') || {}).value || '';
+    let rows = REPS.map(decorate);
+    if (roleF) rows = rows.filter(r => (r.role || '') === roleF);
+    if (q) rows = rows.filter(r =>
+      (r.name || '').toLowerCase().includes(q) || (r.username || '').toLowerCase().includes(q));
+    if (mgr === '__none__') rows = rows.filter(r => !r.manager_id);
+    else if (mgr) rows = rows.filter(r => r.manager_id === mgr);
+    rows.sort((a, b) => {
+      if (sort === 'name')   return (a.name || '').localeCompare(b.name || '');
+      if (sort === 'status') return (a.status || '').localeCompare(b.status || '') || (a.name || '').localeCompare(b.name || '');
+      if (sort === 'cohort') {
+        const ca = a.cohort_start_date ? new Date(a.cohort_start_date).getTime() : 0;
+        const cb = b.cohort_start_date ? new Date(b.cohort_start_date).getTime() : 0;
+        return cb - ca || (a.name || '').localeCompare(b.name || '');
+      }
+      if (sort === 'calls_today') return (b.callsToday || 0) - (a.callsToday || 0) || (a.name || '').localeCompare(b.name || '');
+      if (sort === 'calls_7d')    return (b.calls7d || 0) - (a.calls7d || 0) || (a.name || '').localeCompare(b.name || '');
+      const ta = a.lastSeen ? new Date(a.lastSeen).getTime() : 0;
+      const tb = b.lastSeen ? new Date(b.lastSeen).getTime() : 0;
+      return sort === 'recent' ? (tb - ta) : (ta - tb);
+    });
+    const filtered = (q || mgr || roleF);
+    document.getElementById('count').textContent =
+      `${rows.length} ${rows.length === 1 ? 'person' : 'people'}${filtered ? ' (filtered)' : ''}`;
+    const grid = document.getElementById('repGrid');
+    grid.innerHTML = rows.length ? rows.map(repCard).join('')
+      : '<div class="notice"><p>No people match that search.</p></div>';
+  }
+
+  function populateMgrFilter() {
+    const sel = document.getElementById('mgrFilter');
+    if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">All managers</option>'
+      + '<option value="__none__">Unassigned</option>'
+      + MANAGERS.map(m => `<option value="${m.id}">${escapeHtml(m.name || '')}</option>`).join('');
+    sel.value = cur || '';
+  }
+
+  function repCard(r) {
+    const statusClass = r.status === 'active' ? 'active' : 'inactive';
+    const isMgr = (r.role || '') === 'manager';
+    const roleTag = isMgr ? (r.is_admin ? 'Admin' : 'Manager') : 'Rep';
+    const cohort = r.cohort_start_date ? `Day ${daysSince(r.cohort_start_date)} of 90` : '--';
+    // Managers have no call rollup -- show "--" rather than break.
+    const callsLabel = (r.callsToday == null)
+      ? '<span class="cc-none">--</span>'
+      : `<b class="cc-today${r.callsToday > 0 ? ' cc-active' : ''}">${r.callsToday}</b> today <span class="cc-week">&middot; ${r.calls7d} (7d)</span>`;
+    // Rep 360 keys by spd_slug (e.g. ziemba_a), NOT username (aziemba). Only
+    // emit the handoff link when a slug exists (managers usually have none).
+    const rrLink = r.spd_slug
+      ? `<a class="rr-link" href="${REP360_BASE}?rep=${encodeURIComponent(r.spd_slug)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Rep 360 &#8599;</a>`
+      : '';
+    const u = (r.username || '').replace(/[^a-zA-Z0-9_-]/g, '');
+    const aria = escapeHtml(`View detail for ${r.name || r.username || 'person'}`);
+    return `
+      <div class="rep-card" role="button" tabindex="0" aria-label="${aria}" onclick="openRep('${u}')" onkeydown="cardKey(event,'${u}')">
+        <div class="top">
+          <div>
+            <div class="nm">${escapeHtml(r.name || '(no name)')}</div>
+            <div class="un">${escapeHtml(r.username || '')} &middot; ${escapeHtml(roleTag)}</div>
+          </div>
+          <span class="badge ${statusClass}">${escapeHtml(r.status || 'unknown')}</span>
+        </div>
+        <div class="rep-meta">
+          <div class="row"><span class="k">Calls</span><span class="v">${callsLabel}</span></div>
+          <div class="row"><span class="k">Manager</span><span class="v">${escapeHtml(r.manager || '--')}</span></div>
+          <div class="row"><span class="k">Cohort</span><span class="v">${cohort}</span></div>
+          <div class="row"><span class="k">Last sign-in</span><span class="v">${lastSeenLabel(r.lastSeen)}</span></div>
+        </div>
+        <div class="actions">
+          <span class="view-detail">View detail <span class="arr">&rarr;</span></span>
+          ${rrLink}
+        </div>
+      </div>`;
+  }
+
+  // ── Per-person detail ──
+  let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false, PW_OPEN = false;
+  const D_TABS = [['profile','Profile'],['activity','Portal Logins'],['university','University'],['callwork','Call Work'],['feedback','Feedback']];
+
+  async function openRep(username) {
+    const rep = REPS.find(r => (r.username || '') === username);
+    if (!rep) return;
+    D_REP = decorate(rep); D_TAB = 'profile'; D_DATA = null; EDITING = false; PW_OPEN = false;
+    document.getElementById('console').style.display = 'none';
+    document.getElementById('repDetail').style.display = 'block';
+    document.getElementById('detailName').textContent = D_REP.name || username;
+    document.getElementById('detailUser').textContent = username + ((D_REP.role || '') === 'manager' ? '  (manager)' : '');
+    const _rrEl = document.getElementById('detailRR');
+    if (D_REP.spd_slug) {
+      _rrEl.href = `${REP360_BASE}?rep=${encodeURIComponent(D_REP.spd_slug)}`;
+      _rrEl.style.display = '';
+    } else {
+      _rrEl.removeAttribute('href');
+      _rrEl.style.display = 'none';
+    }
+    document.getElementById('detailBody').innerHTML = '<div class="d-empty">Loading...</div>';
+    renderTabBar(); window.scrollTo(0, 0);
+    D_DATA = await loadRepDetail(D_REP);
+    renderDetailTab();
+  }
+
+  function backToList() {
+    document.getElementById('repDetail').style.display = 'none';
+    document.getElementById('console').style.display = 'block';
+  }
+
+  async function loadRepDetail(rep) {
+    const repId = rep.id, auid = rep.auth_user_id, nm = rep.name || '';
+    const [acts, assigns, attempts, shadows, helps, certs, calls, fb] = await Promise.all([
+      supa.from('user_activity').select('event_type, page_url, created_at').eq('auth_user_id', auid).order('created_at', { ascending: false }).limit(40),
+      supa.from('cert_assignments').select('cert_id, status, assigned_at, completed_at').eq('rep_id', repId),
+      supa.from('quiz_attempts').select('cert_id, status, auto_score, auto_max, submitted_at').eq('rep_id', repId).order('submitted_at', { ascending: false }),
+      supa.from('shadow_logs').select('shadowed_rep_name, shadow_date, duration_minutes, status').eq('rep_id', repId).order('shadow_date', { ascending: false }),
+      supa.from('help_requests').select('message, status, created_at').eq('rep_id', repId).order('created_at', { ascending: false }),
+      supa.from('certs').select('id, name, stage, order_index').order('order_index'),
+      supa.from('direct_leads').select('opp_name:homeowner_name, state:lifecycle_state, status, appt_date:last_appt_date, lead_source').eq('assigned_to', nm).order('created_at', { ascending: false }).limit(300),
+      supa.from('feedback_items').select('type, title, status, priority, created_at').eq('submitter_name', nm).order('created_at', { ascending: false }).limit(20),
+    ]);
+    let contacts = [];
+    try {
+      const { data: cdata } = await supa.rpc('get_rep_contacts', { p_rep_name: nm });
+      contacts = cdata || [];
+    } catch (e) { console.warn('[people] get_rep_contacts failed:', e); }
+    return { activity:acts.data||[], assignments:assigns.data||[], attempts:attempts.data||[],
+      shadows:shadows.data||[], helps:helps.data||[], certs:certs.data||[], calls:calls.data||[], contacts,
+      feedback:fb.data||[] };
+  }
+
+  function renderTabBar() {
+    document.getElementById('detailTabs').innerHTML = D_TABS.map(([id, label]) =>
+      `<button class="dtab ${id === D_TAB ? 'active' : ''}" onclick="setDetailTab('${id}')">${label}</button>`).join('');
+  }
+  function setDetailTab(t) { D_TAB = t; EDITING = false; PW_OPEN = false; renderTabBar(); renderDetailTab(); }
+
+  function renderDetailTab() {
+    const b = document.getElementById('detailBody');
+    if (!D_DATA) { b.innerHTML = '<div class="d-empty">Loading...</div>'; return; }
+    const fns = { profile:tabProfile, activity:tabActivity, university:tabUniversity, callwork:tabCallWork, feedback:tabFeedback };
+    b.innerHTML = (fns[D_TAB] || tabProfile)();
+  }
+
+  function dRow(k, v) { return `<div class="d-row"><span class="d-k">${k}</span><span class="d-v">${v}</span></div>`; }
+
+  function tabProfile() {
+    const r = D_REP;
+    const isMgr = (r.role || '') === 'manager';
+    const roleLine = isMgr ? (r.is_admin ? 'Manager (Admin)' : 'Manager') : 'Rep';
+    const card = `<div class="d-card">
+      ${dRow('Name', escapeHtml(r.name || '--'))}
+      ${dRow('Username', escapeHtml(r.username || '--'))}
+      ${dRow('Email', escapeHtml(r.email || '--'))}
+      ${dRow('Role', escapeHtml(roleLine))}
+      ${dRow('Status', escapeHtml(r.status || '--'))}
+      ${dRow('Manager', escapeHtml(r.manager || '--'))}
+      ${dRow('Cohort', r.cohort_start_date ? `${fmtDate(r.cohort_start_date)} &middot; day ${daysSince(r.cohort_start_date)} of 90` : '--')}
+      ${dRow('Last sign-in', lastSeenLabel(r.lastSeen))}
+      ${dRow('Must change password', r.must_change_password ? 'Yes' : 'No')}
+    </div>`;
+    if (!window.IS_ADMIN) return card;
+    if (EDITING) {
+      const opts = MANAGERS.map(m =>
+        `<option value="${m.id}"${m.id === r.manager_id ? ' selected' : ''}>${escapeHtml(m.name || '')}</option>`).join('');
+      const cohortVal = r.cohort_start_date ? String(r.cohort_start_date).slice(0, 10) : '';
+      return card + `
+      <div class="d-card edit-card">
+        <div class="section-h" style="margin-top:4px">Edit assignment</div>
+        <div id="editErr" class="auth-error" style="display:none"></div>
+        <label class="edit-label" for="editMgr">Manager</label>
+        <select id="editMgr" class="edit-input">
+          <option value="">-- none --</option>
+          ${opts}
+        </select>
+        <label class="edit-label" for="editCohort">Cohort start date</label>
+        <input type="date" id="editCohort" class="edit-input" value="${cohortVal}">
+        <div class="edit-actions">
+          <button class="btn-save" onclick="saveAssignment()">Save</button>
+          <button class="btn-cancel" onclick="toggleEdit()">Cancel</button>
+        </div>
+      </div>`;
+    }
+    const isActive = r.status === 'active';
+    const acctInner = PW_OPEN
+      ? `<label class="edit-label" for="pwNew">New password</label>
+        <input type="text" id="pwNew" class="edit-input" value="Trinity1">
+        <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0">Sets a new password and forces a change on next sign-in. Share it with them directly.</p>
+        <div class="edit-actions">
+          <button class="btn-save btn-pw-set" onclick="resetRepPassword()">Set password</button>
+          <button class="btn-cancel" onclick="togglePw()">Cancel</button>
+        </div>`
+      : `<div class="acct-actions">
+          <button class="btn-edit" onclick="toggleEdit()">Edit assignment</button>
+          <button class="btn-edit" onclick="togglePw()">Reset password</button>
+          <button class="btn-edit" onclick="toggleRepStatus()">${isActive ? 'Deactivate' : 'Activate'}</button>
+          <button class="btn-edit" onclick="togglePersonRole()">${roleToggleLabel(r)}</button>
+          ${isMgr ? `<button class="btn-edit" onclick="toggleAdminFlag()">${r.is_admin ? 'Demote admin' : 'Make admin'}</button>` : ''}
+          <button class="btn-del-person" onclick="deletePerson()">Delete</button>
+        </div>`;
+    return card + `
+      <div class="d-card edit-card">
+        <div class="section-h" style="margin-top:4px">Admin actions</div>
+        <div id="acctMsg" class="auth-error" style="display:none"></div>
+        ${acctInner}
+      </div>`;
+  }
+
+  // Promote rep -> manager, or demote manager -> rep.
+  function roleToggleLabel(r) {
+    return (r.role || '') === 'manager' ? 'Demote to rep' : 'Promote to manager';
+  }
+
+  function toggleEdit() { EDITING = !EDITING; renderDetailTab(); }
+
+  async function saveAssignment() {
+    const mgrEl = document.getElementById('editMgr');
+    const cohortEl = document.getElementById('editCohort');
+    const errEl = document.getElementById('editErr');
+    const saveBtn = document.querySelector('#repDetail .btn-save');
+    const p_manager_id = mgrEl && mgrEl.value ? mgrEl.value : null;
+    const p_cohort_start_date = cohortEl && cohortEl.value ? cohortEl.value : null;
+    if (errEl) errEl.style.display = 'none';
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
+    const { error } = await supa.rpc('set_rep_assignment',
+      { p_rep_id: D_REP.id, p_manager_id, p_cohort_start_date });
+    if (error) {
+      if (errEl) {
+        errEl.style.display = 'block';
+        errEl.textContent = /not authorized/i.test(error.message || '') ? 'Admins only.' : (error.message || 'Save failed.');
+      }
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
+      return;
+    }
+    const idx = REPS.findIndex(x => x.id === D_REP.id);
+    if (idx >= 0) {
+      REPS[idx].manager_id = p_manager_id;
+      REPS[idx].parent_id = p_manager_id;
+      REPS[idx].cohort_start_date = p_cohort_start_date;
+      D_REP = decorate(REPS[idx]);
+    }
+    EDITING = false;
+    renderDetailTab();
+    render();
+  }
+
+  // ── Account / CRUD actions (admin-only). Reuses the same manage-users Edge
+  // Function admin.html uses; it enforces is_admin server-side. Buttons are
+  // also gated on window.IS_ADMIN. ──
+  async function callManageUsers(payload) {
+    const { data: { session } } = await supa.auth.getSession();
+    const res = await fetch(MANAGE_USERS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify(payload)
+    });
+    return res.json();
+  }
+
+  function togglePw() { PW_OPEN = !PW_OPEN; renderDetailTab(); }
+
+  function acctMsg(msg, isErr) {
+    const el = document.getElementById('acctMsg');
+    if (!el) return;
+    el.style.display = 'block';
+    el.textContent = msg;
+    el.style.color = isErr ? '' : 'var(--green-dark)';
+  }
+
+  async function resetRepPassword() {
+    const pw = (document.getElementById('pwNew') || {}).value || '';
+    if (pw.length < 8) { acctMsg('Password must be at least 8 characters.', true); return; }
+    const btn = document.querySelector('#repDetail .btn-pw-set');
+    if (btn) { btn.disabled = true; btn.textContent = 'Setting...'; }
+    const result = await callManageUsers({ action: 'set_password', auth_user_id: D_REP.auth_user_id, password: pw });
+    if (result && result.error) {
+      acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
+      if (btn) { btn.disabled = false; btn.textContent = 'Set password'; }
+      return;
+    }
+    const idx = REPS.findIndex(x => x.id === D_REP.id);
+    if (idx >= 0) { REPS[idx].must_change_password = true; D_REP = decorate(REPS[idx]); }
+    PW_OPEN = false;
+    renderDetailTab();
+    acctMsg('Password set. Share it with ' + (D_REP.name || 'them') + '; they must change it on next sign-in.', false);
+  }
+
+  async function toggleRepStatus() {
+    const isActive = D_REP.status === 'active';
+    const newStatus = isActive ? 'inactive' : 'active';
+    const consequence = isActive ? 'They will be unable to sign in.' : 'They can sign in again.';
+    if (!confirm((isActive ? 'Deactivate ' : 'Activate ') + (D_REP.name || 'this person') + '? ' + consequence)) return;
+    const result = await callManageUsers({ action: 'set_status', auth_user_id: D_REP.auth_user_id, status: newStatus });
+    if (result && result.error) {
+      acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
+      return;
+    }
+    const idx = REPS.findIndex(x => x.id === D_REP.id);
+    if (idx >= 0) { REPS[idx].status = newStatus; D_REP = decorate(REPS[idx]); }
+    renderDetailTab();
+    render();
+    acctMsg((D_REP.name || 'Person') + ' ' + (isActive ? 'deactivated' : 'reactivated') + '.', false);
+  }
+
+  // Promote rep -> manager / demote manager -> rep via manage-users set_kind.
+  async function togglePersonRole() {
+    const isMgr = (D_REP.role || '') === 'manager';
+    const newKind = isMgr ? 'rep' : 'manager';
+    const msg = isMgr
+      ? 'Demote ' + (D_REP.name || 'this manager') + ' to rep? They lose manager-only access.'
+      : 'Promote ' + (D_REP.name || 'this rep') + ' to manager? They gain manager-only access.';
+    if (!confirm(msg)) return;
+    const result = await callManageUsers({ action: 'set_kind', auth_user_id: D_REP.auth_user_id, new_kind: newKind });
+    if (result && result.error) {
+      acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
+      return;
+    }
+    const idx = REPS.findIndex(x => x.id === D_REP.id);
+    if (idx >= 0) {
+      REPS[idx].role = newKind;
+      if (newKind === 'rep') REPS[idx].is_admin = false;
+      D_REP = decorate(REPS[idx]);
+    }
+    // Manager set changed -- refresh the manager dropdown source.
+    await fetchData();
+    populateMgrFilter();
+    renderDetailTab();
+    render();
+    acctMsg((D_REP.name || 'Person') + (isMgr ? ' demoted to rep.' : ' promoted to manager.'), false);
+  }
+
+  // Toggle admin flag (managers only) via manage-users set_role.
+  async function toggleAdminFlag() {
+    const newAdmin = !D_REP.is_admin;
+    if (!confirm((newAdmin ? 'Promote ' : 'Demote ') + (D_REP.name || 'this manager') + (newAdmin ? ' to admin?' : ' from admin?'))) return;
+    const result = await callManageUsers({ action: 'set_role', auth_user_id: D_REP.auth_user_id, is_admin: newAdmin });
+    if (result && result.error) {
+      acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
+      return;
+    }
+    const idx = REPS.findIndex(x => x.id === D_REP.id);
+    if (idx >= 0) { REPS[idx].is_admin = newAdmin; D_REP = decorate(REPS[idx]); }
+    renderDetailTab();
+    render();
+    acctMsg((D_REP.name || 'Manager') + (newAdmin ? ' promoted to admin.' : ' demoted from admin.'), false);
+  }
+
+  async function deletePerson() {
+    const nm = D_REP.name || 'this person';
+    if (!confirm('Permanently delete ' + nm + '? This removes their auth account, profile, and activity history. Cannot be undone. To only revoke access, deactivate instead.')) return;
+    const result = await callManageUsers({ action: 'delete', auth_user_id: D_REP.auth_user_id });
+    if (result && result.error) {
+      acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
+      return;
+    }
+    REPS = REPS.filter(x => x.id !== D_REP.id);
+    backToList();
+    render();
+  }
+
+  // ── Add person (roster action). Creates via manage-users action:'create'. ──
+  async function addPerson() {
+    if (!window.IS_ADMIN) { alert('Admins only.'); return; }
+    const name = (prompt('Full name (e.g. Jane Smith):') || '').trim();
+    if (!name) return;
+    let username = (prompt('Username (lowercase; becomes <username>@ct-resource-page.com):') || '').trim().toLowerCase();
+    if (!username) return;
+    if (!/^[a-z0-9_-]+$/.test(username)) { alert('Username can only contain lowercase letters, digits, hyphens, and underscores.'); return; }
+    const kindAns = (prompt('Kind: type "rep" or "manager":', 'rep') || '').trim().toLowerCase();
+    const kind = kindAns === 'manager' ? 'manager' : 'rep';
+    let is_admin = false;
+    if (kind === 'manager') is_admin = confirm('Also grant ADMIN (can manage users, edit resources, see all activity)? OK = admin, Cancel = manager only.');
+    if (!confirm(`Create ${kind}${is_admin ? ' (admin)' : ''} "${name}" (@${username}) with starter password Trinity1?`)) return;
+    const result = await callManageUsers({ action: 'create', kind, name, username, is_admin, password: 'Trinity1' });
+    if (result && result.error) {
+      alert(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error);
+      return;
+    }
+    alert('Created ' + name + '. Starter password is Trinity1 -- share via Slack/phone, not email. They must change it on first sign-in.');
+    await fetchData();
+    populateMgrFilter();
+    render();
+  }
+
+  function tabActivity() {
+    const a = D_DATA.activity;
+    const head = '<div class="section-h">Portal sign-ins &amp; page views</div>';
+    if (!a.length) return head + '<div class="d-empty">No portal activity (no sign-ins recorded for this account). This is separate from Call Work.</div>';
+    return head + '<div class="d-list">' + a.map(e => `
+      <div class="d-item"><div class="it-top">
+        <div><span class="it-title">${escapeHtml(e.event_type || 'event')}</span>
+        <div class="it-meta">${escapeHtml(e.page_url || '')}</div></div>
+        <span class="pill info">${lastSeenLabel(e.created_at)}</span>
+      </div></div>`).join('') + '</div>';
+  }
+
+  function tabUniversity() {
+    const d = D_DATA;
+    const latestAttempt = {};
+    d.attempts.forEach(at => { if (!latestAttempt[at.cert_id]) latestAttempt[at.cert_id] = at; });
+    const assigned = new Set(d.assignments.map(a => a.cert_id));
+    const certRows = d.certs.map(c => {
+      const at = latestAttempt[c.id];
+      const st = at ? at.status : (assigned.has(c.id) ? 'assigned' : 'not assigned');
+      const score = at && at.auto_max ? ` &middot; ${at.auto_score}/${at.auto_max}` : '';
+      const cls = st === 'approved' ? 'ok' : st === 'pending_review' ? 'info' : st === 'retake' ? 'bad' : 'warn';
+      return `<div class="d-item"><div class="it-top">
+        <div><span class="it-title">${escapeHtml(c.name)}</span><div class="it-meta">Stage ${c.stage}${score}</div></div>
+        <span class="pill ${st === 'not assigned' ? '' : cls}">${escapeHtml(uniStatusLabel(st))}</span>
+      </div></div>`;
+    }).join('');
+    const openHelp = d.helps.filter(h => h.status !== 'resolved').length;
+    return `<div class="section-h">Certifications</div><div class="d-list">${certRows}</div>
+      <div class="section-h">Shadows (${d.shadows.length}) &middot; Open help requests (${openHelp})</div>
+      <div class="d-list">${
+        d.shadows.length ? d.shadows.slice(0,6).map(s => `<div class="d-item"><div class="it-top">
+          <div><span class="it-title">Shadowed ${escapeHtml(s.shadowed_rep_name || '')}</span>
+          <div class="it-meta">${fmtDate(s.shadow_date)}${s.duration_minutes ? ` &middot; ${s.duration_minutes} min` : ''}</div></div>
+          <span class="pill ${s.status === 'approved' ? 'ok' : s.status === 'denied' ? 'bad' : 'warn'}">${escapeHtml(s.status || '')}</span>
+        </div></div>`).join('') : '<div class="d-empty">No shadow logs.</div>'
+      }</div>`;
+  }
+
+  // ── Call Work helpers ──
+  function contactCat(outcome) {
+    const o = (outcome || '').toLowerCase();
+    if (o.includes('appoint')) return 'appt';
+    if (o.includes('reach')) return 'reached';
+    return 'noanswer';
+  }
+  function dayKey(d) {
+    const x = new Date(d);
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  }
+  function cwStat(value, label, sub, isText) {
+    return `<div class="cw-stat">
+      <div class="cw-stat-v${isText ? ' cw-stat-text' : ''}">${escapeHtml(String(value))}${sub ? `<span class="cw-stat-sub">${escapeHtml(sub)}</span>` : ''}</div>
+      <div class="cw-stat-l">${escapeHtml(label)}</div>
+    </div>`;
+  }
+  function callWorkChart(contacts) {
+    const DAYS = 14;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const slots = [], byKey = {};
+    for (let i = DAYS - 1; i >= 0; i--) {
+      const d = new Date(today); d.setDate(today.getDate() - i);
+      const s = { key: dayKey(d), date: d, appt: 0, reached: 0, noanswer: 0, total: 0 };
+      slots.push(s); byKey[s.key] = s;
+    }
+    contacts.forEach(c => {
+      const ts = c.contacted_at || c.created_at; if (!ts) return;
+      const s = byKey[dayKey(ts)]; if (!s) return;
+      s[contactCat(c.outcome)]++; s.total++;
+    });
+    const max = Math.max(1, ...slots.map(s => s.total));
+    const H = 104, todayKey = dayKey(today);
+    const bars = slots.map(s => {
+      const h = n => n ? Math.max(3, Math.round(n / max * H)) : 0;
+      const seg = (n, cls) => n ? `<div class="cw-seg ${cls}" style="height:${h(n)}px"></div>` : '';
+      const dlabel = s.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      const conn = s.reached + s.appt;
+      const tipPlain = `${dlabel}: ${s.total} call${s.total === 1 ? '' : 's'}` +
+        (s.total ? ` (${conn} connected${s.appt ? `, ${s.appt} appt` : ''}, ${s.noanswer} no answer)` : '');
+      const tipHtml = `<div class="cw-tip"><b>${escapeHtml(dlabel)}</b><br>${s.total} call${s.total === 1 ? '' : 's'}` +
+        (s.total ? `<br>${conn} connected${s.appt ? ` (${s.appt} appt)` : ''}<br>${s.noanswer} no answer` : '') + `</div>`;
+      return `<div class="cw-bar" title="${escapeHtml(tipPlain)}">
+        ${tipHtml}
+        <div class="cw-stack">${seg(s.noanswer, 'noanswer')}${seg(s.reached, 'reached')}${seg(s.appt, 'appt')}</div>
+        <div class="cw-xlabel${s.key === todayKey ? ' cw-today' : ''}">${s.date.getDate()}</div>
+      </div>`;
+    }).join('');
+    return `<div class="cw-chart">${bars}</div>
+      <div class="cw-legend">
+        <span><i class="cw-dot appt"></i>Appt set</span>
+        <span><i class="cw-dot reached"></i>Reached, no appt</span>
+        <span><i class="cw-dot noanswer"></i>No answer</span>
+      </div>`;
+  }
+  function callWorkDays(contacts) {
+    if (!contacts.length) return '<div class="d-empty">No logged contacts yet.</div>';
+    const groups = {};
+    contacts.forEach(c => {
+      const ts = c.contacted_at || c.created_at;
+      const k = ts ? dayKey(ts) : 'unknown';
+      (groups[k] = groups[k] || []).push(c);
+    });
+    return Object.keys(groups).sort().reverse().map(k => {
+      const items = groups[k];
+      const appt = items.filter(c => contactCat(c.outcome) === 'appt').length;
+      const head = k === 'unknown' ? 'Undated'
+        : new Date(items[0].contacted_at || items[0].created_at).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+      return `<div class="cw-day">
+        <div class="cw-day-head"><span>${escapeHtml(head)}</span><span class="cw-day-meta">${items.length} contact${items.length === 1 ? '' : 's'}${appt ? ` &middot; ${appt} appt` : ''}</span></div>
+        <div class="d-list">${items.map(contactItem).join('')}</div>
+      </div>`;
+    }).join('');
+  }
+  function contactItem(c) {
+    const cat = contactCat(c.outcome);
+    const cls = cat === 'appt' ? 'ok' : cat === 'reached' ? 'info' : '';
+    const time = c.contacted_at ? new Date(c.contacted_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+    const meta = [time, c.next_step ? 'next: ' + c.next_step : '', c.follow_up_date ? 'follow-up ' + fmtDate(c.follow_up_date) : '']
+      .filter(Boolean).map(escapeHtml).join(' &middot; ');
+    return `<div class="d-item"><div class="it-top">
+      <div><span class="it-title">${escapeHtml(c.opp_name || '(lead)')}</span>
+      <div class="it-meta">${meta}</div></div>
+      <span class="pill ${cls}">${escapeHtml(c.outcome || 'logged')}</span>
+    </div></div>`;
+  }
+  function leadItem(l) {
+    return `<div class="d-item"><div class="it-top">
+      <div><span class="it-title">${escapeHtml(l.opp_name || '(no name)')}</span>
+      <div class="it-meta">${escapeHtml(l.state || '')}${l.lead_source ? ` &middot; ${escapeHtml(l.lead_source)}` : ''}${l.appt_date ? ` &middot; appt ${escapeHtml(String(l.appt_date))}` : ''}</div></div>
+      <span class="pill ${callStatusClass(l.status)}">${escapeHtml(l.status || 'pending')}</span>
+    </div></div>`;
+  }
+
+  function tabCallWork() {
+    const contacts = D_DATA.contacts || [];
+    const calls = D_DATA.calls || [];
+    const total = contacts.length;
+    const apptN = contacts.filter(c => contactCat(c.outcome) === 'appt').length;
+    const reachedN = contacts.filter(c => contactCat(c.outcome) === 'reached').length;
+    const connects = apptN + reachedN;
+    const connectRate = total ? Math.round(connects / total * 100) : 0;
+    const todayK = dayKey(new Date());
+    const weekAgo = Date.now() - 7 * 86400000;
+    const todayN = contacts.filter(c => dayKey(c.contacted_at || c.created_at) === todayK).length;
+    const weekN = contacts.filter(c => { const t = new Date(c.contacted_at || c.created_at).getTime(); return !isNaN(t) && t >= weekAgo; }).length;
+
+    const stats = `<div class="cw-stats">
+      ${cwStat(todayN, 'Calls today')}
+      ${cwStat(weekN, 'Last 7 days')}
+      ${cwStat(total, 'All-time')}
+      ${cwStat(connects, 'Connects', total ? connectRate + '%' : '')}
+      ${cwStat(apptN, 'Appts set')}
+      ${cwStat(calls.length, 'Leads')}
+    </div>`;
+    const graph = total ? `<div class="section-h">Daily activity (last 14 days)</div>${callWorkChart(contacts)}` : '';
+    const byDay = `<div class="section-h">Contact log by day</div>${callWorkDays(contacts)}`;
+    const leads = calls.length
+      ? `<div class="section-h">Assigned leads (${calls.length})</div><div class="d-list">${calls.map(leadItem).join('')}</div>`
+      : `<div class="section-h">Assigned leads</div><div class="d-empty">No leads assigned to this person.</div>`;
+    return stats + graph + byDay + leads;
+  }
+
+  function tabFeedback() {
+    const f = D_DATA.feedback;
+    if (!f.length) return '<div class="d-empty">No feedback submitted by this person.</div>';
+    return '<div class="d-list">' + f.map(x => `
+      <div class="d-item"><div class="it-top">
+        <div><span class="it-title">${escapeHtml(x.title || '(untitled)')}</span>
+        <div class="it-meta">${escapeHtml(x.type || '')}${x.priority ? ` &middot; ${escapeHtml(x.priority)}` : ''} &middot; ${fmtDate(x.created_at)}</div></div>
+        <span class="pill ${x.status === 'resolved' ? 'ok' : x.status === 'new' ? 'info' : 'warn'}">${escapeHtml(x.status || '')}</span>
+      </div></div>`).join('') + '</div>';
+  }
+
+  // ── Helpers (local to the IIFE; shadow any admin globals safely) ──
+  function uniStatusLabel(s) {
+    return ({ 'approved':'Complete','pending_review':'In review','retake':'Retake','in_progress':'In progress','assigned':'Assigned','not assigned':'Not assigned' }[s] || s);
+  }
+  function callStatusClass(s) {
+    return s === 'sold' || s === 'appointment_set' ? 'ok' : s === 'dead' || s === 'no_answer' ? 'bad' : 'warn';
+  }
+  function lastSeenLabel(d) {
+    if (!d) return 'never';
+    const days = daysSince(d);
+    if (days === 0) return 'today';
+    if (days === 1) return 'yesterday';
+    if (days < 7) return `${days} days ago`;
+    return fmtDate(d);
+  }
+  function daysSince(d) { return Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 86400000)); }
+  function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : '--'; }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
+      ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+  }
+  function cardKey(e, u) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRep(u); } }
+
+  // Filter/sort listeners. The elements live inside #tabUsers; they exist at
+  // parse time because this script runs after the markup. render() guards on
+  // its own element reads so a stray early call is harmless.
+  document.getElementById('search').addEventListener('input', render);
+  document.getElementById('roleFilter').addEventListener('change', render);
+  document.getElementById('mgrFilter').addEventListener('change', render);
+  document.getElementById('sort').addEventListener('change', render);
+
+  // ── Expose inline-handler + entry-point functions on window ──
+  window.loadPeople = loadData;
+  window.openRep = openRep;
+  window.cardKey = cardKey;
+  window.backToList = backToList;
+  window.setDetailTab = setDetailTab;
+  window.saveAssignment = saveAssignment;
+  window.toggleEdit = toggleEdit;
+  window.togglePw = togglePw;
+  window.resetRepPassword = resetRepPassword;
+  window.toggleRepStatus = toggleRepStatus;
+  window.togglePersonRole = togglePersonRole;
+  window.toggleAdminFlag = toggleAdminFlag;
+  window.deletePerson = deletePerson;
+  window.addPerson = addPerson;
 })();
 </script>
 
