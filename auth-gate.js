@@ -3,7 +3,7 @@
  * Every page on ct-resource-page.com that touches non-public data
  * includes this file via:
  *
- *   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+ *   <script src="https://unpkg.com/@supabase/supabase-js@2.107.0"></script>
  *   <script src="/auth-gate.js"></script>
  *
  * The page must provide three DOM elements -- the gate switches their
