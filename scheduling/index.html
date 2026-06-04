@@ -82,6 +82,16 @@
   table.cgrid select.cellsel{width:100%; font-size:12px; font-family:'Manrope'; border:2px solid var(--accent); border-radius:4px; padding:4px 0; background:#fff; cursor:pointer;}
   .clegend{display:flex; gap:7px; flex-wrap:wrap; font-size:11px; margin-top:10px;}
   .clegend span{padding:2px 8px; border-radius:5px; font-weight:700;}
+  table.cov{width:100%; border-collapse:collapse; font-size:13px;}
+  table.cov th, table.cov td{text-align:right; padding:9px 10px; border-bottom:1px solid var(--border); white-space:nowrap;}
+  table.cov th:first-child, table.cov td.county{text-align:left;}
+  table.cov th{font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); font-weight:700;}
+  .covbar{height:7px; border-radius:4px; background:#eceff1; overflow:hidden; min-width:90px; display:inline-block; vertical-align:middle; width:90px;}
+  .covbar>i{display:block; height:100%;}
+  .covflag{font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; letter-spacing:.03em; text-transform:uppercase;}
+  .covflag.under{background:rgba(214,48,48,.14); color:#c22;}
+  .covflag.over{background:rgba(200,140,0,.16); color:#9a6a00;}
+  .covflag.ok{background:rgba(94,186,40,.16); color:#3f8f1e;}
   .muted{color:var(--muted); font-size:13px;}
   .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
   .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; z-index:200; opacity:0; transition:opacity .2s; pointer-events:none;}
@@ -202,7 +212,7 @@ function buildTabs(inRoster){
   const bar=document.getElementById('tabBar'); bar.style.display='flex';
   const tabs=[];
   if(inRoster) tabs.push(['mine','My Schedule']);
-  tabs.push(['tracker','Ready to Submit'],['combined','Combined Grid'],['export','Export & Period']);
+  tabs.push(['tracker','Ready to Submit'],['coverage','Coverage'],['combined','Combined Grid'],['export','Export & Period']);
   bar.innerHTML = tabs.map(([k,l])=>`<button class="tab ${k===S.tab?'active':''}" data-tab="${k}">${l}</button>`).join('');
   bar.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
 }
@@ -212,6 +222,7 @@ async function switchTab(tab){
   const v=document.getElementById('view'); v.innerHTML='<div class="empty">Loading...</div>';
   if(tab==='mine'){ await loadMine(); renderMine(); }
   else if(tab==='tracker'){ await loadManagerData(); renderTracker(); }
+  else if(tab==='coverage'){ await loadManagerData(); renderCoverage(); }
   else if(tab==='combined'){ await loadManagerData(); renderCombined(); }
   else if(tab==='export'){ await loadManagerData(); renderExport(); }
 }
@@ -303,14 +314,72 @@ function renderMine(){
 
 // ===================== MANAGER DATA =====================
 async function loadManagerData(){
-  const [reps,ent,subs]=await Promise.all([
+  const [reps,ent,subs,dem]=await Promise.all([
     sb.from('people').select('id,name,sf_name,spd_slug,division,sales_office').eq('status','active').like('sales_office','CT%').order('sales_office').order('name'),
     sb.from('sched_entries').select('person_id,work_date,shift_code').eq('period_id',S.period.id),
-    sb.from('sched_submissions').select('*').eq('period_id',S.period.id)
+    sb.from('sched_submissions').select('*').eq('period_id',S.period.id),
+    sb.from('sched_demand_baseline').select('*').eq('region',S.period.region||'CT').eq('scope','state')
   ]);
   S.reps=reps.data||[];
   S.allEntries={}; (ent.data||[]).forEach(r=>{ (S.allEntries[r.person_id]=S.allEntries[r.person_id]||{})[r.work_date]=r.shift_code; });
   S.subs={}; (subs.data||[]).forEach(r=>S.subs[r.person_id]=r);
+  S.demand={}; (dem.data||[]).forEach(r=>S.demand[r.shift]=r);
+}
+
+// ===================== MANAGER: COVERAGE GAUGE =====================
+const SHIFT_COVERS={S1:['All-Day','Shift 1','Shift 1&2','Shift 1&3'], S2:['All-Day','Shift 2','Shift 1&2','Shift 2&3'], S3:['All-Day','Shift 3','Shift 2&3','Shift 1&3']};
+const SHIFT_META={S1:{name:'Shift 1',time:'10a-2p'}, S2:{name:'Shift 2',time:'1-5p'}, S3:{name:'Shift 3',time:'4-8p'}};
+function renderCoverage(){
+  const ndays=S.period.num_weeks*6;
+  // live supply from submitted/draft entries
+  const supRaw={S1:0,S2:0,S3:0};
+  for(const pid in S.allEntries){ const e=S.allEntries[pid];
+    for(const d in e){ const code=e[d]; for(const s of ['S1','S2','S3']) if(SHIFT_COVERS[s].includes(code)) supRaw[s]++; } }
+  const supDay={}; ['S1','S2','S3'].forEach(s=>supDay[s]=supRaw[s]/ndays);
+  const totSup=supDay.S1+supDay.S2+supDay.S3||1;
+  const haveDemand=Object.keys(S.demand||{}).length>0;
+  const dem={}; ['S1','S2','S3'].forEach(s=>dem[s]=(S.demand[s]&&S.demand[s].appt_count)||0);
+  const wdays=(S.demand.S1&&S.demand.S1.window_days)||1;
+  const demDay={}; ['S1','S2','S3'].forEach(s=>demDay[s]=dem[s]/wdays);
+  const totDem=dem.S1+dem.S2+dem.S3||1;
+  const submitted=S.reps.filter(r=>['submitted','approved'].includes((S.subs[r.id]||{}).status)).length;
+
+  const rows=['S1','S2','S3'].map(s=>{
+    const demShare=dem[s]/totDem, supShare=supDay[s]/totSup, gap=supShare-demShare;
+    const load=supDay[s]>0?demDay[s]/supDay[s]:null;  // appts per available rep per day
+    let tag='ok',txt='aligned';
+    if(haveDemand){ if(gap<=-0.06){tag='under';txt='understaffed';} else if(gap>=0.06){tag='over';txt='overstaffed';} }
+    return {s,dem:dem[s],demShare,demDay:demDay[s],reps:supDay[s],supShare,load,tag,txt};
+  });
+
+  let html=`<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div><div class="weekhd" style="border:0;margin:0;padding:0">Coverage &mdash; ${esc(S.period.label||'')}</div>
+      <div class="muted" style="margin-top:4px">${submitted} of ${S.reps.length} schedules in. Capacity updates live as reps submit; compare it to where appointments actually land.</div></div>
+      <span class="pill ${S.period.status}">${S.period.status}</span></div></div>`;
+
+  if(!haveDemand){
+    html+=`<div class="card"><div class="muted">No demand baseline yet. Run the Coverage Map builder (<code>coverage_builder.py</code>) to publish appointment demand, then this gauge fills in.</div></div>`;
+  } else {
+    html+=`<div class="card"><table class="cov">
+      <thead><tr><th>Shift</th><th>Demand / day</th><th>Demand mix</th><th>Reps / day</th><th>Capacity mix</th><th>Appts per rep</th><th>Read</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr>
+        <td class="county">${SHIFT_META[r.s].name}<span class="muted" style="font-weight:400"> &middot; ${SHIFT_META[r.s].time}</span></td>
+        <td class="mono">${r.demDay.toFixed(1)}<span class="muted" style="font-size:11px"> (${r.dem})</span></td>
+        <td><div class="covbar"><i style="width:${Math.round(r.demShare*100)}%;background:var(--accent)"></i></div><span class="muted mono" style="font-size:11px">${Math.round(r.demShare*100)}%</span></td>
+        <td class="mono">${r.reps.toFixed(1)}</td>
+        <td><div class="covbar"><i style="width:${Math.round(r.supShare*100)}%;background:var(--green)"></i></div><span class="muted mono" style="font-size:11px">${Math.round(r.supShare*100)}%</span></td>
+        <td class="mono">${r.load==null?'--':r.load.toFixed(2)}</td>
+        <td><span class="covflag ${r.tag}">${r.txt}</span></td></tr>`).join('')}</tbody></table>
+      <div class="muted" style="margin-top:10px;font-size:12px">Demand = historical appointments by shift (${esc((S.demand.S1&&S.demand.S1.window_label)||'')}). Reps/day = average reps scheduled to be available that shift across the period. <b>Appts per rep</b> &gt; 1 means more demand than scheduled coverage. Read flags compare the demand mix to the capacity mix -- a shift gets <b>understaffed</b> when you have proportionally fewer reps than appointments there.</div>
+    </div>`;
+    // headline nudge
+    const under=rows.filter(r=>r.tag==='under').sort((a,b)=>b.dem-a.dem)[0];
+    const over=rows.find(r=>r.tag==='over');
+    if(under){
+      html+=`<div class="card" style="border-left:4px solid var(--red)"><b>Coverage gap:</b> ${SHIFT_META[under.s].name} (${SHIFT_META[under.s].time}) is ${Math.round(under.demShare*100)}% of demand but only ${Math.round(under.supShare*100)}% of scheduled capacity${over?`, while ${SHIFT_META[over.s].name} is overstaffed`:''}. Consider shifting reps${over?` from ${SHIFT_META[over.s].name}`:''} into ${SHIFT_META[under.s].name}.</div>`;
+    }
+  }
+  document.getElementById('view').innerHTML=html;
 }
 
 // ===================== MANAGER: TRACKER =====================
