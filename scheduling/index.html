@@ -63,13 +63,25 @@
   table.tracker th{font-size:11px; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); font-weight:700;}
   table.tracker tr:hover td{background:#fafbf9;}
   .combined{overflow-x:auto;}
-  table.cgrid{border-collapse:collapse; font-size:11px; white-space:nowrap;}
-  table.cgrid th, table.cgrid td{border:1px solid var(--border); padding:2px 4px; text-align:center;}
-  table.cgrid th.rep, table.cgrid td.rep{text-align:left; position:sticky; left:0; background:var(--surface); font-weight:600; min-width:140px; z-index:1;}
-  table.cgrid th.wk{background:#f1f4ee;}
-  table.cgrid td select{border:none; background:transparent; font-size:11px; font-family:'Manrope'; width:100%; cursor:pointer;}
-  .cell-off{color:#b3bcb0;}
-  .cell-all{color:#3f8f1e; font-weight:700;}
+  .fullbleed{width:96vw; max-width:96vw; position:relative; left:50%; transform:translateX(-50%);}
+  table.cgrid{border-collapse:separate; border-spacing:0; font-size:12px; width:100%; table-layout:fixed;}
+  table.cgrid th, table.cgrid td{padding:0; text-align:center; border-bottom:1px solid var(--border);}
+  table.cgrid thead th{padding:5px 2px; font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.02em;}
+  table.cgrid th.rep, table.cgrid td.rep{text-align:left; position:sticky; left:0; background:var(--surface); font-weight:600; width:160px; min-width:160px; padding:5px 8px; z-index:2; box-shadow:1px 0 0 var(--border); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  table.cgrid th.wk{border-left:2px solid var(--border);}
+  table.cgrid .wkstart{border-left:2px solid var(--border);}
+  table.cgrid tr:hover td.rep{background:#f6f8f3;}
+  .cell{display:block; padding:7px 2px; font-weight:700; cursor:pointer; line-height:1;}
+  .cell:hover{outline:2px solid var(--accent); outline-offset:-2px;}
+  .c-off{color:#c2c9bf; font-weight:500; background:#fbfcfa;}
+  .c-ad{color:#2f7d12; background:#e6f5d6;}
+  .c-s1{color:#1b6fb3; background:#e7f1fb;}
+  .c-s2{color:#9a6a00; background:#fbf0d6;}
+  .c-s3{color:#7a3ea8; background:#f1e7f8;}
+  .c-combo{color:#33414f; background:#eceff3;}
+  table.cgrid select.cellsel{width:100%; font-size:12px; font-family:'Manrope'; border:2px solid var(--accent); border-radius:4px; padding:4px 0; background:#fff; cursor:pointer;}
+  .clegend{display:flex; gap:7px; flex-wrap:wrap; font-size:11px; margin-top:10px;}
+  .clegend span{padding:2px 8px; border-radius:5px; font-weight:700;}
   .muted{color:var(--muted); font-size:13px;}
   .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
   .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; z-index:200; opacity:0; transition:opacity .2s; pointer-events:none;}
@@ -338,44 +350,57 @@ async function trackerAction(personId, act){
 }
 
 // ===================== MANAGER: COMBINED GRID =====================
-function cellClass(code){ return code==='Off All-Day'?'cell-off':(code==='All-Day'?'cell-all':''); }
+const CODEMAP={
+  'Off All-Day':{t:'&middot;',c:'c-off'}, 'All-Day':{t:'AD',c:'c-ad'},
+  'Shift 1':{t:'1',c:'c-s1'}, 'Shift 2':{t:'2',c:'c-s2'}, 'Shift 3':{t:'3',c:'c-s3'},
+  'Shift 1&2':{t:'1&middot;2',c:'c-combo'}, 'Shift 2&3':{t:'2&middot;3',c:'c-combo'}, 'Shift 1&3':{t:'1&middot;3',c:'c-combo'}
+};
+function cellHTML(id,iso,code){ const m=CODEMAP[code]||CODEMAP['Off All-Day'];
+  return `<span class="cell ${m.c}" data-id="${id}" data-date="${iso}" data-code="${esc(code)}" title="${esc(code)}">${m.t}</span>`; }
 function renderCombined(){
   const editable = S.period.status==='open';
   let head1='<th class="rep">Rep</th>', head2='<th class="rep"></th>';
   for(let w=0; w<S.period.num_weeks; w++){
-    head1+=`<th class="wk" colspan="6">Wk ${w+1} (${fmtMD(dayDate(S.period,w,0))})</th>`;
-    for(let d=0; d<6; d++) head2+=`<th>${DOWS[d].slice(0,2)}</th>`;
+    head1+=`<th class="wk" colspan="6">Wk ${w+1} &middot; ${fmtMD(dayDate(S.period,w,0))}</th>`;
+    for(let d=0; d<6; d++) head2+=`<th class="${d===0?'wkstart':''}">${DOWS[d].slice(0,2)}</th>`;
   }
   let body='';
   for(const r of S.reps){
     const ent=S.allEntries[r.id]||{};
-    let tds=`<td class="rep">${esc(r.sf_name||r.name)}</td>`;
+    let tds=`<td class="rep" title="${esc(r.sf_name||r.name)}">${esc(r.sf_name||r.name)}</td>`;
     for(let w=0; w<S.period.num_weeks; w++){
       for(let d=0; d<6; d++){
         const iso=dayDate(S.period,w,d); const code=ent[iso]||'Off All-Day';
-        if(editable){
-          tds+=`<td><select data-id="${r.id}" data-date="${iso}" class="${cellClass(code)}">${shiftOptions(code)}</select></td>`;
-        } else {
-          tds+=`<td class="${cellClass(code)}">${esc(code.replace('Shift ','S').replace('Off All-Day','--').replace('All-Day','ALL'))}</td>`;
-        }
+        tds+=`<td class="${d===0?'wkstart':''}">${cellHTML(r.id,iso,code)}</td>`;
       }
     }
     body+=`<tr>${tds}</tr>`;
   }
-  document.getElementById('view').innerHTML=`<div class="card combined">
-    <div class="muted" style="margin-bottom:8px">${editable?'Click any cell to change it. Saves immediately.':'Period is locked (read-only).'}</div>
-    <table class="cgrid"><thead><tr>${head1}</tr><tr>${head2}</tr></thead><tbody>${body}</tbody></table></div>`;
+  const legend=Object.entries(CODEMAP).map(([code,m])=>`<span class="${m.c}">${m.t} ${esc(code.replace('Off All-Day','Off').replace('All-Day','All day'))}</span>`).join('');
+  document.getElementById('view').innerHTML=`<div class="card combined fullbleed">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+      <div class="muted">${editable?'Click any cell to change it. Saves immediately.':'Period is locked (read-only).'} ${S.reps.length} reps.</div>
+    </div>
+    <div style="overflow-x:auto"><table class="cgrid"><thead><tr>${head1}</tr><tr>${head2}</tr></thead><tbody>${body}</tbody></table></div>
+    <div class="clegend">${legend}</div></div>`;
   if(editable){
-    document.querySelectorAll('#view .cgrid select').forEach(sel=>{
-      sel.onchange=async()=>{
-        const id=sel.dataset.id, iso=sel.dataset.date, code=sel.value;
-        sel.className=cellClass(code);
-        try{ await sb.rpc('sched_manager_set_entries',{p_period_id:S.period.id,p_person_id:id,p_entries:[{work_date:iso,shift_code:code}]});
-          (S.allEntries[id]=S.allEntries[id]||{})[iso]=code; toast('Saved');
-        }catch(err){ toast('Failed: '+(err.message||err)); }
-      };
+    document.querySelector('#view .cgrid tbody').addEventListener('click', e=>{
+      const cell=e.target.closest('.cell'); if(!cell) return; openCellEditor(cell);
     });
   }
+}
+function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
+function openCellEditor(cell){
+  const id=cell.dataset.id, iso=cell.dataset.date, code=cell.dataset.code;
+  const sel=document.createElement('select'); sel.className='cellsel'; sel.innerHTML=shiftOptions(code);
+  let settled=false;
+  const swapBack=(c)=>{ if(settled) return; settled=true; const span=el(cellHTML(id,iso,c)); sel.replaceWith(span); };
+  cell.replaceWith(sel); sel.focus();
+  sel.onchange=async()=>{ const nc=sel.value;
+    try{ await sb.rpc('sched_manager_set_entries',{p_period_id:S.period.id,p_person_id:id,p_entries:[{work_date:iso,shift_code:nc}]});
+      (S.allEntries[id]=S.allEntries[id]||{})[iso]=nc; toast('Saved'); swapBack(nc);
+    }catch(err){ toast('Failed: '+(err.message||err)); swapBack(code); } };
+  sel.onblur=()=>swapBack(code);
 }
 
 // ===================== MANAGER: EXPORT & PERIOD =====================
