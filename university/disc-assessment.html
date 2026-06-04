@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Know Your Style -- Rep DISC Assessment</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#0b1220; --navy2:#131e30; --navy3:#1a2840;
+    --solar:#f5a623; --solar2:#ffc84a;
+    --green:#2ecc71; --red:#e74c3c; --blue:#3498db;
+    --text:#d8e4f0; --muted:#6b8aab; --border:rgba(245,166,35,0.2);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--navy);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.7}
+
+  .hero{background:linear-gradient(135deg,#0b1220 0%,#1a2840 50%,#0f1e35 100%);border-bottom:3px solid var(--solar);padding:54px 40px 44px;text-align:center;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(245,166,35,0.08) 0%,transparent 70%);pointer-events:none}
+  .hero-eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--solar);margin-bottom:14px}
+  .hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,88px);letter-spacing:2px;color:#fff;line-height:1;margin-bottom:10px}
+  .hero h1 span{color:var(--solar)}
+  .hero-sub{font-size:16px;color:var(--muted);max-width:560px;margin:0 auto}
+  .hero-disc{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--solar);margin-top:16px}
+
+  .container{max-width:820px;margin:0 auto;padding:0 24px}
+  section{padding:40px 0}
+
+  .card{background:var(--navy2);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:26px 30px;margin-bottom:20px}
+  .card-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:10px;color:var(--solar)}
+  p.lead{color:var(--muted);font-size:14.5px;line-height:1.75}
+
+  .btn{display:inline-block;background:var(--solar);color:#0b1220;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:500;border:none;border-radius:4px;padding:14px 28px;cursor:pointer;transition:transform .15s,background .15s}
+  .btn:hover{background:var(--solar2);transform:translateY(-1px)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .btn-ghost{background:transparent;color:var(--solar);border:1px solid var(--border)}
+  .btn-ghost:hover{background:rgba(245,166,35,0.08)}
+
+  .banner{background:rgba(245,166,35,0.08);border:1px solid var(--border);border-radius:6px;padding:16px 20px;margin-bottom:20px;font-size:13.5px;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+  .banner strong{color:var(--solar)}
+
+  /* progress */
+  .progress-wrap{position:sticky;top:0;z-index:40;background:rgba(11,18,32,0.92);backdrop-filter:blur(6px);border-bottom:1px solid rgba(255,255,255,0.06);padding:12px 0}
+  .progress-bar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:var(--solar);transition:width .25s}
+  .progress-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:6px;text-align:center}
+
+  /* blocks */
+  .block{background:var(--navy2);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:20px 22px;margin-bottom:16px}
+  .block.answered{border-color:rgba(46,204,113,0.35)}
+  .block-q{font-size:14.5px;color:#fff;font-weight:500;margin-bottom:6px}
+  .block-num{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--solar);text-transform:uppercase;margin-bottom:4px}
+  .fc-head{display:grid;grid-template-columns:1fr 54px 54px;gap:8px;align-items:center;margin:10px 0 4px}
+  .fc-head span{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);text-align:center}
+  .opt-row{display:grid;grid-template-columns:1fr 54px 54px;gap:8px;align-items:center;padding:7px 0;border-top:1px solid rgba(255,255,255,0.04)}
+  .opt-text{font-size:13.5px;color:var(--text)}
+  .opt-cell{display:flex;justify-content:center}
+  .opt-cell input{width:18px;height:18px;cursor:pointer;accent-color:var(--solar)}
+  .opt-cell.least input{accent-color:var(--red)}
+
+  /* likert */
+  .lik-item{padding:9px 0;border-top:1px solid rgba(255,255,255,0.04)}
+  .lik-q{font-size:13.5px;color:var(--text);margin-bottom:8px}
+  .lik-scale{display:flex;gap:6px;flex-wrap:wrap}
+  .lik-scale label{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--muted)}
+  .lik-scale input{width:18px;height:18px;cursor:pointer;accent-color:var(--solar)}
+
+  .section-head{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:1px;color:#fff;margin:8px 0 4px}
+  .section-sub{color:var(--muted);font-size:13.5px;margin-bottom:20px}
+
+  .err{color:var(--red);font-size:13px;margin:10px 0;display:none}
+
+  /* results */
+  .bars{display:flex;flex-direction:column;gap:14px;margin:8px 0 4px}
+  .bar-row{display:grid;grid-template-columns:120px 1fr 52px;gap:12px;align-items:center}
+  .bar-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase}
+  .bar-track{height:22px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;width:0;border-radius:4px;transition:width .8s ease}
+  .bar-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);text-align:right}
+  .c-D{color:var(--red)} .c-I{color:var(--solar)} .c-S{color:var(--green)} .c-C{color:var(--blue)}
+  .bg-D{background:var(--red)} .bg-I{background:var(--solar)} .bg-S{background:var(--green)} .bg-C{background:var(--blue)}
+
+  .result-headline{font-family:'Bebas Neue',sans-serif;font-size:clamp(34px,6vw,56px);letter-spacing:1px;line-height:1.05;color:#fff;margin-bottom:6px}
+  .pill{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:3px;margin-right:8px}
+  .pill-D{background:rgba(231,76,60,0.15);color:var(--red)}
+  .pill-I{background:rgba(245,166,35,0.15);color:var(--solar)}
+  .pill-S{background:rgba(46,204,113,0.15);color:var(--green)}
+  .pill-C{background:rgba(52,152,219,0.15);color:var(--blue)}
+
+  .coach-card{border-radius:6px;border:1px solid rgba(255,255,255,0.07);border-top:4px solid;padding:22px 24px;margin-bottom:16px;background:var(--navy2)}
+  .coach-card h3{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:#fff;margin-bottom:4px}
+  .coach-row{padding:8px 0;border-top:1px solid rgba(255,255,255,0.05);font-size:13.5px;color:var(--text)}
+  .coach-key{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--solar);display:block;margin-bottom:2px}
+
+  .callout{background:rgba(245,166,35,0.08);border:1px solid var(--border);border-radius:6px;padding:18px 22px;margin:18px 0;font-size:13.5px;color:var(--text)}
+  .callout strong{color:var(--solar)}
+
+  .save-status{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted);margin-top:14px}
+
+  .footer{background:var(--navy2);border-top:1px solid var(--border);padding:28px 24px;text-align:center;margin-top:30px}
+  .footer p{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+
+  @media(max-width:560px){
+    .bar-row{grid-template-columns:80px 1fr 44px}
+    .fc-head,.opt-row{grid-template-columns:1fr 44px 44px}
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Trinity Sales University</div>
+    <h1>Know Your <span>Style</span></h1>
+    <p class="hero-sub">A behavioral self-assessment for CT reps. Find your default selling style, your strengths, and the blind spots costing you deals.</p>
+    <p class="hero-disc">DISC &nbsp;|&nbsp; Driver &middot; Expressive &middot; Amiable &middot; Analytical</p>
+  </div>
+
+  <!-- progress (hidden until test starts) -->
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="container">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">0 of 36 answered</div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <section id="introScreen">
+    <div class="container">
+      <div class="banner" id="priorBanner" style="display:none"></div>
+
+      <div class="card">
+        <div class="card-title">Before you start</div>
+        <p class="lead">There are no right or wrong answers, and this is not a test you pass or fail. It measures how you <em>naturally</em> sell, not how you think a good rep should sell. Answer honestly and fast. Your gut answer is the accurate one.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">How it works</div>
+        <p class="lead" style="margin-bottom:14px">Two parts, about 8 to 12 minutes total.</p>
+        <p class="lead" style="margin-bottom:10px"><strong style="color:var(--text)">Part 1 (24 questions).</strong> Each one gives you four ways to react in the field. Pick the <strong style="color:var(--solar)">one most like you</strong> and the <strong style="color:var(--red)">one least like you</strong>.</p>
+        <p class="lead"><strong style="color:var(--text)">Part 2 (12 questions).</strong> Rate how much you agree with each statement, 1 to 5.</p>
+      </div>
+
+      <div class="callout">
+        <strong>Why bother?</strong> Your natural style works great on buyers who think like you, and quietly loses the other three quarters of the market. Once you can see your default, you can switch out of it on purpose. That is the whole game. This pairs with the <a href="/sales-fundamentals/field-mastery/know-your-buyer.html" style="color:var(--solar)">Know Your Buyer</a> training.
+      </div>
+
+      <button class="btn" id="beginBtn">Begin the assessment</button>
+    </div>
+  </section>
+
+  <!-- TEST -->
+  <section id="testScreen" style="display:none">
+    <div class="container">
+      <div class="section-head">Part 1 &middot; Most and Least</div>
+      <p class="section-sub">For each, mark the option <span class="c-I">most</span> like you and the option <span class="c-D">least</span> like you.</p>
+      <div id="fcBlocks"></div>
+
+      <div class="section-head" style="margin-top:36px">Part 2 &middot; How much do you agree?</div>
+      <p class="section-sub">1 = strongly disagree, 5 = strongly agree.</p>
+      <div class="card"><div id="likItems"></div></div>
+
+      <div class="err" id="testErr"></div>
+      <button class="btn" id="submitBtn">See my style</button>
+      <p class="save-status" id="submitHint" style="margin-top:10px">Answer every question to unlock your results.</p>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="resultScreen" style="display:none">
+    <div class="container">
+      <div class="card" style="border-top:4px solid var(--solar)">
+        <div class="card-title" style="font-size:12px;font-family:'DM Mono',monospace;letter-spacing:3px">Your Result</div>
+        <div class="result-headline" id="resultHeadline"></div>
+        <div id="resultPills" style="margin:6px 0 14px"></div>
+        <p class="lead" id="resultBlurb"></p>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Your style mix</div>
+        <div class="bars" id="resultBars"></div>
+        <p class="lead" id="gapNote" style="margin-top:14px"></p>
+      </div>
+
+      <div id="coachZone"></div>
+
+      <div class="callout" id="consistencyNote" style="display:none"></div>
+
+      <div class="callout">
+        <strong>Next step.</strong> Take this into your next ride-along or one-on-one. The fastest way to grow is to name your default out loud to your manager and ask them to catch you sliding into it. Then run the <a href="/sales-fundamentals/field-mastery/know-your-buyer.html" style="color:var(--solar)">Know Your Buyer</a> scripts for the buyer types you naturally under-serve.
+      </div>
+
+      <button class="btn-ghost btn" id="retakeBtn">Retake the assessment</button>
+      <p class="save-status" id="saveStatus"></p>
+    </div>
+  </section>
+
+  <div class="footer">
+    <p>Know Your Style &nbsp;|&nbsp; Trinity Sales University &nbsp;|&nbsp; Built for the field</p>
+  </div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// ===================== ITEM BANK =====================
+// Each forced-choice block: prompt + 4 options tagged by style.
+const FC = [
+  {q:"The door opens and the homeowner looks rushed and annoyed. My instinct:",o:[
+    {s:'D',t:"Cut straight to the value. No warmup."},
+    {s:'I',t:"Lead with something unexpected to flip the energy."},
+    {s:'S',t:"Open with a warm, genuine question to soften them."},
+    {s:'C',t:"Ask what they already know so I can skip ahead."}]},
+  {q:"Small talk at the start of an appointment:",o:[
+    {s:'D',t:"I keep it short and steer to business."},
+    {s:'I',t:"I love it. It's half the reason the job is fun."},
+    {s:'S',t:"I lean into it. Trust gets built here."},
+    {s:'C',t:"A little is fine, then I want to get accurate."}]},
+  {q:"A buyer asks a technical question I can't answer:",o:[
+    {s:'D',t:"Give my best confident answer, follow up if needed."},
+    {s:'I',t:"Pivot to a story about a similar customer and keep rolling."},
+    {s:'S',t:"Admit I'll have to check, and apologize for not knowing."},
+    {s:'C',t:"Tell them exactly what I'll confirm and when."}]},
+  {q:"My natural pace at the table:",o:[
+    {s:'D',t:"Fast. I want to get to the decision."},
+    {s:'I',t:"High energy. I ride the momentum."},
+    {s:'S',t:"Unhurried. I let it breathe."},
+    {s:'C',t:"Deliberate. I want every number right."}]},
+  {q:"After a great hour, they say \"I'll think about it.\"",o:[
+    {s:'D',t:"Ask directly what's holding them back and close before I leave."},
+    {s:'I',t:"Re-light the vision, then ask what it would take to move today."},
+    {s:'S',t:"Thank them and say I'll check back. Pushing feels wrong."},
+    {s:'C',t:"Leave the full proposal and lock a specific follow-up."}]},
+  {q:"\"Your price is too high.\"",o:[
+    {s:'D',t:"Reframe it fast as a position, not a cost, and move."},
+    {s:'I',t:"Get them excited about what they're actually getting."},
+    {s:'S',t:"Reassure them, lower the pressure, show it's affordable."},
+    {s:'C',t:"Walk the math line by line until it's clear."}]},
+  {q:"A buyer launches into a long story unrelated to the sale:",o:[
+    {s:'D',t:"Listen a beat, then steer back to business."},
+    {s:'I',t:"Match it, top it with my own story, keep the energy up."},
+    {s:'S',t:"Lean in and ask follow-ups. This is the good stuff."},
+    {s:'C',t:"Listen for any detail I can actually use."}]},
+  {q:"I'm in a slump. My instinct is to:",o:[
+    {s:'D',t:"Hit more doors. Volume fixes everything."},
+    {s:'I',t:"Reset the mindset, find the energy, go make something happen."},
+    {s:'S',t:"Call past customers to reconnect and rebuild confidence."},
+    {s:'C',t:"Review my lost deals and find the pattern."}]},
+  {q:"How I prep before an appointment:",o:[
+    {s:'D',t:"Quick. I trust I'll handle whatever comes."},
+    {s:'I',t:"I get myself hyped and ready to connect."},
+    {s:'S',t:"I think about the family and how to make them comfortable."},
+    {s:'C',t:"I study the details so nothing catches me off guard."}]},
+  {q:"What I get the most satisfaction from:",o:[
+    {s:'D',t:"Winning. Closing the deal."},
+    {s:'I',t:"The connection and the buzz of a great conversation."},
+    {s:'S',t:"Knowing I genuinely helped a family."},
+    {s:'C',t:"Nailing it right, with the math and the plan airtight."}]},
+  {q:"With a skeptical, research-heavy buyer I:",o:[
+    {s:'D',t:"Cut to the bottom line and dare them to find better."},
+    {s:'I',t:"Try to get them excited past the skepticism."},
+    {s:'S',t:"Slow down and build trust before facts."},
+    {s:'C',t:"Get in the weeds with them. I enjoy the detail."}]},
+  {q:"Notes and admin after an appointment:",o:[
+    {s:'D',t:"I keep them short. The next door matters more."},
+    {s:'I',t:"Not my favorite part. I'd rather be in front of people."},
+    {s:'S',t:"I do them so the next person is taken care of."},
+    {s:'C',t:"I write them thoroughly. The detail matters."}]},
+  {q:"In a team meeting I'm usually the one who:",o:[
+    {s:'D',t:"Pushes for decisions and calls out what's not working."},
+    {s:'I',t:"Brings the energy and keeps it lively."},
+    {s:'S',t:"Makes sure everyone feels heard."},
+    {s:'C',t:"Asks the precise question everyone skipped."}]},
+  {q:"A \"good day\" to me looks like:",o:[
+    {s:'D',t:"A close, plain and simple."},
+    {s:'I',t:"Great conversations and a couple of people fired up."},
+    {s:'S',t:"Real connections, even on the doors that didn't buy."},
+    {s:'C',t:"Clean work, accurate pitches, no loose ends."}]},
+  {q:"In the close, my relationship with urgency:",o:[
+    {s:'D',t:"I push for the decision today. That's the job."},
+    {s:'I',t:"I ride the excitement and lock it while it's hot."},
+    {s:'S',t:"I never want to pressure. I let them feel ready."},
+    {s:'C',t:"I'd rather they verify and decide without rushing."}]},
+  {q:"A door slams in my face. Internally, my next move:",o:[
+    {s:'D',t:"On to the next. Their loss."},
+    {s:'I',t:"Shake it off, find the energy. The next one's fun."},
+    {s:'S',t:"It stings, but I stay kind on the next door."},
+    {s:'C',t:"I note what happened and adjust my approach."}]},
+  {q:"I earn a buyer's trust mainly by:",o:[
+    {s:'D',t:"Being direct and obviously knowing my stuff."},
+    {s:'I',t:"Being likeable, real, and bringing the energy."},
+    {s:'S',t:"Being warm, patient, and genuinely caring."},
+    {s:'C',t:"Being precise, honest, and backing up every claim."}]},
+  {q:"How fast I make decisions in general:",o:[
+    {s:'D',t:"Fast. I commit and move."},
+    {s:'I',t:"Fast when I'm excited about it."},
+    {s:'S',t:"Slow. I want everyone comfortable first."},
+    {s:'C',t:"Slow. I want the information first."}]},
+  {q:"\"I need to talk to my spouse first.\"",o:[
+    {s:'D',t:"I ask directly what the real hesitation is."},
+    {s:'I',t:"I keep the energy up and try to get a commitment anyway."},
+    {s:'S',t:"I offer to come back when both are there. Makes sense."},
+    {s:'C',t:"I leave everything they need to review together."}]},
+  {q:"What frustrates me most on an appointment:",o:[
+    {s:'D',t:"Wishy-washy answers and wasted time."},
+    {s:'I',t:"A flat, low-energy room I can't move."},
+    {s:'S',t:"Conflict or pressure that makes people uncomfortable."},
+    {s:'C',t:"Vague claims and sloppy, inaccurate information."}]},
+  {q:"The way I'd want a manager to coach me:",o:[
+    {s:'D',t:"Straight talk. Tell me what to fix and let me go."},
+    {s:'I',t:"Keep it positive and hype me up."},
+    {s:'S',t:"Be supportive and patient with me."},
+    {s:'C',t:"Give me specifics and the reasons behind them."}]},
+  {q:"When I walk up to a door, the feeling is closest to:",o:[
+    {s:'D',t:"Let's go. Time to win."},
+    {s:'I',t:"This could be a great conversation."},
+    {s:'S',t:"I hope they're nice and we connect."},
+    {s:'C',t:"Let me read this right and do it well."}]},
+  {q:"My biggest strength as a rep:",o:[
+    {s:'D',t:"I close. I don't fear the ask."},
+    {s:'I',t:"I connect with anyone and create momentum."},
+    {s:'S',t:"People trust me and feel safe with me."},
+    {s:'C',t:"I know the product cold and get the details right."}]},
+  {q:"The blind spot I'd most likely admit to:",o:[
+    {s:'D',t:"I run people over when they need to slow down."},
+    {s:'I',t:"I talk past the close and oversell."},
+    {s:'S',t:"I avoid the ask to keep things comfortable."},
+    {s:'C',t:"I over-explain and bury people in detail."}]}
+];
+
+const LIK = [
+  {s:'D',t:"I get to the point faster than most people are comfortable with."},
+  {s:'D',t:"I'd rather win the deal than be liked."},
+  {s:'D',t:"Slow, hesitant conversations drive me crazy."},
+  {s:'I',t:"My energy is the first thing people notice about me."},
+  {s:'I',t:"I'd rather tell a story than walk through a spreadsheet."},
+  {s:'I',t:"I can get a room excited without much effort."},
+  {s:'S',t:"I'll spend real time building trust before I ever talk product."},
+  {s:'S',t:"Pushing for a decision feels uncomfortable to me."},
+  {s:'S',t:"People open up to me because I actually listen."},
+  {s:'C',t:"I want to verify the numbers myself before I believe them."},
+  {s:'C',t:"I prep more thoroughly than most reps I know."},
+  {s:'C',t:"Being accurate matters more to me than being fast."}
+];
+
+const STYLE = {
+  D:{name:'Driver',full:'Dominance',color:'D'},
+  I:{name:'Expressive',full:'Influence',color:'I'},
+  S:{name:'Amiable',full:'Steadiness',color:'S'},
+  C:{name:'Analytical',full:'Conscientiousness',color:'C'}
+};
+
+const COACH = {
+  D:{tagline:"Decisive, direct, built for the close.",
+    strength:"Momentum. You drive conversations forward and close with confidence. You don't fear the ask or rejection.",
+    blind:"You run over the Amiable and Analytical buyer. You push when they need to pause and read hesitation as a problem to beat instead of a signal to slow down.",
+    watch:"Talking more than listening. Answering objections before they're fully stated. Filling the silence a buyer needed to think.",
+    fix:"Build in deliberate pauses. Ask one question and stay quiet until they are completely finished.",
+    underserve:"Amiable and Analytical buyers. They read your speed as pressure and go cold or quietly stall."},
+  I:{tagline:"High energy, big picture, sells the vision.",
+    strength:"Energy. Your enthusiasm pulls buyers along and creates momentum naturally. You thrive where energy is everything.",
+    blind:"You scare off the Analytical and overwhelm the Amiable. You can come across as overselling and talk past the close when the buyer is already there.",
+    watch:"Pitching when the buyer has already decided. Injecting excitement into a moment that called for quiet confidence. Making it about you.",
+    fix:"Read buying signals. A buyer who goes quiet and nods is usually ready. Stop pitching the moment you see it.",
+    underserve:"Analytical and Amiable buyers. One wants proof not hype, the other wants calm not intensity."},
+  S:{tagline:"Relationship-first, patient, deeply trusted.",
+    strength:"Trust. You build rapport fast and genuinely. Buyers feel heard and safe, which makes you strong on referrals and repeat business.",
+    blind:"You avoid the close to protect the relationship. You can prioritize being liked over being effective, and you lose the Driver who reads warmth as weakness.",
+    watch:"Conversations that feel great but don't advance. Asks softened until they aren't really asks. Accepting \"I'll think about it\" with no plan.",
+    fix:"Asking for the sale isn't conflict, it's service. A buyer who wants the product and never gets there was not served by your silence.",
+    underserve:"Driver buyers. They want a decisive expert and read your patience as a lack of conviction."},
+  C:{tagline:"Data-driven, methodical, credible.",
+    strength:"Credibility. You know the product cold and earn trust through detail and accuracy. Buyers who want certainty feel safe with you.",
+    blind:"You over-prepare and under-close. You give the Expressive and Driver more information than they want and lose them in the specs.",
+    watch:"Presenting when it's time to close. Treating every question as a request for more data. Avoiding the ask because it feels pushy.",
+    fix:"Cap how long the pitch runs. Close after the third positive signal, not after the full presentation.",
+    underserve:"Expressive and Driver buyers. One wants the story and the vision, the other just wants the bottom line."}
+};
+
+// ===================== HELPERS =====================
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const $=id=>document.getElementById(id);
+
+let blockOrder=[];   // array of {qIndex, opts:[shuffled opts]}
+let likOrder=[];
+
+function buildTest(){
+  // shuffle block order and option order within each block
+  blockOrder = shuffle(FC.map((b,i)=>({i, b}))).map(({i,b})=>({i, q:b.q, opts:shuffle(b.o.slice())}));
+  likOrder = shuffle(LIK.map((l,i)=>({i,l}))).map(({i,l})=>({i, s:l.s, t:l.t}));
+
+  // render forced choice
+  const fcWrap=$('fcBlocks'); fcWrap.innerHTML='';
+  blockOrder.forEach((blk,bi)=>{
+    const div=document.createElement('div');
+    div.className='block'; div.id='block-'+bi;
+    let rows = `<div class="block-num">Question ${bi+1}</div>
+      <div class="block-q">${blk.q}</div>
+      <div class="fc-head"><span></span><span>Most</span><span>Least</span></div>`;
+    blk.opts.forEach((op,oi)=>{
+      rows += `<div class="opt-row">
+        <div class="opt-text">${op.t}</div>
+        <div class="opt-cell"><input type="radio" name="most-${bi}" value="${op.s}" data-block="${bi}" data-kind="most" data-opt="${oi}"></div>
+        <div class="opt-cell least"><input type="radio" name="least-${bi}" value="${op.s}" data-block="${bi}" data-kind="least" data-opt="${oi}"></div>
+      </div>`;
+    });
+    div.innerHTML=rows;
+    fcWrap.appendChild(div);
+  });
+
+  // render likert
+  const likWrap=$('likItems'); likWrap.innerHTML='';
+  likOrder.forEach((it,li)=>{
+    let scale='';
+    for(let v=1;v<=5;v++){
+      scale+=`<label><input type="radio" name="lik-${li}" value="${v}" data-lik="${li}"><span>${v}</span></label>`;
+    }
+    likWrap.insertAdjacentHTML('beforeend',
+      `<div class="lik-item"><div class="lik-q">${li+1}. ${it.t}</div><div class="lik-scale">${scale}</div></div>`);
+  });
+
+  // wire change handlers
+  fcWrap.querySelectorAll('input[type=radio]').forEach(inp=>inp.addEventListener('change',onFcChange));
+  likWrap.querySelectorAll('input[type=radio]').forEach(inp=>inp.addEventListener('change',updateProgress));
+  updateProgress();
+}
+
+function onFcChange(e){
+  const bi=e.target.dataset.block, kind=e.target.dataset.kind, opt=e.target.dataset.opt;
+  // can't pick the same option for both most and least
+  const otherKind = kind==='most'?'least':'most';
+  const other=document.querySelector(`input[name="${otherKind}-${bi}"][data-opt="${opt}"]`);
+  if(other && other.checked){ other.checked=false; }
+  updateProgress();
+}
+
+function blockComplete(bi){
+  const m=document.querySelector(`input[name="most-${bi}"]:checked`);
+  const l=document.querySelector(`input[name="least-${bi}"]:checked`);
+  return m && l;
+}
+function likComplete(li){ return document.querySelector(`input[name="lik-${li}"]:checked`); }
+
+function updateProgress(){
+  let done=0;
+  blockOrder.forEach((_,bi)=>{ if(blockComplete(bi)){done++; $('block-'+bi).classList.add('answered');} else {$('block-'+bi).classList.remove('answered');} });
+  likOrder.forEach((_,li)=>{ if(likComplete(li)) done++; });
+  const total=blockOrder.length+likOrder.length;
+  const pct=Math.round(done/total*100);
+  $('progressFill').style.width=pct+'%';
+  $('progressLabel').textContent=`${done} of ${total} answered`;
+  const ready=done===total;
+  $('submitBtn').disabled=!ready;
+  $('submitHint').style.display=ready?'none':'block';
+}
+
+// ===================== SCORING =====================
+function score(){
+  const fc={D:0,I:0,S:0,C:0}, lik={D:0,I:0,S:0,C:0};
+  const answers={fc:[],lik:[]};
+  blockOrder.forEach((blk,bi)=>{
+    const m=document.querySelector(`input[name="most-${bi}"]:checked`).value;
+    const l=document.querySelector(`input[name="least-${bi}"]:checked`).value;
+    fc[m]+=2; fc[l]-=1;
+    answers.fc.push({q:blk.i,most:m,least:l});
+  });
+  likOrder.forEach((it,li)=>{
+    const v=parseInt(document.querySelector(`input[name="lik-${li}"]:checked`).value,10);
+    lik[it.s]+=v;
+    answers.lik.push({q:it.i,s:it.s,v});
+  });
+
+  // normalize each method to shares summing ~100
+  const keys=['D','I','S','C'];
+  const fcMin=Math.min(...keys.map(k=>fc[k]));
+  const fcOff={}; keys.forEach(k=>fcOff[k]=fc[k]-fcMin+1);
+  const fcSum=keys.reduce((a,k)=>a+fcOff[k],0);
+  const fcShare={}; keys.forEach(k=>fcShare[k]=fcOff[k]/fcSum*100);
+
+  const likSum=keys.reduce((a,k)=>a+lik[k],0);
+  const likShare={}; keys.forEach(k=>likShare[k]=likSum?lik[k]/likSum*100:25);
+
+  const blended={}; keys.forEach(k=>blended[k]=Math.round((0.7*fcShare[k]+0.3*likShare[k])*10)/10);
+
+  const ranked=keys.slice().sort((a,b)=>blended[b]-blended[a]);
+  const primary=ranked[0], secondary=ranked[1];
+  const gap=Math.round((blended[primary]-blended[secondary])*10)/10;
+
+  // consistency: do the two methods agree on the top style?
+  const fcTop=keys.slice().sort((a,b)=>fcShare[b]-fcShare[a])[0];
+  const likTop=keys.slice().sort((a,b)=>likShare[b]-likShare[a])[0];
+  const consistency_flag = fcTop!==likTop;
+
+  return {blended,primary,secondary,gap,consistency_flag,answers,raw:{fc,lik}};
+}
+
+// ===================== RESULTS =====================
+function showResults(r){
+  $('introScreen').style.display='none';
+  $('testScreen').style.display='none';
+  $('progressWrap').style.display='none';
+  $('resultScreen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+
+  const P=STYLE[r.primary], S2=STYLE[r.secondary];
+  $('resultHeadline').textContent = r.gap<8 ? `${P.name} / ${S2.name} blend` : `${P.name}`;
+  $('resultPills').innerHTML =
+    `<span class="pill pill-${r.primary}">Primary &middot; ${r.primary} ${P.name}</span>`+
+    `<span class="pill pill-${r.secondary}">Secondary &middot; ${r.secondary} ${S2.name}</span>`;
+  $('resultBlurb').textContent =
+    `Your default selling mode is the ${P.name} (${P.full}). ${COACH[r.primary].tagline} Under pressure or when you stop paying attention, this is the gear you slip into. Your secondary, the ${S2.name}, is the style you reach for second most naturally.`;
+
+  // bars
+  const keys=['D','I','S','C'];
+  $('resultBars').innerHTML = keys.map(k=>{
+    const v=r.blended[k];
+    return `<div class="bar-row">
+      <div class="bar-label c-${k}">${k} &middot; ${STYLE[k].name}</div>
+      <div class="bar-track"><div class="bar-fill bg-${k}" data-w="${v}"></div></div>
+      <div class="bar-val">${v.toFixed(0)}%</div></div>`;
+  }).join('');
+  setTimeout(()=>{document.querySelectorAll('.bar-fill').forEach(b=>b.style.width=b.dataset.w+'%');},80);
+
+  $('gapNote').innerHTML = r.gap<8
+    ? `Your top two styles are close together (a ${r.gap}-point gap), so you are a genuine blend. You can flex between these two modes more easily than most. Watch that you do not neglect your two lower styles entirely.`
+    : `Your ${P.name} style is pronounced (a ${r.gap}-point lead over your second). That is a real strength with buyers who match it, and a real blind spot with the rest. The note below is the part worth reading twice.`;
+
+  // coaching card for primary
+  const c=COACH[r.primary];
+  $('coachZone').innerHTML =
+    `<div class="coach-card" style="border-top-color:var(--${P.color})">
+      <h3 class="c-${r.primary}">Coaching for the ${P.name}</h3>
+      <div class="coach-row"><span class="coach-key">Your strength</span>${c.strength}</div>
+      <div class="coach-row"><span class="coach-key">Your blind spot</span>${c.blind}</div>
+      <div class="coach-row"><span class="coach-key">Watch for</span>${c.watch}</div>
+      <div class="coach-row"><span class="coach-key">The fix</span>${c.fix}</div>
+      <div class="coach-row"><span class="coach-key">Buyers you'll naturally under-serve</span>${c.underserve}</div>
+    </div>`;
+
+  if(r.consistency_flag){
+    $('consistencyNote').style.display='block';
+    $('consistencyNote').innerHTML='<strong>One thing to note.</strong> Your quick-reaction answers and your self-rating leaned toward different styles. That is normal, and it usually means you are a blend or you are in a role that pulls you out of your natural mode. Trust the result, but take it as a conversation starter, not a verdict.';
+  }
+}
+
+// ===================== PERSIST =====================
+async function saveResult(r){
+  $('saveStatus').textContent='Saving your result...';
+  try{
+    const {data,error}=await window.sb.rpc('save_disc_result',{
+      p_primary:r.primary, p_secondary:r.secondary,
+      p_score_d:r.blended.D, p_score_i:r.blended.I, p_score_s:r.blended.S, p_score_c:r.blended.C,
+      p_gap:r.gap, p_consistency_flag:r.consistency_flag, p_answers:r.answers
+    });
+    if(error){ $('saveStatus').textContent='Saved locally. (Could not sync to your record: '+error.message+')'; return; }
+    $('saveStatus').textContent='Saved to your rep record.';
+  }catch(e){ $('saveStatus').textContent='Saved locally. (Sync error.)'; }
+}
+
+async function loadPrior(){
+  try{
+    const {data,error}=await window.sb.rpc('get_my_disc_result');
+    if(error||!data||!data.length) return;
+    const row=Array.isArray(data)?data[0]:data;
+    const P=STYLE[row.primary_style];
+    const d=new Date(row.taken_at);
+    const when=isNaN(d)?'':' on '+d.toLocaleDateString();
+    $('priorBanner').style.display='flex';
+    $('priorBanner').innerHTML=`<span>You last took this${when}. Your result was <strong>${P?P.name:row.primary_style}</strong>. Retaking creates a fresh record, your history is kept.</span>`;
+  }catch(e){}
+}
+
+// ===================== WIRING =====================
+$('beginBtn').addEventListener('click',()=>{
+  $('introScreen').style.display='none';
+  $('testScreen').style.display='block';
+  $('progressWrap').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+$('submitBtn').addEventListener('click',()=>{
+  // safety re-validate
+  const allDone = blockOrder.every((_,bi)=>blockComplete(bi)) && likOrder.every((_,li)=>likComplete(li));
+  if(!allDone){ $('testErr').style.display='block'; $('testErr').textContent='Please answer every question first.'; return; }
+  const r=score();
+  showResults(r);
+  saveResult(r);
+});
+
+$('retakeBtn').addEventListener('click',()=>{
+  $('resultScreen').style.display='none';
+  buildTest();
+  $('introScreen').style.display='block';
+  $('priorBanner').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+// auth-gate calls this after sign-in + role check.
+function initApp(profile, session){
+  buildTest();
+  loadPrior();
+}
+</script>
+
+</body>
+</html>
