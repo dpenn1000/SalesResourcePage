@@ -819,16 +819,17 @@ function renderCerts() {
 
   grid.innerHTML = state.certs.map(cert => {
     const status = certStatus(cert.id);
+    const isAssess = cert.kind === 'assessment';
     const assigned = state.assignments.some(a => a.cert_id === cert.id);
     const locked = cert.stage === 2 && !stage2Unlocked;
     const clickable = !locked;
 
     return `
-      <div class="cert-card stage-${cert.stage} ${locked ? 'unavailable' : ''}"
+      <div class="cert-card stage-${isAssess ? 1 : cert.stage} ${locked ? 'unavailable' : ''}"
            ${clickable ? `onclick="openCert('${cert.id}')"` : ''}>
         <div class="head">
           <div class="icon">${cert.icon || '📘'}</div>
-          <span class="stage-chip">Stage ${cert.stage}</span>
+          <span class="stage-chip">${isAssess ? 'Assessment' : 'Stage ' + cert.stage}</span>
         </div>
         <div>
           <div class="core">${cert.core}</div>
@@ -839,13 +840,20 @@ function renderCerts() {
           <span class="status-badge ${statusBadgeClass(locked ? 'locked' : (assigned || status !== 'not-started' ? status : 'not-assigned'))}">
             ${locked ? 'Locked' : (assigned || status !== 'not-started' ? statusLabel(status) : 'Not assigned')}
           </span>
-          ${clickable ? `<span class="action">${actionLabel(status)} →</span>` : ''}
+          ${clickable ? `<span class="action">${isAssess ? (status === 'approved' ? 'Review' : 'Take it') : actionLabel(status)} →</span>` : ''}
         </div>
       </div>`;
   }).join('');
 }
 
 function certStatus(certId) {
+  // Assessment-kind certs (e.g. Know Your Style) complete via cert_assignments
+  // (driven by the assessment itself), not quiz attempts.
+  const cert = state.certs.find(c => c.id === certId);
+  if (cert && cert.kind === 'assessment') {
+    const a = state.assignments.find(x => x.cert_id === certId);
+    return (a && a.status === 'completed') ? 'approved' : 'not-started';
+  }
   // Return the most recent attempt status, or 'not-started'
   const attempts = state.attempts.filter(a => a.cert_id === certId);
   if (!attempts.length) return 'not-started';
@@ -888,6 +896,8 @@ function actionLabel(s) {
 async function openCert(certId) {
   const cert = state.certs.find(c => c.id === certId);
   if (!cert) return;
+  // Assessment-kind certs link out to the assessment page instead of a quiz.
+  if (cert.kind === 'assessment' && cert.url) { window.location.href = cert.url; return; }
   const status = certStatus(certId);
 
   if (status === 'pending_review' || status === 'approved') {
