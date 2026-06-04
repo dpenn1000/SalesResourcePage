@@ -40,6 +40,7 @@
   .tabs{display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap;}
   .tab{padding:8px 16px; border:1px solid var(--border); background:var(--surface); border-radius:999px; font-weight:600; font-size:13px; cursor:pointer; color:var(--muted);}
   .tab.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .tabbadge{display:inline-block; background:var(--red); color:#fff; font-size:10px; font-weight:800; min-width:17px; height:17px; line-height:17px; text-align:center; border-radius:999px; padding:0 4px; margin-left:2px;}
   .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:16px; box-shadow:var(--shadow);}
   .weekhd{font-family:'Fraunces',serif; font-size:15px; font-weight:700; margin-bottom:10px; padding-bottom:6px; border-bottom:1px solid var(--border);}
   .daygrid{display:grid; grid-template-columns:repeat(7,1fr); gap:8px;}
@@ -181,6 +182,8 @@ function fmtMD(iso){ const [,m,d]=iso.split('-').map(Number); return m+'/'+d; }
 function fmtMDY(iso){ const [y,m,d]=iso.split('-').map(Number); return m+'/'+d+'/'+y; }
 function dayDate(period, week, dow){ return isoAdd(period.start_date, week*7 + dow); }
 function isSundayISO(iso){ const [y,m,d]=iso.split('-').map(Number); return new Date(y,m-1,d).getDay()===0; }
+function dowName(iso){ const [y,m,d]=iso.split('-').map(Number); const g=new Date(y,m-1,d).getDay(); return DOWS[(g+6)%7].slice(0,3); }
+const CC_TICKET_URL='https://helpdesk.trinitysolarsystems.com/support/catalog/items/67';
 
 function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2200); }
 function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -227,7 +230,7 @@ function buildTabs(inRoster){
   const bar=document.getElementById('tabBar'); bar.style.display='flex';
   const tabs=[];
   if(inRoster) tabs.push(['mine','My Schedule']);
-  tabs.push(['tracker','Ready to Submit'],['coverage','Coverage'],['combined','Combined Grid'],['repview','Rep View'],['export','Export & Period']);
+  tabs.push(['tracker','Ready to Submit'],['coverage','Coverage'],['changes','Change Requests'],['combined','Combined Grid'],['repview','Rep View'],['export','Export & Period']);
   bar.innerHTML = tabs.map(([k,l])=>`<button class="tab ${k===S.tab?'active':''}" data-tab="${k}">${l}</button>`).join('');
   bar.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
 }
@@ -238,6 +241,7 @@ async function switchTab(tab){
   if(tab==='mine'){ await loadMine(); renderMine(); }
   else if(tab==='tracker'){ await loadManagerData(); renderTracker(); }
   else if(tab==='coverage'){ await loadManagerData(); renderCoverage(); }
+  else if(tab==='changes'){ await loadManagerData(); renderChangeRequests(); }
   else if(tab==='repview'){ await loadManagerData(); renderRepView(); }
   else if(tab==='combined'){ await loadManagerData(); renderCombined(); }
   else if(tab==='export'){ await loadManagerData(); renderExport(); }
@@ -247,12 +251,16 @@ async function switchTab(tab){
 async function loadMine(){
   S.myEntries={}; S.mySub=null;
   if(!S.me) return;
-  const [e,s]=await Promise.all([
+  const [e,s,cr,ci]=await Promise.all([
     sb.from('sched_entries').select('work_date,shift_code').eq('period_id',S.period.id).eq('person_id',S.me.id),
-    sb.from('sched_submissions').select('*').eq('period_id',S.period.id).eq('person_id',S.me.id).maybeSingle()
+    sb.from('sched_submissions').select('*').eq('period_id',S.period.id).eq('person_id',S.me.id).maybeSingle(),
+    sb.from('sched_change_requests').select('*').eq('period_id',S.period.id).eq('person_id',S.me.id).order('created_at',{ascending:false}),
+    sb.from('sched_change_items').select('*')
   ]);
   (e.data||[]).forEach(r=>S.myEntries[r.work_date]=r.shift_code);
   S.mySub=s.data;
+  S.myRequests=cr.data||[];
+  S.myReqItems={}; (ci.data||[]).forEach(it=>{ (S.myReqItems[it.request_id]=S.myReqItems[it.request_id]||[]).push(it); });
   S.shiftStatus=null;
   try{ const {data}=await sb.rpc('sched_coverage_summary',{p_period_id:S.period.id}); S.shiftStatus=shiftStatusFromSummary(data); }catch(e2){}
 }
@@ -296,6 +304,83 @@ function repWeekCardsHTML(entries, disabled, shiftStatus){
   return html;
 }
 
+// ---- rep change-request builder (shown when the schedule is locked) ----
+function repChangeBuilderHTML(){
+  const dayOpts=[];
+  for(let w=0;w<S.period.num_weeks;w++) for(let d=0; d<DPW; d++){
+    const iso=dayDate(S.period,w,d); const cur=S.myEntries[iso]||'Off All-Day';
+    dayOpts.push(`<option value="${iso}">${DOWS[d].slice(0,3)} ${fmtMD(iso)} -- now: ${esc(cur)}</option>`);
+  }
+  const shiftOpts=S.shifts.map(s=>`<option value="${esc(s.code)}">${esc(s.label)}</option>`).join('');
+  const reqs=S.myRequests||[];
+  let reqHtml='';
+  if(reqs.length){
+    reqHtml=`<div class="card"><div class="weekhd">Your change requests</div>`+reqs.map(r=>{
+      const items=(S.myReqItems&&S.myReqItems[r.id])||[];
+      const pill=r.status==='open'?'submitted':(r.status==='approved'?'approved':'changes_requested');
+      return `<div style="border-top:1px solid var(--border);padding:8px 0">
+        <div class="row" style="justify-content:space-between"><span class="pill ${pill}">${r.status}${r.cc_ticket_number?' &middot; ticket '+esc(r.cc_ticket_number):''}</span>
+        <span class="muted">${items.length} change${items.length>1?'s':''}</span></div>
+        ${r.reason?`<div class="muted" style="font-size:12px;margin-top:4px">"${esc(r.reason)}"</div>`:''}
+        <div class="muted" style="font-size:12px;margin-top:4px">${items.map(it=>`${dowName(it.work_date)} ${fmtMD(it.work_date)}: ${esc(it.from_code||'--')} &rarr; ${esc(it.to_code||'--')}`).join(' &middot; ')}</div>
+        ${r.decision_note?`<div class="muted" style="font-size:12px;margin-top:4px">Manager: ${esc(r.decision_note)}</div>`:''}</div>`;
+    }).join('')+`</div>`;
+  }
+  return `<div class="card">
+    <div class="weekhd">Request a schedule change</div>
+    <div class="muted">Your schedule is locked. To change a shift, build a request -- your manager reviews it, files the corporate CC ticket, and the change applies once approved. Add as many days as you need.</div>
+    <div class="row" style="margin-top:10px;gap:10px;align-items:flex-end;flex-wrap:wrap">
+      <div><div class="muted" style="font-size:11px">Day</div><select id="crDay" style="padding:7px;border:1px solid var(--border);border-radius:7px;font-family:inherit;min-width:230px">${dayOpts.join('')}</select></div>
+      <div><div class="muted" style="font-size:11px">Change to</div><select id="crShift" style="padding:7px;border:1px solid var(--border);border-radius:7px;font-family:inherit">${shiftOpts}</select></div>
+      <button class="btn btn-ghost" id="crAdd">Add change</button>
+    </div>
+    <div id="crCover" class="muted" style="margin-top:8px;font-size:12px"></div>
+    <div id="crList" style="margin-top:10px"></div>
+    <textarea id="crReason" placeholder="Reason (optional, shown to your manager)" style="width:100%;margin-top:10px;padding:8px;border:1px solid var(--border);border-radius:8px;font-family:inherit;min-height:50px"></textarea>
+    <div class="actionbar" style="margin-top:8px"><button class="btn btn-primary" id="crSubmit" disabled>Submit change request</button></div>
+  </div>${reqHtml}`;
+}
+function renderCrDraft(){
+  const el2=document.getElementById('crList'); if(!el2) return;
+  const d=S.crDraft||[];
+  el2.innerHTML = d.length ? d.map((it,i)=>`<div class="row" style="justify-content:space-between;border:1px solid var(--border);border-radius:7px;padding:6px 10px;margin-bottom:6px">
+      <span>${dowName(it.work_date)} ${fmtMD(it.work_date)} &middot; <b>${esc(it.change_type)}</b> &middot; ${esc(it.from_code)} &rarr; <b>${esc(it.to_code)}</b></span>
+      <button class="iconbtn" data-rm="${i}">Remove</button></div>`).join('') : `<div class="muted" style="font-size:12px">No changes added yet.</div>`;
+  el2.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{ S.crDraft.splice(+b.dataset.rm,1); renderCrDraft(); });
+  const sb2=document.getElementById('crSubmit'); if(sb2) sb2.disabled=!d.length;
+}
+function wireRepChangeBuilder(){
+  S.crDraft=S.crDraft||[];
+  const add=document.getElementById('crAdd'); if(!add) return;
+  add.onclick=async()=>{
+    const iso=document.getElementById('crDay').value, to=document.getElementById('crShift').value;
+    const from=S.myEntries[iso]||'Off All-Day';
+    if(to===from){ toast('That is already the shift for that day'); return; }
+    const type = to==='Off All-Day'?'remove':(from==='Off All-Day'?'add':'change');
+    S.crDraft=(S.crDraft||[]).filter(x=>x.work_date!==iso);
+    S.crDraft.push({work_date:iso, from_code:from, to_code:to, change_type:type});
+    renderCrDraft();
+    const out=document.getElementById('crCover');
+    if(type==='remove' || type==='change'){
+      const sh=shiftFromCode(from); out.textContent='Checking who could cover...';
+      try{ const {data}=await sb.rpc('sched_coverage_candidates',{p_period_id:S.period.id,p_work_date:iso,p_shift:sh});
+        const list=data||[];
+        out.innerHTML=list.length?`<b>Teammates in your area off ${SHIFT_META[sh].name} ${fmtMD(iso)} (reach out to ask for coverage):</b> ${list.map(c=>esc(c.name)).join(', ')}`:`No same-area teammates are free for ${SHIFT_META[sh].name} that day.`;
+      }catch(e){ out.textContent=''; }
+    } else out.textContent='';
+  };
+  const submit=document.getElementById('crSubmit');
+  submit.onclick=async()=>{
+    if(!S.crDraft||!S.crDraft.length) return;
+    submit.disabled=true;
+    const reason=(document.getElementById('crReason').value||'').trim()||null;
+    try{ await sb.rpc('sched_submit_change_request',{p_period_id:S.period.id,p_reason:reason,p_items:S.crDraft});
+      S.crDraft=[]; toast('Change request submitted'); await loadMine(); renderMine();
+    }catch(err){ toast('Submit failed: '+(err.message||err)); submit.disabled=false; }
+  };
+  renderCrDraft();
+}
+
 function renderMine(){
   if(!S.me || !S.me.sales_office){
     document.getElementById('view').innerHTML='<div class="card empty">You are not on the CT availability roster, so there is nothing to fill here.</div>';
@@ -313,7 +398,7 @@ function renderMine(){
     html+=`<div class="card"><div class="note"><b>Changes requested:</b> ${esc(S.mySub.note)}</div></div>`;
   }
   if(locked && status!=='not_started'){
-    html+=`<div class="card"><div class="muted">Your schedule is ${status==='approved'?'approved':'submitted'} and locked. Ask your manager to reopen it if you need a change.</div></div>`;
+    html+=`<div class="card"><div class="muted">Your schedule is ${status==='approved'?'approved':'submitted'}. Need a change? Build a request at the bottom of the page -- your manager reviews it and files the corporate ticket.</div></div>`;
   }
   html+=repWeekCardsHTML(S.myEntries, locked, S.shiftStatus);
   // submit bar
@@ -323,8 +408,10 @@ function renderMine(){
       <button class="btn btn-primary" id="submitBtn" disabled>Submit schedule</button>
     </div></div>`;
   }
+  if(locked && status!=='not_started') html+=repChangeBuilderHTML();
   document.getElementById('view').innerHTML=html;
   repCoverageNudge();   // gentle team-coverage banner (best-effort, via summary RPC)
+  if(locked && status!=='not_started') wireRepChangeBuilder();
 
   // wire selects (autosave one entry on change)
   document.querySelectorAll('#view .day select').forEach(sel=>{
@@ -362,14 +449,20 @@ function renderMine(){
 // ===================== MANAGER DATA =====================
 async function loadManagerData(){
   const region=S.period.region||'CT';
-  const [reps,ent,subs,dem,tgt]=await Promise.all([
+  const [reps,ent,subs,dem,tgt,cr,ci]=await Promise.all([
     sb.from('people').select('id,name,sf_name,spd_slug,division,sales_office,base_county').eq('status','active').like('sales_office','CT%').order('sales_office').order('name'),
     sb.from('sched_entries').select('person_id,work_date,shift_code').eq('period_id',S.period.id),
     sb.from('sched_submissions').select('*').eq('period_id',S.period.id),
     sb.from('sched_demand_baseline').select('*').eq('region',region),
-    sb.from('sched_shift_targets').select('*').eq('region',region)
+    sb.from('sched_shift_targets').select('*').eq('region',region),
+    sb.from('sched_change_requests').select('*').eq('period_id',S.period.id).order('created_at',{ascending:false}),
+    sb.from('sched_change_items').select('*')
   ]);
   S.reps=reps.data||[];
+  S.peopleById={}; S.reps.forEach(r=>S.peopleById[r.id]={name:r.sf_name||r.name, office:r.sales_office});
+  S.changeRequests=cr.data||[];
+  S.changeItems={}; (ci.data||[]).forEach(it=>{ (S.changeItems[it.request_id]=S.changeItems[it.request_id]||[]).push(it); });
+  updateChangesBadge();
   S.allEntries={}; (ent.data||[]).forEach(r=>{ (S.allEntries[r.person_id]=S.allEntries[r.person_id]||{})[r.work_date]=r.shift_code; });
   S.subs={}; (subs.data||[]).forEach(r=>S.subs[r.person_id]=r);
   S.demand={}; S.demandCounty={};
@@ -553,6 +646,78 @@ function renderRepView(){
     document.getElementById('repPreview').innerHTML=h;
   };
   document.getElementById('repPick').onchange=draw; draw();
+}
+
+// ===================== MANAGER: CHANGE REQUESTS =====================
+function shiftFromCode(code){ const sh=SHIFT_OF_CODE[code]||[]; return sh[0]||'S1'; }
+function updateChangesBadge(){
+  const n=(S.changeRequests||[]).filter(r=>r.status==='open').length;
+  const btn=document.querySelector('#tabBar .tab[data-tab="changes"]');
+  if(btn) btn.innerHTML='Change Requests'+(n?` <span class="tabbadge">${n}</span>`:'');
+}
+function renderChangeRequests(){
+  const reqs=[...(S.changeRequests||[])].sort((a,b)=>(a.status==='open'?0:1)-(b.status==='open'?0:1));
+  const open=reqs.filter(r=>r.status==='open').length;
+  let html=`<div class="card"><div class="row" style="justify-content:space-between;align-items:flex-start">
+      <div><div class="weekhd" style="border:0;margin:0;padding:0">Change Requests</div>
+      <div class="muted" style="margin-top:4px">${open} open. Reps request shift changes after the schedule is published. Approving applies the change here, then file the corporate ticket and record its number.</div></div>
+      <a href="${CC_TICKET_URL}" target="_blank" rel="noopener" class="btn btn-ghost" style="text-decoration:none;white-space:nowrap">CC Ticket portal &rarr;</a></div></div>`;
+  if(!reqs.length){ html+=`<div class="card empty">No change requests yet.</div>`; document.getElementById('view').innerHTML=html; return; }
+  reqs.forEach(r=>{
+    const items=S.changeItems[r.id]||[]; const rep=S.peopleById[r.person_id]||{name:'Rep'};
+    const accent=r.status==='open'?'var(--amber)':(r.status==='approved'?'var(--green)':'var(--red)');
+    const pill=r.status==='open'?'submitted':(r.status==='approved'?'approved':'changes_requested');
+    html+=`<div class="card" style="border-left:4px solid ${accent}">
+      <div class="row" style="justify-content:space-between">
+        <div><b>${esc(rep.name)}</b> <span class="muted">${esc(rep.office||'')}</span></div>
+        <span class="pill ${pill}">${r.status}${r.cc_ticket_number?' &middot; '+esc(r.cc_ticket_number):''}</span></div>
+      ${r.reason?`<div class="muted" style="margin:6px 0">"${esc(r.reason)}"</div>`:''}
+      <table class="tracker" style="margin-top:6px"><thead><tr><th>Day</th><th>Change</th><th>From</th><th>To</th><th></th></tr></thead><tbody>
+      ${items.map(it=>`<tr>
+        <td>${dowName(it.work_date)} ${fmtMD(it.work_date)}</td><td>${esc(it.change_type)}</td>
+        <td class="muted">${esc(it.from_code||'--')}</td><td><b>${esc(it.to_code||'--')}</b></td>
+        <td>${it.change_type==='remove'?`<button class="iconbtn" data-cover="${r.person_id}|${it.work_date}|${shiftFromCode(it.from_code)}">Who can cover?</button>`:''}</td>
+      </tr>`).join('')}</tbody></table>
+      <div class="cover-out muted" style="margin-top:6px;font-size:12px"></div>
+      ${r.decision_note?`<div class="muted" style="margin-top:6px">Manager note: ${esc(r.decision_note)}</div>`:''}
+      ${r.status==='open'?`<div class="actionbar" style="margin-top:8px">
+        <button class="iconbtn approve" data-approve="${r.id}">Approve + ticket</button>
+        <button class="iconbtn changes" data-deny="${r.id}">Deny</button></div>`:''}
+      ${r.status==='approved'&&!r.cc_ticket_number?`<div class="actionbar" style="margin-top:8px"><button class="iconbtn" data-ticket="${r.id}">Add CC ticket #</button></div>`:''}
+    </div>`;
+  });
+  document.getElementById('view').innerHTML=html;
+  document.querySelectorAll('#view [data-approve]').forEach(b=>b.onclick=()=>crApprove(b.dataset.approve));
+  document.querySelectorAll('#view [data-deny]').forEach(b=>b.onclick=()=>crDeny(b.dataset.deny));
+  document.querySelectorAll('#view [data-ticket]').forEach(b=>b.onclick=()=>crTicket(b.dataset.ticket));
+  document.querySelectorAll('#view [data-cover]').forEach(b=>b.onclick=()=>crCover(b));
+}
+async function crApprove(id){
+  const t=prompt('CC ticket number (file it at the CC Ticket portal first, then paste the number here):');
+  if(t===null) return;
+  const note=prompt('Optional note to the rep:')||null;
+  try{ await sb.rpc('sched_review_change_request',{p_request_id:id,p_action:'approve',p_note:note,p_ticket:t||null});
+    toast('Approved'); await loadManagerData(); renderChangeRequests();
+  }catch(err){ toast('Failed: '+(err.message||err)); }
+}
+async function crDeny(id){
+  const note=prompt('Reason for denial (shown to the rep):'); if(note===null) return;
+  try{ await sb.rpc('sched_review_change_request',{p_request_id:id,p_action:'deny',p_note:note,p_ticket:null});
+    toast('Denied'); await loadManagerData(); renderChangeRequests();
+  }catch(err){ toast('Failed: '+(err.message||err)); }
+}
+async function crTicket(id){
+  const t=prompt('CC ticket number:'); if(!t) return;
+  try{ await sb.rpc('sched_set_ticket_number',{p_request_id:id,p_ticket:t}); toast('Saved'); await loadManagerData(); renderChangeRequests(); }
+  catch(err){ toast('Failed: '+(err.message||err)); }
+}
+async function crCover(btn){
+  const [pid,date,shift]=btn.dataset.cover.split('|');
+  const out=btn.closest('.card').querySelector('.cover-out'); out.textContent='Checking...';
+  try{ const {data}=await sb.rpc('sched_coverage_candidates',{p_period_id:S.period.id,p_work_date:date,p_shift:shift,p_for_person:pid});
+    const list=data||[];
+    out.innerHTML=list.length?`<b>Could cover ${SHIFT_META[shift].name} ${fmtMD(date)}:</b> ${list.map(c=>esc(c.name)).join(', ')}`:`No same-territory teammates are free for ${SHIFT_META[shift].name} that day.`;
+  }catch(err){ out.textContent='Lookup failed: '+(err.message||err); }
 }
 
 // ===================== MANAGER: TRACKER =====================
