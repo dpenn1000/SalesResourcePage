@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/auth-gate.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
 <script src="/site-back.js" defer></script>
 <style>
@@ -39,6 +39,9 @@
   .b-cancel{background:rgba(200,140,0,.12);color:#8a5800}.b-new{background:rgba(120,200,50,.18);color:#3a7010}
   .b-done{background:rgba(120,200,50,.16);color:#3a7010}
   .b-lang{background:rgba(41,169,225,.14);color:#1070a0}
+  .b-flag{background:rgba(214,48,48,.12);color:#a02020}
+  .btn-flag{background:#fff;color:#a02020;border:1px solid #e3a3a3;border-radius:8px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+  .btn-flag:hover{background:#fdecec}.btn-flag:disabled{opacity:.6;cursor:default}
   .chev{margin-left:auto;color:var(--muted);font-size:13px}
   .card-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
   .card.open .card-body{display:block}
@@ -157,13 +160,18 @@
 <script>
 const sb = window.sb;            // shared client + session from /auth-gate.js
 const SF = 'https://trinity-solar.lightning.force.com/lightning/r/{}/view';
-let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set();
+let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set(), flagsByDl={};
 
 const HSTATES=['','Receptive / re-engaged','Not interested','Already has solar','Renter / not owner','Moving / selling','Hostile / rude','Hard no / stop calling','Wrong / bad number','DNC request'];
 const FSOURCES=['','Setter: misinformation','Setter: aggressive / pushy','Setter: needs coaching','Call center: no confirmation','Call center: over-confirming (too many texts/calls)','Call center: high pressure','Prior rep: bad experience','Other'];
 const DISPO={deleted:['Deleted (pre-run)','b-deleted'],noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],new:['New','b-new']};
 // Disposition options a rep/manager can set on the lead record (matches the lifecycle_state vocabulary the dashboard reads).
 const DISPO_EDIT=[['ready','Ready to dispatch'],['goback','Go-back scheduled'],['ran','Appointment ran'],['noshow','No show'],['cancel','Cancelled'],['nosale','No sale / not interested'],['sold','Sold'],['deleted','Deleted (pre-run)']];
+// Reasons a rep can kick a lead back to the manager for review. flag_type values
+// must match the lead_flags check constraint + the queue in leads.html.
+const FLAG_REASONS=[['spanish','Spanish speaker'],['language_other','Other language need'],['not_mine',"Shouldn't be on my list -- existing lead / another rep's customer or SG/referral"],['bad_info','Wrong / bad lead info'],['review','Needs your review (general)'],['other','Other']];
+const FLAG_LABEL=Object.fromEntries(FLAG_REASONS);
+function openFlagFor(l){const a=flagsByDl[l.dl_number];return a&&a.length?a[0]:null;}
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function apptNotice(){const m=document.getElementById('apptModal');if(m)m.style.display='flex';}
@@ -219,12 +227,15 @@ async function loadLeads(){
   if(!target) return;                                // manager hasn't picked a rep yet
   try{
     const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,language,properties(town,county,dnc)';
-    const [{data:dl,error:e1},{data:cl}] = await Promise.all([
+    const [{data:dl,error:e1},{data:cl},{data:fl}] = await Promise.all([
       sb.from('direct_leads').select(SEL).not('assigned_to','is',null).order('last_appt_date',{ascending:false,nullsFirst:false}),
       sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source').order('contacted_at',{ascending:false}),
+      sb.from('lead_flags').select('id,dl_number,flag_type,note,flagged_by,created_at,status').eq('status','open'),
     ]);
     if(e1)throw e1;
     leads=(dl||[]).filter(l=>(l.assigned_to||'')===target && !(l.properties&&l.properties.dnc) && !/forge/i.test(l.lead_source||''));   // scope to rep; never show DNC'd or Forge-source leads
+    flagsByDl={};                                                       // open kick-backs, keyed by DL (RLS gives reps their own; managers see all)
+    for(const f of (fl||[])){(flagsByDl[f.dl_number]=flagsByDl[f.dl_number]||[]).unshift(f);}
     contacts=cl||[]; byOpp={};
     for(const c of contacts){(byOpp[c.opportunity_id]=byOpp[c.opportunity_id]||[]).push(c);}
     renderKpis(); render();
@@ -285,6 +296,16 @@ function cardHtml(l){
         </div>
         <button class="btn-primary" onclick="saveCall('${esc(l.dl_number)}')">Log call</button>
       </div>`;
+  const of = openFlagFor(l);
+  const flaggedBanner = of
+    ? `<div style="background:#fff4f4;border:1px solid #f3cdcd;border-radius:8px;padding:8px 11px;margin-top:10px;font-size:12.5px;color:#a02020"><b>Flagged ${fmtDate(of.created_at)}:</b> ${esc(FLAG_LABEL[of.flag_type]||of.flag_type)}${of.note?' &middot; '+esc(of.note):''}. Awaiting review.</div>`
+    : '';
+  const flagForm = `<div class="logform" style="background:#fff4f4;border-color:#f3cdcd;margin-top:10px">
+        <h4>${of?'Add another note for review':'Kick back for review'}</h4>
+        <div class="frow"><label>Reason</label><select id="fr-${esc(l.dl_number)}">${FLAG_REASONS.map(([v,t])=>`<option value="${v}">${esc(t)}</option>`).join('')}</select></div>
+        <div class="frow"><label>Note -- what should the manager know?</label><textarea id="fn-${esc(l.dl_number)}" rows="2" placeholder="e.g. homeowner only speaks Spanish; this looks like another rep's referral from last week..."></textarea></div>
+        <button class="btn-flag" onclick="flagLead('${esc(l.dl_number)}')">Send for review</button>
+      </div>`;
   const leadForm = `<div class="logform" style="background:#fff7ef;border-color:#f0d9b8;margin-top:10px">
         <h4>Update lead${window.IS_MANAGER?` <span style="font-weight:500;color:var(--muted);font-size:11px">for ${esc(VIEW_AS||'this rep')}</span>`:''}</h4>
         <div class="frow"><label>Disposition</label><select id="ds-${esc(l.dl_number)}">
@@ -298,7 +319,7 @@ function cardHtml(l){
   return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
     <div class="card-head" onclick="toggle('${esc(l.dl_number)}')">
       <div><div class="nm">${esc(l.homeowner_name||'--')}</div><div class="card-sub">${esc(town)} &middot; ${esc(l.dl_number)}${lastCall?' &middot; last call '+fmtDate(lastCall.contacted_at):''}</div></div>
-      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${calledBadge}${(l.language||'').toLowerCase()==='spanish'?' <span class="badge b-lang">Spanish</span>':''}
+      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${calledBadge}${(l.language||'').toLowerCase()==='spanish'?' <span class="badge b-lang">Spanish</span>':''}${of?' <span class="badge b-flag">Flagged</span>':''}
       <span class="chev">${open?'&#9662;':'&#9656;'}</span>
     </div>
     <div class="card-body">
@@ -309,7 +330,7 @@ function cardHtml(l){
         <div><div class="k">Direct Lead</div>${l.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(l.dl_sf_id))}">Open in SF &nearr; (phone here)</a>`:'<span class="card-sub">no SF link</span>'}</div>
       </div>
       ${cs.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:4px">Call history</div>'+cs.map(c=>`<div class="hist"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.homeowner_state?' &middot; '+esc(c.homeowner_state):''}${c.frustration_source?' &middot; '+esc(c.frustration_source):''}${c.logged_by&&c.logged_by!==target?' &middot; <span style="color:var(--accent);font-weight:600">by '+esc(c.logged_by)+'</span>':''}${c.notes?'<br>'+esc(c.notes):''}${c.next_step?'<br>Next: '+esc(c.next_step):''}</div>`).join(''):''}
-      ${logForm}${leadForm}
+      ${logForm}${leadForm}${flaggedBanner}${flagForm}
     </div>
   </div>`;
 }
@@ -374,6 +395,22 @@ async function saveLead(dl){
   Object.assign(l,patch);
   toast('Lead updated'+(window.IS_MANAGER&&VIEW_AS?(' for '+VIEW_AS):''));
   renderKpis();render();
+}
+// Kick a lead back to the manager for review. Attribution is derived server-side
+// from auth.uid() in flag_lead(); we only send the DL, reason, and note.
+async function flagLead(dl){
+  const l=leads.find(x=>x.dl_number===dl);if(!l)return;
+  const reasonEl=document.getElementById('fr-'+dl),noteEl=document.getElementById('fn-'+dl);
+  const reason=reasonEl?reasonEl.value:'review';
+  const note=noteEl?noteEl.value.trim():'';
+  const card=document.getElementById('c-'+dl);
+  const btn=card?card.querySelector('.btn-flag'):null;
+  if(btn){btn.disabled=true;btn.textContent='Sending...';}
+  const { data, error }=await sb.rpc('flag_lead',{p_dl_number:dl,p_flag_type:reason,p_note:note||null,p_opportunity_id:oppOf(l)});
+  if(error){toast('Could not send: '+error.message);if(btn){btn.disabled=false;btn.textContent='Send for review';}return;}
+  (flagsByDl[dl]=flagsByDl[dl]||[]).unshift({id:(data&&data.id),dl_number:dl,flag_type:reason,note:note||null,flagged_by:ME,created_at:new Date().toISOString(),status:'open'});
+  toast('Sent for review');
+  render();
 }
 function initAppGate(){}
 </script>

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/auth-gate.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -219,6 +219,8 @@
     <button class="tab" data-tab="leads" onclick="setTab('leads')">Leads</button>
     <button class="tab" data-tab="reps" onclick="setTab('reps')">Reps</button>
     <button class="tab" data-tab="qc" onclick="setTab('qc')">QC Review</button>
+    <button class="tab" data-tab="flags" onclick="setTab('flags')">Flags<span id="flagsTabCount"></span></button>
+    <button class="tab" data-tab="recovery" onclick="setTab('recovery')">Recovery<span id="recTabCount"></span></button>
     <button class="tab" data-tab="load" onclick="setTab('load')">Load</button>
   </div>
   <div class="wrap">
@@ -310,6 +312,46 @@
       <div id="qcBody"><div class="empty">Loading QC calls...</div></div>
     </div>
 
+    <div id="tab-flags" class="tabpanel" style="display:none">
+      <div class="toolbar">
+        <select id="flagStatus" onchange="renderFlags()">
+          <option value="open">Open</option>
+          <option value="resolved">Resolved</option>
+          <option value="dismissed">Dismissed</option>
+          <option value="all">All</option>
+        </select>
+        <select id="flagReason" onchange="renderFlags()" title="Reason"><option value="">All reasons</option></select>
+        <input type="search" id="flagq" placeholder="Search name, DL, rep, note..." oninput="renderFlags()">
+        <button class="hbtn" onclick="loadFlags()">Refresh</button>
+      </div>
+      <div class="sub" style="margin:2px 0 10px">Leads reps kicked back for your review. Resolving a language flag can set the lead's language so it routes and badges correctly. Reps see their flag clear once you resolve it.</div>
+      <div id="flagSummary" class="sub" style="margin:6px 0 10px"></div>
+      <div id="flagBody"><div class="empty">Loading flags...</div></div>
+    </div>
+
+    <div id="tab-recovery" class="tabpanel" style="display:none">
+      <div class="toolbar">
+        <select id="recBucket" onchange="renderRecovery()">
+          <option value="">All recovery buckets</option>
+          <option value="selfgen">Self-gen / Direct (rep-owned)</option>
+          <option value="goback">Unresolved go-backs</option>
+          <option value="stage2">Aged Stage-2 (needs review)</option>
+        </select>
+        <select id="recAge" onchange="renderRecovery()" title="Minimum days stagnant">
+          <option value="0">Any age</option>
+          <option value="7">Stagnant 7+ days</option>
+          <option value="14" selected>Stagnant 14+ days</option>
+          <option value="30">Stagnant 30+ days</option>
+          <option value="60">Stagnant 60+ days</option>
+        </select>
+        <label class="chk"><input type="checkbox" id="recMisOnly" onchange="renderRecovery()"> dispatched away from owner only</label>
+        <input type="search" id="recq" placeholder="Search name, town, rep, DL..." oninput="renderRecovery()">
+      </div>
+      <div class="sub" style="margin:2px 0 10px">Stagnant leads that need handling differently from the call list: self-gens that belong to a rep, unresolved go-backs, and aged Stage-2 leads. "Return to owner" reassigns a rep-owned lead back to the rep who generated it.</div>
+      <div id="recSummary" class="sub" style="margin:6px 0 10px"></div>
+      <div id="recBody"><div class="empty">Loading recovery list...</div></div>
+    </div>
+
     <div id="tab-load" class="tabpanel" style="display:none">
       <div class="panel" style="max-width:700px">
         <h2>Add a lead manually</h2>
@@ -381,6 +423,8 @@ let oppToProp = {};    // opportunity_id -> property index
 let propByKey = {};    // row key -> property group (lazy detail expand)
 let expandAll = false; // Leads tab: expand-all toggle
 let ME = '';           // current manager name (review attribution)
+let flags = [], flagsLoaded = false;   // rep kick-back flags (Flags tab; lazy-loaded)
+const FLAG_LABEL = {spanish:'Spanish speaker',language_other:'Other language need',not_mine:"Shouldn't be on list (existing / other rep's lead)",bad_info:'Wrong / bad lead info',review:'Needs review (general)',other:'Other'};
 
 function showOnly(id){for(const s of ['loginScreen','changePasswordScreen','appWrap']){const el=document.getElementById(s);if(el)el.style.display=(s===id)?(s==='appWrap'?'block':'flex'):'none';}}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
@@ -428,7 +472,7 @@ async function changePassword(){
 }
 
 /* PostgREST caps a single response at 1000 rows; page through so we get every lead. */
-const SEL_DL='dl_number,dl_sf_id,property_id,homeowner_name,lead_source,set_by,original_rep,first_appt_date,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,appointments,redispatch_approved,opportunity_ids,sold,sold_contract_date,sold_rep,language,properties(property_id,town,county,dnc,sold,quality_flags)';
+const SEL_DL='dl_number,dl_sf_id,property_id,homeowner_name,lead_source,set_by,original_rep,first_appt_date,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,appointments,redispatch_approved,opportunity_ids,sold,sold_contract_date,sold_rep,language,sales_notes,properties(property_id,town,county,dnc,sold,quality_flags)';
 async function fetchAllDL(){
   let out=[],from=0,size=1000;
   while(true){
@@ -467,7 +511,7 @@ async function initApp(){
     for(const r of Object.keys(repCount).sort((a,b)=>repCount[b]-repCount[a]))rp.appendChild(new Option(`${r} (${repCount[r]})`,r));
     const la=document.getElementById('li_assign');for(const n of people)la.appendChild(new Option(n,n));
     const dr=document.getElementById('dispatchRep');for(const n of people)dr.appendChild(new Option(n,n));
-    renderKpis();renderTeamChart();renderDashDetail();render();
+    renderKpis();renderTeamChart();renderDashDetail();render();updateRecCount();
   }catch(err){
     document.getElementById('tableWrap').innerHTML='<div class="empty">Load failed: '+esc(err.message||err)+'</div>';
   }
@@ -805,6 +849,181 @@ function setTab(t){
   if(t==='load')renderIntakeList();
   if(t==='reps')renderRepOverview();
   if(t==='qc')renderQc();
+  if(t==='flags'){if(!flagsLoaded)loadFlags();else renderFlags();}
+  if(t==='recovery')renderRecovery();
+}
+/* ── Flags tab: rep kick-backs for manager review ── */
+function dlRow(dl){for(const g of props){for(const d of g.dls){if(d.dl_number===dl)return {dl:d,prop:g.property||{}};}}return null;}
+async function loadFlags(){
+  const body=document.getElementById('flagBody');
+  body.innerHTML='<div class="empty">Loading flags...</div>';
+  const { data, error }=await sb.from('lead_flags')
+    .select('id,dl_number,opportunity_id,flag_type,note,flagged_by,status,resolution_note,language_set,resolved_by,resolved_at,created_at')
+    .order('created_at',{ascending:false});
+  if(error){body.innerHTML='<div class="empty">Could not load flags: '+esc(error.message)+'</div>';return;}
+  flags=data||[];flagsLoaded=true;
+  const rsel=document.getElementById('flagReason');
+  if(rsel&&rsel.options.length<=1){for(const k of Object.keys(FLAG_LABEL))rsel.appendChild(new Option(FLAG_LABEL[k],k));}
+  renderFlags();
+}
+function updateFlagsTabCount(){
+  const n=flags.filter(f=>f.status==='open').length;
+  const el=document.getElementById('flagsTabCount');
+  if(el)el.innerHTML=n?` <span class="badge b-review" style="margin-left:5px">${n}</span>`:'';
+}
+function renderFlags(){
+  updateFlagsTabCount();
+  const body=document.getElementById('flagBody');
+  const st=document.getElementById('flagStatus').value;
+  const rf=document.getElementById('flagReason').value;
+  const q=document.getElementById('flagq').value.trim().toLowerCase();
+  const rows=flags.filter(f=>{
+    if(st!=='all'&&f.status!==st)return false;
+    if(rf&&f.flag_type!==rf)return false;
+    if(q){const c=dlRow(f.dl_number);const nm=c?(c.dl.homeowner_name||''):'';const hay=(nm+' '+f.dl_number+' '+(f.flagged_by||'')+' '+(f.note||'')).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+  document.getElementById('flagSummary').textContent=`${rows.length} ${st==='all'?'':st} flag${rows.length===1?'':'s'}`;
+  body.innerHTML=rows.length?rows.map(flagCard).join(''):'<div class="empty">No flags here.</div>';
+}
+function flagCard(f){
+  const c=dlRow(f.dl_number);
+  const nm=c?(c.dl.homeowner_name||'--'):'--';
+  const town=c&&c.prop?(c.prop.town||''):'';
+  const sfId=c?c.dl.dl_sf_id:'';
+  const isLang=(f.flag_type==='spanish'||f.flag_type==='language_other');
+  const open=f.status==='open';
+  const sfLink=sfId?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(sfId))}">Open in SF &nearr;</a>`:'';
+  const meta=`<div class="sub" style="margin-top:3px">Flagged by <b>${esc(f.flagged_by||'--')}</b> &middot; ${fmtDate(f.created_at)}${town?' &middot; '+esc(town):''} &middot; ${esc(f.dl_number)}${sfLink}</div>`;
+  const noteHtml=f.note?`<div style="margin-top:6px;font-size:13.5px">${esc(f.note)}</div>`:'';
+  let actions;
+  if(open){
+    const langBtn=isLang?`<button class="act review" onclick="resolveFlag('${f.id}','resolved','spanish')" title="Set this lead's language to Spanish and resolve the flag">Set Spanish + resolve</button> `:'';
+    actions=`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">${langBtn}<button class="act" onclick="resolveFlag('${f.id}','resolved','')">Resolve</button><button class="act danger" onclick="resolveFlag('${f.id}','dismissed','')">Dismiss</button></div>`;
+  } else {
+    actions=`<div class="sub" style="margin-top:8px">${esc(f.status==='dismissed'?'Dismissed':'Resolved')} by ${esc(f.resolved_by||'--')}${f.resolved_at?' &middot; '+fmtDate(f.resolved_at):''}${f.language_set?' &middot; set language='+esc(f.language_set):''}${f.resolution_note?'<br>'+esc(f.resolution_note):''} &middot; <button class="act" onclick="resolveFlag('${f.id}','open','')">Reopen</button></div>`;
+  }
+  return `<div class="panel" style="padding:12px 14px;margin-bottom:10px"><div><span class="badge ${open?'b-review':'b-sold'}">${esc(FLAG_LABEL[f.flag_type]||f.flag_type)}</span> <b style="margin-left:6px">${esc(nm)}</b></div>${meta}${noteHtml}${actions}</div>`;
+}
+async function resolveFlag(id,status,lang){
+  const f=flags.find(x=>x.id===id);if(!f)return;
+  if(status==='dismissed'&&!confirm('Dismiss this flag without action?'))return;
+  const { error }=await sb.rpc('resolve_lead_flag',{p_flag_id:id,p_status:status,p_resolution:null,p_language_set:lang||null});
+  if(error){toast('Failed: '+esc(error.message));return;}
+  f.status=status;f.resolved_by=status==='open'?null:ME;f.resolved_at=status==='open'?null:new Date().toISOString();
+  if(lang){f.language_set=lang;const c=dlRow(f.dl_number);if(c)c.dl.language=lang;}
+  toast(status==='open'?'Reopened':(status==='dismissed'?'Dismissed':'Resolved'));
+  renderFlags();
+}
+/* ── Recovery tab: stagnant leads that need handling apart from the call list ── */
+const REC_LABEL={selfgen:'Self-gen / Direct',goback:'Unresolved go-back',stage2:'Aged Stage-2'};
+function matchRep(name){if(!name)return null;const n=String(name).trim().toLowerCase();return people.find(p=>p.toLowerCase()===n)||null;}
+function recStagnant(g){const d=daysSince(g.primary.last_appt_date);return d!=null?d:daysSince(g.primary.first_appt_date);}
+function isMisassigned(g){
+  if(leadType(g)!=='direct')return false;
+  const a=g.primary.assigned_to,o=g.primary.original_rep;
+  return !!(a&&o&&a.trim().toLowerCase()!==o.trim().toLowerCase());
+}
+function recoveryBucket(g){
+  if(g.anySold)return null;
+  if(g.dnc||g.primary.lifecycle_state==='dnc'||/forge/i.test(g.primary.lead_source||''))return null;
+  if(leadType(g)==='direct')return 'selfgen';                                   // rep-owned: belongs back with its rep
+  const st=g.primary.lifecycle_state||'';
+  if(st==='goback'||/go ?back/i.test(g.primary.last_outcome||''))return 'goback';
+  if(leadCategory(g)==='review')return 'stage2';                                // sat/Stage-2, cooldown elapsed
+  return null;
+}
+function recoveryNotes(g){
+  const out=[];
+  for(const dl of g.dls)for(const a of (dl.appointments||[])){if(a&&a.notes)out.push({when:a.date||a.at||'',who:a.rep||'',text:a.notes,kind:'appt'});}
+  const ids=new Set();for(const dl of g.dls)for(const oid of (dl.opportunity_ids||[]))ids.add(oid);
+  for(const c of contacts)if(ids.has(c.opportunity_id)&&c.notes)out.push({when:c.contacted_at||'',who:c.logged_by||'',text:c.notes,kind:'qc'});
+  out.sort((a,b)=>String(b.when).localeCompare(String(a.when)));
+  return out;
+}
+function recoveryItems(){
+  const bucket=document.getElementById('recBucket').value;
+  const minAge=parseInt(document.getElementById('recAge').value||'0',10);
+  const misOnly=document.getElementById('recMisOnly').checked;
+  const q=(document.getElementById('recq').value||'').trim().toLowerCase();
+  const out=[];
+  for(const g of props){
+    const b=recoveryBucket(g);if(!b)continue;
+    if(bucket&&b!==bucket)continue;
+    if(misOnly&&!isMisassigned(g))continue;
+    const age=recStagnant(g);
+    // A lead dispatched away from its owner is urgent regardless of age -- never
+    // let the stagnant-days filter hide the ownership leak.
+    if(minAge&&!(age!=null&&age>=minAge)&&!isMisassigned(g))continue;
+    if(q){const hay=((g.primary.homeowner_name||'')+' '+((g.property&&g.property.town)||'')+' '+(g.primary.original_rep||'')+' '+(g.primary.assigned_to||'')+' '+g.primary.dl_number).toLowerCase();if(!hay.includes(q))continue;}
+    out.push({g,bucket:b,age});
+  }
+  out.sort((a,b)=>(b.age==null?-1:b.age)-(a.age==null?-1:a.age));
+  return out;
+}
+function updateRecCount(){
+  let n=0;for(const g of props)if(recoveryBucket(g))n++;
+  const el=document.getElementById('recTabCount');
+  if(el)el.innerHTML=n?` <span class="badge b-cooldown" style="margin-left:5px">${n}</span>`:'';
+}
+function renderRecovery(){
+  updateRecCount();
+  const body=document.getElementById('recBody');if(!body)return;
+  const items=recoveryItems();
+  const mis=items.filter(it=>isMisassigned(it.g)).length;
+  document.getElementById('recSummary').innerHTML=`${items.length} lead${items.length===1?'':'s'} to recover`+(mis?` &middot; <b style="color:var(--red)">${mis} dispatched away from owner</b>`:'');
+  body.innerHTML=items.length?items.map(recCard).join(''):'<div class="empty">Nothing in this bucket at this age. Loosen the filters above.</div>';
+}
+function recCard(it){
+  const g=it.g,p=g.primary;
+  const key=g.property.property_id||p.dl_number;
+  const town=(g.property&&g.property.town)||'';
+  const owner=p.original_rep||'';
+  const ownerCanon=matchRep(owner);
+  const mis=isMisassigned(g);
+  const ageTxt=it.age!=null?`${it.age}d stagnant`:'no appt date';
+  const what=`${esc(p.lead_source||'--')}${p.last_outcome?' &middot; '+esc(p.last_outcome):(' &middot; '+esc(p.lifecycle_state||''))}${p.appt_count?' &middot; '+p.appt_count+' appt'+(p.appt_count>1?'s':''):''}`;
+  const ownerLine=`Belonged to <b>${esc(owner||'--')}</b>`+(p.assigned_to?` &rarr; now with <b style="${mis?'color:var(--red)':''}">${esc(p.assigned_to)}</b>${mis?' <span class="badge b-direct">dispatched away</span>':''}`:' &middot; <span class="sub">unassigned</span>');
+  const sfLink=p.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(p.dl_sf_id))}">Open in SF &nearr;</a>`:'';
+  // notes
+  const notes=recoveryNotes(g);
+  const salesNote=p.sales_notes?`<div style="margin-top:6px;font-size:13px;background:#f3f7ef;border:1px solid #dfe7d4;border-radius:6px;padding:6px 9px"><b>Sales Notes:</b> ${esc(p.sales_notes)}</div>`:'';
+  const noteLine=n=>`<div class="sub" style="margin-top:4px"><b>${fmtDate(n.when)}</b>${n.who?' &middot; '+esc(n.who):''} <span class="badge ${n.kind==='qc'?'b-callable':''}" style="font-size:9px">${n.kind==='qc'?'QC call':'appt'}</span><br>${esc(n.text)}</div>`;
+  const firstNotes=notes.slice(0,2).map(noteLine).join('');
+  const restNotes=notes.length>2?`<div id="recn-${esc(key)}" style="display:none">${notes.slice(2).map(noteLine).join('')}</div><button class="act" style="margin-top:6px" onclick="toggleRecNotes('${esc(key)}',this)">Show ${notes.length-2} more note${notes.length-2>1?'s':''}</button>`:'';
+  const notesBlock=(salesNote||notes.length)?`<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">${salesNote}${firstNotes||(salesNote?'':'<span class="sub">No notes recorded.</span>')}${restNotes}</div>`:'<div class="sub" style="margin-top:8px">No notes recorded.</div>';
+  // actions
+  let actions='';
+  if(it.bucket==='selfgen'){
+    if(ownerCanon && (mis||!p.assigned_to)) actions=`<button class="act review" onclick="returnToOwner('${esc(p.dl_number)}')">Return to ${esc(ownerCanon.split(' ')[0])}</button>`;
+    else if(!ownerCanon) actions=`<span class="sub">Owner not on active roster -- reassign in SF</span>`;
+    else actions=`<span class="sub">Already with owner</span>`;
+  } else if(it.bucket==='stage2'){
+    actions=`<button class="act review" onclick="approveRedispatch('${esc(p.dl_number)}')">Approve redispatch</button>`;
+  }
+  return `<div class="panel" style="padding:12px 14px;margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
+      <div><span class="badge b-cooldown">${esc(REC_LABEL[it.bucket]||it.bucket)}</span> <b style="margin-left:6px">${esc(p.homeowner_name||'--')}</b>${town?' <span class="sub">&middot; '+esc(town)+'</span>':''}</div>
+      <span class="sub" style="white-space:nowrap">${ageTxt}</span>
+    </div>
+    <div class="sub" style="margin-top:3px">${ownerLine}</div>
+    <div class="sub" style="margin-top:2px">${what} &middot; ${esc(p.dl_number)} ${sfLink}</div>
+    ${notesBlock}
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${actions}</div>
+  </div>`;
+}
+function toggleRecNotes(key,btn){const d=document.getElementById('recn-'+key);if(!d)return;const sh=d.style.display==='none';d.style.display=sh?'block':'none';if(btn)btn.textContent=sh?'Hide notes':('Show more notes');}
+async function returnToOwner(dl){
+  const g=props.find(x=>x.primary.dl_number===dl);if(!g)return;
+  const owner=matchRep(g.primary.original_rep);
+  if(!owner){toast('Original rep is not on the active roster -- reassign in Salesforce.');return;}
+  if(!confirm(`Return ${g.primary.homeowner_name||dl} to ${owner}? This takes it off the current rep's list and back to the rep who generated it.`))return;
+  const { data, error }=await sb.from('direct_leads').update({assigned_to:owner,updated_at:new Date().toISOString()}).eq('dl_number',dl).select('dl_number');
+  if(error){toast('Failed: '+esc(error.message));return;}
+  if(!data||!data.length){toast('Not permitted (need manager access).');return;}
+  g.primary.assigned_to=owner;g.dls.forEach(d=>{if(d.dl_number===dl)d.assigned_to=owner;});
+  toast(`Returned to ${owner}`);
+  renderRecovery();renderKpis();
 }
 function toggleExpandAll(){
   expandAll=!expandAll;
@@ -831,12 +1050,17 @@ function updateDispatchBar(){
 async function bulkDispatch(){
   const rep=document.getElementById('dispatchRep').value;
   if(!rep){toast('Choose a rep to dispatch to');return;}
-  const dls=[...selected];
-  if(!dls.length){toast('No leads selected');return;}
+  const sel=[...selected];
+  if(!sel.length){toast('No leads selected');return;}
   const m={};props.forEach(g=>{m[g.primary.dl_number]=g;});
-  let direct=0;for(const dl of dls){const g=m[dl];if(g&&leadType(g)==='direct'&&(g.primary.original_rep||'')!==rep)direct++;}
+  // Hard guard: a Direct lead (self-gen, referral, repeat, word-of-mouth, Trinity
+  // Direct) belongs to its original rep and must never be dispatched to the call
+  // team. Drop those from the batch -- they're handled in Recovery, not here.
+  const blocked=sel.filter(dl=>{const g=m[dl];return g&&leadType(g)==='direct'&&(g.primary.original_rep||'')!==rep;});
+  const dls=sel.filter(dl=>!blocked.includes(dl));
+  if(!dls.length){toast(`All selected are Direct (rep-owned) -- return them to their owner in Recovery, don't dispatch.`);return;}
   let msg=`Dispatch ${dls.length} lead${dls.length===1?'':'s'} to ${rep}?`;
-  if(direct)msg+=`\n\n${direct} of these are DIRECT (rep-owned) leads -- dispatching reassigns them away from their owner.`;
+  if(blocked.length)msg+=`\n\n${blocked.length} Direct (rep-owned) lead${blocked.length===1?'':'s'} will be SKIPPED -- those belong to their original rep. Handle them in the Recovery tab.`;
   if(!confirm(msg))return;
   const btn=document.querySelector('#dispatchBar .btn-primary');if(btn){btn.disabled=true;btn.textContent='Dispatching...';}
   let done=0,failed=false;
@@ -850,7 +1074,7 @@ async function bulkDispatch(){
   if(btn){btn.disabled=false;btn.textContent='Dispatch';}
   if(failed)return;
   if(!done){toast('Not permitted (need manager access).');return;}
-  toast(`Dispatched ${done} to ${rep}`);
+  toast(`Dispatched ${done} to ${rep}`+(blocked.length?` (${blocked.length} Direct skipped)`:''));
   clearSel();renderKpis();renderDashDetail();render();
 }
 
@@ -886,6 +1110,7 @@ function _qdGroups(){
   const SPANISH_OK=new Set(['deleted','noshow','cancel','new','goback','nosale']);
   for(const g of props){
     if(g.primary.assigned_to)continue;
+    if(leadType(g)==='direct')continue;   // Direct/self-gen leads belong to their owner -- never offer them for dispatch
     const lang=(g.primary.language||'').toLowerCase();
     const st=g.primary.lifecycle_state||'other';
     if(lang==='spanish'){
