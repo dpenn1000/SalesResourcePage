@@ -1291,6 +1291,9 @@ async function renderDetail(root, id) {
       bar.appendChild(statusSelect);
       bar.appendChild(el('button', { class: 'btn ghost small', onclick: () => doStatusChange(s.id, statusSelect.value) }, 'Apply'));
     }
+    if (isOwner || isOriginator || isAdmin) {
+      bar.appendChild(el('button', { class: 'btn ghost small', onclick: () => openShareModal(s.id, s.title), title: 'Give other people or groups access' }, 'Share'));
+    }
     bar.appendChild(el('span', { class: 'spacer' }));
     bar.appendChild(el('button', { class: 'btn ai-btn small', onclick: () => doGenerateBrief(s.id, s.title), title: 'AI-generated brief for the VP' },
       el('span', { class: 'ai-marker' }, 'AI'), document.createTextNode(' Generate VP Brief')));
@@ -2311,6 +2314,265 @@ document.addEventListener('input', (e) => {
 // ── modals ──────────────────────────────────────────────────────────────
 
 function closeModal() { $('modalRoot').innerHTML = ''; }
+
+// ── sharing / access control ─────────────────────────────────────────────
+const SHARE_ROLES = [
+  ['viewer', 'Viewer (read only)'],
+  ['commenter', 'Commenter (read + comment)'],
+  ['contributor', 'Contributor (add / edit)'],
+];
+function shareRoleLabel(role) {
+  return {
+    originator: 'Originator', owner: 'Owner', contributor: 'Contributor',
+    commenter: 'Commenter', viewer: 'Viewer', watcher: 'Viewer',
+  }[role] || role;
+}
+function targetSubLabel(kind, sub) {
+  if (kind === 'group') return 'Group';
+  return tierLabel(sub) || (sub === 'rep' ? 'Rep' : (sub === 'manager' ? 'Manager' : (sub || '')));
+}
+
+window.openShareModal = async function openShareModal(submissionId, submissionTitle) {
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const card = el('div', { class: 'modal-card', style: 'max-width:640px;' });
+  card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
+  card.appendChild(el('h2', {}, 'Share access'));
+  card.appendChild(el('div', { class: 'sub' }, submissionTitle || ''));
+  card.appendChild(el('div', { id: 'shareBody' }, el('div', { class: 'prose', style: 'color:var(--muted);' }, 'Loading…')));
+  card.appendChild(el('div', { class: 'actions-row', style: 'align-items:center;' },
+    el('a', { onclick: () => openGroupsModal(submissionId, submissionTitle), style: 'cursor:pointer;font-size:0.85rem;font-weight:600;' }, 'Manage groups'),
+    el('span', { style: 'flex:1;' }),
+    el('button', { class: 'btn primary', onclick: closeModal }, 'Done'),
+  ));
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+  await renderShareBody(submissionId);
+};
+
+async function renderShareBody(submissionId) {
+  const body = $('shareBody');
+  if (!body) return;
+  const [{ data: shares, error: e1 }, { data: dir, error: e2 }] = await Promise.all([
+    sb.rpc('sc_list_access', { p_submission_id: submissionId }),
+    sb.rpc('sc_share_directory'),
+  ]);
+  if (e1 || e2) { toast('Could not load sharing: ' + ((e1 || e2).message), 'err'); return; }
+  body.innerHTML = '';
+
+  const current = shares || [];
+  const locked = current.filter(r => r.role === 'originator' || r.role === 'owner');
+  const shared = current.filter(r => r.role !== 'originator' && r.role !== 'owner');
+
+  body.appendChild(el('div', { style: 'font-weight:600;margin:6px 0;' }, 'Has access'));
+  const list = el('div', { style: 'display:flex;flex-direction:column;gap:6px;margin-bottom:16px;' });
+  for (const r of locked) list.appendChild(shareRow(submissionId, r, true));
+  for (const r of shared) list.appendChild(shareRow(submissionId, r, false));
+  if (shared.length === 0) {
+    list.appendChild(el('div', { class: 'prose', style: 'color:var(--muted);font-size:0.85rem;' }, 'No one beyond the people above yet.'));
+  }
+  body.appendChild(list);
+
+  body.appendChild(el('div', { style: 'font-weight:600;margin:6px 0;' }, 'Add people or groups'));
+  const roleSel = el('select', { id: 'shareRoleSel', style: 'padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:0.85rem;' });
+  for (const [val, label] of SHARE_ROLES) roleSel.appendChild(el('option', { value: val }, label));
+  body.appendChild(el('div', { style: 'display:flex;gap:8px;align-items:center;margin-bottom:8px;' },
+    el('span', { style: 'font-size:0.82rem;color:var(--muted);' }, 'Add as:'), roleSel));
+
+  const search = el('input', { id: 'shareSearch', placeholder: 'Search people and groups…', style: 'width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:0.9rem;margin-bottom:6px;' });
+  body.appendChild(search);
+  const results = el('div', { id: 'shareResults', style: 'display:flex;flex-direction:column;gap:2px;max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:6px;' });
+  body.appendChild(results);
+
+  const sharedKeys = new Set(current.map(r => r.kind + ':' + r.ref_id));
+  const dirList = (dir || []).filter(d => !sharedKeys.has(d.kind + ':' + d.ref_id));
+  dirList.sort((a, b) => (a.kind === b.kind
+    ? String(a.display_name).localeCompare(String(b.display_name))
+    : (a.kind === 'group' ? -1 : 1)));
+
+  function paint(filter) {
+    results.innerHTML = '';
+    const f = (filter || '').toLowerCase().trim();
+    const shown = dirList.filter(d => !f
+      || String(d.display_name).toLowerCase().includes(f)
+      || String(d.sub_label || '').toLowerCase().includes(f)).slice(0, 50);
+    if (shown.length === 0) {
+      results.appendChild(el('div', { class: 'prose', style: 'color:var(--muted);font-size:0.85rem;padding:4px;' }, 'No matches.'));
+      return;
+    }
+    for (const d of shown) {
+      const row = el('div', {
+        style: 'display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:5px;cursor:pointer;',
+        onmouseover: (e) => { e.currentTarget.style.background = 'var(--warm)'; },
+        onmouseout: (e) => { e.currentTarget.style.background = ''; },
+        onclick: () => addShare(submissionId, d, roleSel.value),
+      },
+        el('span', {}, d.kind === 'group' ? '\u{1F465}' : '\u{1F464}'),
+        el('span', { style: 'flex:1;font-size:0.9rem;' }, d.display_name),
+        el('span', { style: 'font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;' }, targetSubLabel(d.kind, d.sub_label)),
+      );
+      results.appendChild(row);
+    }
+  }
+  search.addEventListener('input', () => paint(search.value));
+  paint('');
+}
+
+function shareRow(submissionId, r, locked) {
+  const sub = targetSubLabel(r.kind, r.sub_label);
+  const row = el('div', { style: 'display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;' },
+    el('span', {}, r.kind === 'group' ? '\u{1F465}' : '\u{1F464}'),
+    el('div', { style: 'flex:1;font-size:0.9rem;font-weight:500;' }, r.display_name + (sub ? ('  ·  ' + sub) : '')),
+    el('span', { class: 'badge ' + (locked ? 'open' : 'considering'), style: 'font-size:0.72rem;' }, shareRoleLabel(r.role)),
+  );
+  if (locked) {
+    row.appendChild(el('span', { style: 'font-size:0.72rem;color:var(--muted);' }, 'locked'));
+  } else {
+    row.appendChild(el('button', { class: 'btn ghost small', onclick: () => removeShare(submissionId, r) }, 'Remove'));
+  }
+  return row;
+}
+
+async function addShare(submissionId, d, role) {
+  let error;
+  if (d.kind === 'group') {
+    ({ error } = await sb.rpc('sc_grant_group_access', { p_submission_id: submissionId, p_group_id: d.ref_id, p_role: role }));
+  } else {
+    ({ error } = await sb.rpc('sc_grant_access', { p_submission_id: submissionId, p_target_auth_id: d.target_auth_id, p_role: role }));
+  }
+  if (error) { toast('Share failed: ' + error.message, 'err'); return; }
+  toast('Shared');
+  await renderShareBody(submissionId);
+}
+
+async function removeShare(submissionId, r) {
+  let error;
+  if (r.kind === 'group') {
+    ({ error } = await sb.rpc('sc_revoke_group_access', { p_submission_id: submissionId, p_group_id: r.ref_id }));
+  } else {
+    ({ error } = await sb.rpc('sc_revoke_access', { p_submission_id: submissionId, p_target_auth_id: r.target_auth_id }));
+  }
+  if (error) { toast('Remove failed: ' + error.message, 'err'); return; }
+  toast('Removed');
+  await renderShareBody(submissionId);
+}
+
+// ── groups manager ───────────────────────────────────────────────────────
+window.openGroupsModal = async function openGroupsModal(submissionId, submissionTitle) {
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const card = el('div', { class: 'modal-card', style: 'max-width:640px;' });
+  card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
+  card.appendChild(el('h2', {}, 'Groups'));
+  card.appendChild(el('div', { class: 'sub' }, 'Reusable people-groups. Dynamic groups update themselves; custom groups hold a fixed roster.'));
+  card.appendChild(el('div', { id: 'groupsBody' }, el('div', { class: 'prose', style: 'color:var(--muted);' }, 'Loading…')));
+  card.appendChild(el('div', { class: 'actions-row', style: 'align-items:center;' },
+    submissionId ? el('a', { onclick: () => openShareModal(submissionId, submissionTitle), style: 'cursor:pointer;font-size:0.85rem;font-weight:600;' }, '← Back to share') : el('span', {}),
+    el('span', { style: 'flex:1;' }),
+    el('button', { class: 'btn primary', onclick: () => openGroupEditor(null, submissionId, submissionTitle) }, '+ New group'),
+  ));
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+  await renderGroupsBody(submissionId, submissionTitle);
+};
+
+async function renderGroupsBody(submissionId, submissionTitle) {
+  const body = $('groupsBody');
+  if (!body) return;
+  const { data: groups, error } = await sb.from('groups').select('*').order('kind').order('name');
+  if (error) { toast('Could not load groups: ' + error.message, 'err'); return; }
+  body.innerHTML = '';
+  const list = el('div', { style: 'display:flex;flex-direction:column;gap:6px;' });
+  for (const g of (groups || [])) {
+    const isDynamic = g.kind === 'dynamic';
+    const row = el('div', { style: 'display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;' },
+      el('span', {}, '\u{1F465}'),
+      el('div', { style: 'flex:1;' },
+        el('div', { style: 'font-size:0.92rem;font-weight:600;' }, g.name),
+        el('div', { style: 'font-size:0.78rem;color:var(--muted);' }, g.description || (isDynamic ? 'Auto-updating' : 'Custom roster')),
+      ),
+      el('span', { class: 'badge ' + (isDynamic ? 'considering' : 'open'), style: 'font-size:0.7rem;' }, isDynamic ? 'Dynamic' : 'Custom'),
+    );
+    if (!isDynamic) {
+      row.appendChild(el('button', { class: 'btn ghost small', onclick: () => openGroupEditor(g, submissionId, submissionTitle) }, 'Edit'));
+    }
+    list.appendChild(row);
+  }
+  body.appendChild(list);
+}
+
+async function openGroupEditor(group, submissionId, submissionTitle) {
+  const editing = !!group;
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const card = el('div', { class: 'modal-card', style: 'max-width:560px;' });
+  card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
+  card.appendChild(el('h2', {}, editing ? 'Edit group' : 'New group'));
+
+  const nameInput = el('input', { id: 'grpName', value: editing ? group.name : '', placeholder: 'Group name', style: 'width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:0.95rem;margin-bottom:8px;' });
+  const descInput = el('input', { id: 'grpDesc', value: editing ? (group.description || '') : '', placeholder: 'Description (optional)', style: 'width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:0.9rem;margin-bottom:12px;' });
+  card.appendChild(nameInput);
+  card.appendChild(descInput);
+  card.appendChild(el('div', { style: 'font-weight:600;margin-bottom:6px;font-size:0.9rem;' }, 'Members'));
+  const membersBox = el('div', { id: 'grpMembers', style: 'display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto;border:1px solid var(--line);border-radius:6px;padding:8px;' });
+  card.appendChild(membersBox);
+  card.appendChild(el('div', { class: 'actions-row' },
+    el('button', { class: 'btn ghost', onclick: () => openGroupsModal(submissionId, submissionTitle) }, 'Cancel'),
+    el('button', { class: 'btn primary', id: 'grpSaveBtn', onclick: () => saveGroup(group, submissionId, submissionTitle) }, editing ? 'Save changes' : 'Create group'),
+  ));
+  shroud.appendChild(card);
+  $('modalRoot').innerHTML = '';
+  $('modalRoot').appendChild(shroud);
+
+  const { data: people } = await sb.from('people')
+    .select('id, name, role, tier, status').eq('status', 'active').order('role').order('name');
+  let existing = new Set();
+  if (editing) {
+    const { data: mem } = await sb.from('group_members').select('person_id').eq('group_id', group.id);
+    existing = new Set((mem || []).map(m => m.person_id));
+  }
+  membersBox.innerHTML = '';
+  for (const p of (people || [])) {
+    const lbl = el('label', { style: 'display:flex;gap:8px;align-items:center;font-size:0.88rem;cursor:pointer;' },
+      el('input', { type: 'checkbox', value: p.id, 'data-member': 'true', checked: existing.has(p.id) ? 'checked' : null }),
+      document.createTextNode(p.name + (p.tier ? '  (' + tierLabel(p.tier) + ')' : (p.role === 'rep' ? '  (Rep)' : ''))),
+    );
+    membersBox.appendChild(lbl);
+  }
+}
+
+async function saveGroup(group, submissionId, submissionTitle) {
+  const btn = $('grpSaveBtn');
+  const name = $('grpName').value.trim();
+  const desc = $('grpDesc').value.trim();
+  if (!name) { toast('Name is required.', 'err'); return; }
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const memberIds = Array.from(document.querySelectorAll('[data-member]:checked')).map(c => c.value);
+    let groupId = group ? group.id : null;
+    if (group) {
+      const { error } = await sb.from('groups').update({ name, description: desc || null }).eq('id', group.id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { data, error } = await sb.from('groups')
+        .insert({ name, description: desc || null, kind: 'static', created_by_auth_id: State.session.user.id })
+        .select('id').single();
+      if (error) throw new Error(error.message);
+      groupId = data.id;
+    }
+    // Replace membership wholesale.
+    await sb.from('group_members').delete().eq('group_id', groupId);
+    if (memberIds.length > 0) {
+      const rows = memberIds.map(pid => ({ group_id: groupId, person_id: pid, added_by_auth_id: State.session.user.id }));
+      const { error: mErr } = await sb.from('group_members').insert(rows);
+      if (mErr) throw new Error(mErr.message);
+    }
+    toast('Group saved');
+    openGroupsModal(submissionId, submissionTitle);
+  } catch (e) {
+    toast('Save failed: ' + e.message, 'err');
+    btn.disabled = false; btn.textContent = group ? 'Save changes' : 'Create group';
+  }
+}
 
 window.openNewSubmission = function openNewSubmission() {
   const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
