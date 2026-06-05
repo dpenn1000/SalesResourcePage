@@ -145,6 +145,17 @@
   .dispatch-bar .act{color:#fff;border-color:rgba(255,255,255,.3)}
   .dispatch-bar .act:hover{border-color:#fff;color:#fff}
   .rowchk{width:16px;height:16px;cursor:pointer}
+  .pl-table{width:100%;border-collapse:collapse;font-size:13px}
+  .pl-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);background:#fafbf9;cursor:default;white-space:nowrap}
+  .pl-table td{padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap}
+  .pl-row{cursor:pointer}.pl-row:hover{background:#f3f8ee}
+  .pl-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .pl-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-width:76px;box-shadow:var(--shadow)}
+  .pl-stat .n{font-weight:700;font-size:18px;line-height:1.1}
+  .pl-stat .l{font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:2px}
+  .pl-selbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#eef6ff;border:1px solid #cfe4f5;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:13px}
+  .pl-lead{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--border)}
+  .pl-lead .rowchk{margin-top:3px;flex:0 0 auto}
   .rep-ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:12px}
   .rep-ov-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;box-shadow:var(--shadow);transition:border-color .15s}
   .rep-ov-card:hover,.rep-ov-card.selected{border-color:var(--green)}
@@ -220,7 +231,7 @@
     <button class="tab" data-tab="reps" onclick="setTab('reps')">Reps</button>
     <button class="tab" data-tab="qc" onclick="setTab('qc')">QC Review</button>
     <button class="tab" data-tab="flags" onclick="setTab('flags')">Flags<span id="flagsTabCount"></span></button>
-    <button class="tab" data-tab="recovery" onclick="setTab('recovery')">Recovery<span id="recTabCount"></span></button>
+    <button class="tab" data-tab="pipeline" onclick="setTab('pipeline')">Pipeline<span id="plCount"></span></button>
     <button class="tab" data-tab="load" onclick="setTab('load')">Load</button>
   </div>
   <div class="wrap">
@@ -329,27 +340,12 @@
       <div id="flagBody"><div class="empty">Loading flags...</div></div>
     </div>
 
-    <div id="tab-recovery" class="tabpanel" style="display:none">
+    <div id="tab-pipeline" class="tabpanel" style="display:none">
       <div class="toolbar">
-        <select id="recBucket" onchange="renderRecovery()">
-          <option value="">All recovery buckets</option>
-          <option value="selfgen">Self-gen / Direct (rep-owned)</option>
-          <option value="goback">Unresolved go-backs</option>
-          <option value="stage2">Aged Stage-2 (needs review)</option>
-        </select>
-        <select id="recAge" onchange="renderRecovery()" title="Minimum days stagnant">
-          <option value="0">Any age</option>
-          <option value="7">Stagnant 7+ days</option>
-          <option value="14" selected>Stagnant 14+ days</option>
-          <option value="30">Stagnant 30+ days</option>
-          <option value="60">Stagnant 60+ days</option>
-        </select>
-        <label class="chk"><input type="checkbox" id="recMisOnly" onchange="renderRecovery()"> dispatched away from owner only</label>
-        <input type="search" id="recq" placeholder="Search name, town, rep, DL..." oninput="renderRecovery()">
+        <select id="plRep" onchange="renderPipeline()"><option value="">All reps (overview)</option></select>
       </div>
-      <div class="sub" style="margin:2px 0 10px">Stagnant leads that need handling differently from the call list: self-gens that belong to a rep, unresolved go-backs, and aged Stage-2 leads. "Return to owner" reassigns a rep-owned lead back to the rep who generated it.</div>
-      <div id="recSummary" class="sub" style="margin:6px 0 10px"></div>
-      <div id="recBody"><div class="empty">Loading recovery list...</div></div>
+      <div class="sub" style="margin:2px 0 10px">Traditional pipeline by rep. Direct / self-gen leads are excluded -- they belong to their rep and are never dispatched here. Open a rep for buckets, aging, go-back performance, and to assign work (whole buckets, the first N, or a hand-picked chunk).</div>
+      <div id="plBody"><div class="empty">Loading pipeline...</div></div>
     </div>
 
     <div id="tab-load" class="tabpanel" style="display:none">
@@ -511,7 +507,7 @@ async function initApp(){
     for(const r of Object.keys(repCount).sort((a,b)=>repCount[b]-repCount[a]))rp.appendChild(new Option(`${r} (${repCount[r]})`,r));
     const la=document.getElementById('li_assign');for(const n of people)la.appendChild(new Option(n,n));
     const dr=document.getElementById('dispatchRep');for(const n of people)dr.appendChild(new Option(n,n));
-    renderKpis();renderTeamChart();renderDashDetail();render();updateRecCount();
+    renderKpis();renderTeamChart();renderDashDetail();render();updatePlCount();
   }catch(err){
     document.getElementById('tableWrap').innerHTML='<div class="empty">Load failed: '+esc(err.message||err)+'</div>';
   }
@@ -850,7 +846,7 @@ function setTab(t){
   if(t==='reps')renderRepOverview();
   if(t==='qc')renderQc();
   if(t==='flags'){if(!flagsLoaded)loadFlags();else renderFlags();}
-  if(t==='recovery')renderRecovery();
+  if(t==='pipeline')renderPipeline();
 }
 /* ── Flags tab: rep kick-backs for manager review ── */
 function dlRow(dl){for(const g of props){for(const d of g.dls){if(d.dl_number===dl)return {dl:d,prop:g.property||{}};}}return null;}
@@ -924,14 +920,56 @@ function isMisassigned(g){
   const a=g.primary.assigned_to,o=g.primary.original_rep;
   return !!(a&&o&&a.trim().toLowerCase()!==o.trim().toLowerCase());
 }
-function recoveryBucket(g){
-  if(g.anySold)return null;
-  if(g.dnc||g.primary.lifecycle_state==='dnc'||/forge/i.test(g.primary.lead_source||''))return null;
-  if(leadType(g)==='direct')return 'selfgen';                                   // rep-owned: belongs back with its rep
-  const st=g.primary.lifecycle_state||'';
-  if(st==='goback'||/go ?back/i.test(g.primary.last_outcome||''))return 'goback';
-  if(leadCategory(g)==='review')return 'stage2';                                // sat/Stage-2, cooldown elapsed
-  return null;
+/* ── Pipeline helpers. Direct/self-gen leads are EXCLUDED everywhere in this
+   tab -- they belong to their rep and are never dispatched or rebalanced. ── */
+const PL_BUCKETS=[['callable','Callable'],['scheduled','Scheduled'],['cooldown','Cooldown'],['review','Needs review']];
+const PL_BADGE={callable:'b-callable',scheduled:'b-sched',cooldown:'b-cooldown',review:'b-review'};
+let plSel=new Set();      // dl_numbers checked in the rep detail view
+let _plView=null;         // {rep, buckets:{bucket:[g,...]}} for the active rep view
+function inPipeline(g){   // active, dispatchable, Traditional only
+  if(leadType(g)==='direct')return false;
+  if(g.anySold)return false;
+  if(g.dnc||g.primary.lifecycle_state==='dnc'||/forge/i.test(g.primary.lead_source||''))return false;
+  const c=leadCategory(g);
+  return c==='callable'||c==='scheduled'||c==='cooldown'||c==='review';
+}
+function hadGoback(g){    // history-aware: did this lead ever hit a go-back?
+  if((g.primary.lifecycle_state||'')==='goback')return true;
+  if(/go ?back/i.test(g.primary.last_outcome||''))return true;
+  for(const d of g.dls)for(const a of (d.appointments||[]))if(/go ?back/i.test(a.outcome||''))return true;
+  return false;
+}
+function isOpenGoback(g){return (g.primary.lifecycle_state||'')==='goback' && !g.anySold && leadType(g)!=='direct';}
+function leadHasContact(g,cset){for(const d of g.dls){for(const o of (d.opportunity_ids||[]))if(cset.has(o))return true;if(cset.has(d.dl_number))return true;}return false;}
+function pipelineByRep(){
+  const by={};
+  for(const g of props){
+    if(leadType(g)==='direct')continue;        // never include Direct
+    if(!inPipeline(g))continue;
+    const rep=g.primary.assigned_to||'__unassigned__';
+    (by[rep]=by[rep]||[]).push(g);
+  }
+  return by;
+}
+function gobackStatsByRep(){  // conversion needs sold leads too, so walk all props
+  const by={};
+  for(const g of props){
+    if(leadType(g)==='direct')continue;
+    if(!hadGoback(g))continue;
+    const rep=g.primary.assigned_to||g.primary.sold_rep||'__unassigned__';
+    const s=by[rep]=by[rep]||{touched:0,converted:0,open:0};
+    s.touched++; if(g.anySold)s.converted++; if(isOpenGoback(g))s.open++;
+  }
+  return by;
+}
+function repStats(leads,cset){
+  const s={total:leads.length,callable:0,scheduled:0,cooldown:0,review:0,stale30:0,uncontacted:0,oldest:0};
+  for(const g of leads){
+    const c=leadCategory(g); if(s[c]!==undefined)s[c]++;
+    const age=recStagnant(g); if(age!=null){if(age>s.oldest)s.oldest=age; if(age>=30)s.stale30++;}
+    if(!leadHasContact(g,cset))s.uncontacted++;
+  }
+  return s;
 }
 function recoveryNotes(g){
   const out=[];
@@ -941,90 +979,126 @@ function recoveryNotes(g){
   out.sort((a,b)=>String(b.when).localeCompare(String(a.when)));
   return out;
 }
-function recoveryItems(){
-  const bucket=document.getElementById('recBucket').value;
-  const minAge=parseInt(document.getElementById('recAge').value||'0',10);
-  const misOnly=document.getElementById('recMisOnly').checked;
-  const q=(document.getElementById('recq').value||'').trim().toLowerCase();
-  const out=[];
-  for(const g of props){
-    const b=recoveryBucket(g);if(!b)continue;
-    if(bucket&&b!==bucket)continue;
-    if(misOnly&&!isMisassigned(g))continue;
-    const age=recStagnant(g);
-    // A lead dispatched away from its owner is urgent regardless of age -- never
-    // let the stagnant-days filter hide the ownership leak.
-    if(minAge&&!(age!=null&&age>=minAge)&&!isMisassigned(g))continue;
-    if(q){const hay=((g.primary.homeowner_name||'')+' '+((g.property&&g.property.town)||'')+' '+(g.primary.original_rep||'')+' '+(g.primary.assigned_to||'')+' '+g.primary.dl_number).toLowerCase();if(!hay.includes(q))continue;}
-    out.push({g,bucket:b,age});
+function updatePlCount(){
+  let n=0;for(const g of props)if(leadType(g)!=='direct'&&inPipeline(g)&&!g.primary.assigned_to)n++;
+  const el=document.getElementById('plCount');
+  if(el)el.innerHTML=n?` <span class="badge b-callable" style="margin-left:5px">${n}</span>`:'';   // unassigned backlog
+}
+function ensurePlRepOptions(force){
+  const selEl=document.getElementById('plRep');if(!selEl)return;
+  if(selEl.dataset.filled&&!force)return;
+  const cur=selEl.value;
+  const by=pipelineByRep();
+  const reps=Object.keys(by).filter(r=>r!=='__unassigned__').sort();
+  let html='<option value="">All reps (overview)</option>';
+  if(by['__unassigned__'])html+=`<option value="__unassigned__">&mdash; Unassigned pool (${by['__unassigned__'].length}) &mdash;</option>`;
+  html+=reps.map(r=>`<option value="${esc(r)}">${esc(r)} (${by[r].length})</option>`).join('');
+  selEl.innerHTML=html;selEl.dataset.filled='1';if(cur)selEl.value=cur;
+}
+function plName(rep){return rep==='__unassigned__'?'Unassigned pool':rep;}
+function selectPlRep(rep){ensurePlRepOptions();const s=document.getElementById('plRep');if(s)s.value=rep;renderPipeline();}
+function renderPipeline(){
+  updatePlCount();ensurePlRepOptions();
+  const body=document.getElementById('plBody');if(!body)return;
+  const sel=document.getElementById('plRep').value;
+  const cset=new Set(contacts.map(c=>c.opportunity_id));
+  body.innerHTML = sel ? pipelineRepView(sel,cset) : pipelineOverview(cset);
+}
+function pipelineOverview(cset){
+  const by=pipelineByRep();const gb=gobackStatsByRep();
+  const reps=Object.keys(by).sort((a,b)=>a==='__unassigned__'?-1:b==='__unassigned__'?1:by[b].length-by[a].length);
+  if(!reps.length)return '<div class="empty">No active Traditional pipeline right now.</div>';
+  const row=rep=>{
+    const s=repStats(by[rep],cset);const g=gb[rep]||{touched:0,converted:0,open:0};
+    const conv=g.touched?Math.round(g.converted/g.touched*100):null;
+    const z=v=>v||'<span class="sub">0</span>';
+    return `<tr class="pl-row" onclick="selectPlRep('${esc(rep)}')">
+      <td><b>${esc(plName(rep))}</b></td><td><b>${s.total}</b></td>
+      <td>${z(s.callable)}</td><td>${z(s.scheduled)}</td><td>${z(s.cooldown)}</td><td>${z(s.review)}</td>
+      <td>${s.stale30?'<b style="color:var(--amber)">'+s.stale30+'</b>':'<span class="sub">0</span>'}</td>
+      <td>${z(s.uncontacted)}</td><td>${z(g.open)}</td>
+      <td>${conv==null?'<span class="sub">--</span>':'<b>'+conv+'%</b>'}${g.touched?' <span class="sub">'+g.converted+'/'+g.touched+'</span>':''}</td>
+    </tr>`;
+  };
+  return `<div class="sub" style="margin-bottom:8px">Click a rep to open their pipeline and assign work. The Unassigned pool is the dispatch backlog. Direct / self-gen leads are excluded.</div>
+  <table class="pl-table"><thead><tr>
+    <th>Rep</th><th>Pipe</th><th>Call</th><th>Sched</th><th>Cool</th><th>Review</th><th>Stale&nbsp;30+</th><th>No&nbsp;contact</th><th>GB&nbsp;open</th><th>GB&rarr;sold</th>
+  </tr></thead><tbody>${reps.map(row).join('')}</tbody></table>`;
+}
+function pipelineRepView(rep,cset){
+  const by=pipelineByRep();const leads=by[rep]||[];
+  const s=repStats(leads,cset);const gb=(gobackStatsByRep())[rep]||{touched:0,converted:0,open:0};
+  const conv=gb.touched?Math.round(gb.converted/gb.touched*100):null;
+  const stat=(l,v,hot)=>`<div class="pl-stat"><div class="n"${hot?' style="color:var(--amber)"':''}>${v}</div><div class="l">${l}</div></div>`;
+  const strip=`<div class="pl-strip">${stat('Pipeline',s.total)}${stat('Callable',s.callable)}${stat('Scheduled',s.scheduled)}${stat('Cooldown',s.cooldown)}${stat('Review',s.review)}${stat('Stale 30+',s.stale30,s.stale30>0)}${stat('No contact',s.uncontacted)}${stat('Open GB',gb.open)}${stat('GB&rarr;sold',conv==null?'--':conv+'%')}${stat('Oldest',s.oldest?s.oldest+'d':'--')}</div>`;
+  const buckets={};for(const g of leads)(buckets[leadCategory(g)]=buckets[leadCategory(g)]||[]).push(g);
+  for(const k in buckets)buckets[k].sort((a,b)=>(recStagnant(b)==null?-1:recStagnant(b))-(recStagnant(a)==null?-1:recStagnant(a)));
+  _plView={rep,buckets};
+  const repOpts=people.filter(n=>n!==rep).map(n=>`<option>${esc(n)}</option>`).join('');
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <div><button class="act" onclick="selectPlRep('')">&larr; All reps</button> <b style="margin-left:6px;font-size:15px">${esc(plName(rep))}</b></div>
+    </div>${strip}
+    <div class="pl-selbar"><span id="plSelCount">0 selected</span> &rarr; <select id="plSelRep"><option value="">assign selected to...</option>${repOpts}</select> <button class="act review" onclick="plAssignSelected()">Assign selected</button> <button class="act" onclick="plClearSel()">Clear</button></div>`;
+  let any=false;
+  for(const [bk,label] of PL_BUCKETS){
+    const grp=buckets[bk]||[];if(!grp.length)continue;any=true;
+    const ages=grp.map(recStagnant).filter(x=>x!=null);
+    const ageInfo=ages.length?`oldest ${Math.max(...ages)}d &middot; avg ${Math.round(ages.reduce((a,b)=>a+b,0)/ages.length)}d`:'';
+    html+=`<div class="panel" style="padding:10px 12px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div><span class="badge ${PL_BADGE[bk]}">${esc(label)}</span> <b>${grp.length}</b> <span class="sub">${ageInfo}</span></div>
+        <div class="dispatch-row"><label>first</label><input type="number" id="pl-n-${bk}" min="1" max="${grp.length}" value="${grp.length}" style="width:62px;padding:4px 6px">
+          <select id="pl-to-${bk}"><option value="">assign to...</option>${repOpts}</select>
+          <button class="act review" onclick="plAssignBucket('${esc(rep)}','${bk}')">Assign</button></div>
+      </div>
+      <div style="margin-top:8px">${grp.map(g=>plLeadRow(g,cset)).join('')}</div>
+    </div>`;
   }
-  out.sort((a,b)=>(b.age==null?-1:b.age)-(a.age==null?-1:a.age));
-  return out;
+  if(!any)html+='<div class="empty">No active pipeline for this rep.</div>';
+  return html;
 }
-function updateRecCount(){
-  let n=0;for(const g of props)if(recoveryBucket(g))n++;
-  const el=document.getElementById('recTabCount');
-  if(el)el.innerHTML=n?` <span class="badge b-cooldown" style="margin-left:5px">${n}</span>`:'';
-}
-function renderRecovery(){
-  updateRecCount();
-  const body=document.getElementById('recBody');if(!body)return;
-  const items=recoveryItems();
-  const mis=items.filter(it=>isMisassigned(it.g)).length;
-  document.getElementById('recSummary').innerHTML=`${items.length} lead${items.length===1?'':'s'} to recover`+(mis?` &middot; <b style="color:var(--red)">${mis} dispatched away from owner</b>`:'');
-  body.innerHTML=items.length?items.map(recCard).join(''):'<div class="empty">Nothing in this bucket at this age. Loosen the filters above.</div>';
-}
-function recCard(it){
-  const g=it.g,p=g.primary;
-  const key=g.property.property_id||p.dl_number;
-  const town=(g.property&&g.property.town)||'';
-  const owner=p.original_rep||'';
-  const ownerCanon=matchRep(owner);
-  const mis=isMisassigned(g);
-  const ageTxt=it.age!=null?`${it.age}d stagnant`:'no appt date';
-  const what=`${esc(p.lead_source||'--')}${p.last_outcome?' &middot; '+esc(p.last_outcome):(' &middot; '+esc(p.lifecycle_state||''))}${p.appt_count?' &middot; '+p.appt_count+' appt'+(p.appt_count>1?'s':''):''}`;
-  const ownerLine=`Belonged to <b>${esc(owner||'--')}</b>`+(p.assigned_to?` &rarr; now with <b style="${mis?'color:var(--red)':''}">${esc(p.assigned_to)}</b>${mis?' <span class="badge b-direct">dispatched away</span>':''}`:' &middot; <span class="sub">unassigned</span>');
-  const sfLink=p.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(p.dl_sf_id))}">Open in SF &nearr;</a>`:'';
-  // notes
-  const notes=recoveryNotes(g);
-  const salesNote=p.sales_notes?`<div style="margin-top:6px;font-size:13px;background:#f3f7ef;border:1px solid #dfe7d4;border-radius:6px;padding:6px 9px"><b>Sales Notes:</b> ${esc(p.sales_notes)}</div>`:'';
-  const noteLine=n=>`<div class="sub" style="margin-top:4px"><b>${fmtDate(n.when)}</b>${n.who?' &middot; '+esc(n.who):''} <span class="badge ${n.kind==='qc'?'b-callable':''}" style="font-size:9px">${n.kind==='qc'?'QC call':'appt'}</span><br>${esc(n.text)}</div>`;
-  const firstNotes=notes.slice(0,2).map(noteLine).join('');
-  const restNotes=notes.length>2?`<div id="recn-${esc(key)}" style="display:none">${notes.slice(2).map(noteLine).join('')}</div><button class="act" style="margin-top:6px" onclick="toggleRecNotes('${esc(key)}',this)">Show ${notes.length-2} more note${notes.length-2>1?'s':''}</button>`:'';
-  const notesBlock=(salesNote||notes.length)?`<div style="margin-top:8px;border-top:1px solid var(--border);padding-top:6px">${salesNote}${firstNotes||(salesNote?'':'<span class="sub">No notes recorded.</span>')}${restNotes}</div>`:'<div class="sub" style="margin-top:8px">No notes recorded.</div>';
-  // actions
-  let actions='';
-  if(it.bucket==='selfgen'){
-    if(ownerCanon && (mis||!p.assigned_to)) actions=`<button class="act review" onclick="returnToOwner('${esc(p.dl_number)}')">Return to ${esc(ownerCanon.split(' ')[0])}</button>`;
-    else if(!ownerCanon) actions=`<span class="sub">Owner not on active roster -- reassign in SF</span>`;
-    else actions=`<span class="sub">Already with owner</span>`;
-  } else if(it.bucket==='stage2'){
-    actions=`<button class="act review" onclick="approveRedispatch('${esc(p.dl_number)}')">Approve redispatch</button>`;
-  }
-  return `<div class="panel" style="padding:12px 14px;margin-bottom:10px">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
-      <div><span class="badge b-cooldown">${esc(REC_LABEL[it.bucket]||it.bucket)}</span> <b style="margin-left:6px">${esc(p.homeowner_name||'--')}</b>${town?' <span class="sub">&middot; '+esc(town)+'</span>':''}</div>
-      <span class="sub" style="white-space:nowrap">${ageTxt}</span>
+function plLeadRow(g,cset){
+  const p=g.primary;const town=(g.property&&g.property.town)||'';
+  const age=recStagnant(g);const contacted=leadHasContact(g,cset);
+  const notes=recoveryNotes(g);const note0=notes[0];
+  const sf=p.dl_sf_id?` <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(p.dl_sf_id))}">SF&nearr;</a>`:'';
+  return `<div class="pl-lead">
+    <input type="checkbox" class="rowchk" onchange="plToggle('${esc(p.dl_number)}',this.checked)" ${plSel.has(p.dl_number)?'checked':''}>
+    <div style="flex:1;min-width:0">
+      <div><b>${esc(p.homeowner_name||'--')}</b> <span class="sub">${esc(town)}${age!=null?' &middot; '+age+'d':''} &middot; ${esc(p.last_outcome||p.lifecycle_state||'')}</span>${contacted?'':' <span class="badge b-noshow" style="font-size:9px">no contact</span>'}${sf}</div>
+      ${p.sales_notes?`<div class="sub" style="margin-top:2px"><b>Sales:</b> ${esc(p.sales_notes.slice(0,150))}</div>`:(note0?`<div class="sub" style="margin-top:2px">${esc(note0.text.slice(0,150))}</div>`:'')}
     </div>
-    <div class="sub" style="margin-top:3px">${ownerLine}</div>
-    <div class="sub" style="margin-top:2px">${what} &middot; ${esc(p.dl_number)} ${sfLink}</div>
-    ${notesBlock}
-    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">${actions}</div>
   </div>`;
 }
-function toggleRecNotes(key,btn){const d=document.getElementById('recn-'+key);if(!d)return;const sh=d.style.display==='none';d.style.display=sh?'block':'none';if(btn)btn.textContent=sh?'Hide notes':('Show more notes');}
-async function returnToOwner(dl){
-  const g=props.find(x=>x.primary.dl_number===dl);if(!g)return;
-  const owner=matchRep(g.primary.original_rep);
-  if(!owner){toast('Original rep is not on the active roster -- reassign in Salesforce.');return;}
-  if(!confirm(`Return ${g.primary.homeowner_name||dl} to ${owner}? This takes it off the current rep's list and back to the rep who generated it.`))return;
-  const { data, error }=await sb.from('direct_leads').update({assigned_to:owner,updated_at:new Date().toISOString()}).eq('dl_number',dl).select('dl_number');
-  if(error){toast('Failed: '+esc(error.message));return;}
-  if(!data||!data.length){toast('Not permitted (need manager access).');return;}
-  g.primary.assigned_to=owner;g.dls.forEach(d=>{if(d.dl_number===dl)d.assigned_to=owner;});
-  toast(`Returned to ${owner}`);
-  renderRecovery();renderKpis();
+function plToggle(dl,on){if(on)plSel.add(dl);else plSel.delete(dl);const c=document.getElementById('plSelCount');if(c)c.textContent=plSel.size+' selected';}
+function plClearSel(){plSel.clear();renderPipeline();}
+async function plAssign(dls,toRep,label){
+  if(!toRep){toast('Pick a rep to assign to');return;}
+  const m={};props.forEach(g=>m[g.primary.dl_number]=g);
+  dls=[...new Set(dls)].filter(dl=>{const g=m[dl];return g&&leadType(g)!=='direct';});   // never assign Direct
+  if(!dls.length){toast('Nothing assignable');return;}
+  if(!confirm(`Assign ${dls.length} lead${dls.length===1?'':'s'} ${label||''} to ${toRep}?`))return;
+  let done=0,failed=false;
+  for(let i=0;i<dls.length&&!failed;i+=100){
+    const chunk=dls.slice(i,i+100);
+    const {data,error}=await sb.from('direct_leads').update({assigned_to:toRep,updated_at:new Date().toISOString()}).in('dl_number',chunk).select('dl_number');
+    if(error){toast('Assign failed: '+esc(error.message));failed=true;break;}
+    const ok=new Set((data||[]).map(r=>r.dl_number));done+=ok.size;
+    for(const g of props)if(ok.has(g.primary.dl_number)){g.primary.assigned_to=toRep;g.dls.forEach(d=>{if(d.dl_number===g.primary.dl_number)d.assigned_to=toRep;});}
+  }
+  if(failed)return;
+  if(!done){toast('Not permitted (need manager access).');return;}
+  toast(`Assigned ${done} to ${toRep}`);
+  plSel.clear();ensurePlRepOptions(true);renderPipeline();renderKpis();render();
 }
+function plAssignBucket(rep,bk){
+  const toRep=document.getElementById('pl-to-'+bk).value;
+  const n=parseInt(document.getElementById('pl-n-'+bk).value||'0',10);
+  const grp=(_plView&&_plView.buckets&&_plView.buckets[bk])||[];
+  const dls=grp.slice(0,n>0?n:grp.length).map(g=>g.primary.dl_number);
+  plAssign(dls,toRep,`from ${plName(rep)} (${bk})`);
+}
+function plAssignSelected(){plAssign([...plSel],document.getElementById('plSelRep').value,'(selected)');}
 function toggleExpandAll(){
   expandAll=!expandAll;
   const b=document.getElementById('expandAllBtn');if(b)b.textContent=expandAll?'Collapse all':'Expand all';
