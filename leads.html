@@ -944,7 +944,10 @@ function inPipeline(g){
   return st==='ready'||st==='goback'||st==='ran'||st==='nosale';
 }
 function plStage(g){return g.primary.lifecycle_state||'';}                                       // ready|goback|ran|nosale
-function effOwner(g){return g.primary.assigned_to||g.primary.original_rep||'__unassigned__';}     // the rep who sat / owns it
+// Owner = the rep who sat/owns it, resolved to a CT Traditional roster name (people,
+// case-insensitive). Returns null for leads worked by off-roster Direct-division reps
+// so they never appear in this tool.
+function effOwner(g){return matchRep(g.primary.assigned_to)||matchRep(g.primary.original_rep)||null;}
 function hadGoback(g){    // history-aware: did this lead ever hit a go-back?
   if((g.primary.lifecycle_state||'')==='goback')return true;
   if(/go ?back/i.test(g.primary.last_outcome||''))return true;
@@ -957,7 +960,8 @@ function pipelineByRep(){
   const by={};
   for(const g of props){
     if(!inPipeline(g))continue;
-    const rep=effOwner(g);                      // attribute to the rep who sat it, not just dispatch
+    const rep=effOwner(g);                      // attribute to the rep who sat it (roster only)
+    if(!rep)continue;                           // skip leads worked by off-roster Direct reps
     (by[rep]=by[rep]||[]).push(g);
   }
   return by;
@@ -967,7 +971,8 @@ function gobackStatsByRep(){  // conversion needs sold leads too, so walk all pr
   for(const g of props){
     if(leadType(g)==='direct')continue;
     if(!hadGoback(g))continue;
-    const rep=g.primary.assigned_to||g.primary.original_rep||g.primary.sold_rep||'__unassigned__';
+    const rep=matchRep(g.primary.assigned_to)||matchRep(g.primary.original_rep)||matchRep(g.primary.sold_rep);
+    if(!rep)continue;                           // roster reps only
     const s=by[rep]=by[rep]||{touched:0,converted:0,open:0};
     s.touched++; if(g.anySold)s.converted++; if(isOpenGoback(g))s.open++;
   }
@@ -991,7 +996,7 @@ function recoveryNotes(g){
   return out;
 }
 function updatePlCount(){
-  let n=0;for(const g of props)if(inPipeline(g)){const a=recStagnant(g);if(a!=null&&a>=30)n++;}
+  let n=0;for(const g of props)if(inPipeline(g)&&effOwner(g)){const a=recStagnant(g);if(a!=null&&a>=30)n++;}
   const el=document.getElementById('plCount');
   if(el)el.innerHTML=n?` <span class="badge b-cooldown" style="margin-left:5px">${n}</span>`:'';   // stale worked leads needing attention
 }
