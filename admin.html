@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CT Traditional | Admin</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
   <script src="/auth-gate.js"></script>
 <script src="/site-back.js" defer></script>
   <link rel="stylesheet" href="/auth-gate.css">
@@ -961,6 +961,12 @@
         <div class="tool-icon">&#127891;</div>
         <span class="tool-type">Rep / University</span>
         <div class="tool-name">University Manager</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
+      <a class="tool-card cat-rep" href="/hr/">
+        <div class="tool-icon">&#128188;</div>
+        <span class="tool-type">HR</span>
+        <div class="tool-name">HR Hub</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
       <a class="tool-card cat-rep" href="admin.html?tab=users" onclick="event.preventDefault(); switchTab('users');">
@@ -3050,6 +3056,7 @@ async function deleteFeedback(id) {
         <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0">Sets a new password and forces a change on next sign-in. Share it with them directly.</p>
         <div class="edit-actions">
           <button class="btn-save btn-pw-set" onclick="resetRepPassword()">Set password</button>
+          <button class="btn-cancel" onclick="copyInviteFromField(this)">Copy sign-in message</button>
           <button class="btn-cancel" onclick="togglePw()">Cancel</button>
         </div>`
       : `<div class="acct-actions">
@@ -3129,6 +3136,39 @@ async function deleteFeedback(id) {
     el.style.color = isErr ? '' : 'var(--green-dark)';
   }
 
+  // ── Invite / reset sign-in message (copy-paste) ───────────────────
+  // Rebuilds the copy-paste credential message the old Rep Console card
+  // produced (removed in the People-surface merge). Sent to a rep after an
+  // invite (create) or a password reset. No email: the synthetic
+  // <username>@ct-resource-page.com address does not receive mail.
+  function buildInviteMessage(username, password) {
+    return [
+      'CT Resource Page access',
+      '',
+      'Sign in here: https://ct-resource-page.com/',
+      'Username: ' + username,
+      'Temporary password: ' + password,
+      '',
+      "You'll be asked to set your own password the first time you sign in.",
+      "Please keep this private, and don't send it back over email."
+    ].join('\n');
+  }
+
+  // Best-effort clipboard write; flips the button label to "Copied!" on success.
+  function copyInvite(username, password, btn) {
+    const text = buildInviteMessage(username, password);
+    const flip = () => { if (btn) { const o = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = o; }, 2200); } };
+    try { return navigator.clipboard.writeText(text).then(flip, function(){}); }
+    catch (e) { return Promise.resolve(); }
+  }
+
+  // Copy keyed to whatever password is currently in the reset field (accurate to
+  // what was just typed/defaulted) for the open rep.
+  function copyInviteFromField(btn) {
+    const pw = (document.getElementById('pwNew') || {}).value || 'Trinity1';
+    copyInvite((D_REP && D_REP.username) || '', pw, btn);
+  }
+
   async function resetRepPassword() {
     const pw = (document.getElementById('pwNew') || {}).value || '';
     if (pw.length < 8) { acctMsg('Password must be at least 8 characters.', true); return; }
@@ -3142,9 +3182,12 @@ async function deleteFeedback(id) {
     }
     const idx = REPS.findIndex(x => x.id === D_REP.id);
     if (idx >= 0) { REPS[idx].must_change_password = true; D_REP = decorate(REPS[idx]); }
+    const uname = (D_REP && D_REP.username) || '';
     PW_OPEN = false;
     renderDetailTab();
-    acctMsg('Password set. Share it with ' + (D_REP.name || 'them') + '; they must change it on next sign-in.', false);
+    // Best-effort auto-copy the sign-in message so it is ready to paste.
+    copyInvite(uname, pw);
+    acctMsg('Password set and sign-in message copied to clipboard. Paste it to ' + (D_REP.name || 'them') + ' via Slack or text. They must change it on next sign-in.', false);
   }
 
   async function toggleRepStatus() {
@@ -3238,7 +3281,8 @@ async function deleteFeedback(id) {
       alert(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error);
       return;
     }
-    alert('Created ' + name + '. Starter password is Trinity1 -- share via Slack/phone, not email. They must change it on first sign-in.');
+    await copyInvite(username, 'Trinity1');
+    alert('Created ' + name + '. Sign-in message copied to clipboard -- paste it to them via Slack/phone, not email. Starter password is Trinity1; they must change it on first sign-in.');
     await fetchData();
     populateMgrFilter();
     render();
@@ -3500,6 +3544,7 @@ async function deleteFeedback(id) {
   window.onEditMgrChange = onEditMgrChange;
   window.togglePw = togglePw;
   window.resetRepPassword = resetRepPassword;
+  window.copyInviteFromField = copyInviteFromField;
   window.toggleRepStatus = toggleRepStatus;
   window.togglePersonRole = togglePersonRole;
   window.toggleAdminFlag = toggleAdminFlag;

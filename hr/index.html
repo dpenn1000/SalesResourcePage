@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Hub -- Trinity Solar CT</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--green:#78C832;--accent:#29A9E1;--ink:#1A2332;--muted:#6b7a8d;--border:#DFE2DA;--bg:#EFF1EC;--surface:#fff;--radius:12px;--shadow:0 1px 4px rgba(0,0,0,.07);--shadow-h:0 6px 20px rgba(0,0,0,.10);--red:#D63030;--amber:#C88C00}
+  html{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;font-size:15px;line-height:1.5}
+  .hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px}
+  .logo{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;color:#0b1120}
+  .htitle{font-family:'Fraunces',serif;font-size:18px;font-weight:700;flex:1}
+  .htitle small{display:block;font-family:'Manrope';font-size:12px;color:var(--muted);font-weight:500}
+  .hbtn{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;cursor:pointer;background:none;border:none}
+  .wrap{max-width:1000px;margin:0 auto;padding:22px 16px 64px}
+  .intro{font-size:13px;color:var(--muted);margin-bottom:20px;max-width:680px}
+  .hub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  .hub-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;display:flex;flex-direction:column}
+  .hub-head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+  .hub-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .hub-title{font-family:'Fraunces',serif;font-size:17px;font-weight:700}
+  .hub-desc{font-size:12px;color:var(--muted);margin:0 0 12px 40px}
+  .hr-link{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:9px;text-decoration:none;color:var(--ink);background:var(--bg);font-weight:600;font-size:14px;margin-bottom:8px;transition:border-color .15s,transform .12s,box-shadow .15s}
+  .hr-link:hover{border-color:var(--green);transform:translateY(-1px);box-shadow:var(--shadow-h)}
+  .hr-link .arr{margin-left:auto;color:var(--muted);font-weight:700}
+  .hr-link small{display:block;font-weight:500;font-size:11.5px;color:var(--muted);margin-top:1px}
+  .ext{font-size:10px;font-weight:700;color:#1070a0;background:rgba(41,169,225,.14);padding:1px 6px;border-radius:5px;letter-spacing:.04em}
+  .soon{font-size:13px;color:var(--muted);background:var(--bg);border:1px dashed var(--border);border-radius:9px;padding:14px;text-align:center}
+  .empty{padding:48px 24px;text-align:center;color:var(--muted);font-size:15px}
+  @media (max-width:640px){.hub-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>HR Hub</h2>
+    <p>Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one (at least 8 characters).</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+  <header class="hdr">
+    <div class="logo">T</div>
+    <div class="htitle">HR Hub <small id="userLabel">managers</small></div>
+    <a class="hbtn" href="/admin.html">Admin</a>
+    <button class="hbtn" onclick="signOut()">Sign out</button>
+  </header>
+  <div class="wrap" id="hubBody">
+    <p class="intro">Manager HR actions and references in one place. Transfers, offboarding, hiring, recruiting, and HR resources for the CT field team.</p>
+    <div class="hub-grid">
+
+      <div class="hub-card">
+        <div class="hub-head"><span class="hub-ic" style="background:rgba(41,169,225,.14)">&#128260;</span><span class="hub-title">Transfers</span></div>
+        <p class="hub-desc">Move a rep between offices or teams.</p>
+        <a class="hr-link" href="https://forms.office.com/r/XGvDsDv2sS" target="_blank" rel="noopener">
+          <span>Traditional Rep Transfer Form<small>OneStop &middot; manager-initiated</small></span>
+          <span class="ext">OneStop</span><span class="arr">&rarr;</span>
+        </a>
+      </div>
+
+      <div class="hub-card">
+        <div class="hub-head"><span class="hub-ic" style="background:rgba(214,48,48,.12)">&#128682;</span><span class="hub-title">Offboarding</span></div>
+        <p class="hub-desc">Departures and end-of-tenure steps.</p>
+        <a class="hr-link" href="/rep-360" target="_blank" rel="noopener">
+          <span>Offboard a rep (Rep 360)<small>per-rep offboarding preview &amp; checklist</small></span>
+          <span class="arr">&rarr;</span>
+        </a>
+      </div>
+
+      <div class="hub-card">
+        <div class="hub-head"><span class="hub-ic" style="background:rgba(120,200,50,.18)">&#127919;</span><span class="hub-title">Hiring</span></div>
+        <p class="hub-desc">New-hire setup and onboarding.</p>
+        <div class="soon">Links coming soon &mdash; send them over and I'll drop them in.</div>
+      </div>
+
+      <div class="hub-card">
+        <div class="hub-head"><span class="hub-ic" style="background:rgba(245,166,35,.16)">&#128226;</span><span class="hub-title">Recruiting</span></div>
+        <p class="hub-desc">Sourcing and referrals.</p>
+        <div class="soon">Links coming soon.</div>
+      </div>
+
+      <div class="hub-card">
+        <div class="hub-head"><span class="hub-ic" style="background:rgba(107,122,141,.16)">&#128196;</span><span class="hub-title">HR Resources</span></div>
+        <p class="hub-desc">Policies, guidance, and references.</p>
+        <div class="soon">Links coming soon.</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// auth-gate.js owns sign-in / role / screen switching and calls this once authed.
+window.initApp = function (profile) {
+  document.getElementById('userLabel').textContent = profile && profile.name ? profile.name : 'managers';
+  // Manager-only surface. Reps can authenticate (auth-gate lets any active user in)
+  // but should not see HR actions -- swap the body for a notice.
+  if (!window.IS_MANAGER) {
+    document.getElementById('hubBody').innerHTML =
+      '<div class="empty">The HR Hub is for managers. If you need an HR form, reach out to your manager.</div>';
+  }
+};
+</script>
+</body>
+</html>
