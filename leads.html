@@ -343,8 +343,14 @@
     <div id="tab-pipeline" class="tabpanel" style="display:none">
       <div class="toolbar">
         <select id="plRep" onchange="renderPipeline()"><option value="">All reps (overview)</option></select>
+        <select id="plAge" onchange="renderPipeline()" title="When a rep is open, show only leads stale by this many days">
+          <option value="0">Any age</option>
+          <option value="14">Stale 14+ days</option>
+          <option value="30">Stale 30+ days</option>
+          <option value="60">Stale 60+ days</option>
+        </select>
       </div>
-      <div class="sub" style="margin:2px 0 10px">Traditional pipeline by rep. Direct / self-gen leads are excluded -- they belong to their rep and are never dispatched here. Open a rep for buckets, aging, go-back performance, and to assign work (whole buckets, the first N, or a hand-picked chunk).</div>
+      <div class="sub" style="margin:2px 0 10px">The worked pipeline by rep: scheduled appts, go-backs, ran, and no-sale leads that have already sat. The pre-sit recycle pool (deleted / no-show / cancel) lives in the Leads tab and Quick Dispatch. Direct / self-gen leads are excluded. Open a rep to work the buckets, isolate stale leads, and reassign (a whole bucket, the first N, or a hand-picked chunk).</div>
       <div id="plBody"><div class="empty">Loading pipeline...</div></div>
     </div>
 
@@ -922,17 +928,23 @@ function isMisassigned(g){
 }
 /* ── Pipeline helpers. Direct/self-gen leads are EXCLUDED everywhere in this
    tab -- they belong to their rep and are never dispatched or rebalanced. ── */
-const PL_BUCKETS=[['callable','Callable'],['scheduled','Scheduled'],['cooldown','Cooldown'],['review','Needs review']];
-const PL_BADGE={callable:'b-callable',scheduled:'b-sched',cooldown:'b-cooldown',review:'b-review'};
+/* The Pipeline tab is the WORKED pipeline: leads that have an appointment on the
+   books or already sat -- Scheduled (ready), Go-Backs, Ran, No-Sale. The pre-sit
+   recycle pool (new / deleted / no-show / cancel) is call-list + Quick Dispatch
+   work and is NOT shown here. Direct/self-gen leads are excluded entirely. */
+const PL_BUCKETS=[['ready','Scheduled'],['goback','Go-Backs'],['ran','Ran (open)'],['nosale','No-Sale']];
+const PL_BADGE={ready:'b-sched',goback:'b-cooldown',ran:'b-callable',nosale:'b-review'};
 let plSel=new Set();      // dl_numbers checked in the rep detail view
-let _plView=null;         // {rep, buckets:{bucket:[g,...]}} for the active rep view
-function inPipeline(g){   // active, dispatchable, Traditional only
+let _plView=null;         // {rep, buckets:{stage:[g,...]}} for the active rep view
+function inPipeline(g){
   if(leadType(g)==='direct')return false;
   if(g.anySold)return false;
-  if(g.dnc||g.primary.lifecycle_state==='dnc'||/forge/i.test(g.primary.lead_source||''))return false;
-  const c=leadCategory(g);
-  return c==='callable'||c==='scheduled'||c==='cooldown'||c==='review';
+  if(/forge/i.test(g.primary.lead_source||''))return false;
+  const st=g.primary.lifecycle_state||'';
+  return st==='ready'||st==='goback'||st==='ran'||st==='nosale';
 }
+function plStage(g){return g.primary.lifecycle_state||'';}                                       // ready|goback|ran|nosale
+function effOwner(g){return g.primary.assigned_to||g.primary.original_rep||'__unassigned__';}     // the rep who sat / owns it
 function hadGoback(g){    // history-aware: did this lead ever hit a go-back?
   if((g.primary.lifecycle_state||'')==='goback')return true;
   if(/go ?back/i.test(g.primary.last_outcome||''))return true;
@@ -944,9 +956,8 @@ function leadHasContact(g,cset){for(const d of g.dls){for(const o of (d.opportun
 function pipelineByRep(){
   const by={};
   for(const g of props){
-    if(leadType(g)==='direct')continue;        // never include Direct
     if(!inPipeline(g))continue;
-    const rep=g.primary.assigned_to||'__unassigned__';
+    const rep=effOwner(g);                      // attribute to the rep who sat it, not just dispatch
     (by[rep]=by[rep]||[]).push(g);
   }
   return by;
@@ -956,16 +967,16 @@ function gobackStatsByRep(){  // conversion needs sold leads too, so walk all pr
   for(const g of props){
     if(leadType(g)==='direct')continue;
     if(!hadGoback(g))continue;
-    const rep=g.primary.assigned_to||g.primary.sold_rep||'__unassigned__';
+    const rep=g.primary.assigned_to||g.primary.original_rep||g.primary.sold_rep||'__unassigned__';
     const s=by[rep]=by[rep]||{touched:0,converted:0,open:0};
     s.touched++; if(g.anySold)s.converted++; if(isOpenGoback(g))s.open++;
   }
   return by;
 }
 function repStats(leads,cset){
-  const s={total:leads.length,callable:0,scheduled:0,cooldown:0,review:0,stale30:0,uncontacted:0,oldest:0};
+  const s={total:leads.length,ready:0,goback:0,ran:0,nosale:0,stale30:0,uncontacted:0,oldest:0};
   for(const g of leads){
-    const c=leadCategory(g); if(s[c]!==undefined)s[c]++;
+    const st=plStage(g); if(s[st]!==undefined)s[st]++;
     const age=recStagnant(g); if(age!=null){if(age>s.oldest)s.oldest=age; if(age>=30)s.stale30++;}
     if(!leadHasContact(g,cset))s.uncontacted++;
   }
@@ -980,9 +991,9 @@ function recoveryNotes(g){
   return out;
 }
 function updatePlCount(){
-  let n=0;for(const g of props)if(leadType(g)!=='direct'&&inPipeline(g)&&!g.primary.assigned_to)n++;
+  let n=0;for(const g of props)if(inPipeline(g)){const a=recStagnant(g);if(a!=null&&a>=30)n++;}
   const el=document.getElementById('plCount');
-  if(el)el.innerHTML=n?` <span class="badge b-callable" style="margin-left:5px">${n}</span>`:'';   // unassigned backlog
+  if(el)el.innerHTML=n?` <span class="badge b-cooldown" style="margin-left:5px">${n}</span>`:'';   // stale worked leads needing attention
 }
 function ensurePlRepOptions(force){
   const selEl=document.getElementById('plRep');if(!selEl)return;
@@ -1007,36 +1018,38 @@ function renderPipeline(){
 function pipelineOverview(cset){
   const by=pipelineByRep();const gb=gobackStatsByRep();
   const reps=Object.keys(by).sort((a,b)=>a==='__unassigned__'?-1:b==='__unassigned__'?1:by[b].length-by[a].length);
-  if(!reps.length)return '<div class="empty">No active Traditional pipeline right now.</div>';
+  if(!reps.length)return '<div class="empty">No worked pipeline right now (nothing scheduled, ran, go-back, or no-sale).</div>';
   const row=rep=>{
     const s=repStats(by[rep],cset);const g=gb[rep]||{touched:0,converted:0,open:0};
     const conv=g.touched?Math.round(g.converted/g.touched*100):null;
     const z=v=>v||'<span class="sub">0</span>';
     return `<tr class="pl-row" onclick="selectPlRep('${esc(rep)}')">
       <td><b>${esc(plName(rep))}</b></td><td><b>${s.total}</b></td>
-      <td>${z(s.callable)}</td><td>${z(s.scheduled)}</td><td>${z(s.cooldown)}</td><td>${z(s.review)}</td>
+      <td>${z(s.ready)}</td><td>${z(s.goback)}</td><td>${z(s.ran)}</td><td>${z(s.nosale)}</td>
       <td>${s.stale30?'<b style="color:var(--amber)">'+s.stale30+'</b>':'<span class="sub">0</span>'}</td>
-      <td>${z(s.uncontacted)}</td><td>${z(g.open)}</td>
+      <td>${z(s.uncontacted)}</td>
       <td>${conv==null?'<span class="sub">--</span>':'<b>'+conv+'%</b>'}${g.touched?' <span class="sub">'+g.converted+'/'+g.touched+'</span>':''}</td>
     </tr>`;
   };
-  return `<div class="sub" style="margin-bottom:8px">Click a rep to open their pipeline and assign work. The Unassigned pool is the dispatch backlog. Direct / self-gen leads are excluded.</div>
+  return `<div class="sub" style="margin-bottom:8px">The worked pipeline, by the rep who sat it. Scheduled = appt on the books; Ran / Go-Back / No-Sale already sat. Click a rep to work or reassign. The recycle pool (deleted / no-show / cancel) lives in the Leads tab.</div>
   <table class="pl-table"><thead><tr>
-    <th>Rep</th><th>Pipe</th><th>Call</th><th>Sched</th><th>Cool</th><th>Review</th><th>Stale&nbsp;30+</th><th>No&nbsp;contact</th><th>GB&nbsp;open</th><th>GB&rarr;sold</th>
+    <th>Rep</th><th>Pipe</th><th>Scheduled</th><th>Go-Backs</th><th>Ran</th><th>No-Sale</th><th>Stale&nbsp;30+</th><th>No&nbsp;contact</th><th>GB&rarr;sold</th>
   </tr></thead><tbody>${reps.map(row).join('')}</tbody></table>`;
 }
 function pipelineRepView(rep,cset){
-  const by=pipelineByRep();const leads=by[rep]||[];
+  const by=pipelineByRep();let leads=by[rep]||[];
+  const minAge=parseInt((document.getElementById('plAge')||{}).value||'0',10);
+  if(minAge)leads=leads.filter(g=>{const a=recStagnant(g);return a!=null&&a>=minAge;});   // stale filter
   const s=repStats(leads,cset);const gb=(gobackStatsByRep())[rep]||{touched:0,converted:0,open:0};
   const conv=gb.touched?Math.round(gb.converted/gb.touched*100):null;
   const stat=(l,v,hot)=>`<div class="pl-stat"><div class="n"${hot?' style="color:var(--amber)"':''}>${v}</div><div class="l">${l}</div></div>`;
-  const strip=`<div class="pl-strip">${stat('Pipeline',s.total)}${stat('Callable',s.callable)}${stat('Scheduled',s.scheduled)}${stat('Cooldown',s.cooldown)}${stat('Review',s.review)}${stat('Stale 30+',s.stale30,s.stale30>0)}${stat('No contact',s.uncontacted)}${stat('Open GB',gb.open)}${stat('GB&rarr;sold',conv==null?'--':conv+'%')}${stat('Oldest',s.oldest?s.oldest+'d':'--')}</div>`;
-  const buckets={};for(const g of leads)(buckets[leadCategory(g)]=buckets[leadCategory(g)]||[]).push(g);
+  const strip=`<div class="pl-strip">${stat('Pipeline',s.total)}${stat('Scheduled',s.ready)}${stat('Go-Backs',s.goback)}${stat('Ran',s.ran)}${stat('No-Sale',s.nosale)}${stat('Stale 30+',s.stale30,s.stale30>0)}${stat('No contact',s.uncontacted)}${stat('GB&rarr;sold',conv==null?'--':conv+'%')}${stat('Oldest',s.oldest?s.oldest+'d':'--')}</div>`;
+  const buckets={};for(const g of leads)(buckets[plStage(g)]=buckets[plStage(g)]||[]).push(g);
   for(const k in buckets)buckets[k].sort((a,b)=>(recStagnant(b)==null?-1:recStagnant(b))-(recStagnant(a)==null?-1:recStagnant(a)));
   _plView={rep,buckets};
   const repOpts=people.filter(n=>n!==rep).map(n=>`<option>${esc(n)}</option>`).join('');
   let html=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-      <div><button class="act" onclick="selectPlRep('')">&larr; All reps</button> <b style="margin-left:6px;font-size:15px">${esc(plName(rep))}</b></div>
+      <div><button class="act" onclick="selectPlRep('')">&larr; All reps</button> <b style="margin-left:6px;font-size:15px">${esc(plName(rep))}</b>${minAge?` <span class="sub">stale ${minAge}+ days only</span>`:''}</div>
     </div>${strip}
     <div class="pl-selbar"><span id="plSelCount">0 selected</span> &rarr; <select id="plSelRep"><option value="">assign selected to...</option>${repOpts}</select> <button class="act review" onclick="plAssignSelected()">Assign selected</button> <button class="act" onclick="plClearSel()">Clear</button></div>`;
   let any=false;
@@ -1054,7 +1067,7 @@ function pipelineRepView(rep,cset){
       <div style="margin-top:8px">${grp.map(g=>plLeadRow(g,cset)).join('')}</div>
     </div>`;
   }
-  if(!any)html+='<div class="empty">No active pipeline for this rep.</div>';
+  if(!any)html+='<div class="empty">No worked pipeline for this rep'+(minAge?' at this age':'')+'.</div>';
   return html;
 }
 function plLeadRow(g,cset){
