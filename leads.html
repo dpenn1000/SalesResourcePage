@@ -968,11 +968,23 @@ function isOpenGoback(g){return (g.primary.lifecycle_state||'')==='goback' && !g
 function leadHasContact(g,cset){for(const d of g.dls){for(const o of (d.opportunity_ids||[]))if(cset.has(o))return true;if(cset.has(d.dl_number))return true;}return false;}
 function pipelineByRep(){
   const by={};
+  let worked=0;
   for(const g of props){
     if(!inPipeline(g))continue;
+    worked++;
     const rep=effOwner(g);                      // attribute to the rep who sat it (roster only)
     if(!rep)continue;                           // skip leads worked by off-roster Direct reps
     (by[rep]=by[rep]||[]).push(g);
+  }
+  // Safety net: if the roster filter dropped EVERY worked lead (e.g. the people
+  // roster array failed to load), don't blank the tool -- show raw owner names
+  // rather than nothing. Self-corrects once the roster is available.
+  if(worked && !Object.keys(by).length){
+    for(const g of props){
+      if(!inPipeline(g))continue;
+      const rep=matchRep(g.primary.assigned_to)||g.primary.assigned_to||matchRep(g.primary.original_rep)||g.primary.original_rep;
+      if(rep)(by[rep]=by[rep]||[]).push(g);
+    }
   }
   return by;
 }
