@@ -3264,28 +3264,100 @@ async function deleteFeedback(id) {
   }
 
   // ── Add person (roster action). Creates via manage-users action:'create'. ──
+  // Clean in-UI Add Person flow (replaces the old prompt()/confirm() system
+  // dialogs). Routes through the shared modal core (openModal) with edit-well
+  // styling to match the Reset Password design, and ends in a copy-paste invite
+  // card built from the shared buildInviteMessage().
   async function addPerson() {
     if (!window.IS_ADMIN) { alert('Admins only.'); return; }
-    const name = (prompt('Full name (e.g. Jane Smith):') || '').trim();
-    if (!name) return;
-    let username = (prompt('Username (lowercase; becomes <username>@ct-resource-page.com):') || '').trim().toLowerCase();
-    if (!username) return;
-    if (!/^[a-z0-9_-]+$/.test(username)) { alert('Username can only contain lowercase letters, digits, hyphens, and underscores.'); return; }
-    const kindAns = (prompt('Kind: type "rep" or "manager":', 'rep') || '').trim().toLowerCase();
-    const kind = kindAns === 'manager' ? 'manager' : 'rep';
-    let is_admin = false;
-    if (kind === 'manager') is_admin = confirm('Also grant ADMIN (can manage users, edit resources, see all activity)? OK = admin, Cancel = manager only.');
-    if (!confirm(`Create ${kind}${is_admin ? ' (admin)' : ''} "${name}" (@${username}) with starter password Trinity1?`)) return;
-    const result = await callManageUsers({ action: 'create', kind, name, username, is_admin, password: 'Trinity1' });
+    const mgrs = (REPS || []).filter(p => (p.role || '') === 'manager')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    const mgrOpts = ['<option value="">-- none --</option>'].concat(
+      mgrs.map(m => `<option value="${m.id}">${escapeHtml(m.name || m.username || m.id)}</option>`)
+    ).join('');
+    // Known states + any already present on the roster.
+    const seen = new Set(['CT', 'NY', 'NJ']);
+    (REPS || []).forEach(p => (p.states || []).forEach(s => s && seen.add(String(s).toUpperCase())));
+    const stateOpts = Array.from(seen).sort().map(s => `<option value="${s}">${s}</option>`).join('');
+    const body = `
+      <div style="display:flex;flex-direction:column;gap:13px">
+        <div>
+          <label class="edit-label" for="apName">Full name</label>
+          <input id="apName" class="edit-input" type="text" placeholder="Jane Smith" autocomplete="off">
+        </div>
+        <div>
+          <label class="edit-label" for="apUser">Username</label>
+          <input id="apUser" class="edit-input" type="text" placeholder="jsmith" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">
+          <div style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px">Lowercase. Becomes &lt;username&gt;@ct-resource-page.com. No email is sent.</div>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:120px">
+            <label class="edit-label" for="apKind">Role</label>
+            <select id="apKind" class="edit-input"><option value="rep">Rep</option><option value="manager">Manager</option></select>
+          </div>
+          <div style="flex:1;min-width:120px">
+            <label class="edit-label" for="apState">State</label>
+            <select id="apState" class="edit-input">${stateOpts}</select>
+          </div>
+        </div>
+        <div>
+          <label class="edit-label" for="apMgr">Reports to</label>
+          <select id="apMgr" class="edit-input">${mgrOpts}</select>
+        </div>
+        <label id="apAdminRow" style="display:none;align-items:center;gap:8px;font-size:0.82rem;color:var(--text,#1A2332)">
+          <input id="apAdmin" type="checkbox" style="width:auto"> Grant admin (manage users, edit content, see all)
+        </label>
+        <label id="apNatRow" style="display:none;align-items:center;gap:8px;font-size:0.82rem;color:var(--text,#1A2332)">
+          <input id="apNat" type="checkbox" style="width:auto"> National (sees all states)
+        </label>
+      </div>`;
+    openModal('Add person', body, 'Create', 'background:var(--green,#5eba28);color:#fff', submitAddPerson);
+    const kindEl = document.getElementById('apKind');
+    if (kindEl) kindEl.addEventListener('change', () => {
+      const isMgr = kindEl.value === 'manager';
+      document.getElementById('apAdminRow').style.display = isMgr ? 'flex' : 'none';
+      document.getElementById('apNatRow').style.display = isMgr ? 'flex' : 'none';
+    });
+  }
+
+  async function submitAddPerson() {
+    const name = ((document.getElementById('apName') || {}).value || '').trim();
+    const username = ((document.getElementById('apUser') || {}).value || '').trim().toLowerCase();
+    const kind = ((document.getElementById('apKind') || {}).value === 'manager') ? 'manager' : 'rep';
+    const state = ((document.getElementById('apState') || {}).value || 'CT');
+    const parent_id = ((document.getElementById('apMgr') || {}).value || '') || null;
+    const is_admin = kind === 'manager' && !!((document.getElementById('apAdmin') || {}).checked);
+    const is_national = kind === 'manager' && !!((document.getElementById('apNat') || {}).checked);
+    if (!name) { setModalError('Enter a full name.'); return; }
+    if (!/^[a-z0-9_-]+$/.test(username)) { setModalError('Username: lowercase letters, digits, hyphens, underscores only.'); return; }
+    const btn = document.getElementById('modalConfirmBtn');
+    setModalLoading(btn, true, 'Create');
+    const result = await callManageUsers({
+      action: 'create', kind, name, username, is_admin, password: 'Trinity1',
+      states: [state], is_national, parent_id,
+    });
     if (result && result.error) {
-      alert(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error);
+      setModalLoading(btn, false, 'Create');
+      setModalError(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error);
       return;
     }
-    await copyInvite(username, 'Trinity1');
-    alert('Created ' + name + '. Sign-in message copied to clipboard -- paste it to them via Slack/phone, not email. Starter password is Trinity1; they must change it on first sign-in.');
     await fetchData();
     populateMgrFilter();
     render();
+    showInviteCard(name, username, 'Trinity1');
+  }
+
+  function showInviteCard(name, username, password) {
+    const msg = buildInviteMessage(username, password);
+    const body = `
+      <div>
+        <div style="font-size:0.95rem;font-weight:700;color:var(--text,#1A2332);margin-bottom:4px">${escapeHtml(name)} created.</div>
+        <p style="font-size:0.8rem;color:var(--muted,#6B7280);margin:0 0 12px;line-height:1.55">Send this to them via Slack or text (not email). They set their own password on first sign-in.</p>
+        <pre style="background:#f6f8f4;border:1px solid var(--border,#DFE2DA);border-radius:8px;padding:14px 16px;font-family:'DM Mono',ui-monospace,monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;color:#1A2332;margin:0">${escapeHtml(msg)}</pre>
+      </div>`;
+    openModal('Invite ' + name, body, 'Copy message', 'background:#1A2332;color:#fff', function () {});
+    const btn = document.getElementById('modalConfirmBtn');
+    btn.onclick = function () { copyInvite(username, password, btn); };
   }
 
   function tabActivity() {
