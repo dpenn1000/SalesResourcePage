@@ -919,7 +919,17 @@ async function resolveFlag(id,status,lang){
 }
 /* ── Recovery tab: stagnant leads that need handling apart from the call list ── */
 const REC_LABEL={selfgen:'Self-gen / Direct',goback:'Unresolved go-back',stage2:'Aged Stage-2'};
-function matchRep(name){if(!name)return null;const n=String(name).trim().toLowerCase();return people.find(p=>p.toLowerCase()===n)||null;}
+// A few reps appear in the SF appointment data under a spelling that differs from
+// the people roster. Map the variant -> canonical roster name so their pipeline
+// isn't dropped as "off-roster". Survives re-syncs (the parser rewrites the raw
+// names every run). Add a line here if another near-miss turns up.
+const REP_ALIASES={'brandilee madera':'Brandi Madera','dchristopher wyant':'Christopher Wyant'};
+function matchRep(name){
+  if(!name)return null;
+  const n=String(name).trim().toLowerCase();
+  if(REP_ALIASES[n])return REP_ALIASES[n];
+  return people.find(p=>p.toLowerCase()===n)||null;
+}
 function recStagnant(g){const d=daysSince(g.primary.last_appt_date);return d!=null?d:daysSince(g.primary.first_appt_date);}
 function isMisassigned(g){
   if(leadType(g)!=='direct')return false;
