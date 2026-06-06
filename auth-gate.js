@@ -3,8 +3,14 @@
  * Every page on ct-resource-page.com that touches non-public data
  * includes this file via:
  *
- *   <script src="https://unpkg.com/@supabase/supabase-js@2.107.0"></script>
  *   <script src="/auth-gate.js"></script>
+ *
+ * The supabase-js SDK is loaded by the gate itself (pinned version, single
+ * source of truth -- see SUPABASE_JS_VERSION below). A page MAY still ship
+ * its own <script src="...supabase-js@2.107.0"></script> before this file
+ * for backward compatibility; if present it is used as-is, if absent the
+ * gate loads the pinned version (with a CDN fallback). If the SDK cannot be
+ * loaded at all, the gate shows a retryable error instead of a blank page.
  *
  * The page must provide three DOM elements -- the gate switches their
  * visibility based on auth state:
@@ -50,14 +56,87 @@
   const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
 
-  if (typeof supabase === 'undefined' || !supabase.createClient) {
-    console.error('[auth-gate] supabase-js not loaded. Add the unpkg <script> tag before /auth-gate.js.');
-    return;
+  // ── Canonical supabase-js version (single source of truth) ───────────
+  // Pinned deliberately so an upstream 2.x release can't change auth
+  // behavior under us (blank-page incident 2026-06-04). Pages may still
+  // carry their own <script> tag for backward compatibility; when a page
+  // omits it, the gate loads THIS version itself from the CDN list below.
+  // To roll a version bump, change ONLY this constant, then run the auth
+  // smoke-test: signed-out load -> login -> password reset -> signed-in.
+  const SUPABASE_JS_VERSION = '2.107.0';
+  const SUPABASE_JS_URLS = [
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@' + SUPABASE_JS_VERSION,
+    'https://unpkg.com/@supabase/supabase-js@' + SUPABASE_JS_VERSION
+  ];
+  const SDK_LOAD_TIMEOUT_MS = 8000;
+
+  // ── Fatal-failure UI ─────────────────────────────────────────────────
+  // If the SDK cannot load from any source, never leave a blank page: show
+  // a clear, retryable message instead. (Pre-2026-06 this path was a bare
+  // console.error + return, which is exactly how a blank page happened.)
+  function showSdkFatalError(detail) {
+    try { console.error('[auth-gate] supabase-js unavailable:', detail); } catch (e) {}
+    if (document.getElementById('authGateFatal')) return;
+    var build = function () {
+      var o = document.createElement('div');
+      o.id = 'authGateFatal';
+      o.setAttribute('role', 'alert');
+      o.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;'
+        + 'align-items:center;justify-content:center;background:#0b1120;'
+        + 'font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px;';
+      o.innerHTML =
+        '<div style="max-width:440px;text-align:center;color:#e8ecf4;'
+        + 'background:#131c2e;border:1px solid #29384f;border-radius:16px;padding:32px 28px;">'
+        + '<div style="font-size:13px;font-weight:700;color:#78C832;letter-spacing:.06em;'
+        + 'text-transform:uppercase;margin-bottom:12px;">CT Resource Page</div>'
+        + '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">Sign-in is temporarily unavailable</div>'
+        + '<div style="font-size:14px;line-height:1.55;color:#a9b6cc;margin-bottom:20px;">'
+        + 'We could not load a required component. This is usually a brief network hiccup. '
+        + 'Please check your connection and try again.</div>'
+        + '<button id="authGateRetry" style="background:#78C832;color:#0b1120;border:0;'
+        + 'border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;">'
+        + 'Try again</button></div>';
+      document.body.appendChild(o);
+      var btn = document.getElementById('authGateRetry');
+      if (btn) btn.addEventListener('click', function () { window.location.reload(); });
+    };
+    if (document.body) build();
+    else document.addEventListener('DOMContentLoaded', build);
   }
 
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  // ── Resilient SDK bootstrap ──────────────────────────────────────────
+  // Happy path: the page already loaded supabase-js (its own <script> tag),
+  // so done(true) fires synchronously and the gate starts with identical
+  // timing to before. Fallback: no SDK present -> inject the pinned version,
+  // trying each CDN in order with a watchdog timeout.
+  function loadSupabaseSdk(done) {
+    if (typeof supabase !== 'undefined' && supabase.createClient) { done(true); return; }
+    var i = 0;
+    (function tryNext() {
+      if (typeof supabase !== 'undefined' && supabase.createClient) { done(true); return; }
+      if (i >= SUPABASE_JS_URLS.length) { done(false); return; }
+      var url = SUPABASE_JS_URLS[i++];
+      var s = document.createElement('script');
+      var settled = false;
+      var to = setTimeout(function () {
+        if (settled) return; settled = true; s.remove(); tryNext();
+      }, SDK_LOAD_TIMEOUT_MS);
+      s.src = url;
+      s.onload = function () {
+        if (settled) return; settled = true; clearTimeout(to);
+        if (typeof supabase !== 'undefined' && supabase.createClient) done(true); else tryNext();
+      };
+      s.onerror = function () {
+        if (settled) return; settled = true; clearTimeout(to); s.remove(); tryNext();
+      };
+      (document.head || document.documentElement).appendChild(s);
+    })();
+  }
 
-  window.sb = sb;
+  function startGate() {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    window.sb = sb;
   window.IS_ADMIN = false;
   window.IS_MANAGER = false;
   window.IS_REP = false;
@@ -382,4 +461,14 @@
     if (clearErr) console.warn('[auth-gate] clear_must_change_password failed:', clearErr.message);
     window.location.reload();
   };
+  } // ── end startGate ──
+
+  // Ensure the SDK is present (load the pinned version if a page omitted its
+  // own tag, with a CDN fallback), then start. On total failure, show the
+  // retryable error UI instead of a blank page.
+  loadSupabaseSdk(function (ok) {
+    if (!ok) { showSdkFatalError('all CDN sources failed'); return; }
+    try { startGate(); }
+    catch (e) { showSdkFatalError(e); }
+  });
 })();
