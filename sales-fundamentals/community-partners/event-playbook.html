@@ -109,6 +109,8 @@
   .note { margin-top: 32px; background: rgba(41,169,225,0.07); border: 1px solid rgba(41,169,225,0.3); border-radius: 14px; padding: 24px 28px; }
   .note-tag { font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
   .note-body { font-size: 14.5px; color: var(--ink-soft); line-height: 1.6; }
+  .note-body p { margin: 0 0 12px; }
+  .note-body p:last-child { margin-bottom: 0; }
   .note-body strong { color: var(--ink); }
 
   /* Rules table */
@@ -190,7 +192,7 @@
 </style>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/auth-gate.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
 <script src="/site-back.js" defer></script>
 </head>
@@ -419,7 +421,11 @@
 
     <div class="note">
       <div class="note-tag">Set the actual appointment before they leave</div>
-      <div class="note-body">Do not leave with "we'll reach out." Set the time right here, at the table, while you are face to face. Name a specific day and time and get the yes: <strong>"Are you free Thursday at 6? Will your wife be home too? Great, I'll see you both Thursday at 6."</strong> The strongest appointments are the ones a homeowner agreed to looking you in the eye. Then set the expectation: <strong>"I'll shoot you a text to confirm, and you might get a quick call from our office to lock it in too. If you see a number you do not know in the next day or two, it is probably us, so pick up."</strong> You are not leaving to go find a time later. The time is set. Everything after this is protecting it.</div>
+      <div class="note-body">
+        <p>Do not leave with "we'll reach out." Set the time right here, at the table, while you are face to face. Name a specific day and time and get the yes: <strong>"Are you free Thursday at 6? Will your wife be home too? Great, I'll see you both Thursday at 6."</strong> The strongest appointments are the ones a homeowner agreed to looking you in the eye.</p>
+        <p>Then set the expectation: <strong>"I'll shoot you a text to confirm, and you might get a quick call from our office to lock it in too. If you see a number you do not know in the next day or two, it is probably us, so pick up."</strong></p>
+        <p>You are not leaving to go find a time later. The time is set. Everything after this is protecting it.</p>
+      </div>
     </div>
   </section>
 
