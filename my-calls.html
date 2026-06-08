@@ -55,6 +55,8 @@
   .radios{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
   .radios label{font-size:13px;border:1px solid var(--border);border-radius:7px;padding:6px 10px;cursor:pointer;background:#fff}
   .radios input{margin-right:5px}
+  .radios label:has(input:checked){background:var(--green);color:#0b1120;border-color:var(--green);font-weight:600}
+  .effqty{width:46px;font-size:13px;padding:6px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--ink);margin-left:-2px}
   .frow{margin-bottom:9px}
   .frow label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:3px}
   .frow input,.frow select,.frow textarea{width:100%;font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink)}
@@ -174,7 +176,7 @@ const FLAG_LABEL=Object.fromEntries(FLAG_REASONS);
 function openFlagFor(l){const a=flagsByDl[l.dl_number];return a&&a.length?a[0]:null;}
 
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
-function apptNotice(){const m=document.getElementById('apptModal');if(m)m.style.display='flex';}
+function apptNotice(el){if(el&&!el.checked)return;const m=document.getElementById('apptModal');if(m)m.style.display='flex';}
 function closeApptModal(){const m=document.getElementById('apptModal');if(m)m.style.display='none';}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function fmtDate(d){if(!d)return '--';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});}catch(e){return d;}}
@@ -278,13 +280,14 @@ function cardHtml(l){
   const logForm = `<div class="logform">
         <h4>${logHeading}</h4>
         <div class="radios" id="oc-${esc(l.dl_number)}">
-          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Reached" checked>Reached</label>
-          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Appointment Set" onchange="apptNotice()">Appt set</label>
-          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Has Interest">Has interest</label>
-          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Voicemail">Voicemail</label>
-          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="No Answer">No answer</label>
-          <label><input type="radio" name="oc-${esc(l.dl_number)}" value="Sent SMS">Sent SMS</label>
+          <label><input type="checkbox" value="No Answer">No answer</label><input type="number" id="na-${esc(l.dl_number)}" class="effqty" min="1" max="9" value="1" title="How many times you called and got no answer this round">
+          <label><input type="checkbox" value="Voicemail">Left voicemail</label>
+          <label><input type="checkbox" value="Sent SMS">Sent SMS</label>
+          <label><input type="checkbox" value="Reached">Reached</label>
+          <label><input type="checkbox" value="Has Interest">Has interest</label>
+          <label><input type="checkbox" value="Appointment Set" onchange="apptNotice(this)">Appt set</label>
         </div>
+        <div style="font-size:11px;color:var(--muted);margin:-2px 0 8px">Tick everything you did this round. Two calls, a voicemail, and a text all log as separate efforts.</div>
         <div class="frow two">
           <div><label>Homeowner state</label><select id="hs-${esc(l.dl_number)}">${HSTATES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
           <div><label>Frustration source (coaching intel)</label><select id="fs-${esc(l.dl_number)}">${FSOURCES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
@@ -294,7 +297,7 @@ function cardHtml(l){
           <div><label>Next step</label><input id="ns-${esc(l.dl_number)}" type="text" placeholder="callback, setter handoff, resolved..."></div>
           <div><label>Follow-up date</label><input id="fu-${esc(l.dl_number)}" type="date"></div>
         </div>
-        <button class="btn-primary" onclick="saveCall('${esc(l.dl_number)}')">Log call</button>
+        <button class="btn-primary" onclick="saveCall('${esc(l.dl_number)}')">Log attempts</button>
       </div>`;
   const of = openFlagFor(l);
   const flaggedBanner = of
@@ -339,12 +342,23 @@ async function saveCall(dl){
   const l=leads.find(x=>x.dl_number===dl);if(!l)return;
   const card=document.getElementById('c-'+dl);
   const btn=card?card.querySelector('.logform .btn-primary'):null;
-  const oc=document.querySelector(`input[name="oc-${dl}"]:checked`);
+  const box=document.getElementById('oc-'+dl);
+  const checked=box?[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value):[];
+  if(!checked.length){toast('Pick at least one outcome');return;}
+  // Order by significance so the primary effort carries the shared notes/state.
+  const PRIO=['Appointment Set','Reached','Has Interest','Voicemail','Sent SMS','No Answer'];
+  const bySig=(a,b)=>PRIO.indexOf(a)-PRIO.indexOf(b);
+  let outcomes=checked.slice().sort(bySig);
+  // "No answer" can repeat -- they may have called more than once this round.
+  const na=parseInt((document.getElementById('na-'+dl)||{}).value||'1',10);
+  if(outcomes.includes('No Answer')&&na>1){
+    outcomes=outcomes.filter(o=>o!=='No Answer').concat(Array(Math.min(na,9)).fill('No Answer')).sort(bySig);
+  }
   // Always route through the SECURITY DEFINER RPC so non-admin managers can log on
   // a rep's lead (RLS with_check would otherwise reject) and every row is attributed.
   const args={
     p_opportunity_id:oppOf(l),
-    p_outcome:oc?oc.value:'Reached',
+    p_outcomes:outcomes,
     p_homeowner_state:(document.getElementById('hs-'+dl).value||null),
     p_frustration_source:(document.getElementById('fs-'+dl).value||null),
     p_notes:(document.getElementById('nt-'+dl).value.trim()||null),
@@ -353,22 +367,24 @@ async function saveCall(dl){
     p_opp_name:(l.homeowner_name||null),
   };
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
-  const { data, error }=await sb.rpc('log_contact_for',args);
-  if(error){toast('Save failed: '+error.message);if(btn){btn.disabled=false;btn.textContent='Log call';}return;}
-  /* reflect locally so call history + KPIs update without a reload */
-  const row={
+  const { data, error }=await sb.rpc('log_contacts_for',args);
+  if(error){toast('Save failed: '+error.message);if(btn){btn.disabled=false;btn.textContent='Log attempts';}return;}
+  /* reflect locally so call history + KPIs update without a reload; primary first */
+  const baseTs=(data&&data.contacted_at)||new Date().toISOString();
+  const rows=outcomes.map((o,i)=>({
     opportunity_id:args.p_opportunity_id,
-    contacted_at:(data&&data.contacted_at)||new Date().toISOString(),
-    outcome:args.p_outcome,
-    homeowner_state:args.p_homeowner_state,
-    frustration_source:args.p_frustration_source,
-    notes:args.p_notes,
-    next_step:args.p_next_step,
-    follow_up_date:args.p_follow_up_date,
+    contacted_at:baseTs,
+    outcome:o,
+    homeowner_state:i===0?args.p_homeowner_state:null,
+    frustration_source:i===0?args.p_frustration_source:null,
+    notes:i===0?args.p_notes:null,
+    next_step:i===0?args.p_next_step:null,
+    follow_up_date:i===0?args.p_follow_up_date:null,
     logged_by:(data&&data.logged_by)||ME||null,
-  };
-  contacts.unshift(row);(byOpp[row.opportunity_id]=byOpp[row.opportunity_id]||[]).unshift(row);
-  toast(window.IS_MANAGER?('Call logged for '+(VIEW_AS||'rep')):'Call logged');
+  }));
+  for(let i=rows.length-1;i>=0;i--){contacts.unshift(rows[i]);(byOpp[rows[i].opportunity_id]=byOpp[rows[i].opportunity_id]||[]).unshift(rows[i]);}
+  const n=outcomes.length;
+  toast(window.IS_MANAGER?(`Logged ${n} for `+(VIEW_AS||'rep')):`Logged ${n} attempt${n>1?'s':''}`);
   renderKpis();render();
 }
 // Update the lead record itself (disposition + sold). Allowed by direct_leads RLS:
