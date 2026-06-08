@@ -1188,7 +1188,11 @@
 const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
 // Use the shared auth-gate Supabase client (window.sb) -- one client, one session.
-const sb = window.sb;
+// `let` + refresh in initApp: auth-gate's resilient SDK bootstrap can create
+// window.sb AFTER this script first evaluates, so the initial snapshot may be
+// undefined. We re-read it once authed (initApp), when the client is guaranteed
+// to exist -- prevents the intermittent "Loading..." when the CDN tag lags.
+let sb = window.sb;
 
 let allRows        = [];
 let activeImgType  = 'favicon';
@@ -1205,6 +1209,7 @@ window.IS_ADMIN = false;
 // auth-gate.js owns the auth state machine (profile lookup, must-change-password
 // gate, screen switching, window.IS_ADMIN) and calls window.initApp once authed.
 window.initApp = function (profile, session) {
+  sb = window.sb;  // refresh the client ref now that auth-gate has created it
   document.getElementById('userLabel').textContent =
     profile.name || (session.user && session.user.email) || '';
   loadResources();
