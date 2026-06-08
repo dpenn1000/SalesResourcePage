@@ -692,6 +692,7 @@
       <button class="cat-btn"        data-cat="University" onclick="setCat('University')">&#127891; <span class="cat-label-desktop">University</span><span class="cat-label-mobile">Univ.</span> <span class="cat-count" id="cnt-University"></span></button>
       <button class="cat-btn"        data-cat="Technology" onclick="setCat('Technology')">&#128187; <span class="cat-label-desktop">Technology</span><span class="cat-label-mobile">Tech</span> <span class="cat-count" id="cnt-Technology"></span></button>
       <button class="cat-btn"        data-cat="Control Your Business" onclick="setCat('Control Your Business')">&#127919; <span class="cat-label-desktop">Control Your Business</span><span class="cat-label-mobile">Control</span> <span class="cat-count" id="cnt-Control-Your-Business"></span></button>
+      <button class="cat-btn mgr-only" data-cat="Management" onclick="setCat('Management')" style="display:none">&#128188; <span class="cat-label-desktop">Management</span><span class="cat-label-mobile">Mgmt</span> <span class="cat-count" id="cnt-Management"></span></button>
     </div>
   </div>
 </header>
@@ -729,6 +730,7 @@
     <button class="rail-btn"        data-cat="University" onclick="setCat('University')">&#127891; University <span class="rail-count" id="rcnt-University"></span></button>
     <button class="rail-btn"        data-cat="Technology" onclick="setCat('Technology')">&#128187; Technology <span class="rail-count" id="rcnt-Technology"></span></button>
     <button class="rail-btn"        data-cat="Control Your Business" onclick="setCat('Control Your Business')">&#127919; Control Your Business <span class="rail-count" id="rcnt-Control-Your-Business"></span></button>
+    <button class="rail-btn mgr-only" data-cat="Management" onclick="setCat('Management')" style="display:none">&#128188; Management <span class="rail-count" id="rcnt-Management"></span></button>
 
     <!-- Jump back in: recently-opened resources, in the rail under Categories (desktop) -->
     <div class="recents" id="recentsRow" style="display:none">
@@ -814,7 +816,7 @@
 // refresh races.
 const sb = window.sb;
 
-const CAT_ORDER  = ['Solar', 'Roofing', 'Battery', 'Sales Fundamentals', 'University', 'Technology', 'Control Your Business'];
+const CAT_ORDER  = ['Solar', 'Roofing', 'Battery', 'Sales Fundamentals', 'University', 'Technology', 'Control Your Business', 'Management'];
 const CAT_COLOR  = { Solar: '#78C832', Roofing: '#E8863A', Battery: '#29A9E1', 'Sales Fundamentals': '#C4457A', University: '#0E9B8A', Technology: '#5B6CF0', 'Control Your Business': '#8B5CF6' };
 
 // Optional per-category subcategory ordering. Subcategories listed here render
@@ -927,6 +929,12 @@ async function initApp(profile, session) {
         drawerRepLink.style.display = '';
       }
     }
+  }
+
+  // Manager-only surfaces (e.g. the Management category) are hidden by default
+  // and revealed here. The rows themselves are RLS-gated, so this is the UI layer.
+  if (window.IS_MANAGER) {
+    document.querySelectorAll('.mgr-only').forEach(el => { el.style.display = ''; });
   }
 
   const { data, error } = await sb.from('resources').select('*')
