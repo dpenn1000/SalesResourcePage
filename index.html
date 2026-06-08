@@ -982,6 +982,15 @@ async function initApp(profile, session) {
     document.getElementById('trainingBanner').style.display = 'block';
   }
   render();
+
+  // Optional category deep-link: /#Management opens that tab on load. Only
+  // honored when the category button is actually visible (e.g. mgr-only
+  // categories stay hidden from reps), so a rep hitting #Management is a no-op.
+  const hashCat = decodeURIComponent((location.hash || '').replace(/^#/, ''));
+  if (hashCat && CAT_ORDER.includes(hashCat)) {
+    const btn = document.querySelector('.cat-btn[data-cat="' + hashCat + '"], .rail-btn[data-cat="' + hashCat + '"]');
+    if (btn && btn.style.display !== 'none') setCat(hashCat);
+  }
 }
 
 function setCat(cat) {
