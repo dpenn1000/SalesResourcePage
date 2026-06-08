@@ -219,6 +219,48 @@ main { padding: 28px 0 60px; }
 }
 .detail-shell .prose { white-space: pre-wrap; color: var(--text); }
 .attachments-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* Evidence: "attach the whole email thread" helper + hover instructions card */
+.eml-tip {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.eml-tip .eml-strong { color: var(--text); font-weight: 600; }
+.eml-help { position: relative; display: inline-block; }
+.eml-help-trigger {
+  cursor: help;
+  color: var(--blue-dk);
+  font-weight: 600;
+  border-bottom: 1px dotted var(--blue-dk);
+  white-space: nowrap;
+}
+.eml-help-trigger:focus { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+.eml-help-card {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 8px);
+  z-index: 50;
+  width: 340px;
+  max-width: 88vw;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  padding: 14px 16px;
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  cursor: default;
+}
+.eml-help:hover .eml-help-card,
+.eml-help:focus-within .eml-help-card { display: block; }
+.eml-help-card h4 { margin: 0 0 8px; font-size: 0.88rem; color: var(--ink); }
+.eml-help-card ol { margin: 0 0 0 18px; padding: 0; }
+.eml-help-card li { margin-bottom: 6px; }
+.eml-help-card .eml-note { margin-top: 10px; color: var(--muted); }
 .att-chip {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 0.82rem;
@@ -2681,6 +2723,22 @@ window.openNewSubmission = function openNewSubmission() {
   card.appendChild(el('div', { class: 'field' },
     el('label', {}, 'Evidence'),
     el('div', { class: 'hint' }, 'Add URLs, Salesforce links, files, or screenshots. The more concrete, the easier to act on.'),
+    el('div', { class: 'eml-tip' },
+      el('span', { class: 'eml-strong' }, 'Got an email thread? '),
+      'Attach the whole conversation as a file instead of screenshots -- it keeps every reply, date, header, and attachment. ',
+      el('span', { class: 'eml-help' },
+        el('span', { class: 'eml-help-trigger', tabindex: '0', role: 'button', 'aria-label': 'How to save an Outlook email thread as a file' }, 'How to save it from Outlook'),
+        el('div', { class: 'eml-help-card' },
+          el('h4', {}, 'Save an Outlook thread, then upload it'),
+          el('ol', {},
+            el('li', { html: '<strong>New Outlook / Outlook on the web:</strong> open the email, click the <strong>&middot;&middot;&middot;</strong> (More actions) menu at the top of the message, then <strong>Save as</strong> / <strong>Download</strong>. You get a <strong>.eml</strong> file with the full thread.' }),
+            el('li', { html: '<strong>Classic Outlook (desktop):</strong> drag the email from your inbox onto your Desktop, or use <strong>File &gt; Save As</strong>. That saves a <strong>.msg</strong> file, which works too.' }),
+            el('li', { html: 'Back here, click <strong>+ File</strong> below and pick the saved <strong>.eml</strong> or <strong>.msg</strong>.' }),
+          ),
+          el('div', { class: 'eml-note' }, 'Tip: open the conversation so the whole thread is included, not just one reply.'),
+        ),
+      ),
+    ),
     el('div', { id: 'attList' }),
     el('div', { style: 'display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;' },
       el('button', { type: 'button', class: 'btn ghost small', onclick: () => addAttachmentRow('url') }, '+ URL'),
