@@ -1679,7 +1679,7 @@ async function renderFeedbackDetail(root, id) {
 }
 
 window.openNewFeedbackRequest = function openNewFeedbackRequest() {
-  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) maybeCloseModal(shroud); } });
   const card = el('div', { class: 'modal-card' });
   card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
   card.appendChild(el('h2', {}, 'Ask managers for feedback'));
@@ -2029,7 +2029,7 @@ function showWorkingModal(title, sub) {
 }
 
 function showBriefModal(brief, submissionId, submissionTitle) {
-  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) maybeCloseModal(shroud); } });
   const card = el('div', { class: 'modal-card', style: 'max-width:820px;' });
   card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
   card.appendChild(el('h2', {}, el('span', { class: 'ai-marker' }, 'AI'), document.createTextNode(' VP Brief: ' + submissionTitle)));
@@ -2127,7 +2127,7 @@ async function saveBriefAsComment(brief, submissionId) {
 }
 
 function showConsolidationModal(con, requestId, requestPrompt) {
-  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) maybeCloseModal(shroud); } });
   const card = el('div', { class: 'modal-card', style: 'max-width:820px;' });
   card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
   card.appendChild(el('h2', {}, el('span', { class: 'ai-marker' }, 'AI'), document.createTextNode(' Consolidated Responses')));
@@ -2315,6 +2315,18 @@ document.addEventListener('input', (e) => {
 
 function closeModal() { $('modalRoot').innerHTML = ''; }
 
+// An outside-click on the backdrop must NOT silently discard a form a user is
+// filling out (Solutions Center feedback data-loss, 2026-06-08). Only close on
+// an outside click when nothing has been typed; if any field has content, keep
+// the modal open and tell the user to use Cancel or the X. Submit / Cancel / X
+// still close directly.
+function maybeCloseModal(shroud) {
+  const dirty = [...shroud.querySelectorAll('input, textarea')]
+    .some(elx => (elx.value || '').trim() !== '');
+  if (dirty) { toast('Your entry is kept. Use Cancel or the X button to close.'); return; }
+  closeModal();
+}
+
 // ── sharing / access control ─────────────────────────────────────────────
 const SHARE_ROLES = [
   ['viewer', 'Viewer (read only)'],
@@ -2333,7 +2345,7 @@ function targetSubLabel(kind, sub) {
 }
 
 window.openShareModal = async function openShareModal(submissionId, submissionTitle) {
-  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) maybeCloseModal(shroud); } });
   const card = el('div', { class: 'modal-card', style: 'max-width:640px;' });
   card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
   card.appendChild(el('h2', {}, 'Share access'));
@@ -2459,7 +2471,7 @@ async function removeShare(submissionId, r) {
 
 // ── groups manager ───────────────────────────────────────────────────────
 window.openGroupsModal = async function openGroupsModal(submissionId, submissionTitle) {
-  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) maybeCloseModal(shroud); } });
   const card = el('div', { class: 'modal-card', style: 'max-width:640px;' });
   card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
   card.appendChild(el('h2', {}, 'Groups'));
@@ -2503,7 +2515,7 @@ async function renderGroupsBody(submissionId, submissionTitle) {
 
 async function openGroupEditor(group, submissionId, submissionTitle) {
   const editing = !!group;
-  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) maybeCloseModal(shroud); } });
   const card = el('div', { class: 'modal-card', style: 'max-width:560px;' });
   card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
   card.appendChild(el('h2', {}, editing ? 'Edit group' : 'New group'));
@@ -2575,7 +2587,7 @@ async function saveGroup(group, submissionId, submissionTitle) {
 }
 
 window.openNewSubmission = function openNewSubmission() {
-  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) maybeCloseModal(shroud); } });
   const card = el('div', { class: 'modal-card' });
   card.innerHTML = '';
 
@@ -2987,7 +2999,7 @@ async function submitNew() {
 // ── category admin modal ────────────────────────────────────────────────
 
 window.openCategoryAdmin = function openCategoryAdmin() {
-  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) closeModal(); } });
+  const shroud = el('div', { class: 'modal-shroud', onclick: (e) => { if (e.target === shroud) maybeCloseModal(shroud); } });
   const card = el('div', { class: 'modal-card' });
   card.appendChild(el('button', { class: 'x', onclick: closeModal }, 'Close'));
   card.appendChild(el('h2', {}, 'Categories'));
