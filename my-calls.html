@@ -39,6 +39,7 @@
   .b-cancel{background:rgba(200,140,0,.12);color:#8a5800}.b-new{background:rgba(120,200,50,.18);color:#3a7010}
   .b-done{background:rgba(120,200,50,.16);color:#3a7010}
   .b-lang{background:rgba(41,169,225,.14);color:#1070a0}
+  .b-status{background:rgba(120,90,200,.14);color:#5a3aa8}
   .b-flag{background:rgba(214,48,48,.12);color:#a02020}
   .btn-flag{background:#fff;color:#a02020;border:1px solid #e3a3a3;border-radius:8px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
   .btn-flag:hover{background:#fdecec}.btn-flag:disabled{opacity:.6;cursor:default}
@@ -167,8 +168,13 @@ let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set(), flags
 const HSTATES=['','Receptive / re-engaged','Not interested','Already has solar','Renter / not owner','Moving / selling','Hostile / rude','Hard no / stop calling','Wrong / bad number','DNC request'];
 const FSOURCES=['','Setter: misinformation','Setter: aggressive / pushy','Setter: needs coaching','Call center: no confirmation','Call center: over-confirming (too many texts/calls)','Call center: high pressure','Prior rep: bad experience','Other'];
 const DISPO={deleted:['Deleted (pre-run)','b-deleted'],noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],new:['New','b-new']};
-// Disposition options a rep/manager can set on the lead record (matches the lifecycle_state vocabulary the dashboard reads).
-const DISPO_EDIT=[['ready','Ready to dispatch'],['goback','Go-back scheduled'],['ran','Appointment ran'],['noshow','No show'],['cancel','Cancelled'],['nosale','No sale / not interested'],['sold','Sold'],['deleted','Deleted (pre-run)']];
+// Call List status -- the rep's WORKFLOW state for this lead in THIS tool only.
+// Stored on direct_leads.status (tool-owned; the Skedulo/appointment sync never
+// touches it). These are NOT Skedulo/Salesforce outcomes -- nothing is pushed there.
+const CALL_STATUS=[['working','Working'],['reached','Reached, still working'],['callback','Callback scheduled'],['appt_requested','Appointment requested'],['not_interested','Not interested'],['bad_number','Bad / wrong number'],['do_not_call','Do not call'],['resolved','Resolved / closed']];
+const CALL_STATUS_LABEL=Object.fromEntries(CALL_STATUS);
+// Statuses that take a lead OFF the active "To call" list.
+const CLOSED_STATUS=new Set(['appt_requested','not_interested','bad_number','do_not_call','resolved','sold']);
 // Reasons a rep can kick a lead back to the manager for review. flag_type values
 // must match the lead_flags check constraint + the queue in leads.html.
 const FLAG_REASONS=[['spanish','Spanish speaker'],['language_other','Other language need'],['not_mine',"Shouldn't be on my list -- existing lead / another rep's customer or SG/referral"],['bad_info','Wrong / bad lead info'],['review','Needs your review (general)'],['other','Other']];
@@ -180,7 +186,7 @@ function apptNotice(el){if(el&&!el.checked)return;const m=document.getElementByI
 function closeApptModal(){const m=document.getElementById('apptModal');if(m)m.style.display='none';}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function fmtDate(d){if(!d)return '--';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});}catch(e){return d;}}
-function isCallable(l){const s=l.lifecycle_state||'';return !l.sold && (s==='deleted'||s==='noshow'||s==='cancel'||s==='new');}
+function isCallable(l){const s=l.lifecycle_state||'';return !l.sold && !CLOSED_STATUS.has(l.status) && (s==='deleted'||s==='noshow'||s==='cancel'||s==='new');}
 function oppOf(l){return (l.opportunity_ids&&l.opportunity_ids[0])||l.dl_number;}
 
 // auth-gate.js owns sign-in / role / screen switching and calls this once authed.
@@ -289,7 +295,7 @@ function cardHtml(l){
         </div>
         <div style="font-size:11px;color:var(--muted);margin:-2px 0 8px">Tick everything you did this round. Two calls, a voicemail, and a text all log as separate efforts.</div>
         <div class="frow two">
-          <div><label>Homeowner state</label><select id="hs-${esc(l.dl_number)}">${HSTATES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
+          <div><label>Home Owner Status (their reaction)</label><select id="hs-${esc(l.dl_number)}">${HSTATES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
           <div><label>Frustration source (coaching intel)</label><select id="fs-${esc(l.dl_number)}">${FSOURCES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
         </div>
         <div class="frow"><label>Notes -- what was said, their mood, feedback</label><textarea id="nt-${esc(l.dl_number)}" rows="2"></textarea></div>
@@ -311,9 +317,9 @@ function cardHtml(l){
       </div>`;
   const leadForm = `<div class="logform" style="background:#fff7ef;border-color:#f0d9b8;margin-top:10px">
         <h4>Update lead${window.IS_MANAGER?` <span style="font-weight:500;color:var(--muted);font-size:11px">for ${esc(VIEW_AS||'this rep')}</span>`:''}</h4>
-        <div class="frow"><label>Disposition</label><select id="ds-${esc(l.dl_number)}">
-          <option value="">Keep current (${esc(l.lifecycle_state||'--')})</option>
-          ${DISPO_EDIT.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('')}
+        <div class="frow"><label>Call List status -- your workflow state for this lead (stays in this tool, not pushed to Skedulo/SF)</label><select id="ds-${esc(l.dl_number)}">
+          <option value="">Keep current${l.status&&l.status!=='pending'?' ('+esc(CALL_STATUS_LABEL[l.status]||l.status)+')':''}</option>
+          ${CALL_STATUS.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('')}
         </select></div>
         <label class="checkrow"><input type="checkbox" id="sd-${esc(l.dl_number)}" onchange="var w=document.getElementById('scwrap-${esc(l.dl_number)}');var e=document.getElementById('sc-${esc(l.dl_number)}');w.style.display=this.checked?'block':'none';if(this.checked&&!e.value)e.value=new Date().toISOString().slice(0,10)"> Mark sold from a call</label>
         <div class="frow" id="scwrap-${esc(l.dl_number)}" style="display:none"><label>Sold contract date</label><input id="sc-${esc(l.dl_number)}" type="date"></div>
@@ -322,7 +328,7 @@ function cardHtml(l){
   return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
     <div class="card-head" onclick="toggle('${esc(l.dl_number)}')">
       <div><div class="nm">${esc(l.homeowner_name||'--')}</div><div class="card-sub">${esc(town)} &middot; ${esc(l.dl_number)}${lastCall?' &middot; last call '+fmtDate(lastCall.contacted_at):''}</div></div>
-      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${calledBadge}${(l.language||'').toLowerCase()==='spanish'?' <span class="badge b-lang">Spanish</span>':''}${of?' <span class="badge b-flag">Flagged</span>':''}
+      <span class="badge ${d[1]}">${d[0]||esc(l.lifecycle_state||'')}</span>${l.status&&l.status!=='pending'?` <span class="badge b-status">${esc(CALL_STATUS_LABEL[l.status]||l.status)}</span>`:''}${calledBadge}${(l.language||'').toLowerCase()==='spanish'?' <span class="badge b-lang">Spanish</span>':''}${of?' <span class="badge b-flag">Flagged</span>':''}
       <span class="chev">${open?'&#9662;':'&#9656;'}</span>
     </div>
     <div class="card-body">
@@ -396,13 +402,13 @@ async function saveLead(dl){
   const btn=card?card.querySelector('button[onclick*="saveLead"]'):null;
   const patch={updated_at:new Date().toISOString()};
   const disp=document.getElementById('ds-'+dl).value;
-  if(disp)patch.lifecycle_state=disp;
+  if(disp)patch.status=disp;                       // Call List status (tool-owned), NOT the Skedulo lifecycle
   if(document.getElementById('sd-'+dl).checked){
     patch.sold=true;
     patch.sold_at=new Date().toISOString();
     patch.sold_contract_date=(document.getElementById('sc-'+dl).value||new Date().toISOString().slice(0,10));
     if(target)patch.sold_rep=target;
-    if(!disp)patch.lifecycle_state='sold';
+    patch.status='sold';
   }
   if(Object.keys(patch).length<=1){toast('Nothing to update');return;}
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
