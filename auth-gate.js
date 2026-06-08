@@ -414,7 +414,7 @@
       // first-timers wondering whether their username or their password is
       // the problem. Hint at both, and reinforce the username format.
       const msg = /invalid login credentials/i.test(error.message || '')
-        ? 'That username and password did not match. Your username is your last name with first initial (no spaces, no email). Starter password is Trinity1.'
+        ? 'That username and password did not match. Your username is your first initial + last name (no spaces, no email) -- e.g. Jane Smith is jsmith. Starter password is Trinity1.'
         : error.message;
       showLoginError(msg);
     }
