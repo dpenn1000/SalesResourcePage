@@ -137,6 +137,7 @@
         <option value="followup">Follow-ups due</option>
         <option value="today">Called today</option>
         <option value="pipeline">My Pipeline</option>
+        <option value="deals">Deals in Progress</option>
         <option value="all">All my leads</option>
       </select>
     </div>
@@ -161,11 +162,24 @@
   </div>
 </div>
 
+<div id="todoModal" class="modal-ov" style="display:none" onclick="if(event.target===this)closeTodos()">
+  <div class="modal-card">
+    <h3>👋 Your to-do list</h3>
+    <div id="todoBody"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+      <button class="btn-primary" onclick="closeTodos();jumpView('deals')">Open Deals in Progress</button>
+      <button class="hbtn" style="padding:10px 14px;border:1px solid var(--border);border-radius:8px" onclick="closeTodos()">Got it</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const sb = window.sb;            // shared client + session from /auth-gate.js
 const SF = 'https://trinity-solar.lightning.force.com/lightning/r/{}/view';
 let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set(), flagsByDl={};
 let REPS=[], MANAGERS=[];   // active roster for reassign / swap / send-to-manager controls
+let allDeals=[], touchesByDl={};   // post-sale deals-in-progress + sent customer touches
+let todoShown=false;               // on-load To-Do popup fires once per session
 
 const HSTATES=['','Receptive / re-engaged','Not interested','Already has solar','Renter / not owner','Moving / selling','Hostile / rude','Hard no / stop calling','Wrong / bad number','DNC request'];
 const FSOURCES=['','Setter: misinformation','Setter: aggressive / pushy','Setter: needs coaching','Call center: no confirmation','Call center: over-confirming (too many texts/calls)','Call center: high pressure','Prior rep: bad experience','Other'];
@@ -195,6 +209,7 @@ function oppOf(l){return (l.opportunity_ids&&l.opportunity_ids[0])||l.dl_number;
 window.initApp = async function(profile){
   ME = profile.name || '';
   await loadRoster();                 // reps + managers for the move/reassign controls
+  await loadDeals();                  // post-sale deals-in-progress + sent touches (for the Deals tab + To-Do)
   if (window.IS_MANAGER) {            // managers/admins have no calls of their own; they pick a rep to view
     setupViewAs();
   } else {
@@ -290,6 +305,7 @@ async function loadLeads(){
     contacts=cl||[]; byOpp={};
     for(const c of contacts){(byOpp[c.opportunity_id]=byOpp[c.opportunity_id]||[]).push(c);}
     renderKpis(); render();
+    if(!todoShown){todoShown=true;setTimeout(showTodos,400);}   // on-load To-Do nudge (reps)
   }catch(err){document.getElementById('list').innerHTML='<div class="empty">Could not load: '+esc(err.message||err)+'</div>';}
 }
 function callsFor(l){const ids=new Set((l.opportunity_ids||[]));ids.add(l.dl_number);let out=[];for(const id of ids)out=out.concat(byOpp[id]||[]);return out.sort((a,b)=>(b.contacted_at||'').localeCompare(a.contacted_at||''));}
@@ -301,7 +317,7 @@ function renderKpis(){
   let calledToday=0,due=0;
   for(const l of leads){const cs=callsFor(l);if(cs.some(c=>(c.contacted_at||'').slice(0,10)===today))calledToday++;if(cs.some(c=>c.follow_up_date&&c.follow_up_date<=today))due++;}
   // KPI cards double as quick view switches so a rep with no "to call" still finds their pipeline.
-  const k=[['To call',callable.length,'callable'],['Pipeline',pipe.length,'pipeline'],['Follow-ups due',due,'followup'],['Called today',calledToday,'today'],['My leads',leads.length,'all']];
+  const k=[['To call',callable.length,'callable'],['Pipeline',pipe.length,'pipeline'],['In Progress',(typeof myDeals==='function'?myDeals().length:0),'deals'],['Follow-ups due',due,'followup'],['My leads',leads.length,'all']];
   document.getElementById('kpis').innerHTML=k.map(([l,n,v])=>`<div class="kpi" style="cursor:pointer" onclick="jumpView('${v}')" title="Show ${esc(l)}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
 }
 // ── My Pipeline ──  the rep's WORKED leads: scheduled appts, go-backs, ran, and
@@ -342,10 +358,124 @@ function renderPipelineView(q){
   }
   list.innerHTML=html;
 }
+// ── Deals in Progress (post-sale customer-touch cadence) ──
+// Stage buckets from the All Contracts report; each stage carries its touch(es)
+// from the Customer-Touch framework, pre-filled with the customer's details.
+const DP_STAGES=[[4,'Contracted','b-new'],[5,'Engineering','b-status'],[6,'Preliminary Application','b-lang'],[7,'Installation','b-done'],[8,'Final AHJ Inspection','b-status'],[9,'Final Application','b-lang'],[10,'Project Complete','b-done']];
+const DP_TOUCHES={
+  4:[{key:"call24",label:"24-Hour Call",channel:"Call",msg:"(Phone call, not a text.) Reinforce the decision and answer the questions that surfaced overnight. Schedule a specific time before you leave the home, then call exactly when promised."},
+     {key:"submitted",label:"Submitted & Tracking",channel:"Text",msg:"Hey [Customer], great news. 🎉 Your project's been submitted and is now with our Quality Control team for a full structural and electrical review. Once it clears, it heads to design and engineering. Some projects take up to 5-6 months depending on permits and approvals, but we're on it, and I'll guide you through the whole journey."}],
+  5:[{key:"engineering",label:"Engineering",channel:"Text",msg:"Hi [Customer], quick update. Your project officially moved to our Design and Engineering team to prep the next application phase. 🚀 There's still a small chance we run into utility restrictions, but you're with Trinity Solar — 30 years strong and second to none at finding solutions. I'll keep you posted every step. You're in great hands."},
+     {key:"upgrades",label:"Upgrades & Obstacles (if needed)",channel:"Text",msg:"Good afternoon [Customer]. Every home is unique 🏡, and sometimes we find opportunities to upgrade things like your electrical service ⚡ or roof to bring it up to today's codes. Your project does need some additional work. The good news: done as part of your solar install ☀️, the cost is far lower than hiring outside contractors, and it adds long-term value and safety. ✅ Let's connect today so I can walk you through it."}],
+  6:[{key:"prelim",label:"Preliminary Application",channel:"Text",msg:"It's application time. 📝 Your engineering letter, plan set, and required permits are underway across state, utility, and town. Applications process in sequence — utility before town — so thanks for your patience. We're tracking everything, and I'm here if you need anything. We're getting there."},
+     {key:"utility_ok",label:"Utility Approved",channel:"Text",msg:"Happy day, [Customer]. Great news — we just got utility approval. 🙌 Now we're prepping your town permit application for [AHJ]. This part's in the town's hands, but we'll stay on it and keep you updated. One step closer. We got you. 👍"}],
+  7:[{key:"confirm_install",label:"Confirm Installation",channel:"Text",msg:"Hey [Customer], amazing news. 🎉 You're fully approved by the State, Town, and Utility, and we're ready to go. ✅ Now let's lock in your installation date. Give me a quick call or text me a couple of dates that work, and we'll line it up. I'll be there on install day to make sure it kicks off smoothly. 🙌"},
+     {key:"install_day",label:"Install Day",channel:"Text",msg:"Congratulations. 🎉 Today's the day — welcome to the Trinity Solar family. Our crew will be on site between 8-9am, and I'll stop by around 11am to check in. Feel free to invite curious friends or neighbors to swing by. Any questions, call or text me. 📲"},
+     {key:"referral",label:"Referral Reminder",channel:"Text",msg:"Quick reminder. 🚨 Now that you're part of the Trinity Solar family ☀️, you've unlocked our Friends and Family Referral Program: $1,000 for your first referral, $2,000 for every one after. Invite friends or family to your install day to see it up close. Let me know how many are coming — I'm buying lunch. 🥪"}],
+  8:[{key:"whats_to_come",label:"What's to Come",channel:"Text",msg:"Thanks again for making install day a pleasure. 🙌 Now that your panels are up, there's one final stretch: our QC team reviews the install, creates your system plaque, and preps for inspection. We'll reach out soon to coordinate a time for you, the inspector, and our electrician. Keep an eye out and be quick to confirm. Almost there. ⚡"}],
+  9:[{key:"on_to_pto",label:"On to PTO",channel:"Text",msg:"Woohoo. 🎉 You passed inspection. Next, the town issues a municipal release to the utility, who schedules your net meter install. Once we get the green light — Permission to Operate — I'll call you right away and swing by so we can flip the switch together. 🔌 So close."},
+     {key:"meter_heads_up",label:"Net-Meter Heads-Up",channel:"Text",msg:"Quick heads-up [Customer]: the next step is the utility installing your new net meter. They schedule it themselves and usually show up unannounced, so don't worry if you see a meter swap you didn't book — that's a good sign. Once it's in, PTO is right behind it. 🔌"}],
+  10:[{key:"pto",label:"Permission to Operate",channel:"Call",msg:"(Call, not a text.) Your system has been approved to start generating clean solar electricity for your family! I'd love to come out to celebrate this moment with you. Thank you for being so patient, and congratulations!"},
+      {key:"first_bill",label:"First-Bill Check-In",channel:"Text",msg:"Hey [Customer], a couple months in — how's everything feeling? I'd love to walk through your first bill so you can see the savings on paper. And if the experience has been a good one, a quick Google review means the world to us. 🌎"},
+      {key:"long_checkin",label:"Long Check-In",channel:"Call/Text",msg:"Hey [Customer], checking in now that you've had the system a few months. Everything running well? If you know anyone — family, friends, neighbors — tired of their electric bill, I'd love to help them the way I helped you."}],
+};
+function firstName(c){if(!c)return 'there';let s=String(c).replace(/\s*-\s*.*$/,'').trim();if(s.includes(',')){const p=s.split(',');s=(p[1]||p[0]||'').trim();}else{s=s.split(' ')[0];}return s.trim()||'there';}
+function fillMsg(m,d){return m.replace(/\[Customer\]/g,firstName(d.customer_name)).replace(/\[AHJ\]/g,(d.ahj_township||'your town').replace(/,.*$/,''));}
+function myDeals(){const t=window.IS_MANAGER?VIEW_AS:ME;return allDeals.filter(d=>(d.salesperson||'')===t);}
+async function loadDeals(){
+  try{
+    const [{data:dp},{data:tc}]=await Promise.all([
+      sb.from('deal_progress').select('dl_number,product_category,customer_name,salesperson,stage,stage_num,project_status,ahj_township,install_start_date,amount,system_kw').order('stage_num'),
+      sb.from('deal_touches').select('dl_number,touch_key,channel,sent_by,sent_at').order('sent_at',{ascending:false}),
+    ]);
+    allDeals=dp||[]; touchesByDl={};
+    for(const t of (tc||[])){(touchesByDl[t.dl_number]=touchesByDl[t.dl_number]||[]).push(t);}
+  }catch(e){ allDeals=allDeals||[]; }
+}
+function touchDone(dl,key){return (touchesByDl[dl]||[]).find(t=>t.touch_key===key);}
+function dealCard(d){
+  const touches=DP_TOUCHES[d.stage_num]||[];
+  const meta=[d.product_category,(d.ahj_township||''),d.install_start_date?('install '+fmtDate(d.install_start_date)):'',d.amount?('$'+Number(d.amount).toLocaleString()):''].filter(Boolean).join(' · ');
+  const tHtml=touches.map(t=>{
+    const done=touchDone(d.dl_number,t.key); const msg=fillMsg(t.msg,d);
+    const id='tx-'+esc(d.dl_number)+'-'+t.key;
+    return `<div class="logform" style="margin-top:8px;background:#f7f9f4">
+      <h4>${esc(t.label)} <span style="font-weight:500;color:var(--muted)">· ${esc(t.channel)}</span>${done?` <span class="badge b-done">sent ${fmtDate(done.sent_at)}${done.sent_by&&done.sent_by!==(window.IS_MANAGER?VIEW_AS:ME)?' · '+esc(done.sent_by):''}</span>`:''}</h4>
+      <div id="${id}" style="font-size:13px;white-space:pre-wrap;background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin:6px 0">${esc(msg)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-primary" onclick="copyMsg('${id}')">Copy</button>
+        <button class="btn-flag" style="color:#3a7010;border-color:#a9d9a3" onclick="markTouch('${esc(d.dl_number)}','${esc(d.product_category||'')}','${t.key}','${esc(t.channel)}')">${done?'Log again':'Mark sent'}</button>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);margin-bottom:10px;padding:13px 16px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="nm">${esc(firstName(d.customer_name))}</div><span class="card-sub">${esc(d.customer_name||'')}${d.dl_number?' · '+esc(d.dl_number):''}</span>
+      ${d.project_status?`<span class="badge b-status">${esc(d.project_status)}</span>`:''}
+    </div>
+    <div class="card-sub" style="margin:2px 0 2px">${esc(meta)}</div>
+    ${tHtml||'<div class="card-sub">No scripted touch for this stage.</div>'}
+  </div>`;
+}
+function renderDealsView(q){
+  const list=document.getElementById('list');
+  let rows=myDeals();
+  if(q)rows=rows.filter(d=>((d.customer_name||'')+' '+(d.ahj_township||'')+' '+(d.dl_number||'')).toLowerCase().includes(q));
+  if(!rows.length){list.innerHTML='<div class="empty">No deals in progress'+(q?' match that search':' yet')+'. Your contracted deals moving toward install will appear here, each with the right customer touch ready to send.</div>';return;}
+  const byStage={};for(const d of rows)(byStage[d.stage_num]=byStage[d.stage_num]||[]).push(d);
+  let html='<div class="kpis" style="margin-bottom:10px">'+DP_STAGES.map(([n,lab])=>`<div class="kpi" style="min-width:70px"><div class="n">${(byStage[n]||[]).length}</div><div class="l">${esc(lab.split(' ')[0])}</div></div>`).join('')+'</div>';
+  for(const [n,lab,badge] of DP_STAGES){
+    const grp=byStage[n]||[];if(!grp.length)continue;
+    grp.sort((a,b)=>(a.install_start_date||'9999').localeCompare(b.install_start_date||'9999'));
+    html+=`<div style="margin:18px 0 6px"><span class="badge ${badge}">${esc(n+': '+lab)}</span> <b>${grp.length}</b></div>`;
+    html+=grp.map(dealCard).join('');
+  }
+  list.innerHTML=html;
+}
+function copyMsg(id){const el=document.getElementById(id);if(!el)return;const t=el.textContent||'';if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>toast('Copied — paste into your text or email')).catch(()=>toast('Copy failed'));}else{toast('Copy not supported here');}}
+async function markTouch(dl,product,key,channel){
+  const {error}=await sb.rpc('log_deal_touch',{p_dl_number:dl,p_product:product||null,p_touch_key:key,p_channel:channel||null,p_note:null});
+  if(error){toast('Could not log: '+error.message);return;}
+  (touchesByDl[dl]=touchesByDl[dl]||[]).unshift({dl_number:dl,touch_key:key,channel:channel,sent_by:(window.IS_MANAGER?VIEW_AS:ME),sent_at:new Date().toISOString()});
+  toast('Logged: '+key); render();
+}
+// ── On-load To-Do popup ── the rep's actionable list: deals whose current stage's
+// primary touch hasn't been sent, plus stale pipeline and follow-ups due.
+function closeTodos(){const m=document.getElementById('todoModal');if(m)m.style.display='none';}
+function computeTodos(){
+  const out={touch:[],stale:0,due:0};
+  for(const d of myDeals()){
+    const ts=DP_TOUCHES[d.stage_num]; if(!ts||!ts.length)continue;
+    if(!touchDone(d.dl_number,ts[0].key)) out.touch.push({d:d,t:ts[0]});
+  }
+  const today=new Date().toISOString().slice(0,10);
+  for(const l of leads){
+    if(inMyPipeline(l)){const a=plDaysSince(l.last_appt_date);if(a!=null&&a>=30)out.stale++;}
+    if(callsFor(l).some(c=>c.follow_up_date&&c.follow_up_date<=today))out.due++;
+  }
+  return out;
+}
+function showTodos(){
+  if(window.IS_MANAGER)return;                       // rep-focused
+  const t=computeTodos();
+  if(!(t.touch.length+t.stale+t.due))return;          // nothing to nag about
+  const pr=x=>x.d.stage_num===4?0:(x.d.stage_num>=7?1:2);   // remorse call first, then install-phase
+  t.touch.sort((a,b)=>pr(a)-pr(b)||a.d.stage_num-b.d.stage_num);
+  const items=t.touch.slice(0,7).map(x=>`<li><b>${esc(x.t.label)}</b> &rarr; ${esc(firstName(x.d.customer_name))} <span class="card-sub">(${esc(x.d.stage)})</span></li>`).join('');
+  const parts=[];
+  if(t.touch.length)parts.push(`<b>${t.touch.length}</b> deal${t.touch.length>1?'s':''} need a customer touch`);
+  if(t.stale)parts.push(`<b>${t.stale}</b> pipeline lead${t.stale>1?'s':''} stale 30+ days`);
+  if(t.due)parts.push(`<b>${t.due}</b> follow-up${t.due>1?'s':''} due`);
+  document.getElementById('todoBody').innerHTML=
+    `<p style="margin:0 0 8px">${parts.join(' &middot; ')}.</p>`+
+    (items?`<div class="card-sub" style="text-transform:none;letter-spacing:0;margin-bottom:4px">Next up:</div><ul style="margin:0 0 12px 18px;font-size:13.5px">${items}</ul>`:'');
+  document.getElementById('todoModal').style.display='flex';
+}
 function render(){
   const q=document.getElementById('q').value.trim().toLowerCase();
   const v=document.getElementById('fView').value;
   if(v==='pipeline'){renderPipelineView(q);return;}
+  if(v==='deals'){renderDealsView(q);return;}
   const today=new Date().toISOString().slice(0,10);
   let rows=leads.filter(l=>{
     const cs=callsFor(l);
