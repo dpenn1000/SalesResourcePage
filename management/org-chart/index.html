@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trinity Org Chart — Live Prototype</title>
+<title>Org Chart Explorer · Trinity</title>
 <style>
 :root{
   --ink:#0F2038; --ink2:#1A2942; --line:#d4dae3; --line2:#e6eaf0;
@@ -86,6 +86,10 @@ header.bar .tag{font-size:11px;color:#9FB3C8;font-weight:700;letter-spacing:.14e
 .card .meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
 .card .chip{font-size:10px;font-weight:700;color:var(--text);background:var(--line2);border-radius:5px;padding:2px 6px}
 .card .chip.office{color:var(--accent,#555);background:color-mix(in srgb,var(--accent) 12%,#fff)}
+.card .chip.tog{cursor:pointer;color:var(--accent,#555);background:color-mix(in srgb,var(--accent) 16%,#fff);font-weight:800}
+.card .chip.tog:hover{background:color-mix(in srgb,var(--accent) 26%,#fff)}
+.brandwrap{display:flex;align-items:center;gap:10px}
+.railtoggle{display:none;background:rgba(255,255,255,.13);border:0;color:#fff;font-size:17px;width:34px;height:34px;border-radius:8px;cursor:pointer;align-items:center;justify-content:center}
 .card.group{background:repeating-linear-gradient(135deg,#fff,#fff 8px,#f6f8fb 8px,#f6f8fb 16px);border-style:dashed;padding:11px 13px}
 .card.group .gtop{display:flex;align-items:center;gap:8px}
 .card.group .chev{font-size:13px;color:var(--accent);transition:transform .16s;display:inline-block;flex:0 0 auto}
@@ -147,6 +151,25 @@ ul.kids.collapsed{display:none}
   border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:flex;gap:14px;z-index:4}
 .legend span{display:flex;align-items:center;gap:5px}
 .legend i{width:18px;height:0;border-top:2px dotted var(--muted);display:inline-block}
+
+/* ---- responsive / mobile ---- */
+@media(max-width:820px){
+  .app{grid-template-columns:1fr}
+  .railtoggle{display:inline-flex}
+  .rail{position:fixed;top:54px;left:0;bottom:0;width:262px;z-index:30;transform:translateX(-100%);
+    transition:transform .2s;box-shadow:8px 0 30px rgba(0,0,0,.22)}
+  .rail.open{transform:translateX(0)}
+  .search input{width:150px}
+  #drawer{width:100vw;max-width:100vw}
+  .legend{left:10px;right:10px;font-size:10px}
+  .fgrid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .search input{width:120px}
+  .fgrid{grid-template-columns:1fr}
+  .legend{display:none}
+  header.bar h1{font-size:15px}
+}
 </style>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/auth-gate.css">
@@ -186,7 +209,7 @@ ul.kids.collapsed{display:none}
 <div id="appWrap" style="display:none">
 <div class="app">
   <header class="bar">
-    <div><h1>Trinity Org Chart</h1></div>
+    <div class="brandwrap"><button class="railtoggle" id="railToggle" aria-label="Menu">&#9776;</button><h1>Trinity Org Chart</h1></div>
     <div class="search"><span class="tag">Preview · V2</span><input id="q" type="text" placeholder="Search a person or team…" autocomplete="off"></div>
   </header>
   <nav class="rail" id="rail"></nav>
@@ -219,13 +242,18 @@ const N = {
   kurt:{p:'rj',n:'Kurt Wingenfeld',t:'VP, Strategic Finance',o:'Wall NJ',span:7,d:'spine',
     c:{does:'Leads Strategic Finance: Sales Operations, RSA, Commissions, Finance Partner Ops, and Warehouse.',
        reach:[{k:'Role',v:'Final escalation point for Sales Operations (Phase 3).'}]}},
-  jp:{p:'rj',n:'JP McEvenue',t:'COO',o:'Wall NJ',span:13,d:'spine'},
+  jp:{p:'rj',n:'JP McEvenue',t:'COO',o:'Wall NJ',span:13,d:'spine',
+    c:{does:'Chief Operating Officer — leads the Operations pillar: field operations, QA/QC, the Regional VPs, roofing, and safety.'}},
   // --- Strategic Finance / Sales Ops ---
-  victoria:{p:'kurt',n:'Victoria Broszeit',t:'Director, Sales Support & Contracts',o:'Wall NJ',span:2,d:'green'},
-  mae:{p:'kurt',n:'Meagan (Mae) Yenger',t:'Director, QA/QC',o:'Wall NJ',span:2,d:'green'},
+  victoria:{p:'kurt',n:'Victoria Broszeit',t:'Director, Sales Support & Contracts',o:'Wall NJ',span:2,d:'green',
+    c:{does:'Director over Sales Support and Contract Writing.',when:'Most rep needs route through her teams — Sales Support is the email front door for any rep.'}},
+  mae:{p:'kurt',n:'Meagan (Mae) Yenger',t:'Director, QA/QC',o:'Wall NJ',span:2,d:'green',
+    c:{does:'Director, QA/QC — over Document Processing, Pre-Install Change Orders, and Training.'}},
   jessica:{p:'kurt',n:'Jessica Tauscher',t:'Director, Strategic Initiatives',o:'Wall NJ',d:'green',
     c:{does:'Owns sales-ops strategic initiatives and the deal-stage training.',when:'Copy on urgent (within-48h) escalations alongside your manager.'}},
-  thomas:{p:'kurt',n:'Thomas Pugliese',t:'RSA Manager',o:'Wall NJ',span:16,d:'rsa'},
+  thomas:{p:'kurt',n:'Thomas Pugliese',t:'RSA Manager',o:'Wall NJ',span:16,d:'rsa',
+    c:{does:'Certifies the digital site assessments and home models, including ground mounts.',when:'A site assessment or home-model question or correction.',
+       reach:[{k:'Salesforce',v:'@RSA Team'},{k:'Ground mounts',v:'@GroundMount RSA'}]}},
   christine:{p:'kurt',n:'Christine Breuer',t:'Commissions Manager',o:'Wall NJ',span:3,d:'green',
     c:{does:'Runs Commissions.',when:'Commission questions.',callout:'Roster and contact channel still to confirm.'}},
   kristi:{p:'kurt',n:'Kristi Turner',t:'Director, Finance Partner Operations',o:'Wall NJ',span:11,d:'violet',
@@ -300,11 +328,13 @@ const N = {
   // --- Operations / COO ---
   condit:{p:'jp',n:'William Condit',t:'EVP, Operations',o:'Wall NJ',d:'spine'},
   billie:{p:'jp',n:'Billie Klecko',t:'Corporate VP of Operations',o:'Wall NJ',span:4,d:'teal'},
-  kevin:{p:'jp',n:'Kevin Kura',t:'SVP, QA/QC',o:'Wall NJ',span:5,d:'violet'},
+  kevin:{p:'jp',n:'Kevin Kura',t:'SVP, QA/QC',o:'Wall NJ',span:5,d:'violet',
+    c:{does:'SVP of QA/QC — over Design, Solar QA/QC, Structural, Electrical, and Corporate Operations. Co-approves trenches over 250 ft with Phil Kelly.'}},
   rvps:{p:'jp',n:'Keith Oliver · Phil Smith · Russell Pierson',t:'Regional VPs',o:'Multi-region',d:'teal'},
   slaninka:{p:'jp',n:'Michael Slaninka',t:'VP, Roofing Operations',o:'Wall NJ',span:5,d:'teal'},
   rucki:{p:'jp',n:'Kenneth Rucki',t:'Safety Director',o:'Wall NJ',span:1,d:'teal'},
-  oleg:{p:'jp',n:'Oleg Koninin',t:'Senior Director, Call Center',o:'Wall NJ',span:8,d:'blue',dotted:1,flag:'line TBD'},
+  oleg:{p:'jp',n:'Oleg Koninin',t:'Senior Director, Call Center',o:'Wall NJ',span:8,d:'blue',dotted:1,flag:'line TBD',
+    c:{does:'Senior Director of the Call Center — inbound/outbound calling, campaigns, call quality, and call systems.',when:'To confirm with Oleg and Courtney: lead handoffs, campaign questions, or a call-system issue.'}},
   phil:{p:'jp',n:'Phil Kelly',t:'VP, Custom Projects (CPR)',o:'Wall NJ',span:6,d:'amber',dotted:1,flag:'line TBD',
     c:{does:'Prices and approves custom work: ground mounts, ballasted systems, long trenches.',when:'A ground mount, ballasted system, or trench needing pricing/approval.',
        reach:[{k:'Salesforce',v:'Chatter Phil Kelly'},{k:'Trench >250ft',v:'Chatter Kevin Kura + Phil Kelly'}],
@@ -474,6 +504,8 @@ const kids=id=>Object.keys(N).filter(k=>N[k].p===id);
 const chain=id=>{const a=[];let c=id;while(c){a.unshift(c);c=N[c].p;}return a;};
 
 let active='kristi';
+let collapsed=new Set();
+const BROAD=new Set(['rj','kurt','jp']);
 
 /* ---------- render ---------- */
 function nodeHTML(id){
@@ -487,12 +519,14 @@ function nodeHTML(id){
   const office=x.o?`<span class="chip office">${x.o}</span>`:'';
   const span=x.span?`<span class="chip">Span ${x.span}</span>`:'';
   const flag=x.flag?`<span class="flag">${x.flag}</span>`:'';
-  const childHTML=ch.length?`<ul>${ch.map(nodeHTML).join('')}</ul>`:'';
+  const isCol=ch.length&&id!==active&&collapsed.has(id);
+  const tog=(ch.length&&id!==active)?`<span class="chip tog" data-tog="${id}">${isCol?'&#9656;':'&#9662;'} ${ch.length}</span>`:'';
+  const childHTML=(ch.length&&!isCol)?`<ul>${ch.map(nodeHTML).join('')}</ul>`:'';
   return `<li><div class="card${x.dotted?' dotted':''}" data-id="${id}" style="--accent:${ac}">
     ${flag}
     <div class="top"><div class="av">${initials(x.n)}</div>
       <div><div class="nm">${x.n}</div><div class="ti">${x.t||''}</div></div></div>
-    <div class="meta">${office}${span}${x.c?'<span class="chip">Contact ›</span>':''}</div>
+    <div class="meta">${office}${span}${x.c?'<span class="chip">Contact ›</span>':''}${tog}</div>
   </div>${childHTML}</li>`;
 }
 
@@ -520,7 +554,9 @@ function renderRail(){
   ).join('');
 }
 
-function focusNode(id){active=id;renderTree();closeDrawer();document.querySelector('.main').scrollTop=0;}
+function focusNode(id){active=id;collapsed=new Set();
+  if(BROAD.has(id))kids(id).forEach(k=>{if(kids(k).length)collapsed.add(k);});
+  renderTree();closeDrawer();document.querySelector('.main').scrollTop=0;}
 
 function openInfo(id){document.querySelectorAll('.rail button').forEach(b=>b.classList.toggle('active',b.dataset.k===id));openDrawer(id);}
 
@@ -556,6 +592,11 @@ function wireCards(){
       card.classList.toggle('open');
       const ul=card.nextElementSibling;
       if(ul&&ul.classList.contains('kids'))ul.classList.toggle('collapsed');});
+  });
+  // collapse/expand a branch
+  document.querySelectorAll('.chip.tog[data-tog]').forEach(t=>{
+    t.addEventListener('click',e=>{e.stopPropagation();const k=t.dataset.tog;
+      collapsed.has(k)?collapsed.delete(k):collapsed.add(k);renderTree();});
   });
 }
 const hv=document.getElementById('hover');
@@ -616,6 +657,8 @@ document.getElementById('q').addEventListener('input',e=>{
 });
 
 renderRail();renderTree();
+document.getElementById('railToggle').addEventListener('click',()=>document.getElementById('rail').classList.toggle('open'));
+document.getElementById('rail').addEventListener('click',e=>{if(e.target.closest('button'))document.getElementById('rail').classList.remove('open');});
 </script>
 <script src="/feedback-widget.js" defer></script>
 <script>
