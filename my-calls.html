@@ -165,6 +165,7 @@
 const sb = window.sb;            // shared client + session from /auth-gate.js
 const SF = 'https://trinity-solar.lightning.force.com/lightning/r/{}/view';
 let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set(), flagsByDl={};
+let REPS=[], MANAGERS=[];   // active roster for reassign / swap / send-to-manager controls
 
 const HSTATES=['','Receptive / re-engaged','Not interested','Already has solar','Renter / not owner','Moving / selling','Hostile / rude','Hard no / stop calling','Wrong / bad number','DNC request'];
 const FSOURCES=['','Setter: misinformation','Setter: aggressive / pushy','Setter: needs coaching','Call center: no confirmation','Call center: over-confirming (too many texts/calls)','Call center: high pressure','Prior rep: bad experience','Other'];
@@ -191,8 +192,9 @@ function isCallable(l){const s=l.lifecycle_state||'';return !l.sold && !CLOSED_S
 function oppOf(l){return (l.opportunity_ids&&l.opportunity_ids[0])||l.dl_number;}
 
 // auth-gate.js owns sign-in / role / screen switching and calls this once authed.
-window.initApp = function(profile){
+window.initApp = async function(profile){
   ME = profile.name || '';
+  await loadRoster();                 // reps + managers for the move/reassign controls
   if (window.IS_MANAGER) {            // managers/admins have no calls of their own; they pick a rep to view
     setupViewAs();
   } else {
@@ -200,6 +202,46 @@ window.initApp = function(profile){
     loadLeads();
   }
 };
+
+// Active roster for the reassign / swap / send-to-manager pickers.
+async function loadRoster(){
+  try{
+    const [{data:r},{data:m}] = await Promise.all([
+      sb.from('people').select('name').eq('role','rep').eq('status','active').order('name'),
+      sb.from('people').select('name').eq('role','manager').eq('status','active').order('name'),
+    ]);
+    REPS=(r||[]).map(x=>x.name); MANAGERS=(m||[]).map(x=>x.name);
+  }catch(e){ REPS=REPS||[]; MANAGERS=MANAGERS||[]; }
+}
+
+// Reassign / swap: hand a lead to another active rep. Goes through the
+// reassign_lead RPC (SECURITY DEFINER) so a rep can move it off their own list
+// even though RLS won't let them set assigned_to to anyone but themselves.
+async function reassignLead(dl){
+  const sel=document.getElementById('rs-'+dl); const to=sel?sel.value:'';
+  const owner = window.IS_MANAGER ? VIEW_AS : ME;
+  if(!to){toast('Pick a rep to reassign to');return;}
+  if(to===owner){toast('That lead is already theirs');return;}
+  if(!confirm(`Reassign this lead to ${to}? It leaves ${owner||'this'} list.`))return;
+  const { error } = await sb.rpc('reassign_lead',{p_dl_number:dl,p_to_rep:to});
+  if(error){toast('Reassign failed: '+error.message);return;}
+  leads=leads.filter(l=>l.dl_number!==dl);            // it's no longer on this list
+  openSet.delete(dl);
+  toast('Reassigned to '+to);
+  renderKpis();render();
+}
+
+// Send-to-manager: ask a manager to call this lead FOR the rep. Ownership stays
+// with the rep; this drops a 'call_request' into the manager flag queue.
+async function askManagerCall(dl){
+  const sel=document.getElementById('mc-'+dl); const mgr=sel?sel.value:'';
+  if(!mgr){toast('Pick a manager');return;}
+  const note=(document.getElementById('mcn-'+dl)||{}).value||null;
+  const { error } = await sb.rpc('request_manager_call',{p_dl_number:dl,p_manager:mgr,p_note:note});
+  if(error){toast('Could not send: '+error.message);return;}
+  toast('Sent to '+mgr+' to call for you');
+  render();
+}
 
 // Manager "View as rep": populate the rep picker, then load on selection.
 // Reps can read all assigned leads + the call log via is_manager() RLS, so this
@@ -351,6 +393,17 @@ function cardHtml(l){
         <div class="frow" id="scwrap-${esc(l.dl_number)}" style="display:none"><label>Sold contract date</label><input id="sc-${esc(l.dl_number)}" type="date"></div>
         <button class="btn-primary" onclick="saveLead('${esc(l.dl_number)}')">Save lead update</button>
       </div>`;
+  const owner = window.IS_MANAGER ? VIEW_AS : ME;
+  const rsOpts = REPS.filter(n=>n!==owner).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  const mcOpts = MANAGERS.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  const moveForm = `<div class="logform" style="background:#eef6ff;border-color:#cfe4f5;margin-top:10px">
+        <h4>Move this lead</h4>
+        <div class="frow"><label>Reassign / swap to another rep</label><select id="rs-${esc(l.dl_number)}"><option value="">Choose rep...</option>${rsOpts}</select></div>
+        <button class="btn-primary" onclick="reassignLead('${esc(l.dl_number)}')">Reassign</button>
+        <div class="frow" style="margin-top:12px"><label>Or ask a manager to call it for you (you keep the lead)</label><select id="mc-${esc(l.dl_number)}"><option value="">Choose manager...</option>${mcOpts}</select></div>
+        <div class="frow"><input id="mcn-${esc(l.dl_number)}" type="text" placeholder="optional note for the manager"></div>
+        <button class="btn-flag" style="color:#1070a0;border-color:#a9d3ec" onclick="askManagerCall('${esc(l.dl_number)}')">Ask manager to call</button>
+      </div>`;
   return `<div class="card${open?' open':''}" id="c-${esc(l.dl_number)}">
     <div class="card-head" onclick="toggle('${esc(l.dl_number)}')">
       <div><div class="nm">${esc(l.homeowner_name||'--')}</div><div class="card-sub">${esc(town)} &middot; ${esc(l.dl_number)}${lastCall?' &middot; last call '+fmtDate(lastCall.contacted_at):''}</div></div>
@@ -365,7 +418,7 @@ function cardHtml(l){
         <div><div class="k">Direct Lead</div>${l.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(l.dl_sf_id))}">Open in SF &nearr; (phone here)</a>`:'<span class="card-sub">no SF link</span>'}</div>
       </div>
       ${cs.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:4px">Call history</div>'+cs.map(c=>`<div class="hist"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.homeowner_state?' &middot; '+esc(c.homeowner_state):''}${c.frustration_source?' &middot; '+esc(c.frustration_source):''}${c.logged_by&&c.logged_by!==target?' &middot; <span style="color:var(--accent);font-weight:600">by '+esc(c.logged_by)+'</span>':''}${c.notes?'<br>'+esc(c.notes):''}${c.next_step?'<br>Next: '+esc(c.next_step):''}</div>`).join(''):''}
-      ${logForm}${leadForm}${flaggedBanner}${flagForm}
+      ${logForm}${leadForm}${moveForm}${flaggedBanner}${flagForm}
     </div>
   </div>`;
 }

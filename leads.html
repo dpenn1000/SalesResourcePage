@@ -426,7 +426,7 @@ let propByKey = {};    // row key -> property group (lazy detail expand)
 let expandAll = false; // Leads tab: expand-all toggle
 let ME = '';           // current manager name (review attribution)
 let flags = [], flagsLoaded = false;   // rep kick-back flags (Flags tab; lazy-loaded)
-const FLAG_LABEL = {spanish:'Spanish speaker',language_other:'Other language need',not_mine:"Shouldn't be on list (existing / other rep's lead)",bad_info:'Wrong / bad lead info',review:'Needs review (general)',other:'Other'};
+const FLAG_LABEL = {spanish:'Spanish speaker',language_other:'Other language need',not_mine:"Shouldn't be on list (existing / other rep's lead)",bad_info:'Wrong / bad lead info',review:'Needs review (general)',call_request:'Call request (rep asked a manager to call)',other:'Other'};
 
 function showOnly(id){for(const s of ['loginScreen','changePasswordScreen','appWrap']){const el=document.getElementById(s);if(el)el.style.display=(s===id)?(s==='appWrap'?'block':'flex'):'none';}}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
@@ -1083,7 +1083,7 @@ function pipelineRepView(rep,cset){
   let html=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <div><button class="act" onclick="selectPlRep('')">&larr; All reps</button> <b style="margin-left:6px;font-size:15px">${esc(plName(rep))}</b>${minAge?` <span class="sub">stale ${minAge}+ days only</span>`:''}</div>
     </div>${strip}
-    <div class="pl-selbar"><span id="plSelCount">0 selected</span> &rarr; <select id="plSelRep"><option value="">assign selected to...</option>${repOpts}</select> <button class="act review" onclick="plAssignSelected()">Assign selected</button> <button class="act" onclick="plClearSel()">Clear</button></div>`;
+    <div class="pl-selbar"><button class="act review" onclick="plClaimAll('${esc(rep)}')" title="Assign every lead shown here to ${esc(plName(rep))} -- gives the rep their own book in one click">&#10004; Claim all to ${esc(plName(rep))}</button> <span style="margin:0 8px;color:var(--border)">|</span> <span id="plSelCount">0 selected</span> &rarr; <select id="plSelRep"><option value="">assign selected to...</option>${repOpts}</select> <button class="act review" onclick="plAssignSelected()">Assign selected</button> <button class="act" onclick="plClearSel()">Clear</button></div>`;
   let any=false;
   for(const [bk,label] of PL_BUCKETS){
     const grp=buckets[bk]||[];if(!grp.length)continue;any=true;
@@ -1144,6 +1144,15 @@ function plAssignBucket(rep,bk){
   plAssign(dls,toRep,`from ${plName(rep)} (${bk})`);
 }
 function plAssignSelected(){plAssign([...plSel],document.getElementById('plSelRep').value,'(selected)');}
+// B: one-click claim -- assign every lead shown in this rep's pipeline view back
+// to them (fills their book). Respects the active stale-age filter (claims what's
+// shown). plAssign already drops Direct leads and confirms before writing.
+function plClaimAll(rep){
+  const grp=(_plView&&_plView.rep===rep)?Object.values(_plView.buckets||{}).flat():[];
+  const dls=grp.map(g=>g.primary.dl_number);
+  if(!dls.length){toast('Nothing to claim here');return;}
+  plAssign(dls,rep,`(claim all to ${plName(rep)})`);
+}
 function toggleExpandAll(){
   expandAll=!expandAll;
   const b=document.getElementById('expandAllBtn');if(b)b.textContent=expandAll?'Collapse all':'Expand all';
