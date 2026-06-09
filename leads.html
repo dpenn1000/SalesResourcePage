@@ -1075,7 +1075,11 @@ function pipelineRepView(rep,cset){
   const buckets={};for(const g of leads)(buckets[plStage(g)]=buckets[plStage(g)]||[]).push(g);
   for(const k in buckets)buckets[k].sort((a,b)=>(recStagnant(b)==null?-1:recStagnant(b))-(recStagnant(a)==null?-1:recStagnant(a)));
   _plView={rep,buckets};
-  const repOpts=people.filter(n=>n!==rep).map(n=>`<option>${esc(n)}</option>`).join('');
+  // The viewed rep IS a valid target: their pipeline is attributed by who SAT the
+  // lead (original_rep), so leads here are often unassigned and need to be claimed
+  // back to this rep. List them first ("self") so a manager can assign a rep's own
+  // pipeline back to them; everyone else follows for reassign / swap.
+  const repOpts=[rep,...people.filter(n=>n!==rep)].map(n=>`<option value="${esc(n)}">${esc(n)}${n===rep?' (self)':''}</option>`).join('');
   let html=`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <div><button class="act" onclick="selectPlRep('')">&larr; All reps</button> <b style="margin-left:6px;font-size:15px">${esc(plName(rep))}</b>${minAge?` <span class="sub">stale ${minAge}+ days only</span>`:''}</div>
     </div>${strip}
