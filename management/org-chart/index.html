@@ -74,8 +74,14 @@ header.bar .tag{font-size:11px;color:#9FB3C8;font-weight:700;letter-spacing:.14e
 .card .meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
 .card .chip{font-size:10px;font-weight:700;color:var(--text);background:var(--line2);border-radius:5px;padding:2px 6px}
 .card .chip.office{color:var(--accent,#555);background:color-mix(in srgb,var(--accent) 12%,#fff)}
-.card.more{background:repeating-linear-gradient(135deg,#fff,#fff 8px,#f6f8fb 8px,#f6f8fb 16px);border-style:dashed}
-.card.more .nm{font-size:12.5px;color:var(--muted)}
+.card.group{background:repeating-linear-gradient(135deg,#fff,#fff 8px,#f6f8fb 8px,#f6f8fb 16px);border-style:dashed;padding:11px 13px}
+.card.group .gtop{display:flex;align-items:center;gap:8px}
+.card.group .chev{font-size:13px;color:var(--accent);transition:transform .16s;display:inline-block;flex:0 0 auto}
+.card.group.open .chev{transform:rotate(90deg)}
+.card.group .nm{font-size:13px;color:var(--ink)}
+.card.group .gsub{font-size:10.5px;color:var(--muted);margin-top:4px;padding-left:21px}
+.card.group.open .gsub{color:var(--accent)}
+ul.kids.collapsed{display:none}
 .card.dotted{border-top-style:dotted}
 .card .flag{position:absolute;top:-9px;right:10px;font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
   background:var(--accent,#999);color:#fff;padding:2px 6px;border-radius:6px}
@@ -228,7 +234,20 @@ const N = {
   dallas:{p:'thomas',n:'Dallas Orear',t:'RSA Manager',o:'Wall NJ',d:'rsa'},
   greg:{p:'thomas',n:'Gregory Vuksanic',t:'RSA Supervisor',o:'Wall NJ',d:'rsa'},
   eric:{p:'thomas',n:'Eric Istvanditsch',t:'Physical Site Assessment Supervisor',o:'Wall NJ',d:'rsa'},
-  rsamore:{p:'thomas',more:1,n:'+ 12 analysts, specialists & drone operators',d:'rsa'},
+  rsaGroup:{p:'thomas',group:1,n:'Analysts · Specialists · Drone',d:'rsa'},
+  r_kyle:{p:'rsaGroup',n:'Kyle Lewis',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
+  r_reyes:{p:'rsaGroup',n:'Nicholas Reyes',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
+  r_imp:{p:'rsaGroup',n:'Richard Imparato',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
+  r_nap:{p:'rsaGroup',n:'Brian Napoliton',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
+  r_lab:{p:'rsaGroup',n:'Cheryl Labella',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
+  r_berg:{p:'rsaGroup',n:'Deanna Berghino',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
+  r_josh:{p:'rsaGroup',n:'Joshua Rucki',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
+  r_june:{p:'rsaGroup',n:'June Stochel',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
+  r_cav:{p:'rsaGroup',n:'Michael Cavalli',t:'RSA Specialist',o:'Wall NJ',d:'rsa'},
+  r_palm:{p:'rsaGroup',n:'Anthony Palmieri',t:'RSA Specialist',o:'Wall NJ',d:'rsa'},
+  r_jim:{p:'rsaGroup',n:'Matthew Jimenez',t:'RSA Specialist',o:'Wall NJ',d:'rsa'},
+  r_cint:{p:'rsaGroup',n:'Angel Cintron',t:'Drone Operator',o:'Holyoke MA',d:'rsa'},
+  r_fors:{p:'rsaGroup',n:'Steven Forsyth',t:'Drone Operator',o:'Wall NJ',d:'rsa'},
   thomasC:{}, // placeholder
   // Finance Partner Ops
   bryan:{p:'kristi',n:'Bryan Machesky',t:'Manager, Finance Partner Ops',o:'Wall NJ',span:4,d:'violet'},
@@ -241,7 +260,13 @@ const N = {
   ethan:{p:'bryan',n:'Ethan Hacker',t:'Team Lead — LightReach',o:'Wall NJ',d:'violet'},
   james:{p:'bryan',n:'James Cantwell',t:'Team Lead — Finance Partner Ops',o:'Wall NJ',d:'violet'},
   monique:{p:'katie',n:'Monique Gazzoni',t:'Team Lead — LightReach / IGS',o:'Wall NJ',d:'violet'},
-  msmore:{p:'katie',more:1,n:'+ milestone processing team',d:'violet'},
+  msGroup:{p:'katie',group:1,n:'Milestone Processing team',d:'violet'},
+  m_carmel:{p:'msGroup',n:'Carmel Bonevitch',t:'Milestone Management',o:'Wall NJ',d:'violet'},
+  m_rina:{p:'msGroup',n:'Rina Shiflett',t:'Milestone Management',o:'Cheshire CT',d:'violet'},
+  m_morgan:{p:'msGroup',n:'Morgan Yenger',t:'Milestone Management',o:'Wall NJ',d:'violet'},
+  m_emma:{p:'msGroup',n:'Emma Hickey',t:'Milestone Management',o:'Cheshire CT',d:'violet'},
+  m_may:{p:'msGroup',n:'Maylene Malichanh',t:'Milestone Management',o:'Wall NJ',d:'violet'},
+  m_amanda:{p:'msGroup',n:'Amanda Pedersen',t:'Milestone Management',o:'Wall NJ',d:'violet'},
   // --- Operations / COO ---
   condit:{p:'jp',n:'William Condit',t:'EVP, Operations',o:'Wall NJ',d:'spine'},
   billie:{p:'jp',n:'Billie Klecko',t:'Corporate VP of Operations',o:'Wall NJ',span:4,d:'teal'},
@@ -268,13 +293,36 @@ const N = {
   almaraz:{p:'kevin',n:'Ayracon Almaraz',t:'Structural Engineer',o:'Wall NJ',span:6,d:'violet'},
   dickson:{p:'kevin',n:'James Dickson',t:'Electrical State License Holder',o:'Wall NJ',d:'violet'},
   eaton:{p:'kevin',n:'Kevin Eaton',t:'Corporate Operations Director',o:'Wall NJ',span:2,d:'violet'},
-  designmore:{p:'jason',more:1,n:'17 designers',d:'violet'},
+  designGroup:{p:'jason',group:1,n:'Designers (17)',d:'violet'},
+  d_seaberg:{p:'designGroup',n:'James Seaberg',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_kdickson:{p:'designGroup',n:'Karl Dickson',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_milewski:{p:'designGroup',n:'Pete Milewski',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_mccarthy:{p:'designGroup',n:'Michael McCarthy',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_howe:{p:'designGroup',n:'Nicolas Howe',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_seybolt:{p:'designGroup',n:'Jonathan Seybolt',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_faiges:{p:'designGroup',n:'Randall Faiges',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_clarkin:{p:'designGroup',n:'Jillian Clarkin',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_pauciello:{p:'designGroup',n:'Tori Pauciello',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_salsano:{p:'designGroup',n:'Matthew Salsano',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_loftus:{p:'designGroup',n:'Brian Loftus',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_debari:{p:'designGroup',n:'Michael Debari',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_mckeon:{p:'designGroup',n:'Thomas McKeon',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_mrucki:{p:'designGroup',n:'Matthew Rucki',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_kirkland:{p:'designGroup',n:'William Kirkland',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_tobin:{p:'designGroup',n:'Shaylyn Tobin',t:'Designer',o:'Wall NJ',d:'violet'},
+  d_drucki:{p:'designGroup',n:'David Rucki',t:'Designer',o:'Wall NJ',d:'violet'},
   courtney:{p:'oleg',n:'Courtney Romano',t:'Call Center Director',o:'Wall NJ',span:2,d:'blue'},
   hertz:{p:'oleg',n:'Michael Hertz',t:'Call Center Manager',o:'Wall NJ',span:5,d:'blue'},
   marotta:{p:'oleg',n:'Caitlin Marotta',t:'Call Center Manager',o:'Wall NJ',span:4,d:'blue'},
   meunier:{p:'oleg',n:'Lori Meunier',t:'Call Quality Assurance Manager',o:'Wall NJ',span:11,d:'blue'},
   taylor:{p:'oleg',n:'Rourke Taylor',t:'Call Systems Manager',o:'Cheshire CT',span:2,d:'blue'},
-  cprmore:{p:'phil',more:1,n:'6 Custom Project Specialists',d:'amber'},
+  cprGroup:{p:'phil',group:1,n:'Custom Project Specialists (6)',d:'amber'},
+  cp_struben:{p:'cprGroup',n:'Alexandra Struben',t:'Custom Project Specialist',o:'Wall NJ',d:'amber'},
+  cp_vander:{p:'cprGroup',n:'Kristen Vander Drift',t:'Custom Project Specialist',o:'Wall NJ',d:'amber'},
+  cp_morera:{p:'cprGroup',n:'Emmanuel Morera',t:'Custom Project Specialist',o:'Cheshire CT',d:'amber'},
+  cp_wescott:{p:'cprGroup',n:'Patrick Wescott',t:'Custom Project Specialist',o:'Wall NJ',d:'amber'},
+  cp_ricc:{p:'cprGroup',n:'Stephanie Ricciardulli',t:'Custom Project Specialist',o:'Wall NJ',d:'amber'},
+  cp_linck:{p:'cprGroup',n:'Fred Linck',t:'Custom Project Specialist',o:'Cheshire CT',d:'amber'},
   kayla:{p:'rachael',n:'Kayla Desrochers',t:'Manager, Client Resources',o:'Long Island NY',span:7,d:'rose'},
   erin:{p:'rachael',n:'Erin Buchansky',t:'Manager, Reputation Management',o:'Wall NJ',span:1,d:'rose'},
   mahady:{p:'rachael',n:'Thomas Mahady',t:'Customer Experience Coordinator',o:'Wall NJ',d:'rose'},
@@ -319,7 +367,11 @@ let active='kristi';
 /* ---------- render ---------- */
 function nodeHTML(id){
   const x=N[id];const ac=accent(x.d);
-  if(x.more){return `<li><div class="card more" style="--accent:${ac}"><div class="nm">${x.n}</div></div></li>`;}
+  if(x.group){const gch=kids(id);
+    return `<li><div class="card group" data-grp="${id}" style="--accent:${ac}">
+      <div class="gtop"><span class="chev">&#9656;</span><div class="nm">${x.n}</div></div>
+      <div class="gsub">${gch.length} people &middot; click to expand</div></div>
+      <ul class="kids collapsed">${gch.map(nodeHTML).join('')}</ul></li>`;}
   const ch=kids(id);
   const office=x.o?`<span class="chip office">${x.o}</span>`:'';
   const span=x.span?`<span class="chip">Span ${x.span}</span>`:'';
@@ -363,9 +415,16 @@ function wireCards(){
     const id=card.dataset.id, x=N[id];
     card.addEventListener('mousemove',e=>showHover(e,id));
     card.addEventListener('mouseleave',hideHover);
-    card.addEventListener('click',()=>{const k=kids(id).filter(c=>!N[c].more);
+    card.addEventListener('click',()=>{const k=kids(id).filter(c=>!N[c].more&&!N[c].group);
       // click: if it has a contact drawer OR is a leaf, open drawer; else focus to expand
       if(x.c){openDrawer(id);} else if(k.length && id!==active){focusNode(id);} else {openDrawer(id);} });
+  });
+  // expandable rollup groups: click toggles a dropdown of org cards
+  document.querySelectorAll('.card.group[data-grp]').forEach(card=>{
+    card.addEventListener('click',e=>{e.stopPropagation();
+      card.classList.toggle('open');
+      const ul=card.nextElementSibling;
+      if(ul&&ul.classList.contains('kids'))ul.classList.toggle('collapsed');});
   });
 }
 const hv=document.getElementById('hover');
@@ -394,7 +453,7 @@ function openDrawer(id){const x=N[id];const ac=accent(x.d);hideHover();
   if(c.reach){h+=`<div class="sec"><div class="lbl">How to reach them</div><div class="reach">${c.reach.map(r=>`<div><b>${r.k}:</b> ${r.v}</div>`).join('')}</div></div>`;}
   if(c.callout){h+=`<div class="sec"><div class="callout">${c.callout}</div></div>`;}
   if(c.escalation){h+=`<div class="sec"><div class="lbl">Escalation contacts (leadership)</div><p>${c.escalation}</p></div>`;}
-  const dn=kids(id).filter(k=>!N[k].more);
+  const dn=kids(id).filter(k=>!N[k].more&&!N[k].group);
   if(dn.length){h+=`<div class="sec"><div class="lbl">Direct reports (${dn.length})</div><p>${dn.map(k=>N[k].n).join(' · ')}</p></div>`;}
   if(!c.does&&!c.when&&!c.reach){h=`<div class="sec"><p class="note">Scope and contact channel for this team are still to confirm.</p></div>`+h;}
   if(id!==active && kids(id).length){h+=`<div class="sec"><a class="lbl" style="cursor:pointer;border-bottom:1px dotted" onclick="focusNode('${id}')">Focus this branch in the chart →</a></div>`;}
@@ -410,12 +469,17 @@ document.getElementById('q').addEventListener('input',e=>{
   const v=e.target.value.toLowerCase().trim();
   document.querySelectorAll('.card.hit').forEach(c=>c.classList.remove('hit'));
   if(!v)return;
-  const hit=Object.keys(N).find(k=>!N[k].more&&((N[k].n||'').toLowerCase().includes(v)||(N[k].t||'').toLowerCase().includes(v)));
+  const hit=Object.keys(N).find(k=>!N[k].more&&!N[k].group&&((N[k].n||'').toLowerCase().includes(v)||(N[k].t||'').toLowerCase().includes(v)));
   if(!hit)return;
-  // focus the nearest focusable ancestor that keeps the hit visible: focus the hit's parent (or hit)
-  const root=N[hit].p&&kids(N[hit].p).length?N[hit].p:hit;
-  active=root;renderTree();
-  setTimeout(()=>{const el=document.querySelector(`.card[data-id="${hit}"]`);if(el){el.classList.add('hit');el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});}},30);
+  // if the match lives inside a rollup group, focus the team head and expand that group
+  const p=N[hit].p; let grp=null, focus;
+  if(p&&N[p].group){grp=p;focus=N[p].p;}
+  else{focus=(kids(hit).filter(c=>!N[c].group).length||!p)?hit:p;}
+  active=focus;renderTree();
+  setTimeout(()=>{
+    if(grp){const gc=document.querySelector(`.card.group[data-grp="${grp}"]`);if(gc){gc.classList.add('open');const ul=gc.nextElementSibling;if(ul)ul.classList.remove('collapsed');}}
+    const el=document.querySelector(`.card[data-id="${hit}"]`);if(el){el.classList.add('hit');el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});}
+  },40);
 });
 
 renderRail();renderTree();
