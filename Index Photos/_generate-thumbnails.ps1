@@ -39,6 +39,7 @@ $M = @{
 $T = @{
  university   = @('#1E1545','#46297E','#F2D785','#D9A93E','#EDD58A','#C9BD93','#B98CFF','#E8C66B','mortarboard',$PAL,0.53,110)
  solar        = @('#0A2E5A','#1E73C0','#FFC83D','#FFE08A','#FFD980','#BAD6F2','#FFC83D','#36B0F0','sun',$CGO,0.62,98)
+ syscodes     = @('#0B2138','#1E5A9E','#F2B441','#FFD583','#F4C97A','#AEC8E0','#36B0F0','#DC9B3C','roof',$BAH,0.48,108)
  roofing      = @('#2B313B','#5A6675','#F08A3C','#FFB85A','#F4B27A','#C7CFD9','#F08A3C','#8A97A6','roof',$CAM,0.50,110)
  battery      = @('#073A2A','#11B070','#B6F24A','#39E0A6','#A6F0C2','#BEEAD2','#39E0A6','#2BC07E','battery',$BAH,0.47,110)
  finance      = @('#0C3526','#18794E','#F0D27A','#D4AA48','#EBD79A','#B6D8C2','#F0D27A','#2FA86A','coin',$TNR,0.50,110)
@@ -90,6 +91,8 @@ $cards = @(
  @('one-touch-close','solar','SOLAR','One-Touch','Close','Presentation to prescription',''),
  @('selling-the-rate','solar','SOLAR','Selling','the Rate','Conviction on the escalator',''),
  @('rate-escalator','solar','SOLAR','The Rate','Escalator','The cost of doing nothing',''),
+ @('system-design-and-codes','syscodes','SYSTEM & CODES','System Design','& Codes','Design rules, setbacks, the tester','roof'),
+ @('electrical-upgrades','syscodes','SYSTEM & CODES','Electrical','Upgrades','What to expect, how to advocate','circuit'),
  @('goodleap-portal','solar','SOLAR FINANCING','GoodLeap','Portal','Submit and track loans',''),
  @('sunlight-portal','solar','SOLAR FINANCING','Sunlight','Portal','Submit and track loans',''),
  @('service-finance-portal','solar','SOLAR FINANCING','Service','Finance','Submit and track loans',''),

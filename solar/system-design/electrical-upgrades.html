@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Electrical &amp; Electrical Upgrades · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/training-system.css">
+<style>
+/* Page-specific components for Electrical & Electrical Upgrades. Built on shared
+   tokens; no inline styles. Standard components (hero/module/training-card/
+   doc-table/script-example/callout/recall-check/manager-prompt/key-takeaways)
+   come from training-system.css. */
+
+/* service-amp strip in the hero */
+.amp-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3);margin-top:var(--space-4)}
+.amp-strip .amp{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:var(--r-md);padding:var(--space-3);text-align:center}
+.amp-strip .num{font-family:var(--serif);font-size:1.9rem;line-height:1;color:var(--amber)}
+.amp-strip .label{font-size:.74rem;font-weight:800;letter-spacing:.06em;color:#fff;margin-top:6px}
+.amp-strip .sub{font-size:.72rem;color:rgba(255,255,255,.65);margin-top:2px}
+
+/* outage badge -- the number a customer feels */
+.outage{display:inline-flex;align-items:baseline;gap:6px;background:rgba(232,64,64,.08);border:1px solid rgba(232,64,64,.28);border-radius:999px;padding:3px 12px;font-size:.82rem;font-weight:700;color:var(--red);white-space:nowrap}
+.outage .clk{font-size:.78rem}
+.outage--none{background:rgba(95,165,32,.1);border-color:rgba(95,165,32,.3);color:var(--green)}
+
+/* connection-method cards carry a colored top tab */
+.method{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.method.m-standard{border-top-color:var(--green)}
+.method.m-tap{border-top-color:var(--blue)}
+.method.m-box{border-top-color:var(--amber)}
+.method h3{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.method .when{font-size:.95rem;color:var(--muted);margin:6px 0 0}
+
+/* upgrade comparison table: outage column + scope */
+.doc-table td.scope{white-space:normal}
+.doc-table td.out{text-align:right;white-space:nowrap}
+.tier-tag{display:inline-block;font-size:.64rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--deep-blue);border-radius:var(--r-sm);padding:1px 7px;margin-left:8px;vertical-align:middle}
+.tier-tag.t-up{background:var(--amber)}
+
+@media(max-width:820px){
+  .amp-strip{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<script src="/training-system.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <span class="logo">Trinity Solar</span>
+        <span class="team">CT Traditional · System &amp; Codes</span>
+      </div>
+      <button id="presentBtn" class="present-toggle">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#why"><span class="num">1</span> Be the Advocate</a>
+      <a href="#panel"><span class="num">2</span> The Panel</a>
+      <a href="#connect"><span class="num">3</span> How Solar Connects</a>
+      <a href="#disconnect"><span class="num">4</span> Rapid Shutdown</a>
+      <a href="#upgrades"><span class="num">5</span> Upgrade Types</a>
+      <a href="#mast"><span class="num">6</span> Reading the Scope</a>
+      <a href="#expectations"><span class="num">7</span> Setting Expectations</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">System &amp; Codes · Installation Knowledge</span>
+    <h1>Electrical <em>Upgrades</em></h1>
+    <p class="lede">
+      The electrical work is where a clean sale can turn into a frustrated customer.
+      <strong>The work that protects the deal happens after you leave.</strong>
+      Know what each upgrade is, how long the power is out, and why it's needed. Then you can set the expectation up front and be the advocate the customer trusts.
+    </p>
+    <div class="amp-strip">
+      <div class="amp"><div class="num">100A</div><div class="label">Service</div><div class="sub">30/42 max panel</div></div>
+      <div class="amp"><div class="num">200A</div><div class="label">Service</div><div class="sub">40-42 single pole</div></div>
+      <div class="amp"><div class="num">10&prime;</div><div class="label">Shutdown Rule</div><div class="sub">Of meter &amp; inverter</div></div>
+      <div class="amp"><div class="num">7-8h</div><div class="label">Longest Outage</div><div class="sub">Full-service work</div></div>
+    </div>
+  </div>
+</section>
+
+<main class="training-page">
+
+<!-- 1: BE THE ADVOCATE -->
+<section class="module" id="why">
+  <div class="wrap">
+    <span class="eyebrow">Part 1 · Why This Matters</span>
+    <h2>Be the advocate, not the salesperson who disappeared</h2>
+    <p class="intro">The customer didn't buy a panel upgrade. They bought solar. When an electrician shows up and the power goes out for half a day, that surprise lands on you unless you got there first. Knowing the electrical work lets you set the expectation and stay the trusted voice.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>What knowing this earns you</h3>
+        <ul>
+          <li><strong>No surprise outages.</strong> "Plan for the power to be off most of the day" said at signing beats a panicked call mid-install.</li>
+          <li><strong>Credibility on the roof.</strong> When you can name why the panel needs changing, the customer trusts the recommendation.</li>
+          <li><strong>Fewer cancellations.</strong> Most post-sale fallout is a surprise the customer wasn't prepared for. Preparation is the fix.</li>
+          <li><strong>A reason to call.</strong> The electrical walk-through is a natural touch that keeps you in the deal after the close.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--amber">
+        <h3>What goes wrong without it</h3>
+        <ul>
+          <li><strong>"Nobody told me."</strong> The customer loses a fridge of food or a work-from-home day they didn't plan for.</li>
+          <li><strong>The electrician explains it cold.</strong> A stranger delivering bad news on install day, instead of you framing it weeks earlier.</li>
+          <li><strong>The deal wobbles.</strong> Surprise plus inconvenience plus a number they didn't expect equals a cancellation risk.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="manager-prompt">Ask the room: when did a surprise on the electrical side cost someone a deal or a referral? What would have prevented it?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why does a rep need to understand electrical upgrades?</summary>
+      <p class="answer">To set the expectation before install day. The electrical work, especially the power outage, is the most common post-sale surprise. Naming it up front keeps the rep the trusted advocate and protects the deal.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 2: THE PANEL -->
+<section class="module" id="panel">
+  <div class="wrap">
+    <span class="eyebrow">Part 2 · The Main Electrical Panel</span>
+    <h2>The MEP: 100-amp vs 200-amp service</h2>
+    <p class="intro">The Main Electrical Panel (MEP) is the box where the home's circuits live and where solar usually connects. Its size, 100-amp or 200-amp, decides how much room is left and which interconnection method the install needs.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--ink">
+        <h3>100-amp service</h3>
+        <ul>
+          <li><strong>20 to 24 spaces:</strong> typically 16 full breakers plus 4 twins.</li>
+          <li><strong>30/42 max panel size:</strong> the ceiling on how many circuits the box can hold.</li>
+          <li><strong>Less headroom.</strong> A 100-amp panel fills up faster, so solar more often needs a line tap or tap box.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--green">
+        <h3>200-amp service</h3>
+        <ul>
+          <li><strong>40 to 42 single-pole breakers,</strong> or up to 20 double-pole breakers.</li>
+          <li><strong>300 to 400 amps of breakers</strong> can live across all panels combined.</li>
+          <li><strong>More headroom.</strong> A 200-amp service usually has room for a standard breaker connection.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout callout--compliance"><strong>Why the amperage matters to you.</strong> A full or undersized panel is the single most common trigger for added electrical work. When you see a small old panel, expect the conversation about an upgrade, and get ahead of it.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Which service has more room for a standard solar connection?</summary>
+      <p class="answer">200-amp. It holds 40 to 42 single-pole breakers and usually has busbar room for a standard breaker feed. A 100-amp panel (30/42 max) fills up faster and more often needs a line tap or tap box.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 3: HOW SOLAR CONNECTS -->
+<section class="module" id="connect">
+  <div class="wrap">
+    <span class="eyebrow">Part 3 · Interconnection</span>
+    <h2>Three ways solar ties into the home</h2>
+    <p class="intro">Every project connects one of three ways. The panel's available room and what else is wired in (a generator, a transfer switch) decide which. Each has a different impact on the customer's day.</p>
+
+    <div class="card-grid">
+      <div class="method m-standard">
+        <h3>Breaker / Busbar Feed <span class="outage outage--none">No outage</span></h3>
+        <p class="when"><strong>Standard connection.</strong> Solar lands on a breaker in the panel. Trinity standard is the bottom right-most location for consistency.</p>
+        <p>Used when the panel has room on the busbar. The simplest, cleanest tie-in.</p>
+      </div>
+      <div class="method m-tap">
+        <h3>Line Tap <span class="outage outage--none">No outage</span></h3>
+        <p class="when"><strong>When the panel is full,</strong> when a secondary power source like a generator transfer switch is present, or when the system is larger than the busbar will allow.</p>
+        <p>Efficient: no power outage required to complete the work.</p>
+      </div>
+      <div class="method m-box">
+        <h3>Tap Box <span class="outage"><span class="clk">&#9201;</span>~2 hr</span></h3>
+        <p class="when"><strong>Box installed below or next to the meter</strong> to make the interconnection. Required when there are clearance issues with the panel, or when a whole-house transfer switch (manual or automatic) is present.</p>
+        <p>The connection is made in the tap box instead of the panel or transfer switch. Needs a couple-hour outage to complete the work safely. Same for 100-amp or 200-amp.</p>
+      </div>
+    </div>
+
+    <div class="callout"><strong>Read the cue.</strong> A generator, a transfer switch, or a packed panel all point away from the simple breaker feed and toward a line tap or tap box. Spotting it early means no surprises for the customer.</div>
+
+    <div class="manager-prompt">Quiz the room: which connection method needs a power outage? Which one is used when a whole-house transfer switch is present?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> When is a tap box required, and what does it cost the customer's day?</summary>
+      <p class="answer">When there are clearance issues with the panel, or a whole-house transfer switch (manual or automatic) is present. The connection moves to a box below or beside the meter, and it needs a roughly two-hour power outage.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 4: RAPID SHUTDOWN + OCPD -->
+<section class="module" id="disconnect">
+  <div class="wrap">
+    <span class="eyebrow">Part 4 · Safety Hardware</span>
+    <h2>Rapid shutdown and overcurrent protection</h2>
+    <p class="intro">Two pieces of hardware show up on essentially every project. They're code, not options. Knowing what they are keeps you from getting caught flat-footed when a customer points at a new box on the wall.</p>
+
+    <div class="compare-grid">
+      <div class="training-card">
+        <h3>Manual disconnect (rapid shutdown)</h3>
+        <ul>
+          <li><strong>Required on all projects.</strong> A visible switch that kills the array for first responders and service.</li>
+          <li><strong>Within 10 feet</strong> of the meter and the inverter.</li>
+          <li><strong>It's a safety device,</strong> not an add-on. Every customer gets one.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>Overcurrent Protection Device (OCPD)</h3>
+        <ul>
+          <li><strong>Protects the circuit</strong> from too much current.</li>
+          <li><strong>Could be breakers or fused,</strong> depending on the design.</li>
+          <li><strong>Standard on the install,</strong> handled by the design and electrical teams.</li>
+        </ul>
+      </div>
+    </div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Where does the rapid-shutdown disconnect have to be installed?</summary>
+      <p class="answer">Within 10 feet of the meter and the inverter, on all projects. It lets first responders and technicians shut the array down quickly.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 5: UPGRADE TYPES -->
+<section class="module" id="upgrades">
+  <div class="wrap">
+    <span class="eyebrow">Part 5 · The Upgrade Menu</span>
+    <h2>When the panel or service itself needs work</h2>
+    <p class="intro">Sometimes the existing equipment can't carry solar, or it's simply too old. The scope on the contract will name one of these. The biggest difference to the customer is how long the power is out, so read the row by its outage.</p>
+
+    <table class="doc-table">
+      <thead><tr><th>Upgrade</th><th class="scope">What gets replaced</th><th class="out">Outage</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Panel Change</td>
+          <td class="scope">The panel only, same amperage. Circuits are re-fed in the new panel. Standard is a 30-circuit panel; 24-circuit when space is limited. Done when the panel is in very poor condition.</td>
+          <td class="out"><span class="outage">4-5 hr<span class="clk">+</span></span></td>
+        </tr>
+        <tr>
+          <td>Service Change</td>
+          <td class="scope">The meter and riser, same amperage. Existing panel is re-fed. Done when the meter or riser is in very poor condition.</td>
+          <td class="out"><span class="outage">up to 4 hr</span></td>
+        </tr>
+        <tr>
+          <td>Full-Service Change</td>
+          <td class="scope">Meter, riser, and panel, same amperage. Done when all three are in very poor condition.</td>
+          <td class="out"><span class="outage">7-8 hr</span></td>
+        </tr>
+        <tr>
+          <td>Full-Service Upgrade <span class="tier-tag t-up">amperage up</span></td>
+          <td class="scope">Meter, riser, and panel, stepped up to the next amperage (60&rarr;100 or 100&rarr;200). Done when equipment is poor condition and overloaded.</td>
+          <td class="out"><span class="outage">7-8 hr</span></td>
+        </tr>
+        <tr>
+          <td>Service Change w/ Relocation</td>
+          <td class="scope">Meter and riser, same amperage, panel re-fed. Plus the meter location moves; the utility chooses the new spot.</td>
+          <td class="out"><span class="outage">up to 4 hr</span></td>
+        </tr>
+        <tr>
+          <td>Full-Service Change w/ Relocation</td>
+          <td class="scope">Meter, riser, and panel, same amperage. Plus the meter relocates to a utility-chosen spot.</td>
+          <td class="out"><span class="outage">7-8 hr</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout"><strong>"Change" vs "Upgrade."</strong> A <strong>change</strong> swaps old equipment for the same amperage. An <strong>upgrade</strong> steps the amperage up (60 to 100, or 100 to 200). Same install, different finish line: upgrade means the home gets more capacity.</div>
+
+    <div class="manager-prompt">Have a rep explain, in plain words, the difference between a panel change, a full-service change, and a full-service upgrade. Then ask: which two keep the power off the longest?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> A contract reads "Full-Service Upgrade, 100 to 200 amp." What should you tell the customer to expect?</summary>
+      <p class="answer">A full-day-feeling job: the meter, riser, and panel all get replaced and stepped up to 200-amp service, with the power out for roughly 7 to 8 hours. The upside is a home with real capacity headroom.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 6: READING THE SCOPE / MAST -->
+<section class="module" id="mast">
+  <div class="wrap">
+    <span class="eyebrow">Part 6 · Reading the Scope</span>
+    <h2>Rigid mast, service drop, and the words on the contract</h2>
+    <p class="intro">The contract scope uses a few terms that confuse customers. If you can translate them, you stay the expert in the room. The one that comes up most is the rigid mast.</p>
+
+    <div class="card-grid">
+      <div class="training-card training-card--amber">
+        <h3>Rigid Mast</h3>
+        <p>When the scope says <strong>Rigid Mast</strong>, a rigid pipe mast is required by the utility to gain height for the overhead wires coming from the street. It raises the connection point so the wires clear the property to code.</p>
+      </div>
+      <div class="training-card">
+        <h3>Service Drop</h3>
+        <p>The <strong>service drop</strong> is the overhead set of wires running from the utility's pole to the house. The mast gives those wires the height the utility requires.</p>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>Relocation</h3>
+        <p>When a job includes <strong>relocation</strong>, the meter moves to a new spot. The utility, not the customer, chooses the location. Worth flagging early so it's never a surprise on the wall.</p>
+      </div>
+    </div>
+
+    <div class="callout callout--compliance"><strong>Same description, either amperage.</strong> The scope wording for these jobs reads the same whether the home is on 100-amp or 200-amp service. Don't let the matching language fool you; confirm the amperage separately.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> The scope says "Rigid Mast." What is it and why is it there?</summary>
+      <p class="answer">A rigid pipe mast required by the utility to raise the overhead service-drop wires to the required height from the street. It's about clearance, not aesthetics.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 7: SETTING EXPECTATIONS -->
+<section class="module" id="expectations">
+  <div class="wrap">
+    <span class="eyebrow">Part 7 · The Conversation</span>
+    <h2>How to set the expectation at the table</h2>
+    <p class="intro">Knowing the work is half the job. Saying it cleanly, before install day, is the other half. Frame the outage as a planned, normal step, and the customer plans around it instead of panicking through it.</p>
+
+    <ol class="step-grid">
+      <li class="step"><h3>1. Name it early</h3><p>Bring up the electrical work at signing, not on install day. "Part of going solar is making sure your electrical can carry it. Here's what that looks like for your home."</p></li>
+      <li class="step"><h3>2. Give the outage a number</h3><p>Tell them the range up front. "Plan for the power to be off about [X] hours that day." A number they can plan around beats a vague warning.</p></li>
+      <li class="step"><h3>3. Explain the why</h3><p>"Your panel is older and full, so we're giving it room to handle solar safely." The reason turns a cost into an upgrade.</p></li>
+      <li class="step"><h3>4. Help them plan</h3><p>Medications that need refrigeration, work-from-home, a home medical device: surface these and plan around them so install day is smooth.</p></li>
+    </ol>
+
+    <div class="training-card training-card--ink">
+      <h3>The expectation-setting script</h3>
+      <blockquote class="script-example"><span class="who">Say</span>"One thing I want you ahead of: to add solar safely, your electrical panel needs to be brought up to spec. On install day the power will be off for about half a day while the team handles it. It's routine, we do it constantly. I just want you planning for it, not surprised by it."</blockquote>
+      <p>Said three weeks early, this is a non-event. Discovered at 9am on install day, it's a cancellation risk. Same facts, completely different outcome.</p>
+    </div>
+
+    <div class="manager-prompt">Role-play: a customer with a 100-amp panel needs a full-service upgrade. Walk the four steps and set the expectation in under a minute.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What's the one number you never want the customer to learn for the first time on install day?</summary>
+      <p class="answer">The length of the power outage. Give them the hour range at signing so they can plan around it. A surprise outage is the most common electrical cancellation trigger.</p>
+    </details>
+  </div>
+</section>
+
+<!-- KEY TAKEAWAYS -->
+<section class="key-takeaways" id="takeaways">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>One-sentence reminders</h2>
+    <ul>
+      <li>The electrical work protects the deal after you leave. Get ahead of it.</li>
+      <li>200-amp has room; 100-amp (30/42 max) fills up and needs a tap.</li>
+      <li>Breaker feed and line tap: no outage. Tap box: about two hours.</li>
+      <li>Rapid-shutdown disconnect within 10 feet of meter and inverter, every job.</li>
+      <li>Change = same amperage. Upgrade = next amperage up.</li>
+      <li>Full-service work means 7 to 8 hours without power. Say it early.</li>
+      <li>Rigid mast raises the service-drop wires to utility height.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8593;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8595;</button>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Adapted from the CT Field Operations "Electrical Upgrades" training by Paul Lamoureux, CT Field Operations Manager.
+  </div>
+</footer>
+
+</div><!-- /#appWrap -->
+
+</body>
+</html>

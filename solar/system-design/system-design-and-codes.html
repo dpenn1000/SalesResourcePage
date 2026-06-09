@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design &amp; Codes · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/training-system.css">
+<style>
+/* Page-specific components for System Design & Codes. Built on shared tokens; no
+   inline styles in markup. Standard components come from training-system.css.
+   Custom here: hero metric strip, panel-orientation mini-diagrams, setback rule
+   cards, RSA action-item flow, and the interactive codes tester. */
+
+/* hero metric strip */
+.code-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3);margin-top:var(--space-4)}
+.code-strip .c{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:var(--r-md);padding:var(--space-3);text-align:center}
+.code-strip .num{font-family:var(--serif);font-size:1.9rem;line-height:1;color:var(--amber)}
+.code-strip .label{font-size:.74rem;font-weight:800;letter-spacing:.06em;color:#fff;margin-top:6px}
+.code-strip .sub{font-size:.72rem;color:rgba(255,255,255,.65);margin-top:2px}
+
+/* panel-orientation mini-diagram (dual coding, no images) */
+.orient{display:flex;flex-direction:column;align-items:center;gap:10px}
+.panels{display:flex;gap:4px;justify-content:center}
+.panels .p{background:var(--deep-blue);border-radius:2px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.25)}
+.panels.portrait .p{width:20px;height:34px}
+.panels.landscape .p{width:34px;height:20px}
+.panels.landscape .p{background:var(--amber)}
+.orient .cap{font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.mix-row{display:flex;flex-direction:column;gap:4px;align-items:center}
+
+/* yes/no verdict chip */
+.verdict{display:inline-block;font-size:.66rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 12px;margin-bottom:8px}
+.verdict.ok{background:rgba(95,165,32,.12);color:var(--green);border:1px solid rgba(95,165,32,.35)}
+.verdict.no{background:rgba(232,64,64,.1);color:var(--red);border:1px solid rgba(232,64,64,.3)}
+
+/* setback rule: two big number cards */
+.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.rule{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:var(--space-4);text-align:center}
+.rule.under{border-top:3px solid var(--green)}
+.rule.over{border-top:3px solid var(--amber)}
+.rule .cov{font-size:.8rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.rule .set{font-family:var(--serif);font-size:2.8rem;line-height:1;color:var(--ink);margin:6px 0}
+.rule.under .set{color:var(--green)}
+.rule.over .set{color:var(--amber)}
+.rule .note{font-size:.9rem;color:var(--muted)}
+
+/* RSA action-item flow */
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+.flow .ai{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);box-shadow:var(--shadow);padding:var(--space-3) var(--space-4)}
+.flow .ai .step{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--deep-blue)}
+.flow .ai h3{margin-top:4px}
+.flow .ai .tracks{font-size:.84rem;color:var(--muted);font-style:italic;margin-top:4px}
+
+/* roof-info key */
+.keygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--space-2)}
+.keygrid .k{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:var(--space-2) var(--space-3)}
+.keygrid .k .sym{font-family:var(--serif);font-size:1.4rem;color:var(--deep-blue)}
+.keygrid .k .mean{font-size:.86rem;color:var(--muted)}
+
+/* ============================================================
+   INTERACTIVE CODES TESTER
+   ============================================================ */
+.quiz{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:var(--space-4);margin-top:var(--space-3)}
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+.tier{text-align:left;background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);cursor:pointer;font:inherit;color:inherit}
+.tier:hover{border-color:var(--amber);border-top-color:var(--amber)}
+.tier.t2{border-top-color:var(--blue)}
+.tier.t3{border-top-color:var(--amber)}
+.tier .lvl{font-size:.66rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tier .nm{font-family:var(--serif);font-size:1.4rem;color:var(--ink);margin:2px 0}
+.tier .ds{font-size:.9rem;color:var(--muted)}
+
+.q-top{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3);flex-wrap:wrap}
+.q-meta{font-size:.74rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.q-score{font-size:.9rem;font-weight:700;color:var(--ink)}
+.q-bar{height:6px;background:var(--line-soft);border-radius:999px;overflow:hidden;margin-bottom:var(--space-3)}
+.q-bar i{display:block;height:100%;background:var(--green);border-radius:999px;width:var(--p,0%);transition:width .25s ease}
+.q-prompt{font-family:var(--serif);font-size:1.4rem;color:var(--ink);line-height:1.25;margin-bottom:var(--space-3)}
+.q-opts{display:grid;gap:var(--space-2)}
+.q-opt{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 16px;cursor:pointer;font:inherit;color:var(--text)}
+.q-opt:hover:not(:disabled){border-color:var(--deep-blue)}
+.q-opt:disabled{cursor:default}
+.q-opt.correct{background:rgba(95,165,32,.12);border-color:var(--green);font-weight:700}
+.q-opt.wrong{background:rgba(232,64,64,.09);border-color:var(--red)}
+.q-opt .mk{float:right;font-weight:800}
+.q-opt.correct .mk{color:var(--green)}
+.q-opt.wrong .mk{color:var(--red)}
+.q-explain{margin-top:var(--space-3);padding:var(--space-3);border-left:3px solid var(--deep-blue);background:rgba(30,80,140,.05);border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:1rem}
+.q-explain[hidden]{display:none}
+.q-foot{display:flex;justify-content:flex-end;margin-top:var(--space-3)}
+.q-btn{font-family:var(--sans);font-weight:700;font-size:.9rem;color:#fff;background:var(--ink);border:none;border-radius:var(--r-md);padding:10px 22px;cursor:pointer}
+.q-btn:hover{background:var(--deep-blue)}
+.q-btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.q-btn.ghost:hover{background:var(--surface);color:var(--ink)}
+
+.q-summary{text-align:center;padding:var(--space-3) 0}
+.q-summary .big{font-family:var(--serif);font-size:3.2rem;color:var(--ink);line-height:1}
+.q-summary .verdict-line{font-size:1.2rem;color:var(--muted);margin:6px 0 var(--space-4)}
+.q-summary .acts{display:flex;gap:var(--space-2);justify-content:center;flex-wrap:wrap}
+[hidden]{display:none}
+
+@media(max-width:820px){
+  .code-strip{grid-template-columns:repeat(2,1fr)}
+  .rule-grid{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+  .tier-grid{grid-template-columns:1fr}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<script src="/training-system.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand">
+        <span class="logo">Trinity Solar</span>
+        <span class="team">CT Traditional · System &amp; Codes</span>
+      </div>
+      <button id="presentBtn" class="present-toggle">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#why"><span class="num">1</span> Why It Looks This Way</a>
+      <a href="#design"><span class="num">2</span> Design Principles</a>
+      <a href="#fire"><span class="num">3</span> Why the Codes Exist</a>
+      <a href="#pathways"><span class="num">4</span> Pathways</a>
+      <a href="#setback"><span class="num">5</span> Ridge Setbacks</a>
+      <a href="#special"><span class="num">6</span> Access &amp; Exceptions</a>
+      <a href="#rsa"><span class="num">7</span> RSA Workflow</a>
+      <a href="#field"><span class="num">8</span> On-Site Checklist</a>
+      <a href="#test"><span class="num">9</span> Test Yourself</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">System &amp; Codes · Installation Knowledge</span>
+    <h1>System Design <em>&amp; Codes</em></h1>
+    <p class="lede">
+      "Why doesn't solar cover my whole roof?" The answer is fire code, not a sales limit.
+      <strong>Know the rules behind the layout, and you can explain any design with confidence.</strong>
+      Portrait over landscape, pathways for firefighters, setbacks at the ridge: every panel sits where it sits for a reason.
+    </p>
+    <div class="code-strip">
+      <div class="c"><div class="num">3&prime;</div><div class="label">Min Pathway</div><div class="sub">On separate roofs</div></div>
+      <div class="c"><div class="num">33%</div><div class="label">The Setback Line</div><div class="sub">Coverage threshold</div></div>
+      <div class="c"><div class="num">18&Prime;/36&Prime;</div><div class="label">Ridge Setback</div><div class="sub">Under / over 33%</div></div>
+      <div class="c"><div class="num">10&deg;</div><div class="label">Pitch Exempt</div><div class="sub">Flat roofs, no setback</div></div>
+    </div>
+  </div>
+</section>
+
+<main class="training-page">
+
+<!-- 1: WHY IT LOOKS THIS WAY -->
+<section class="module" id="why">
+  <div class="wrap">
+    <span class="eyebrow">Part 1 · The Frame</span>
+    <h2>The layout isn't a sales decision. It's the code.</h2>
+    <p class="intro">Customers assume an empty roof section means we're holding back. The truth: fire code reserves that space so firefighters can climb, walk, and cut ventilation on a burning house. When you can name the rule, "why isn't it covered?" stops being an objection and becomes a trust-builder.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>Why a rep needs this</h3>
+        <ul>
+          <li><strong>Answer the roof question.</strong> "That gap is a fire-code pathway, required so first responders can reach the ridge." Calm, specific, done.</li>
+          <li><strong>Set honest expectations.</strong> Lead with what the roof can hold. Codes explain the ceiling, so you never over-promise coverage.</li>
+          <li><strong>Read your own design.</strong> Spot a layout problem (a panel over a vent, a missing pathway) before the customer or the AHJ does.</li>
+          <li><strong>Sound like the expert.</strong> Naming R324.6 and the 33% rule is the difference between a salesperson and a consultant.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>What this training covers</h3>
+        <ul>
+          <li><strong>Design principles:</strong> why portrait beats landscape and what mixing is allowed.</li>
+          <li><strong>The fire codes:</strong> pathways, ridge setbacks, access roofs, and egress under CT's 2021 IRC R324.6.</li>
+          <li><strong>The RSA workflow:</strong> how a design moves from order to approved model in Genesis.</li>
+          <li><strong>A live tester:</strong> three difficulty tiers to prove you know it cold.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="manager-prompt">Ask the room: when a customer says "I want my whole roof covered," what's the honest, code-grounded answer?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why is part of the roof left open?</summary>
+      <p class="answer">Fire code. Pathways and ridge setbacks reserve roof space so firefighters can access and ventilate the structure. It's a safety requirement, not a sales limit.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 2: DESIGN PRINCIPLES -->
+<section class="module" id="design">
+  <div class="wrap">
+    <span class="eyebrow">Part 2 · Design Principles</span>
+    <h2>Portrait always wins, and the rules for mixing</h2>
+    <p class="intro">When the same panel count fits either way, go portrait. It installs faster, uses less material, and looks cleaner. Landscape isn't banned, but it follows one strict rule.</p>
+
+    <div class="card-grid">
+      <div class="training-card training-card--green">
+        <div class="orient">
+          <div class="panels portrait"><div class="p"></div><div class="p"></div><div class="p"></div><div class="p"></div></div>
+          <div class="cap">Portrait · Preferred</div>
+        </div>
+        <p>Always preferred over landscape. If the same panel count fits, choose portrait: easier to install, less racking material, more aesthetic.</p>
+      </div>
+      <div class="training-card training-card--green">
+        <div class="orient">
+          <div class="mix-row">
+            <div class="panels landscape"><div class="p"></div><div class="p"></div><div class="p"></div></div>
+            <div class="panels portrait"><div class="p"></div><div class="p"></div><div class="p"></div><div class="p"></div></div>
+          </div>
+          <div class="cap"><span class="verdict ok">Acceptable</span></div>
+        </div>
+        <p>A portrait array with <strong>one</strong> landscape row, and only <strong>on top</strong>. Never put landscape on the bottom.</p>
+      </div>
+      <div class="training-card training-card--amber">
+        <div class="orient">
+          <div class="mix-row">
+            <div class="panels portrait"><div class="p"></div><div class="p"></div></div>
+            <div class="panels landscape"><div class="p"></div><div class="p"></div></div>
+          </div>
+          <div class="cap"><span class="verdict no">Unacceptable</span></div>
+        </div>
+        <p>Avoid "tetris": portrait and landscape side by side, or portrait stacked on top of landscape. One panel count usually fits cleaner in straight portrait.</p>
+      </div>
+    </div>
+
+    <div class="callout"><strong>Watch the auto-layout.</strong> Look for panels placed over obstructions (vents, conduit) or tucked under dormers. Those panels can't physically be installed; they have to be removed from the design by hand. Catch it before it ships.</div>
+
+    <div class="manager-prompt">Show a real layout on screen. Ask: is the mixing legal? Are any panels sitting over an obstruction or under a dormer?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> A portrait array has one landscape row. Where is the only place it can go?</summary>
+      <p class="answer">On top. A single landscape row above a portrait array is acceptable; landscape on the bottom, side by side, or "tetris" mixing is not.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 3: WHY THE CODES EXIST -->
+<section class="module" id="fire">
+  <div class="wrap">
+    <span class="eyebrow">Part 3 · The Why Behind the Rules</span>
+    <h2>R324.6 exists so firefighters can work the roof</h2>
+    <p class="intro">CT follows the 2021 IRC, Section R324.6. Every pathway and setback traces back to one purpose: a firefighter has to climb a burning roof, walk it safely, and cut ventilation. Panels are set back from ridges and edges to keep those operations possible.</p>
+
+    <div class="card-grid">
+      <div class="training-card">
+        <h3>Access</h3>
+        <p>Firefighters need a clear route from the eave up to the ridge to reach and work the roof.</p>
+      </div>
+      <div class="training-card">
+        <h3>Ventilation</h3>
+        <p>Cutting a hole at the ridge lets heat and smoke escape. A clear ridge makes that cut possible.</p>
+      </div>
+      <div class="training-card">
+        <h3>Egress</h3>
+        <p>A bedroom window over a roof is an escape route. Code keeps a clear path from it to the roof edge.</p>
+      </div>
+    </div>
+
+    <div class="callout callout--compliance"><strong>The governing text.</strong> "Photovoltaic systems shall be designed and installed in accordance with R324.3.1 through R324.7.2.5, the manufacturer's instructions, and NFPA 70." The pathways, setbacks, and access points below are how that gets met on a CT roof.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What single purpose drives every pathway and setback rule?</summary>
+      <p class="answer">Firefighter safety: access up the roof, ventilation at the ridge, and clear egress from bedroom windows on a burning structure.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 4: PATHWAYS -->
+<section class="module" id="pathways">
+  <div class="wrap">
+    <span class="eyebrow">Part 4 · Pathways</span>
+    <h2>Two 3-foot pathways, one facing the street</h2>
+    <p class="intro">Pathways are the clear lanes from the lowest roof edge up to the ridge. They're the most common reason a roof isn't fully covered. The rules are specific and worth knowing cold.</p>
+
+    <div class="card-grid">
+      <div class="training-card training-card--green">
+        <h3>The core rules</h3>
+        <ul>
+          <li><strong>At least two pathways,</strong> on separate roof planes, each not less than 3 feet (36 inches) wide.</li>
+          <li><strong>One on the street or driveway side</strong> of the building. It does not have to face the street, just be on that side.</li>
+          <li><strong>Every roof with solar</strong> needs a pathway on it or on an adjacent roof plane.</li>
+          <li><strong>Each building</strong> gets a minimum of two; complex roofs may need more.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>Where the pathway can sit</h3>
+        <ul>
+          <li><strong>On the same roof plane</strong> as the array, or</li>
+          <li><strong>On an adjacent roof plane,</strong> or</li>
+          <li><strong>Straddling</strong> the same and adjacent planes.</li>
+          <li><strong>Arrays may share a pathway</strong> as long as each array has one on its own or an adjacent roof.</li>
+          <li><strong>Over solid structure</strong> capable of supporting a firefighter, clear of vents and conduit.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout"><strong>The single-slope exception.</strong> If the array is on only one slope of a single-ridge roof and the opposite slope has clear access with a roof access point, the eave-to-ridge pathway is not required on the array's slope. The same logic applies to one side of a hip or valley.</div>
+
+    <div class="manager-prompt">Draw a simple gable roof on the board. Ask a rep to place two compliant pathways and explain why each one qualifies.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> How wide, how many, and where must pathways sit?</summary>
+      <p class="answer">At least two, each 3 feet (36 inches) wide, on separate roof planes, with at least one on the street or driveway side. Every roof with solar needs a pathway on it or an adjacent plane.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 5: RIDGE SETBACKS -->
+<section class="module" id="setback">
+  <div class="wrap">
+    <span class="eyebrow">Part 5 · The 33% Rule</span>
+    <h2>Ridge setback: 18 inches or 36 inches</h2>
+    <p class="intro">The clear space below the ridge depends on one number: how much of the total roof area the arrays cover. Cross 33% and the setback doubles. The math is on total roof surface, not a single plane.</p>
+
+    <div class="rule-grid">
+      <div class="rule under">
+        <div class="cov">Arrays use 33% or less of all roofs</div>
+        <div class="set">18&Prime;</div>
+        <div class="note">1.5-foot setback on both sides of the ridge</div>
+      </div>
+      <div class="rule over">
+        <div class="cov">Arrays use more than 33% of all roofs</div>
+        <div class="set">36&Prime;</div>
+        <div class="note">3-foot setback on both sides of the ridge</div>
+      </div>
+    </div>
+
+    <div class="callout callout--compliance"><strong>Genesis calculates it, you confirm it.</strong> The Genesis and Web Gen platforms have a built-in calculator that adjusts the required ridge setback based on roof space used. After any layout change, always <strong>Refresh Setbacks</strong> to confirm it recalculated. Edit the array up past 33% and forget to refresh, and the model is out of code.</div>
+
+    <div class="manager-prompt">Ask the room: an array edit pushes coverage from 30% to 45%. What changes, and what's the one button you must hit?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Arrays cover 40% of total roof area. What's the ridge setback?</summary>
+      <p class="answer">36 inches (3 feet) on both sides of the ridge. Over 33% total coverage doubles the setback from 18 inches to 36 inches.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 6: ACCESS & EXCEPTIONS -->
+<section class="module" id="special">
+  <div class="wrap">
+    <span class="eyebrow">Part 6 · Access Roofs &amp; Exceptions</span>
+    <h2>When the normal rules bend: access roofs, height, egress, detached</h2>
+    <p class="intro">Four special cases change what's required. Knowing them keeps you from mis-reading a design or over-explaining a limit that doesn't apply.</p>
+
+    <div class="card-grid">
+      <div class="training-card training-card--green">
+        <h3>Access roofs</h3>
+        <p>When modules are on only one slope and the opposing roof is clear, that opposing roof can serve as the access roof. It must be street or driveway facing with at least one ground access point free of doors and windows. <strong>If an access roof is used, pathways aren't required.</strong></p>
+      </div>
+      <div class="training-card training-card--amber">
+        <h3>Height differences</h3>
+        <p>If two roofs differ in height by more than 1 foot, they aren't "adjacent." Treat them as two separate buildings, and each one needs its own minimum of two pathways.</p>
+      </div>
+      <div class="training-card">
+        <h3>Emergency egress</h3>
+        <p>If a bedroom window sits above a roof surface, a 3-foot emergency egress pathway must run from that window to the lowest point of the roof. It's an escape route, so it stays clear.</p>
+      </div>
+      <div class="training-card">
+        <h3>Detached structures</h3>
+        <p>Detached, non-habitable structures (a standalone garage) don't need setbacks. But if the structure has living space someone could sleep in, setbacks apply. Roofs pitched 10 degrees or less are also exempt.</p>
+      </div>
+    </div>
+
+    <div class="manager-prompt">Quiz the room: a detached garage with a finished loft bedroom. Setbacks, yes or no? Why?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> When can pathways be skipped entirely?</summary>
+      <p class="answer">When a qualifying access roof is used: modules on one slope only, the opposing roof clear, street or driveway facing, with a ground access point free of doors and windows.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 7: RSA WORKFLOW -->
+<section class="module" id="rsa">
+  <div class="wrap">
+    <span class="eyebrow">Part 7 · The RSA / Genesis Workflow</span>
+    <h2>How a design gets built: three action items, in order</h2>
+    <p class="intro">Every RSA (Remote Site Assessment) is created in three tracked steps. They run in sequence, and each one's completion triggers the next. The action items in the platform tell you exactly where your opportunity stands.</p>
+
+    <div class="flow">
+      <div class="ai">
+        <div class="step">Step 1</div>
+        <h3>Preliminary Measure</h3>
+        <div class="tracks">Tracks the Eagleview / Aurora order</div>
+        <p><strong>Not Started:</strong> order not placed or location not confirmed.<br><strong>Requested:</strong> order placed.<br><strong>Completed:</strong> order received, triggers the next step.</p>
+      </div>
+      <div class="ai">
+        <div class="step">Step 2</div>
+        <h3>Preliminary Layout</h3>
+        <div class="tracks">Tracks the Breakfast Bot 3D model</div>
+        <p><strong>Not Started:</strong> in queue waiting on the 3D model.<br><strong>On Hold:</strong> an issue is blocking the model.<br><strong>Completed:</strong> 3D model created, triggers the next step.</p>
+      </div>
+      <div class="ai">
+        <div class="step">Step 3</div>
+        <h3>Remote Site Assessment</h3>
+        <div class="tracks">Tracks the Genesis / Web Gen design</div>
+        <p><strong>Not Started:</strong> in queue, prioritized by appointment date and time.<br><strong>On Hold:</strong> an issue is blocking the RSA.<br><strong>Completed:</strong> the RSA model is built.</p>
+      </div>
+    </div>
+
+    <div class="callout"><strong>When something stalls, call RSA.</strong> If an action item completed but the next one never triggered, or a step sits in Not Started / Requested / On Hold as the appointment approaches, reach out to the RSA team. On a new or add-on opportunity, if you don't even see a Preliminary Measure action item, a tech issue likely blocked the trigger, so contact RSA.</div>
+
+    <div class="manager-prompt">Ask: your appointment is tomorrow and the RSA action item still reads "Not Started." What do you do, and who do you call?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What are the three RSA action items, in order?</summary>
+      <p class="answer">Preliminary Measure (Eagleview/Aurora order), then Preliminary Layout (Breakfast Bot 3D model), then Remote Site Assessment (Genesis/Web Gen design). Each completion triggers the next.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 8: ON-SITE CHECKLIST -->
+<section class="module" id="field">
+  <div class="wrap">
+    <span class="eyebrow">Part 8 · In the Field</span>
+    <h2>The on-site checklist, the roof key, and tree photos</h2>
+    <p class="intro">When you're at the house, the RSA model needs verifying against reality. A few habits keep designs accurate and tree removals credited.</p>
+
+    <div class="compare-grid">
+      <ul class="checklist">
+        <li><strong>Verify the right house</strong> was modeled.</li>
+        <li><strong>Verify pitches;</strong> flag 5-degree-plus discrepancies, include photos.</li>
+        <li><strong>Check obstructions</strong> were all accounted for, include photos.</li>
+        <li><strong>Check shading</strong> against the model.</li>
+        <li><strong>Note height issues and tree removals,</strong> or trees missing from the RSA, include photos.</li>
+      </ul>
+      <div class="training-card training-card--amber">
+        <h3>Tree-removal photos that count</h3>
+        <ul>
+          <li><strong>Never stump-only.</strong> A bare stump doesn't show where on the property the tree stood.</li>
+          <li><strong>Include a reference point:</strong> the front of the house from the street, a shed, deck, or pool.</li>
+          <li><strong>Before and after</strong> shots of the same area.</li>
+          <li><strong>Mark removals</strong> on the overhead Genesis shot so the location is unmistakable.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="training-card training-card--ink">
+      <h3>Reading the roof-information key</h3>
+      <div class="keygrid">
+        <div class="k"><span class="sym">#</span> <span class="mean">Roof number</span></div>
+        <div class="k"><span class="sym">P</span> <span class="mean">Pitch</span></div>
+        <div class="k"><span class="sym">A</span> <span class="mean">Orientation / azimuth</span></div>
+        <div class="k"><span class="sym">S</span> <span class="mean">Solar access</span></div>
+        <div class="k"><span class="sym">E</span> <span class="mean">Efficiency / TSRF</span></div>
+        <div class="k"><span class="sym">M</span> <span class="mean">Module count</span></div>
+        <div class="k"><span class="sym">KW</span> <span class="mean">System size</span></div>
+      </div>
+      <p>The <strong>Roof Square Calculator</strong> sits in the bottom-left of Web Gen and gives total squares with waste included. Multiple structures are calculated separately; if you can't verify which building to use, contact RSA.</p>
+    </div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why is a stump-only photo rejected for a tree removal?</summary>
+      <p class="answer">It doesn't show where on the property the tree stood. Include a reference point (the house, a shed, deck, or pool) and before/after shots so RSA can credit the exact location.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 9: INTERACTIVE TESTER -->
+<section class="module" id="test">
+  <div class="wrap">
+    <span class="eyebrow">Part 9 · Test Yourself</span>
+    <h2>The codes &amp; design tester</h2>
+    <p class="intro">Pick a difficulty and prove you know it. Apprentice is straight recall, Journeyman applies the rules, Master throws real roof scenarios at you. Each question explains itself, right or wrong.</p>
+
+    <div class="quiz" id="quiz">
+      <!-- SETUP -->
+      <div id="quizSetup">
+        <div class="tier-grid">
+          <button class="tier t1" type="button" data-lvl="1">
+            <div class="lvl">Level 1 · Recall</div>
+            <div class="nm">Apprentice</div>
+            <div class="ds">The core numbers and rules, straight up.</div>
+          </button>
+          <button class="tier t2" type="button" data-lvl="2">
+            <div class="lvl">Level 2 · Apply</div>
+            <div class="nm">Journeyman</div>
+            <div class="ds">Take a rule and run the math or the call.</div>
+          </button>
+          <button class="tier t3" type="button" data-lvl="3">
+            <div class="lvl">Level 3 · Scenario</div>
+            <div class="nm">Master</div>
+            <div class="ds">Real roofs, multiple factors, edge cases.</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ACTIVE -->
+      <div id="quizActive" hidden>
+        <div class="q-top">
+          <span class="q-meta" id="qMeta">Apprentice · Question 1 of 6</span>
+          <span class="q-score" id="qScore">Score: 0</span>
+        </div>
+        <div class="q-bar"><i id="qBar"></i></div>
+        <div class="q-prompt" id="qPrompt"></div>
+        <div class="q-opts" id="qOpts"></div>
+        <div class="q-explain" id="qExplain" hidden></div>
+        <div class="q-foot">
+          <button class="q-btn" id="qNext" type="button" hidden>Next</button>
+        </div>
+      </div>
+
+      <!-- SUMMARY -->
+      <div id="quizSummary" hidden>
+        <div class="q-summary">
+          <div class="big" id="sScore">0 / 6</div>
+          <div class="verdict-line" id="sLine"></div>
+          <div class="acts">
+            <button class="q-btn" id="sRetry" type="button">Try this level again</button>
+            <button class="q-btn ghost" id="sBack" type="button">Pick another level</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="manager-prompt">Run Master tier live on the screen. Read each scenario, let the room vote A/B/C/D before you reveal, then discuss the misses.</div>
+  </div>
+</section>
+
+<!-- KEY TAKEAWAYS -->
+<section class="key-takeaways" id="takeaways">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>One-sentence reminders</h2>
+    <ul>
+      <li>The open roof is fire code, not a sales limit. Say so with confidence.</li>
+      <li>Same panel count? Go portrait. One landscape row, on top only.</li>
+      <li>Two 3-foot pathways, separate planes, one on the street/driveway side.</li>
+      <li>33% or less = 18-inch ridge setback. Over 33% = 36 inches.</li>
+      <li>Access roof done right means no pathways required.</li>
+      <li>Detached and non-habitable, or pitch 10 degrees or less: no setbacks.</li>
+      <li>Three RSA action items in order; if one stalls, call RSA.</li>
+      <li>Always Refresh Setbacks in Genesis after a layout change.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8593;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8595;</button>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Code content from CT 2021 IRC R324.6 and the RSA/Genesis sales training. Design principles from the Trinity RSA standards deck.
+  </div>
+</footer>
+
+</div><!-- /#appWrap -->
+
+<script>
+/* Interactive codes tester. Self-contained: binds its own listeners, defines no
+   globals beyond one IIFE, and leaves window.initApp to training-system.js. */
+(function () {
+  var BANK = {
+    1: { name: 'Apprentice', qs: [
+      { q: 'Which panel orientation is always preferred?',
+        a: ['Landscape', 'Portrait', 'Whichever fits more panels', 'It does not matter'],
+        c: 1, why: 'Portrait is always preferred. When the same panel count fits either way, go portrait: easier install, less material, cleaner look.' },
+      { q: 'What is the minimum width of a fire-access pathway?',
+        a: ['2 feet', '3 feet (36 inches)', '4 feet', '18 inches'],
+        c: 1, why: 'Pathways must be at least 3 feet (36 inches) wide, on separate roof planes.' },
+      { q: 'How many pathways does each building need, at minimum?',
+        a: ['One', 'Two, on separate roof planes', 'Three', 'One per array'],
+        c: 1, why: 'A minimum of two pathways per building, on separate roof planes. Complex roofs may need more.' },
+      { q: 'Arrays cover 33% or less of total roof area. The ridge setback is:',
+        a: ['18 inches (1.5 ft)', '36 inches (3 ft)', 'None', '12 inches'],
+        c: 0, why: '33% or less of total roof area means an 18-inch (1.5-foot) setback on both sides of the ridge.' },
+      { q: 'A portrait array may include one landscape row. Where can it go?',
+        a: ['On the bottom', 'On top only', 'Either top or bottom', 'Side by side'],
+        c: 1, why: 'One landscape row is acceptable only on top of the portrait array. Never on the bottom, never side by side.' },
+      { q: 'Do detached, non-habitable structures need ridge setbacks?',
+        a: ['Yes, always', 'No', 'Only if over 33% covered', 'Only in winter'],
+        c: 1, why: 'Detached non-habitable structures (like a standalone garage) do not require setbacks. Add sleepable living space and they do.' }
+    ]},
+    2: { name: 'Journeyman', qs: [
+      { q: 'An array covers 40% of total roof area. Required ridge setback?',
+        a: ['18 inches', '36 inches', 'No setback', 'It depends on the pitch'],
+        c: 1, why: 'Over 33% total coverage doubles the setback to 36 inches (3 feet) on both sides of the ridge.' },
+      { q: 'A roof is pitched 8 degrees. Is a ridge setback required?',
+        a: ['Yes', 'No, 10 degrees or less is exempt', 'Only if habitable', 'Only over 33%'],
+        c: 1, why: 'Roofs pitched 10 degrees or less are exempt from setbacks.' },
+      { q: 'The auto-layout places a panel directly over a vent. What happens?',
+        a: ['It installs fine', 'It must be removed from the design by hand', 'The vent is relocated', 'Nothing, vents are ignored'],
+        c: 1, why: 'Panels over obstructions (or under dormers) cannot be installed. They have to be removed from the design manually.' },
+      { q: 'A design shows landscape panels on the bottom row under portrait. Acceptable?',
+        a: ['Yes', 'No, landscape only goes on top', 'Only on 200-amp homes', 'Only if it adds a panel'],
+        c: 1, why: 'A landscape row is acceptable only on top of a portrait array. Landscape on the bottom is not allowed.' },
+      { q: 'At least one pathway must be located on which side of the building?',
+        a: ['The back', 'The street or driveway side', 'The tallest roof', 'Any side'],
+        c: 1, why: 'At least one pathway must be on the street or driveway side. It need not face the street, just be on that side.' },
+      { q: 'Two roofs differ in height by 18 inches. Are they "adjacent" for pathways?',
+        a: ['Yes', 'No, over 1 foot makes them separate buildings', 'Only if same pitch', 'Only if both have solar'],
+        c: 1, why: 'A height difference greater than 1 foot means the roofs are not adjacent. Treat them as separate buildings, each needing two pathways.' }
+    ]},
+    3: { name: 'Master', qs: [
+      { q: 'Modules sit on one slope only. The opposing slope is clear, street-facing, with a ground access point free of doors and windows. Are pathways required?',
+        a: ['Yes, two pathways', 'No, that opposing slope is a qualifying access roof', 'Yes, one pathway', 'Only a ridge setback'],
+        c: 1, why: 'That opposing slope qualifies as an access roof: one slope of modules, clear opposing roof, street/driveway facing, a clean ground access point. With a valid access roof, pathways are not required.' },
+      { q: 'A detached garage has a finished loft someone could sleep in. Setbacks?',
+        a: ['No, it is detached', 'Yes, it contains living space', 'Only if over 33%', 'Only if attached to the house'],
+        c: 1, why: 'Detached non-habitable structures skip setbacks, but a structure with sleepable living space requires them. The loft makes it habitable.' },
+      { q: 'A bedroom window sits above a roof surface. What does code require?',
+        a: ['Nothing extra', 'A 3-foot emergency egress pathway from the window to the lowest roof point', 'A 36-inch ridge setback', 'Panels removed from that roof'],
+        c: 1, why: 'A bedroom window over a roof is an escape route. Code requires a 3-foot emergency egress pathway from the window to the lowest point of the roof.' },
+      { q: 'On a new opportunity you see no Preliminary Measure action item at all. Best move?',
+        a: ['Wait for it to appear', 'Contact the RSA team; a tech issue likely blocked the trigger', 'Place the Aurora order yourself', 'Cancel the appointment'],
+        c: 1, why: 'On new or add-on opps, a missing Preliminary Measure usually means a tech issue stopped the process from triggering. Reach out to RSA for assistance.' },
+      { q: 'You edit the array and coverage jumps from 30% to 45% in Genesis. The setback still shows 1.5 feet. What do you do?',
+        a: ['Leave it, Genesis is right', 'Refresh Setbacks; it should recalculate to 3 feet', 'Manually delete a pathway', 'Switch panels to landscape'],
+        c: 1, why: 'Genesis auto-calculates the ridge setback from coverage, but you must Refresh Setbacks after a layout change. Past 33%, it should move to 3 feet. Always refresh to confirm.' },
+      { q: 'An array is on one side of a single-ridge gable. The opposite slope has clear access and a roof access point. The eave-to-ridge pathway on the array slope is:',
+        a: ['Still required', 'Not required on that slope', 'Required only if over 33%', 'Replaced by a ridge setback'],
+        c: 1, why: 'When the array is on one slope and the opposing slope has clear access with a roof access point, the eave-to-ridge pathway is not required on the array slope. The same exception covers one side of a hip or valley.' }
+    ]}
+  };
+
+  var quiz = document.getElementById('quiz');
+  if (!quiz) return;
+  var elSetup = document.getElementById('quizSetup');
+  var elActive = document.getElementById('quizActive');
+  var elSummary = document.getElementById('quizSummary');
+  var elMeta = document.getElementById('qMeta');
+  var elScore = document.getElementById('qScore');
+  var elBar = document.getElementById('qBar');
+  var elPrompt = document.getElementById('qPrompt');
+  var elOpts = document.getElementById('qOpts');
+  var elExplain = document.getElementById('qExplain');
+  var elNext = document.getElementById('qNext');
+  var elSScore = document.getElementById('sScore');
+  var elSLine = document.getElementById('sLine');
+
+  var lvl = 1, idx = 0, score = 0, answered = false;
+
+  function showPane(which) {
+    elSetup.hidden = which !== 'setup';
+    elActive.hidden = which !== 'active';
+    elSummary.hidden = which !== 'summary';
+  }
+
+  function start(l) {
+    lvl = l; idx = 0; score = 0;
+    showPane('active');
+    renderQ();
+  }
+
+  function renderQ() {
+    answered = false;
+    var set = BANK[lvl];
+    var q = set.qs[idx];
+    elMeta.textContent = set.name + ' · Question ' + (idx + 1) + ' of ' + set.qs.length;
+    elScore.textContent = 'Score: ' + score;
+    elBar.style.setProperty('--p', Math.round((idx / set.qs.length) * 100) + '%');
+    elPrompt.textContent = q.q;
+    elExplain.hidden = true;
+    elExplain.textContent = '';
+    elNext.hidden = true;
+    elNext.textContent = (idx + 1 >= set.qs.length) ? 'See results' : 'Next';
+    elOpts.innerHTML = '';
+    q.a.forEach(function (text, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'q-opt';
+      b.textContent = text;
+      b.addEventListener('click', function () { choose(i, b); });
+      elOpts.appendChild(b);
+    });
+  }
+
+  function choose(i, btn) {
+    if (answered) return;
+    answered = true;
+    var set = BANK[lvl];
+    var q = set.qs[idx];
+    var opts = elOpts.querySelectorAll('.q-opt');
+    opts.forEach(function (o, k) {
+      o.disabled = true;
+      if (k === q.c) { o.classList.add('correct'); o.insertAdjacentHTML('beforeend', '<span class="mk">&#10003;</span>'); }
+    });
+    if (i === q.c) {
+      score++;
+    } else {
+      btn.classList.add('wrong');
+      btn.insertAdjacentHTML('beforeend', '<span class="mk">&#10007;</span>');
+    }
+    elScore.textContent = 'Score: ' + score;
+    elBar.style.setProperty('--p', Math.round(((idx + 1) / set.qs.length) * 100) + '%');
+    elExplain.textContent = q.why;
+    elExplain.hidden = false;
+    elNext.hidden = false;
+  }
+
+  function next() {
+    var set = BANK[lvl];
+    idx++;
+    if (idx >= set.qs.length) summary();
+    else renderQ();
+  }
+
+  function summary() {
+    showPane('summary');
+    var set = BANK[lvl];
+    var n = set.qs.length;
+    elSScore.textContent = score + ' / ' + n;
+    var pct = score / n;
+    var line;
+    if (pct === 1) line = 'Perfect. You know ' + set.name + ' cold.';
+    else if (pct >= 0.8) line = 'Strong. One or two to tighten up.';
+    else if (pct >= 0.5) line = 'Getting there. Review the misses and run it again.';
+    else line = 'Worth another pass. Re-read the modules above, then retry.';
+    elSLine.textContent = line;
+  }
+
+  Array.prototype.forEach.call(elSetup.querySelectorAll('.tier'), function (t) {
+    t.addEventListener('click', function () { start(parseInt(t.getAttribute('data-lvl'), 10)); });
+  });
+  elNext.addEventListener('click', next);
+  document.getElementById('sRetry').addEventListener('click', function () { start(lvl); });
+  document.getElementById('sBack').addEventListener('click', function () { showPane('setup'); });
+})();
+</script>
+
+</body>
+</html>
