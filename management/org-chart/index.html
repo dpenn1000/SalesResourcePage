@@ -47,6 +47,16 @@ header.bar .tag{font-size:11px;color:#9FB3C8;font-weight:700;letter-spacing:.14e
 .crumb a:hover{border-bottom-color:var(--muted)}
 .canvas{padding:30px 20px 80px;min-width:max-content}
 
+/* ---- field operations view ---- */
+.fieldwrap{max-width:1120px;text-align:left;min-width:auto}
+.fhead{font-size:24px;font-weight:800;color:var(--ink);font-family:'Fraunces',Georgia,serif}
+.fnote{font-size:12.5px;color:var(--muted);margin:7px 0 20px;max-width:720px;line-height:1.55}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:12px}
+.fcard{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--accent,#999);border-radius:10px;padding:11px 13px;box-shadow:0 1px 3px rgba(16,32,56,.07)}
+.frole{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent,#555)}
+.fname{font-size:14px;font-weight:700;color:var(--ink);margin-top:3px;line-height:1.28}
+.fdesc{font-size:11px;color:var(--muted);margin-top:5px}
+
 /* ---- tree (CSS connectors) ---- */
 .tree{display:inline-block;min-width:100%}
 .tree ul{display:flex;justify-content:center;padding-top:26px;position:relative}
@@ -265,9 +275,12 @@ const N = {
   r_fors:{p:'rsaGroup',n:'Steven Forsyth',t:'Drone Operator',o:'Wall NJ',d:'rsa'},
   thomasC:{}, // placeholder
   // Finance Partner Ops
-  bryan:{p:'kristi',n:'Bryan Machesky',t:'Manager, Finance Partner Ops',o:'Wall NJ',span:4,d:'violet'},
+  bryan:{p:'kristi',n:'Bryan Machesky',t:'Manager, Finance Partner Ops',o:'Wall NJ',span:4,d:'violet',
+    c:{does:'Manages Finance Partner Ops; owns GoodLeap milestones.',when:'GoodLeap milestone questions.',
+       reach:[{k:'Partner (milestones)',v:'GoodLeap'},{k:'Team Lead',v:'James Cantwell'},{k:'Channel',v:'Chatter, Email, Teams'},{k:'External support',v:'Matt Mullen / Bryan Machesky'}]}},
   katie:{p:'kristi',n:'Katie Connor',t:'Manager, Milestone Processing',o:'Wall NJ',span:1,d:'violet',
-    c:{does:'Milestone processing for Resigns, Sunlight, Service Finance, and Cash.',when:'Escalated milestone issues for those partners (via the inbox).'}},
+    c:{does:'Milestone processing for Resigns, Sunlight, Service Finance, and Cash.',when:'Escalated milestone issues for those partners (via the inbox).',
+       reach:[{k:'Partners (milestones)',v:'Service Finance · Cash · Sunlight · Resigns'},{k:'Channel',v:'Chatter, Email, Teams'}]}},
   diana:{p:'kristi',n:'Diana Mennella',t:'Finance Partner Operations Specialist',o:'Wall NJ',d:'violet',
     c:{does:'High-urgency projects — preventing/mitigating clawbacks and finance-partner cancellations. A main responder to rep questions in the inbox.',when:'Clawback or cancellation risk.'}},
   kim:{p:'kristi',n:'Kimberly Pereira',t:'Finance Partner Ops (Change Order)',o:'Wall NJ',d:'violet',
@@ -356,6 +369,35 @@ const N = {
   green:{p:'john',n:'Nicole Green',t:'Attorney',o:'Wall NJ',d:'grey'},
 };
 delete N.thomasC;
+Object.assign(N,{
+  inf_approvals:{info:1,n:'Special Pricing & Approvals',t:'Who approves what, and what to provide',d:'amber',
+    c:{does:'Every special-pricing / approval type and who owns it. Sourced from the Master Sales Ops Reference.',
+       approvals:[
+         {title:'Direct Rate (below-standard contract creation)',who:'Sales RMs — Jay Celozzi / Kevin Erbe (north), Dan Riddle / Justin Dashiell (south)',provide:'State and utility, PPW and floor, current and starting rate, reason',note:'Rates below starting/min 2.99%, all fixed (0%) rates, other escalators, roof pricing below $7.99/sq.'},
+         {title:'Ground Mount pricing',who:'Phil Kelly (all markets) · Dan Riddle (PA)',provide:'State and utility, finance partner, gross and net PPW, GM PPW for territory, trench length',note:'Also needs Sales Ops leadership review.'},
+         {title:'Trench over 250 ft',who:'Phil Kelly + Kevin Kura',provide:'Ground-mount info plus actual trench cost',note:'Case-by-case.'},
+         {title:'Steep pitch (over 46 degrees)',who:'Local Operations Manager',provide:'Roof numbers (OneDraw/Genesis), pitch in degrees',note:'46-49 needs local ops approval. CT installs up to 52; 53+ needs special approval.'},
+         {title:'Microinverters',who:'No approval needed',provide:'',note:'5-panel systems / customer request; PPW above minimum.'},
+         {title:'Ballasted systems',who:'CPR / Phil Kelly',provide:'State and utility, finance partner, gross and net PPW, min/floor',note:'Needs an Aurora design from RSA. Nets $4.20-$4.50 after electrical and structural.'},
+         {title:'Single battery',who:'Ken Ebbert',provide:'State and utility, finance partner and purchase method, pricing request',note:'For Direct contract creation.'},
+         {title:'Customer trenching (own trench)',who:'CPR / Phil Kelly · Russ Pierson (PA/MD)',provide:'Scope, materials, depth photos, sight tubes',note:''},
+         {title:'Roofing adders',who:'Quotes team — quotes@trinity-solar.com',provide:'Roof Quote Request email (full template in the Master Reference)',note:'Plywood over 5 sheets, 3+ roofing layers, slate/cedar, chimney, 4+ skylights, gutters, partial roof.'},
+         {title:'Pricing below floor',who:'Sales VPs',provide:'State and utility, PPW and floor, rates, reason',note:'Rare (e.g. flip contracts).'},
+         {title:'Low Income Discount',who:'Sales RMs and VPs (+ Phil Kelly if unsure)',provide:'State and utility, low-income rate, current rate/escalator, PPW and floor',note:'Below floor needs regional approval.'},
+         {title:'Roofs in PPAs',who:'Phil Kelly · Jan Kelly · Kevin Erbe',provide:'PPW and floor, rates, roof squares, roof EPC and price/sq, net solar EPC',note:'Target about $6/sq split between loan and solar.'}
+       ]}},
+  inf_inboxes:{info:1,n:'Key Inboxes & Escalations',t:'Where to send things, and who to escalate to',d:'green',
+    c:{does:'The front-door inboxes and the sales-escalation ladder.',
+       reach:[
+         {k:'Sales Ops',v:'Sales.Ops@Trinity-Solar.com · 848-220-9688 (Direct in-home only)'},
+         {k:'Milestones',v:'milestones@trinity-solar.com (escalated customers)'},
+         {k:'Change Orders',v:'changeorders@trinity-solar.com (escalated customers)'},
+         {k:'Customer Success',v:'Customer.Success@trinity-solar.com'},
+         {k:'Quotes (roof adders)',v:'quotes@trinity-solar.com'},
+         {k:'Adobe Sign CC',v:'documents.salesops@trinity-solar.com'}
+       ],
+       escalation:'Traditional — CT: Dan Pennington · MA/RI: Anthony Giordano · MD/NJ E&S: RJ Sneyers · NJ N/NW/W: Craig Groenwold · NY South: David Spagnoli · NH/FL: Ken Ebbert / Mike Cortese.   Direct — MA/CT/NH: Jason Celozzi & Kevin Erbe · PA/NJ/FL: Daniel Riddle.'}}
+});
 
 const DEPTS=[
   {grp:'Overview',items:[{k:'rj',label:'Whole Company',root:'rj',d:'spine'}]},
@@ -376,7 +418,46 @@ const DEPTS=[
     {k:'rachael',label:'Client Resources',root:'rachael',d:'rose'},
     {k:'john',label:'Legal',root:'john',d:'grey'},
   ]},
+  {grp:'Field Operations (by territory)',items:[
+    {k:'CT',label:'Connecticut',terr:'CT',d:'green'},
+    {k:'NJ',label:'New Jersey',terr:'NJ',d:'teal'},
+    {k:'NY-LI',label:'NY — Long Island',terr:'NY-LI',d:'blue'},
+    {k:'NY-LH',label:'NY — Lower Hudson',terr:'NY-LH',d:'blue'},
+    {k:'MA-W',label:'MA — West (Holyoke)',terr:'MA-W',d:'violet'},
+    {k:'MA-E',label:'MA — East (Wareham)',terr:'MA-E',d:'violet'},
+    {k:'MD',label:'Maryland',terr:'MD',d:'amber'},
+    {k:'PA',label:'Pennsylvania',terr:'PA',d:'rose'},
+    {k:'FL',label:'Florida',terr:'FL',d:'rsa'},
+  ]},
+  {grp:'Reference',items:[
+    {k:'inf_approvals',label:'Special pricing & approvals',info:'inf_approvals',d:'amber'},
+    {k:'inf_inboxes',label:'Key inboxes & escalations',info:'inf_inboxes',d:'green'},
+  ]},
 ];
+
+const TERRLABEL={CT:'Connecticut',NJ:'New Jersey','NY-LI':'NY — Long Island','NY-LH':'NY — Lower Hudson','MA-W':'Massachusetts — West (Holyoke)','MA-E':'Massachusetts — East (Wareham)',MD:'Maryland',PA:'Pennsylvania',FL:'Florida'};
+const ROLEMETA=[
+  {k:'OM',label:'Operation Manager',desc:'Main contact for escalations',d:'green'},
+  {k:'PC',label:'PC Team Lead',desc:'PC items / missing docs',d:'teal'},
+  {k:'IRS',label:'IRS Team Lead',desc:'Installation scheduling',d:'blue'},
+  {k:'IM',label:'Install Manager',desc:'Install completions',d:'violet'},
+  {k:'PI',label:'Post Installation',desc:'Post-install completions',d:'amber'},
+  {k:'APP',label:'Applications',desc:'Permitting / interconnection',d:'rose'},
+  {k:'STR',label:'Structural',desc:'Structural inquiries',d:'rsa'},
+  {k:'ELE',label:'Electrical',desc:'Electrical inquiries',d:'grey'},
+  {k:'RVP',label:'Regional VP',desc:'Regional leadership',d:'green'},
+];
+const FIELD={
+  'CT':{OM:'Allison Perruccio',PC:'Kristen Russo',IRS:'McKenzie Lyons',IM:'Edwin Torres',PI:'Stephanie Bouchard',STR:'Jesse Brown',ELE:'Matthew Tomcheski',RVP:'Rich Pypec'},
+  'FL':{OM:'Jennifer Mosher',PC:'Tori Byers',IRS:'vacant',IM:'vacant (Mike Alexander temporarily)',PI:'Dale Sweeney',APP:'Lismarie Fernandez',STR:'vacant (Rich Barto)',ELE:'vacant (Vern Hunley)',RVP:'Eric Seaberg'},
+  'MA-W':{OM:'Neil Greene',PC:'Ryan Kane',IRS:'Ivy Coles',IM:'Shawn Judson',PI:'Katelyn Gorman (Ops Sup) · Robin Wagner (Inspections TL)',APP:'Melanie Perkins',STR:'Seth Judson',ELE:'Chris Breton',RVP:'Phil Smith'},
+  'MA-E':{OM:'April Lawrence',PC:'Juanita Horton',IRS:'Brittney Alexander & Thomas Nguyen (no lead)',IM:'Wareham: Damion Campbell · Wilmington: Jay Forst · RI: Bob Johnston',PI:'April Lawrence (no supervisor/lead)',APP:'Alyssa Bonenfant',STR:'Bruce Junior',ELE:'Luis Camacho',RVP:'Rich Pypec'},
+  'MD':{OM:'Jennifer Fereday',PC:'none',IRS:'Miranda Howard',IM:'Vernon Hunley III',PI:'Vernon Hunley',APP:'Josh Smith',STR:'Vernon Hunley',ELE:'Paul Mazurek',RVP:'Russ Pierson'},
+  'NJ':{OM:'Rachel Madison',PC:'Mgr Sara Thompson · TL Ashley Kinder',IRS:'Charlotte Anderson',IM:'Bill Stillwell',PI:'Jon Thompson / Chris Spoulos',APP:'Permitting Mgr Melanie Dreyer · TL Barbara Martinez · Interconnection Mgr Chrystyna Pasieka · TL Amanda Brach',STR:'Dominic Guarino',ELE:'Mgr Rob Dickson · License Jim Dickson',RVP:'Keith Oliver'},
+  'NY-LI':{OM:'Alexa Mellina',PC:'Andrea Reischel',IRS:'Stephanie Geraci',IM:'Daniel Corrente',PI:'Daniel Corrente / Ev Reyes',APP:'Brittany Gaumer',STR:'Luis Grego',ELE:'Luis Grego',RVP:'Sam Magliaro'},
+  'NY-LH':{OM:'Tara McDevitt',PC:'Melissa Libutti',IRS:'none',IM:'Bryan Traver',PI:'none',APP:'Brittany Gaumer',STR:'Joseph Fichera',ELE:'Joseph Fichera',RVP:'Sam Magliaro'},
+  'PA':{OM:'Emily Johnson',PC:'Rachel Derr',IRS:'Amanda Ernst',IM:'Reading: Travis Souders · Mechanicsburg: James Johnson · Pittsburgh: Wayne Hammons',PI:'Krista Biscanti',APP:'Michael Davis',STR:'Tyler Berg',ELE:'Zachary Unger',RVP:'Russ Pierson'},
+};
 
 /* ---------- helpers ---------- */
 const css=getComputedStyle(document.documentElement);
@@ -424,13 +505,29 @@ function renderTree(){
 
 function renderRail(){
   document.getElementById('rail').innerHTML = DEPTS.map(g=>
-    `<div class="grp">${g.grp}</div>`+g.items.map(it=>
-      `<button data-k="${it.root}" onclick="focusNode('${it.root}')"><span class="dot" style="--accent:${accent(it.d)}"></span>${it.label}</button>`
-    ).join('')
+    `<div class="grp">${g.grp}</div>`+g.items.map(it=>{
+      const key=it.root||it.terr||it.info;
+      const fn=it.terr?`showField('${it.terr}')`:it.info?`openInfo('${it.info}')`:`focusNode('${it.root}')`;
+      return `<button data-k="${key}" onclick="${fn}"><span class="dot" style="--accent:${accent(it.d)}"></span>${it.label}</button>`;
+    }).join('')
   ).join('');
 }
 
 function focusNode(id){active=id;renderTree();closeDrawer();document.querySelector('.main').scrollTop=0;}
+
+function openInfo(id){document.querySelectorAll('.rail button').forEach(b=>b.classList.toggle('active',b.dataset.k===id));openDrawer(id);}
+
+function showField(terr){
+  document.querySelectorAll('.rail button').forEach(b=>b.classList.toggle('active',b.dataset.k===terr));
+  const f=FIELD[terr]||{};
+  document.getElementById('crumb').innerHTML=`<a onclick="focusNode('rj')">Trinity</a> <span class="sep">›</span> <span>Field Operations</span> <span class="sep">›</span> <b>${TERRLABEL[terr]}</b>`;
+  const cards=ROLEMETA.map(r=>{const nm=f[r.k]; if(!nm)return ''; const ac=accent(r.d);
+    return `<div class="fcard" style="--accent:${ac}"><div class="frole">${r.label}</div><div class="fname">${nm}</div><div class="fdesc">${r.desc}</div></div>`;}).join('');
+  document.getElementById('tree').innerHTML=`<div class="fieldwrap"><div class="fhead">${TERRLABEL[terr]}</div>`
+    +`<div class="fnote">The install / field-operations org for this territory &mdash; who a rep works with after the sale. This is a separate org from the corporate Sales Ops chart; sourced from the Master Sales Ops Reference. The Operation Manager is the main escalation contact.</div>`
+    +`<div class="fgrid">${cards}</div></div>`;
+  closeDrawer();document.querySelector('.main').scrollTop=0;
+}
 
 /* hover + click */
 function wireCards(){
@@ -494,7 +591,7 @@ document.getElementById('q').addEventListener('input',e=>{
   const v=e.target.value.toLowerCase().trim();
   document.querySelectorAll('.card.hit').forEach(c=>c.classList.remove('hit'));
   if(!v)return;
-  const hit=Object.keys(N).find(k=>!N[k].more&&!N[k].group&&((N[k].n||'').toLowerCase().includes(v)||(N[k].t||'').toLowerCase().includes(v)));
+  const hit=Object.keys(N).find(k=>!N[k].more&&!N[k].group&&!N[k].info&&((N[k].n||'').toLowerCase().includes(v)||(N[k].t||'').toLowerCase().includes(v)));
   if(!hit)return;
   // if the match lives inside a rollup group, focus the team head and expand that group
   const p=N[hit].p; let grp=null, focus;
