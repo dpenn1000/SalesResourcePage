@@ -175,7 +175,11 @@
 
 <script>
 const sb = window.sb;            // shared client + session from /auth-gate.js
-const SF = 'https://trinity-solar.lightning.force.com/lightning/r/{}/view';
+// Bare record-id redirect: Salesforce resolves the id to the right object's record
+// page (Direct Lead here). The object-less /lightning/r/{id}/view form is unreliable
+// for CUSTOM objects (a1v = Direct Lead) -- it strands reps on a generic page when
+// they lack Opportunity access. This form always lands on the DL page.
+const SF = 'https://trinity-solar.lightning.force.com/{}';
 let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set(), flagsByDl={};
 let REPS=[], MANAGERS=[];   // active roster for reassign / swap / send-to-manager controls
 let allDeals=[], touchesByDl={};   // post-sale deals-in-progress + sent customer touches

@@ -415,7 +415,11 @@ const SUPABASE_URL = 'https://qjcozskyopetvigjhlmh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_tBchDunvDSIU2e5L7KIzWA_G1og1Ru2';
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
-const SF = 'https://trinity-solar.lightning.force.com/lightning/r/{}/view';
+// Bare record-id redirect: SF resolves the id to the right object's record page.
+// The object-less /lightning/r/{id}/view form is unreliable for custom objects
+// (a1v = Direct Lead) and can strand a rep on a generic page; this always lands
+// on the actual record (DL or job).
+const SF = 'https://trinity-solar.lightning.force.com/{}';
 
 let appStarted = false, IS_ADMIN = false;
 let props = [];        // [{property, dls:[...], primary}]
