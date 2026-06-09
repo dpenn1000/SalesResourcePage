@@ -22,6 +22,7 @@ $M = @{
  nodes='<g transform="translate(976,98)" stroke="url(#acc)" stroke-width="5" fill="url(#acc)"><line x1="90" y1="22" x2="30" y2="100"/><line x1="90" y1="22" x2="150" y2="100"/><circle cx="90" cy="22" r="16"/><circle cx="30" cy="100" r="16"/><circle cx="150" cy="100" r="16"/></g>'
  circuit='<g transform="translate(976,96)" stroke="url(#acc)" stroke-width="5" fill="none"><path d="M30,42 V72 H90 V102"/><path d="M150,42 V72 H90"/><circle cx="30" cy="30" r="12" fill="url(#acc)"/><circle cx="150" cy="30" r="12" fill="url(#acc)"/><circle cx="90" cy="114" r="12" fill="url(#acc)"/></g>'
  envelope='<g transform="translate(974,108)" fill="none" stroke="url(#acc)" stroke-width="6" stroke-linejoin="round"><rect x="0" y="0" width="172" height="112" rx="12"/><path d="M4,10 L86,66 L168,10"/></g>'
+ people='<g transform="translate(975,96)" fill="url(#acc)"><circle cx="110" cy="50" r="18" opacity="0.6"/><path d="M84,128 a28,34 0 0 1 56,0 Z" opacity="0.6"/><circle cx="52" cy="40" r="24"/><path d="M14,128 a40,46 0 0 1 76,0 Z"/></g>'
 }
 
 # Theme: bg1(dark), bg2(vivid), acc1, acc2, eyebrow, sub, c1, c2, motif, font, wf, cap
@@ -38,6 +39,7 @@ $T = @{
  management   = @('#1E2450','#3E48A0','#9AA6FF','#6ED0E8','#B8BEF8','#AEB6D6','#9AA6FF','#4A56B0','nodes',$TRE,0.55,104)
  tech         = @('#061A30','#0E5288','#2EE6FF','#5BE0A0','#6FE6F0','#9FC2D6','#2EE6FF','#1E6E9E','circuit',$MON,0.62,80)
  cx           = @('#34164A','#8A2E7E','#FF8A3C','#FF5BA8','#FFA6C8','#D6B6CE','#FF5BA8','#7A3E9E','envelope',$TRE,0.55,104)
+ hr           = @('#143038','#2C6E72','#62D0C8','#8AE0A0','#8FD8D0','#AEC8C8','#62D0C8','#2C6E72','people',$TRE,0.55,104)
 }
 
 function FitFont($lines,$wf,$cap){ $m=0; foreach($l in $lines){ if($l.Length -gt $m){$m=$l.Length} }; if($m -lt 1){$m=1}; $fit=[int]([math]::Floor(1040.0/($m*$wf))); if($fit -gt $cap){return $cap}; return $fit }
@@ -122,8 +124,8 @@ $cards = @(
  @('setup-skedulo-resource','ticket','MANAGEMENT / TICKET','Set Up a New','Skedulo Resource','New rep onboarding / Helpdesk',''),
  @('shift-calendar-change','ticket','MANAGEMENT / TICKET','Shift / Calendar','Change','Hours, blocks, time off',''),
  @('skedulo-status-update','ticket','MANAGEMENT / TICKET','Skedulo Status','Update','Activate / deactivate access',''),
- @('traditional-rep-transfer','ticket','MANAGEMENT / TICKET','Traditional Rep','Transfer','Move a rep between offices',''),
- @('offboard-rep','management','MANAGEMENT','Offboard','a Rep','Clean exit checklist / Rep 360',''),
+ @('traditional-rep-transfer','hr','MANAGEMENT / HR','Traditional Rep','Transfer','Move a rep between offices',''),
+ @('offboard-rep','hr','MANAGEMENT / HR','Offboard','a Rep','Clean exit checklist / Rep 360',''),
  @('departments-communications','management','MANAGEMENT','Departments &','Communications','Who does what, how to reach',''),
  @('org-chart-explorer','management','MANAGEMENT','Org Chart','Explorer','Live, connected org / Preview',''),
  @('viper-ranking-overview','management','MANAGEMENT','Viper Rep','Ranking','Scored / Ranked / Dispatched',''),
