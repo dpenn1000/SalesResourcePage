@@ -119,6 +119,12 @@ ul.kids.collapsed{display:none}
 #drawer .reach b{color:var(--ink)}
 #drawer .callout{background:color-mix(in srgb,var(--accent) 9%,#fff);border:1px solid color-mix(in srgb,var(--accent) 28%,#fff);
   border-radius:10px;padding:11px 13px;font-size:12.5px;line-height:1.5;color:var(--text)}
+#drawer .appr{border-left:3px solid var(--accent,#999);background:color-mix(in srgb,var(--accent) 6%,#fff);
+  border-radius:0 8px 8px 0;padding:8px 11px;margin-bottom:8px}
+#drawer .appr-t{font-size:12.5px;font-weight:800;color:var(--ink)}
+#drawer .appr-w,#drawer .appr-p{font-size:11.5px;line-height:1.45;color:var(--text);margin-top:3px}
+#drawer .appr-w b,#drawer .appr-p b{color:var(--accent,#555)}
+#drawer .appr-n{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
 #drawer .x{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;border:0;background:rgba(255,255,255,.14);
   color:#fff;font-size:18px;cursor:pointer;line-height:1}
 #drawer .x:hover{background:rgba(255,255,255,.26)}
@@ -215,7 +221,16 @@ const N = {
        when:'Escalated customers only — clawback risk, finance-partner cancellation, urgent milestone/CO issues.',
        reach:[{k:'Inbox',v:'milestones@trinity-solar.com or changeorders@trinity-solar.com'},{k:'General Qs',v:'Through your manager (not the inbox)'},{k:'Hours',v:'8a–5p Mon–Fri'}],
        callout:'Reserve the inboxes for escalated customers. Do NOT use Chatter for this team.',
-       escalation:'LightReach → Ethan Hacker / Monique Gazzoni · IGS → Monique · GoodLeap → Bryan Machesky · Resigns/Sunlight/Service Finance/Cash → Katie Connor · All/policies → Kristi.'}},
+       escalation:'LightReach → Ethan Hacker / Monique Gazzoni · IGS → Monique · GoodLeap → Bryan Machesky · Resigns/Sunlight/Service Finance/Cash → Katie Connor · All/policies → Kristi.',
+       partner:[
+         {k:'LightReach',v:'Phil Ahsler · LightReach chat'},
+         {k:'Sunlight',v:'Jerry.Thomas@sunlightfinancial.com · 888-850-3359'},
+         {k:'Service Finance',v:'sales@svcfin.com · 877-661-6793'},
+         {k:'GoodLeap',v:'Matt Mullen / Bryan Machesky'},
+         {k:'IGS',v:'andy.mauch@igs.com · 877-995-4447'},
+         {k:'Sunnova',v:'dealersupport@sunnova.com · 866-786-6682'},
+         {k:'Enerbank',v:'888-700-9610'}
+       ]}},
   // Sales Ops teams
   debby:{p:'victoria',n:'Deborah English',t:'Manager, Contract Writing',o:'Wall NJ',span:5,d:'green',
     c:{does:'Contract creation, Stage 3 revisions, post-signing resigns, LOI, install-date updates.',when:'Direct reps only — Traditional reps write their own.',
@@ -277,7 +292,15 @@ const N = {
   oleg:{p:'jp',n:'Oleg Koninin',t:'Senior Director, Call Center',o:'Wall NJ',span:8,d:'blue',dotted:1,flag:'line TBD'},
   phil:{p:'jp',n:'Phil Kelly',t:'VP, Custom Projects (CPR)',o:'Wall NJ',span:6,d:'amber',dotted:1,flag:'line TBD',
     c:{does:'Prices and approves custom work: ground mounts, ballasted systems, long trenches.',when:'A ground mount, ballasted system, or trench needing pricing/approval.',
-       reach:[{k:'Salesforce',v:'Chatter Phil Kelly'},{k:'Trench >250ft',v:'Chatter Kevin Kura + Phil Kelly'}]}},
+       reach:[{k:'Salesforce',v:'Chatter Phil Kelly'},{k:'Trench >250ft',v:'Chatter Kevin Kura + Phil Kelly'}],
+       approvals:[
+         {title:'Ground Mount pricing',who:'Phil Kelly (all markets) · Dan Riddle (PA)',provide:'State and utility, finance partner, current gross and net PPW, GM PPW for the territory, trench length',note:'All ground-mount contracts also need Sales Ops leadership review.'},
+         {title:'Trench over 250 ft',who:'Phil Kelly + Kevin Kura (Chatter both)',provide:'Ground-mount info plus the actual trench cost',note:'Case-by-case. Trenching protocol does not apply to GMs (different cost structure).'},
+         {title:'Ballasted systems',who:'CPR / Phil Kelly',provide:'State and utility, finance partner, current gross and net PPW, min/floor PPW',note:'Needs a special request to RSA for an Aurora design (not Genesis). Nets $4.20-$4.50 after electrical and structural; CPR may except to $4/W with approval. Contingent on SSV results (flat / under-5-degree roofs).'},
+         {title:'Customer trenching (own trench)',who:'CPR / Phil Kelly · Russ Pierson (PA/MD)',provide:'Scope (dig-only vs conduit/wiring), who supplies material, depth photos, sight tubes',note:'Gather full info from sales/customer first.'},
+         {title:'Low Income Discount',who:'Sales RMs and VPs (+ Phil Kelly if unsure)',provide:'State and utility, low-income rate, current rate/escalator, PPW and floor',note:'Below floor needs regional approval.'},
+         {title:'Roofs in PPAs',who:'Phil Kelly · Jan Kelly · Kevin Erbe',provide:'PPW and floor, current and starting rate, roof squares, roof EPC and price/sq, net solar EPC',note:'Moving away from full roofs in PPAs; target about $6/sq split between loan and solar.'}
+       ]}},
   rachael:{p:'jp',n:'Rachael Guadagno',t:'Director, Customer Service',o:'Wall NJ',span:3,d:'rose',dotted:1,flag:'line TBD',
     c:{does:'Post-sale customer relationship: customer service, Client Resources, reputation management.',when:'At-risk customer or service/reputation issue tied to a deal.',callout:'Scope & contact channel to confirm with Rachael.'}},
   john:{p:'jp',n:'John English',t:'General Counsel',o:'Wall NJ',span:4,d:'grey',dotted:1,flag:'line TBD',
@@ -451,8 +474,10 @@ function openDrawer(id){const x=N[id];const ac=accent(x.d);hideHover();
   if(c.does){h+=`<div class="sec"><div class="lbl">What they do</div><p>${c.does}</p></div>`;}
   if(c.when){h+=`<div class="sec"><div class="lbl">When to reach out</div><p>${c.when}</p></div>`;}
   if(c.reach){h+=`<div class="sec"><div class="lbl">How to reach them</div><div class="reach">${c.reach.map(r=>`<div><b>${r.k}:</b> ${r.v}</div>`).join('')}</div></div>`;}
+  if(c.approvals){h+=`<div class="sec"><div class="lbl">Approvals owned</div>${c.approvals.map(a=>`<div class="appr"><div class="appr-t">${a.title}</div><div class="appr-w"><b>Who:</b> ${a.who}</div>${a.provide?`<div class="appr-p"><b>Provide:</b> ${a.provide}</div>`:''}${a.note?`<div class="appr-n">${a.note}</div>`:''}</div>`).join('')}</div>`;}
   if(c.callout){h+=`<div class="sec"><div class="callout">${c.callout}</div></div>`;}
   if(c.escalation){h+=`<div class="sec"><div class="lbl">Escalation contacts (leadership)</div><p>${c.escalation}</p></div>`;}
+  if(c.partner){h+=`<div class="sec"><div class="lbl">Finance partner support (external)</div><div class="reach">${c.partner.map(p=>`<div><b>${p.k}:</b> ${p.v}</div>`).join('')}</div></div>`;}
   const dn=kids(id).filter(k=>!N[k].more&&!N[k].group);
   if(dn.length){h+=`<div class="sec"><div class="lbl">Direct reports (${dn.length})</div><p>${dn.map(k=>N[k].n).join(' · ')}</p></div>`;}
   if(!c.does&&!c.when&&!c.reach){h=`<div class="sec"><p class="note">Scope and contact channel for this team are still to confirm.</p></div>`+h;}
