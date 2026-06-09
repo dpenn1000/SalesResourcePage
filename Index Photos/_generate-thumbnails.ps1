@@ -93,10 +93,9 @@ $cards = @(
  @('rate-escalator','solar','SOLAR','The Rate','Escalator','The cost of doing nothing',''),
  @('system-design-and-codes','syscodes','SYSTEM & CODES','System Design','& Codes','Design rules, setbacks, the tester','roof'),
  @('electrical-upgrades','syscodes','SYSTEM & CODES','Electrical','Upgrades','What to expect, how to advocate','circuit'),
- @('goodleap-portal','solar','SOLAR FINANCING','GoodLeap','Portal','Submit and track loans',''),
- @('sunlight-portal','solar','SOLAR FINANCING','Sunlight','Portal','Submit and track loans',''),
- @('service-finance-portal','solar','SOLAR FINANCING','Service','Finance','Submit and track loans',''),
- @('palmetto-lightreach','solar','SOLAR FINANCING','Palmetto','LightReach','PPA and lease deals',''),
+ # Financing portals use their real lender LOGOS (not generated). Do NOT re-add here
+ # or a generator run will clobber them. service-finance-portal-thumbnail.svg is a
+ # hand-built white logo card; goodleap/sunlight/palmetto point at storage logos.
  @('roofing-objections','roofing','ROOFING','Roofing','Objections','Study / Drill / Quiz',''),
  @('price-conditioning','roofing','ROOFING','Price','Conditioning','Frame the roof investment',''),
  @('iko-roofing','roofing','ROOFING','IKO Roofing','One Pager','Shingles, specs, and the pitch',''),
