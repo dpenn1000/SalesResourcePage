@@ -545,7 +545,6 @@
       <button class="page-tab"        onclick="switchTab('updates')">Updates</button>
       <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
       <button class="page-tab"        onclick="switchTab('users')">People</button>
-      <button class="page-tab" id="gridEdgeTab" style="display:none" onclick="switchTab('gridedge')">Grid Edge</button>
     </div>
   </div>
 
@@ -1315,8 +1314,6 @@ window.initApp = function (profile, session) {
   if (window.IS_ADMIN) {
     const adminSec = document.getElementById('adminToolsSection');
     if (adminSec) adminSec.style.display = '';
-    const geTab = document.getElementById('gridEdgeTab');
-    if (geTab) geTab.style.display = '';
     const launcherLink = document.getElementById('settingsLauncher');
     if (launcherLink) launcherLink.style.display = '';
   }
@@ -2177,7 +2174,7 @@ document.getElementById('bulkModal').addEventListener('click', e => {
 });
 
 function switchTab(tab) {
-  const order = ['tools', 'resources', 'updates', 'feedback', 'users', 'gridedge'];
+  const order = ['tools', 'resources', 'updates', 'feedback', 'users'];
   document.querySelectorAll('.page-tab').forEach((t, i) =>
     t.classList.toggle('active', order[i] === tab));
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
