@@ -365,6 +365,9 @@ table.data tbody tr:hover { background: #F5F7F0; }
     </button>
     <button data-tab="reps" onclick="setTab('reps')">Reps</button>
     <button data-tab="assignments" onclick="setTab('assignments')">Assignments</button>
+    <button data-tab="training" onclick="setTab('training')">
+      Training Program <span class="count" id="training-count" style="display:none;">0</span>
+    </button>
     <button data-tab="shadows" onclick="setTab('shadows')">Shadow Logs</button>
     <button data-tab="managers" onclick="setTab('managers')">Managers</button>
     <button data-tab="help" onclick="setTab('help')">Help Requests</button>
@@ -516,6 +519,84 @@ table.data tbody tr:hover { background: #F5F7F0; }
       <div id="help-list"></div>
     </div>
 
+    <!-- TRAINING PROGRAM -->
+    <div id="view-training" class="view">
+      <h2>Training Program</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        The living program. Weekly recommendations to action, a log of what you've trained, and a rolodex of every training with when it last ran and who was there.
+      </p>
+
+      <!-- Recommendations -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3>Recommendations</h3>
+            <p>Clear signals from this week's appointments and performance. Approve to act, dismiss to clear.</p>
+          </div>
+        </div>
+        <div id="training-recs"></div>
+      </div>
+
+      <!-- Log a session -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3>Log a session</h3>
+            <p>Record a training you ran. This is the source of truth for who was present and when.</p>
+          </div>
+        </div>
+        <form onsubmit="logSession(event)">
+          <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap: var(--s-3); align-items: end;">
+            <div class="form-group" style="margin:0;">
+              <label>Title</label>
+              <input type="text" id="ts-title" required placeholder="e.g., Title Work walkthrough">
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Date</label>
+              <input type="date" id="ts-date" required>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Format</label>
+              <select id="ts-format">
+                <option value="in_person">In person</option>
+                <option value="virtual">Virtual</option>
+                <option value="self_serve">Self-serve</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: var(--s-3);">
+            <label>Training resource <span style="color: var(--text-subtle); font-weight: 400;">(optional -- links the session to a page)</span></label>
+            <select id="ts-resource"><option value="">-- none / ad-hoc topic --</option></select>
+          </div>
+          <div class="form-group" style="margin-top: var(--s-3);">
+            <label>Who was present</label>
+            <div id="ts-attendees" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px; max-height: 220px; overflow:auto; border:1px solid var(--hairline); border-radius: var(--r-sm); padding: var(--s-3);"></div>
+            <div style="margin-top:6px;">
+              <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllAttendees(true)">Select all</button>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="toggleAllAttendees(false)">Clear</button>
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: var(--s-3);">
+            <label>Notes <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+            <textarea id="ts-notes" rows="2" placeholder="What was covered, who led, follow-ups."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Log session</button>
+          <span id="ts-msg" style="margin-left: var(--s-3);"></span>
+        </form>
+      </div>
+
+      <!-- Rolodex -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3>Rolodex</h3>
+            <p>Every training: when it last ran, how many times, and who was at the most recent session. Never-trained decks float to the top.</p>
+          </div>
+        </div>
+        <div id="training-rolodex"></div>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -545,6 +626,10 @@ let state = {
   pendingAttempts: [], // with rep + cert joined
   shadows: [],
   help: [],
+  resources: [],
+  trainingEvents: [],
+  attendance: [],
+  trainingRecs: [],
   activeTab: 'queue',
   shadowFilter: 'all',
   helpFilter: 'all',
@@ -590,10 +675,12 @@ window.initApp = async function (profile, session) {
   renderAssignments();
   renderShadows();
   renderHelp();
+  renderTraining();
 };
 
 async function loadAll() {
-  const [repsRes, mgrsRes, certsRes, assignsRes, attemptsRes, shadowsRes, helpRes] = await Promise.all([
+  const [repsRes, mgrsRes, certsRes, assignsRes, attemptsRes, shadowsRes, helpRes,
+         resourcesRes, eventsRes, attendanceRes, recsRes] = await Promise.all([
     supa.from('people').select('*').eq('role','rep').eq('status','active').order('created_at', { ascending: false }),
     supa.from('people').select('*').eq('role','manager').eq('status','active').order('created_at', { ascending: false }),
     supa.from('certs').select('*').order('order_index'),
@@ -601,6 +688,10 @@ async function loadAll() {
     supa.from('quiz_attempts').select('*').order('started_at', { ascending: false }),
     supa.from('shadow_logs').select('*').order('shadow_date', { ascending: false }),
     supa.from('help_requests').select('*').order('created_at', { ascending: false }),
+    supa.from('resources').select('id,name,category,subcategory,type,url').eq('active', true).order('category'),
+    supa.from('training_events').select('*').order('occurred_on', { ascending: false }),
+    supa.from('training_attendance').select('*'),
+    supa.from('training_recommendations').select('*').eq('status', 'open').order('priority'),
   ]);
   // Alias people.parent_id -> manager_id / parent_manager_id so existing
   // renderers that reference those field names keep working unchanged.
@@ -612,6 +703,14 @@ async function loadAll() {
   state.pendingAttempts = state.allAttempts.filter(a => a.status === 'pending_review');
   state.shadows = shadowsRes.data || [];
   state.help = helpRes.data || [];
+  state.resources = resourcesRes.data || [];
+  state.trainingEvents = eventsRes.data || [];
+  state.attendance = attendanceRes.data || [];
+  state.trainingRecs = recsRes.data || [];
+
+  const trainingBadge = document.getElementById('training-count');
+  trainingBadge.textContent = state.trainingRecs.length;
+  trainingBadge.style.display = state.trainingRecs.length > 0 ? 'inline-block' : 'none';
 
   const total = state.pendingAttempts.length +
                 state.shadows.filter(s => s.status === 'pending').length +
@@ -628,6 +727,7 @@ function setTab(tab) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('view-' + tab).classList.add('active');
   if (tab === 'dashboard') renderDashboard();
+  if (tab === 'training') renderTraining();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1420,6 +1520,201 @@ async function bulkAssign(repId, stage) {
   await loadAll();
   renderAssignments();
   renderReps();
+}
+
+// ===================== TRAINING PROGRAM =====================
+const TRAINING_TYPES = ['Training Deck', 'Field Guide', 'Assessment'];
+const PRI_RANK = { high: 0, medium: 1, low: 2 };
+
+function _personName(id) {
+  const p = (state.reps || []).find(r => r.id === id)
+         || (state.managers || []).find(m => m.id === id);
+  return p ? p.name : '(unknown)';
+}
+function _resourceById(id) {
+  return (state.resources || []).find(r => r.id === id) || null;
+}
+
+function renderTraining() {
+  renderTrainingRecs();
+  populateLogForm();
+  renderRolodex();
+}
+
+function renderTrainingRecs() {
+  const el = document.getElementById('training-recs');
+  if (!el) return;
+  const recs = (state.trainingRecs || []).slice()
+    .sort((a, b) => (a.scope === b.scope ? 0 : a.scope === 'cohort' ? -1 : 1)
+                  || (PRI_RANK[a.priority] - PRI_RANK[b.priority]));
+  if (!recs.length) { el.innerHTML = `<div class="empty">No open recommendations. The weekly parser will surface new ones.</div>`; return; }
+
+  el.innerHTML = recs.map(r => {
+    const res = r.resource_id ? _resourceById(r.resource_id) : null;
+    const target = res ? `<a href="${escapeHtml(res.url)}" target="_blank" rel="noopener">${escapeHtml(res.name)}</a>`
+                       : escapeHtml(r.topic_tag || r.signal_type);
+    const who = r.scope === 'cohort' ? 'Team-wide' : escapeHtml(_personName(r.person_id));
+    const priColor = r.priority === 'high' ? 'var(--accent-rose, #d9534f)'
+                   : r.priority === 'medium' ? 'var(--accent-amber, #c98a00)' : 'var(--text-subtle)';
+    const ev = r.evidence && Object.keys(r.evidence).length
+      ? `<div style="font-size:0.75rem; color: var(--text-subtle); margin-top:4px;">${escapeHtml(JSON.stringify(r.evidence))}</div>` : '';
+    return `
+      <div style="padding: var(--s-3); border:1px solid var(--hairline); border-radius: var(--r-sm); margin-bottom: var(--s-3);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: var(--s-3);">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:${priColor};">${escapeHtml(r.priority)}</span>
+              <span style="font-size:0.75rem; color: var(--text-subtle); text-transform:uppercase; letter-spacing:0.06em;">${who} · ${escapeHtml(r.signal_type)}</span>
+            </div>
+            <div style="margin-top:4px;">${escapeHtml(r.suggested_action || '')}</div>
+            <div style="font-size:0.8125rem; margin-top:4px;">Training: ${target}</div>
+            ${ev}
+          </div>
+          <div style="display:flex; gap:6px; flex-shrink:0;">
+            <button class="btn btn-primary btn-sm" onclick="actOnRec('${r.id}','approve')">Approve</button>
+            <button class="btn btn-ghost btn-sm" onclick="actOnRec('${r.id}','dismiss')">Dismiss</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function populateLogForm() {
+  // resource dropdown
+  const sel = document.getElementById('ts-resource');
+  if (sel && sel.options.length <= 1) {
+    (state.resources || []).slice()
+      .sort((a, b) => (a.category || '').localeCompare(b.category || '') || (a.name || '').localeCompare(b.name || ''))
+      .forEach(r => {
+        const o = document.createElement('option');
+        o.value = r.id;
+        o.textContent = `${r.category} · ${r.name}`;
+        sel.appendChild(o);
+      });
+  }
+  // default date = today
+  const d = document.getElementById('ts-date');
+  if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
+  // attendee checkboxes
+  const box = document.getElementById('ts-attendees');
+  if (box && !box.children.length) {
+    box.innerHTML = (state.reps || []).map(r =>
+      `<label style="display:flex; align-items:center; gap:6px; font-size:0.875rem; cursor:pointer;">
+         <input type="checkbox" class="ts-att" value="${r.id}"> ${escapeHtml(r.name)}
+       </label>`).join('') || `<span class="empty">No active reps.</span>`;
+  }
+}
+
+function toggleAllAttendees(on) {
+  document.querySelectorAll('#ts-attendees .ts-att').forEach(c => { c.checked = on; });
+}
+
+async function logSession(e) {
+  e.preventDefault();
+  const msg = document.getElementById('ts-msg');
+  const attendees = [...document.querySelectorAll('#ts-attendees .ts-att:checked')].map(c => c.value);
+  const payload = {
+    title: document.getElementById('ts-title').value.trim(),
+    occurred_on: document.getElementById('ts-date').value,
+    format: document.getElementById('ts-format').value,
+    resource_id: document.getElementById('ts-resource').value || null,
+    notes: document.getElementById('ts-notes').value.trim() || null,
+    attendees,
+  };
+  if (!payload.title || !payload.occurred_on) { msg.textContent = 'Title and date are required.'; return; }
+  msg.textContent = 'Saving...';
+  const { error } = await supa.rpc('log_training_event', { payload });
+  if (error) { msg.textContent = 'Error: ' + error.message; return; }
+  msg.textContent = 'Logged.';
+  e.target.reset();
+  document.getElementById('ts-attendees').innerHTML = '';
+  await loadAll();
+  renderTraining();
+}
+
+async function actOnRec(id, action) {
+  const { error } = await supa.rpc('act_on_training_recommendation', { p_rec_id: id, p_action: action });
+  if (error) { alert(error.message); return; }
+  await loadAll();
+  renderTraining();
+  renderAssignments();
+}
+
+function prefillLog(resourceId) {
+  const sel = document.getElementById('ts-resource');
+  if (sel) sel.value = resourceId || '';
+  const res = resourceId ? _resourceById(resourceId) : null;
+  const t = document.getElementById('ts-title');
+  if (t && res && !t.value) t.value = res.name;
+  document.querySelector('#view-training form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function renderRolodex() {
+  const el = document.getElementById('training-rolodex');
+  if (!el) return;
+  const events = state.trainingEvents || [];
+  const attByEvent = {};
+  (state.attendance || []).forEach(a => { (attByEvent[a.event_id] ||= []).push(a.person_id); });
+  const eventsByRes = {};
+  const adhoc = [];
+  events.forEach(ev => {
+    if (ev.resource_id) (eventsByRes[ev.resource_id] ||= []).push(ev);
+    else adhoc.push(ev);
+  });
+
+  // rows for catalogued trainings
+  const rows = (state.resources || [])
+    .filter(r => TRAINING_TYPES.includes(r.type) || eventsByRes[r.id])
+    .map(r => {
+      const evs = (eventsByRes[r.id] || []).slice().sort((a, b) => (b.occurred_on || '').localeCompare(a.occurred_on || ''));
+      const last = evs[0];
+      const attendees = last ? (attByEvent[last.id] || []).map(_personName) : [];
+      return {
+        key: r.id, name: r.name, category: r.category, url: r.url,
+        count: evs.length, last: last ? last.occurred_on : null, attendees,
+        logArg: `prefillLog('${r.id}')`,
+      };
+    });
+  // ad-hoc topics (no catalogue link)
+  const adhocByTitle = {};
+  adhoc.forEach(ev => { (adhocByTitle[ev.title] ||= []).push(ev); });
+  Object.entries(adhocByTitle).forEach(([title, evs]) => {
+    evs.sort((a, b) => (b.occurred_on || '').localeCompare(a.occurred_on || ''));
+    const last = evs[0];
+    rows.push({
+      key: 'adhoc:' + title, name: title + ' (ad-hoc)', category: '--', url: null,
+      count: evs.length, last: last.occurred_on, attendees: (attByEvent[last.id] || []).map(_personName),
+      logArg: `prefillLog('')`,
+    });
+  });
+
+  // never-trained training decks first, then most-recently trained
+  rows.sort((a, b) => {
+    if (!a.last && b.last) return -1;
+    if (a.last && !b.last) return 1;
+    if (!a.last && !b.last) return a.name.localeCompare(b.name);
+    return b.last.localeCompare(a.last);
+  });
+
+  if (!rows.length) { el.innerHTML = `<div class="empty">No trainings catalogued yet.</div>`; return; }
+
+  el.innerHTML = `
+    <table class="data">
+      <thead><tr>
+        <th>Training</th><th>Category</th><th>Last trained</th><th>Times</th><th>Last session present</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(r => `
+          <tr>
+            <td>${r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${escapeHtml(r.name)}</a>` : escapeHtml(r.name)}</td>
+            <td style="color: var(--text-muted);">${escapeHtml(r.category)}</td>
+            <td>${r.last ? formatDate(r.last) : '<span style="color: var(--accent-rose, #d9534f); font-weight:600;">Never</span>'}</td>
+            <td>${r.count}</td>
+            <td style="font-size:0.8125rem; color: var(--text-muted);">${r.attendees.length ? escapeHtml(r.attendees.join(', ')) : '--'}</td>
+            <td><button class="btn btn-ghost btn-sm" onclick="${r.logArg}">Log</button></td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
 }
 
 // ===================== MODAL =====================
