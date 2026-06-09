@@ -52,6 +52,8 @@ header.bar .tag{font-size:11px;color:#9FB3C8;font-weight:700;letter-spacing:.14e
 .fhead{font-size:24px;font-weight:800;color:var(--ink);font-family:'Fraunces',Georgia,serif}
 .fnote{font-size:12.5px;color:var(--muted);margin:7px 0 20px;max-width:720px;line-height:1.55}
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:12px}
+.fgroup{margin-bottom:22px}
+.fglabel{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);opacity:.55;margin:0 0 11px;padding-bottom:6px;border-bottom:1px solid var(--line)}
 .fcard{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--accent,#999);border-radius:10px;padding:11px 13px;box-shadow:0 1px 3px rgba(16,32,56,.07)}
 .frole{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--accent,#555)}
 .fname{font-size:14px;font-weight:700;color:var(--ink);margin-top:3px;line-height:1.28}
@@ -437,15 +439,20 @@ const DEPTS=[
 
 const TERRLABEL={CT:'Connecticut',NJ:'New Jersey','NY-LI':'NY — Long Island','NY-LH':'NY — Lower Hudson','MA-W':'Massachusetts — West (Holyoke)','MA-E':'Massachusetts — East (Wareham)',MD:'Maryland',PA:'Pennsylvania',FL:'Florida'};
 const ROLEMETA=[
-  {k:'OM',label:'Operation Manager',desc:'Main contact for escalations',d:'green'},
-  {k:'PC',label:'PC Team Lead',desc:'PC items / missing docs',d:'teal'},
-  {k:'IRS',label:'IRS Team Lead',desc:'Installation scheduling',d:'blue'},
-  {k:'IM',label:'Install Manager',desc:'Install completions',d:'violet'},
-  {k:'PI',label:'Post Installation',desc:'Post-install completions',d:'amber'},
-  {k:'APP',label:'Applications',desc:'Permitting / interconnection',d:'rose'},
-  {k:'STR',label:'Structural',desc:'Structural inquiries',d:'rsa'},
+  {k:'RVP',label:'Regional VP',desc:'Leads the region — top of field ops',d:'green'},
+  {k:'OM',label:'Operation Manager',desc:'Runs the territory · main escalation contact',d:'green'},
+  {k:'PC',label:'PC Team Lead',desc:'Project coordination · docs / missing docs',d:'blue'},
+  {k:'APP',label:'Applications',desc:'Permitting / interconnection',d:'blue'},
+  {k:'IRS',label:'IRS Team Lead',desc:'Install readiness · scheduling',d:'blue'},
+  {k:'IM',label:'Install Manager',desc:'Install completions',d:'blue'},
+  {k:'PI',label:'Post Installation',desc:'Post-install completions · inspections / PTO',d:'blue'},
+  {k:'STR',label:'Structural',desc:'Structural inquiries',d:'grey'},
   {k:'ELE',label:'Electrical',desc:'Electrical inquiries',d:'grey'},
-  {k:'RVP',label:'Regional VP',desc:'Regional leadership',d:'green'},
+];
+const ROLEGROUPS=[
+  {grp:'Leadership',roles:['RVP','OM']},
+  {grp:'Install pipeline (the order a job moves)',roles:['PC','APP','IRS','IM','PI']},
+  {grp:'Engineering & technical',roles:['STR','ELE']},
 ];
 const FIELD={
   'CT':{OM:'Allison Perruccio',PC:'Kristen Russo',IRS:'McKenzie Lyons',IM:'Edwin Torres',PI:'Stephanie Bouchard',STR:'Jesse Brown',ELE:'Matthew Tomcheski',RVP:'Rich Pypec'},
@@ -521,11 +528,15 @@ function showField(terr){
   document.querySelectorAll('.rail button').forEach(b=>b.classList.toggle('active',b.dataset.k===terr));
   const f=FIELD[terr]||{};
   document.getElementById('crumb').innerHTML=`<a onclick="focusNode('rj')">Trinity</a> <span class="sep">›</span> <span>Field Operations</span> <span class="sep">›</span> <b>${TERRLABEL[terr]}</b>`;
-  const cards=ROLEMETA.map(r=>{const nm=f[r.k]; if(!nm)return ''; const ac=accent(r.d);
-    return `<div class="fcard" style="--accent:${ac}"><div class="frole">${r.label}</div><div class="fname">${nm}</div><div class="fdesc">${r.desc}</div></div>`;}).join('');
+  const meta=k=>ROLEMETA.find(x=>x.k===k);
+  const groupsHTML=ROLEGROUPS.map(g=>{
+    const cards=g.roles.map(rk=>{const r=meta(rk),nm=f[rk]; if(!r||!nm)return ''; const ac=accent(r.d);
+      return `<div class="fcard" style="--accent:${ac}"><div class="frole">${r.label}</div><div class="fname">${nm}</div><div class="fdesc">${r.desc}</div></div>`;}).join('');
+    return cards.trim()?`<div class="fgroup"><div class="fglabel">${g.grp}</div><div class="fgrid">${cards}</div></div>`:'';
+  }).join('');
   document.getElementById('tree').innerHTML=`<div class="fieldwrap"><div class="fhead">${TERRLABEL[terr]}</div>`
-    +`<div class="fnote">The install / field-operations org for this territory &mdash; who a rep works with after the sale. This is a separate org from the corporate Sales Ops chart; sourced from the Master Sales Ops Reference. The Operation Manager is the main escalation contact.</div>`
-    +`<div class="fgrid">${cards}</div></div>`;
+    +`<div class="fnote">The install / field-operations org for this territory &mdash; who a rep works with after the sale. A separate org from the corporate Sales Ops chart (sourced from the Master Sales Ops Reference). The <b>Regional VP</b> leads the region; the <b>Operation Manager</b> runs the territory and is the main escalation contact. Pipeline roles are listed in the order a job moves.</div>`
+    +groupsHTML+`</div>`;
   closeDrawer();document.querySelector('.main').scrollTop=0;
 }
 
