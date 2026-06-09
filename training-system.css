@@ -170,12 +170,17 @@ body.presenter h2{font-size:3rem}
 body.presenter .module .intro{font-size:1.4rem}
 body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
 body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
-/* Compact dense tables in Presenter so a long bill fits one slide */
-body.presenter .doc-table{font-size:.92rem}
-body.presenter .doc-table th{padding:5px 14px}
-body.presenter .doc-table td{padding:3px 14px}
-body.presenter .doc-table tr.indent td:first-child{padding-left:24px}
 body.presenter .module .intro{font-size:1.25rem;margin-bottom:var(--space-3)}
+/* Long-table slides tighten further so a full bill fits one screen in Presenter.
+   Scoped via :has() so only modules built around a data table compact down;
+   verified live (Eversource + UI bills fit a ~700px laptop slide). */
+body.presenter .module:has(.doc-table) h2{font-size:2rem}
+body.presenter .module:has(.doc-table) .intro{font-size:1.05rem;margin-bottom:10px}
+body.presenter .module:has(.doc-table) .doc-table{font-size:.78rem}
+body.presenter .module:has(.doc-table) .doc-table th{padding:3px 12px}
+body.presenter .module:has(.doc-table) .doc-table td{padding:1px 12px}
+body.presenter .module:has(.doc-table) .doc-table tr.indent td:first-child{padding-left:22px}
+body.presenter .module:has(.doc-table) .callout{font-size:.95rem;padding:8px 14px;margin-top:10px}
 
 /* ============================================================
    MOBILE  (close-up; relax the deck to normal scroll)
