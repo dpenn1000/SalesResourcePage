@@ -594,8 +594,8 @@ window.initApp = async function (profile, session) {
 
 async function loadAll() {
   const [repsRes, mgrsRes, certsRes, assignsRes, attemptsRes, shadowsRes, helpRes] = await Promise.all([
-    supa.from('people').select('*').eq('role','rep').order('created_at', { ascending: false }),
-    supa.from('people').select('*').eq('role','manager').order('created_at', { ascending: false }),
+    supa.from('people').select('*').eq('role','rep').eq('status','active').order('created_at', { ascending: false }),
+    supa.from('people').select('*').eq('role','manager').eq('status','active').order('created_at', { ascending: false }),
     supa.from('certs').select('*').order('order_index'),
     supa.from('cert_assignments').select('*'),
     supa.from('quiz_attempts').select('*').order('started_at', { ascending: false }),

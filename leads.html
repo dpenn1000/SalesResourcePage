@@ -496,9 +496,10 @@ async function initApp(){
     catch(e1){document.getElementById('tableWrap').innerHTML='<div class="empty">Error loading leads: '+esc(e1.message)+'</div>';return;}
     const [{ data: cl }, { data: peopleRows }] = await Promise.all([
       sb.from('contact_log').select('id,opportunity_id,opp_name,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source,logged_by'),
-      // Stage D: source the dispatch picker from `people` (the unified rep+manager
-      // table), active only. One query, survives Stage E dropping reps/managers.
-      sb.from('people').select('name').eq('status','active').order('name'),
+      // Stage D: source the dispatch picker from `people`, active reps only.
+      // Managers are not dispatch targets -- call-list leads are assigned to reps,
+      // and this list also feeds the rep filter + manual-add assign + per-row picker.
+      sb.from('people').select('name').eq('status','active').eq('role','rep').order('name'),
     ]);
     contacts = cl || [];
     // Dedupe defensively in case two people share a display name.
