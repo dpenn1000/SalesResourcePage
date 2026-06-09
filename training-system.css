@@ -181,6 +181,12 @@ body.presenter .module:has(.doc-table) .doc-table th{padding:3px 12px}
 body.presenter .module:has(.doc-table) .doc-table td{padding:1px 12px}
 body.presenter .module:has(.doc-table) .doc-table tr.indent td:first-child{padding-left:22px}
 body.presenter .module:has(.doc-table) .callout{font-size:.95rem;padding:8px 14px;margin-top:10px}
+/* Chart/canvas slides: in Presenter, drop the title chrome and top-align so the
+   visualization fills the screen instead of being pushed below a big heading. */
+body.presenter .module:has(canvas){justify-content:flex-start;min-height:auto;padding-top:var(--space-3)}
+body.presenter .module:has(canvas) .eyebrow,
+body.presenter .module:has(canvas) .intro{display:none}
+body.presenter .module:has(canvas) h2{font-size:1.4rem;margin-bottom:var(--space-2)}
 
 /* ============================================================
    MOBILE  (close-up; relax the deck to normal scroll)
