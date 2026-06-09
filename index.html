@@ -672,8 +672,7 @@
     </div>
     <div class="header-date" id="headerDate"></div>
     <a id="repToolLink" href="#" style="display:none;padding:7px 14px;background:rgba(41,169,225,0.16);border:1px solid rgba(41,169,225,0.34);border-radius:7px;color:rgba(255,255,255,0.88);font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(41,169,225,0.26)'" onmouseout="this.style.background='rgba(41,169,225,0.16)'"></a>
-    <a href="https://ct-resource-page.com/leads.html" style="padding:7px 14px;background:rgba(120,200,50,0.14);border:1px solid rgba(120,200,50,0.3);border-radius:7px;color:rgba(255,255,255,0.7);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(120,200,50,0.22)'" onmouseout="this.style.background='rgba(120,200,50,0.14)'">Lead Manager</a>
-    <a href="https://ct-resource-page.com/admin.html" style="padding:7px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:rgba(255,255,255,0.55);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.14)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">Admin</a>
+    <a class="mgr-only" href="https://ct-resource-page.com/admin.html" style="display:none;padding:7px 14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:7px;color:rgba(255,255,255,0.55);font-size:12px;font-weight:600;text-decoration:none;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.14)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">Admin</a>
     <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="openMobileDrawer()" aria-label="Open menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
         <line x1="4" y1="7"  x2="20" y2="7"></line>
@@ -706,10 +705,7 @@
     </div>
     <div class="mobile-drawer-section">
       <div class="mobile-drawer-label">Tools</div>
-      <a class="mobile-drawer-btn" href="https://ct-resource-page.com/leads.html" onclick="closeMobileDrawer()">
-        <span class="mbtn-emoji">&#128203;</span> Lead Manager
-      </a>
-      <a class="mobile-drawer-btn" href="https://ct-resource-page.com/admin.html" onclick="closeMobileDrawer()">
+      <a class="mobile-drawer-btn mgr-only" href="https://ct-resource-page.com/admin.html" onclick="closeMobileDrawer()" style="display:none">
         <span class="mbtn-emoji">&#9881;&#65039;</span> Admin
       </a>
       <a class="mobile-drawer-btn" id="drawerRepToolLink" href="#" onclick="closeMobileDrawer()" style="display:none">
@@ -802,8 +798,8 @@
 
 <footer>
   CT Traditional Sales Resource Center &nbsp;&middot;&nbsp;
-  <span id="footerYear"></span> &nbsp;&middot;&nbsp;
-  <a href="https://ct-resource-page.com/admin.html">Admin</a>
+  <span id="footerYear"></span><span class="mgr-only" style="display:none">&nbsp;&middot;&nbsp;
+  <a href="https://ct-resource-page.com/admin.html">Admin</a></span>
 </footer>
 
 <div id="toast"></div>
