@@ -758,6 +758,15 @@ function exportJPG() {
   a.click();
 }
 
+// In Presenter Mode, flatten the chart (wider, shorter) so the whole graph fits
+// one slide under the compact header. Runs after training-system.js toggles the
+// body class (setTimeout defers past the synchronous class toggle).
+const _presentBtn = document.getElementById('presentBtn');
+if (_presentBtn) _presentBtn.addEventListener('click', () => setTimeout(() => {
+  chart.options.aspectRatio = document.body.classList.contains('presenter') ? 3.4 : 2.4;
+  chart.resize();
+}, 0));
+
 // auth-gate calls this once the gate opens; training-system.js will not override
 // it since it is already defined. Reset scroll, refresh the deck, and resize the
 // chart now that its container is visible.
