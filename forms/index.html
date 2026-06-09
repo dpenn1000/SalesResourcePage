@@ -126,6 +126,26 @@
         </a>
 
       </div>
+
+      <h2 style="font-size:1.15rem;margin:30px 0 4px">Company Documents</h2>
+      <p class="lead" style="margin-bottom:14px">Reference PDFs to send to customers, towns, and AHJs. Served privately to signed-in managers.</p>
+      <div class="form-grid">
+
+        <a class="form-card" id="doc-w9" href="#" target="_blank" rel="noopener" onclick="if(this.getAttribute('href')==='#'){event.preventDefault();}">
+          <div class="icon">&#128196;</div>
+          <div class="ttl">Trinity Solar W-9 (2026)</div>
+          <div class="desc">Trinity Solar LLC's signed W-9. Send to customers or towns that need it on file for payment or records.</div>
+          <div class="cta" id="cta-w9">Download PDF <span class="arr">&rarr;</span></div>
+        </a>
+
+        <a class="form-card" id="doc-coi" href="#" target="_blank" rel="noopener" onclick="if(this.getAttribute('href')==='#'){event.preventDefault();}">
+          <div class="icon">&#128737;</div>
+          <div class="ttl">Certificate of Insurance (26&ndash;27)</div>
+          <div class="desc">Evidence of Insurance &mdash; Trinity Solar LLC master COI, all states. For AHJs, towns, and customers requesting proof of coverage.</div>
+          <div class="cta" id="cta-coi">Download PDF <span class="arr">&rarr;</span></div>
+        </a>
+
+      </div>
     </div>
   </main>
 </div><!-- /#appWrap -->
@@ -140,7 +160,21 @@ window.initApp = function (profile) {
     return;
   }
   document.getElementById('formsBody').style.display = 'block';
+  // Company documents live in the PRIVATE 'manager-forms' bucket. Mint short-lived
+  // signed URLs so only a signed-in manager can download them (RLS: is_manager()).
+  signDoc('doc-w9',  'cta-w9',  'trinity-solar-w9-2026.pdf');
+  signDoc('doc-coi', 'cta-coi', 'trinity-solar-coi-2026-27.pdf');
 };
+async function signDoc(linkId, ctaId, path) {
+  const a = document.getElementById(linkId), cta = document.getElementById(ctaId);
+  try {
+    const { data, error } = await window.sb.storage.from('manager-forms').createSignedUrl(path, 3600);
+    if (error || !data || !data.signedUrl) throw (error || new Error('no url'));
+    a.setAttribute('href', data.signedUrl);
+  } catch (e) {
+    if (cta) cta.innerHTML = 'Unavailable &mdash; contact Dan';
+  }
+}
 </script>
 
 </body>
