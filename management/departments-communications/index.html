@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Departments & Communications &middot; Trinity Solar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Trinity Departments & Communications -- shared design system
+   Theme swap = edit tokens only. Follows TRAINING-AUTHORING-STANDARD.md.
+   ============================================================ */
+:root{
+  --green:#5FA520; --green-bright:#78C832; --blue:#1E8BBC; --blue-bright:#29A9E1;
+  --teal:#1F9488; --amber:#DC9B3C; --violet:#6A5BD0; --grey:#8A93A0; --rsa:#1E508C; --rose:#C2456A;
+  --ink:#0F2038; --ink-deep:#08142A; --text:#1A1F2E; --muted:#5B6576;
+  --surface:#F7F8F4; --warm:#FAFBF7; --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --shadow:0 1px 3px rgba(15,32,56,.07); --shadow-h:0 10px 28px rgba(15,32,56,.12);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:104px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:17px;line-height:1.5;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;color:var(--ink);line-height:1.08}
+h1{font-size:clamp(2.2rem,4.6vw,3.4rem)}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem)}
+h3{font-size:1.18rem;font-weight:700}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--green);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+.lbl{font-size:.66rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--grey);margin-bottom:var(--space-1)}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:.64rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:3px 10px;border-radius:999px;vertical-align:middle}
+.badge--ok{background:#EDFAD6;color:#3c7a0e;border:1px solid #c8ef9f}
+.badge--wip{background:#FFF3D8;color:#9a6b00;border:1px solid #f0d488}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:11px 0;border-bottom:3px solid var(--green-bright)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px}
+.brand-logo{height:34px;width:auto;display:block}
+.brand-div{width:1px;height:26px;background:rgba(255,255,255,.22)}
+.brand-lab{font-size:11px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+.head-actions{display:flex;align-items:center;gap:9px}
+.hbtn{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 15px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+.hbtn:hover{background:var(--green-bright);border-color:var(--green-bright);color:#06210a}
+.hbtn--pdf:hover{background:var(--blue-bright);border-color:var(--blue-bright);color:#04222e}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.8rem;font-weight:700;color:var(--muted);text-decoration:none;padding:11px 13px;border-bottom:3px solid transparent;white-space:nowrap}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--green-bright)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h);padding:var(--space-4) 0}
+.hero .eyebrow{color:var(--green-bright)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero .lede{font-size:1.25rem;line-height:1.5;color:rgba(255,255,255,.82);max-width:62ch;margin-bottom:var(--space-4)}
+.hero .lede strong{color:#fff}
+.quickbar{display:flex;flex-wrap:wrap;gap:12px}
+.qpill{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:12px 16px;min-width:215px}
+.qpill .qic{font-size:18px}
+.qpill .qlab{font-size:.6rem;text-transform:uppercase;letter-spacing:.11em;color:rgba(255,255,255,.5);font-weight:800}
+.qpill .qval{font-size:.95rem;font-weight:700}
+.qpill .qval small{display:block;font-weight:500;color:rgba(255,255,255,.55);font-size:.78rem}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-5) 0;border-bottom:1px solid var(--line)}
+.module:nth-of-type(even){background:var(--warm)}
+.module .intro{color:var(--muted);font-size:1.1rem;max-width:80ch;margin:var(--space-2) 0 var(--space-4)}
+.sec-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.sec-head .num{font-family:var(--serif);font-weight:700;font-size:.95rem;color:var(--green);background:#EDFAD6;border:1px solid #c8ef9f;border-radius:8px;padding:2px 10px}
+
+/* ORG NODES */
+.org-apex{display:flex;justify-content:center}
+.node{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:14px 16px;text-align:center;min-width:210px;--accent:var(--ink)}
+.node--boss{border-color:var(--ink)}
+.node--green{--accent:var(--green)} .node--teal{--accent:var(--teal)} .node--blue{--accent:var(--blue)} .node--grey{--accent:var(--grey)} .node--violet{--accent:var(--violet)} .node--rsa{--accent:var(--rsa)} .node--amber{--accent:var(--amber)}
+.node .av{width:46px;height:46px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;background:var(--accent)}
+.node .nm{font-weight:800;font-size:.95rem}
+.node .ti{font-size:.78rem;color:var(--muted);margin-top:2px}
+.node .own{font-size:.72rem;color:var(--green);margin-top:6px;font-weight:700}
+.org-stem{width:2px;height:22px;background:var(--line);margin:0 auto}
+.org-rail{height:2px;background:var(--line);margin:0 auto;width:80%}
+.dir-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.dir-grid .org-stem{height:14px;margin-bottom:8px}
+
+/* BRANCH CARDS (division map) */
+.branch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.branch-grid.cols-2{grid-template-columns:repeat(2,1fr)}
+.branch{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:var(--r-md);box-shadow:var(--shadow);padding:13px 15px;--accent:var(--ink)}
+.branch .b-nm{font-weight:800;font-size:.92rem}
+.branch .b-ti{font-size:.74rem;color:var(--muted);margin:1px 0 8px}
+.branch .b-teams{font-size:.82rem;color:#36404e;line-height:1.55}
+.branch--green{--accent:var(--green)} .branch--teal{--accent:var(--teal)} .branch--blue{--accent:var(--blue)} .branch--rsa{--accent:var(--rsa)} .branch--violet{--accent:var(--violet)} .branch--amber{--accent:var(--amber)} .branch--rose{--accent:var(--rose)} .branch--grey{--accent:var(--grey)}
+
+/* DEEP ORG MAP (company chart, a couple layers down) */
+.orgmap{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-4);align-items:start}
+.orgcol{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:var(--r-md);box-shadow:var(--shadow);padding:14px 16px;--accent:var(--ink)}
+.orgcol .oc-h{font-family:var(--serif);font-weight:700;font-size:1.08rem}
+.orgcol .oc-sub{font-size:.74rem;color:var(--muted);margin-bottom:8px}
+.orglead{padding:8px 0;border-top:1px solid var(--line-soft)}
+.orglead:first-of-type{border-top:none}
+.orglead .ol-n{font-weight:800;font-size:.86rem}
+.orglead .ol-t{font-size:.71rem;color:var(--muted)}
+.orglead .ol-sub{font-size:.79rem;color:#36404e;margin-top:4px;padding-left:9px;border-left:2px solid var(--accent)}
+@media(max-width:820px){.orgmap{grid-template-columns:1fr}}
+
+/* COMPANY ORG TREE (boxes + connecting lines) */
+.tree{display:grid;grid-template-columns:repeat(2,1fr);gap:30px}
+.tree-col{display:flex;flex-direction:column;align-items:center;--accent:var(--ink)}
+.tree-col--green{--accent:var(--green)} .tree-col--teal{--accent:var(--teal)}
+.tree-pillar{background:var(--white);border:1px solid var(--ink);border-top:3px solid var(--accent);border-radius:var(--r-md);box-shadow:var(--shadow);padding:10px 18px;text-align:center;min-width:210px}
+.tree-pillar .tp-n{font-weight:800;font-size:.96rem}
+.tree-pillar .tp-t{font-size:.74rem;color:var(--muted)}
+.tree-branch{align-self:stretch;position:relative;margin-left:20px;padding-left:20px;margin-top:4px}
+.tree-branch::before{content:"";position:absolute;left:6px;top:-4px;bottom:18px;width:2px;background:var(--line)}
+.tree-node{position:relative;background:var(--white);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:8px;box-shadow:var(--shadow);padding:8px 12px;margin-bottom:9px}
+.tree-node::before{content:"";position:absolute;left:-14px;top:17px;width:14px;height:2px;background:var(--line)}
+.tree-node .tn-n{font-weight:800;font-size:.85rem}
+.tree-node .tn-t{font-size:.7rem;color:var(--muted)}
+.tree-node .tn-sub{font-size:.74rem;color:#36404e;margin-top:3px}
+@media(max-width:820px){.tree{grid-template-columns:1fr;gap:18px}}
+
+/* SEARCH */
+.search-wrap{position:relative;max-width:540px;margin-top:var(--space-4)}
+.search-box{width:100%;font-family:var(--sans);font-size:1rem;padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff}
+.search-box::placeholder{color:rgba(255,255,255,.5)}
+.search-box:focus{outline:none;border-color:var(--green-bright);background:rgba(255,255,255,.13)}
+.search-results{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--white);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-h);max-height:344px;overflow-y:auto;z-index:60;display:none}
+.search-results.open{display:block}
+.sr-item{display:block;padding:10px 14px;text-decoration:none;color:var(--text);border-top:1px solid var(--line-soft)}
+.sr-item:first-child{border-top:none}
+.sr-item:hover,.sr-item.active{background:var(--warm)}
+.sr-item .sr-l{font-weight:700;font-size:.9rem;color:var(--ink)}
+.sr-item .sr-s{font-size:.76rem;color:var(--muted)}
+.sr-item .sr-t{float:right;font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--green);background:#EDFAD6;border-radius:6px;padding:2px 7px}
+.sr-empty{padding:14px;color:var(--muted);font-size:.85rem}
+
+/* FLOW + ROUTER */
+.flow{display:flex;align-items:stretch;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+.flow-step{flex:1 0 0;min-width:130px;background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;text-align:center}
+.flow-step .fs-n{font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--grey)}
+.flow-step .fs-stage{font-family:var(--serif);font-weight:700;font-size:1rem;margin:3px 0 4px}
+.flow-step .fs-team{font-size:.74rem;color:var(--green);font-weight:700;line-height:1.3}
+.flow-arrow{display:flex;align-items:center;color:var(--line);font-size:18px;padding:0 4px;flex:0 0 auto}
+.router{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:var(--space-4)}
+.r-item{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 13px}
+.r-item .r-q{font-weight:800;font-size:.85rem;color:var(--ink)}
+.r-item .r-a{font-size:.82rem;color:#36404e;margin-top:2px}
+
+/* DEPARTMENT TILES (hub) */
+.tile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
+.tile{display:block;background:var(--white);border:1px solid var(--line);border-top:4px solid var(--accent);border-radius:var(--r-md);box-shadow:var(--shadow);padding:16px 18px;text-decoration:none;color:inherit;transition:transform .12s,box-shadow .15s;--accent:var(--ink)}
+.tile:hover{box-shadow:var(--shadow-h);transform:translateY(-2px)}
+.tile .t-h{font-family:var(--serif);font-weight:700;font-size:1.12rem}
+.tile .t-lead{font-size:.76rem;color:var(--muted);margin:2px 0 8px}
+.tile .t-desc{font-size:.83rem;color:#36404e}
+.tile .t-cta{font-size:.72rem;font-weight:800;color:var(--accent);margin-top:11px;text-transform:uppercase;letter-spacing:.06em}
+.tile--soft{opacity:.72}
+.tile--green{--accent:var(--green)} .tile--blue{--accent:var(--blue)} .tile--teal{--accent:var(--teal)} .tile--rsa{--accent:var(--rsa)} .tile--violet{--accent:var(--violet)} .tile--amber{--accent:var(--amber)} .tile--rose{--accent:var(--rose)} .tile--grey{--accent:var(--grey)}
+
+/* DEPARTMENT SLIDE */
+.dept{--accent:var(--green);--accent-soft:rgba(95,165,32,.12)}
+.dept--green{--accent:var(--green);--accent-soft:rgba(95,165,32,.12)}
+.dept--blue{--accent:var(--blue);--accent-soft:rgba(30,139,188,.13)}
+.dept--teal{--accent:var(--teal);--accent-soft:rgba(31,148,136,.13)}
+.dept--violet{--accent:var(--violet);--accent-soft:rgba(106,91,208,.13)}
+.dept--amber{--accent:var(--amber);--accent-soft:rgba(220,155,60,.15)}
+.dept--rsa{--accent:var(--rsa);--accent-soft:rgba(30,80,140,.13)}
+.dept-head{display:flex;align-items:center;gap:14px;padding-left:16px;border-left:5px solid var(--accent);margin-bottom:var(--space-4)}
+.dept-ic{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--accent-soft);flex:0 0 auto}
+.dept-head .dt{flex:1}
+.dept-head h2{font-size:clamp(1.6rem,2.6vw,2.3rem)}
+.dept-head .sub{font-size:.85rem;color:var(--muted);font-weight:600}
+.dept-handle{font-family:var(--sans);font-size:.8rem;font-weight:800;color:#fff;background:var(--accent);padding:7px 13px;border-radius:9px;white-space:nowrap}
+.dept-handle--none{background:var(--line-soft);color:var(--muted);border:1px solid var(--line)}
+.dept-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:var(--space-5)}
+.dept-col p{font-size:1rem;color:#36404e;margin-bottom:var(--space-3)}
+.people{display:flex;flex-direction:column;gap:10px;margin-bottom:var(--space-3)}
+.person{display:flex;align-items:center;gap:11px}
+.person .pav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;background:var(--accent);flex:0 0 auto}
+.person .pn{font-weight:700;font-size:.92rem}
+.person .pr{font-size:.74rem;color:var(--muted)}
+.roster{font-size:.85rem;color:var(--muted);line-height:1.65;margin-bottom:var(--space-3)}
+.reach{font-size:.9rem;color:#36404e}
+.reach b{color:var(--ink)}
+.reach-line{display:block;margin-bottom:5px}
+.reach-line:last-child{margin-bottom:0}
+.callout{background:#FFF7E2;border:1px solid #f0d488;border-radius:var(--r-md);padding:13px 16px;font-size:.9rem;color:#7a5a08;margin-bottom:var(--space-4);display:flex;gap:11px}
+
+/* ESCALATION */
+.esc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+.estep{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--space-4);position:relative}
+.estep .ph{font-size:.66rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--blue)}
+.estep .who{font-family:var(--serif);font-size:1.35rem;font-weight:700;margin:5px 0 7px}
+.estep .ds{font-size:.88rem;color:var(--muted)}
+.estep .arrow{position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:var(--line);font-size:22px;z-index:2}
+
+/* MANAGER PROMPT (presenter only) */
+.manager-prompt{display:none}
+
+/* DECK NAV */
+.deck-nav{position:fixed;right:18px;bottom:18px;display:flex;gap:9px;z-index:150}
+.deck-nav button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--white);box-shadow:var(--shadow-h);font-size:21px;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:27px}
+
+/* FOOTER */
+.site-foot{background:var(--ink-deep);color:rgba(255,255,255,.75);padding:var(--space-5) 0}
+.site-foot .wrap{display:flex;align-items:center;gap:var(--space-4);flex-wrap:wrap}
+.foot-logo{height:44px;width:auto;flex:0 0 auto}
+.foot-txt{flex:1;min-width:280px;font-size:.82rem;line-height:1.6}
+.foot-txt b{color:#fff}
+.foot-src{font-size:.72rem;color:rgba(255,255,255,.45);margin-top:6px}
+.site-foot a{color:#9fd0ff;text-decoration:underline}
+
+/* PRESENTER MODE */
+body.presenter{font-size:21px}
+body.presenter .toc-nav{display:none}
+body.presenter .site-foot{display:none}
+body.presenter h1{font-size:clamp(3rem,6vw,4.6rem)}
+body.presenter .dept-head h2,body.presenter .sec-head h2{font-size:clamp(2.4rem,4.5vw,3.4rem)}
+body.presenter .dept-col p,body.presenter .reach{font-size:1.25rem}
+body.presenter .intro,body.presenter .lede{font-size:1.5rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-4);font-size:1.2rem;color:var(--text)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:#b07d18;margin-bottom:6px}
+
+/* RESPONSIVE */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  .module,.hero{min-height:auto}
+  .dir-grid{grid-template-columns:repeat(2,1fr)}
+  .branch-grid{grid-template-columns:repeat(2,1fr)}
+  .dept-grid{grid-template-columns:1fr;gap:var(--space-3)}
+  .esc-grid{grid-template-columns:1fr}
+  .estep .arrow{display:none}
+  .flow{flex-direction:column}
+  .flow-arrow{transform:rotate(90deg);justify-content:center;padding:2px 0}
+  .wrap{padding:0 var(--space-4)}
+}
+@media(max-width:680px){.router{grid-template-columns:1fr}}
+@media(max-width:540px){.dir-grid,.branch-grid{grid-template-columns:1fr}}
+
+/* PRINT -> Download PDF */
+@media print{
+  @page{margin:14mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  html{scroll-snap-type:none}
+  .site-header,.deck-nav{display:none}
+  body{font-size:11pt;background:#fff}
+  .hero{min-height:auto;background:var(--ink);padding:18px 0}
+  .module{min-height:auto;page-break-before:always;page-break-inside:avoid;border:none;padding:14px 0;background:#fff}
+  .module:nth-of-type(even){background:#fff}
+  .node,.estep,.tile,.branch{box-shadow:none}
+}
+
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head><body>
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+<div id="appWrap" style="display:none">
+<header class="site-header"><div class="page-header"><div class="wrap">
+<div class="brand"><img class="brand-logo" src="data:image/png;base64,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" alt="Trinity Solar"><span class="brand-div"></span><span class="brand-lab">Departments &amp; Communications</span></div>
+<div class="head-actions"><button class="hbtn hbtn--pdf" id="pdfBtn">&#11015; Download PDF</button><button class="hbtn" id="presentBtn">Presenter Mode</button></div>
+</div></div><nav class="toc-nav"><div class="wrap">
+      <a href="#top">Overview</a>
+      <a href="#company">The Company</a>
+      <a href="#flow">Flow</a>
+      <a href="#leadership">Sales Ops</a>
+      <a href="#rsa">RSA</a>
+      <a href="#finance">Finance Partner Ops</a>
+      <a href="#design">Design</a>
+      <a href="#call-center">Call Center</a>
+      <a href="#custom-projects">CPR</a>
+      <a href="#client-resources">Client Resources</a>
+      <a href="#legal">Legal</a>
+</div></nav></header>
+<main class="training-page">
+<section class="hero" id="top">
+    <div class="wrap">
+      <span class="eyebrow">Who does what, and how to reach them</span>
+      <h1>Departments &amp; Communications</h1>
+      <p class="lede">The manager reference for how work moves through Trinity and who owns each piece. Start with the flow, find the department, then go to its page for the people and the contact rules.</p>
+      <div class="search-wrap">
+        <input class="search-box" id="deptSearch" type="text" autocomplete="off" spellcheck="false" placeholder="Search a person, team, or handle...">
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </div>
+  </section>
+
+<section class="module" id="company">
+    <div class="wrap">
+      <div class="sec-head"><h2>The Company</h2></div>
+      <p class="intro">Two pillars sit under the CEO. Sales Operations lives under Strategic Finance.</p>
+      <div class="org-apex">
+        <div class="node node--boss"><div class="av">RS</div><div class="nm">RJ Sparks</div><div class="ti">President and CEO</div><div class="own">Top of the company</div></div>
+      </div>
+      <div class="org-stem"></div><div class="org-rail"></div>
+      <div class="tree">
+        <div class="tree-col tree-col--green">
+          <div class="tree-pillar"><div class="tp-n">Kurt Wingenfeld</div><div class="tp-t">VP, Strategic Finance</div></div>
+          <div class="tree-branch">
+            <div class="tree-node"><div class="tn-n">Victoria Broszeit</div><div class="tn-t">Director, Sales Support &amp; Contracts</div><div class="tn-sub">Deborah English, Scott McDermott</div></div>
+            <div class="tree-node"><div class="tn-n">Mae Yenger</div><div class="tn-t">Director, QA/QC</div><div class="tn-sub">Luke Grady, Caitlin Veneziano</div></div>
+            <div class="tree-node"><div class="tn-n">Jessica Tauscher</div><div class="tn-t">Director, Strategic Initiatives</div></div>
+            <div class="tree-node"><div class="tn-n">Thomas Pugliese</div><div class="tn-t">RSA Manager</div><div class="tn-sub">Gregory Vuksanic, Dallas Orear, Eric Istvanditsch</div></div>
+            <div class="tree-node"><div class="tn-n">Kristi Turner</div><div class="tn-t">Director, Finance Partner Ops</div><div class="tn-sub">Bryan Machesky, Katie Connor</div></div>
+            <div class="tree-node"><div class="tn-n">Christine Breuer</div><div class="tn-t">Commissions Manager</div></div>
+          </div>
+        </div>
+        <div class="tree-col tree-col--teal">
+          <div class="tree-pillar"><div class="tp-n">JP McEvenue</div><div class="tp-t">COO</div></div>
+          <div class="tree-branch">
+            <div class="tree-node"><div class="tn-n">William Condit</div><div class="tn-t">EVP, Operations</div></div>
+            <div class="tree-node"><div class="tn-n">Billie Klecko</div><div class="tn-t">Corporate VP of Operations</div><div class="tn-sub">Sarah Gill, Peter Wills, Suzanne Buannic, Katie Seaberg</div></div>
+            <div class="tree-node"><div class="tn-n">Kevin Kura</div><div class="tn-t">SVP, QA/QC</div><div class="tn-sub">Jason Stolze (Design), Edward Rocha, Kevin Eaton, Ayracon Almaraz, James Dickson</div></div>
+            <div class="tree-node"><div class="tn-n">Keith Oliver, Phil Smith, Russell Pierson</div><div class="tn-t">Regional VPs</div></div>
+            <div class="tree-node"><div class="tn-n">Michael Slaninka</div><div class="tn-t">VP, Roofing Operations</div></div>
+            <div class="tree-node"><div class="tn-n">Kenneth Rucki</div><div class="tn-t">Safety Director</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="roster">RJ Sparks' other direct reports include corporate finance and property (Joseph Klecko, Brittany Colucci, Chad Szczepanski), out of scope here. Client Resources now sits under Rachael Guadagno (Customer Service) and Legal under John English (General Counsel) &mdash; both mapped from the June 2026 ADP chart; their reporting line into the executive team is being confirmed. Mae Yenger appears in ADP under her formal name, Meagan Yenger.</p>
+      <div class="manager-prompt">Ask the room: which pillar owns your work most days, Strategic Finance or Operations?</div>
+    </div>
+  </section>
+
+<section class="module" id="flow">
+    <div class="wrap">
+      <div class="sec-head"><h2>How a deal flows</h2></div>
+      <p class="intro">Who touches a deal, and when. Sales Support is the email front door across all of it.</p>
+      <div class="flow">
+        <div class="flow-step"><div class="fs-n">Step 1</div><div class="fs-stage">Site Assessment</div><div class="fs-team">RSA</div></div>
+        <div class="flow-arrow">&#10142;</div>
+        <div class="flow-step"><div class="fs-n">Step 2</div><div class="fs-stage">Design</div><div class="fs-team">Design Team</div></div>
+        <div class="flow-arrow">&#10142;</div>
+        <div class="flow-step"><div class="fs-n">Step 3</div><div class="fs-stage">Contract</div><div class="fs-team">Contract Writing (Direct)</div></div>
+        <div class="flow-arrow">&#10142;</div>
+        <div class="flow-step"><div class="fs-n">Step 4</div><div class="fs-stage">Tracking &amp; Review</div><div class="fs-team">Document Processing</div></div>
+        <div class="flow-arrow">&#10142;</div>
+        <div class="flow-step"><div class="fs-n">Step 5</div><div class="fs-stage">Change Orders</div><div class="fs-team">Pre-Install Change Orders</div></div>
+        <div class="flow-arrow">&#10142;</div>
+        <div class="flow-step"><div class="fs-n">Step 6</div><div class="fs-stage">Post-install</div><div class="fs-team">Finance Partner Ops</div></div>
+      </div>
+      <div class="router">
+        <div class="r-item"><div class="r-q">New contract</div><div class="r-a">Direct reps: <b>Salesforce Handle</b> @ContractWriting. Traditional reps write their own.</div></div>
+        <div class="r-item"><div class="r-q">Track C issue</div><div class="r-a"><b>Reply All</b> to the existing Track C email. Document Processing owns it.</div></div>
+        <div class="r-item"><div class="r-q">Change order</div><div class="r-a"><b>Email</b> Sales.Ops@Trinity-Solar.com. You cannot run your own CO; the team sets it.</div></div>
+        <div class="r-item"><div class="r-q">Site assessment or model</div><div class="r-a"><b>Salesforce Handle</b> @RSA Team. Ground mounts: @GroundMount RSA.</div></div>
+        <div class="r-item"><div class="r-q">Anything else</div><div class="r-a"><b>Email</b> Sales.Ops@Trinity-Solar.com. Sales Support routes it.</div></div>
+        <div class="r-item"><div class="r-q">No reply in 48 hours</div><div class="r-a"><b>Escalate:</b> manager, then director, then Kurt Wingenfeld.</div></div>
+      </div>
+    </div>
+  </section>
+
+<section class="module" id="leadership">
+    <div class="wrap">
+      <div class="sec-head"><h2>The Division</h2></div>
+      <p class="intro">Kurt Wingenfeld, VP of Strategic Finance, sits over the whole division and is the final escalation point. He reports to RJ Sparks, President and CEO.</p>
+      <div class="org-apex">
+        <div class="node node--boss"><div class="av">KW</div><div class="nm">Kurt Wingenfeld</div><div class="ti">VP, Strategic Finance</div><div class="own">Final escalation point</div></div>
+      </div>
+      <div class="org-stem"></div>
+      <div class="branch-grid">
+        <div class="branch branch--green"><div class="b-nm">Victoria Broszeit</div><div class="b-ti">Director, Sales Support &amp; Contracts</div><div class="b-teams">Contract Writing &middot; Sales Support</div></div>
+        <div class="branch branch--teal"><div class="b-nm">Mae Yenger</div><div class="b-ti">Director, QA/QC</div><div class="b-teams">Document Processing &middot; Pre-Install Change Orders &middot; Training</div></div>
+        <div class="branch branch--blue"><div class="b-nm">Jessica Tauscher</div><div class="b-ti">Director, Strategic Initiatives</div><div class="b-teams">Urgent-email escalation contact</div></div>
+        <div class="branch branch--rsa"><div class="b-nm">Thomas Pugliese</div><div class="b-ti">RSA Manager</div><div class="b-teams">RSA, Remote Site Assessment</div></div>
+        <div class="branch branch--violet"><div class="b-nm">Kristi Turner</div><div class="b-ti">Director, Finance Partner Operations</div><div class="b-teams">Milestone submissions &middot; Post&ndash;Stage 5 contract processing &middot; Post-install change orders</div></div>
+        <div class="branch branch--amber"><div class="b-nm">Christine Breuer</div><div class="b-ti">Commissions Manager</div><div class="b-teams">Commissions</div></div>
+      </div>
+    </div>
+  </section>
+
+<section class="module dept dept--contracts" id="contract-writing">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#128221;</div>
+        <div class="dt"><h2>Contract Writing</h2><div class="sub">Pre-signing through revisions</div></div>
+        <span class="dept-handle">@ContractWriting</span>
+      </div>
+      <div class="callout"><span>&#9888;&#65039;</span><div><b>Direct reps only.</b> This team writes contracts for Direct reps. Traditional reps write their own.</div></div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Create and revise customer contracts for Direct reps. They own LOI submission, contract creation, Stage 3 revisions, post-signing resigns, and install-date updates, holding every contract to Partner, state, and company compliance.</p>
+          <div class="lbl">When to reach out</div>
+          <p>Direct reps, for a contract created or revised, an LOI, or a resign.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">Team</div>
+          <div class="people">
+            <div class="person"><div class="pav">VB</div><div><div class="pn">Victoria Broszeit</div><div class="pr">Director</div></div></div>
+            <div class="person"><div class="pav">DE</div><div><div class="pn">Deborah English</div><div class="pr">Manager</div></div></div>
+          </div>
+          <div class="roster">Joseph Martinez, Liam Healey, Lorraine Connor, Nolan Spengler, Ritchie Lyn Linga. Plus hybrid members shared with RSA about two days a week (Richard Imparato, Nicholas Reyes, Kyle Lewis), pending Victoria's call.</div>
+          <div class="lbl">How to reach them</div>
+          <div class="reach">
+            <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com (preferred)</div>
+            <div class="reach-line"><b>Salesforce Handle:</b> @ContractWriting</div>
+            <div class="reach-line"><b>Phone:</b> no direct line</div>
+          </div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask the room: what makes a contract bounce back from Stage 3? How do you get it right the first time?</div>
+    </div>
+  </section>
+
+<section class="module dept dept--support" id="sales-support">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#127881;</div>
+        <div class="dt"><h2>Sales Support</h2><div class="sub">The front door of Sales Operations</div></div>
+        <span class="dept-handle dept-handle--none">Phone &amp; Email</span>
+      </div>
+      <div class="callout"><span>&#9888;&#65039;</span><div><b>Email is for everyone.</b> Any rep can email Sales.Ops@Trinity-Solar.com. The phone line is only for Direct reps with an in-home revision.</div></div>
+      <div class="callout"><span>&#128161;</span><div><b>The most common mix-up.</b> Reps open a new email for a Track C issue. Track C lives on one thread: <b>Reply All</b> to the existing Track C email instead of starting a new one. Document Processing owns those.</div></div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Triage the shared mailbox and the phone lines, then route each request to the right team. They back up Direct reps in-home to close the deal. The team is cross-trained from LOI submission through post-install.</p>
+          <div class="lbl">When to reach out</div>
+          <p>Any request, a change order, a post-signing system change, a question, goes here by email. Direct reps in-home needing a revision now: call. For a Track C item, <b>Reply All</b> to the existing Track C thread instead of starting a new email.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">Team</div>
+          <div class="people">
+            <div class="person"><div class="pav">VB</div><div><div class="pn">Victoria Broszeit</div><div class="pr">Director</div></div></div>
+            <div class="person"><div class="pav">SM</div><div><div class="pn">Scott McDermott</div><div class="pr">Manager</div></div></div>
+          </div>
+          <div class="roster">Kristen Blum, Caroline Cookman, Noah Egan, Jennifer Mundell, Jordan Mitchell, Chellsea Diebold, Jessica Gold. Noah and Chellsea cover Saturdays.</div>
+          <div class="lbl">How to reach them</div>
+          <div class="reach">
+            <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com (preferred)</div>
+            <div class="reach-line"><b>Phone:</b> 848-220-9688 (Direct reps, in-home only)</div>
+            <div class="reach-line"><b>Salesforce Handle:</b> none</div>
+          </div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask the room: what is the one reason a rep should pick up the phone? Everything else goes where?</div>
+    </div>
+  </section>
+
+<section class="module dept dept--tracking" id="document-processing">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#128203;</div>
+        <div class="dt"><h2>Document Processing</h2><div class="sub">Also called Project Tracking</div></div>
+        <span class="dept-handle">@ProjecTracking</span>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Review each signed deal at Stage 4. They confirm the photos, design, feasibility, utility and equipment details, and usage data are all there, then assign a track: A clean, B minor follow-up, C held with an email to the rep.</p>
+          <div class="lbl">When to reach out</div>
+          <p>After signing, when a document or tracking issue is holding a project back. They own the Track C emails: for a Track C item, <b>Reply All</b> to the existing thread instead of starting a new one.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">Team</div>
+          <div class="people">
+            <div class="person"><div class="pav">MY</div><div><div class="pn">Mae Yenger</div><div class="pr">Director</div></div></div>
+            <div class="person"><div class="pav">LG</div><div><div class="pn">Luke Grady</div><div class="pr">Manager</div></div></div>
+            <div class="person"><div class="pav">CR</div><div><div class="pn">Courtney Rindsberg</div><div class="pr">Team Lead</div></div></div>
+          </div>
+          <div class="lbl">How to reach them</div>
+          <div class="reach">
+            <div class="reach-line"><b>Salesforce Handle:</b> @ProjecTracking</div>
+            <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com</div>
+            <div class="reach-line"><b>Track C:</b> <b>Reply All</b> to the existing Track C thread</div>
+          </div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask the room: a Track C email just landed on your deal. What does it mean, and what do you do first?</div>
+    </div>
+  </section>
+
+<section class="module dept dept--changeorders" id="change-orders">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#128260;</div>
+        <div class="dt"><h2>Pre-Install Change Orders</h2><div class="sub">Pre-install only</div></div>
+        <span class="dept-handle">@SO: Pre-Install ChangeOrders</span>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Work the Sales Approval queue and every pre-install change order. They follow up on held items, chase customer signatures, and handle account creation and intervention. Post-install change orders belong to a separate team under Finance Partner Operations.</p>
+          <div class="lbl">When to reach out</div>
+          <p>You need a post-signing change to the system. Reps can't run their own change order, so email Sales.Ops to request one and this team works it. If the deal is still on Track C, reply to the Track C thread instead.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">Team</div>
+          <div class="people">
+            <div class="person"><div class="pav">MY</div><div><div class="pn">Mae Yenger</div><div class="pr">Director</div></div></div>
+            <div class="person"><div class="pav">LG</div><div><div class="pn">Luke Grady</div><div class="pr">Manager</div></div></div>
+          </div>
+          <div class="lbl">How to reach them</div>
+          <div class="reach">
+            <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com (request a CO here)</div>
+            <div class="reach-line"><b>Salesforce Handle:</b> @SO: Pre-Install ChangeOrders</div>
+          </div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask the room: pre-install versus post-install. Who owns each, and why does it matter for your timeline?</div>
+    </div>
+  </section>
+
+<section class="module dept dept--training" id="training">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#127891;</div>
+        <div class="dt"><h2>Training</h2><div class="sub">For Sales Ops and Sales</div></div>
+        <span class="dept-handle dept-handle--none">Email &amp; Teams</span>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Build and maintain the guides and training videos for Sales Operations and Sales. They run sessions for new hires and the wider team, and they write and grade the assessments that go with each topic.</p>
+          <div class="lbl">When to reach out</div>
+          <p>A training need, an onboarding question, or a process that needs a guide.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">Team</div>
+          <div class="people">
+            <div class="person"><div class="pav">MY</div><div><div class="pn">Mae Yenger</div><div class="pr">Director</div></div></div>
+            <div class="person"><div class="pav">CV</div><div><div class="pn">Caitlin Veneziano</div><div class="pr">Manager</div></div></div>
+          </div>
+          <div class="lbl">How to reach them</div>
+          <div class="reach">
+            <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com</div>
+            <div class="reach-line"><b>Teams:</b> chat and meetings</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<section class="module dept dept--rsa" id="rsa">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#128225;</div>
+        <div class="dt"><h2>RSA</h2><div class="sub">Remote Site Assessment</div></div>
+        <span class="dept-handle">@RSA Team</span>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Certify the digital site assessments and home models. They review, approve, and certify the site and house model your deal is built on, including ground-mount sites.</p>
+          <div class="lbl">When to reach out</div>
+          <p>When a remote site assessment or home model needs updating, a tree-removal update, or re-certification.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">Team</div>
+          <div class="people">
+            <div class="person"><div class="pav">TP</div><div><div class="pn">Thomas Pugliese</div><div class="pr">RSA Manager</div></div></div>
+            <div class="person"><div class="pav">GV</div><div><div class="pn">Gregory Vuksanic</div><div class="pr">RSA Supervisor</div></div></div>
+            <div class="person"><div class="pav">EI</div><div><div class="pn">Eric Istvanditsch</div><div class="pr">Physical Site Assessment Supervisor</div></div></div>
+          </div>
+          <div class="roster">A 16-person team of RSA analysts, specialists, and drone operators. Dallas Orear is a second RSA Manager.</div>
+          <div class="lbl">How to reach them</div>
+          <div class="reach">
+            <div class="reach-line"><b>Salesforce Handle:</b> @RSA Team</div>
+            <div class="reach-line"><b>Ground mounts:</b> @GroundMount RSA</div>
+          </div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask the room: what gets a site assessment kicked back, and how do you submit a clean one?</div>
+    </div>
+  </section>
+
+<section class="module" id="escalation">
+    <div class="wrap">
+      <div class="sec-head"><h2>If you don't hear back</h2></div>
+      <p class="intro">Give it 48 hours, then move up one step. Urgent means needed within 48 hours or to save a deal from cancellation. For urgent email, copy Jessica Tauscher and your manager.</p>
+      <div class="esc-grid">
+        <div class="estep"><div class="ph">Phase 1 &middot; after 48 hrs</div><div class="who">Loop in the Manager</div><div class="ds">No response to the Chatter or email. Bring in the team's manager.</div><div class="arrow">&#10142;</div></div>
+        <div class="estep"><div class="ph">Phase 2 &middot; after 48 hrs</div><div class="who">Add the Director</div><div class="ds">Manager has gone quiet. Add the team's director to the thread.</div><div class="arrow">&#10142;</div></div>
+        <div class="estep"><div class="ph">Phase 3 &middot; after 48 hrs</div><div class="who">Kurt Wingenfeld</div><div class="ds">Still nothing. Loop in the Controller.</div></div>
+      </div>
+      <div class="manager-prompt">Ask the room: when did something last sit past 48 hours? What should have happened sooner?</div>
+    </div>
+  </section>
+
+<section class="module" id="finance">
+    <div class="wrap">
+      <div class="sec-head"><h2>Finance Partner Operations</h2><span class="badge badge--wip">In progress</span></div>
+      <p class="intro">A separate organization under Kristi Turner, who reports to Kurt Wingenfeld, the same VP the Sales Ops directors report to. It was pulled out of Sales Operations in summer 2025 and made its own department, and now runs parallel to it. The team owns <b>all milestone submissions for every finance partner</b>, <b>post&ndash;Stage 5 contract review and processing</b>, and <b>all post-install change orders</b>. Hours are 8am&ndash;5pm Monday&ndash;Friday; overnight staff handle data entry and milestone processing but do not interface with reps. Confirmed by Kristi Turner, June 9, 2026.</p>
+      <div class="callout"><span>&#128231;</span><div><b>How to reach the team.</b> Email <b>milestones@trinity-solar.com</b> or <b>changeorders@trinity-solar.com</b> depending on the topic &mdash; and <b>reserve these inboxes for escalated customers, not general questions.</b> They are a small team with limited bandwidth; the inboxes are triaged for the most urgent situations, so &ldquo;general&rdquo; or &ldquo;what&rsquo;s the latest&rdquo; emails are deprioritized. Route <b>general finance-partner questions through your manager</b> so they can be handled at a higher level. <b>Do not use Chatter</b> to reach this team.</div></div>
+      <div class="org-apex">
+        <div class="node node--boss"><div class="av">KT</div><div class="nm">Kristi Turner</div><div class="ti">Director, Finance Partner Operations</div><div class="own">Span 11 &middot; reports to Kurt Wingenfeld</div></div>
+      </div>
+      <div class="org-stem"></div>
+      <div class="fn-grid">
+        <div class="fn-card"><h3>Finance Partner Ops</h3><div class="fn-lead">Bryan Machesky, Manager</div><ul class="fn-list"><li>Ethan Hacker <span>Team Lead</span></li><li>James Cantwell <span>Team Lead</span></li></ul></div>
+        <div class="fn-card"><h3>Milestone Processing</h3><div class="fn-lead">Katie Connor, Manager</div><ul class="fn-list"><li>Monique Gazzoni <span>Team Lead</span></li><li>Carmel Bonevitch</li><li>Rina Shiflett</li><li>Morgan Yenger</li><li>Emma Hickey</li><li>Maylene Malichanh</li><li>Amanda Pedersen</li></ul></div>
+        <div class="fn-card"><h3>Change Order &middot; post-install</h3><div class="fn-lead">Post-install change orders</div><ul class="fn-list"><li>Rebekah Bouchard</li><li>Kimberly Pereira</li><li>William Pitts</li></ul></div>
+      </div>
+      <p class="roster"><b>Department is split by finance partner.</b> The team-card groupings above are being confirmed in Kristi&rsquo;s updated org doc (expected week of June 9, 2026). Kimberly Pereira and Diana Mennella focus on high-urgency projects &mdash; preventing and mitigating clawbacks and finance-partner cancellations &mdash; and are the main responders to rep questions in the inbox. <b>Diana Mennella</b> is a Finance Partner Operations Specialist. Also here: Samantha Sneyers (Training Associate). The team spans the Wall NJ, Cheshire CT, and Hanover MD offices.</p>
+      <div class="fn-support">
+        <div class="lbl">Sales leadership escalation contacts (overall info or extremely escalated situations)</div>
+        <div class="sup-grid">
+          <div><b>All partners / policies &amp; procedures:</b> Kristi Turner</div>
+          <div><b>LightReach:</b> Ethan Hacker, Monique Gazzoni</div>
+          <div><b>IGS:</b> Monique Gazzoni</div>
+          <div><b>GoodLeap:</b> Bryan Machesky</div>
+          <div><b>Resigns / Sunlight / Service Finance / Cash:</b> Katie Connor</div>
+        </div>
+        <p class="roster">For sales leadership, not individual reps. Reps should use the group inboxes (escalated customers) or their manager (general questions).</p>
+      </div>
+      <div class="fn-support">
+        <div class="lbl">Finance partner support (external, for partner-side issues)</div>
+        <div class="sup-grid">
+          <div><b>LightReach:</b> Phil Ahsler, or LightReach chat</div>
+          <div><b>Sunlight:</b> Jerry.Thomas@sunlightfinancial.com, 888-850-3359</div>
+          <div><b>Service Finance:</b> sales@svcfin.com, 877-661-6793</div>
+          <div><b>GoodLeap:</b> Matt Mullen / Bryan Machesky</div>
+          <div><b>IGS:</b> andy.mauch@igs.com, 877-995-4447</div>
+          <div><b>Sunnova:</b> dealersupport@sunnova.com, 866-786-6682</div>
+        </div>
+        <p class="roster">Per-stage lines (SC/FC/PTO, extensions, EBill, IT) live in the Master Sales Ops Reference.</p>
+      </div>
+    </div>
+  </section>
+
+<section class="module" id="design">
+    <div class="wrap">
+      <div class="sec-head"><h2>The Team</h2><span class="badge badge--wip">Confirm with Jason</span></div>
+      <p class="intro">Design sits under Kevin Kura's QA/QC organization, which also covers Solar QA/QC, Structural, and Electrical.</p>
+      <div class="org-apex">
+        <div class="node node--boss"><div class="av">KK</div><div class="nm">Kevin Kura</div><div class="ti">SVP, QA/QC</div><div class="own">Reports to the COO</div></div>
+      </div>
+      <div class="org-stem"></div>
+      <div class="org-apex">
+        <div class="node node--violet"><div class="av">JS</div><div class="nm">Jason Stolze</div><div class="ti">Design Manager</div><div class="own">17 designers</div></div>
+      </div>
+      <p class="roster">Designers: James Seaberg, Karl Dickson, Pete Milewski, Michael McCarthy, Nicolas Howe, Jonathan Seybolt, Randall Faiges, Jillian Clarkin, Tori Pauciello, Matthew Salsano, Brian Loftus, Michael Debari, Thomas McKeon, Matthew Rucki, William Kirkland, Shaylyn Tobin, David Rucki.</p>
+    </div>
+  </section>
+<section class="module dept dept--violet" id="design-contact">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#128396;</div>
+        <div class="dt"><h2>What they do, and how to reach them</h2><div class="sub">To confirm with Jason Stolze</div></div>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Produce and review the system design and the home model that the contract, applications, and install are built on. Exact tools and the handoff with RSA are to confirm.</p>
+          <div class="lbl">When to reach out</div>
+          <p>To confirm: a design question, a model correction, or a design revision request.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">How to reach them</div>
+          <div class="callout"><span>&#10067;</span><div><b>To confirm with Jason.</b> Salesforce handle, shared email, or through the design queue? This is the main thing to settle in the review.</div></div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask Jason: how should a rep reach Design, and what is the one request that should never come straight to a designer?</div>
+    </div>
+  </section>
+
+<section class="module" id="call-center">
+    <div class="wrap">
+      <div class="sec-head"><h2>The Team</h2><span class="badge badge--wip">Confirm scope</span></div>
+      <p class="intro">A Senior Director over a Director, two Call Center Managers, plus quality, systems, and campaign leads. Tagged under Sales Support in the directory.</p>
+      <div class="org-apex">
+        <div class="node node--boss"><div class="av">OK</div><div class="nm">Oleg Koninin</div><div class="ti">Senior Director, Call Center</div></div>
+      </div>
+      <div class="org-stem"></div>
+      <div class="dir-grid">
+        <div><div class="org-stem"></div><div class="node node--blue"><div class="av">CR</div><div class="nm">Courtney Romano</div><div class="ti">Call Center Director</div><div class="own">Campaign leaders</div></div></div>
+        <div><div class="org-stem"></div><div class="node node--blue"><div class="av">MH</div><div class="nm">Michael Hertz</div><div class="ti">Call Center Manager</div></div></div>
+        <div><div class="org-stem"></div><div class="node node--blue"><div class="av">CM</div><div class="nm">Caitlin Marotta</div><div class="ti">Call Center Manager</div></div></div>
+        <div><div class="org-stem"></div><div class="node node--grey"><div class="av">LM</div><div class="nm">Lori Meunier</div><div class="ti">Call Quality Assurance Mgr</div></div></div>
+      </div>
+      <p class="roster">Also: Rourke Taylor (Call Systems Manager); analysts Oliver Cepeda and Christopher Hand; campaign leaders Kayla Adams, Diane Corkern, Allison Jakubiak.</p>
+    </div>
+  </section>
+<section class="module dept dept--blue" id="call-center-contact">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#128222;</div>
+        <div class="dt"><h2>What they do, and how to reach them</h2><div class="sub">To confirm with Oleg and Courtney</div></div>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Inbound and outbound calling for sales support, campaign execution, call quality assurance, and the call systems behind it.</p>
+          <div class="lbl">When a rep interacts</div>
+          <p>To confirm: lead handoffs, campaign questions, or a call-system issue.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">How to reach them</div>
+          <div class="callout"><span>&#10067;</span><div><b>To confirm.</b> Does a rep ever contact the Call Center directly, or only through their manager? Channel and the rep-facing scope to settle in the review.</div></div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask Oleg and Courtney: where does the Call Center hand off to the field, and what should a rep never do directly?</div>
+    </div>
+  </section>
+
+<section class="module" id="custom-projects">
+    <div class="wrap">
+      <div class="sec-head"><h2>The Team</h2><span class="badge badge--wip">Confirm scope</span></div>
+      <p class="intro">A VP over six Custom Project Specialists.</p>
+      <div class="org-apex">
+        <div class="node node--amber"><div class="av">PK</div><div class="nm">Phil Kelly</div><div class="ti">VP, Custom Projects</div><div class="own">6 specialists</div></div>
+      </div>
+      <p class="roster">Custom Project Specialists: Alexandra Struben, Kristen Vander Drift, Emmanuel Morera, Patrick Wescott, Stephanie Ricciardulli, Fred Linck.</p>
+    </div>
+  </section>
+<section class="module dept dept--amber" id="custom-projects-contact">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#127956;</div>
+        <div class="dt"><h2>What they do, and how to reach them</h2><div class="sub">Approvals confirmed from the Master Reference</div></div>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Price and approve the custom work: ground mounts, ballasted systems, long trenches, and other complex designs. Phil Kelly is the approver on ground mount pricing, ballasted systems, and trenches.</p>
+          <div class="lbl">When to reach out</div>
+          <p>A ground mount, a ballasted system, a trench over 250 feet, or any custom project that needs pricing or approval.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">How to reach them</div>
+          <div class="reach">
+            <div class="reach-line"><b>Salesforce Handle:</b> Chatter Phil Kelly</div>
+            <div class="reach-line"><b>Trench over 250 ft:</b> Chatter Kevin Kura and Phil Kelly</div>
+            <div class="reach-line"><b>Provide:</b> state and utility, finance partner, gross and net PPW, the GM PPW for the territory, and trench length</div>
+          </div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask Phil: what is the cleanest way to submit a ground mount so it does not bounce, and what info is always missing?</div>
+    </div>
+  </section>
+<section class="module" id="client-resources">
+    <div class="wrap">
+      <div class="sec-head"><h2>Client Resources</h2><span class="badge badge--wip">Confirm scope</span></div>
+      <p class="intro">A Director of Customer Service over Client Resources, a customer experience coordinator, and reputation management. Newly mapped from the June 2026 ADP chart; the reporting line into the executive team is being confirmed.</p>
+      <div class="org-apex">
+        <div class="node node--teal"><div class="av">RG</div><div class="nm">Rachael Guadagno</div><div class="ti">Director, Customer Service</div><div class="own">Span 3</div></div>
+      </div>
+      <div class="org-stem"></div>
+      <div class="dir-grid">
+        <div><div class="org-stem"></div><div class="node node--teal"><div class="av">KD</div><div class="nm">Kayla Desrochers</div><div class="ti">Manager, Client Resources</div><div class="own">Long Island NY &middot; span 7</div></div></div>
+        <div><div class="org-stem"></div><div class="node node--grey"><div class="av">EB</div><div class="nm">Erin Buchansky</div><div class="ti">Manager, Reputation Management</div></div></div>
+        <div><div class="org-stem"></div><div class="node node--grey"><div class="av">TM</div><div class="nm">Thomas Mahady</div><div class="ti">Customer Experience Coordinator</div></div></div>
+      </div>
+      <p class="roster">Kayla Desrochers leads a seven-person Client Resources team out of the Long Island NY office; that roster is not yet itemized in the chart.</p>
+    </div>
+  </section>
+<section class="module dept dept--teal" id="client-resources-contact">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#129309;</div>
+        <div class="dt"><h2>What they do, and how to reach them</h2><div class="sub">To confirm with Rachael Guadagno</div></div>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Own the post-sale customer relationship: customer service, the Client Resources team, the customer experience, and the company's reputation and reviews.</p>
+          <div class="lbl">When a rep interacts</div>
+          <p>To confirm: an at-risk customer, a service escalation, or a review/reputation issue tied to a deal.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">How to reach them</div>
+          <div class="callout"><span>&#10067;</span><div><b>To confirm.</b> Does a rep contact Client Resources directly, or only through their manager? Channel and the rep-facing scope to settle in the review.</div></div>
+        </div>
+      </div>
+      <div class="manager-prompt">Ask Rachael: at what point should a rep loop in Client Resources, and what should never come straight to the team?</div>
+    </div>
+  </section>
+<section class="module" id="legal">
+    <div class="wrap">
+      <div class="sec-head"><h2>Legal</h2><span class="badge badge--wip">Intake to confirm</span></div>
+      <p class="intro">The General Counsel over Legal Operations &amp; Licensing and the attorneys. Newly mapped from the June 2026 ADP chart; the reporting line into the executive team is being confirmed.</p>
+      <div class="org-apex">
+        <div class="node node--rsa"><div class="av">JE</div><div class="nm">John English</div><div class="ti">General Counsel</div><div class="own">Span 4</div></div>
+      </div>
+      <div class="org-stem"></div>
+      <div class="dir-grid">
+        <div><div class="org-stem"></div><div class="node node--rsa"><div class="av">CR</div><div class="nm">Christina Reinhard</div><div class="ti">Head of Legal Operations &amp; Licensing</div><div class="own">Span 4</div></div></div>
+        <div><div class="org-stem"></div><div class="node node--grey"><div class="av">CA</div><div class="nm">Christina Acker</div><div class="ti">Associate General Counsel</div></div></div>
+        <div><div class="org-stem"></div><div class="node node--grey"><div class="av">MV</div><div class="nm">Marissa Vila</div><div class="ti">Associate General Counsel</div><div class="own">Legal intake (in progress)</div></div></div>
+        <div><div class="org-stem"></div><div class="node node--grey"><div class="av">NG</div><div class="nm">Nicole Green</div><div class="ti">Attorney</div></div></div>
+      </div>
+      <p class="roster">Christina Reinhard leads Legal Operations &amp; Licensing (span 4); that roster is not yet itemized in the chart. Dan is defining the rep-facing legal intake process with Marissa Vila.</p>
+    </div>
+  </section>
+<section class="module dept dept--rsa" id="legal-contact">
+    <div class="wrap">
+      <div class="dept-head">
+        <div class="dept-ic">&#9878;&#65039;</div>
+        <div class="dt"><h2>What they do, and how to reach them</h2><div class="sub">Intake process being defined with Marissa Vila</div></div>
+      </div>
+      <div class="dept-grid">
+        <div class="dept-col">
+          <div class="lbl">What they do</div>
+          <p>Legal operations, state licensing, contract and legal review, and the attorneys who handle escalations and disputes.</p>
+          <div class="lbl">When a rep interacts</div>
+          <p>Rarely directly. A legal question or contract/legal escalation should go through the intake process (being defined), not straight to an attorney.</p>
+        </div>
+        <div class="dept-col">
+          <div class="lbl">How to reach them</div>
+          <div class="callout"><span>&#10067;</span><div><b>Intake in progress.</b> Dan is defining the legal intake path with Marissa Vila. Until it is set, route legal questions through your manager and Sales Operations rather than contacting an attorney directly.</div></div>
+        </div>
+      </div>
+      <div class="manager-prompt">Settle with Marissa: what is the one front door for a legal request, and what information must it include to avoid a back-and-forth?</div>
+    </div>
+  </section>
+</main>
+<footer class="site-foot"><div class="wrap"><img class="foot-logo" src="data:image/png;base64,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" alt="Trinity Total Home">
+<div class="foot-txt"><b>Master document.</b> Manager reference for departments and communications. Built from the 2026 Sales Operations Handbook and the ADP org chart (June 8, 2026). Internal use only.
+<div class="foot-src">Compiled by Dan Pennington &middot; Trinity Solar, Connecticut.</div></div></div></footer>
+<div class="deck-nav"><button id="prevBtn" aria-label="Previous slide">&#8593;</button><button id="nextBtn" aria-label="Next slide">&#8595;</button></div>
+</div><!-- /#appWrap -->
+<script>
+// Search index for the Departments hub. Loaded as a script so it works over file:// and http.
+// Each entry: l = label, s = subtitle, h = href (page + anchor), t = type.
+window.SEARCH_INDEX = [
+  // Departments
+  {l:"Sales Operations", s:"Kurt Wingenfeld's division", h:"#leadership", t:"Dept"},
+  {l:"Finance Partner Operations", s:"Kristi Turner", h:"#finance", t:"Dept"},
+  {l:"Design", s:"Jason Stolze, Design Manager", h:"#design", t:"Dept"},
+  {l:"Call Center", s:"Oleg Koninin / Courtney Romano", h:"#call-center", t:"Dept"},
+  {l:"Custom Projects (CPR)", s:"Phil Kelly, VP", h:"#custom-projects", t:"Dept"},
+  {l:"Commissions", s:"Christine Breuer", h:"#company", t:"Dept"},
+  {l:"Client Resources", s:"Rachael Guadagno, Director Customer Service", h:"#client-resources", t:"Dept"},
+  {l:"Legal", s:"John English, General Counsel", h:"#legal", t:"Dept"},
+  {l:"Operations & RVPs", s:"Billie Klecko + Regional VPs", h:"#company", t:"Dept"},
+
+  // Teams
+  {l:"Contract Writing", s:"Direct only. Salesforce Handle @ContractWriting", h:"#contract-writing", t:"Team"},
+  {l:"Sales Support", s:"Scott McDermott. Email front door", h:"#sales-support", t:"Team"},
+  {l:"Document Processing", s:"Luke Grady. @ProjecTracking. Track C", h:"#document-processing", t:"Team"},
+  {l:"Pre-Install Change Orders", s:"Luke Grady. @SO: Pre-Install ChangeOrders", h:"#change-orders", t:"Team"},
+  {l:"Training", s:"Caitlin Veneziano", h:"#training", t:"Team"},
+  {l:"RSA (Remote Site Assessment)", s:"Thomas Pugliese. @RSA Team", h:"#rsa", t:"Team"},
+  {l:"Milestone Processing", s:"Katie Connor. Finance Partner Ops", h:"#finance", t:"Team"},
+
+  // People
+  {l:"RJ Sparks", s:"President and CEO", h:"#company", t:"Person"},
+  {l:"Kurt Wingenfeld", s:"VP, Strategic Finance", h:"#company", t:"Person"},
+  {l:"JP McEvenue", s:"COO", h:"#company", t:"Person"},
+  {l:"Victoria Broszeit", s:"Director, Sales Support & Contracts", h:"#leadership", t:"Person"},
+  {l:"Mae Yenger", s:"Director, QA/QC (formal name Meagan Yenger)", h:"#leadership", t:"Person"},
+  {l:"Meagan Yenger", s:"Director, QA/QC (goes by Mae)", h:"#leadership", t:"Person"},
+  {l:"Jessica Tauscher", s:"Director, Strategic Initiatives", h:"#leadership", t:"Person"},
+  {l:"Thomas Pugliese", s:"RSA Manager", h:"#rsa", t:"Person"},
+  {l:"Kristi Turner", s:"Director, Finance Partner Operations", h:"#finance", t:"Person"},
+  {l:"Christine Breuer", s:"Commissions Manager", h:"#company", t:"Person"},
+  {l:"Deborah (Debby) English", s:"Manager, Contract Writing", h:"#contract-writing", t:"Person"},
+  {l:"Scott McDermott", s:"Manager, Sales Support", h:"#sales-support", t:"Person"},
+  {l:"Luke Grady", s:"Manager, Document Processing & Change Orders", h:"#document-processing", t:"Person"},
+  {l:"Courtney Rindsberg", s:"Team Lead, Document Processing", h:"#document-processing", t:"Person"},
+  {l:"Caitlin Veneziano", s:"Manager, Training", h:"#training", t:"Person"},
+  {l:"Bryan Machesky", s:"Manager, Finance Partner Operations", h:"#finance", t:"Person"},
+  {l:"Katie Connor", s:"Manager, Milestone Processing. Resigns/Sunlight/Service Finance/Cash", h:"#finance", t:"Person"},
+  {l:"Monique Gazzoni", s:"Team Lead. LightReach, IGS", h:"#finance", t:"Person"},
+  {l:"Diana Mennella", s:"Finance Partner Operations Specialist. High-urgency, rep inbox", h:"#finance", t:"Person"},
+  {l:"Kimberly Pereira", s:"Finance Partner Ops. High-urgency, rep inbox", h:"#finance", t:"Person"},
+  {l:"Ethan Hacker", s:"Finance Partner Ops. LightReach", h:"#finance", t:"Person"},
+  {l:"Jason Stolze", s:"Design Manager", h:"#design", t:"Person"},
+  {l:"Kevin Kura", s:"SVP, QA/QC", h:"#company", t:"Person"},
+  {l:"Oleg Koninin", s:"Senior Director, Call Center", h:"#call-center", t:"Person"},
+  {l:"Courtney Romano", s:"Call Center Director", h:"#call-center", t:"Person"},
+  {l:"Phil Kelly", s:"VP, Custom Projects", h:"#custom-projects", t:"Person"},
+  {l:"Billie Klecko", s:"Corporate VP of Operations", h:"#company", t:"Person"},
+  {l:"William Condit", s:"EVP, Operations", h:"#company", t:"Person"},
+  {l:"Rachael Guadagno", s:"Director, Customer Service", h:"#client-resources", t:"Person"},
+  {l:"Kayla Desrochers", s:"Manager, Client Resources (Long Island NY)", h:"#client-resources", t:"Person"},
+  {l:"Erin Buchansky", s:"Manager, Reputation Management", h:"#client-resources", t:"Person"},
+  {l:"Thomas Mahady", s:"Customer Experience Coordinator", h:"#client-resources", t:"Person"},
+  {l:"John English", s:"General Counsel", h:"#legal", t:"Person"},
+  {l:"Christina Reinhard", s:"Head of Legal Operations & Licensing", h:"#legal", t:"Person"},
+  {l:"Marissa Vila", s:"Associate General Counsel. Legal intake", h:"#legal", t:"Person"},
+  {l:"Christina Acker", s:"Associate General Counsel", h:"#legal", t:"Person"},
+  {l:"Nicole Green", s:"Attorney", h:"#legal", t:"Person"},
+
+  // Salesforce handles
+  {l:"@ContractWriting", s:"Contract Writing", h:"#contract-writing", t:"Handle"},
+  {l:"@ProjecTracking", s:"Document Processing", h:"#document-processing", t:"Handle"},
+  {l:"@SO: Pre-Install ChangeOrders", s:"Pre-Install Change Orders", h:"#change-orders", t:"Handle"},
+  {l:"@RSA Team", s:"RSA", h:"#rsa", t:"Handle"},
+  {l:"@GroundMount RSA", s:"RSA, ground mounts", h:"#rsa", t:"Handle"},
+
+  // Topics and contact
+  {l:"Track C", s:"Reply All to the existing thread. Document Processing", h:"#document-processing", t:"Topic"},
+  {l:"Change Order", s:"Email Sales.Ops. Pre-install", h:"#change-orders", t:"Topic"},
+  {l:"Escalation", s:"Manager, then Director, then Kurt Wingenfeld", h:"#escalation", t:"Topic"},
+  {l:"Sales Ops email", s:"Sales.Ops@Trinity-Solar.com", h:"#sales-support", t:"Contact"},
+  {l:"milestones@trinity-solar.com", s:"Finance Partner Ops. Escalated customers only", h:"#finance", t:"Contact"},
+  {l:"changeorders@trinity-solar.com", s:"Post-install change orders. Escalated customers only", h:"#finance", t:"Contact"},
+  {l:"Sales Ops phone", s:"848-220-9688, Direct reps in-home", h:"#sales-support", t:"Contact"},
+  {l:"Ground Mount", s:"Phil Kelly approves", h:"#custom-projects", t:"Topic"}
+];
+
+</script><script>
+// Shared behaviors for the Departments & Communications pages.
+(function(){
+  var headerEl = document.querySelector('.site-header');
+  function setHeaderH(){ if(headerEl) document.documentElement.style.setProperty('--header-h', headerEl.offsetHeight+'px'); }
+  addEventListener('load', setHeaderH); addEventListener('resize', setHeaderH);
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(setHeaderH);
+
+  // TOC scroll-spy
+  var sections = document.querySelectorAll('section[id]'), navLinks = document.querySelectorAll('.toc-nav a');
+  function spy(){ var cur='', y=scrollY+200; sections.forEach(function(s){ if(y>=s.offsetTop && y<s.offsetTop+s.offsetHeight) cur=s.id; });
+    navLinks.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+cur); }); }
+  addEventListener('scroll', spy); addEventListener('load', spy);
+
+  // Presenter Mode
+  var pBtn = document.getElementById('presentBtn');
+  if(pBtn) pBtn.addEventListener('click', function(){ document.body.classList.toggle('presenter');
+    pBtn.textContent = document.body.classList.contains('presenter') ? 'Exit Presenter' : 'Presenter Mode'; setHeaderH(); });
+
+  // Download PDF
+  var pdf = document.getElementById('pdfBtn');
+  if(pdf) pdf.addEventListener('click', function(){ window.print(); });
+
+  // Deck navigation
+  var slides = [].slice.call(document.querySelectorAll('.hero,.module'));
+  var prevBtn = document.getElementById('prevBtn'), nextBtn = document.getElementById('nextBtn');
+  function currentIndex(){ var h = (headerEl?headerEl.offsetHeight:0)+12, idx=0; slides.forEach(function(s,i){ if(s.offsetTop<=scrollY+h) idx=i; }); return idx; }
+  function go(d){ var i=Math.max(0,Math.min(slides.length-1,currentIndex()+d)); if(slides[i]) slides[i].scrollIntoView({behavior:'smooth'}); }
+  function syncDeck(){ var i=currentIndex(); if(prevBtn) prevBtn.disabled=i<=0; if(nextBtn) nextBtn.disabled=i>=slides.length-1; }
+  if(prevBtn && nextBtn){ prevBtn.onclick=function(){go(-1);}; nextBtn.onclick=function(){go(1);}; addEventListener('scroll',syncDeck); addEventListener('load',syncDeck); }
+  addEventListener('keydown', function(e){
+    if(document.activeElement && /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key==='ArrowDown'){go(1);}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'||e.key==='ArrowUp'){go(-1);}
+  });
+})();
+
+// Search (hub). No-op on pages without the search box.
+(function(){
+  var box = document.getElementById('deptSearch'), out = document.getElementById('searchResults');
+  if(!box || !out || !window.SEARCH_INDEX) return;
+  var IDX = window.SEARCH_INDEX, active = -1;
+  function esc(s){ return (''+s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function render(rows){
+    active = -1;
+    if(!rows.length){ out.innerHTML = '<div class="sr-empty">No matches.</div>'; out.classList.add('open'); return; }
+    out.innerHTML = rows.map(function(r){
+      return '<a class="sr-item" href="'+r.h+'"><span class="sr-t">'+esc(r.t)+'</span>'+
+             '<div class="sr-l">'+esc(r.l)+'</div><div class="sr-s">'+esc(r.s)+'</div></a>';
+    }).join('');
+    out.classList.add('open');
+  }
+  function search(q){
+    q = q.trim().toLowerCase();
+    if(!q){ out.classList.remove('open'); out.innerHTML=''; return; }
+    render(IDX.filter(function(r){ return (r.l+' '+r.s+' '+r.t).toLowerCase().indexOf(q) > -1; }).slice(0,12));
+  }
+  box.addEventListener('input', function(){ search(box.value); });
+  box.addEventListener('focus', function(){ if(box.value) search(box.value); });
+  box.addEventListener('keydown', function(e){
+    var items = out.querySelectorAll('.sr-item');
+    if(e.key==='ArrowDown'){ e.preventDefault(); active=Math.min(items.length-1, active+1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); active=Math.max(0, active-1); }
+    else if(e.key==='Enter'){ if(items[active]) location.href=items[active].getAttribute('href'); return; }
+    else if(e.key==='Escape'){ out.classList.remove('open'); return; }
+    else return;
+    items.forEach(function(it,i){ it.classList.toggle('active', i===active); });
+    if(items[active]) items[active].scrollIntoView({block:'nearest'});
+  });
+  document.addEventListener('click', function(e){ if(!out.contains(e.target) && e.target!==box) out.classList.remove('open'); });
+})();
+
+</script>
+<script src="/feedback-widget.js" defer></script>
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+// This resource is managers-only for now; a rep-facing version comes later.
+function initApp(profile, session) {
+  if (!window.IS_MANAGER) {
+    var w = document.getElementById('appWrap');
+    if (w) w.innerHTML = '<div style="max-width:560px;margin:18vh auto;padding:0 24px;'
+      + 'font-family:Manrope,system-ui,-apple-system,Segoe UI,sans-serif;color:#1A2332;text-align:center">'
+      + '<h1 style="font-size:1.6rem;margin-bottom:12px">Managers only</h1>'
+      + '<p style="color:#6b7a90;line-height:1.6">This resource is restricted to managers for now. '
+      + 'A rep-facing version is coming soon. If you believe you should have access, contact Dan Pennington.</p>'
+      + '<p style="margin-top:20px"><a href="/" style="color:#3f8e1c;font-weight:600;text-decoration:none">&larr; Back to the Resource Page</a></p></div>';
+  }
+}
+</script>
+</body></html>
