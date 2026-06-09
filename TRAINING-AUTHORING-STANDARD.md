@@ -7,10 +7,10 @@
 ## 0. Authority and pairing
 
 This standard owns **structure, learning design, and HTML semantics.**
-It does **not** own voice. Prose voice is governed by **`Voice_General.md`**
-(canonical path: `C:\Users\dan\OneDrive\AI\Voice_General.md`).
+It does **not** own voice (governed by **`Voice_General.md`**, canonical path: `C:\Users\dan\OneDrive\AI\Voice_General.md`)
+or message consistency (governed by **`SALES-PSYCHOLOGY-CANON.md`** in this repo: the recurring DISC, cognitive-bias, and mantra threads to reinforce lightly across every training).
 
-**Mandatory before authoring or editing any training page:** read this file and apply `Voice_General.md`. The two together are the full spec. This standard is the single source of truth for the resource page; do not copy it elsewhere. Reference it by pointer only, so it cannot drift.
+**Mandatory before authoring or editing any training page:** read this file, apply `Voice_General.md`, and apply `SALES-PSYCHOLOGY-CANON.md`. The three together are the full spec. This standard is the single source of truth for the resource page; do not copy it elsewhere. Reference it by pointer only, so it cannot drift.
 
 ---
 
