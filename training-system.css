@@ -170,6 +170,12 @@ body.presenter h2{font-size:3rem}
 body.presenter .module .intro{font-size:1.4rem}
 body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
 body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+/* Compact dense tables in Presenter so a long bill fits one slide */
+body.presenter .doc-table{font-size:.92rem}
+body.presenter .doc-table th{padding:5px 14px}
+body.presenter .doc-table td{padding:3px 14px}
+body.presenter .doc-table tr.indent td:first-child{padding-left:24px}
+body.presenter .module .intro{font-size:1.25rem;margin-bottom:var(--space-3)}
 
 /* ============================================================
    MOBILE  (close-up; relax the deck to normal scroll)
