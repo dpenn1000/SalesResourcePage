@@ -72,6 +72,9 @@
     addEventListener('load', syncDeck);
   }
   addEventListener('keydown', e => {
+    // Don't hijack arrow keys while a form control (e.g. a chart slider) is focused.
+    const t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
     if (e.key === 'ArrowRight' || e.key === 'PageDown') go(1);
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(-1);
   });
