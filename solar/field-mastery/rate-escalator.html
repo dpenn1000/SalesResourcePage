@@ -763,8 +763,11 @@ function exportJPG() {
 // body class (setTimeout defers past the synchronous class toggle).
 const _presentBtn = document.getElementById('presentBtn');
 if (_presentBtn) _presentBtn.addEventListener('click', () => setTimeout(() => {
-  chart.options.aspectRatio = document.body.classList.contains('presenter') ? 3.4 : 2.4;
+  const pres = document.body.classList.contains('presenter');
+  chart.options.aspectRatio = pres ? 3.4 : 2.4;
+  chart.options.plugins.legend.display = !pres;  // the toggle buttons already label every line
   chart.resize();
+  chart.update();
 }, 0));
 
 // auth-gate calls this once the gate opens; training-system.js will not override
