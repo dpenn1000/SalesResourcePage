@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trinity Org Chart — Live Prototype</title>
+<style>
+:root{
+  --ink:#0F2038; --ink2:#1A2942; --line:#d4dae3; --line2:#e6eaf0;
+  --paper:#eef1f5; --white:#fff; --text:#28303e; --muted:#6b7a90;
+  --green:#5FA520; --teal:#1f9488; --blue:#1E8BBC; --violet:#6A5BD0;
+  --amber:#DC9B3C; --rose:#c2477f; --rsa:#1e508c; --grey:#64748b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--paper);color:var(--text);overflow:hidden}
+a{color:inherit}
+
+/* ---- shell ---- */
+.app{display:grid;grid-template-columns:248px 1fr;grid-template-rows:auto 1fr;height:100vh}
+header.bar{grid-column:1/3;background:linear-gradient(120deg,var(--ink),var(--ink2));color:#fff;
+  padding:12px 20px;display:flex;align-items:center;justify-content:space-between;z-index:5}
+header.bar h1{font-size:16px;font-weight:800;letter-spacing:.2px}
+header.bar .tag{font-size:11px;color:#9FB3C8;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.search{display:flex;align-items:center;gap:8px}
+.search input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;
+  border-radius:8px;padding:7px 12px;font-size:13px;width:230px;outline:none}
+.search input::placeholder{color:#9FB3C8}
+
+/* ---- rail ---- */
+.rail{background:var(--white);border-right:1px solid var(--line);overflow-y:auto;padding:14px 10px}
+.rail .grp{font-size:10px;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  padding:14px 10px 6px}
+.rail button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:none;border:0;
+  padding:8px 10px;border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--text);transition:background .12s}
+.rail button:hover{background:var(--line2)}
+.rail button.active{background:var(--ink);color:#fff}
+.rail .dot{width:9px;height:9px;border-radius:50%;background:var(--accent,#999);flex:0 0 auto}
+.rail button.active .dot{box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+
+/* ---- main ---- */
+.main{overflow:auto;position:relative}
+.crumb{position:sticky;top:0;background:rgba(238,241,245,.92);backdrop-filter:blur(6px);
+  padding:12px 20px;border-bottom:1px solid var(--line);font-size:12.5px;color:var(--muted);z-index:3;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.crumb b{color:var(--text);font-weight:700}
+.crumb .sep{opacity:.5}
+.crumb a{cursor:pointer;text-decoration:none;border-bottom:1px dotted transparent}
+.crumb a:hover{border-bottom-color:var(--muted)}
+.canvas{padding:30px 20px 80px;min-width:max-content}
+
+/* ---- tree (CSS connectors) ---- */
+.tree{display:inline-block;min-width:100%}
+.tree ul{display:flex;justify-content:center;padding-top:26px;position:relative}
+.tree li{list-style:none;position:relative;padding:26px 8px 0;display:flex;flex-direction:column;align-items:center}
+.tree li::before,.tree li::after{content:'';position:absolute;top:0;right:50%;width:50%;height:26px;border-top:2px solid var(--line);}
+.tree li::after{right:auto;left:50%;border-left:2px solid var(--line)}
+.tree li:only-child::before,.tree li:only-child::after{display:none}
+.tree li:first-child::before,.tree li:last-child::after{border:0}
+.tree li:last-child::before{border-right:2px solid var(--line)}
+.tree>li{padding-top:0}
+.tree>li::before,.tree>li::after{display:none}
+.tree ul ul::before{content:'';position:absolute;top:0;left:50%;width:0;height:26px;border-left:2px solid var(--line)}
+
+/* ---- node card (ADP/HR-sheet style) ---- */
+.card{position:relative;background:var(--white);border:1px solid var(--line);border-top:4px solid var(--accent,#999);
+  border-radius:12px;box-shadow:0 1px 3px rgba(16,32,56,.08);width:208px;padding:12px 14px 13px;cursor:pointer;
+  transition:transform .12s,box-shadow .15s;text-align:left}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(16,32,56,.16)}
+.card.hit{outline:3px solid var(--amber);outline-offset:2px}
+.card .top{display:flex;align-items:center;gap:10px}
+.card .av{width:38px;height:38px;border-radius:50%;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:#fff;background:var(--accent,#999);letter-spacing:.3px}
+.card .nm{font-size:14px;font-weight:800;line-height:1.15;color:var(--ink)}
+.card .ti{font-size:11.5px;color:var(--muted);line-height:1.25;margin-top:1px}
+.card .meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}
+.card .chip{font-size:10px;font-weight:700;color:var(--text);background:var(--line2);border-radius:5px;padding:2px 6px}
+.card .chip.office{color:var(--accent,#555);background:color-mix(in srgb,var(--accent) 12%,#fff)}
+.card.more{background:repeating-linear-gradient(135deg,#fff,#fff 8px,#f6f8fb 8px,#f6f8fb 16px);border-style:dashed}
+.card.more .nm{font-size:12.5px;color:var(--muted)}
+.card.dotted{border-top-style:dotted}
+.card .flag{position:absolute;top:-9px;right:10px;font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+  background:var(--accent,#999);color:#fff;padding:2px 6px;border-radius:6px}
+
+/* ---- hover card ---- */
+#hover{position:fixed;z-index:40;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;
+  padding:12px 14px;width:248px;box-shadow:0 12px 34px rgba(0,0,0,.34);font-size:12px;opacity:0;transform:translateY(4px);
+  transition:opacity .12s,transform .12s;border:1px solid rgba(255,255,255,.08)}
+#hover.show{opacity:1;transform:translateY(0)}
+#hover .hn{font-size:14px;font-weight:800}
+#hover .ht{color:#9FB3C8;font-size:11.5px;margin-top:1px}
+#hover .hr{margin-top:9px;padding-top:9px;border-top:1px solid rgba(255,255,255,.12);color:#cdd7e3;line-height:1.5}
+#hover .hr b{color:#fff}
+#hover .acc{height:3px;border-radius:3px;margin-top:8px;background:var(--accent,#78C832);width:46px}
+
+/* ---- drawer ---- */
+#scrim{position:fixed;inset:0;background:rgba(8,14,28,.4);opacity:0;pointer-events:none;transition:opacity .2s;z-index:45}
+#scrim.open{opacity:1;pointer-events:auto}
+#drawer{position:fixed;top:0;right:0;height:100vh;width:404px;max-width:92vw;background:var(--white);z-index:46;
+  transform:translateX(100%);transition:transform .24s cubic-bezier(.4,0,.2,1);box-shadow:-12px 0 40px rgba(16,32,56,.2);
+  display:flex;flex-direction:column}
+#drawer.open{transform:translateX(0)}
+#drawer .dh{background:linear-gradient(120deg,var(--ink),var(--ink2));color:#fff;padding:20px 22px}
+#drawer .dh .dav{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;
+  font-size:18px;color:#fff;background:var(--accent,#78C832);margin-bottom:12px}
+#drawer .dh h2{font-size:20px;font-weight:800;line-height:1.15}
+#drawer .dh .dt{color:#9FB3C8;font-size:13px;margin-top:3px}
+#drawer .dh .dmeta{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+#drawer .dh .dchip{font-size:10.5px;font-weight:700;background:rgba(255,255,255,.12);padding:3px 8px;border-radius:6px;color:#dbe6f2}
+#drawer .db{padding:18px 22px;overflow-y:auto;flex:1}
+#drawer .sec{margin-bottom:18px}
+#drawer .lbl{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent,#5FA520);margin-bottom:6px}
+#drawer .db p{font-size:13.5px;line-height:1.55;color:var(--text)}
+#drawer .reach{font-size:13px;line-height:1.7}
+#drawer .reach b{color:var(--ink)}
+#drawer .callout{background:color-mix(in srgb,var(--accent) 9%,#fff);border:1px solid color-mix(in srgb,var(--accent) 28%,#fff);
+  border-radius:10px;padding:11px 13px;font-size:12.5px;line-height:1.5;color:var(--text)}
+#drawer .x{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:8px;border:0;background:rgba(255,255,255,.14);
+  color:#fff;font-size:18px;cursor:pointer;line-height:1}
+#drawer .x:hover{background:rgba(255,255,255,.26)}
+.note{font-size:11px;color:var(--muted);font-style:italic}
+
+/* legend */
+.legend{position:fixed;bottom:14px;left:262px;font-size:10.5px;color:var(--muted);background:rgba(255,255,255,.9);
+  border:1px solid var(--line);border-radius:8px;padding:6px 10px;display:flex;gap:14px;z-index:4}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend i{width:18px;height:0;border-top:2px dotted var(--muted);display:inline-block}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+<div id="appWrap" style="display:none">
+<div class="app">
+  <header class="bar">
+    <div><h1>Trinity Org Chart</h1></div>
+    <div class="search"><span class="tag">Preview · V2</span><input id="q" type="text" placeholder="Search a person or team…" autocomplete="off"></div>
+  </header>
+  <nav class="rail" id="rail"></nav>
+  <div class="main">
+    <div class="crumb" id="crumb"></div>
+    <div class="canvas"><div class="tree" id="tree"></div></div>
+  </div>
+</div>
+
+<div id="hover"></div>
+<div id="scrim"></div>
+<div id="drawer">
+  <div class="dh"><button class="x" onclick="closeDrawer()">&times;</button>
+    <div class="dav" id="dav"></div><h2 id="dh2"></h2><div class="dt" id="ddt"></div>
+    <div class="dmeta" id="dmeta"></div>
+  </div>
+  <div class="db" id="ddb"></div>
+</div>
+<div class="legend">
+  <span><i></i> dotted = reporting line / matrix to confirm</span>
+  <span>Hover a card for a quick look · click for full contact</span>
+</div>
+</div><!-- /#appWrap -->
+
+<script>
+/* ---------- DATA (seed; later becomes an org_chart table) ---------- */
+// c = contact drawer: {does, when, reach:[{k,v}], callout, escalation}
+const N = {
+  rj:{p:null,n:'RJ Sparks',t:'President & CEO',o:'Wall NJ',span:20,d:'spine'},
+  kurt:{p:'rj',n:'Kurt Wingenfeld',t:'VP, Strategic Finance',o:'Wall NJ',span:7,d:'spine',
+    c:{does:'Leads Strategic Finance: Sales Operations, RSA, Commissions, Finance Partner Ops, and Warehouse.',
+       reach:[{k:'Role',v:'Final escalation point for Sales Operations (Phase 3).'}]}},
+  jp:{p:'rj',n:'JP McEvenue',t:'COO',o:'Wall NJ',span:13,d:'spine'},
+  // --- Strategic Finance / Sales Ops ---
+  victoria:{p:'kurt',n:'Victoria Broszeit',t:'Director, Sales Support & Contracts',o:'Wall NJ',span:2,d:'green'},
+  mae:{p:'kurt',n:'Meagan (Mae) Yenger',t:'Director, QA/QC',o:'Wall NJ',span:2,d:'green'},
+  jessica:{p:'kurt',n:'Jessica Tauscher',t:'Director, Strategic Initiatives',o:'Wall NJ',d:'green',
+    c:{does:'Owns sales-ops strategic initiatives and the deal-stage training.',when:'Copy on urgent (within-48h) escalations alongside your manager.'}},
+  thomas:{p:'kurt',n:'Thomas Pugliese',t:'RSA Manager',o:'Wall NJ',span:16,d:'rsa'},
+  christine:{p:'kurt',n:'Christine Breuer',t:'Commissions Manager',o:'Wall NJ',span:3,d:'green',
+    c:{does:'Runs Commissions.',when:'Commission questions.',callout:'Roster and contact channel still to confirm.'}},
+  kristi:{p:'kurt',n:'Kristi Turner',t:'Director, Finance Partner Operations',o:'Wall NJ',span:11,d:'violet',dotted:1,flag:'dotted line',
+    c:{does:'Owns all-partner milestone submissions, post–Stage 5 contract review/processing, and all post-install change orders. A separate org pulled out of Sales Ops in summer 2025.',
+       when:'Escalated customers only — clawback risk, finance-partner cancellation, urgent milestone/CO issues.',
+       reach:[{k:'Inbox',v:'milestones@trinity-solar.com or changeorders@trinity-solar.com'},{k:'General Qs',v:'Through your manager (not the inbox)'},{k:'Hours',v:'8a–5p Mon–Fri'}],
+       callout:'Reserve the inboxes for escalated customers. Do NOT use Chatter for this team.',
+       escalation:'LightReach → Ethan Hacker / Monique Gazzoni · IGS → Monique · GoodLeap → Bryan Machesky · Resigns/Sunlight/Service Finance/Cash → Katie Connor · All/policies → Kristi.'}},
+  // Sales Ops teams
+  debby:{p:'victoria',n:'Deborah English',t:'Manager, Contract Writing',o:'Wall NJ',span:5,d:'green',
+    c:{does:'Contract creation, Stage 3 revisions, post-signing resigns, LOI, install-date updates.',when:'Direct reps only — Traditional reps write their own.',
+       reach:[{k:'Salesforce',v:'@ContractWriting'},{k:'Channel',v:'Email-preferred; no direct phone'}]}},
+  scott:{p:'victoria',n:'Scott McDermott',t:'Manager, Sales Support',o:'Wall NJ',span:7,d:'green',
+    c:{does:'Triages the shared mailbox + phone lines, routes each request to the right team, backs up Direct reps in-home.',when:'The email front door for everything — any rep, any question.',
+       reach:[{k:'Email',v:'Sales.Ops@Trinity-Solar.com (all reps)'},{k:'Phone',v:'848-220-9688 (Direct in-home only)'},{k:'Hours',v:'Mon–Fri 8a–8p, Sat 8a–4p'}]}},
+  luke:{p:'mae',n:'Luke Grady',t:'Manager, Document Processing & Pre-Install Change Orders',o:'Wall NJ',span:13,d:'green',
+    c:{does:'Stage 4 readiness review, Track A/B/C assignment, document integrity (owns Track C); plus all pre-install change orders, sales approvals, signature coordination.',
+       when:'Document/Track issues and pre-install change orders.',
+       reach:[{k:'Salesforce',v:'@ProjecTracking · @SO: Pre-Install ChangeOrders'},{k:'Change order',v:'Email Sales.Ops to request — you can’t run your own CO'}],
+       callout:'Track C lives on ONE thread — Reply All to the existing email, never start a new one.'}},
+  caitlin:{p:'mae',n:'Caitlin Veneziano',t:'Manager, Training',o:'Wall NJ',d:'green',
+    c:{does:'Guides, videos, sessions, assessments, new-hire and department training.',when:'Training material or onboarding questions.',reach:[{k:'Channel',v:'Email + Teams'}]}},
+  // RSA
+  dallas:{p:'thomas',n:'Dallas Orear',t:'RSA Manager',o:'Wall NJ',d:'rsa'},
+  greg:{p:'thomas',n:'Gregory Vuksanic',t:'RSA Supervisor',o:'Wall NJ',d:'rsa'},
+  eric:{p:'thomas',n:'Eric Istvanditsch',t:'Physical Site Assessment Supervisor',o:'Wall NJ',d:'rsa'},
+  rsamore:{p:'thomas',more:1,n:'+ 12 analysts, specialists & drone operators',d:'rsa'},
+  thomasC:{}, // placeholder
+  // Finance Partner Ops
+  bryan:{p:'kristi',n:'Bryan Machesky',t:'Manager, Finance Partner Ops',o:'Wall NJ',span:4,d:'violet'},
+  katie:{p:'kristi',n:'Katie Connor',t:'Manager, Milestone Processing',o:'Wall NJ',span:1,d:'violet',
+    c:{does:'Milestone processing for Resigns, Sunlight, Service Finance, and Cash.',when:'Escalated milestone issues for those partners (via the inbox).'}},
+  diana:{p:'kristi',n:'Diana Mennella',t:'Finance Partner Operations Specialist',o:'Wall NJ',d:'violet',
+    c:{does:'High-urgency projects — preventing/mitigating clawbacks and finance-partner cancellations. A main responder to rep questions in the inbox.',when:'Clawback or cancellation risk.'}},
+  kim:{p:'kristi',n:'Kimberly Pereira',t:'Finance Partner Ops (Change Order)',o:'Wall NJ',d:'violet',
+    c:{does:'Post-install change orders + high-urgency projects; monitors the rep question inbox.',when:'Post-install change-order escalations.'}},
+  ethan:{p:'bryan',n:'Ethan Hacker',t:'Team Lead — LightReach',o:'Wall NJ',d:'violet'},
+  james:{p:'bryan',n:'James Cantwell',t:'Team Lead — Finance Partner Ops',o:'Wall NJ',d:'violet'},
+  monique:{p:'katie',n:'Monique Gazzoni',t:'Team Lead — LightReach / IGS',o:'Wall NJ',d:'violet'},
+  msmore:{p:'katie',more:1,n:'+ milestone processing team',d:'violet'},
+  // --- Operations / COO ---
+  condit:{p:'jp',n:'William Condit',t:'EVP, Operations',o:'Wall NJ',d:'spine'},
+  billie:{p:'jp',n:'Billie Klecko',t:'Corporate VP of Operations',o:'Wall NJ',span:4,d:'teal'},
+  kevin:{p:'jp',n:'Kevin Kura',t:'SVP, QA/QC',o:'Wall NJ',span:5,d:'violet'},
+  rvps:{p:'jp',n:'Keith Oliver · Phil Smith · Russell Pierson',t:'Regional VPs',o:'Multi-region',d:'teal'},
+  slaninka:{p:'jp',n:'Michael Slaninka',t:'VP, Roofing Operations',o:'Wall NJ',span:5,d:'teal'},
+  rucki:{p:'jp',n:'Kenneth Rucki',t:'Safety Director',o:'Wall NJ',span:1,d:'teal'},
+  oleg:{p:'jp',n:'Oleg Koninin',t:'Senior Director, Call Center',o:'Wall NJ',span:8,d:'blue',dotted:1,flag:'line TBD'},
+  phil:{p:'jp',n:'Phil Kelly',t:'VP, Custom Projects (CPR)',o:'Wall NJ',span:6,d:'amber',dotted:1,flag:'line TBD',
+    c:{does:'Prices and approves custom work: ground mounts, ballasted systems, long trenches.',when:'A ground mount, ballasted system, or trench needing pricing/approval.',
+       reach:[{k:'Salesforce',v:'Chatter Phil Kelly'},{k:'Trench >250ft',v:'Chatter Kevin Kura + Phil Kelly'}]}},
+  rachael:{p:'jp',n:'Rachael Guadagno',t:'Director, Customer Service',o:'Wall NJ',span:3,d:'rose',dotted:1,flag:'line TBD',
+    c:{does:'Post-sale customer relationship: customer service, Client Resources, reputation management.',when:'At-risk customer or service/reputation issue tied to a deal.',callout:'Scope & contact channel to confirm with Rachael.'}},
+  john:{p:'jp',n:'John English',t:'General Counsel',o:'Wall NJ',span:4,d:'grey',dotted:1,flag:'line TBD',
+    c:{does:'Legal operations, licensing, contract/legal review, attorneys.',when:'Rarely directly — route legal questions through the intake process (being defined) and your manager.',callout:'Rep-facing legal intake is being defined by Dan with Marissa Vila.'}},
+  // Operations children
+  gill:{p:'billie',n:'Sarah Gill',t:'Corporate Operations Director',o:'Wall NJ',d:'teal'},
+  wills:{p:'billie',n:'Peter Wills',t:'Corporate Operations Sr Director',o:'Wall NJ',span:2,d:'teal'},
+  buannic:{p:'billie',n:'Suzanne Buannic',t:'Corporate Operations Director',o:'Wall NJ',d:'teal'},
+  kseaberg:{p:'billie',n:'Katie Seaberg',t:'Corporate Operations Director',o:'Wall NJ',span:6,d:'teal'},
+  jason:{p:'kevin',n:'Jason Stolze',t:'Design Manager',o:'Wall NJ',span:17,d:'violet',
+    c:{does:'Produces and reviews the system design + home model the contract, applications, and install run on.',when:'A design question, model correction, or design revision.',callout:'Contact channel to confirm with Jason.'}},
+  rocha:{p:'kevin',n:'Edward Rocha',t:'Solar QA/QC Manager',o:'Wall NJ',span:4,d:'violet'},
+  almaraz:{p:'kevin',n:'Ayracon Almaraz',t:'Structural Engineer',o:'Wall NJ',span:6,d:'violet'},
+  dickson:{p:'kevin',n:'James Dickson',t:'Electrical State License Holder',o:'Wall NJ',d:'violet'},
+  eaton:{p:'kevin',n:'Kevin Eaton',t:'Corporate Operations Director',o:'Wall NJ',span:2,d:'violet'},
+  designmore:{p:'jason',more:1,n:'17 designers',d:'violet'},
+  courtney:{p:'oleg',n:'Courtney Romano',t:'Call Center Director',o:'Wall NJ',span:2,d:'blue'},
+  hertz:{p:'oleg',n:'Michael Hertz',t:'Call Center Manager',o:'Wall NJ',span:5,d:'blue'},
+  marotta:{p:'oleg',n:'Caitlin Marotta',t:'Call Center Manager',o:'Wall NJ',span:4,d:'blue'},
+  meunier:{p:'oleg',n:'Lori Meunier',t:'Call Quality Assurance Manager',o:'Wall NJ',span:11,d:'blue'},
+  taylor:{p:'oleg',n:'Rourke Taylor',t:'Call Systems Manager',o:'Cheshire CT',span:2,d:'blue'},
+  cprmore:{p:'phil',more:1,n:'6 Custom Project Specialists',d:'amber'},
+  kayla:{p:'rachael',n:'Kayla Desrochers',t:'Manager, Client Resources',o:'Long Island NY',span:7,d:'rose'},
+  erin:{p:'rachael',n:'Erin Buchansky',t:'Manager, Reputation Management',o:'Wall NJ',span:1,d:'rose'},
+  mahady:{p:'rachael',n:'Thomas Mahady',t:'Customer Experience Coordinator',o:'Wall NJ',d:'rose'},
+  reinhard:{p:'john',n:'Christina Reinhard',t:'Head of Legal Operations & Licensing',o:'Wall NJ',span:4,d:'grey'},
+  acker:{p:'john',n:'Christina Acker',t:'Associate General Counsel',o:'Wall NJ',d:'grey'},
+  marissa:{p:'john',n:'Marissa Vila',t:'Associate General Counsel — legal intake',o:'Wall NJ',d:'grey',
+    c:{does:'Associate General Counsel; the contact for the legal intake process Dan is defining.',when:'Through the intake process once it’s set.'}},
+  green:{p:'john',n:'Nicole Green',t:'Attorney',o:'Wall NJ',d:'grey'},
+};
+delete N.thomasC;
+
+const DEPTS=[
+  {grp:'Overview',items:[{k:'rj',label:'Whole Company',root:'rj',d:'spine'}]},
+  {grp:'Strategic Finance · Kurt Wingenfeld',items:[
+    {k:'kurt',label:'Sales Operations (all)',root:'kurt',d:'green'},
+    {k:'victoria',label:'Sales Support & Contracts',root:'victoria',d:'green'},
+    {k:'mae',label:'QA/QC · Doc Proc · Training',root:'mae',d:'green'},
+    {k:'thomas',label:'RSA',root:'thomas',d:'rsa'},
+    {k:'kristi',label:'Finance Partner Operations',root:'kristi',d:'violet'},
+    {k:'christine',label:'Commissions',root:'christine',d:'green'},
+  ]},
+  {grp:'Operations · JP McEvenue (COO)',items:[
+    {k:'jp',label:'Operations (all)',root:'jp',d:'spine'},
+    {k:'billie',label:'Corporate Operations',root:'billie',d:'teal'},
+    {k:'kevin',label:'QA/QC & Design',root:'kevin',d:'violet'},
+    {k:'oleg',label:'Call Center',root:'oleg',d:'blue'},
+    {k:'phil',label:'Custom Projects (CPR)',root:'phil',d:'amber'},
+    {k:'rachael',label:'Client Resources',root:'rachael',d:'rose'},
+    {k:'john',label:'Legal',root:'john',d:'grey'},
+  ]},
+];
+
+/* ---------- helpers ---------- */
+const css=getComputedStyle(document.documentElement);
+const accent=d=>css.getPropertyValue('--'+(d||'grey')).trim()||'#64748b';
+const initials=n=>{const w=n.replace(/[^A-Za-z &·/]/g,'').split(/[\s·\/&]+/).filter(Boolean);return ((w[0]?.[0]||'')+(w[1]?.[0]||'')).toUpperCase();};
+const kids=id=>Object.keys(N).filter(k=>N[k].p===id);
+const chain=id=>{const a=[];let c=id;while(c){a.unshift(c);c=N[c].p;}return a;};
+
+let active='kristi';
+
+/* ---------- render ---------- */
+function nodeHTML(id){
+  const x=N[id];const ac=accent(x.d);
+  if(x.more){return `<li><div class="card more" style="--accent:${ac}"><div class="nm">${x.n}</div></div></li>`;}
+  const ch=kids(id);
+  const office=x.o?`<span class="chip office">${x.o}</span>`:'';
+  const span=x.span?`<span class="chip">Span ${x.span}</span>`:'';
+  const flag=x.flag?`<span class="flag">${x.flag}</span>`:'';
+  const childHTML=ch.length?`<ul>${ch.map(nodeHTML).join('')}</ul>`:'';
+  return `<li><div class="card${x.dotted?' dotted':''}" data-id="${id}" style="--accent:${ac}">
+    ${flag}
+    <div class="top"><div class="av">${initials(x.n)}</div>
+      <div><div class="nm">${x.n}</div><div class="ti">${x.t||''}</div></div></div>
+    <div class="meta">${office}${span}${x.c?'<span class="chip">Contact ›</span>':''}</div>
+  </div>${childHTML}</li>`;
+}
+
+function renderTree(){
+  document.getElementById('tree').innerHTML=`<ul>${nodeHTML(active)}</ul>`;
+  // crumb
+  const cr=chain(N[active].p||active).filter(id=>id!==active);
+  const path=chain(active);
+  document.getElementById('crumb').innerHTML = path.map((id,i)=>{
+    const last=i===path.length-1;
+    return (last?`<b>${N[id].n}</b>`:`<a onclick="focusNode('${id}')">${N[id].n}</a>`)+(last?'':' <span class="sep">›</span> ');
+  }).join('');
+  // rail active
+  document.querySelectorAll('.rail button').forEach(b=>b.classList.toggle('active',b.dataset.k===active));
+  wireCards();
+}
+
+function renderRail(){
+  document.getElementById('rail').innerHTML = DEPTS.map(g=>
+    `<div class="grp">${g.grp}</div>`+g.items.map(it=>
+      `<button data-k="${it.root}" onclick="focusNode('${it.root}')"><span class="dot" style="--accent:${accent(it.d)}"></span>${it.label}</button>`
+    ).join('')
+  ).join('');
+}
+
+function focusNode(id){active=id;renderTree();closeDrawer();document.querySelector('.main').scrollTop=0;}
+
+/* hover + click */
+function wireCards(){
+  document.querySelectorAll('.card[data-id]').forEach(card=>{
+    const id=card.dataset.id, x=N[id];
+    card.addEventListener('mousemove',e=>showHover(e,id));
+    card.addEventListener('mouseleave',hideHover);
+    card.addEventListener('click',()=>{const k=kids(id).filter(c=>!N[c].more);
+      // click: if it has a contact drawer OR is a leaf, open drawer; else focus to expand
+      if(x.c){openDrawer(id);} else if(k.length && id!==active){focusNode(id);} else {openDrawer(id);} });
+  });
+}
+const hv=document.getElementById('hover');
+function showHover(e,id){const x=N[id];const ac=accent(x.d);
+  const prim=x.c?.reach?.[0];
+  hv.innerHTML=`<div class="hn">${x.n}</div><div class="ht">${x.t||''}</div><div class="acc" style="--accent:${ac}"></div>
+    <div class="hr">${x.o?`<b>${x.o}</b>`:''}${x.span?` · Span ${x.span}`:''}
+    ${prim?`<br><b>${prim.k}:</b> ${prim.v}`:(x.c?'<br>Click for contact details':'')}</div>`;
+  hv.style.setProperty('--accent',ac);
+  const pad=14;let l=e.clientX+16,t=e.clientY+16;
+  if(l+260>innerWidth)l=e.clientX-260;if(t+150>innerHeight)t=e.clientY-150;
+  hv.style.left=l+'px';hv.style.top=t+'px';hv.classList.add('show');
+}
+function hideHover(){hv.classList.remove('show');}
+
+/* drawer */
+function openDrawer(id){const x=N[id];const ac=accent(x.d);hideHover();
+  document.getElementById('drawer').style.setProperty('--accent',ac);
+  const dav=document.getElementById('dav');dav.textContent=initials(x.n);dav.style.background=ac;
+  document.getElementById('dh2').textContent=x.n;
+  document.getElementById('ddt').textContent=x.t||'';
+  document.getElementById('dmeta').innerHTML=(x.o?`<span class="dchip">${x.o}</span>`:'')+(x.span?`<span class="dchip">Span of control ${x.span}</span>`:'')+(N[x.p]?`<span class="dchip">Reports to ${N[x.p].n.split(' ')[0]} ${N[x.p].n.split(' ')[1]||''}</span>`:'');
+  const c=x.c||{};let h='';
+  if(c.does){h+=`<div class="sec"><div class="lbl">What they do</div><p>${c.does}</p></div>`;}
+  if(c.when){h+=`<div class="sec"><div class="lbl">When to reach out</div><p>${c.when}</p></div>`;}
+  if(c.reach){h+=`<div class="sec"><div class="lbl">How to reach them</div><div class="reach">${c.reach.map(r=>`<div><b>${r.k}:</b> ${r.v}</div>`).join('')}</div></div>`;}
+  if(c.callout){h+=`<div class="sec"><div class="callout">${c.callout}</div></div>`;}
+  if(c.escalation){h+=`<div class="sec"><div class="lbl">Escalation contacts (leadership)</div><p>${c.escalation}</p></div>`;}
+  const dn=kids(id).filter(k=>!N[k].more);
+  if(dn.length){h+=`<div class="sec"><div class="lbl">Direct reports (${dn.length})</div><p>${dn.map(k=>N[k].n).join(' · ')}</p></div>`;}
+  if(!c.does&&!c.when&&!c.reach){h=`<div class="sec"><p class="note">Scope and contact channel for this team are still to confirm.</p></div>`+h;}
+  if(id!==active && kids(id).length){h+=`<div class="sec"><a class="lbl" style="cursor:pointer;border-bottom:1px dotted" onclick="focusNode('${id}')">Focus this branch in the chart →</a></div>`;}
+  document.getElementById('ddb').innerHTML=h;
+  document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open');
+}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('scrim').classList.remove('open');}
+document.getElementById('scrim').addEventListener('click',closeDrawer);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+
+/* search */
+document.getElementById('q').addEventListener('input',e=>{
+  const v=e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.card.hit').forEach(c=>c.classList.remove('hit'));
+  if(!v)return;
+  const hit=Object.keys(N).find(k=>!N[k].more&&((N[k].n||'').toLowerCase().includes(v)||(N[k].t||'').toLowerCase().includes(v)));
+  if(!hit)return;
+  // focus the nearest focusable ancestor that keeps the hit visible: focus the hit's parent (or hit)
+  const root=N[hit].p&&kids(N[hit].p).length?N[hit].p:hit;
+  active=root;renderTree();
+  setTimeout(()=>{const el=document.querySelector(`.card[data-id="${hit}"]`);if(el){el.classList.add('hit');el.scrollIntoView({behavior:'smooth',block:'center',inline:'center'});}},30);
+});
+
+renderRail();renderTree();
+</script>
+<script src="/feedback-widget.js" defer></script>
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+// Managers-only preview (V2). Non-managers get a notice instead of the chart.
+function initApp(profile, session) {
+  if (!window.IS_MANAGER) {
+    var w = document.getElementById('appWrap');
+    if (w) w.innerHTML = '<div style="max-width:560px;margin:18vh auto;padding:0 24px;'
+      + 'font-family:Manrope,system-ui,-apple-system,Segoe UI,sans-serif;color:#1A2332;text-align:center">'
+      + '<h1 style="font-size:1.6rem;margin-bottom:12px">Managers only</h1>'
+      + '<p style="color:#6b7a90;line-height:1.6">This is a manager preview (V2) of the org chart. '
+      + 'A rep-facing version is coming. If you believe you should have access, contact Dan Pennington.</p>'
+      + '<p style="margin-top:20px"><a href="/" style="color:#3f8e1c;font-weight:600;text-decoration:none">&larr; Back to the Resource Page</a></p></div>';
+  }
+}
+</script>
+</body>
+</html>
