@@ -42,6 +42,9 @@
 #btnEvt{--c:#b45309;--cbg:rgba(180,83,9,.10)}
 #btnEsc{--c:#ca8a04;--cbg:rgba(202,138,4,.10)}
 #btnNE{--c:#0d9488;--cbg:rgba(13,148,136,.10)}
+.chart-canvas-box{position:relative;height:480px}
+body.presenter .chart-canvas-box{height:300px}
+@media(max-width:820px){.chart-canvas-box{height:300px}}
 .chart-footnote{text-align:center;font-size:.7rem;color:var(--subtle);max-width:1000px;margin:14px auto 0;line-height:1.65}
 .chart-footnote strong{color:var(--muted);font-weight:700}
 
@@ -236,7 +239,7 @@ blockquote.script{background:var(--surface);border-left:3px solid var(--blue);pa
         </div>
       </div>
 
-      <canvas id="rc"></canvas>
+      <div class="chart-canvas-box"><canvas id="rc"></canvas></div>
 
       <div class="chart-footnote">
         <strong>Historical:</strong> EIA Form 861 monthly series and EIA Table 9.8 annual data (1990 to 2025).
@@ -638,8 +641,7 @@ const cfg = {
   },
   options: {
     responsive: true,
-    maintainAspectRatio: true,
-    aspectRatio: 2.4,
+    maintainAspectRatio: false,
     interaction: { mode: 'index', intersect: false },
     plugins: {
       legend: {
@@ -757,18 +759,6 @@ function exportJPG() {
   a.href = exp.toDataURL('image/jpeg', 0.96);
   a.click();
 }
-
-// In Presenter Mode, flatten the chart (wider, shorter) so the whole graph fits
-// one slide under the compact header. Runs after training-system.js toggles the
-// body class (setTimeout defers past the synchronous class toggle).
-const _presentBtn = document.getElementById('presentBtn');
-if (_presentBtn) _presentBtn.addEventListener('click', () => setTimeout(() => {
-  const pres = document.body.classList.contains('presenter');
-  chart.options.aspectRatio = pres ? 3.4 : 2.4;
-  chart.options.plugins.legend.display = !pres;  // the toggle buttons already label every line
-  chart.resize();
-  chart.update();
-}, 0));
 
 // auth-gate calls this once the gate opens; training-system.js will not override
 // it since it is already defined. Reset scroll, refresh the deck, and resize the
