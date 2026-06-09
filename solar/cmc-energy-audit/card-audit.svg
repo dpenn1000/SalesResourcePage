@@ -13,6 +13,8 @@
   <rect width="400" height="220" fill="url(#bg)"/>
   <rect width="400" height="220" fill="url(#glow)"/>
 
+  <!-- Illustration lifted so it clears the bottom label -->
+  <g transform="translate(2,-30)">
   <!-- House -->
   <g fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" opacity="0.92">
     <polygon points="96,112 162,62 228,112" fill="rgba(255,255,255,0.05)"/>
@@ -25,6 +27,7 @@
   <circle cx="232" cy="150" r="34" fill="#0E5A50" fill-opacity="0.35" stroke="#78C832" stroke-width="8"/>
   <line x1="256" y1="174" x2="284" y2="202" stroke="#78C832" stroke-width="11" stroke-linecap="round"/>
   <path d="M218 150 l10 11 l20 -24" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 
   <!-- CMC tag -->
   <rect x="24" y="22" width="62" height="26" rx="13" fill="rgba(255,255,255,0.12)" stroke="#78C832" stroke-width="1.5"/>
