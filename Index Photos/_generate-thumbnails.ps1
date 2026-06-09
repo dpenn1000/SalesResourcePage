@@ -2,11 +2,21 @@
 $OUT = 'C:\Users\dan\repos\SalesResourcePage\Index Photos'
 function esc($s){ return ($s -replace '&','&amp;' -replace '<','&lt;' -replace '>','&gt;') }
 
-$SER="Georgia,'Times New Roman',serif"
-$PAL="'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif"
+# Title fonts (one per section, web-safe with fallbacks). $SAN stays for eyebrow/subtitle.
 $SAN="'Helvetica Neue',Arial,sans-serif"
-$TRE="'Trebuchet MS','Segoe UI',sans-serif"
-$MON="'Courier New',ui-monospace,monospace"
+$PAL="'Palatino Linotype','Book Antiqua',Palatino,Georgia,serif"      # University - elegant academic
+$CAM="Cambria,Constantia,Georgia,'Times New Roman',serif"             # Roofing - sturdy slab-ish serif
+$TNR="'Times New Roman',Times,Georgia,serif"                          # Finance - classic formal serif
+$CGO="'Century Gothic','Avant Garde','Trebuchet MS',sans-serif"       # Solar - bright geometric
+$BAH="Bahnschrift,'Franklin Gothic Medium','Arial Narrow',Arial,sans-serif" # Battery - industrial DIN
+$FRK="'Franklin Gothic Medium','Arial Narrow','Arial Black',Arial,sans-serif" # Field Mastery - strong
+$VER="Verdana,Geneva,'DejaVu Sans',sans-serif"                        # Reference - clean legible
+$ABL="'Arial Black','Arial Bold',Impact,Arial,sans-serif"            # Control - heavy/bold
+$TAH="Tahoma,Geneva,Verdana,sans-serif"                               # Ticket - utilitarian
+$TRE="'Trebuchet MS','Segoe UI',sans-serif"                           # Management - friendly corporate
+$CON="Consolas,'Courier New',ui-monospace,monospace"                 # Technology - mono
+$CAN="Candara,'Gill Sans','Gill Sans MT','Segoe UI',sans-serif"       # Customer Experience - warm humanist
+$CAL="Calibri,'Segoe UI',Corbel,Arial,sans-serif"                    # HR - soft professional
 
 # Motifs (top-right ~170px, url(#acc); {BG}=bg1)
 $M = @{
@@ -28,18 +38,18 @@ $M = @{
 # Theme: bg1(dark), bg2(vivid), acc1, acc2, eyebrow, sub, c1, c2, motif, font, wf, cap
 $T = @{
  university   = @('#1E1545','#46297E','#F2D785','#D9A93E','#EDD58A','#C9BD93','#B98CFF','#E8C66B','mortarboard',$PAL,0.53,110)
- solar        = @('#0A2E5A','#1E73C0','#FFC83D','#FFE08A','#FFD980','#BAD6F2','#FFC83D','#36B0F0','sun',$SAN,0.55,104)
- roofing      = @('#2B313B','#5A6675','#F08A3C','#FFB85A','#F4B27A','#C7CFD9','#F08A3C','#8A97A6','roof',$SER,0.52,110)
- battery      = @('#073A2A','#11B070','#B6F24A','#39E0A6','#A6F0C2','#BEEAD2','#39E0A6','#2BC07E','battery',$SAN,0.55,102)
- finance      = @('#0C3526','#18794E','#F0D27A','#D4AA48','#EBD79A','#B6D8C2','#F0D27A','#2FA86A','coin',$SER,0.52,110)
- fieldmastery = @('#11294A','#1E5BA0','#8BE04A','#36C0E8','#B6CBE0','#AEC2DA','#36C0E8','#8BE04A','target',$SER,0.52,110)
- reference    = @('#0E3340','#1C7E86','#36C9D8','#7AE0C8','#9AD8E0','#AEC8CE','#36C9D8','#2A8E96','book',$SAN,0.55,104)
- control      = @('#10283A','#1E6E92','#FF9A3C','#FFC04E','#FFC080','#AEC2D6','#FF9A3C','#2E86A6','chartup',$SAN,0.55,104)
- ticket       = @('#103246','#1E86B0','#34C0E8','#6EE0D2','#8FD6EC','#AED2DE','#34C0E8','#2A7A96','ticket',$SAN,0.55,92)
+ solar        = @('#0A2E5A','#1E73C0','#FFC83D','#FFE08A','#FFD980','#BAD6F2','#FFC83D','#36B0F0','sun',$CGO,0.62,98)
+ roofing      = @('#2B313B','#5A6675','#F08A3C','#FFB85A','#F4B27A','#C7CFD9','#F08A3C','#8A97A6','roof',$CAM,0.50,110)
+ battery      = @('#073A2A','#11B070','#B6F24A','#39E0A6','#A6F0C2','#BEEAD2','#39E0A6','#2BC07E','battery',$BAH,0.47,110)
+ finance      = @('#0C3526','#18794E','#F0D27A','#D4AA48','#EBD79A','#B6D8C2','#F0D27A','#2FA86A','coin',$TNR,0.50,110)
+ fieldmastery = @('#11294A','#1E5BA0','#8BE04A','#36C0E8','#B6CBE0','#AEC2DA','#36C0E8','#8BE04A','target',$FRK,0.50,108)
+ reference    = @('#0E3340','#1C7E86','#36C9D8','#7AE0C8','#9AD8E0','#AEC8CE','#36C9D8','#2A8E96','book',$VER,0.62,96)
+ control      = @('#10283A','#1E6E92','#FF9A3C','#FFC04E','#FFC080','#AEC2D6','#FF9A3C','#2E86A6','chartup',$ABL,0.62,98)
+ ticket       = @('#103246','#1E86B0','#34C0E8','#6EE0D2','#8FD6EC','#AED2DE','#34C0E8','#2A7A96','ticket',$TAH,0.54,92)
  management   = @('#1E2450','#3E48A0','#9AA6FF','#6ED0E8','#B8BEF8','#AEB6D6','#9AA6FF','#4A56B0','nodes',$TRE,0.55,104)
- tech         = @('#061A30','#0E5288','#2EE6FF','#5BE0A0','#6FE6F0','#9FC2D6','#2EE6FF','#1E6E9E','circuit',$MON,0.62,80)
- cx           = @('#34164A','#8A2E7E','#FF8A3C','#FF5BA8','#FFA6C8','#D6B6CE','#FF5BA8','#7A3E9E','envelope',$TRE,0.55,104)
- hr           = @('#143038','#2C6E72','#62D0C8','#8AE0A0','#8FD8D0','#AEC8C8','#62D0C8','#2C6E72','people',$TRE,0.55,104)
+ tech         = @('#061A30','#0E5288','#2EE6FF','#5BE0A0','#6FE6F0','#9FC2D6','#2EE6FF','#1E6E9E','circuit',$CON,0.56,86)
+ cx           = @('#34164A','#8A2E7E','#FF8A3C','#FF5BA8','#FFA6C8','#D6B6CE','#FF5BA8','#7A3E9E','envelope',$CAN,0.52,104)
+ hr           = @('#143038','#2C6E72','#62D0C8','#8AE0A0','#8FD8D0','#AEC8C8','#62D0C8','#2C6E72','people',$CAL,0.50,104)
 }
 
 function FitFont($lines,$wf,$cap){ $m=0; foreach($l in $lines){ if($l.Length -gt $m){$m=$l.Length} }; if($m -lt 1){$m=1}; $fit=[int]([math]::Floor(1040.0/($m*$wf))); if($fit -gt $cap){return $cap}; return $fit }
