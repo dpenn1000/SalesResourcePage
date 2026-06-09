@@ -45,6 +45,26 @@
     .btn-hdr { padding: 7px 13px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid rgba(255,255,255,0.18); background: transparent; color: rgba(255,255,255,0.65); transition: background 0.15s; }
     .btn-hdr:hover { background: rgba(255,255,255,0.1); }
 
+    /* Header settings gear + dropdown. Consolidates the utility actions
+       (view site, launcher, sign out) that used to sit loose in the header. */
+    .settings-wrap { position: relative; }
+    .btn-gear { padding: 7px 11px; font-size: 15px; line-height: 1; }
+    .settings-menu {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.18); min-width: 210px; padding: 6px;
+      display: none; z-index: 1000;
+    }
+    .settings-menu.open { display: block; }
+    .settings-menu a, .settings-menu button {
+      display: block; width: 100%; text-align: left; padding: 9px 12px; border-radius: 6px;
+      font-size: 13px; color: var(--text); background: none; border: none; cursor: pointer;
+      text-decoration: none; font-family: inherit; font-weight: 600;
+    }
+    .settings-menu a:hover, .settings-menu button:hover { background: var(--bg); }
+    .settings-menu .menu-div { height: 1px; background: var(--border); margin: 6px 4px; }
+    .settings-menu .menu-foot { padding: 7px 12px 4px; font-size: 11px; color: var(--text2); font-weight: 600; }
+
     #loginScreen { display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 60px); padding: 24px; }
     .login-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 36px 32px; width: 100%; max-width: 380px; }
     .login-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
@@ -300,6 +320,21 @@
     .tool-card.cat-pipeline { --cat-color: #FB923C; --cat-tint: rgba(251, 146, 60, 0.18); --cat-edge: rgba(251, 146, 60, 0.30); }  /* Go-Back Analyzer */
     .tool-card.cat-map      { --cat-color: #29A9E1; --cat-tint: rgba(41, 169, 225, 0.20); --cat-edge: rgba(41, 169, 225, 0.32); }  /* Appointment Mapping */
     .tool-card.cat-mobile   { --cat-color: #d97000; --cat-tint: rgba(217, 112, 0, 0.10);  --cat-edge: rgba(217, 112, 0, 0.20); }   /* Mobile PWA */
+    .tool-card.cat-coverage { --cat-color: #34D399; --cat-tint: rgba(52, 211, 153, 0.18); --cat-edge: rgba(52, 211, 153, 0.30); }  /* Coverage Map */
+    /* Admin / Maintenance group -- one shared amber accent so the whole
+       admin row reads as a single "handle with care" cluster; the per-card
+       icon differentiates the individual tools. Rides on theme-dark. */
+    .tool-card.cat-admin    { --cat-color: #F0A020; --cat-tint: rgba(240, 160, 32, 0.18); --cat-edge: rgba(240, 160, 32, 0.30); }  /* Admin / Maintenance */
+
+    /* Data-freshness badge -- reads the box's parser state cross-origin
+       (tools.ct-resource-page.com/api/parse-status) so managers can trust the
+       CT Tools numbers are current. Hidden until a successful read. */
+    .fresh-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: var(--text2); background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 4px 11px; vertical-align: middle; }
+    .fresh-dot { width: 8px; height: 8px; border-radius: 50%; background: #9aa6b4; flex: none; }
+    .fresh-dot.ok  { background: var(--green); }
+    .fresh-dot.run { background: #F0A020; animation: freshPulse 1.2s ease-in-out infinite; }
+    .fresh-dot.err { background: #E84040; }
+    @keyframes freshPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
 
     /* Page tabs */
     .page-tabs { background: var(--card); border-bottom: 1px solid var(--border); }
@@ -457,8 +492,16 @@
   <h1 style="display:none">/ Resource Admin</h1>
   <div class="header-right">
     <span class="user-label" id="userLabel"></span>
-    <button class="btn-hdr" onclick="signOut()">Sign out</button>
-    <a href="index.html" style="color:rgba(255,255,255,0.45);font-size:12px;text-decoration:none;">&larr; View site</a>
+    <div class="settings-wrap" id="settingsWrap">
+      <button class="btn-hdr btn-gear" onclick="toggleSettings()" title="Settings" aria-label="Settings">&#9881;</button>
+      <div class="settings-menu" id="settingsMenu">
+        <a href="index.html">&larr; View site</a>
+        <a href="https://tools.ct-resource-page.com/" target="_blank" rel="noopener" id="settingsLauncher" style="display:none">CT Tools Launcher &#8599;</a>
+        <div class="menu-div"></div>
+        <button onclick="signOut()">Sign out</button>
+        <div class="menu-foot">CT Traditional &middot; Admin</div>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -497,12 +540,12 @@
   <!-- Page-level tabs -->
   <div class="page-tabs">
     <div class="page-tabs-inner">
-      <button class="page-tab active" onclick="switchTab('resources')">Resources</button>
+      <button class="page-tab active" onclick="switchTab('tools')">Tools</button>
+      <button class="page-tab"        onclick="switchTab('resources')">Resources</button>
       <button class="page-tab"        onclick="switchTab('updates')">Updates</button>
       <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
-      <button class="page-tab"        onclick="switchTab('tools')">Tools</button>
-      <button class="page-tab"        onclick="switchTab('users')">Users</button>
-      <button class="page-tab"        onclick="switchTab('gridedge')">Grid Edge</button>
+      <button class="page-tab"        onclick="switchTab('users')">People</button>
+      <button class="page-tab" id="gridEdgeTab" style="display:none" onclick="switchTab('gridedge')">Grid Edge</button>
     </div>
   </div>
 
@@ -965,29 +1008,20 @@
       </a>
       <a class="tool-card cat-rep" href="/#Management">
         <div class="tool-icon">&#128188;</div>
-        <span class="tool-type">Manager Links</span>
-        <div class="tool-name">Management Resources</div>
-        <span class="tool-arrow">&#8599;</span>
-      </a>
-      <a class="tool-card cat-rep" href="admin.html?tab=users" onclick="event.preventDefault(); switchTab('users');">
-        <div class="tool-icon">&#128101;</div>
         <span class="tool-type">Rep / University</span>
-        <div class="tool-name">People (Reps &amp; Managers)</div>
+        <div class="tool-name">Management Resources</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
     </div>
 
     <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
-      <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">CT Tools (Manager Apps)</h3>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px;">
+        <h3 style="font-size:14px;font-weight:700;">CT Tools (Manager Apps)</h3>
+        <span id="ctDataFreshness" class="fresh-pill" style="display:none"></span>
+      </div>
       <p style="color:var(--text2);font-size:12px;margin:0;">Coaching + analytics tools served from the home-office server at <code>tools.ct-resource-page.com</code>. Same Supabase login -- you'll be prompted to sign in once on this subdomain.</p>
     </div>
     <div class="tools-grid">
-      <a class="tool-card theme-dark cat-hub" href="https://tools.ct-resource-page.com/" target="_blank" rel="noopener">
-        <div class="tool-icon">&#127968;</div>
-        <span class="tool-type">Hub</span>
-        <div class="tool-name">Manager Hub</div>
-        <span class="tool-arrow">&#8599;</span>
-      </a>
       <a class="tool-card theme-dark cat-daily" href="https://tools.ct-resource-page.com/dashboard" target="_blank" rel="noopener">
         <div class="tool-icon">&#128202;</div>
         <span class="tool-type">Daily</span>
@@ -1021,7 +1055,13 @@
       <a class="tool-card theme-dark cat-map" href="https://tools.ct-resource-page.com/drive-time" target="_blank" rel="noopener">
         <div class="tool-icon">&#128506;</div>
         <span class="tool-type">Map</span>
-        <div class="tool-name">Appointment Mapping</div>
+        <div class="tool-name">Drive Time &amp; Territory</div>
+        <span class="tool-arrow">&#8599;</span>
+      </a>
+      <a class="tool-card theme-dark cat-coverage" href="https://tools.ct-resource-page.com/coverage-map" target="_blank" rel="noopener">
+        <div class="tool-icon">&#128205;</div>
+        <span class="tool-type">Map</span>
+        <div class="tool-name">Coverage Map</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
       <a class="tool-card theme-mobile cat-mobile" href="https://tools.ct-resource-page.com/mobile" target="_blank" rel="noopener">
@@ -1030,6 +1070,63 @@
         <div class="tool-name">Mobile PWA</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
+    </div>
+
+    <!-- ── Admin / Maintenance ───────────────────────────────────────────────
+         Hidden by default; revealed in initApp() only when window.IS_ADMIN.
+         Houses the admin-only server tools (previously reachable only from the
+         launcher's gear menu) plus the Grid Edge data refresh and a quick link
+         back to the launcher itself, which is now demoted from the everyone-
+         facing row to an admin convenience. -->
+    <div id="adminToolsSection" style="display:none;">
+      <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Admin / Maintenance <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;">Admins only</span></h3>
+        <p style="color:var(--text2);font-size:12px;margin:0;">Data refresh, system config, and the raw launcher. Most of these write to the home-office server -- change with care.</p>
+      </div>
+      <div class="tools-grid">
+        <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/analytics-engine" target="_blank" rel="noopener">
+          <div class="tool-icon">&#128300;</div>
+          <span class="tool-type">Admin</span>
+          <div class="tool-name">Analytics Engine</div>
+          <span class="tool-arrow">&#8599;</span>
+        </a>
+        <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/rate-editor" target="_blank" rel="noopener">
+          <div class="tool-icon">&#128176;</div>
+          <span class="tool-type">Admin</span>
+          <div class="tool-name">Rate Editor</div>
+          <span class="tool-arrow">&#8599;</span>
+        </a>
+        <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/roster" target="_blank" rel="noopener">
+          <div class="tool-icon">&#128203;</div>
+          <span class="tool-type">Admin</span>
+          <div class="tool-name">Roster Editor</div>
+          <span class="tool-arrow">&#8599;</span>
+        </a>
+        <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/audio-manager" target="_blank" rel="noopener">
+          <div class="tool-icon">&#128266;</div>
+          <span class="tool-type">Admin</span>
+          <div class="tool-name">Audio Manager</div>
+          <span class="tool-arrow">&#8599;</span>
+        </a>
+        <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/dev-console" target="_blank" rel="noopener">
+          <div class="tool-icon">&#128295;</div>
+          <span class="tool-type">Admin</span>
+          <div class="tool-name">Dev Console</div>
+          <span class="tool-arrow">&#8599;</span>
+        </a>
+        <a class="tool-card cat-leads" href="admin.html?tab=gridedge" onclick="event.preventDefault(); switchTab('gridedge');">
+          <div class="tool-icon">&#9889;</div>
+          <span class="tool-type">Data Refresh</span>
+          <div class="tool-name">Grid Edge Map Data</div>
+          <span class="tool-arrow">&#8599;</span>
+        </a>
+        <a class="tool-card theme-dark cat-hub" href="https://tools.ct-resource-page.com/" target="_blank" rel="noopener">
+          <div class="tool-icon">&#127968;</div>
+          <span class="tool-type">Launcher</span>
+          <div class="tool-name">CT Tools Launcher</div>
+          <span class="tool-arrow">&#8599;</span>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -1212,6 +1309,17 @@ window.initApp = function (profile, session) {
   sb = window.sb;  // refresh the client ref now that auth-gate has created it
   document.getElementById('userLabel').textContent =
     profile.name || (session.user && session.user.email) || '';
+  // Admin-only surfaces: the Admin / Maintenance tool row and the Grid Edge
+  // data tab. Both stay hidden for non-admin managers, who get the manager
+  // launchpad (Internal Tools + CT Tools) but not the server-write tools.
+  if (window.IS_ADMIN) {
+    const adminSec = document.getElementById('adminToolsSection');
+    if (adminSec) adminSec.style.display = '';
+    const geTab = document.getElementById('gridEdgeTab');
+    if (geTab) geTab.style.display = '';
+    const launcherLink = document.getElementById('settingsLauncher');
+    if (launcherLink) launcherLink.style.display = '';
+  }
   loadResources();
   // Honor ?tab=<name> deep-links (e.g. admin.html?tab=users from the Tools
   // card or a Rep Console redirect). Falls back to the Tools tab.
@@ -1219,6 +1327,76 @@ window.initApp = function (profile, session) {
   const wantTab = new URLSearchParams(location.search).get('tab');
   switchTab(TABS.includes(wantTab) ? wantTab : 'tools');
 };
+
+// ── Header settings gear ─────────────────────────
+function toggleSettings() {
+  document.getElementById('settingsMenu').classList.toggle('open');
+}
+document.addEventListener('click', function (e) {
+  const wrap = document.getElementById('settingsWrap');
+  const menu = document.getElementById('settingsMenu');
+  if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
+});
+
+// ── CT Tools data-freshness badge ────────────────
+// Cross-origin read of the box's parser state using the user's Supabase bearer
+// token (same identity the box validates). The route is manager-gated on the
+// box; for a non-manager, an unreachable box, or a token we can't read, the
+// badge simply stays hidden -- it never blocks or errors the page.
+const TOOLS_ORIGIN = 'https://tools.ct-resource-page.com';
+
+async function loadFreshness() {
+  const el = document.getElementById('ctDataFreshness');
+  if (!el) return;
+  let token = (window.AUTH_SESSION && window.AUTH_SESSION.access_token) || null;
+  if (!token && window.sb) {
+    try {
+      const { data } = await window.sb.auth.getSession();
+      token = (data && data.session && data.session.access_token) || null;
+    } catch (e) {}
+  }
+  if (!token) { el.style.display = 'none'; return; }
+  try {
+    const r = await fetch(TOOLS_ORIGIN + '/api/parse-status',
+                          { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) { el.style.display = 'none'; return; }   // 401 non-manager, etc.
+    renderFreshness(el, await r.json());
+  } catch (e) {
+    el.style.display = 'none';   // CORS / network / box down -> stay quiet
+  }
+}
+
+function renderFreshness(el, s) {
+  const sources = ['appointment', 'performance']
+    .map(k => s[k]).filter(v => v && typeof v === 'object');
+  const anyRunning = s.any_running || sources.some(v => v.status === 'running');
+  const anyError   = sources.some(v => v.status === 'error');
+
+  let freshest = null;
+  sources.forEach(v => {
+    if (!v.last_ok) return;
+    const d = new Date(v.last_ok);
+    if (!isNaN(d.getTime()) && (!freshest || d > freshest)) freshest = d;
+  });
+
+  let cls, label;
+  if (anyRunning)      { cls = 'run'; label = 'Refreshing data…'; }
+  else if (anyError)   { cls = 'err'; label = 'Parser error — numbers may be stale'; }
+  else if (freshest)   { cls = 'ok';  label = 'Data current · updated ' + fmtFresh(freshest); }
+  else                 { cls = '';    label = 'Awaiting first parse'; }
+
+  el.innerHTML = '<span class="fresh-dot ' + cls + '"></span><span>' + label + '</span>';
+  el.style.display = '';
+}
+
+function fmtFresh(d) {
+  const now = new Date();
+  const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  if (d.toDateString() === now.toDateString()) return 'today ' + time;
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return 'yesterday ' + time;
+  return d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + time;
+}
 
 // changePassword is provided by /auth-gate.js. The old inline version updated
 // managers directly (RLS-fragile for non-admin managers); auth-gate clears the
@@ -1999,7 +2177,7 @@ document.getElementById('bulkModal').addEventListener('click', e => {
 });
 
 function switchTab(tab) {
-  const order = ['resources', 'updates', 'feedback', 'tools', 'users', 'gridedge'];
+  const order = ['tools', 'resources', 'updates', 'feedback', 'users', 'gridedge'];
   document.querySelectorAll('.page-tab').forEach((t, i) =>
     t.classList.toggle('active', order[i] === tab));
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
@@ -2008,6 +2186,7 @@ function switchTab(tab) {
   document.getElementById('tabTools').style.display     = tab === 'tools'     ? 'block' : 'none';
   document.getElementById('tabUsers').style.display     = tab === 'users'     ? 'block' : 'none';
   document.getElementById('tabGridEdge').style.display  = tab === 'gridedge'  ? 'block' : 'none';
+  if (tab === 'tools') loadFreshness();
   if (tab === 'users') { if (window.loadPeople) window.loadPeople(); }
   if (tab === 'updates') loadUpdates();
   if (tab === 'feedback') loadFeedback();
