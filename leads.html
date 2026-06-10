@@ -420,6 +420,13 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 // (a1v = Direct Lead) and can strand a rep on a generic page; this always lands
 // on the actual record (DL or job).
 const SF = 'https://trinity-solar.lightning.force.com/{}';
+// Salesforce link for a lead. Prefer the Direct Lead record (dl_sf_id); fall back
+// to the Opportunity (opportunity_ids[0]) so recycle-pool leads -- which usually
+// lack the DL id but keep an opp id -- still link into SF for the phone number.
+function sfHref(rec){
+  const id=(rec&&rec.dl_sf_id)||(rec&&rec.opportunity_ids&&rec.opportunity_ids[0])||'';
+  return id?SF.replace('{}',esc(id)):'';
+}
 
 let appStarted = false, IS_ADMIN = false;
 let props = [];        // [{property, dls:[...], primary}]
@@ -500,15 +507,22 @@ async function initApp(){
     catch(e1){document.getElementById('tableWrap').innerHTML='<div class="empty">Error loading leads: '+esc(e1.message)+'</div>';return;}
     const [{ data: cl }, { data: peopleRows }] = await Promise.all([
       sb.from('contact_log').select('id,opportunity_id,opp_name,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source,logged_by'),
-      // Stage D: source the dispatch picker from `people`, active reps only.
-      // Managers are not dispatch targets -- call-list leads are assigned to reps,
-      // and this list also feeds the rep filter + manual-add assign + per-row picker.
-      sb.from('people').select('name').eq('status','active').eq('role','rep').order('name'),
+      // Source the dispatch / assign roster from `people` (active). Targets are
+      // reps plus selling managers -- a manager who carries a book has an spd_slug,
+      // so they can dispatch leads to themselves. Pure-leadership accounts (no
+      // spd_slug) are excluded. Feeds the rep filter, manual-add assign, per-row
+      // picker, and the dispatch picker.
+      sb.from('people').select('name,role,spd_slug').eq('status','active').order('name'),
     ]);
     contacts = cl || [];
     // Dedupe defensively in case two people share a display name.
     const seen=new Set();people=[];
-    for(const p of (peopleRows||[])){if(p&&p.name&&!seen.has(p.name)){seen.add(p.name);people.push(p.name);}}
+    for(const p of (peopleRows||[])){
+      if(!p||!p.name||seen.has(p.name))continue;
+      const dispatchable=(p.role==='rep')||(p.role==='manager'&&!!p.spd_slug);
+      if(!dispatchable)continue;
+      seen.add(p.name);people.push(p.name);
+    }
     groupByProperty(dls||[]);
     const rsel=document.getElementById('fRep');
     for(const n of people){rsel.appendChild(new Option(n,n));}
@@ -897,10 +911,10 @@ function flagCard(f){
   const c=dlRow(f.dl_number);
   const nm=c?(c.dl.homeowner_name||'--'):'--';
   const town=c&&c.prop?(c.prop.town||''):'';
-  const sfId=c?c.dl.dl_sf_id:'';
+  const sfUrl=c?sfHref(c.dl):'';
   const isLang=(f.flag_type==='spanish'||f.flag_type==='language_other');
   const open=f.status==='open';
-  const sfLink=sfId?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(sfId))}">Open in SF &nearr;</a>`:'';
+  const sfLink=sfUrl?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${sfUrl}">Open in SF &nearr;</a>`:'';
   const meta=`<div class="sub" style="margin-top:3px">Flagged by <b>${esc(f.flagged_by||'--')}</b> &middot; ${fmtDate(f.created_at)}${town?' &middot; '+esc(town):''} &middot; ${esc(f.dl_number)}${sfLink}</div>`;
   const noteHtml=f.note?`<div style="margin-top:6px;font-size:13.5px">${esc(f.note)}</div>`:'';
   let actions;
@@ -1110,7 +1124,7 @@ function plLeadRow(g,cset){
   const p=g.primary;const town=(g.property&&g.property.town)||'';
   const age=recStagnant(g);const contacted=leadHasContact(g,cset);
   const notes=recoveryNotes(g);const note0=notes[0];
-  const sf=p.dl_sf_id?` <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(p.dl_sf_id))}">SF&nearr;</a>`:'';
+  const sfUrl=sfHref(p);const sf=sfUrl?` <a class="sflink" target="_blank" rel="noopener" href="${sfUrl}">SF&nearr;</a>`:'';
   return `<div class="pl-lead">
     <input type="checkbox" class="rowchk" onchange="plToggle('${esc(p.dl_number)}',this.checked)" ${plSel.has(p.dl_number)?'checked':''}>
     <div style="flex:1;min-width:0">
@@ -1308,7 +1322,8 @@ function buildDetail(g){
   h+='<div class="dgrid">'+meta.map(([k,v])=>`<div><div class="k">${esc(k)}</div>${esc(v==null||v===''?'--':v)}</div>`).join('')+'</div>';
   h+='<div class="dhdr">Appointments &amp; notes'+(g.dls.length>1?` &middot; ${g.dls.length} direct leads at this property`:'')+'</div>';
   for(const d of g.dls){
-    h+=`<div class="dl-row">${esc(d.dl_number)} &middot; ${stateBadge(d.lifecycle_state)} &middot; ${esc(d.homeowner_name||'')} &middot; rep ${esc(d.original_rep||'--')} &middot; ${esc(d.assigned_to||'unassigned')}${d.dl_sf_id?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(d.dl_sf_id))}">SF &nearr;</a>`:''}</div>`;
+    const dSf=sfHref(d);
+    h+=`<div class="dl-row">${esc(d.dl_number)} &middot; ${stateBadge(d.lifecycle_state)} &middot; ${esc(d.homeowner_name||'')} &middot; rep ${esc(d.original_rep||'--')} &middot; ${esc(d.assigned_to||'unassigned')}${dSf?` &middot; <a class="sflink" target="_blank" rel="noopener" href="${dSf}">SF &nearr;</a>`:''}</div>`;
     const appts=d.appointments||[];
     if(!appts.length)h+='<div class="appt sub">No appointment detail.</div>';
     else for(const a of appts){h+=`<div class="appt"><span class="appt-d">${fmtDate(a.date)}${a.at?' '+fmtTime(a.at):''}</span> <b>${esc(a.outcome||'--')}</b>${a.rep?' &middot; '+esc(a.rep):''}${a.job?' &middot; '+(a.job_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(a.job_sf_id))}">${esc(a.job)} &nearr;</a>`:esc(a.job)):''}${a.notes?`<div class="appt-n">${esc(a.notes)}</div>`:''}</div>`;}
@@ -1422,7 +1437,7 @@ function render(){
     const sold=g.anySold?' <span class="badge b-sold">SOLD</span>':'';
     const dnc=g.dnc?' <span class="badge b-dnc">DNC</span>':'';
     const ooState=(g.property.quality_flags||[]).includes('non_ct')?' <span class="badge b-ooState">non-CT</span>':'';
-    const link=p.dl_sf_id?`<a class="sflink" href="${SF.replace('{}',esc(p.dl_sf_id))}" target="_blank" rel="noopener">Open DL &nearr;</a>`:'<span class="sub">no link</span>';
+    const sfUrl=sfHref(p);const link=sfUrl?`<a class="sflink" href="${sfUrl}" target="_blank" rel="noopener">${p.dl_sf_id?'Open DL':'Open Opp'} &nearr;</a>`:'<span class="sub">no link</span>';
     const repOpts=['<option value="">Unassigned</option>'].concat(people.map(n=>`<option ${n===p.assigned_to?'selected':''}>${esc(n)}</option>`)).join('');
     const cat=leadCategory(g);const dsince=daysSince(p.last_appt_date);
     const flag=cat==='review'?' <span class="badge b-review">REVIEW</span>':(cat==='cooldown'?` <span class="badge b-cooldown">cooldown${dsince!=null?' '+Math.max(0,COOLDOWN_DAYS-dsince)+'d':''}</span>`:'');
@@ -1521,7 +1536,7 @@ function renderRep(){
       <td>${catBadge(leadCategory(g))}</td>
       <td>${fmtDate(p.last_appt_date)}</td>
       <td style="text-align:center">${contactCount(g)}</td>
-      <td>${p.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(p.dl_sf_id))}">Open &nearr;</a>`:'<span class="sub">--</span>'}</td></tr>`;
+      <td>${(()=>{const u=sfHref(p);return u?`<a class="sflink" target="_blank" rel="noopener" href="${u}">Open &nearr;</a>`:'<span class="sub">--</span>';})()}</td></tr>`;
   }
   tbl+='</tbody></table>';
   body.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap"><h2 style="margin:0;font-size:16px">${esc(rep)}</h2><button class="btn-sm" onclick="recallUncalled('${esc(rep)}')"${_uncalled?'':' disabled'} title="Un-dispatch every lead assigned to this rep with no logged call yet, back to the unassigned pool. Leads with any logged call stay; sold leads are never recalled.">Recall ${_uncalled} uncalled</button></div>`+
