@@ -149,6 +149,8 @@
   .book-toggle { font-family: inherit; font-size: 22px; font-weight: 800; color: var(--text); background: none; border: none; padding: 0; margin: 0; cursor: pointer; letter-spacing: -0.01em; line-height: 1.1; }
   .book-toggle:hover { color: var(--green-dk); }
   .metrics-scope { font-size: 11px; color: var(--text2); margin-bottom: 11px; line-height: 1.45; }
+  .book-toggle .book-bal { display: block; }
+  .book-line { display: block; font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0; margin-top: 2px; }
 
   /* Stack-up row (rank) */
   .stack-row {
@@ -1010,7 +1012,7 @@ async function loadMetricsSnapshot(me){
     ppaCardColor(data.ppa_gap)));
 
   if (data.balance != null) {
-    tiles.push(metric('Book', bookVal(fmtMoney(data.balance)),
+    tiles.push(metric('Book', bookReveal(data.balance, data.draw_rate),
       data.comm_status ? data.comm_status + ' status' : '',
       bookCardColor(data.balance)));
   }
@@ -1035,12 +1037,24 @@ function rankHtml(rank, of){
   return '<div class="metric-rank">#' + rank + ' of ' + of +
     '<span class="metric-hbar"><span class="metric-hbar-fill" style="width:' + fill + '%;background:' + color + '"></span></span></div>';
 }
-function bookVal(v){ return '<button type="button" class="book-toggle" data-val="' + esc(v) + '" aria-label="Show book value">&bull;&bull;&bull;&bull; tap</button>'; }
+function bookReveal(balance, draw){
+  var attrs = ' data-bal="' + esc(fmtMoney(balance)) + '"';
+  if (draw && draw > 0){
+    attrs += ' data-draw="' + esc(fmtMoney(draw)) + ' / wk draw"';
+    if (balance != null && balance > 0){ var w = Math.floor(balance / draw); attrs += ' data-weeks="' + w + ' wk' + (w === 1 ? '' : 's') + ' to empty"'; }
+  }
+  return '<button type="button" class="book-toggle"' + attrs + ' aria-label="Show book detail">&bull;&bull;&bull;&bull; tap</button>';
+}
 document.addEventListener('click', function(e){
   var b = e.target.closest && e.target.closest('.book-toggle'); if (!b) return;
   e.preventDefault();
   if (b.dataset.shown === '1'){ b.innerHTML = '&bull;&bull;&bull;&bull; tap'; b.dataset.shown = '0'; }
-  else { b.textContent = b.getAttribute('data-val'); b.dataset.shown = '1'; }
+  else {
+    var html = '<span class="book-bal">' + (b.dataset.bal || '') + '</span>';
+    if (b.dataset.draw)  html += '<span class="book-line">' + b.dataset.draw + '</span>';
+    if (b.dataset.weeks) html += '<span class="book-line">' + b.dataset.weeks + '</span>';
+    b.innerHTML = html; b.dataset.shown = '1';
+  }
 });
 function metric(label, value, sub, cls){
   return '<div class="metric ' + (cls || '') + '">' +
@@ -1128,7 +1142,7 @@ function renderMePerf(d){
   tiles.push(metric('Avg PPA', (r.avg_ppa != null ? '$' + Number(r.avg_ppa).toFixed(4) : '--') + rankTxt(ranks.ppa),
     ta.avg_ppa != null ? 'team ' + Number(ta.avg_ppa).toFixed(4) : '', teamColor(r.avg_ppa, ta.avg_ppa)));
   if (r.balance != null) {
-    tiles.push(metric('Book', bookVal(fmtMoney(r.balance)), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
+    tiles.push(metric('Book', bookReveal(r.balance, r.draw_rate), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
   }
   if (club && (club.current_tier || club.projected_tier || club.active != null)) {
     const tier = club.current_tier || club.projected_tier;
