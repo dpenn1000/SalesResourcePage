@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selling with Integrity · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:62ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:34ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:82ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:2;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--red{border-left-color:var(--red)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+.training-card .lead-num{display:inline-block;font-family:var(--serif);font-size:1.4rem;color:var(--amber);font-weight:600;margin-right:6px}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink)}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* DO / DONT */
+.do-dont{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.do-dont .do,.do-dont .dont{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.do-dont .do{border-left:3px solid var(--green)}
+.do-dont .dont{border-left:3px solid var(--red)}
+.do-dont h3{display:flex;align-items:center;gap:8px}
+.do-dont .do h3::before{content:"\2713";color:var(--green);font-weight:800}
+.do-dont .dont h3::before{content:"\2717";color:var(--red);font-weight:800}
+.do-dont ul{margin-bottom:0}
+.do-dont li{font-size:1rem}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid,.do-dont{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></div>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#why"><span class="num">1</span> Why Integrity Wins</a>
+      <a href="#case"><span class="num">2</span> A Recent Case</a>
+      <a href="#bill"><span class="num">3</span> The Bill Rule</a>
+      <a href="#written"><span class="num">4</span> What You Leave</a>
+      <a href="#credit"><span class="num">5</span> 2026 Tax Credit</a>
+      <a href="#sign"><span class="num">6</span> Real Review</a>
+      <a href="#math"><span class="num">7</span> Honest Math</a>
+      <a href="#recap"><span class="num">8</span> Checklist</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Sales Fundamentals · Integrity · All Products</span>
+    <h1>Selling with <em>Integrity</em></h1>
+    <p class="lede"><strong>Honest expectations are the whole business.</strong> A customer who knows what they're getting stays a customer, sends referrals, and never cancels. One who feels misled becomes a lawsuit. This is how we keep the first kind, and why the things you say and write in a living room matter long after you leave it.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="why">
+    <div class="wrap">
+      <h2>Integrity Is the Business, Not a Box to Check</h2>
+      <p class="intro">Start with the upside. An honest deal is a durable deal. Then know the stakes, because in the Northeast a misleading one carries weight you cannot afford to learn about the hard way.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>What honesty builds</h3>
+          <ul>
+            <li><strong>Trust earns referrals.</strong> The customer who feels respected sends you the next three doors.</li>
+            <li><strong>Honest expectations stick.</strong> Set them right and the customer is happy at month 2, not calling to cancel.</li>
+            <li><strong>A clean book compounds.</strong> Deals that fund, stay funded, and refer are how a career gets built.</li>
+            <li><strong>You sleep fine.</strong> Nothing you said comes back on you.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--red">
+          <h3>What the stakes are</h3>
+          <ul>
+            <li><strong>Consumer Fraud Acts bite hard.</strong> NJ, CT, MA, NY, and others can triple the award and add the customer's legal fees on top.</li>
+            <li><strong>The math is brutal.</strong> A $20,000 claim becomes $60,000 before attorney fees. That is what makes a small case worth a five-day trial.</li>
+            <li><strong>You can be named.</strong> A rep can be held personally liable for what they told the customer.</li>
+            <li><strong>More lawyers are watching.</strong> There are more solar plaintiff attorneys hunting these cases than ever.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout--compliance"><strong>One idea to carry:</strong> integrity protects three people at once. The customer, the company, and you. The same honest sentence does all three jobs.</div>
+
+      <div class="manager-prompt">Ask the room: name a customer who referred you because they trusted you. What did you do to earn that? Now flip it. What is the one thing a rep could say tonight that would cost the company more than the deal is worth?</div>
+
+      <details class="recall-check">
+        <summary>Why does a Consumer Fraud Act claim cost so much more than the deal?</summary>
+        <p class="answer"><span class="label">Answer</span>Several Northeast statutes triple the damages and shift the customer's attorney fees onto the company. A modest loss turns into a large judgment, which is exactly why a plaintiff's lawyer will take a small case all the way to trial.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="case">
+    <div class="wrap">
+      <h2>A Recent Case: Five Mistakes, Five Rules</h2>
+      <p class="intro">A Trinity rep's deal went to a five-day Consumer Fraud Act trial. Four of five charges were thrown out. The fifth went to a jury. Nobody set out to defraud anyone. Five small habits stacked up into a case. Each one is a rule you can follow tonight.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--red">
+          <h3><span class="lead-num">1</span>Stale numbers left behind</h3>
+          <p><strong>The rep corrected the loan amount on a brochure</strong> but left the tax-credit and SREC figures keyed to the old, higher number. Inconsistent math on paper reads as deception.</p>
+          <p><strong>Rule:</strong> fix one number, fix every number it touches.</p>
+        </div>
+        <div class="training-card training-card--red">
+          <h3><span class="lead-num">2</span>Interest never disclosed</h3>
+          <p><strong>The written loan figure left out interest,</strong> and the rep never said so or named the rate. A number that hides its biggest cost is the most-litigated defect in solar finance.</p>
+          <p><strong>Rule:</strong> disclose the rate, the APR, and that a loan figure may exclude interest.</p>
+        </div>
+        <div class="training-card training-card--red">
+          <h3><span class="lead-num">3</span>Math he couldn't defend</h3>
+          <p><strong>He could not show how he got the "cost of electricity without solar."</strong> On the stand, a number you cannot derive is treated as one you made up.</p>
+          <p><strong>Rule:</strong> show your work, or don't write the number.</p>
+        </div>
+        <div class="training-card training-card--red">
+          <h3><span class="lead-num">4</span>The no-bill promise</h3>
+          <p><strong>He told the customer they'd have no electric bill, only connection fees.</strong> False. You cannot predict future usage, rates climb, and the utility relationship remains.</p>
+          <p><strong>Rule:</strong> never promise the bill goes away.</p>
+        </div>
+        <div class="training-card training-card--red">
+          <h3><span class="lead-num">5</span>A 22-second signature</h3>
+          <p><strong>The customer signed a 40-page contract in 22 seconds,</strong> with no evidence the rep reviewed it first. The clock became the plaintiff's best exhibit.</p>
+          <p><strong>Rule:</strong> let the customer truly read and sign.</p>
+        </div>
+        <div class="training-card">
+          <h3>The thread through all five</h3>
+          <p><strong>None of these were lies told on purpose.</strong> They were shortcuts. The next six slides turn each rule into a habit so a shortcut never costs you a deal, your company, or your name.</p>
+        </div>
+      </div>
+
+      <div class="manager-prompt">Ask the room: which of these five could happen on one of your appointments this week? Be honest. Pick the one you'd most want a teammate to catch you on. Alex asked legal to send these cases over so we can run them on Coffee with Closers and Tuesday trainings, so this is the first of many.</div>
+
+      <details class="recall-check">
+        <summary>Four charges were dismissed. Why did the case still go five days?</summary>
+        <p class="answer"><span class="label">Answer</span>The fifth charge, the Consumer Fraud claim, went to a jury rather than the judge. A jury decides on what feels right or wrong, so the whole picture, the stale numbers, the missing interest, the no-bill promise, the 22-second signature, became the story. Any one habit can carry a case that far.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="bill">
+    <div class="wrap">
+      <h2>The One Rule That Prevents Most of It: the Bill</h2>
+      <p class="intro">More cases start here than anywhere else. Promising the bill disappears is the single most-cited misrepresentation in the industry. Get this one habit right and you close off most of your exposure in a single sentence.</p>
+
+      <div class="do-dont">
+        <div class="dont">
+          <h3>Never say</h3>
+          <ul>
+            <li><strong>"You'll have no electric bill."</strong> You can't predict their future usage.</li>
+            <li><strong>"Just connection fees from now on."</strong> Rates climb and usage shifts.</li>
+            <li><strong>Full coverage of your usage.</strong> A promise you can't keep is a trap set for month 2.</li>
+            <li><strong>Any guaranteed zero outcome.</strong> The customer keeps a utility relationship, period.</li>
+          </ul>
+        </div>
+        <div class="do">
+          <h3>Say instead</h3>
+          <ul>
+            <li><strong>Lead with what solar can do.</strong> Take on the part of the bill that costs the most and climbs the most.</li>
+            <li><strong>Set the bar low.</strong> Roughly one in three homes even qualifies, and even covering a piece of usage can leave a homeowner ahead.</li>
+            <li><strong>Name the small charge.</strong> "You'll still have a charge for being connected, and that's fine."</li>
+            <li><strong>Over-deliver.</strong> Promise modestly, let the system beat the promise.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Say · the honest bill frame</span>"A lot of homeowners feel unsure it's even worth it. The folks I've helped felt the same way, and what they found was that even covering a piece of their usage left them ahead. Here's what I can help you with: the part of your bill that costs the most and climbs the most, we take that on and lock it in. You'll still have a small charge for being connected, and that's fine."</blockquote>
+
+      <div class="callout"><strong>Where to go deeper:</strong> this is the integrity reason behind <em>Kill the Bill</em> and <em>Selling the Rate with Conviction</em>. Those decks show you how to lead with the bill honestly. This is the why: a promise you can't keep is the line that ends in court.</div>
+
+      <div class="manager-prompt">Ask the room: have one rep pitch the bill the wrong way, then the right way. What changed? Then ask: when a customer says "so my bill goes to zero, right?" what is your exact next sentence?</div>
+
+      <details class="recall-check">
+        <summary>A customer asks, "So I'll have no bill, right?" How do you answer?</summary>
+        <p class="answer"><span class="label">Answer</span>You don't confirm it. Reset the expectation: "I can't promise the bill goes away, and I wouldn't. What I can do is take on the part that costs the most and climbs the most, and you'll still have a small charge for staying connected." Lead with what solar can do, set the bar low, over-deliver.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="written">
+    <div class="wrap">
+      <h2>What You Write Down Can Be Used Against You</h2>
+      <p class="intro">A brochure, a text, an email. Anything you leave with a customer becomes their evidence. In the recent case, a few numbers scrawled on a brochure were the heart of the trial. Treat every written figure like it will be read aloud in a courtroom, because it might be.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--amber">
+          <h3>Every number stays accurate</h3>
+          <ul>
+            <li><strong>Fix one, fix all.</strong> Correct the loan and you must correct the tax credit, the SREC, and the savings that depend on it.</li>
+            <li><strong>No stale figures.</strong> A crossed-out number next to a dependent one nobody updated reads as a lie.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Disclose the full cost</h3>
+          <ul>
+            <li><strong>Name the interest and APR.</strong> Say plainly when a loan figure excludes interest.</li>
+            <li><strong>Name any dealer or origination fee.</strong> Hidden fees baked into principal are a top enforcement target.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Label and never guarantee</h3>
+          <ul>
+            <li><strong>Mark estimates as estimates.</strong> An estimate dressed as a fact is the problem.</li>
+            <li><strong>Write no guarantees.</strong> Not on savings, not on the bill, not on production.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout--compliance"><strong>The simple test:</strong> before you hand anything over, ask, "Could I defend every number on this page under oath?" If the answer isn't a clean yes, don't leave it. When in doubt, leave the official proposal and nothing hand-written.</div>
+
+      <div class="manager-prompt">Ask the room: pass around a real (anonymized) leave-behind. Can every rep defend every number on it? Find one figure nobody can derive. That's the one that becomes Exhibit A.</div>
+
+      <details class="recall-check">
+        <summary>You lower the loan amount on a brochure. What else has to change?</summary>
+        <p class="answer"><span class="label">Answer</span>Every number that depends on it. The tax credit, the SREC estimate, and any savings figure all key off the loan amount, so all of them revise together. Correcting one and leaving the rest stale is exactly the mistake that anchored the recent case.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="credit">
+    <div class="wrap">
+      <h2>The 2026 Tax-Credit Reality</h2>
+      <p class="intro">The rules changed at the start of this year, and getting them wrong is a fast way into the exact kind of case regulators are filing right now. Know the line cold: who still gets a federal benefit, and who does not.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>Owned, loan, or cash solar</h3>
+          <ul>
+            <li><strong>No homeowner federal credit in 2026.</strong> The Section 25D credit ended for systems placed in service after December 31, 2025.</li>
+            <li><strong>Never promise "30% back from the government"</strong> on an owned, loan, or cash system. It isn't there anymore.</li>
+            <li><strong>This is the Attyx-style failure.</strong> Misstating credit eligibility is squarely what AGs are suing over.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Lease or PPA (third-party owned)</h3>
+          <ul>
+            <li><strong>Still captures a 30%-style benefit.</strong> A third-party-owned system uses the surviving commercial credit (48E), and that value gets built into the customer's rate.</li>
+            <li><strong>Frame it honestly.</strong> The benefit lives in the lease or PPA pricing, not as a check the homeowner files for.</li>
+            <li><strong>State programs still stack.</strong> Northeast battery and storage incentives remain real. Cite the actual program, not a vague "government money."</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="do-dont">
+        <div class="dont">
+          <h3>Don't say</h3>
+          <ul>
+            <li><strong>"You'll get 30% back"</strong> on a cash or loan solar deal in 2026.</li>
+            <li><strong>"The government pays for"</strong> the system, the roof, or any part of it.</li>
+            <li><strong>A guaranteed credit dollar amount.</strong> Eligibility depends on the customer's own tax situation.</li>
+          </ul>
+        </div>
+        <div class="do">
+          <h3>Do say</h3>
+          <ul>
+            <li><strong>"On a lease or PPA, that benefit is built into your rate."</strong> True and clean.</li>
+            <li><strong>"On an owned system this year, that federal credit is gone."</strong> Honest, and it steers the right product.</li>
+            <li><strong>"Check with your tax advisor"</strong> for anything that depends on their tax situation.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="manager-prompt">Ask the room: a customer says their neighbor got "30% back from the government" last year on a cash system. How do you handle it without calling the neighbor a liar, and without repeating the claim for 2026?</div>
+
+      <details class="recall-check">
+        <summary>It's 2026. A customer wants to buy a system cash. Can you promise a 30% federal credit?</summary>
+        <p class="answer"><span class="label">Answer</span>No. The homeowner Section 25D credit ended for systems placed in service after December 31, 2025. An owned, loan, or cash system gets no federal homeowner credit this year. Only a third-party-owned lease or PPA still captures a 30%-style benefit, and that value sits in the rate, not in a check the homeowner files for.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="sign">
+    <div class="wrap">
+      <h2>Let the Customer Truly Review and Sign</h2>
+      <p class="intro">A signature is not a finish line you rush them across. A 22-second signature on a 40-page contract is a liability, not a win, because it proves no real review happened. Slow this moment down on purpose.</p>
+
+      <ol class="step-grid">
+        <li class="step">
+          <h3>Show the contract</h3>
+          <p><strong>Put the actual document on screen.</strong> The customer should see and be able to read what they're signing, not a summary.</p>
+          <span class="src">No blind signatures</span>
+        </li>
+        <li class="step">
+          <h3>Walk the key terms</h3>
+          <p><strong>Price, interest and APR, term, escalator,</strong> and what the bill will and won't include. Say each one out loud.</p>
+          <span class="src">Genuine review</span>
+        </li>
+        <li class="step">
+          <h3>Give the 3-day right</h3>
+          <p><strong>Explain the right to cancel within 3 business days,</strong> orally and in writing, with two copies of the cancellation notice.</p>
+          <span class="src">Cooling-off rule</span>
+        </li>
+        <li class="step">
+          <h3>Let real time pass</h3>
+          <p><strong>Don't pre-fill, rush, or sign for them.</strong> A real review takes minutes, and that time is your defense.</p>
+          <span class="src">The clock matters</span>
+        </li>
+      </ol>
+
+      <div class="callout callout--compliance"><strong>The standard behind this:</strong> the cooling-off rule and the SEIA consumer-protection standard (ANSI/SEIA 401-2025) both exist to make sure the customer understands the terms before they commit. Never frame a binding contract as an "estimate," a "credit check," or an "application." Never reuse or pre-fill a customer's signature.</div>
+
+      <div class="manager-prompt">Ask the room: walk the signing moment as a role-play. How do you slow it down without killing momentum? What's the line that makes "let's read this together" feel like service, not friction?</div>
+
+      <details class="recall-check">
+        <summary>Why is a 22-second signature a problem even if you explained everything first?</summary>
+        <p class="answer"><span class="label">Answer</span>Because the record shows 22 seconds and no evidence of a walkthrough. The clock is objective; your verbal explanation isn't on the page. A near-instant signature undercuts the contract's enforceability and corroborates the customer's claim that they never got to review it. Show the document, walk the terms, give the 3-day notice, and let genuine time pass.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="module" id="math">
+    <div class="wrap">
+      <h2>Honest Savings Math</h2>
+      <p class="intro">Savings claims have to hold up under scrutiny, not just sound good at the kitchen table. The rule is simple: every number ties to this home, and you can show how you got it. Anything you can't derive, you don't say.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>What a defensible number looks like</h3>
+          <ul>
+            <li><strong>Tied to their actual bill.</strong> Real usage, real roof, real shade, not a best-case home.</li>
+            <li><strong>Built on a defensible escalator.</strong> The historical norm runs roughly 3 to 3.5% a year. Use that, and be able to show it.</li>
+            <li><strong>Stated as an estimate.</strong> A projection, clearly labeled, never a guarantee of future savings.</li>
+            <li><strong>Derivable on demand.</strong> If a customer or a court asks how you got it, you can walk it line by line.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--red">
+          <h3>What gets a rep sued</h3>
+          <ul>
+            <li><strong>An inflated escalator.</strong> Projecting 6 to 8% a year to juice the savings, with no basis you can defend.</li>
+            <li><strong>A "cost without solar" you can't justify.</strong> The recent case turned partly on a number the rep couldn't explain.</li>
+            <li><strong>Best-case production.</strong> Real systems often come in 10 to 25% under an optimistic estimate.</li>
+            <li><strong>"You'll save X, guaranteed."</strong> A guarantee on the future is a promise you can't keep.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout"><strong>State your assumptions out loud.</strong> "I'm using a conservative rate increase, here's the figure, and here's how I built your number." Naming the assumption is what turns a scary projection into a defensible one. Don't understate the future cost of electricity in a way you couldn't back up later either. Accurate cuts both ways.</div>
+
+      <div class="manager-prompt">Ask the room: pick a recent proposal. What escalator did it use? Can the rep show where that number comes from? If the answer is "the tool just does it," that's a coaching gap worth closing tonight.</div>
+
+      <details class="recall-check">
+        <summary>What's wrong with projecting an 8% annual rate increase to show bigger savings?</summary>
+        <p class="answer"><span class="label">Answer</span>It isn't defensible. The historical norm is closer to 3 to 3.5%, so an 8% escalator overstates savings on an assumption you can't justify. If a customer or a court asks how you derived it, "rates always go up" isn't an answer. Use a conservative escalator, disclose it, and tie the number to the home's actual usage.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="module" id="checklist">
+    <div class="wrap">
+      <h2>The Selling with Integrity Gut Check</h2>
+      <p class="intro">One screen, run twice. Before you leave anything behind, and before any signature. If every box is checked, you walked out clean.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>The trap</th><th>The honest move</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>"No more bill"</td><td>Lead with what solar can do, set the bar low, name the connection charge, over-deliver.</td></tr>
+          <tr><td>Stale leave-behind numbers</td><td>Fix one figure, fix every dependent figure. Label estimates as estimates.</td></tr>
+          <tr><td>Hidden interest or fees</td><td>Disclose the rate, the APR, any dealer fee, and when a loan figure excludes interest.</td></tr>
+          <tr><td>"30% from the government"</td><td>Owned solar has no 2026 homeowner credit. Only lease or PPA captures a 30%-style benefit, built into the rate.</td></tr>
+          <tr><td>Savings you can't derive</td><td>Tie it to their bill, use a defensible escalator, show your math, never guarantee.</td></tr>
+          <tr><td>A rushed signature</td><td>Show the contract, walk the terms, give the 3-day notice (two copies), let real time pass.</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="checklist-head">Before I leave, and before they sign</h3>
+      <ul class="checklist list-cols">
+        <li>I never promised the bill goes away or named a guaranteed zero.</li>
+        <li>Every number I'm leaving behind is accurate and every dependent figure is revised with it.</li>
+        <li>I disclosed the interest, APR, and any dealer or origination fee.</li>
+        <li>I stated tax credits honestly for the actual product and the actual year.</li>
+        <li>I can show how I derived every savings and "cost without solar" figure.</li>
+        <li>I used a conservative, defensible rate escalator and said so out loud.</li>
+        <li>I showed the contract, walked the key terms, and gave the 3-day right in writing.</li>
+        <li>The customer had real time to read before signing. I signed nothing for them.</li>
+      </ul>
+
+      <div class="manager-prompt">Ask the room: run this checklist against tonight's appointments as a team. Which box is the one your reps are most likely to skip under pressure? Build the week's coaching around that one.</div>
+
+      <details class="recall-check">
+        <summary>Name the two moments to run this checklist.</summary>
+        <p class="answer"><span class="label">Answer</span>Before you leave anything behind, and before any signature. Those are the two points where an honest habit shuts the door on a case, and where a shortcut opens one.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Integrity protects the customer, the company, and you. The same honest sentence does all three jobs.</li>
+      <li>Northeast Consumer Fraud Acts can triple the award and add the customer's legal fees. A rep can be named.</li>
+      <li>Never promise the bill goes away. Lead with what solar can do, set the bar low, over-deliver.</li>
+      <li>What you write down is evidence. Fix one number, fix every dependent number. Disclose interest and fees.</li>
+      <li>Owned solar has no 2026 federal homeowner credit. Only lease or PPA captures a 30%-style benefit.</li>
+      <li>Show the contract, walk the terms, give the 3-day right. A rushed signature is a liability, not a win.</li>
+      <li>Tie every savings number to this home, use a defensible escalator, and be able to show your math.</li>
+      <li>Run the gut check twice: before you leave anything behind, and before any signature.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Sales Fundamentals series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

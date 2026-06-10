@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coaching to a Clean Submission (Manager Companion) · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:22ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:62ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:34ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--red{border-left-color:var(--red)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .num-badge{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:800;background:rgba(30,80,140,.08);color:var(--deep-blue);width:26px;height:26px;line-height:26px;text-align:center;border-radius:999px;margin-bottom:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink)}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"COACH THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional · Manager Companion</span></div>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#habit"><span class="num">1</span> Coach the Habit</a>
+      <a href="#cadence"><span class="num">2</span> Teams Cadence</a>
+      <a href="#gaps"><span class="num">3</span> Escalate, Don't Absorb</a>
+      <a href="#path"><span class="num">4</span> Escalation Path</a>
+      <a href="#recap"><span class="num">5</span> Recap</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Deal Submission · Manager Companion · CT Traditional</span>
+    <h1>Coaching to a <em>Clean Submission</em></h1>
+    <p class="lede"><strong>Two jobs sit with you.</strong> Build the clean-submission habit on your team, and escalate the process gaps that are not your reps' to fix. Pair this with the rep deck, <a href="/sales-fundamentals/deal-submission/submit-a-clean-deal.html">Submit a Clean Deal</a>.</p>
+    <div class="callout callout--compliance"><strong>This companion reflects the CT Traditional program.</strong> The gaps and thresholds here are the CT submittal reality: the LightReach sub-$1,000 past-due rule, photo sufficiency over checklist-completeness, oversize flags off entered usage, and the new-construction bill requirement. The "From the field" scenarios are real CT leadership-call cases, anonymized.</div>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="habit">
+    <div class="wrap">
+      <h2>Coach the habit, not the incident</h2>
+      <p class="intro">A clean submission is a pre-flight routine, not a personality trait. Reps who run the same checklist every time stop tripping Track C. Your job is to make the routine automatic.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Make it a checklist, every time</h3>
+          <p><strong>Same items, same order, before every submit.</strong> Contract, photos in Site Capture, packet signed, true usage, bill path set. Run it with the rep until it's muscle memory.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Coach to the pattern</h3>
+          <p><strong>One rep, three photo-misses this week</strong> is a habit gap, not bad luck. Pull their Track C reasons and coach the recurring line, not the one-off.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Celebrate the fast saves</h3>
+          <p><strong>Name the rep who cleared a Teams heads-up in 30 minutes.</strong> Reward the behavior you want repeated. Fast turnaround is the whole game.</p>
+        </div>
+      </div>
+
+      <div class="callout"><strong>The win you're coaching toward:</strong> a deal that turns a missing photo around in 30 minutes off the heads-up keeps moving. The same item left to a Track C email costs 4 to 6 days. Coach the 30-minute reflex.</div>
+
+      <div class="callout"><strong>From the field:</strong> a CT rep had a missing item that took about 30 minutes to get. But the deal had already landed on Track C, so that 30-minute fix sat for several days. The lesson to coach: the clock changes from minutes to days the moment a deal hits C. Submit complete the first time, and answer the Teams heads-up fast.</div>
+
+      <div class="manager-prompt">Pull one rep's current Track C deals live. What's the recurring reason? Build the one habit that prevents it.</div>
+
+      <details class="recall-check">
+        <summary>What are you actually coaching when you coach clean submissions?</summary>
+        <p class="answer"><span class="label">Answer</span>A repeatable pre-submit routine. Same checklist, same order, every time. Coach the recurring Track C reason for each rep, not the one-off, and reward fast Teams turnarounds.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="cadence">
+    <div class="wrap">
+      <h2>The daily Teams heads-up cadence</h2>
+      <p class="intro">The Track C team sends a Teams message before a deal hits a Track C email. That heads-up is the olive branch, not part of the official process. Treat catching it as a daily team workflow.</p>
+
+      <div class="compare-grid">
+        <div class="training-card">
+          <h3>Why the window is tight</h3>
+          <ul>
+            <li><strong>The team tracks through the end of shift,</strong> then sends the missing-item messages in the last hour.</li>
+            <li><strong>So some land mid-afternoon</strong> with a same-day ask. That timing is staffing-driven and isn't changing soon.</li>
+            <li><strong>The heads-up is help, not policy.</strong> The real fix is submitting clean so it never fires.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Build the catch into the day</h3>
+          <ul>
+            <li><strong>Own the watch.</strong> Someone on the team checks Teams through the afternoon so a 2:45 message doesn't sit.</li>
+            <li><strong>30 minutes beats 6 days.</strong> Make sure the rep knows a fast turn keeps the deal moving.</li>
+            <li><strong>Same as not-updated leads:</strong> a missed heads-up is a process gap on the desk, not a rep failing.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout callout--compliance"><strong>Frame it like the not-updated-leads workflow.</strong> If heads-ups are getting missed, that's a cadence problem to solve at the manager desk, not a rep to scold. Build the daily check, assign the watch, and the saves take care of themselves.</div>
+
+      <div class="manager-prompt">Who on your team owns the Teams watch each day? If the answer is "nobody," that's today's fix. Assign it now.</div>
+
+      <details class="recall-check">
+        <summary>Is the Teams heads-up part of the official Track C process?</summary>
+        <p class="answer"><span class="label">Answer</span>No. It's an olive branch from the Track C team, sent in the last hour of their shift before a deal would hit a Track C email. The official fix is submitting clean. The heads-up is a save you build a daily cadence to catch.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="gaps">
+    <div class="wrap">
+      <h2>Known gaps: escalate, don't absorb</h2>
+      <p class="intro">Some Track C holds are real process gaps, not rep error. Don't let your reps eat them. Collect the example and push it up so we resolve it with the Track C team, Jess, and Ops.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Gap</th><th>The issue</th><th>Move</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Photo sufficiency</td><td>A missing photo that doesn't block install planning still triggers Track C. Deals have sat days for a closed-door panel shot when the provided photos already scoped the work.</td><td>Coach reps to over-shoot, and push for a sufficiency bar instead of a checklist test. Send stalled examples up.</td></tr>
+          <tr><td>Past-due under $1,000</td><td>Per LightReach, past-due under $1,000 is taken for NTP and should not be Track C. Some deals are getting tracked anyway.</td><td>These should move. Push them to the Track C team or Jess to resolve; don't have the rep chase it.</td></tr>
+          <tr><td>Combined packet "blank signatures"</td><td>A BT bug shows signatures as blank even when they're signed. The Track C team has a ticket open with BT.</td><td>Workaround: download to the iPad and have the customer sign there. Don't lose the deal waiting on Adobe.</td></tr>
+          <tr><td>Oversize off rep usage</td><td>Reviewers are flagging oversize off rep-entered usage without scanning the bill, forcing change-orders and reorders.</td><td>Reviewers should size off entered usage. If a flag fired with no bill scan, collect it and send it up.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout"><strong>The line to hold:</strong> coach what's the rep's to control (photos, packet, true usage). Escalate what isn't (a wrongly-tracked sub-$1,000 past-due, the BT signature bug, an unjustified oversize flag). Absorbing a process gap quietly just lets it keep costing days.</div>
+
+      <div class="callout"><strong>From the field, sub-$1,000 past-due:</strong> a CT rep's deal was tracked for a utility past-due under $1,000. LightReach takes that for NTP, so it should not have been Track C. Don't have the rep chase it. Escalate it to the Track C team to push it forward.</div>
+
+      <div class="callout"><strong>From the field, new build with no bill yet:</strong> a CT rep had a new-construction buyer with a deed and a utility welcome letter, but no electric bill available yet. The deal sat, because LightReach needs the actual bill for a fully executed contract. Escalate it and help the rep set the customer's expectation early. The old "recover the bill later" assumption no longer carries these deals.</div>
+
+      <div class="callout"><strong>From the field, oversize off loose usage:</strong> a CT rep entered an approximate usage number and the design was flagged oversize and change-ordered off it without the bill being scanned. Coach the rep to enter true 12-month usage, and collect this kind of example to send up so we can fix the reviewer behavior with Ops.</div>
+
+      <div class="manager-prompt">Which of these four has bitten your team in the last two weeks? Do you have the example saved to send up?</div>
+
+      <details class="recall-check">
+        <summary>A rep's deal is on Track C for a $400 past-due. Coach or escalate?</summary>
+        <p class="answer"><span class="label">Answer</span>Escalate. Under $1,000 is taken for NTP and shouldn't be Track C. Push it to the Track C team or Jess with the example. Don't have the rep chase a hold that policy says shouldn't exist.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="path">
+    <div class="wrap">
+      <h2>The escalation path</h2>
+      <p class="intro">Process gaps only get fixed when the right people see the pattern. The currency is the example. Collect it, send it up, and the Track C team can train their reviewers and fight the BT tickets.</p>
+
+      <ol class="step-grid">
+        <li class="step">
+          <span class="num-badge">1</span>
+          <h3>Capture the example</h3>
+          <p><strong>The specific deal, the Track C reason, the date.</strong> A real case beats a complaint. "This deal, sub-$1,000 past-due, tracked anyway" is actionable.</p>
+        </li>
+        <li class="step">
+          <span class="num-badge">2</span>
+          <h3>Send it up the chain</h3>
+          <p><strong>To the Track C team, to Jess, or up your management chain.</strong> Jess has said: send the examples, she'll get them resolved and train her people.</p>
+        </li>
+        <li class="step">
+          <span class="num-badge">3</span>
+          <h3>Close the loop</h3>
+          <p><strong>Track whether it got resolved,</strong> and tell the rep when it does. That's what keeps reps reporting instead of quietly absorbing.</p>
+        </li>
+      </ol>
+
+      <div class="callout callout--compliance"><strong>The Track C team wants the examples.</strong> They've said openly they don't always get it right and want the cases so they can train better. Escalating isn't friction. It's how the process improves for the whole division.</div>
+
+      <div class="manager-prompt">Role-play the escalation message to Jess: one deal, one reason, one ask. Keep it to three sentences.</div>
+
+      <details class="recall-check">
+        <summary>What makes an escalation actionable?</summary>
+        <p class="answer"><span class="label">Answer</span>A specific example: the deal, the Track C reason, the date. Send it to the Track C team or Jess, then close the loop with the rep. Patterns get fixed; complaints don't.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<!-- 5: RECAP -->
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Manager's Two Jobs</span>
+    <h2>Key takeaways</h2>
+    <ul>
+      <li>Coach the pre-submit checklist as a habit, every rep, every time.</li>
+      <li>Assign a daily Teams watch so heads-ups don't sit past 2:45.</li>
+      <li>30 minutes beats 4 to 6 days. Reward the fast save.</li>
+      <li>Escalate the gaps: sub-$1,000 past-due, the BT signature bug, oversize without a bill scan.</li>
+      <li>iPad workaround beats waiting on the Adobe signature bug.</li>
+      <li>Collect the example, send it to the Track C team or Jess, close the loop.</li>
+    </ul>
+    <div class="callout callout--compliance"><strong>Pair this with the rep deck</strong> <a href="/sales-fundamentals/deal-submission/submit-a-clean-deal.html">Submit a Clean Deal</a>, and the <a href="/sales-fundamentals/master-reference/">Master Reference</a> for state rules, the M0/M1 checklist, photo specs, and pricing.</div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Deal Submission series (Manager Companion)</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>
