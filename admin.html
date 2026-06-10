@@ -545,6 +545,7 @@
       <button class="page-tab"        onclick="switchTab('updates')">Updates</button>
       <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
       <button class="page-tab"        onclick="switchTab('users')">People</button>
+      <button class="page-tab" id="commissionTabBtn" style="display:none" onclick="switchTab('commission')">Commission</button>
     </div>
   </div>
 
@@ -1168,6 +1169,25 @@
     <div id="geResult" style="display:none;margin-top:14px;font-size:14px;font-weight:600;"></div>
   </div>
 
+  <!-- ── Commission settings (admin or VP) ──────────────────────── -->
+  <div id="tabCommission" class="admin-inner" style="display:none">
+    <div class="panel-header">
+      <h2>Commission Settings</h2>
+      <button class="btn-add" id="commSaveBtn" onclick="saveCommission()" disabled style="opacity:0.5;">Save changes</button>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin:-6px 0 14px;line-height:1.6;">
+      The single source of truth for the <a href="/sales-fundamentals/commission/calculator.html" target="_blank" rel="noopener" style="color:var(--accent,#29A9E1);font-weight:600;">Commission Calculator</a>: pay rates, lead fees, minimums, club adders, and club qualifiers. Change a value here and the calculator picks it up on its next load. No code edits.
+    </p>
+    <p style="color:var(--text2);font-size:12px;margin:0 0 18px;line-height:1.55;">
+      Percent values are entered as percents (4% not 0.04). Base PPW and the rep-control cap are plain numbers. Edits are restricted to admins and VPs.
+    </p>
+
+    <div id="commStatus" style="background:#f4f6f1;border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text2);margin-bottom:18px;">Loading current settings&hellip;</div>
+    <div id="commGroups"></div>
+    <div id="commResult" style="display:none;margin-top:16px;font-size:14px;font-weight:600;"></div>
+    <div id="commMeta" style="margin-top:16px;font-size:12px;color:var(--text2);"></div>
+  </div>
+
 </div>
 
 <!-- ── Bulk Upload Modal ──────────────────────── -->
@@ -1318,12 +1338,154 @@ window.initApp = function (profile, session) {
     if (launcherLink) launcherLink.style.display = '';
   }
   loadResources();
+  // Commission settings tab: visible to admins and VPs. The gate is the
+  // server-side is_admin_or_vp() (same rule the write policy enforces); this
+  // client check only decides whether to show the tab button.
+  initCommissionGate();
   // Honor ?tab=<name> deep-links (e.g. admin.html?tab=users from the Tools
   // card or a Rep Console redirect). Falls back to the Tools tab.
-  const TABS = ['resources', 'updates', 'feedback', 'tools', 'users', 'gridedge'];
+  const TABS = ['resources', 'updates', 'feedback', 'tools', 'users', 'gridedge', 'commission'];
   const wantTab = new URLSearchParams(location.search).get('tab');
   switchTab(TABS.includes(wantTab) ? wantTab : 'tools');
 };
+
+// ── Commission settings (admin or VP) ─────────────
+// Single source of truth lives in public.commission_settings. Read for any
+// active user via get_commission_settings(); written one key at a time via
+// set_commission_setting() which is gated on is_admin_or_vp() server-side.
+window.COMM_CAN_EDIT = false;
+let COMM_META = [];          // [{key,label,grp,kind,sort,value}]
+let COMM_DIRTY = {};         // key -> new numeric value
+
+// Keys that are plain numbers, NOT decimal-share percents, even though the
+// config tags them kind='pct'. These are edited and stored as-is (no x100).
+const COMM_PLAIN_NUMBER = new Set(['base_ppw_default', 'rep_control_max_pct']);
+const commIsSharePct = (m) => m.kind === 'pct' && !COMM_PLAIN_NUMBER.has(m.key);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+async function initCommissionGate() {
+  try {
+    const { data, error } = await sb.rpc('is_admin_or_vp');
+    window.COMM_CAN_EDIT = !error && data === true;
+  } catch (e) {
+    window.COMM_CAN_EDIT = false;
+  }
+  const btn = document.getElementById('commissionTabBtn');
+  if (btn) btn.style.display = window.COMM_CAN_EDIT ? '' : 'none';
+}
+
+async function loadCommission() {
+  const status = document.getElementById('commStatus');
+  const wrap = document.getElementById('commGroups');
+  COMM_DIRTY = {};
+  setCommSaveEnabled(false);
+  document.getElementById('commResult').style.display = 'none';
+  status.textContent = 'Loading current settings…';
+  const { data, error } = await sb.rpc('get_commission_settings');
+  if (error) { status.textContent = 'Could not load settings: ' + error.message; wrap.innerHTML = ''; return; }
+  COMM_META = (data && Array.isArray(data.meta)) ? data.meta : [];
+  if (!COMM_META.length) { status.textContent = 'No commission settings found. Apply the seed migration first.'; wrap.innerHTML = ''; return; }
+
+  status.style.display = 'none';
+  // Group by grp, preserving the RPC's ordering (already grp, sort, key).
+  const groups = [];
+  const byGrp = {};
+  COMM_META.forEach(m => {
+    const g = m.grp || 'Other';
+    if (!byGrp[g]) { byGrp[g] = []; groups.push(g); }
+    byGrp[g].push(m);
+  });
+
+  const fmtVal = (m) => commIsSharePct(m) ? (m.value * 100) : m.value;
+  const unit = (m) => commIsSharePct(m) ? '%' : (m.kind === 'dollar' ? '$' : '');
+
+  let html = '';
+  groups.forEach(g => {
+    html += `<div style="margin-bottom:22px;">
+      <h3 style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;color:var(--text2);margin:0 0 10px;">${esc(g)}</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;">`;
+    byGrp[g].forEach(m => {
+      const disabled = window.COMM_CAN_EDIT ? '' : 'disabled';
+      const u = unit(m);
+      html += `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px 14px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.35;">${esc(m.label || m.key)}</label>
+        <div style="display:flex;align-items:center;gap:6px;">
+          ${u === '$' ? '<span style="color:var(--text2);font-weight:700;">$</span>' : ''}
+          <input type="number" step="any" data-comm-key="${esc(m.key)}"
+            value="${fmtVal(m)}"
+            oninput="onCommInput(this)" ${disabled}
+            style="width:100%;font-size:15px;font-weight:600;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:${window.COMM_CAN_EDIT ? '#fff' : '#f4f6f1'};">
+          ${u === '%' ? '<span style="color:var(--text2);font-weight:700;">%</span>' : ''}
+        </div>
+        <div style="font-size:11px;color:#9aa6b2;margin-top:4px;font-family:monospace;">${esc(m.key)}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  wrap.innerHTML = html;
+
+  // Last-updated line
+  const meta = document.getElementById('commMeta');
+  const upd = data.updated_at ? new Date(data.updated_at) : null;
+  meta.textContent = upd ? ('Last updated ' + upd.toLocaleString()) : '';
+
+  if (!window.COMM_CAN_EDIT) {
+    document.getElementById('commSaveBtn').style.display = 'none';
+  }
+}
+
+// Convert an editor input value back to the STORED form (decimal share for
+// true percents; as-typed for plain numbers and dollars).
+function commStoredValue(m, raw) {
+  const n = parseFloat(raw);
+  if (!isFinite(n)) return null;
+  return commIsSharePct(m) ? (n / 100) : n;
+}
+
+function onCommInput(el) {
+  const key = el.getAttribute('data-comm-key');
+  const m = COMM_META.find(x => x.key === key);
+  if (!m) return;
+  const stored = commStoredValue(m, el.value);
+  if (stored === null) { delete COMM_DIRTY[key]; }
+  else if (stored === m.value) { delete COMM_DIRTY[key]; }   // back to original
+  else { COMM_DIRTY[key] = stored; }
+  setCommSaveEnabled(Object.keys(COMM_DIRTY).length > 0);
+}
+
+function setCommSaveEnabled(on) {
+  const btn = document.getElementById('commSaveBtn');
+  if (!btn) return;
+  btn.disabled = !on;
+  btn.style.opacity = on ? '1' : '0.5';
+}
+
+async function saveCommission() {
+  if (!window.COMM_CAN_EDIT) { alert('Admins or VPs only.'); return; }
+  const keys = Object.keys(COMM_DIRTY);
+  if (!keys.length) return;
+  const result = document.getElementById('commResult');
+  result.style.display = 'block';
+  result.style.color = 'var(--text2)';
+  result.textContent = 'Saving ' + keys.length + ' change' + (keys.length > 1 ? 's' : '') + '…';
+  setCommSaveEnabled(false);
+
+  let failed = null;
+  for (const key of keys) {
+    const { error } = await sb.rpc('set_commission_setting', { p_key: key, p_value: COMM_DIRTY[key] });
+    if (error) { failed = { key, msg: error.message }; break; }
+  }
+  if (failed) {
+    result.style.color = '#E84040';
+    result.textContent = 'Save failed on "' + failed.key + '": ' + failed.msg;
+    setCommSaveEnabled(true);
+    return;
+  }
+  result.style.color = '#3a8a1a';
+  result.textContent = 'Saved. The calculator will use the new values on its next load.';
+  loadCommission();   // refresh values + last-updated stamp
+}
 
 // ── Header settings gear ─────────────────────────
 function toggleSettings() {
@@ -2183,11 +2345,14 @@ function switchTab(tab) {
   document.getElementById('tabTools').style.display     = tab === 'tools'     ? 'block' : 'none';
   document.getElementById('tabUsers').style.display     = tab === 'users'     ? 'block' : 'none';
   document.getElementById('tabGridEdge').style.display  = tab === 'gridedge'  ? 'block' : 'none';
+  const tabComm = document.getElementById('tabCommission');
+  if (tabComm) tabComm.style.display = tab === 'commission' ? 'block' : 'none';
   if (tab === 'tools') loadFreshness();
   if (tab === 'users') { if (window.loadPeople) window.loadPeople(); }
   if (tab === 'updates') loadUpdates();
   if (tab === 'feedback') loadFeedback();
   if (tab === 'gridedge') loadGridEdgeStatus();
+  if (tab === 'commission') loadCommission();
 }
 
 // ── Grid Edge map data ─────────────────────────

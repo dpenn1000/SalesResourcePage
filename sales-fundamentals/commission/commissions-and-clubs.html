@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Your Pay Works · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --gold:#C9A227; --gold-soft:#E2C766; --black-deep:#0A0A0C; --black-soft:#15151A;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+a{color:var(--deep-blue)}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--gold-soft)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:62ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:34ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:84ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+.tri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* METRIC CALLOUT */
+.metric-callout{background:var(--white);border:1px solid var(--line);border-bottom:3px solid var(--green);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow);text-align:center}
+.metric-callout .figure{display:block;font-family:var(--serif);font-size:2.2rem;font-weight:600;color:var(--ink);line-height:1}
+.metric-callout .caption{display:block;font-size:.9rem;color:var(--muted);margin-top:6px}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* ============================================================
+   ELITE CLUB THEME (black + gold)  scoped to the clubs slide
+   ============================================================ */
+.module--elite{background:linear-gradient(160deg,var(--black-deep),var(--black-soft))!important;color:rgba(255,255,255,.9);border-bottom:1px solid #2A2A30}
+.module--elite h2,.module--elite h3{color:#fff}
+.module--elite .intro{color:rgba(255,255,255,.6)}
+.module--elite .eyebrow{color:var(--gold-soft)}
+.club-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+.club-tier{background:linear-gradient(180deg,#1B1B20,#101014);border:1px solid #2E2A1C;border-top:3px solid var(--gold);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:0 6px 24px rgba(0,0,0,.45)}
+.club-tier .rank{font-family:var(--sans);font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px}
+.club-tier h3{font-family:var(--serif);color:var(--gold-soft);font-size:1.4rem;margin-bottom:var(--space-2)}
+.club-tier .bands{list-style:none;padding:0;margin:0}
+.club-tier .bands li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid rgba(201,162,39,.18);font-size:.98rem;color:rgba(255,255,255,.85)}
+.club-tier .bands li:last-child{border-bottom:none}
+.club-tier .bands .k{color:rgba(255,255,255,.55);font-weight:600}
+.club-tier .bands .v{color:#fff;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.club-tier--royalty{border-top-color:var(--gold-soft);box-shadow:0 6px 28px rgba(201,162,39,.22)}
+.gate-note{margin-top:var(--space-3);border:1px solid rgba(201,162,39,.4);background:rgba(201,162,39,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;color:rgba(255,255,255,.85)}
+.gate-note strong{color:var(--gold-soft)}
+.module--elite .recall-check{background:#15151A;border-color:#2E2A1C;border-left-color:var(--gold)}
+.module--elite .recall-check summary{color:#fff}
+.module--elite .recall-check summary::before{color:var(--gold)}
+.module--elite .recall-check .answer{color:rgba(255,255,255,.85)}
+.module--elite .recall-check .label{color:var(--gold-soft)}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--gold-soft)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--gold);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+.foot a{color:var(--deep-blue)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+body.presenter .module--elite .manager-prompt{background:rgba(201,162,39,.14);border-color:var(--gold);color:#fff}
+body.presenter .module--elite .manager-prompt::before{color:var(--gold-soft)}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid,.tri-grid,.club-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <div class="brand"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></div>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#why"><span class="num">1</span> Why It Rewards Skill</a>
+      <a href="#anatomy"><span class="num">2</span> Anatomy of a Check</a>
+      <a href="#levers"><span class="num">3</span> Three Levers</a>
+      <a href="#clubs"><span class="num">4</span> The Sales Clubs</a>
+      <a href="#worth"><span class="num">5</span> What's It Worth</a>
+      <a href="#strategy"><span class="num">6</span> Getting There</a>
+      <a href="#recap"><span class="num">7</span> Recap</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Finance · Compensation · Sales Clubs</span>
+    <h1>How Your Pay Works: Commissions and the <em>Sales Clubs</em></h1>
+    <p class="lede"><strong>Your commission isn't a flat rate. It's a formula you can move.</strong> Hit a Sales Club and three levers shift in your favor at once, on every deal you write for the year. Learn the math, then learn the path to the next tier.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="why">
+    <div class="wrap">
+      <span class="eyebrow">Module 1</span>
+      <h2>Your Pay Structure Rewards Skill</h2>
+      <p class="intro">Most pay plans pay the same on deal one and deal one hundred. Yours doesn't. The better you get, the more every single deal pays, because a Sales Club is a raise you earn once and keep all year.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>A club is a standing raise</h3>
+          <p><strong>Clubs aren't a one-time bonus.</strong> Qualify, and a higher rate rides on every deal you write for the year. Skill compounds.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Volume and quality both count</h3>
+          <p><strong>The clubs reward installs and active contracts,</strong> across solar, roof, and battery. You build the number with real, clean deals that stick.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>The math is knowable</h3>
+          <p><strong>Every check comes from one formula.</strong> Once you can read it, you can see exactly what the next tier adds to each deal.</p>
+        </div>
+      </div>
+
+      <div class="callout"><strong>The frame for this deck:</strong> not "work harder for the same pay." It's "get to the next club, and the raise follows you on every deal." We'll show the dollars.</div>
+
+      <div class="manager-prompt">Ask the room: who here knows which club they're tracking toward right now? If the answer is "no one," that's the gap we close today.</div>
+
+      <details class="recall-check">
+        <summary>Why is a Sales Club called a raise you keep, not a bonus?</summary>
+        <p class="answer"><span class="label">Answer</span>A bonus pays once. A club shifts your commission formula for the whole year, so a higher rate rides on every deal you write. The skill that earned it keeps paying.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="anatomy">
+    <div class="wrap">
+      <span class="eyebrow">Module 2</span>
+      <h2>Anatomy of a Commission: The Four Parts</h2>
+      <p class="intro">Every per-job commission is four moving pieces. We'll walk a sample 8.2 kW deal so the numbers are concrete. Treat the dollars as illustrative, the structure as exact.</p>
+
+      <ol class="step-grid">
+        <li class="step">
+          <h3>1. Base Payout</h3>
+          <p><strong>Base EPC times your base rate.</strong> Base EPC is system kW times 1000 times the base price per watt (3.00). The rate is 4% on a company or Outreach lead, 2% on a self-gen.</p>
+        </li>
+        <li class="step">
+          <h3>2. Lead Fee</h3>
+          <p><strong>Subtracted from the base.</strong> Outside a club it's 475 per deal. Your club tier shrinks it.</p>
+        </li>
+        <li class="step">
+          <h3>3. Above-Base Adder</h3>
+          <p><strong>Pays you on price above base.</strong> The system EPC above base EPC, times your above-base rate. Sell above the floor and this grows.</p>
+        </li>
+        <li class="step">
+          <h3>4. Club Adder</h3>
+          <p><strong>A percentage of club value,</strong> added on top once you're in a tier. High Flyer 0.5%, President 0.75%, Royalty 1.0%.</p>
+        </li>
+      </ol>
+
+      <div class="callout callout--compliance"><strong>The formula, in one line:</strong> Base Payout (Base EPC times your rate) minus Lead Fee, plus Above-Base Adder, plus Club Adder. Want to model your own deal? Use the <a href="/sales-fundamentals/commission/calculator.html">Commission Calculator</a>.</div>
+
+      <div class="callout"><strong>The floor:</strong> minimum commission is 750 per deal. If the price per watt comes in below base, the deal pays the floor instead of the formula.</div>
+
+      <div class="manager-prompt">Ask the room: in the four-part formula, which part does a rep actually control in the living room? (The above-base adder, by where they price the deal.)</div>
+
+      <details class="recall-check">
+        <summary>Name the four parts of a per-job commission.</summary>
+        <p class="answer"><span class="label">Answer</span>Base Payout (Base EPC times your rate), minus the Lead Fee, plus the Above-Base Adder (price above base times the above-base rate), plus the Club Adder. A 750 floor catches any deal priced below base.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="levers">
+    <div class="wrap">
+      <span class="eyebrow">Module 3</span>
+      <h2>The Three Levers a Club Moves</h2>
+      <p class="intro">One qualification moves three numbers at the same time. Your above-base rate climbs, your lead fee drops, and a club adder appears. Here's before and after on the sample 8.2 kW company-lead deal.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--ink">
+          <h3>No Club</h3>
+          <ul>
+            <li><strong>Above-base rate:</strong> 25%</li>
+            <li><strong>Lead fee:</strong> 475 per deal</li>
+            <li><strong>Club adder:</strong> none</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>High Flyer (first tier)</h3>
+          <ul>
+            <li><strong>Above-base rate:</strong> 33%</li>
+            <li><strong>Lead fee:</strong> 375 per deal</li>
+            <li><strong>Club adder:</strong> 0.5% of club value</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tri-grid">
+        <div class="metric-callout">
+          <span class="figure">25% &rarr; 33%</span>
+          <span class="caption">Above-base rate climbs</span>
+        </div>
+        <div class="metric-callout">
+          <span class="figure">475 &rarr; 375</span>
+          <span class="caption">Lead fee drops per deal</span>
+        </div>
+        <div class="metric-callout">
+          <span class="figure">+0.5%</span>
+          <span class="caption">Club adder appears</span>
+        </div>
+      </div>
+
+      <div class="callout"><strong>Net on the sample deal:</strong> moving from No Club to High Flyer is worth about 557 more per job. Three small shifts stack into one real number, on every deal. Figures are illustrative, not a promise.</div>
+
+      <div class="manager-prompt">Ask the room: three levers move at once. Which one surprises reps most? (Usually the lead fee, because they never see it as a line they can shrink.)</div>
+
+      <details class="recall-check">
+        <summary>What three things change the moment you hit a club?</summary>
+        <p class="answer"><span class="label">Answer</span>The above-base rate rises (25% to 33% at High Flyer), the lead fee drops (475 to 375), and a club adder is added (0.5% of club value at High Flyer). All three at once, on every deal.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4  ELITE / BLACK + GOLD -->
+  <section class="module module--elite" id="clubs">
+    <div class="wrap">
+      <span class="eyebrow">Module 4 · Elite Club Metrics</span>
+      <h2>The Sales Clubs and How You Qualify</h2>
+      <p class="intro">Three tiers, earned over the year by annual counts. Installs and Active Contracts each include Solar, Roof (to include RR&amp;R), and Battery. One gate applies to all three.</p>
+
+      <div class="club-grid">
+        <div class="club-tier">
+          <span class="rank">Tier 1</span>
+          <h3>High Flyer</h3>
+          <ul class="bands">
+            <li><span class="k">Installs</span><span class="v">15 to 24</span></li>
+            <li><span class="k">Active contracts</span><span class="v">20 to 29</span></li>
+            <li><span class="k">Club adder</span><span class="v">0.5%</span></li>
+          </ul>
+        </div>
+        <div class="club-tier">
+          <span class="rank">Tier 2</span>
+          <h3>President's Club</h3>
+          <ul class="bands">
+            <li><span class="k">Installs</span><span class="v">25 to 34</span></li>
+            <li><span class="k">Active contracts</span><span class="v">30 to 39</span></li>
+            <li><span class="k">Club adder</span><span class="v">0.75%</span></li>
+          </ul>
+        </div>
+        <div class="club-tier club-tier--royalty">
+          <span class="rank">Tier 3 · Top</span>
+          <h3>Royalty Club</h3>
+          <ul class="bands">
+            <li><span class="k">Installs</span><span class="v">35+</span></li>
+            <li><span class="k">Active contracts</span><span class="v">40+</span></li>
+            <li><span class="k">Club adder</span><span class="v">1.0%</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="gate-note"><strong>The gate:</strong> your Solar active-contracts rep-control percentage must be 20.00% or lower to qualify for any tier. Hit the counts and miss the gate, and you don't make the club. Protect that number all year.</div>
+
+      <div class="manager-prompt">Ask the room: counts get you to the door, the under-20% gate lets you in. Whose rep-control number do we need to watch this quarter?</div>
+
+      <details class="recall-check">
+        <summary>You hit 26 installs and 31 active contracts. Which club, and what could still stop you?</summary>
+        <p class="answer"><span class="label">Answer</span>That's President's Club range (installs 25 to 34, active contracts 30 to 39). One thing still stops you: a Solar rep-control percentage above 20.00%. Clear the counts and the gate to qualify.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="worth">
+    <div class="wrap">
+      <span class="eyebrow">Module 5</span>
+      <h2>What the Next Club Is Worth</h2>
+      <p class="intro">Per job, then across a year. The sample assumes the 8.2 kW company-lead deal at 8 sales a month. Treat every figure as illustrative, a way to see the shape, not a guarantee.</p>
+
+      <div class="card-grid">
+        <div class="metric-callout">
+          <span class="figure">+557</span>
+          <span class="caption">Per job, No Club to High Flyer</span>
+        </div>
+        <div class="metric-callout">
+          <span class="figure">+61.50</span>
+          <span class="caption">Per job, High Flyer to President</span>
+        </div>
+        <div class="metric-callout">
+          <span class="figure">+61.50</span>
+          <span class="caption">Per job, President to Royalty</span>
+        </div>
+      </div>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Tier</th><th>Illustrative annual (8 sales/mo, company lead)</th><th>Step up from prior tier</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>No Club</td><td>About 149k</td><td>Baseline</td></tr>
+          <tr><td>High Flyer</td><td>About 203k</td><td>The big jump: the three levers compound</td></tr>
+          <tr><td>President's Club</td><td>About 209k</td><td>A steady step on top</td></tr>
+          <tr><td>Royalty Club</td><td>About 215k</td><td>The top tier, full club adder</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout--compliance"><strong>Read these right:</strong> the numbers model one specific deal at one specific pace. Your real pay depends on your deals, your mix, and your lead source. They show the shape of the climb, not a promise. Model your own deal in the <a href="/sales-fundamentals/commission/calculator.html">Commission Calculator</a>.</div>
+
+      <div class="manager-prompt">Ask the room: the first club is the biggest jump by far. What does that tell us about where to put coaching effort? (Getting reps over the High Flyer line.)</div>
+
+      <details class="recall-check">
+        <summary>Which jump between tiers is the largest, and why?</summary>
+        <p class="answer"><span class="label">Answer</span>No Club to High Flyer, by a wide margin (about 557 per job). That's the tier where all three levers move at once. The step-ups to President and Royalty are real but smaller, since the rate and lead fee are already set. Figures are illustrative.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="strategy">
+    <div class="wrap">
+      <span class="eyebrow">Module 6</span>
+      <h2>The Strategy to Get There</h2>
+      <p class="intro">The clubs ask for two numbers, installs and active contracts, with a gate. Each one has a play. Here's how to build the count without gaming it.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Active contracts vs. installs</h3>
+          <p><strong>Active contracts run ahead of installs</strong> in every tier. Keep deals clean and on track so contracts hold active and convert to installs, not cancel.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Use the full product line</h3>
+          <p><strong>Roof and battery count too,</strong> alongside solar. A bundle that solves the whole home builds your number and serves the customer. Don't disqualify a roof, fold it in.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Protect your rep-control percentage</h3>
+          <p><strong>The under-20% gate is yours to lose.</strong> Watch it all year. Hitting the counts means nothing if the gate closes on the rate you control.</p>
+        </div>
+      </div>
+
+      <div class="callout"><strong>The whole-home path:</strong> since roof and battery both count, the rep who sells the whole home climbs faster than the solar-only rep at the same door count. Bundle, don't disqualify.</div>
+
+      <div class="callout callout--compliance"><strong>Track it live:</strong> the official commission and club tracking dashboard for reps and managers is the <a href="https://tsprodopsii.trinity-solar.com/#/" target="_blank" rel="noopener">Trinity Sales Commission Dashboard</a>. Check where you stand against each tier.</div>
+
+      <div class="manager-prompt">Ask the room: each rep names their gap to the next tier in two numbers: installs needed and active contracts needed. Then name the one thing this week that closes it.</div>
+
+      <details class="recall-check">
+        <summary>Roof and battery count toward the clubs. What does that change about your strategy?</summary>
+        <p class="answer"><span class="label">Answer</span>Selling the whole home builds your install and active-contract count faster than solar alone. A roof or battery becomes part of the number, not a side deal. Bundle the home, climb the tiers.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>A Sales Club is a raise you earn once and keep all year, on every deal.</li>
+      <li>Commission has four parts: base payout, minus lead fee, plus above-base adder, plus club adder. The floor is 750.</li>
+      <li>A club moves three levers at once: above-base rate up, lead fee down, club adder added.</li>
+      <li>Three tiers by annual counts: High Flyer (15 to 24 installs), President (25 to 34), Royalty (35+).</li>
+      <li>The gate: Solar rep-control must be 20.00% or lower. Counts get you to the door, the gate lets you in.</li>
+      <li>The first club is the biggest jump. Roof and battery count, so sell the whole home to climb.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Compensation series · Model a deal in the <a href="/sales-fundamentals/commission/calculator.html">Commission Calculator</a> · Track progress on the <a href="https://tsprodopsii.trinity-solar.com/#/" target="_blank" rel="noopener">Commission Dashboard</a></div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

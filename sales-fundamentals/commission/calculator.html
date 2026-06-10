@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commission Calculator | Trinity Solar CT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:   #78C832;
+    --green-d: #5eba28;
+    --accent:  #29A9E1;
+    --ink:     #1A2332;
+    --muted:   #6b7a8d;
+    --border:  #DFE2DA;
+    --bg:      #EFF1EC;
+    --surface: #ffffff;
+    --amber:   #F5A623;
+    --radius:  12px;
+    --shadow:  0 1px 4px rgba(0,0,0,0.07);
+    /* Elite Club accents */
+    --club-ink:   #14110a;
+    --club-ink-2: #20190d;
+    --gold:       #D4AF37;
+    --gold-soft:  #e7cd72;
+    --gold-line:  rgba(212,175,55,0.32);
+  }
+
+  html { background: var(--bg); color: var(--ink); font-family: 'Manrope', sans-serif; font-size: 16px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+  body { min-height: 100vh; }
+
+  /* Header */
+  .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .header-inner { max-width: 920px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .logo-mark { width: 34px; height: 34px; background: var(--green); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: #0b1120; flex-shrink: 0; }
+  .header-text { flex: 1; min-width: 0; }
+  .header-title { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700; line-height: 1.15; }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .header-link { font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+  .header-link:hover { opacity: 0.8; }
+
+  .main { max-width: 920px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  .page-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-d); }
+  .page-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; line-height: 1.15; margin: 6px 0 8px; }
+  .page-desc { font-size: 15px; color: var(--muted); max-width: 62ch; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-top: 20px; }
+  .card-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .card-hint { font-size: 14px; color: var(--muted); margin-bottom: 16px; }
+
+  /* Inputs */
+  .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field select { width: 100%; font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 600; padding: 12px 13px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--ink); }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); }
+  .field .unit { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 4px; }
+
+  .toggle { display: inline-flex; gap: 4px; background: var(--bg); border: 1px solid var(--border); border-radius: 11px; padding: 4px; }
+  .toggle button { font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; padding: 9px 16px; border-radius: 8px; border: none; background: transparent; color: var(--muted); cursor: pointer; }
+  .toggle button.active { background: var(--green); color: #0b1120; }
+
+  .derived { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 18px 28px; padding: 14px 16px; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); }
+  .derived .d { font-size: 13px; }
+  .derived .d span { display: block; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .derived .d strong { font-size: 17px; font-weight: 700; color: var(--ink); }
+
+  /* Breakdown */
+  .breakdown { margin-top: 6px; }
+  .brow { display: flex; align-items: center; justify-content: space-between; padding: 11px 2px; border-bottom: 1px solid var(--border); font-size: 15px; }
+  .brow .lbl { color: var(--ink); font-weight: 600; }
+  .brow .lbl small { display: block; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .brow .val { font-family: 'Fraunces', serif; font-weight: 700; font-size: 17px; }
+  .brow .val.neg { color: #c0392b; }
+  .brow.total { border-bottom: none; margin-top: 6px; padding: 16px 18px; background: rgba(120,200,50,0.1); border: 1.5px solid var(--green); border-radius: 12px; }
+  .brow.total .lbl { font-size: 16px; font-weight: 800; }
+  .brow.total .val { font-size: 26px; color: var(--green-d); }
+  .brow .pct { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .floor-note { margin-top: 14px; padding: 12px 14px; background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3); border-radius: 10px; font-size: 13px; color: #8a6516; line-height: 1.5; display: none; }
+  .floor-note.show { display: block; }
+
+  /* Elite Club comparison card */
+  .club-card { background: linear-gradient(160deg, var(--club-ink) 0%, var(--club-ink-2) 100%); border: 1px solid var(--gold-line); border-radius: var(--radius); box-shadow: 0 6px 22px rgba(0,0,0,0.22); padding: 22px; margin-top: 20px; color: #f4efe2; }
+  .club-eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); }
+  .club-title { font-family: 'Fraunces', serif; font-size: 21px; font-weight: 700; margin: 4px 0 4px; color: #fbf6e9; }
+  .club-hint { font-size: 13.5px; color: #c9c0a8; margin-bottom: 18px; max-width: 60ch; }
+
+  .club-tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+  .tier { border: 1px solid rgba(212,175,55,0.22); border-radius: 12px; padding: 16px; background: rgba(255,255,255,0.02); position: relative; }
+  .tier.elite { border-color: var(--gold); background: linear-gradient(165deg, rgba(212,175,55,0.14), rgba(212,175,55,0.03)); box-shadow: inset 0 0 0 1px rgba(212,175,55,0.18); }
+  .tier-name { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 700; color: #fbf6e9; display: flex; align-items: center; gap: 7px; }
+  .tier-name .crest { color: var(--gold); font-size: 13px; }
+  .tier-perjob { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: #fff; margin-top: 8px; line-height: 1; }
+  .tier-perjob small { font-size: 12px; font-weight: 600; color: #b9b095; font-family: 'Manrope', sans-serif; display: block; margin-top: 3px; letter-spacing: 0.02em; }
+  .tier-uplift { margin-top: 12px; font-size: 13px; font-weight: 700; color: var(--gold-soft); background: rgba(212,175,55,0.12); border: 1px solid var(--gold-line); border-radius: 8px; padding: 7px 10px; text-align: center; }
+  .tier-uplift.base { color: #9a927a; background: transparent; border-color: rgba(255,255,255,0.07); font-weight: 600; }
+  .tier-proj { margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12.5px; color: #cfc7af; }
+  .tier-proj div { display: flex; justify-content: space-between; padding: 2px 0; }
+  .tier-proj b { color: #f4efe2; font-weight: 700; }
+
+  .club-foot { margin-top: 16px; font-size: 12.5px; color: #b6ad94; line-height: 1.55; }
+  .club-foot strong { color: var(--gold-soft); }
+
+  /* Discrepancy / draft notes */
+  .note { margin-top: 18px; padding: 14px 16px; border-radius: 10px; font-size: 13px; line-height: 1.6; }
+  .note-flag { background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.35); color: #7a5a14; }
+  .note-flag .note-label { font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: 11px; color: #b9791a; display: block; margin-bottom: 4px; }
+  .note-draft { background: rgba(41,169,225,0.07); border: 1px solid rgba(41,169,225,0.25); color: #245d77; }
+
+  .disclaimer { margin-top: 22px; font-size: 13px; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 16px; }
+  .ver { font-size: 12px; color: #9aa6b2; margin-top: 8px; }
+
+  @media (max-width: 600px) {
+    .page-title { font-size: 24px; }
+    .brow.total .val { font-size: 22px; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="page-header">
+  <div class="header-inner">
+    <div class="logo-mark">T</div>
+    <div class="header-text">
+      <div class="header-title">Commission Calculator</div>
+      <div class="header-sub">Trinity Solar CT &middot; Sales Fundamentals</div>
+    </div>
+    <a class="header-link" href="/sales-fundamentals/finance/partner-finder/index.html">Partner Finder &rarr;</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="page-eyebrow">Sales Fundamentals / Pay</div>
+  <h1 class="page-title">What does this deal pay?</h1>
+  <p class="page-desc">Enter the system and the pricing, pick how the deal was set, and see your commission broken down line by line. Then look at what the same deal pays at each Elite Club tier, so you can see exactly what the next club is worth on every job.</p>
+
+  <!-- Inputs -->
+  <div class="card">
+    <div class="card-title">The deal</div>
+    <div class="card-hint">Sane defaults are loaded from the current offer. Change anything and every number updates instantly.</div>
+
+    <div class="field-grid">
+      <div class="field">
+        <label for="panels"># of Panels</label>
+        <input type="number" id="panels" value="20" min="1" step="1">
+      </div>
+      <div class="field">
+        <label for="watts">Panel DC Size</label>
+        <input type="number" id="watts" value="410" min="1" step="5">
+        <div class="unit">watts per panel</div>
+      </div>
+      <div class="field">
+        <label for="ppw">PPW (sale)</label>
+        <input type="number" id="ppw" value="3.51" min="0" step="0.01">
+        <div class="unit">price per watt</div>
+      </div>
+      <div class="field">
+        <label for="basePpw">Base PPW</label>
+        <input type="number" id="basePpw" value="3.00" min="0" step="0.01">
+        <div class="unit">offer base, default 3.00</div>
+      </div>
+    </div>
+
+    <div class="field-grid" style="margin-top:16px;">
+      <div class="field">
+        <label>Sale type</label>
+        <div class="toggle" id="saleToggle" role="tablist">
+          <button type="button" id="saleCompany" class="active" onclick="setSale('Outreach')">Company / Outreach</button>
+          <button type="button" id="saleSelf" onclick="setSale('Self Gen')">Self-Gen</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="salesMo">Sales / Month</label>
+        <input type="number" id="salesMo" value="8" min="1" step="1">
+        <div class="unit">for the projection</div>
+      </div>
+    </div>
+
+    <div class="derived" id="derived"></div>
+  </div>
+
+  <!-- Breakdown -->
+  <div class="card">
+    <div class="card-title">Your commission, line by line</div>
+    <div class="card-hint" id="scenarioHint"></div>
+    <div class="breakdown" id="breakdown"></div>
+    <div class="floor-note" id="floorNote">
+      The sale PPW is below the base PPW, so this deal pays the <strong>minimum commission</strong> of $750. The line items above are shown for reference but do not apply.
+    </div>
+  </div>
+
+  <!-- Elite Club comparison -->
+  <div class="club-card">
+    <div class="club-eyebrow">Elite Club</div>
+    <div class="club-title">What the next club is worth on this deal</div>
+    <div class="club-hint">Same system, same pricing, your selected sale type. Each tier shows the per-job commission, what you gain over the tier below it, and what that compounds to at your sales pace.</div>
+    <div class="club-tiers" id="clubTiers"></div>
+    <div class="club-foot" id="clubFoot"></div>
+  </div>
+
+  <!-- Notes for Dan -->
+  <div class="note note-flag">
+    <span class="note-label">Flag for review &middot; self-gen lead fee</span>
+    The detailed line-by-line calc zeroes the lead fee on a Self-Gen deal (no company lead was bought). The Elite Club matrix in the spreadsheet always subtracts a lead fee, even on Self-Gen. This page follows the spreadsheet exactly: the breakdown above uses the no-lead-fee rule for Self-Gen, and the club comparison keeps the lead fee in. On a Self-Gen deal the two will differ by the lead fee amount. Please confirm which behavior is correct so both can be aligned.
+  </div>
+
+  <div class="note note-draft">
+    <strong>Draft for Dan's review.</strong> Numbers replicate "Sales Comissions Calculator.xlsx" cell for cell. This page is not yet linked from any menu.
+  </div>
+
+  <div class="note note-flag" id="defaultsNote" style="display:none;">
+    <span class="note-label">Heads up</span>
+    Live commission settings could not be loaded, so this is using the built-in default values from the current offer. The numbers are still correct for that offer, but any edits an admin or VP has made will not be reflected until the connection recovers. Refresh to try again.
+  </div>
+
+  <div class="disclaimer">
+    Estimates only. Commission is governed by the current offer letter and your signed compensation agreement, which control if anything here differs. Rates, fees, minimums, and club values are read live from the Sales Ops commission settings.
+    <div class="ver">Commission Calculator &middot; draft v0.2 &middot; model: offer effective Oct 1</div>
+  </div>
+
+</main>
+
+</div><!-- /#appWrap -->
+
+<script>
+// ---- Offer constants (fallback only) ----
+// These are the current offer values, kept ONLY as a fallback if the live
+// config fetch fails. The source of truth is the commission_settings table,
+// loaded on sign-in via get_commission_settings() (see loadConfig below).
+// Numbers replicate the spreadsheet "OFFER DETAILS" block cell for cell.
+const OFFER_DEFAULTS = {
+  basePayCompany: 0.04,   // F7
+  selfGenRate:    0.02,   // F8 (self-gen base pay rate)
+  aboveBaseNoClub: 0.25,  // F9
+  aboveBaseClub:   0.33,  // F13
+  leadFeeNoClub:  475,    // F10
+  leadFeeClub:    375,    // F14
+  minCommission:  750,    // F11
+  basePpwDefault: 3.00,
+  adder: { 'None': 0, 'High Flyer': 0.005, 'President': 0.0075, 'Royalty': 0.01 } // F15/F16/F17
+};
+
+// Live offer values. Starts as a copy of the defaults; replaced by the config
+// fetch in loadConfig(). All the math below reads OFFER, never the constants.
+let OFFER = Object.assign({}, OFFER_DEFAULTS, { adder: Object.assign({}, OFFER_DEFAULTS.adder) });
+let USING_DEFAULTS = false;
+
+// Map the flat commission_settings keys onto the OFFER shape the math expects.
+// Any key missing from the fetched config falls back to the baked-in default,
+// so a partial config can never produce a blank number.
+function applyConfig(values) {
+  const v = values || {};
+  const pick = (k, d) => (typeof v[k] === 'number' && isFinite(v[k])) ? v[k] : d;
+  OFFER = {
+    basePayCompany:  pick('base_pay_company',   OFFER_DEFAULTS.basePayCompany),
+    selfGenRate:     pick('base_pay_selfgen',   OFFER_DEFAULTS.selfGenRate),
+    aboveBaseNoClub: pick('above_base_noclub',  OFFER_DEFAULTS.aboveBaseNoClub),
+    aboveBaseClub:   pick('above_base_club',    OFFER_DEFAULTS.aboveBaseClub),
+    leadFeeNoClub:   pick('lead_fee_noclub',    OFFER_DEFAULTS.leadFeeNoClub),
+    leadFeeClub:     pick('lead_fee_club',      OFFER_DEFAULTS.leadFeeClub),
+    minCommission:   pick('min_commission',     OFFER_DEFAULTS.minCommission),
+    basePpwDefault:  pick('base_ppw_default',   OFFER_DEFAULTS.basePpwDefault),
+    adder: {
+      'None':       0,
+      'High Flyer': pick('club_adder_hf',      OFFER_DEFAULTS.adder['High Flyer']),
+      'President':  pick('club_adder_pres',    OFFER_DEFAULTS.adder['President']),
+      'Royalty':    pick('club_adder_royalty', OFFER_DEFAULTS.adder['Royalty'])
+    }
+  };
+}
+
+// Pull the live config from Supabase. On any failure, keep the defaults and
+// show a small note. Never throws -- the calculator always renders.
+async function loadConfig() {
+  try {
+    const { data, error } = await window.sb.rpc('get_commission_settings');
+    if (error || !data || !data.values) throw error || new Error('no config');
+    applyConfig(data.values);
+    USING_DEFAULTS = false;
+  } catch (e) {
+    USING_DEFAULTS = true;
+    console.warn('[commission] config fetch failed, using built-in defaults:', e && e.message);
+  }
+  const note = document.getElementById('defaultsNote');
+  if (note) note.style.display = USING_DEFAULTS ? 'block' : 'none';
+}
+
+const TIERS = ['None', 'High Flyer', 'President', 'Royalty'];
+const TIER_LABEL = { 'None': 'No Club', 'High Flyer': 'High Flyer', 'President': 'President', 'Royalty': 'Royalty' };
+
+let saleType = 'Outreach'; // 'Outreach' (company) or 'Self Gen'
+
+const $ = (id) => document.getElementById(id);
+const money = (n) => '$' + (Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const money0 = (n) => '$' + Math.round(n).toLocaleString('en-US');
+const num = (id) => { const v = parseFloat($(id).value); return isFinite(v) ? v : 0; };
+
+// ---- Core model ----
+function deal() {
+  const panels  = num('panels');
+  const watts   = num('watts');
+  const ppw     = num('ppw');
+  const basePpw = num('basePpw');
+
+  const systemKW   = panels * watts / 1000;        // C6
+  const baseEPC    = systemKW * 1000 * basePpw;     // C9
+  const systemEPC  = systemKW * 1000 * ppw;         // C11
+  const aboveEPC   = systemEPC - baseEPC;           // C10
+  // C17: 1000 * min(ppw, basePpw) * systemKW
+  const clubValue  = 1000 * Math.min(ppw, basePpw) * systemKW;
+  return { panels, watts, ppw, basePpw, systemKW, baseEPC, systemEPC, aboveEPC, clubValue };
+}
+
+// Detailed per-job calc (cells C14-C19), the headline "your commission".
+// Self-Gen zeroes the lead fee here (C15). Club tier in the detailed calc is the
+// selected club; this page surfaces the club picture in the comparison instead,
+// so the headline breakdown uses the "None" club rules (matches the sheet's default C13).
+function breakdownCalc(d, club) {
+  const belowBase = d.ppw < d.basePpw;                                  // C7 < C8
+  const basePayout = (saleType === 'Self Gen') ? d.baseEPC * OFFER.selfGenRate
+                                               : d.baseEPC * OFFER.basePayCompany; // C14
+  const leadFee = (saleType === 'Outreach')
+    ? (club === 'None' ? OFFER.leadFeeNoClub : OFFER.leadFeeClub)       // C15
+    : 0;
+  const aboveRate = (club === 'None') ? OFFER.aboveBaseNoClub : OFFER.aboveBaseClub;
+  const aboveAdder = Math.max(0, d.aboveEPC * aboveRate);              // C16
+  const clubAdder = OFFER.adder[club] * d.clubValue;                   // C18
+  const commission = belowBase ? OFFER.minCommission
+                               : basePayout - leadFee + aboveAdder + clubAdder; // C19
+  const pct = d.systemEPC ? commission / d.systemEPC : 0;             // C20
+  return { belowBase, basePayout, leadFee, aboveAdder, clubAdder, commission, pct };
+}
+
+// Commission Matrix per-job (I-column). NOTE: always subtracts a lead fee, even Self-Gen.
+//   Company (I8/I11/I14/I17):  (F7*C9) - leadFee + (F13/F9*C10) + (adder*C17)
+//   Self Gen (I9/I12/I15/I18): (F8*C9) - leadFee + (F13/F9*C10) + (adder*C17)
+// I8/I9 (No Club) use F10 lead fee + F9 above-base; clubs use F14 lead fee + F13 above-base.
+function matrixPerJob(d, club) {
+  if (d.ppw < d.basePpw) return OFFER.minCommission; // IF($C$7<$C$8,750,...)
+  const basePayRate = (saleType === 'Self Gen') ? OFFER.selfGenRate : OFFER.basePayCompany;
+  const basePayout = basePayRate * d.baseEPC;
+  if (club === 'None') {
+    return basePayout - OFFER.leadFeeNoClub + (OFFER.aboveBaseNoClub * d.aboveEPC);
+  }
+  return basePayout - OFFER.leadFeeClub
+       + (OFFER.aboveBaseClub * d.aboveEPC)
+       + (OFFER.adder[club] * d.clubValue);
+}
+
+function render() {
+  const d = deal();
+
+  // Derived strip
+  $('derived').innerHTML = `
+    <div class="d"><span>System size</span><strong>${(d.systemKW).toFixed(2)} kW</strong></div>
+    <div class="d"><span>Base EPC</span><strong>${money0(d.baseEPC)}</strong></div>
+    <div class="d"><span>System EPC</span><strong>${money0(d.systemEPC)}</strong></div>
+    <div class="d"><span>Above-base EPC</span><strong>${money0(d.aboveEPC)}</strong></div>
+  `;
+
+  // Headline breakdown uses the "None" club (the spreadsheet's default detailed scenario).
+  const b = breakdownCalc(d, 'None');
+  const saleLabel = (saleType === 'Self Gen') ? 'Self-Gen' : 'Company / Outreach';
+  $('scenarioHint').textContent = `${saleLabel} deal, No Club. Switch sale type above to recompute.`;
+
+  const leadFeeShown = b.leadFee;
+  $('breakdown').innerHTML = `
+    <div class="brow">
+      <div class="lbl">Base payout<small>${(saleType === 'Self Gen') ? '2% of base EPC (self-gen)' : '4% of base EPC'}</small></div>
+      <div class="val">${money(b.basePayout)}</div>
+    </div>
+    <div class="brow">
+      <div class="lbl">Lead fee<small>${(saleType === 'Self Gen') ? 'no fee on self-gen' : 'company lead'}</small></div>
+      <div class="val ${leadFeeShown ? 'neg' : ''}">${leadFeeShown ? '-' + money(leadFeeShown) : money(0)}</div>
+    </div>
+    <div class="brow">
+      <div class="lbl">Above-base adder<small>25% of every dollar above base EPC</small></div>
+      <div class="val">${money(b.aboveAdder)}</div>
+    </div>
+    <div class="brow">
+      <div class="lbl">Club adder<small>No Club, so none on the headline</small></div>
+      <div class="val">${money(b.clubAdder)}</div>
+    </div>
+    <div class="brow total">
+      <div class="lbl">Total commission<div class="pct">${(b.pct * 100).toFixed(2)}% of system EPC</div></div>
+      <div class="val">${money(b.commission)}</div>
+    </div>
+  `;
+  $('floorNote').classList.toggle('show', b.belowBase);
+
+  // Elite Club comparison
+  const perJob = {};
+  TIERS.forEach(t => perJob[t] = matrixPerJob(d, t));
+  const salesMo = Math.max(0, num('salesMo'));
+
+  let html = '';
+  TIERS.forEach((t, i) => {
+    const isElite = t !== 'None';
+    const upliftVal = i === 0 ? 0 : perJob[t] - perJob[TIERS[i - 1]];
+    const upliftHtml = i === 0
+      ? `<div class="tier-uplift base">Starting point</div>`
+      : `<div class="tier-uplift">+${money(upliftVal)} / job vs ${TIER_LABEL[TIERS[i - 1]]}</div>`;
+    const crest = isElite ? '<span class="crest">&#9670;</span>' : '';
+    html += `
+      <div class="tier ${isElite ? 'elite' : ''}">
+        <div class="tier-name">${crest}${TIER_LABEL[t]}</div>
+        <div class="tier-perjob">${money(perJob[t])}<small>per job</small></div>
+        ${upliftHtml}
+        <div class="tier-proj">
+          <div><span>${salesMo}/mo</span><b>${money0(perJob[t] * salesMo)}</b></div>
+          <div><span>Annual</span><b>${money0(perJob[t] * salesMo * 12)}</b></div>
+        </div>
+      </div>
+    `;
+  });
+  $('clubTiers').innerHTML = html;
+
+  const royaltyGain = perJob['Royalty'] - perJob['None'];
+  $('clubFoot').innerHTML = d.ppw < d.basePpw
+    ? `This deal is below base PPW, so every tier pays the <strong>${money(OFFER.minCommission)}</strong> floor. Price above base to unlock club value.`
+    : `Going from No Club to Royalty on this exact deal is worth <strong>+${money(royaltyGain)} per job</strong>. At ${salesMo} sales a month that is <strong>${money0(royaltyGain * salesMo * 12)} a year</strong> on the same work.`;
+}
+
+function setSale(type) {
+  saleType = type;
+  $('saleCompany').classList.toggle('active', type === 'Outreach');
+  $('saleSelf').classList.toggle('active', type === 'Self Gen');
+  render();
+}
+
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+async function initApp(profile, session) {
+  ['panels', 'watts', 'ppw', 'basePpw', 'salesMo'].forEach(id => {
+    $(id).addEventListener('input', render);
+  });
+  // Load the live commission config (rates/fees/minimums/adders) before the
+  // first render, so the headline + club matrix use the source-of-truth values.
+  await loadConfig();
+  // Seed the Base PPW input from the live default, unless the user already
+  // typed something. (The input is the editable per-deal base; this just sets
+  // its starting point to match the current offer.)
+  const basePpwEl = $('basePpw');
+  if (basePpwEl && !basePpwEl.dataset.touched) {
+    basePpwEl.value = OFFER.basePpwDefault.toFixed(2);
+  }
+  basePpwEl.addEventListener('input', () => { basePpwEl.dataset.touched = '1'; });
+  render();
+}
+</script>
+</body>
+</html>
