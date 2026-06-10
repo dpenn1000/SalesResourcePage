@@ -485,7 +485,7 @@ async function changePassword(){
 }
 
 /* PostgREST caps a single response at 1000 rows; page through so we get every lead. */
-const SEL_DL='dl_number,dl_sf_id,property_id,homeowner_name,lead_source,set_by,original_rep,first_appt_date,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,appointments,redispatch_approved,opportunity_ids,sold,sold_contract_date,sold_rep,language,sales_notes,properties(property_id,town,county,dnc,sold,quality_flags)';
+const SEL_DL='dl_number,dl_sf_id,property_id,homeowner_name,lead_source,set_by,original_rep,first_appt_date,assigned_to,status,lifecycle_state,last_outcome,last_appt_date,appt_count,appointments,redispatch_approved,opportunity_ids,sold,sold_contract_date,sold_rep,language,sales_notes,created_at,updated_at,sales_notes_updated_at,properties(property_id,town,county,dnc,sold,quality_flags)';
 async function fetchAllDL(){
   let out=[],from=0,size=1000;
   while(true){
@@ -1368,7 +1368,7 @@ function toggleDetail(key){
   const next=row.nextElementSibling;
   if(next&&next.classList.contains('detail')){next.remove();return;}
   const g=propByKey[key];if(!g)return;
-  row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="11">'+buildDetail(g)+'</td></tr>');
+  row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="14">'+buildDetail(g)+'</td></tr>');
 }
 /* ── Lead category: 2-week sat/Stage-2+ cooldown + manager review ──
    QC re-engagement targets are leads that NEVER sat (no-show / cancel).
@@ -1433,7 +1433,10 @@ function render(){
   const visDls=new Set(rows.map(g=>g.primary.dl_number));
   selected=new Set([...selected].filter(d=>visDls.has(d)));
   if(!rows.length){const vl=document.querySelector('#fView option:checked');document.getElementById('tableWrap').innerHTML='<div class="empty">No leads in the <b>'+esc(vl?vl.textContent:'current')+'</b> view'+(q?' matching &ldquo;'+esc(q)+'&rdquo;':'')+'. Try a different view filter'+(q?'':' or search by name')+'.</div>';updateDispatchBar();return;}
-  let h='<table><thead><tr><th style="width:30px"><input type="checkbox" id="selAll" onchange="selectAllVisible(this.checked)" title="Select all shown"></th><th>Homeowner</th><th>Town</th><th>State</th><th>Status</th><th>Assigned</th><th>Last appt</th><th>Last outcome</th><th>Contacts</th><th>Salesforce</th><th></th></tr></thead><tbody>';
+  // Index contacts by opportunity once so "last worked by" is O(1) per row.
+  const _byOpp={};for(const c of contacts){(_byOpp[c.opportunity_id]=_byOpp[c.opportunity_id]||[]).push(c);}
+  const lastContactOf=g=>{let best=null;for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))for(const c of (_byOpp[oid]||[])){if(!best||(c.contacted_at||'')>(best.contacted_at||''))best=c;}return best;};
+  let h='<table><thead><tr><th style="width:30px"><input type="checkbox" id="selAll" onchange="selectAllVisible(this.checked)" title="Select all shown"></th><th>Homeowner</th><th>Town</th><th>State</th><th>Status</th><th>Assigned</th><th>Last appt</th><th>Last outcome</th><th title="Days since the lead entered the platform">Age</th><th title="When the lead record last changed (dispatch, status, sold, sales-notes sync)">Updated</th><th title="Rep who last logged a call on this lead">By whom</th><th>Contacts</th><th>Salesforce</th><th></th></tr></thead><tbody>';
   for(const g of rows){
     const p=g.primary;const town=g.property.town||'--';const county=g.property.county?` <span class="sub">(${esc(g.property.county)})</span>`:'';
     const dup=g.dls.length>1?` <span class="badge b-dup">${g.dls.length} leads</span>`:'';
@@ -1446,6 +1449,9 @@ function render(){
     const flag=cat==='review'?' <span class="badge b-review">REVIEW</span>':(cat==='cooldown'?` <span class="badge b-cooldown">cooldown${dsince!=null?' '+Math.max(0,COOLDOWN_DAYS-dsince)+'d':''}</span>`:'');
     const redispatchBtn=cat==='review'?`<button class="act review" onclick="approveRedispatch('${esc(p.dl_number)}')" title="Sat/Stage-2 lead${dsince!=null?', '+dsince+' days ago':''}. Approve to return it to the callable list.">Redispatch</button> `:'';
     const key=g.property.property_id||p.dl_number;propByKey[key]=g;
+    const ageDays=daysSince(p.created_at);const ageStr=ageDays==null?'--':ageDays+'d';
+    const lc=lastContactOf(g);
+    const byWhom=lc&&lc.logged_by?esc(lc.logged_by):'<span class="sub">--</span>';
     h+=`<tr class="${g.anySold?'row-sold':''}" id="r-${esc(key)}">
       <td style="text-align:center"><input type="checkbox" class="rowchk" data-dl="${esc(p.dl_number)}" ${selected.has(p.dl_number)?'checked':''} onchange="toggleSel('${esc(p.dl_number)}',this.checked)"></td>
       <td><button class="xbtn" onclick="toggleDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${dup}${sold}${dnc}${flag}${typeBadge(g)}${langBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
@@ -1455,11 +1461,14 @@ function render(){
       <td><select class="isel" onchange="assign('${esc(p.dl_number)}',this.value)">${repOpts}</select><div class="sub">orig: ${esc(p.original_rep||'--')}</div></td>
       <td>${fmtDate(p.last_appt_date)}</td>
       <td class="sub">${esc((p.last_outcome||'').slice(0,40))}</td>
+      <td class="sub">${ageStr}</td>
+      <td class="sub">${fmtDate(p.updated_at)}</td>
+      <td class="sub">${byWhom}</td>
       <td style="text-align:center">${contactCount(g)}</td>
       <td>${link}</td>
       <td>${redispatchBtn}<button class="act danger" onclick="toggleDnc('${g.property.property_id||''}',${g.dnc})">${g.dnc?'Un-DNC':'DNC'}</button></td>
     </tr>`;
-    if(expandAll) h+='<tr class="detail"><td colspan="11">'+buildDetail(g)+'</td></tr>';
+    if(expandAll) h+='<tr class="detail"><td colspan="14">'+buildDetail(g)+'</td></tr>';
   }
   h+='</tbody></table>';
   document.getElementById('tableWrap').innerHTML=h;
@@ -1503,7 +1512,7 @@ function toggleRepDetail(key){
   const next=row.nextElementSibling;
   if(next&&next.classList.contains('detail')){next.remove();return;}
   const g=propByKey[key];if(!g)return;
-  row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="7">'+buildDetail(g)+'</td></tr>');
+  row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="10">'+buildDetail(g)+'</td></tr>');
 }
 function renderRep(){
   const rep=document.getElementById('repPick').value;
@@ -1529,15 +1538,22 @@ function renderRep(){
     if(q){const hay=((g.primary.homeowner_name||'')+' '+(g.property.town||'')+' '+g.dls.map(d=>d.dl_number).join(' ')).toLowerCase();if(!hay.includes(q))return false;}
     return true;
   }).sort((a,b)=>{const sa=a.anySold?1:0,sb=b.anySold?1:0;if(sa!==sb)return sa-sb;return (b.primary.last_appt_date||'').localeCompare(a.primary.last_appt_date||'');});
-  let tbl='<table><thead><tr><th>Homeowner</th><th>Town</th><th>Disposition</th><th>Pipeline</th><th>Last appt</th><th>Contacts</th><th>Salesforce</th></tr></thead><tbody>';
-  if(!rows.length)tbl+='<tr><td colspan="7" class="empty">No leads match this filter.</td></tr>';
+  // reuse the _byOpp index already built above (line ~1530 via contactsByOpp())
+  const lastContactOf=g=>{let best=null;for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))for(const c of (_byOpp[oid]||[])){if(!best||(c.contacted_at||'')>(best.contacted_at||''))best=c;}return best;};
+  let tbl='<table><thead><tr><th>Homeowner</th><th>Town</th><th>Disposition</th><th>Pipeline</th><th>Last appt</th><th title="Days since the lead entered the platform">Age</th><th title="When the lead record last changed">Updated</th><th title="Rep who last logged a call on this lead">By whom</th><th>Contacts</th><th>Salesforce</th></tr></thead><tbody>';
+  if(!rows.length)tbl+='<tr><td colspan="10" class="empty">No leads match this filter.</td></tr>';
   for(const g of rows){
     const p=g.primary;const key=g.property.property_id||p.dl_number;propByKey[key]=g;
+    const ageDays=daysSince(p.created_at);const ageStr=ageDays==null?'--':ageDays+'d';
+    const lc=lastContactOf(g);const byWhom=lc&&lc.logged_by?esc(lc.logged_by):'<span class="sub">--</span>';
     tbl+=`<tr class="${g.anySold?'row-sold':''}" id="rr-${esc(key)}"><td><button class="xbtn" onclick="toggleRepDetail('${esc(key)}')" title="Show history">&#9656;</button><span class="name">${esc(p.homeowner_name||'--')}</span>${g.dls.length>1?` <span class="badge b-dup">${g.dls.length}</span>`:''}${typeBadge(g)}${langBadge(g)}<div class="sub">${esc(p.dl_number)}</div></td>
       <td>${esc(g.property.town||'--')}</td>
       <td>${stateBadge(p.lifecycle_state)}</td>
       <td>${catBadge(leadCategory(g))}</td>
       <td>${fmtDate(p.last_appt_date)}</td>
+      <td class="sub">${ageStr}</td>
+      <td class="sub">${fmtDate(p.updated_at)}</td>
+      <td class="sub">${byWhom}</td>
       <td style="text-align:center">${contactCount(g)}</td>
       <td>${(()=>{const u=sfHref(p);return u?`<a class="sflink" target="_blank" rel="noopener" href="${u}">Open &nearr;</a>`:'<span class="sub">--</span>';})()}</td></tr>`;
   }
