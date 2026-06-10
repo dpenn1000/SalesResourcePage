@@ -463,6 +463,18 @@
   .sc-sn span { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #a89f86; margin-top: 3px; }
   .sc-need { font-size: 13px; line-height: 1.5; color: #d4cdb6; margin-top: 12px; }
   .sc-need b { color: var(--gold-lt); font-weight: 800; }
+  .sc-pacing-banner {
+    display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px 11px;
+    margin-bottom: 14px; padding-bottom: 13px; border-bottom: 1px solid var(--sc-line);
+  }
+  .sc-pacing-lbl { font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #a89f86; }
+  .sc-pacing-tier {
+    font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+    font-size: 22px; font-weight: 700; letter-spacing: 0.5px; color: var(--gold-lt);
+    background: linear-gradient(180deg, #FBEFB0 0%, #E6C453 48%, #C99B2C 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sc-pacing-note { font-size: 12px; color: #a89f86; }
 
   .sc-uplift {
     margin-top: 14px; padding: 15px 17px; border-radius: 11px;
@@ -1508,7 +1520,18 @@ function renderSalesClub(d, cfg){
   // ── QTD standing ──
   const active   = club.active   != null ? club.active   : 0;
   const installs = club.installs != null ? club.installs : 0;
-  let standing = '<div class="sc-standing-nums">' +
+  let pacingBanner;
+  if (projCode !== 'none'){
+    const projName = (CLUB_TIERS.find(function(t){ return t.code === projCode; }) || {}).name || club.projected_tier;
+    pacingBanner = '<div class="sc-pacing-banner"><span class="sc-pacing-lbl">Pacing for</span>' +
+      '<span class="sc-pacing-tier">' + esc(projName) + '</span>' +
+      '<span class="sc-pacing-note">at your current quarter run rate</span></div>';
+  } else {
+    pacingBanner = '<div class="sc-pacing-banner"><span class="sc-pacing-lbl">Pacing for</span>' +
+      '<span class="sc-pacing-tier">No club yet</span>' +
+      '<span class="sc-pacing-note">keep building this quarter</span></div>';
+  }
+  let standing = pacingBanner + '<div class="sc-standing-nums">' +
     '<span class="sc-sn"><b>' + active + '</b><span>active</span></span>' +
     '<span class="sc-sn"><b>' + installs + '</b><span>installs</span></span>' +
     '</div>';
