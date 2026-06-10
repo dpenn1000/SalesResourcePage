@@ -183,6 +183,11 @@
 
     <div class="field-grid">
       <div class="field">
+        <label for="state">State</label>
+        <select id="state"></select>
+        <div class="unit" id="stateFloorNote">floor PPW reference</div>
+      </div>
+      <div class="field">
         <label for="panels"># of Panels</label>
         <input type="number" id="panels" value="20" min="1" step="1">
       </div>
@@ -327,6 +332,92 @@ async function loadConfig() {
   if (note) note.style.display = USING_DEFAULTS ? 'block' : 'none';
 }
 
+// ---- Per-state base / floor / PPA rate ----
+// Sourced from the Sales Ops Master Reference pricing packet, stored in
+// commission_state_rates, edited in the admin portal. The STRUCTURE (pay %,
+// fees, minimums, club adders) stays in OFFER; only base/floor/rate are
+// per-state. Built-in fallback keeps the calculator working if the fetch fails.
+const STATE_RATES_FALLBACK = [
+  { state: 'CT', base_ppw: 3.00, floor_ppw: 2.75, default_ppa_rate: 0.20,  active: true },
+  { state: 'DE', base_ppw: 2.95, floor_ppw: 2.60, default_ppa_rate: 0.149, active: true },
+  { state: 'MA', base_ppw: 3.65, floor_ppw: 3.00, default_ppa_rate: 0.26,  active: true },
+  { state: 'MD', base_ppw: 2.95, floor_ppw: 2.60, default_ppa_rate: 0.15,  active: true },
+  { state: 'NH', base_ppw: 3.05, floor_ppw: 2.75, default_ppa_rate: 0.154, active: true },
+  { state: 'NJ', base_ppw: 3.25, floor_ppw: 2.90, default_ppa_rate: 0.19,  active: true },
+  { state: 'NY', base_ppw: 2.75, floor_ppw: 2.60, default_ppa_rate: 0.17,  active: true },
+  { state: 'PA', base_ppw: 2.90, floor_ppw: 2.65, default_ppa_rate: 0.149, active: true },
+  { state: 'RI', base_ppw: 3.25, floor_ppw: 3.10, default_ppa_rate: 0.22,  active: true }
+];
+
+let STATE_RATES = {};        // code -> {base_ppw, floor_ppw, default_ppa_rate}
+let currentState = 'CT';
+
+// Load the active per-state rates from Supabase; fall back to the built-in
+// table on any failure. Only active states with a base_ppw are kept.
+async function loadStateRates() {
+  let rows = null;
+  try {
+    const { data, error } = await window.sb.rpc('get_commission_state_rates');
+    if (error || !Array.isArray(data) || !data.length) throw error || new Error('no state rates');
+    rows = data;
+  } catch (e) {
+    rows = STATE_RATES_FALLBACK;
+    console.warn('[commission] state-rates fetch failed, using built-in defaults:', e && e.message);
+  }
+  STATE_RATES = {};
+  rows.forEach(r => {
+    if (r.active === false) return;          // inactive / no-pricing states hidden
+    if (r.base_ppw == null) return;
+    STATE_RATES[r.state] = {
+      base_ppw: r.base_ppw,
+      floor_ppw: r.floor_ppw,
+      default_ppa_rate: r.default_ppa_rate
+    };
+  });
+}
+
+// Floor PPW for the selected state (for the labeled reference + below-floor flag).
+function currentFloor() {
+  const r = STATE_RATES[currentState];
+  return r && r.floor_ppw != null ? r.floor_ppw : null;
+}
+
+// Populate the State dropdown and select the default (CT if present).
+function buildStateSelect() {
+  const sel = $('state');
+  if (!sel) return;
+  const codes = Object.keys(STATE_RATES).sort();
+  sel.innerHTML = codes.map(c => `<option value="${c}">${c}</option>`).join('');
+  currentState = STATE_RATES['CT'] ? 'CT' : (codes[0] || 'CT');
+  sel.value = currentState;
+}
+
+// Apply the selected state's base/floor/rate to the inputs, then re-render.
+// Sets Base PPW to the state base, and seeds the sale PPW at the state base
+// (a sane at-base starting point) unless the user has already touched it.
+function applyState(code, opts) {
+  const seedPpw = !opts || opts.seedPpw !== false;
+  currentState = code;
+  const r = STATE_RATES[code];
+  if (r) {
+    const baseEl = $('basePpw');
+    if (baseEl) baseEl.value = Number(r.base_ppw).toFixed(2);
+    const ppwEl = $('ppw');
+    if (seedPpw && ppwEl && !ppwEl.dataset.touched) {
+      ppwEl.value = Number(r.base_ppw).toFixed(2);
+    }
+  }
+  updateStateFloorNote();
+  render();
+}
+
+function updateStateFloorNote() {
+  const note = $('stateFloorNote');
+  if (!note) return;
+  const f = currentFloor();
+  note.textContent = (f != null) ? `floor PPW ${Number(f).toFixed(2)}` : 'floor PPW reference';
+}
+
 const TIERS = ['None', 'High Flyer', 'President', 'Royalty'];
 const TIER_LABEL = { 'None': 'No Club', 'High Flyer': 'High Flyer', 'President': 'President', 'Royalty': 'Royalty' };
 
@@ -403,7 +494,9 @@ function render() {
   // Headline breakdown uses the "None" club (the spreadsheet's default detailed scenario).
   const b = breakdownCalc(d, 'None');
   const saleLabel = (saleType === 'Self Gen') ? 'Self-Gen' : 'Company / Outreach';
-  $('scenarioHint').textContent = `${saleLabel} deal, No Club. Switch sale type above to recompute.`;
+  const floor = currentFloor();
+  const floorRef = (floor != null) ? ` ${currentState} floor PPW is ${floor.toFixed(2)}.` : '';
+  $('scenarioHint').textContent = `${saleLabel} deal, No Club, ${currentState}. Switch sale type above to recompute.${floorRef}`;
 
   const leadFeeShown = b.leadFee;
   $('breakdown').innerHTML = `
@@ -475,18 +568,34 @@ async function initApp(profile, session) {
   ['panels', 'watts', 'ppw', 'basePpw', 'salesMo'].forEach(id => {
     $(id).addEventListener('input', render);
   });
-  // Load the live commission config (rates/fees/minimums/adders) before the
-  // first render, so the headline + club matrix use the source-of-truth values.
-  await loadConfig();
-  // Seed the Base PPW input from the live default, unless the user already
-  // typed something. (The input is the editable per-deal base; this just sets
-  // its starting point to match the current offer.)
+  // Load the live commission config (rates/fees/minimums/adders) and the
+  // per-state rate matrix before the first render, so the headline + club
+  // matrix use the source-of-truth values for the selected state.
+  await Promise.all([loadConfig(), loadStateRates()]);
+
+  // Build the State selector and default to CT.
+  buildStateSelect();
+  $('state').addEventListener('change', (e) => applyState(e.target.value));
+
+  // Track manual edits so a state change does not overwrite the rep's own PPW.
   const basePpwEl = $('basePpw');
-  if (basePpwEl && !basePpwEl.dataset.touched) {
-    basePpwEl.value = OFFER.basePpwDefault.toFixed(2);
-  }
   basePpwEl.addEventListener('input', () => { basePpwEl.dataset.touched = '1'; });
-  render();
+  $('ppw').addEventListener('input', () => { $('ppw').dataset.touched = '1'; });
+
+  // Apply the default state. On first load we keep the pre-filled sale PPW
+  // (the canonical 3.51 sample) so the page opens on a recognizable deal; we
+  // only set Base PPW to the state base. A later state CHANGE re-seeds the sale
+  // PPW at that state's base (see applyState via the change listener). Falls
+  // back to the offer default base if no state matched (both fetches failed and
+  // the fallback table was empty).
+  if (STATE_RATES[currentState]) {
+    applyState(currentState, { seedPpw: false });
+  } else {
+    if (basePpwEl && !basePpwEl.dataset.touched) {
+      basePpwEl.value = OFFER.basePpwDefault.toFixed(2);
+    }
+    render();
+  }
 }
 </script>
 </body>

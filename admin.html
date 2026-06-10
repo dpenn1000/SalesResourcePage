@@ -1186,6 +1186,20 @@
     <div id="commGroups"></div>
     <div id="commResult" style="display:none;margin-top:16px;font-size:14px;font-weight:600;"></div>
     <div id="commMeta" style="margin-top:16px;font-size:12px;color:var(--text2);"></div>
+
+    <!-- ── Per-state rate / floor / base matrix ──────────────────── -->
+    <div style="margin-top:34px;border-top:1px solid var(--border);padding-top:24px;">
+      <div class="panel-header" style="margin-bottom:6px;">
+        <h2 style="font-size:17px;">Per-State Rates</h2>
+        <button class="btn-add" id="commStateSaveBtn" onclick="saveCommissionStates()" disabled style="opacity:0.5;">Save state changes</button>
+      </div>
+      <p style="color:var(--text2);font-size:13px;margin:-2px 0 14px;line-height:1.6;">
+        Base PPW, floor PPW, and a representative PPA rate for each state, sourced from the Sales Ops Master Reference pricing packet. The calculator's State selector reads these. The commission structure (pay rates, lead fees, minimums, club adders) above is the same in every state. A state with no pricing data is marked inactive and hidden from the calculator's picker.
+      </p>
+      <div id="commStateStatus" style="background:#f4f6f1;border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text2);margin-bottom:18px;">Loading state rates&hellip;</div>
+      <div id="commStateGrid"></div>
+      <div id="commStateResult" style="display:none;margin-top:16px;font-size:14px;font-weight:600;"></div>
+    </div>
   </div>
 
 </div>
@@ -1485,6 +1499,117 @@ async function saveCommission() {
   result.style.color = '#3a8a1a';
   result.textContent = 'Saved. The calculator will use the new values on its next load.';
   loadCommission();   // refresh values + last-updated stamp
+}
+
+// ── Per-state rates (admin or VP) ─────────────────
+// Source of truth: public.commission_state_rates. Read via
+// get_commission_state_rates(); written one state at a time via
+// set_commission_state_rate() (gated on is_admin_or_vp() server-side).
+let COMM_STATE_ROWS = [];     // [{state, base_ppw, floor_ppw, default_ppa_rate, active, updated_at}]
+let COMM_STATE_DIRTY = {};    // state -> {base, floor, rate}
+
+async function loadCommissionStates() {
+  const status = document.getElementById('commStateStatus');
+  const grid = document.getElementById('commStateGrid');
+  COMM_STATE_DIRTY = {};
+  setCommStateSaveEnabled(false);
+  document.getElementById('commStateResult').style.display = 'none';
+  status.style.display = 'block';
+  status.textContent = 'Loading state rates…';
+  const { data, error } = await sb.rpc('get_commission_state_rates');
+  if (error) { status.textContent = 'Could not load state rates: ' + error.message; grid.innerHTML = ''; return; }
+  COMM_STATE_ROWS = Array.isArray(data) ? data : [];
+  if (!COMM_STATE_ROWS.length) { status.textContent = 'No state rates found. Apply the state-rates seed migration first.'; grid.innerHTML = ''; return; }
+
+  status.style.display = 'none';
+  const fld = (state, which, val, disabled) =>
+    `<input type="number" step="any" data-state="${esc(state)}" data-which="${which}"
+       value="${val == null ? '' : val}" oninput="onCommStateInput(this)" ${disabled}
+       style="width:100%;font-size:15px;font-weight:600;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:${window.COMM_CAN_EDIT ? '#fff' : '#f4f6f1'};">`;
+
+  let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">`;
+  COMM_STATE_ROWS.forEach(r => {
+    const disabled = window.COMM_CAN_EDIT ? '' : 'disabled';
+    const inactive = r.active === false;
+    html += `<div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;${inactive ? 'opacity:0.78;' : ''}">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:15px;font-weight:800;letter-spacing:0.03em;">${esc(r.state)}</span>
+        ${inactive ? '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#9aa6b2;background:#f4f6f1;border:1px solid var(--border);border-radius:6px;padding:2px 7px;">No pricing</span>' : ''}
+      </div>
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;">Base PPW</label>
+      ${fld(r.state, 'base', r.base_ppw, disabled)}
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin:8px 0 4px;">Floor PPW</label>
+      ${fld(r.state, 'floor', r.floor_ppw, disabled)}
+      <label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin:8px 0 4px;">PPA rate ($/kWh)</label>
+      ${fld(r.state, 'rate', r.default_ppa_rate, disabled)}
+    </div>`;
+  });
+  html += `</div>`;
+  grid.innerHTML = html;
+
+  if (!window.COMM_CAN_EDIT) {
+    document.getElementById('commStateSaveBtn').style.display = 'none';
+  }
+}
+
+function onCommStateInput(el) {
+  const state = el.getAttribute('data-state');
+  const row = COMM_STATE_ROWS.find(r => r.state === state);
+  if (!row) return;
+  // Build the dirty entry from the row's stored values, overlaid with any
+  // edits already pending for this state, then this input.
+  const pending = COMM_STATE_DIRTY[state] || {
+    base: row.base_ppw, floor: row.floor_ppw, rate: row.default_ppa_rate
+  };
+  const raw = el.value.trim();
+  const n = raw === '' ? null : parseFloat(raw);
+  const which = el.getAttribute('data-which');
+  pending[which] = (raw === '' || isFinite(n)) ? n : pending[which];
+
+  // Drop the dirty entry if it now matches the original row exactly.
+  const same = pending.base === row.base_ppw
+            && pending.floor === row.floor_ppw
+            && pending.rate === row.default_ppa_rate;
+  if (same) delete COMM_STATE_DIRTY[state];
+  else COMM_STATE_DIRTY[state] = pending;
+
+  setCommStateSaveEnabled(Object.keys(COMM_STATE_DIRTY).length > 0);
+}
+
+function setCommStateSaveEnabled(on) {
+  const btn = document.getElementById('commStateSaveBtn');
+  if (!btn) return;
+  btn.disabled = !on;
+  btn.style.opacity = on ? '1' : '0.5';
+}
+
+async function saveCommissionStates() {
+  if (!window.COMM_CAN_EDIT) { alert('Admins or VPs only.'); return; }
+  const states = Object.keys(COMM_STATE_DIRTY);
+  if (!states.length) return;
+  const result = document.getElementById('commStateResult');
+  result.style.display = 'block';
+  result.style.color = 'var(--text2)';
+  result.textContent = 'Saving ' + states.length + ' state' + (states.length > 1 ? 's' : '') + '…';
+  setCommStateSaveEnabled(false);
+
+  let failed = null;
+  for (const state of states) {
+    const d = COMM_STATE_DIRTY[state];
+    const { error } = await sb.rpc('set_commission_state_rate', {
+      p_state: state, p_base: d.base, p_floor: d.floor, p_rate: d.rate
+    });
+    if (error) { failed = { state, msg: error.message }; break; }
+  }
+  if (failed) {
+    result.style.color = '#E84040';
+    result.textContent = 'Save failed on "' + failed.state + '": ' + failed.msg;
+    setCommStateSaveEnabled(true);
+    return;
+  }
+  result.style.color = '#3a8a1a';
+  result.textContent = 'Saved. The calculator will use the new state rates on its next load.';
+  loadCommissionStates();
 }
 
 // ── Header settings gear ─────────────────────────
@@ -2352,7 +2477,7 @@ function switchTab(tab) {
   if (tab === 'updates') loadUpdates();
   if (tab === 'feedback') loadFeedback();
   if (tab === 'gridedge') loadGridEdgeStatus();
-  if (tab === 'commission') loadCommission();
+  if (tab === 'commission') { loadCommission(); loadCommissionStates(); }
 }
 
 // ── Grid Edge map data ─────────────────────────
