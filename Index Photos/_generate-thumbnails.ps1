@@ -142,7 +142,10 @@ $cards = @(
  @('org-chart-explorer','management','MANAGEMENT','Org Chart','Explorer','Live, connected org / Preview',''),
  @('viper-ranking-overview','management','MANAGEMENT','Viper Rep','Ranking','Scored / Ranked / Dispatched',''),
  @('onecal-scheduling','management','MANAGEMENT','OneCal','Scheduling','Shifts, calendars, coverage',''),
- @('onebutton-top-10','tech','TECHNOLOGY','oneBUTTON','Top 10','What breaks, and the fix','circuit')
+ @('onebutton-top-10','tech','TECHNOLOGY','oneBUTTON','Top 10','What breaks, and the fix','circuit'),
+ @('submit-a-clean-deal','control','DEAL SUBMISSION','Submit a','Clean Deal','Stay off Track C',''),
+ @('track-c-manager-companion','control','DEAL SUBMISSION','Track C','for Managers','Coach the clean submission',''),
+ @('selling-with-integrity','fieldmastery','FIELD MASTERY','Selling with','Integrity','Honest framing protects you','')
 )
 
 $n=0
