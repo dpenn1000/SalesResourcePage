@@ -674,6 +674,14 @@ function renderHero(me){
 // KEY METRICS
 // ============================================================================
 async function loadAndRenderMetrics(me){
+  // Self view -> live hybrid fetch from the launcher (sensitive perf stays on the
+  // desktop; only this rep's own slice + server-computed rank come back). Manager
+  // View-As -> the Supabase snapshot path (no cross-rep launcher fetch).
+  if (!IS_VIEW_AS){ if (await loadMePerfLive(me)) return; }
+  return loadMetricsSnapshot(me);
+}
+
+async function loadMetricsSnapshot(me){
   const { data } = await sb.from('rep_perf_snapshots')
     .select('*').eq('rep_id', me.id)
     .order('snapshot_date', { ascending: false })
@@ -761,6 +769,72 @@ function renderStackUp(d){
   return '<div style="margin-top:16px">' +
     rows.map(r => '<div class="stack-row"><span class="lbl">' + esc(r[0]) + '</span><span class="val">' + esc(r[1]) + '</span></div>').join('') +
     '</div>';
+}
+
+// ============================================================================
+// LIVE PERFORMANCE (hybrid) -- self view fetches /api/me/perf from the launcher.
+// Returns only the rep's own KPIs + server-computed rank/team-avg/Sales-Club.
+// ============================================================================
+const LAUNCHER_BASE = 'https://tools.ct-resource-page.com';
+
+async function loadMePerfLive(me){
+  try {
+    const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
+    if (!token) return false;
+    const res = await fetch(LAUNCHER_BASE + '/api/me/perf', {
+      headers: { Authorization: 'Bearer ' + token }, mode: 'cors'
+    });
+    if (!res.ok) return false;
+    const d = await res.json();
+    if (!d || d.error || !d.rep) return false;
+    renderMePerf(d);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function commColor(s){ return s === 'healthy' ? 'green' : s === 'watch' ? 'amber' : s === 'critical' ? 'red' : ''; }
+
+function renderMePerf(d){
+  const r = d.rep || {}, ranks = d.ranks || {}, ta = d.team_avg || {}, club = d.sales_club || {}, climb = d.to_climb || {};
+  const rankTxt = (x) => (x && x.rank) ? ' (#' + x.rank + ' / ' + x.of + ')' : '';
+  $('metricsPill').textContent = (d.percentile_contracts != null ? 'top ' + Math.max(1, 100 - d.percentile_contracts) + '%' : 'live');
+  $('metricsPill').className = 'section-pill green';
+
+  const tiles = [];
+  tiles.push(metric('Contracts', fmtNum(r.contracts) + rankTxt(ranks.contracts),
+    ta.contracts != null ? 'team avg ' + Number(ta.contracts).toFixed(1) : '', teamColor(r.contracts, ta.contracts)));
+  tiles.push(metric('kW Sold', (r.kw != null ? Number(r.kw).toFixed(1) : '--') + rankTxt(ranks.kw),
+    ta.kw != null ? 'team avg ' + Number(ta.kw).toFixed(1) : '', teamColor(r.kw, ta.kw)));
+  tiles.push(metric('Avg PPA', (r.avg_ppa != null ? '$' + Number(r.avg_ppa).toFixed(4) : '--') + rankTxt(ranks.ppa),
+    ta.avg_ppa != null ? 'team ' + Number(ta.avg_ppa).toFixed(4) : '', teamColor(r.avg_ppa, ta.avg_ppa)));
+  if (r.balance != null) {
+    tiles.push(metric('Book', fmtMoney(r.balance), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
+  }
+  if (club && (club.current_tier || club.projected_tier || club.active != null)) {
+    const tier = club.current_tier || club.projected_tier;
+    tiles.push(metric('Sales Club', tier || '--',
+      'Q pace: ' + (club.projected_tier || 'not yet') + ' · ' + (club.active || 0) + 'a/' + (club.installs || 0) + 'i',
+      club.current_tier ? 'green' : (club.projected_tier ? 'amber' : '')));
+  }
+
+  // ── Why you're ranked here + how to climb ──
+  const bits = [];
+  if (climb.contracts && climb.contracts.at_top) bits.push('You’re <b>#1</b> in contracts on the team. Hold it.');
+  else if (climb.contracts && climb.contracts.gap != null) bits.push('<b>' + climb.contracts.gap + '</b> more contract' + (climb.contracts.gap == 1 ? '' : 's') + ' moves you up a spot.');
+  if (ranks.ppa && ranks.ppa.rank && ranks.ppa.of && ranks.ppa.rank > ranks.ppa.of * 0.6 &&
+      ta.avg_ppa != null && r.avg_ppa != null && r.avg_ppa < ta.avg_ppa) {
+    bits.push('Your PPA ranks #' + ranks.ppa.rank + ' of ' + ranks.ppa.of + '. Pricing is your biggest lever: about $' + (ta.avg_ppa - r.avg_ppa).toFixed(4) + ' under team average.');
+  }
+  if (club && club.next_tier) {
+    bits.push('On pace, ' + club.next_tier.name + ' needs ' + club.next_tier.active_needed + ' active + ' + club.next_tier.installs_needed + ' installs this quarter.');
+  }
+  const climbHtml = bits.length
+    ? '<div class="addr p-low" style="margin-top:16px"><div class="addr-title">How to climb</div><div class="addr-body">' + bits.join(' ') + '</div></div>'
+    : '';
+
+  $('metricsBody').innerHTML = '<div class="metrics-grid">' + tiles.join('') + '</div>' + climbHtml;
 }
 
 // ============================================================================
