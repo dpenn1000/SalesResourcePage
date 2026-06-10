@@ -498,10 +498,10 @@
 
 <header>
   <div class="header-inner">
-    <div class="logo-mark">
+    <a href="/?stay=1" class="logo-mark" style="text-decoration:none;color:inherit;cursor:pointer">
       <span class="logo-ct">CT</span>
       <span class="logo-trad">Traditional</span>
-    </div>
+    </a>
     <span class="header-title">My Page</span>
     <a class="header-back" href="/?stay=1">Back to Resources</a>
   </div>
@@ -1242,6 +1242,12 @@ function bookCardColor(bal){
   if (bal > 1000)  return 'amber';
   return 'red';
 }
+function goBackColor(rate){
+  if (rate == null) return '';
+  if (rate >= 50) return 'green';
+  if (rate >= 30) return 'amber';
+  return 'red';
+}
 function trackColor(assess){
   if (!assess) return '';
   if (assess === 'Excellent' || assess === 'Good') return 'green';
@@ -1404,6 +1410,17 @@ function renderMePerf(d){
   }
   if (r.balance != null) {
     tiles.push(metric('Book', bookReveal(r.balance, r.draw_rate), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
+  }
+  // ── Go-Back conversion (appointment/lead layer; only when there's recent volume) ──
+  const gb = d.go_back;
+  if (gb && gb.run > 0) {
+    const headline = (gb.rate != null ? gb.rate + '%' : '--');
+    const days = gb.window_days || 90;
+    const noisy = gb.run < 3;
+    const sub = noisy
+      ? (gb.run + ' go-back' + (gb.run == 1 ? '' : 's') + ', last ' + days + ' days, ' + gb.converted + ' converted (small sample)')
+      : (gb.run + ' go-backs, last ' + days + ' days, ' + gb.converted + ' converted');
+    tiles.push(metric('Go-Back Close', headline, sub, noisy ? '' : goBackColor(gb.rate)));
   }
 
   // ── Why you're ranked here + how to climb ──
