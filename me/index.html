@@ -326,6 +326,10 @@
   .ql-link { display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:0 14px; text-decoration:none; color:var(--text); font-weight:700; font-size:13px; box-shadow:var(--shadow); }
   .ql-link span { font-size:17px; }
   .ql-link:hover { border-color:var(--green); }
+  /* Rep picker (view-as) */
+  #repPicker { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; box-shadow:var(--shadow); }
+  .rp-label { font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text2); }
+  .rp-select { flex:1; max-width:340px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:14px; color:var(--text); background:#fff; }
 </style>
 </head>
 <body>
@@ -352,6 +356,9 @@
     <span><strong style="color:#5a3d00">Viewing as another rep.</strong> <span id="viewAsBannerSub" style="font-weight:500">Notes and metrics are read-only here.</span></span>
     <a href="/me/" style="padding:7px 14px;background:#1A2332;color:#fff;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">Back to my page</a>
   </div>
+
+  <!-- Rep picker (managers/admins): view any rep's full profile -->
+  <div id="repPicker" style="display:none;align-items:center;gap:10px;margin-bottom:14px;"></div>
 
   <!-- HERO -->
   <div class="hero">
@@ -525,20 +532,29 @@ let IS_VIEW_AS = false;
 
 async function initApp(profile, session) {
   const qs = new URLSearchParams(location.search);
-  const viewSlug = qs.get('rep');
+  let viewSlug = (qs.get('rep') || '').trim();
 
-  // ── HERO + identity (own or viewed) ──
-  const me = viewSlug ? await loadPersonBySlug(viewSlug, profile) : await loadMyPerson();
+  // Always resolve the signed-in person first (own slug + the picker need it).
+  const self = await loadMyPerson();
+  const ownSlug = self && self.spd_slug;
+  // Viewing your OWN slug is just your own page -- not "view as". (Fixes the
+  // false "viewing as someone else" banner + missing DISC on your own page.)
+  if (viewSlug && ownSlug && viewSlug === ownSlug) viewSlug = '';
+
+  const canViewOthers = !!(window.IS_MANAGER || window.IS_ADMIN);
+  IS_VIEW_AS = !!viewSlug && canViewOthers;
+
+  const me = IS_VIEW_AS ? await loadPersonBySlug(viewSlug, profile) : self;
   if (!me) {
-    $('heroName').textContent = viewSlug ? 'Could not view this rep' : 'Unable to load your profile';
-    $('heroMeta').textContent = viewSlug
-      ? 'Either the slug is wrong or you do not have permission to view this rep.'
+    $('heroName').textContent = IS_VIEW_AS ? 'Could not view this rep' : 'Unable to load your profile';
+    $('heroMeta').textContent = IS_VIEW_AS
+      ? 'Either the slug is wrong or this rep is outside your scope.'
       : 'Contact your manager if this persists.';
     return;
   }
-  IS_VIEW_AS = !!viewSlug;
   renderHero(me);
   renderViewAsBanner(me, profile);
+  if (canViewOthers) renderRepPicker(viewSlug);
 
   // ── Fire all section loaders in parallel ──
   Promise.allSettled([
@@ -549,9 +565,30 @@ async function initApp(profile, session) {
     loadAndRenderCallActivity(me)
   ]);
 
-  // ── Profile extras (self only): photo, DISC, personal info ──
-  // These use the Phase 1 self-scoped RPCs and are skipped in manager View-As.
-  if (!IS_VIEW_AS) loadProfileExtras();
+  // Profile extras work for self AND manager view-as (read-only) now.
+  loadProfileExtras(me);
+}
+
+// Manager/admin rep picker: view any rep's full profile. RLS limits the list
+// to reps the caller may see.
+async function renderRepPicker(currentSlug){
+  const host = $('repPicker'); if (!host) return;
+  try {
+    const { data } = await sb.from('people')
+      .select('name,spd_slug').not('spd_slug','is',null).eq('status','active').order('name');
+    const reps = (data || []).filter(r => r.spd_slug);
+    if (!reps.length) return;
+    host.style.display = 'flex';
+    let opts = '<option value="">My own page</option>';
+    reps.forEach(function(r){
+      opts += '<option value="'+esc(r.spd_slug)+'"'+(r.spd_slug===currentSlug?' selected':'')+'>'+esc(r.name)+'</option>';
+    });
+    host.innerHTML = '<span class="rp-label">View as</span>'
+      + '<select class="rp-select" onchange="onRepPick(this.value)">'+opts+'</select>';
+  } catch (e) { /* picker is best-effort */ }
+}
+function onRepPick(slug){
+  location.href = slug ? ('/me/?rep=' + encodeURIComponent(slug)) : '/me/';
 }
 
 // ============================================================================
@@ -586,35 +623,53 @@ document.addEventListener('mouseover', function(e){ const el=e.target.closest &&
 document.addEventListener('mouseout',  function(e){ if(e.target.closest && e.target.closest('[data-disc]')) hideDiscTip(); });
 document.addEventListener('click',     function(e){ const el=e.target.closest && e.target.closest('[data-disc]'); if(el){ const r=el.getBoundingClientRect(); const t=_discTip(); if(t.classList.contains('show') && t.dataset.k===el.getAttribute('data-disc')){ hideDiscTip(); } else { t.dataset.k=el.getAttribute('data-disc'); showDiscTip(el.getAttribute('data-disc'), r.left, r.bottom); } } else { hideDiscTip(); } });
 
-async function loadProfileExtras(){
-  wirePhoto();
-  const [pr, ov] = await Promise.all([ sb.rpc('get_me_profile'), sb.rpc('get_me_overview') ]);
-  const prof = pr && pr.data;
-  const overview = (ov && ov.data) || {};
+async function loadProfileExtras(me){
+  let prof, overview, discData;
+  if (!IS_VIEW_AS){
+    wirePhoto();
+    const [pr, ov] = await Promise.all([ sb.rpc('get_me_profile'), sb.rpc('get_me_overview') ]);
+    prof = pr && pr.data;
+    overview = (ov && ov.data) || {};
+    discData = overview.disc;
+  } else {
+    // Manager view-as: pull the rep's identity + DISC via the scope-checked
+    // manager RPCs (get_me_* are self-only).
+    const [id360, disc360] = await Promise.all([
+      sb.rpc('get_rep_360_identity', { p_slug: me.spd_slug }),
+      sb.rpc('get_rep_360_disc',     { p_slug: me.spd_slug })
+    ]);
+    const idd = id360 && id360.data;
+    prof = idd ? idd.person : me;
+    overview = idd ? { university: idd.university, activity: idd.activity } : {};
+    discData = (disc360 && disc360.data && disc360.data[0]) || null;
+  }
   if (prof){ renderAvatar(prof); renderPersonal(prof); }
-  renderDisc(overview.disc);
-  const coaching = await loadCoaching();
-  buildActionCenter(prof, overview, coaching);
+  renderDisc(discData);
+  const coaching = await loadCoaching(me);
+  if (!IS_VIEW_AS) buildActionCenter(prof, overview, coaching);
 }
 
 // ── Coaching (DISC-aware trend) -- read-only from the launcher cache ──
-async function loadCoaching(){
-  const sec = $('coachingSection'); if (!sec) return;
+async function loadCoaching(me){
+  const sec = $('coachingSection'); if (!sec) return null;
   sec.style.display = 'block';
-  $('coachingBody').innerHTML = '<div class="loading">Loading your coaching...</div>';
+  $('coachingBody').innerHTML = '<div class="loading">Loading coaching...</div>';
   try {
     const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
     if (!token) throw new Error('no token');
-    const res = await fetch(LAUNCHER_BASE + '/api/me/coaching', {
-      headers: { Authorization: 'Bearer ' + token }, mode: 'cors'
-    });
+    const url = IS_VIEW_AS
+      ? (LAUNCHER_BASE + '/api/rep/coaching?slug=' + encodeURIComponent(me.spd_slug))
+      : (LAUNCHER_BASE + '/api/me/coaching');
+    const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const d = await res.json();
     if (d && d.status === 'ready' && d.result){ renderCoaching(d); return d; }
-    coachingEmpty('Your coaching summary appears here after your manager runs the next dashboard refresh.');
+    coachingEmpty(IS_VIEW_AS
+      ? 'No coaching generated for this rep yet. Run Refresh All on the Appointment Dashboard.'
+      : 'Your coaching summary appears here after your manager runs the next dashboard refresh.');
     return null;
   } catch (e) {
-    coachingEmpty('Your coaching connects here in the next update.');
+    coachingEmpty('Coaching connects here in the next update.');
     return null;
   }
 }
@@ -737,6 +792,7 @@ function initials(name){
 function renderAvatar(prof){
   const wrap = $('heroAvatarWrap'); if (!wrap) return;
   wrap.style.display = 'block';
+  const editBtn = $('heroAvatarEdit'); if (editBtn) editBtn.style.display = IS_VIEW_AS ? 'none' : '';
   const av = $('heroAvatar');
   if (prof.photo_url){
     av.style.backgroundImage = 'url("' + String(prof.photo_url).replace(/"/g,'') + '")';
@@ -777,6 +833,14 @@ function renderPersonal(prof){
   sec.style.display = 'block';
   const p = prof.personal || {};
   const v = function(k){ return esc(p[k] || ''); };
+  if (IS_VIEW_AS){
+    // Read-only view of the rep's personal info (managers can't edit it here).
+    const row = function(label, val){ return val ? '<div class="pf-field"><label>'+label+'</label><div style="font-size:14px;color:var(--text);white-space:pre-wrap">'+esc(val)+'</div></div>' : ''; };
+    const html = row('Headline', prof.bio) + row('Family', p.family) + row('Hobbies &amp; interests', p.hobbies)
+      + row('Important dates', p.dates) + row('Favorites', p.favorites) + row('What they are working on', p.self_reflection);
+    $('personalBody').innerHTML = html || '<div class="empty">This rep hasn\'t filled in personal info yet.</div>';
+    return;
+  }
   $('personalBody').innerHTML =
     '<div class="pf-field"><label>Headline</label><input id="pf_bio" maxlength="120" value="' + esc(prof.bio || '') + '" placeholder="e.g. CT North closer, golf on weekends"></div>' +
     '<div class="pf-field"><label>Family</label><textarea id="pf_family" placeholder="Spouse, kids, who is at home">' + v('family') + '</textarea></div>' +
@@ -901,10 +965,9 @@ function renderHero(me){
 // KEY METRICS
 // ============================================================================
 async function loadAndRenderMetrics(me){
-  // Self view -> live hybrid fetch from the launcher (sensitive perf stays on the
-  // desktop; only this rep's own slice + server-computed rank come back). Manager
-  // View-As -> the Supabase snapshot path (no cross-rep launcher fetch).
-  if (!IS_VIEW_AS){ if (await loadMePerfLive(me)) return; }
+  // Live hybrid fetch from the launcher. Self -> /api/me/perf; manager view-as ->
+  // /api/rep/perf?slug (scope-checked). Falls back to the Supabase snapshot.
+  if (await loadMePerfLive(me)) return;
   return loadMetricsSnapshot(me);
 }
 
@@ -1008,9 +1071,10 @@ async function loadMePerfLive(me){
   try {
     const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
     if (!token) return false;
-    const res = await fetch(LAUNCHER_BASE + '/api/me/perf', {
-      headers: { Authorization: 'Bearer ' + token }, mode: 'cors'
-    });
+    const url = IS_VIEW_AS
+      ? (LAUNCHER_BASE + '/api/rep/perf?slug=' + encodeURIComponent(me.spd_slug))
+      : (LAUNCHER_BASE + '/api/me/perf');
+    const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
     if (!res.ok) return false;
     const d = await res.json();
     if (!d || d.error || !d.rep) return false;
