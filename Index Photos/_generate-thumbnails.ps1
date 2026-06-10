@@ -92,7 +92,7 @@ $cards = @(
  @('selling-the-rate','solar','SOLAR','Selling','the Rate','Conviction on the escalator',''),
  @('rate-escalator','solar','SOLAR','The Rate','Escalator','The cost of doing nothing',''),
  @('system-design-and-codes','syscodes','SYSTEM & CODES','System Design','& Codes','Design rules, setbacks, the tester','roof'),
- @('electrical-upgrades','syscodes','SYSTEM & CODES','Electrical','Upgrades','What to expect, how to advocate','circuit'),
+ @('electrical-upgrades','syscodes','SYSTEM & CODES','Electrical','Reviews & Upgrades','Equipment, upgrades, and clearances','circuit'),
  # Financing portals use their real lender LOGOS (not generated). Do NOT re-add here
  # or a generator run will clobber them. service-finance-portal-thumbnail.svg is a
  # hand-built white logo card; goodleap/sunlight/palmetto point at storage logos.

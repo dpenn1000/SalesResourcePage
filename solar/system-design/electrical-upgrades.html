@@ -3,16 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Electrical &amp; Electrical Upgrades · CT Traditional</title>
+<title>Electrical Reviews &amp; Upgrades · CT Traditional</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/training-system.css">
 <style>
-/* Page-specific components for Electrical & Electrical Upgrades. Built on shared
-   tokens; no inline styles. Standard components (hero/module/training-card/
-   doc-table/script-example/callout/recall-check/manager-prompt/key-takeaways)
-   come from training-system.css. */
+/* Page-specific components for Electrical Reviews & Upgrades. Built on shared
+   tokens; no inline styles. Standard components come from training-system.css. */
 
 /* service-amp strip in the hero */
 .amp-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3);margin-top:var(--space-4)}
@@ -26,11 +24,21 @@
 .outage .clk{font-size:.78rem}
 .outage--none{background:rgba(95,165,32,.1);border-color:rgba(95,165,32,.3);color:var(--green)}
 
-/* connection-method cards carry a colored top tab */
-.method{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+/* figure: a photo + caption */
+.figure{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow);margin:0}
+.figure img{display:block;width:100%;height:230px;object-fit:cover;background:var(--surface)}
+.figure.contain img{object-fit:contain}
+.figure figcaption{padding:9px 14px;font-size:.84rem;color:var(--muted);line-height:1.35}
+.figure figcaption strong{color:var(--ink)}
+.figure-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--space-3)}
+
+/* connection-method card now carries a photo header */
+.method{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow)}
 .method.m-standard{border-top-color:var(--green)}
 .method.m-tap{border-top-color:var(--blue)}
 .method.m-box{border-top-color:var(--amber)}
+.method img{display:block;width:100%;height:170px;object-fit:cover;border-bottom:1px solid var(--line)}
+.method .m-body{padding:var(--space-3) var(--space-4)}
 .method h3{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .method .when{font-size:.95rem;color:var(--muted);margin:6px 0 0}
 
@@ -40,19 +48,30 @@
 .tier-tag{display:inline-block;font-size:.64rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--deep-blue);border-radius:var(--r-sm);padding:1px 7px;margin-left:8px;vertical-align:middle}
 .tier-tag.t-up{background:var(--amber)}
 
-/* Presenter density: content-dense modules (cards, steps, compare) compact so
-   they fit one slide at presenter type sizes. Mirrors the shared .doc-table
-   rule in training-system.css. */
+/* clearance spec chips */
+.spec-row{display:flex;gap:var(--space-2);flex-wrap:wrap;margin-top:var(--space-2)}
+.spec{display:inline-flex;flex-direction:column;background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);box-shadow:var(--shadow)}
+.spec .v{font-family:var(--serif);font-size:1.5rem;line-height:1;color:var(--ink)}
+.spec .k{font-size:.78rem;color:var(--muted);margin-top:3px}
+.spec.warn{border-left-color:var(--red)}.spec.warn .v{color:var(--red)}
+
+/* Presenter density: content-dense modules (cards, steps, compare, figures)
+   compact so they fit one slide at presenter type sizes. Mirrors the shared
+   .doc-table rule in training-system.css. */
 body.presenter .module:has(.card-grid) h2,
 body.presenter .module:has(.compare-grid) h2,
+body.presenter .module:has(.figure-grid) h2,
 body.presenter .module:has(.step-grid) h2{font-size:2.1rem}
 body.presenter .module:has(.card-grid) .intro,
 body.presenter .module:has(.compare-grid) .intro,
+body.presenter .module:has(.figure-grid) .intro,
 body.presenter .module:has(.step-grid) .intro{font-size:1.05rem;margin-bottom:10px}
 body.presenter .module:has(.card-grid) .training-card,
 body.presenter .module:has(.compare-grid) .training-card,
-body.presenter .module:has(.card-grid) .method,
+body.presenter .module:has(.card-grid) .method .m-body,
 body.presenter .module:has(.step-grid) .step{padding:var(--space-2) var(--space-3)}
+body.presenter .figure img{height:180px}
+body.presenter .method img{height:140px}
 body.presenter .module:has(.card-grid) p,
 body.presenter .module:has(.card-grid) li,
 body.presenter .module:has(.compare-grid) p,
@@ -120,11 +139,13 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
     <div class="wrap">
       <a href="#why"><span class="num">1</span> Be the Advocate</a>
       <a href="#panel"><span class="num">2</span> The Panel</a>
-      <a href="#connect"><span class="num">3</span> How Solar Connects</a>
-      <a href="#disconnect"><span class="num">4</span> Rapid Shutdown</a>
-      <a href="#upgrades"><span class="num">5</span> Upgrade Types</a>
-      <a href="#mast"><span class="num">6</span> Reading the Scope</a>
-      <a href="#expectations"><span class="num">7</span> Setting Expectations</a>
+      <a href="#safety"><span class="num">3</span> Disconnect &amp; OCPD</a>
+      <a href="#connect"><span class="num">4</span> How Solar Connects</a>
+      <a href="#riser"><span class="num">5</span> Riser Types</a>
+      <a href="#upgrades"><span class="num">6</span> Upgrade Types</a>
+      <a href="#clearance"><span class="num">7</span> Clearances</a>
+      <a href="#review"><span class="num">8</span> Field Review</a>
+      <a href="#expectations"><span class="num">9</span> Expectations</a>
     </div>
   </nav>
 </header>
@@ -133,16 +154,16 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
 <section class="hero" id="top">
   <div class="wrap">
     <span class="eyebrow">System &amp; Codes · Installation Knowledge</span>
-    <h1>Electrical <em>Upgrades</em></h1>
+    <h1>Electrical Reviews <em>&amp; Upgrades</em></h1>
     <p class="lede">
       The electrical work is where a clean sale can turn into a frustrated customer.
       <strong>The work that protects the deal happens after you leave.</strong>
-      Know what each upgrade is, how long the power is out, and why it's needed. Then you can set the expectation up front and be the advocate the customer trusts.
+      Know what each upgrade is, how long the power is out, what clearances the meter needs, and why. Then you can set the expectation up front and be the advocate the customer trusts.
     </p>
     <div class="amp-strip">
-      <div class="amp"><div class="num">100A</div><div class="label">Service</div><div class="sub">30/42 max panel</div></div>
-      <div class="amp"><div class="num">200A</div><div class="label">Service</div><div class="sub">40-42 single pole</div></div>
-      <div class="amp"><div class="num">10&prime;</div><div class="label">Shutdown Rule</div><div class="sub">Of meter &amp; inverter</div></div>
+      <div class="amp"><div class="num">30/60</div><div class="label">100A Panel Max</div><div class="sub">Spaces / breakers</div></div>
+      <div class="amp"><div class="num">10&prime;</div><div class="label">Disconnect Rule</div><div class="sub">Of meter &amp; inverter</div></div>
+      <div class="amp"><div class="num">4&times;3&times;6</div><div class="label">Meter Clearance</div><div class="sub">Feet, clear space</div></div>
       <div class="amp"><div class="num">7-8h</div><div class="label">Longest Outage</div><div class="sub">Full-service work</div></div>
     </div>
   </div>
@@ -180,8 +201,8 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
     <div class="manager-prompt">Ask the room: when did a surprise on the electrical side cost someone a deal or a referral? What would have prevented it?</div>
 
     <details class="recall-check">
-      <summary><span class="label">Recall</span> Why does a rep need to understand electrical upgrades?</summary>
-      <p class="answer">To set the expectation before install day. The electrical work, especially the power outage, is the most common post-sale surprise. Naming it up front keeps the rep the trusted advocate and protects the deal.</p>
+      <summary><span class="label">Recall</span> Why does a rep need to understand electrical work?</summary>
+      <p class="answer">To set the expectation before install day. The electrical work, especially the power outage and any clearance fixes, is the most common post-sale surprise. Naming it up front keeps the rep the trusted advocate and protects the deal.</p>
     </details>
   </div>
 </section>
@@ -190,7 +211,7 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
 <section class="module" id="panel">
   <div class="wrap">
     <span class="eyebrow">Part 2 · The Main Electrical Panel</span>
-    <h2>The MEP: 100-amp vs 200-amp service</h2>
+    <h2>The MEP, the sub panel, and how much room is left</h2>
     <p class="intro">The Main Electrical Panel (MEP) is the box where the home's circuits live and where solar usually connects. Its size, 100-amp or 200-amp, decides how much room is left and which interconnection method the install needs.</p>
 
     <div class="compare-grid">
@@ -198,7 +219,7 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
         <h3>100-amp service</h3>
         <ul>
           <li><strong>20 to 24 spaces:</strong> typically 16 full breakers plus 4 twins.</li>
-          <li><strong>30/42 max panel size:</strong> the ceiling on how many circuits the box can hold.</li>
+          <li><strong>30/60 max panel size:</strong> up to 30 spaces, 60 breakers, the ceiling on what the box can hold.</li>
           <li><strong>Less headroom.</strong> A 100-amp panel fills up faster, so solar more often needs a line tap or tap box.</li>
         </ul>
       </div>
@@ -212,37 +233,95 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
       </div>
     </div>
 
+    <div class="figure-grid">
+      <figure class="figure contain">
+        <img src="/solar/system-design/assets/electrical/panel.jpg" alt="An open main electrical panel beside a double-pole and two single-pole breakers" loading="lazy">
+        <figcaption><strong>The MEP.</strong> A main panel (load center) and the breakers that fill it: a double-pole and single-poles.</figcaption>
+      </figure>
+      <figure class="figure contain">
+        <img src="/solar/system-design/assets/electrical/sub-panel.jpg" alt="A small sub panel with two breakers" loading="lazy">
+        <figcaption><strong>Sub panel.</strong> A secondary panel added when more space is needed, or when main-breaker protection sits ahead of it.</figcaption>
+      </figure>
+    </div>
+
     <div class="callout callout--compliance"><strong>Why the amperage matters to you.</strong> A full or undersized panel is the single most common trigger for added electrical work. When you see a small old panel, expect the conversation about an upgrade, and get ahead of it.</div>
 
     <details class="recall-check">
       <summary><span class="label">Recall</span> Which service has more room for a standard solar connection?</summary>
-      <p class="answer">200-amp. It holds 40 to 42 single-pole breakers and usually has busbar room for a standard breaker feed. A 100-amp panel (30/42 max) fills up faster and more often needs a line tap or tap box.</p>
+      <p class="answer">200-amp. It holds 40 to 42 single-pole breakers and usually has busbar room for a standard breaker feed. A 100-amp panel (30/60 max) fills up faster and more often needs a line tap or tap box.</p>
     </details>
   </div>
 </section>
 
-<!-- 3: HOW SOLAR CONNECTS -->
+<!-- 3: SAFETY HARDWARE -->
+<section class="module" id="safety">
+  <div class="wrap">
+    <span class="eyebrow">Part 3 · Safety Hardware</span>
+    <h2>Utility disconnect, production meter, and overcurrent protection</h2>
+    <p class="intro">A few pieces of hardware show up on essentially every project. They're code, not options. Knowing what they are keeps you from getting caught flat-footed when a customer points at a new box on the wall.</p>
+
+    <div class="compare-grid">
+      <div class="training-card">
+        <h3>Utility disconnect &amp; production meter</h3>
+        <ul>
+          <li><strong>Required on all projects.</strong> A visible switch that kills the array for first responders and service, plus a meter that measures what the system produces.</li>
+          <li><strong>Within 10 feet</strong> of the meter and the inverter.</li>
+          <li><strong>It's a safety device,</strong> not an add-on. Every customer gets one.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>Overcurrent Protection Device (OCPD)</h3>
+        <ul>
+          <li><strong>Protects the circuit</strong> from too much current.</li>
+          <li><strong>Could be breakers or fused,</strong> depending on the design.</li>
+          <li><strong>Sits within 10 feet</strong> of the point of connection, ahead of the service disconnect.</li>
+        </ul>
+      </div>
+    </div>
+
+    <figure class="figure">
+      <img src="/solar/system-design/assets/electrical/disconnect-meter.jpg" alt="A wall of solar equipment: two inverters, a production meter, utility meter, and disconnect" loading="lazy">
+      <figcaption><strong>A finished install.</strong> Inverters, production meter, utility meter, and the rapid-shutdown disconnect, all grouped within reach of each other.</figcaption>
+    </figure>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Where does the disconnect have to be installed?</summary>
+      <p class="answer">Within 10 feet of the meter and the inverter, on all projects. It lets first responders and technicians shut the array down quickly.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 4: HOW SOLAR CONNECTS -->
 <section class="module" id="connect">
   <div class="wrap">
-    <span class="eyebrow">Part 3 · Interconnection</span>
+    <span class="eyebrow">Part 4 · Interconnection</span>
     <h2>Three ways solar ties into the home</h2>
     <p class="intro">Every project connects one of three ways. The panel's available room and what else is wired in (a generator, a transfer switch) decide which. Each has a different impact on the customer's day.</p>
 
     <div class="card-grid">
       <div class="method m-standard">
-        <h3>Breaker / Busbar Feed <span class="outage outage--none">No outage</span></h3>
-        <p class="when"><strong>Standard connection.</strong> Solar lands on a breaker in the panel. Trinity standard is the bottom right-most location for consistency.</p>
-        <p>Used when the panel has room on the busbar. The simplest, cleanest tie-in.</p>
+        <img src="/solar/system-design/assets/electrical/breaker-feed.jpg" alt="A solar breaker installed in the bottom-right of a panel, labeled inverter output" loading="lazy">
+        <div class="m-body">
+          <h3>Breaker / Busbar Feed <span class="outage outage--none">No outage</span></h3>
+          <p class="when"><strong>Standard connection.</strong> Solar lands on a breaker in the panel. Trinity standard is the bottom right-most location for consistency.</p>
+          <p>Used when the panel has room on the busbar. The simplest, cleanest tie-in.</p>
+        </div>
       </div>
       <div class="method m-tap">
-        <h3>Line Tap <span class="outage outage--none">No outage</span></h3>
-        <p class="when"><strong>When the panel is full,</strong> when a secondary power source like a generator transfer switch is present, or when the system is larger than the busbar will allow.</p>
-        <p>Efficient: no power outage required to complete the work.</p>
+        <img src="/solar/system-design/assets/electrical/line-tap.jpg" alt="Solar conductors tapped onto a panel busbar with circuit-is-backfed labels" loading="lazy">
+        <div class="m-body">
+          <h3>Line Tap <span class="outage outage--none">No outage</span></h3>
+          <p class="when"><strong>When the panel is full,</strong> when a secondary power source like a generator transfer switch is present, or when the system is larger than the busbar will allow.</p>
+          <p>Efficient: no power outage required to complete the work.</p>
+        </div>
       </div>
       <div class="method m-box">
-        <h3>Tap Box <span class="outage"><span class="clk">&#9201;</span>~2 hr</span></h3>
-        <p class="when"><strong>Box installed below or next to the meter</strong> to make the interconnection. Required when there are clearance issues with the panel, or when a whole-house transfer switch (manual or automatic) is present.</p>
-        <p>The connection is made in the tap box instead of the panel or transfer switch. Needs a couple-hour outage to complete the work safely. Same for 100-amp or 200-amp.</p>
+        <img src="/solar/system-design/assets/electrical/tap-box.jpg" alt="An open tap box mounted on siding showing tapped service cables" loading="lazy">
+        <div class="m-body">
+          <h3>Tap Box <span class="outage"><span class="clk">&#9201;</span>~2 hr</span></h3>
+          <p class="when"><strong>Box installed below or next to the meter.</strong> Required when there are clearance issues with the panel, or a whole-house transfer switch (manual or automatic) is present.</p>
+          <p>The connection is made in the tap box instead of the panel. Needs a roughly two-hour outage to complete safely.</p>
+        </div>
       </div>
     </div>
 
@@ -257,43 +336,37 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
   </div>
 </section>
 
-<!-- 4: RAPID SHUTDOWN + OCPD -->
-<section class="module" id="disconnect">
+<!-- 5: RISER TYPES -->
+<section class="module" id="riser">
   <div class="wrap">
-    <span class="eyebrow">Part 4 · Safety Hardware</span>
-    <h2>Rapid shutdown and overcurrent protection</h2>
-    <p class="intro">Two pieces of hardware show up on essentially every project. They're code, not options. Knowing what they are keeps you from getting caught flat-footed when a customer points at a new box on the wall.</p>
+    <span class="eyebrow">Part 5 · Reading the Riser</span>
+    <h2>SEU cable vs. rigid metal pipe mast</h2>
+    <p class="intro">The riser is the run that carries the service wires from the utility's drop down to the meter. There are two kinds, and the scope tells you which. The default is SEU cable; a rigid mast is called out only when the utility needs more height.</p>
 
     <div class="compare-grid">
-      <div class="training-card">
-        <h3>Manual disconnect (rapid shutdown)</h3>
-        <ul>
-          <li><strong>Required on all projects.</strong> A visible switch that kills the array for first responders and service.</li>
-          <li><strong>Within 10 feet</strong> of the meter and the inverter.</li>
-          <li><strong>It's a safety device,</strong> not an add-on. Every customer gets one.</li>
-        </ul>
-      </div>
-      <div class="training-card training-card--ink">
-        <h3>Overcurrent Protection Device (OCPD)</h3>
-        <ul>
-          <li><strong>Protects the circuit</strong> from too much current.</li>
-          <li><strong>Could be breakers or fused,</strong> depending on the design.</li>
-          <li><strong>Standard on the install,</strong> handled by the design and electrical teams.</li>
-        </ul>
-      </div>
+      <figure class="figure">
+        <img src="/solar/system-design/assets/electrical/riser-seu.jpg" alt="An SEU-cable riser running up a wall to the meters, no mast above the roofline" loading="lazy">
+        <figcaption><strong>SEU riser (default).</strong> Service Entrance Cable runs up the wall to the meter. Used unless the scope says otherwise.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="/solar/system-design/assets/electrical/riser-rigid-mast.jpg" alt="A rigid metal pipe mast extending above the roofline with service-drop wires attached" loading="lazy">
+        <figcaption><strong>Rigid metal pipe mast.</strong> A rigid pipe extends above the roofline to raise the service-drop wires to the height the utility requires.</figcaption>
+      </figure>
     </div>
 
+    <div class="callout callout--compliance"><strong>When the scope says "Rigid Mast."</strong> A rigid metal pipe mast is required by the utility to gain height for the overhead wires coming from the street (the "service drop"). It extends higher than the roofline. If the scope doesn't call it out, the riser is standard SEU cable.</div>
+
     <details class="recall-check">
-      <summary><span class="label">Recall</span> Where does the rapid-shutdown disconnect have to be installed?</summary>
-      <p class="answer">Within 10 feet of the meter and the inverter, on all projects. It lets first responders and technicians shut the array down quickly.</p>
+      <summary><span class="label">Recall</span> The scope says "Rigid Mast." What is it and why is it there?</summary>
+      <p class="answer">A rigid metal pipe mast that extends above the roofline, required by the utility to raise the overhead service-drop wires to the needed height from the street. The default riser, when no mast is specified, is SEU cable.</p>
     </details>
   </div>
 </section>
 
-<!-- 5: UPGRADE TYPES -->
+<!-- 6: UPGRADE TYPES -->
 <section class="module" id="upgrades">
   <div class="wrap">
-    <span class="eyebrow">Part 5 · The Upgrade Menu</span>
+    <span class="eyebrow">Part 6 · The Upgrade Menu</span>
     <h2>When the panel or service itself needs work</h2>
     <p class="intro">Sometimes the existing equipment can't carry solar, or it's simply too old. The scope on the contract will name one of these. The biggest difference to the customer is how long the power is out, so read the row by its outage.</p>
 
@@ -302,7 +375,7 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
       <tbody>
         <tr>
           <td>Panel Change</td>
-          <td class="scope">The panel only, same amperage. Circuits are re-fed in the new panel. Standard is a 30-circuit panel; 24-circuit when space is limited. Done when the panel is in very poor condition.</td>
+          <td class="scope">The panel only, same amperage. Circuits are re-fed in the new panel. Standard is a 30-space panel; 24-space when room is limited. Done when the panel is in very poor condition.</td>
           <td class="out"><span class="outage">4-5 hr<span class="clk">+</span></span></td>
         </tr>
         <tr>
@@ -312,73 +385,111 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
         </tr>
         <tr>
           <td>Full-Service Change</td>
-          <td class="scope">Meter, riser, and panel, same amperage. Done when all three are in very poor condition.</td>
+          <td class="scope">Meter, riser, and panel, same amperage, plus surge protection added. Done when all three are in very poor condition.</td>
           <td class="out"><span class="outage">7-8 hr</span></td>
         </tr>
         <tr>
           <td>Full-Service Upgrade <span class="tier-tag t-up">amperage up</span></td>
-          <td class="scope">Meter, riser, and panel, stepped up to the next amperage (60&rarr;100 or 100&rarr;200). Done when equipment is poor condition and overloaded.</td>
+          <td class="scope">Meter, riser, and panel stepped up to the next amperage (60&rarr;100 or 100&rarr;200), plus surge protection. Done when equipment is poor and overloaded.</td>
           <td class="out"><span class="outage">7-8 hr</span></td>
         </tr>
         <tr>
           <td>Service Change w/ Relocation</td>
-          <td class="scope">Meter and riser, same amperage, panel re-fed. Plus the meter location moves; the utility chooses the new spot.</td>
+          <td class="scope">Meter and riser, same amperage, panel re-fed. The meter location also moves (utility's choice), often because the old spot doesn't meet current code.</td>
           <td class="out"><span class="outage">up to 4 hr</span></td>
         </tr>
         <tr>
           <td>Full-Service Change w/ Relocation</td>
-          <td class="scope">Meter, riser, and panel, same amperage. Plus the meter relocates to a utility-chosen spot.</td>
+          <td class="scope">Meter, riser, and panel, same amperage, plus surge protection, with the meter relocated to a utility-chosen, code-compliant spot.</td>
           <td class="out"><span class="outage">7-8 hr</span></td>
         </tr>
       </tbody>
     </table>
 
-    <div class="callout"><strong>"Change" vs "Upgrade."</strong> A <strong>change</strong> swaps old equipment for the same amperage. An <strong>upgrade</strong> steps the amperage up (60 to 100, or 100 to 200). Same install, different finish line: upgrade means the home gets more capacity.</div>
+    <div class="callout"><strong>"Change" vs "Upgrade."</strong> A <strong>change</strong> swaps old equipment for the same amperage. An <strong>upgrade</strong> steps the amperage up (60 to 100, or 100 to 200). Same install, different finish line: upgrade means the home gets more capacity. Full-service work also adds surge protection.</div>
 
     <div class="manager-prompt">Have a rep explain, in plain words, the difference between a panel change, a full-service change, and a full-service upgrade. Then ask: which two keep the power off the longest?</div>
 
     <details class="recall-check">
       <summary><span class="label">Recall</span> A contract reads "Full-Service Upgrade, 100 to 200 amp." What should you tell the customer to expect?</summary>
-      <p class="answer">A full-day-feeling job: the meter, riser, and panel all get replaced and stepped up to 200-amp service, with the power out for roughly 7 to 8 hours. The upside is a home with real capacity headroom.</p>
+      <p class="answer">A full-day-feeling job: the meter, riser, and panel all get replaced and stepped up to 200-amp service (with surge protection), power out for roughly 7 to 8 hours. The upside is a home with real capacity headroom.</p>
     </details>
   </div>
 </section>
 
-<!-- 6: READING THE SCOPE / MAST -->
-<section class="module" id="mast">
+<!-- 7: CLEARANCES -->
+<section class="module" id="clearance">
   <div class="wrap">
-    <span class="eyebrow">Part 6 · Reading the Scope</span>
-    <h2>Rigid mast, service drop, and the words on the contract</h2>
-    <p class="intro">The contract scope uses a few terms that confuse customers. If you can translate them, you stay the expert in the room. The one that comes up most is the rigid mast.</p>
+    <span class="eyebrow">Part 7 · Electrical Reviews</span>
+    <h2>Clearance requirements: what has to stay clear</h2>
+    <p class="intro">Before an install, the meter and equipment area gets reviewed for clearance. The utility and code require open space around the meter and a safe distance from gas. A blocked meter can stall a project, so spot it on the walk and flag it.</p>
 
-    <div class="card-grid">
-      <div class="training-card training-card--amber">
-        <h3>Rigid Mast</h3>
-        <p>When the scope says <strong>Rigid Mast</strong>, a rigid pipe mast is required by the utility to gain height for the overhead wires coming from the street. It raises the connection point so the wires clear the property to code.</p>
-      </div>
-      <div class="training-card">
-        <h3>Service Drop</h3>
-        <p>The <strong>service drop</strong> is the overhead set of wires running from the utility's pole to the house. The mast gives those wires the height the utility requires.</p>
-      </div>
+    <div class="compare-grid">
+      <figure class="figure contain">
+        <img src="/solar/system-design/assets/electrical/clearance-diagram.png" alt="Diagram of meter clearance: 4 feet wide, 3 feet deep, 6 feet high, 3 feet from a gas meter" loading="lazy">
+        <figcaption><strong>Meter access clear space.</strong> 4 ft wide by 3 ft deep by 6 ft high in front of the meter, with 3 ft to the nearest gas meter.</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="/solar/system-design/assets/electrical/clearance-example.jpg" alt="A house meter with a 10-foot distance marked to propane tanks and a 3-by-3-foot working space" loading="lazy">
+        <figcaption><strong>In the field.</strong> 10 ft from the propane tanks, with a 3 ft by 3 ft working space marked at the meter.</figcaption>
+      </figure>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec"><span class="v">4&times;3&times;6</span><span class="k">Meter access (ft): wide, deep, high</span></div>
+      <div class="spec"><span class="v">3&times;3</span><span class="k">Working space (ft) at the meter</span></div>
+      <div class="spec warn"><span class="v">3&prime;</span><span class="k">Min. to a gas meter</span></div>
+      <div class="spec warn"><span class="v">5&prime;</span><span class="k">From any gas regulator</span></div>
+      <div class="spec warn"><span class="v">10&prime;</span><span class="k">From a propane fill valve</span></div>
+    </div>
+
+    <div class="callout"><strong>Keep it clear.</strong> Shrubs, debris, fences, and other structures can't crowd the meter. On the walk-through, picture the clear box around the meter and the gas distances. If something's in the way, flag it now, not on install day.</div>
+
+    <div class="manager-prompt">Pull up a real site photo. Ask the room: does this meter meet clearance? What would have to move?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What clearances does the meter area need?</summary>
+      <p class="answer">A 4 ft wide by 3 ft deep by 6 ft high clear access space (and a 3 ft by 3 ft working space) in front of the meter, kept free of shrubs and structures. Plus 3 ft to a gas meter, 5 ft from any gas regulator, and 10 ft from a propane fill valve.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 8: FIELD REVIEW -->
+<section class="module" id="review">
+  <div class="wrap">
+    <span class="eyebrow">Part 8 · The Field Review</span>
+    <h2>What to capture, and the words on the scope</h2>
+    <p class="intro">A good electrical review catches the things that drive scope before they become surprises. One photo in particular matters, and a couple of contract terms are worth being able to translate.</p>
+
+    <div class="compare-grid">
+      <figure class="figure">
+        <img src="/solar/system-design/assets/electrical/rusted-socket.jpg" alt="A heavily rusted meter socket on siding" loading="lazy">
+        <figcaption><strong>Capture the rust.</strong> Always photograph the bottom of any rusted meter socket. That condition drives the scope toward a service or full-service change.</figcaption>
+      </figure>
       <div class="training-card training-card--ink">
-        <h3>Relocation</h3>
-        <p>When a job includes <strong>relocation</strong>, the meter moves to a new spot. The utility, not the customer, chooses the location. Worth flagging early so it's never a surprise on the wall.</p>
+        <h3>Translate the scope</h3>
+        <ul>
+          <li><strong>Service drop:</strong> the overhead wires from the utility's pole to the house.</li>
+          <li><strong>Rigid mast:</strong> a metal pipe that raises those wires to utility height.</li>
+          <li><strong>Relocation:</strong> the meter moves to a code-compliant spot the utility chooses.</li>
+          <li><strong>Same description, either amperage:</strong> the wording reads the same on 100-amp or 200-amp, so confirm the amperage separately.</li>
+        </ul>
       </div>
     </div>
 
-    <div class="callout callout--compliance"><strong>Same description, either amperage.</strong> The scope wording for these jobs reads the same whether the home is on 100-amp or 200-amp service. Don't let the matching language fool you; confirm the amperage separately.</div>
+    <div class="callout callout--compliance"><strong>Why the rusted-socket photo matters.</strong> Rust on the meter socket is a condition the utility and our crews need to see in advance. A clear bottom-up photo lets the scope get written right the first time, so install day isn't the day everyone discovers it.</div>
 
     <details class="recall-check">
-      <summary><span class="label">Recall</span> The scope says "Rigid Mast." What is it and why is it there?</summary>
-      <p class="answer">A rigid pipe mast required by the utility to raise the overhead service-drop wires to the required height from the street. It's about clearance, not aesthetics.</p>
+      <summary><span class="label">Recall</span> What's the one photo you never skip on a rusted meter?</summary>
+      <p class="answer">A photo of the bottom of the meter socket. Rust there drives the scope toward a service or full-service change, and capturing it up front prevents an install-day surprise.</p>
     </details>
   </div>
 </section>
 
-<!-- 7: SETTING EXPECTATIONS -->
+<!-- 9: SETTING EXPECTATIONS -->
 <section class="module" id="expectations">
   <div class="wrap">
-    <span class="eyebrow">Part 7 · The Conversation</span>
+    <span class="eyebrow">Part 9 · The Conversation</span>
     <h2>How to set the expectation at the table</h2>
     <p class="intro">Knowing the work is half the job. Saying it cleanly, before install day, is the other half. Frame the outage as a planned, normal step, and the customer plans around it instead of panicking through it.</p>
 
@@ -386,16 +497,16 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
       <li class="step"><h3>1. Name it early</h3><p>Bring up the electrical work at signing, not on install day. "Part of going solar is making sure your electrical can carry it. Here's what that looks like for your home."</p></li>
       <li class="step"><h3>2. Give the outage a number</h3><p>Tell them the range up front. "Plan for the power to be off about [X] hours that day." A number they can plan around beats a vague warning.</p></li>
       <li class="step"><h3>3. Explain the why</h3><p>"Your panel is older and full, so we're giving it room to handle solar safely." The reason turns a cost into an upgrade.</p></li>
-      <li class="step"><h3>4. Help them plan</h3><p>Medications that need refrigeration, work-from-home, a home medical device: surface these and plan around them so install day is smooth.</p></li>
+      <li class="step"><h3>4. Walk the meter area</h3><p>Check the clearances while you're there. If a shrub, fence, or propane tank crowds the meter, flag it now so it's handled before install day.</p></li>
     </ol>
 
     <div class="training-card training-card--ink">
       <h3>The expectation-setting script</h3>
-      <blockquote class="script-example"><span class="who">Say</span>"One thing I want you ahead of: to add solar safely, your electrical panel needs to be brought up to spec. On install day the power will be off for about half a day while the team handles it. It's routine, we do it constantly. I just want you planning for it, not surprised by it."</blockquote>
+      <blockquote class="script-example"><span class="who">Say</span>"One thing I want you ahead of: to add solar safely, your electrical may need to be brought up to spec. On install day the power could be off for a few hours while the team handles it. It's routine, we do it constantly. I just want you planning for it, not surprised by it."</blockquote>
       <p>Said three weeks early, this is a non-event. Discovered at 9am on install day, it's a cancellation risk. Same facts, completely different outcome.</p>
     </div>
 
-    <div class="manager-prompt">Role-play: a customer with a 100-amp panel needs a full-service upgrade. Walk the four steps and set the expectation in under a minute.</div>
+    <div class="manager-prompt">Role-play: a customer with a 100-amp panel needs a full-service upgrade and a meter that's crowded by a fence. Walk the four steps in under a minute.</div>
 
     <details class="recall-check">
       <summary><span class="label">Recall</span> What's the one number you never want the customer to learn for the first time on install day?</summary>
@@ -411,12 +522,13 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
     <h2>One-sentence reminders</h2>
     <ul>
       <li>The electrical work protects the deal after you leave. Get ahead of it.</li>
-      <li>200-amp has room; 100-amp (30/42 max) fills up and needs a tap.</li>
+      <li>200-amp has room; 100-amp (30/60 max) fills up and needs a tap.</li>
       <li>Breaker feed and line tap: no outage. Tap box: about two hours.</li>
-      <li>Rapid-shutdown disconnect within 10 feet of meter and inverter, every job.</li>
-      <li>Change = same amperage. Upgrade = next amperage up.</li>
-      <li>Full-service work means 7 to 8 hours without power. Say it early.</li>
-      <li>Rigid mast raises the service-drop wires to utility height.</li>
+      <li>Disconnect within 10 feet of meter and inverter, every job.</li>
+      <li>SEU cable is the default riser; rigid metal mast is called out for height.</li>
+      <li>Change = same amperage. Upgrade = next amperage up. Full-service adds surge protection.</li>
+      <li>Meter needs a 4x3x6 clear space, 3 ft from gas, 10 ft from propane fill.</li>
+      <li>Always photograph the bottom of a rusted meter socket.</li>
     </ul>
   </div>
 </section>
@@ -431,7 +543,7 @@ body.presenter .module:has(.compare-grid) .callout{font-size:.95rem;padding:8px 
 <footer class="foot">
   <div class="wrap">
     Trinity Solar · CT Traditional · Sales Resource Center<br>
-    Adapted from the CT Field Operations "Electrical Upgrades" training by Paul Lamoureux, CT Field Operations Manager.
+    Adapted from the CT Field Operations "Electrical Reviews &amp; Upgrades" training. Photos from CT field installs.
   </div>
 </footer>
 
