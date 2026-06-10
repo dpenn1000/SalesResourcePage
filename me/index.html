@@ -373,6 +373,85 @@
   #repPicker { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; box-shadow:var(--shadow); }
   .rp-label { font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text2); }
   .rp-select { flex:1; max-width:340px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:14px; color:var(--text); background:#fff; }
+
+  /* ---- Sales Club (full-width, black-gold) ---- */
+  .sc-section {
+    --gold: #D4AF37; --gold-lt: #F0D77A; --sc-ink: #141410; --sc-line: rgba(212,175,55,0.22);
+    background: linear-gradient(160deg, #1c1a12 0%, #141410 55%, #100f0b 100%);
+    border: 1px solid var(--sc-line); border-radius: 14px;
+    margin-bottom: 14px; overflow: hidden; color: #ece7d6;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.28);
+  }
+  .sc-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; border-bottom: 1px solid var(--sc-line);
+    background: linear-gradient(180deg, rgba(212,175,55,0.07) 0%, rgba(212,175,55,0) 100%);
+  }
+  .sc-title {
+    font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold-lt);
+  }
+  .sc-pill {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.5px; padding: 4px 11px; border-radius: 20px;
+    text-transform: uppercase; background: rgba(255,255,255,0.05);
+    color: #cfc6a8; border: 1px solid var(--sc-line);
+  }
+  .sc-pill.in   { background: var(--gold); color: var(--sc-ink); border-color: var(--gold); }
+  .sc-pill.pace { background: rgba(212,175,55,0.16); color: var(--gold-lt); border-color: var(--gold); }
+  .sc-body { padding: 18px 20px 20px; }
+  .sc-headline { font-size: 15px; line-height: 1.5; color: #ece7d6; margin-bottom: 16px; }
+  .sc-headline b { color: var(--gold-lt); font-weight: 800; }
+
+  .sc-tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 620px){ .sc-tiers { grid-template-columns: 1fr; } }
+  .sc-card {
+    position: relative; background: rgba(255,255,255,0.035);
+    border: 1px solid var(--sc-line); border-radius: 11px; padding: 14px 15px;
+  }
+  .sc-card.here {
+    background: linear-gradient(165deg, rgba(212,175,55,0.16) 0%, rgba(212,175,55,0.05) 100%);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px rgba(212,175,55,0.35), 0 6px 18px rgba(212,175,55,0.12);
+  }
+  .sc-here {
+    position: absolute; top: -9px; right: 12px;
+    font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    background: var(--gold); color: var(--sc-ink); padding: 3px 9px; border-radius: 20px;
+  }
+  .sc-card-name {
+    font-size: 16px; font-weight: 800; letter-spacing: 0.01em; color: #fff; margin-bottom: 11px;
+  }
+  .sc-card.here .sc-card-name { color: var(--gold-lt); }
+  .sc-band { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 5px 0; }
+  .sc-band-lbl { font-size: 11px; font-weight: 600; color: #a89f86; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sc-band-val { font-size: 14px; font-weight: 800; color: #ece7d6; font-variant-numeric: tabular-nums; }
+  .sc-gate {
+    margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--sc-line);
+    font-size: 11px; font-weight: 600; color: #b8af93; line-height: 1.4;
+  }
+
+  .sc-standing {
+    margin-top: 16px; padding: 14px 16px; border-radius: 11px;
+    background: rgba(0,0,0,0.28); border: 1px solid var(--sc-line);
+  }
+  .sc-standing-nums { display: flex; gap: 26px; }
+  .sc-sn { display: flex; flex-direction: column; line-height: 1.1; }
+  .sc-sn b { font-size: 24px; font-weight: 800; color: var(--gold-lt); letter-spacing: -0.01em; }
+  .sc-sn span { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #a89f86; margin-top: 3px; }
+  .sc-need { font-size: 13px; line-height: 1.5; color: #d4cdb6; margin-top: 12px; }
+  .sc-need b { color: var(--gold-lt); font-weight: 800; }
+
+  .sc-uplift {
+    margin-top: 14px; padding: 15px 17px; border-radius: 11px;
+    background: linear-gradient(135deg, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0.06) 100%);
+    border: 1px solid var(--gold);
+  }
+  .sc-uplift.top { background: rgba(255,255,255,0.04); border-color: var(--sc-line); }
+  .sc-uplift-h { font-size: 16px; font-weight: 800; color: var(--gold-lt); letter-spacing: -0.01em; }
+  .sc-uplift.top .sc-uplift-h { color: #ece7d6; }
+  .sc-uplift-b { font-size: 12.5px; line-height: 1.5; color: #c9c1a8; margin-top: 5px; }
+  .sc-link { color: var(--gold-lt); font-weight: 700; text-decoration: none; border-bottom: 1px solid rgba(240,215,122,0.4); }
+  .sc-link:hover { border-bottom-color: var(--gold-lt); }
 </style>
 </head>
 <body>
@@ -449,6 +528,15 @@
     <div class="section-body" id="metricsBody">
       <div class="loading">Loading metrics...</div>
     </div>
+  </div>
+
+  <!-- SALES CLUB (full-width, black-gold) -->
+  <div class="sc-section" id="salesClub" style="display:none">
+    <div class="sc-head">
+      <div class="sc-title">Sales Club</div>
+      <div class="sc-pill" id="salesClubPill">--</div>
+    </div>
+    <div class="sc-body" id="salesClubBody"></div>
   </div>
 
   <!-- DISC STYLE -->
@@ -1015,6 +1103,9 @@ async function loadAndRenderMetrics(me){
 }
 
 async function loadMetricsSnapshot(me){
+  // The Sales Club section is fed only by the live perf payload (d.sales_club);
+  // the snapshot path has no club data, so keep the section hidden here.
+  const scSec = $('salesClub'); if (scSec) scSec.style.display = 'none';
   const { data } = await sb.from('rep_perf_snapshots')
     .select('*').eq('rep_id', me.id)
     .order('snapshot_date', { ascending: false })
@@ -1144,7 +1235,7 @@ const LAUNCHER_BASE = 'https://tools.ct-resource-page.com';
 let _commConfig = null;
 async function getCommConfig(){
   if (_commConfig) return _commConfig;
-  let goal = 7, floor = 3;
+  let goal = 7, floor = 3, values = {};
   try {
     const { data, error } = await sb.rpc('get_commission_settings');
     if (!error && data){
@@ -1152,12 +1243,15 @@ async function getCommConfig(){
       // The two thresholds live in that flat values map (tolerate a flat object too).
       const v = (data && data.values) ? data.values : (Array.isArray(data) ? (data[0] || {}) : data);
       if (v){
+        values = v;
         if (v.monthly_standard_products != null) goal  = Number(v.monthly_standard_products);
         if (v.monthly_min_products      != null) floor = Number(v.monthly_min_products);
       }
     }
   } catch (e) { /* fall back to defaults */ }
-  _commConfig = { goal, floor };
+  // values = the full flat key->value map (rates + club bands), used by the
+  // Sales Club section. goal/floor stay for the This Month card.
+  _commConfig = { goal, floor, values };
   return _commConfig;
 }
 
@@ -1264,12 +1358,6 @@ function renderMePerf(d){
   if (r.balance != null) {
     tiles.push(metric('Book', bookReveal(r.balance, r.draw_rate), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
   }
-  if (club && (club.current_tier || club.projected_tier || club.active != null)) {
-    const tier = club.current_tier || club.projected_tier;
-    tiles.push(metric('Sales Club', tier || '--',
-      'QTD pace: ' + (club.projected_tier || 'not yet') + ' · ' + (club.active || 0) + 'a/' + (club.installs || 0) + 'i',
-      club.current_tier ? 'green' : (club.projected_tier ? 'amber' : '')));
-  }
 
   // ── Why you're ranked here + how to climb ──
   const bits = [];
@@ -1288,6 +1376,164 @@ function renderMePerf(d){
 
   const monthCard = thisMonthCard(d.this_month, _commConfig);
   $('metricsBody').innerHTML = monthCard + scopeCaption + '<div class="metrics-grid">' + tiles.join('') + '</div>' + climbHtml;
+
+  // Dedicated full-width Sales Club section (replaces the old metric tile).
+  renderSalesClub(d, _commConfig);
+}
+
+// ============================================================================
+// SALES CLUB (full-width, black-gold) -- three tiers, the rep's standing, and
+// the per-job uplift to the next club. Everything is driven by the editable
+// commission config (cfg.values); nothing here is hard-coded.
+// ============================================================================
+
+// Per-job commission, replicating the calculator's math from config values.
+// tier is one of 'none' | 'hf' | 'pres' | 'royalty'; saleType 'company' | 'selfgen'.
+function jobCommission(systemKw, ppw, basePpw, saleType, tier, cfg){
+  const v = (cfg && cfg.values) || {};
+  const num = (k, d) => { const n = Number(v[k]); return isFinite(n) ? n : d; };
+  const base_pay_selfgen = num('base_pay_selfgen', 0.02);
+  const base_pay_company = num('base_pay_company', 0.04);
+  const lead_fee_noclub  = num('lead_fee_noclub', 475);
+  const lead_fee_club    = num('lead_fee_club', 375);
+  const above_base_noclub= num('above_base_noclub', 0.25);
+  const above_base_club  = num('above_base_club', 0.33);
+  const club_adder_hf    = num('club_adder_hf', 0.005);
+  const club_adder_pres  = num('club_adder_pres', 0.0075);
+  const club_adder_royalty = num('club_adder_royalty', 0.01);
+  const min_commission   = num('min_commission', 750);
+
+  const baseEpc      = systemKw * 1000 * basePpw;
+  const systemEpc    = systemKw * 1000 * ppw;
+  const aboveBaseEpc = systemEpc - baseEpc;
+  const clubValue    = systemKw * 1000 * Math.min(ppw, basePpw);
+
+  const basePayout = baseEpc * (saleType === 'selfgen' ? base_pay_selfgen : base_pay_company);
+  const leadFee = (saleType === 'selfgen') ? 0 : (tier === 'none' ? lead_fee_noclub : lead_fee_club);
+  const aboveBaseAdder = Math.max(0, aboveBaseEpc * (tier === 'none' ? above_base_noclub : above_base_club));
+  const clubAdder = clubValue * (tier === 'hf' ? club_adder_hf : tier === 'pres' ? club_adder_pres : tier === 'royalty' ? club_adder_royalty : 0);
+
+  if (ppw < basePpw) return min_commission;
+  return basePayout - leadFee + aboveBaseAdder + clubAdder;
+}
+
+// Map a config tier label (Sales Club RPC strings) to the short code the math uses.
+function clubTierCode(label){
+  const s = String(label || '').toLowerCase();
+  if (s.indexOf('royal') >= 0) return 'royalty';
+  if (s.indexOf('pres') >= 0)  return 'pres';
+  if (s.indexOf('high') >= 0 || s.indexOf('flyer') >= 0) return 'hf';
+  return 'none';
+}
+const CLUB_TIERS = [
+  { code:'hf',      name:'High Flyer', instMin:'hf_installs_min',      instMax:'hf_installs_max',      actMin:'hf_active_min',      actMax:'hf_active_max' },
+  { code:'pres',    name:'President',  instMin:'pres_installs_min',    instMax:'pres_installs_max',    actMin:'pres_active_min',    actMax:'pres_active_max' },
+  { code:'royalty', name:'Royalty',   instMin:'royalty_installs_min', instMax:null,                   actMin:'royalty_active_min', actMax:null }
+];
+const CLUB_NEXT = { none:'hf', hf:'pres', pres:'royalty', royalty:null };
+
+function renderSalesClub(d, cfg){
+  const sec = $('salesClub');
+  if (!sec) return;
+  const club = d && d.sales_club;
+  // Hide gracefully when there is no Sales Club payload at all.
+  if (!club){ sec.style.display = 'none'; return; }
+  sec.style.display = '';
+
+  const v = (cfg && cfg.values) || {};
+  const band = (k) => (k && v[k] != null && isFinite(Number(v[k]))) ? Number(v[k]) : null;
+  const bandTxt = (minK, maxK) => {
+    const lo = band(minK), hi = band(maxK);
+    if (lo == null && hi == null) return 'set in config';
+    if (hi == null) return lo + '+';
+    return lo + ' to ' + hi;
+  };
+  const repCtl = band('rep_control_max_pct');
+
+  const currentCode  = clubTierCode(club.current_tier);
+  const projCode     = clubTierCode(club.projected_tier);
+  // The card we highlight: current club if in one, else projected pace.
+  const standingCode = (currentCode !== 'none') ? currentCode : projCode;
+  const standingName = (CLUB_TIERS.find(t => t.code === standingCode) || {}).name;
+
+  // ── Header ──
+  const pill = $('salesClubPill');
+  if (currentCode !== 'none'){ pill.textContent = standingName; pill.className = 'sc-pill in'; }
+  else if (projCode !== 'none'){ pill.textContent = 'on pace: ' + standingName; pill.className = 'sc-pill pace'; }
+  else { pill.textContent = 'not yet'; pill.className = 'sc-pill'; }
+
+  let headline;
+  if (currentCode !== 'none') headline = 'You are in <b>' + esc(standingName) + '</b> this quarter.';
+  else if (projCode !== 'none') headline = 'On your current pace you are tracking to <b>' + esc(standingName) + '</b>.';
+  else headline = 'Build toward your first club this quarter.';
+
+  // ── Three tier cards ──
+  const cards = CLUB_TIERS.map(function(t){
+    const isHere = (t.code === standingCode);
+    const installs = bandTxt(t.instMin, t.instMax);
+    const active   = bandTxt(t.actMin, t.actMax);
+    return '<div class="sc-card' + (isHere ? ' here' : '') + '">' +
+      (isHere ? '<span class="sc-here">You are here</span>' : '') +
+      '<div class="sc-card-name">' + esc(t.name) + '</div>' +
+      '<div class="sc-band"><span class="sc-band-lbl">Installs</span><span class="sc-band-val">' + esc(installs) + '</span></div>' +
+      '<div class="sc-band"><span class="sc-band-lbl">Active contracts</span><span class="sc-band-val">' + esc(active) + '</span></div>' +
+      (repCtl != null ? '<div class="sc-gate">Rep control at or below ' + esc(repCtl) + '%</div>' : '') +
+      '</div>';
+  }).join('');
+
+  // ── QTD standing ──
+  const active   = club.active   != null ? club.active   : 0;
+  const installs = club.installs != null ? club.installs : 0;
+  let standing = '<div class="sc-standing-nums">' +
+    '<span class="sc-sn"><b>' + active + '</b><span>active</span></span>' +
+    '<span class="sc-sn"><b>' + installs + '</b><span>installs</span></span>' +
+    '</div>';
+  const nt = club.next_tier;
+  if (nt && (nt.active_needed != null || nt.installs_needed != null)){
+    const an = nt.active_needed != null ? nt.active_needed : 0;
+    const inn = nt.installs_needed != null ? nt.installs_needed : 0;
+    standing += '<div class="sc-need">To reach <b>' + esc(nt.name || 'the next club') + '</b>, you still need ' +
+      '<b>' + an + '</b> more active and <b>' + inn + '</b> more installs this quarter.</div>';
+  } else if (currentCode === 'royalty'){
+    standing += '<div class="sc-need">You are at the top tier. Hold Royalty and keep the standard high.</div>';
+  }
+
+  // ── Per-job "next club" uplift ──
+  const nextCode = CLUB_NEXT[standingCode] || null;
+  let uplift = '';
+  if (standingCode === 'royalty' || !nextCode){
+    uplift = '<div class="sc-uplift top">' +
+      '<div class="sc-uplift-h">Top tier</div>' +
+      '<div class="sc-uplift-b">Royalty is the highest club, so the per-job club bonus is already maxed out. ' +
+      '<a class="sc-link" href="/sales-fundamentals/commission/calculator.html">Model your own deal</a> to see your number.</div>' +
+      '</div>';
+  } else {
+    // Representative deal: lean on the rep's own averages where present.
+    const r = d.rep || {};
+    const repPpw = (r.avg_ppw != null && isFinite(Number(r.avg_ppw))) ? Number(r.avg_ppw) : null;
+    const repKw  = (r.avg_kw != null && isFinite(Number(r.avg_kw))) ? Number(r.avg_kw)
+                 : (r.kw != null && r.contracts ? Number(r.kw) / Number(r.contracts) : null);
+    const systemKw = (repKw && repKw > 0.5 && repKw < 100) ? repKw : 8.2;   // rep's avg system size (kw/contracts), else 8.2 kW typical
+    const basePpw  = band('base_ppw_default') != null ? band('base_ppw_default') : 3.0;
+    const ppw      = repPpw || basePpw;            // at/above base so the club adder is visible
+    const cur  = jobCommission(systemKw, ppw, basePpw, 'company', standingCode, cfg);
+    const next = jobCommission(systemKw, ppw, basePpw, 'company', nextCode, cfg);
+    const gain = next - cur;
+    const nextName = (CLUB_TIERS.find(t => t.code === nextCode) || {}).name || 'the next club';
+    if (gain > 0){
+      uplift = '<div class="sc-uplift">' +
+        '<div class="sc-uplift-h">At ' + esc(nextName) + ', about ' + fmtMoney(gain) + ' more per job</div>' +
+        '<div class="sc-uplift-b">Estimate on a typical deal (' + systemKw.toFixed(1) + ' kW at $' + ppw.toFixed(2) + '/W). ' +
+        '<a class="sc-link" href="/sales-fundamentals/commission/calculator.html">Model your own deal</a>.</div>' +
+        '</div>';
+    }
+  }
+
+  $('salesClubBody').innerHTML =
+    '<div class="sc-headline">' + headline + '</div>' +
+    '<div class="sc-tiers">' + cards + '</div>' +
+    '<div class="sc-standing">' + standing + '</div>' +
+    uplift;
 }
 
 // ============================================================================
