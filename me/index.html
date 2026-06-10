@@ -1564,13 +1564,16 @@ function renderSalesClub(d, cfg){
     '<span class="sc-sn"><b>' + active + '</b><span>active</span></span>' +
     '<span class="sc-sn"><b>' + installs + '</b><span>installs</span></span>' +
     '</div>';
-  const nt = club.next_tier;
-  if (nt && (nt.active_needed != null || nt.installs_needed != null)){
-    const an = nt.active_needed != null ? nt.active_needed : 0;
-    const inn = nt.installs_needed != null ? nt.installs_needed : 0;
-    standing += '<div class="sc-need">To reach <b>' + esc(nt.name || 'the next club') + '</b>, you still need ' +
-      '<b>' + an + '</b> more active and <b>' + inn + '</b> more installs this quarter.</div>';
-  } else if (currentCode === 'royalty'){
+  // Next club to EARN = the immediate club above CURRENT standing (not the run-rate
+  // projection), with the real remaining gap from the config bands.
+  const nextEarnCode = CLUB_NEXT[currentCode];
+  if (nextEarnCode){
+    const ntier = CLUB_TIERS.find(function(t){ return t.code === nextEarnCode; });
+    const needA = Math.max(0, (band(ntier.actMin)  || 0) - active);
+    const needI = Math.max(0, (band(ntier.instMin) || 0) - installs);
+    standing += '<div class="sc-need">To reach <b>' + esc(ntier.name) + '</b>, you still need ' +
+      '<b>' + needA + '</b> more active and <b>' + needI + '</b> more installs this quarter.</div>';
+  } else {
     standing += '<div class="sc-need">You are at the top tier. Hold Royalty and keep the standard high.</div>';
   }
 
