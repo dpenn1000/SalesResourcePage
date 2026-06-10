@@ -161,6 +161,12 @@ body.presenter .module:has(.flow) .callout{font-size:.95rem;padding:8px 14px;mar
 .figure.dont{border-left:3px solid var(--red)}
 .figure-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--space-3);margin-top:var(--space-3)}
 
+/* ---- DESIGN LAB call-to-action ---- */
+.lab-cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:rgba(220,155,60,.1);border:1px solid rgba(220,155,60,.35);border-radius:var(--r-md);padding:14px 18px;margin-bottom:var(--space-3)}
+.lab-cta a{display:inline-block;background:var(--ink);color:#fff;font-weight:700;font-size:.95rem;text-decoration:none;border-radius:var(--r-md);padding:11px 20px;white-space:nowrap}
+.lab-cta a:hover{background:var(--deep-blue)}
+.lab-cta span{color:var(--ink);font-weight:600;flex:1;min-width:200px}
+
 body.presenter .diagram svg{max-height:240px}
 body.presenter .figure img{height:170px}
 
@@ -659,6 +665,11 @@ body.presenter .figure img{height:170px}
     <span class="eyebrow">Part 9 · Test Yourself</span>
     <h2>The codes &amp; design tester</h2>
     <p class="intro">Pick a difficulty and prove you know it. Apprentice is straight recall, Journeyman applies the rules, Master throws real roof scenarios at you. Each question explains itself, right or wrong.</p>
+
+    <div class="lab-cta">
+      <span><strong>Want hands-on?</strong> Open the Design Lab to lay out a roof yourself and get it graded against the codes.</span>
+      <a href="/solar/system-design/design-lab/">Open the Design Lab &rarr;</a>
+    </div>
 
     <div class="quiz" id="quiz">
       <!-- SETUP -->
