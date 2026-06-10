@@ -128,6 +128,42 @@ body.presenter .module:has(.card-grid) .callout,
 body.presenter .module:has(.compare-grid) .callout,
 body.presenter .module:has(.flow) .callout{font-size:.95rem;padding:8px 14px;margin-top:10px}
 
+/* ---- DIAGRAMS (inline SVG, theme-driven) ---- */
+.diagram{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:var(--space-3) var(--space-4);margin-top:var(--space-3)}
+.diagram svg{display:block;width:100%;height:auto;max-height:330px}
+.diagram figcaption{font-size:.84rem;color:var(--muted);margin-top:10px;text-align:center}
+.diagram .roof{fill:#EDEFEA;stroke:#9AA3AE;stroke-width:2}
+.diagram .roof2{fill:#E3E7E0}
+.diagram .wall{fill:#DDE1DA;stroke:#9AA3AE;stroke-width:2}
+.diagram .panel{fill:var(--deep-blue);stroke:#16345C;stroke-width:1}
+.diagram .ridge{stroke:var(--ink);stroke-width:4;stroke-linecap:round;fill:none}
+.diagram .path{fill:rgba(220,155,60,.22);stroke:var(--amber);stroke-width:2;stroke-dasharray:5 3}
+.diagram .setb{fill:rgba(232,64,64,.13);stroke:var(--red);stroke-width:1.5;stroke-dasharray:4 3}
+.diagram .acc{fill:rgba(95,165,32,.16);stroke:var(--green);stroke-width:1.5}
+.diagram .dimline{stroke:var(--amber);stroke-width:1.5;fill:none}
+.diagram .lbl{fill:var(--ink);font-family:var(--sans);font-size:14px;font-weight:800}
+.diagram .lbl-m{fill:var(--muted);font-family:var(--sans);font-size:12px;font-weight:700}
+.diagram .lbl-a{fill:#A66E1C;font-family:var(--sans);font-size:12.5px;font-weight:800}
+.diagram .lbl-g{fill:#4C8A1A;font-family:var(--sans);font-size:12.5px;font-weight:800}
+.diagram .lbl-r{fill:var(--red);font-family:var(--sans);font-size:12.5px;font-weight:800}
+.diagram .dot{fill:var(--green);stroke:#fff;stroke-width:1.5}
+.diagram .xmark{stroke:var(--red);stroke-width:3.5;stroke-linecap:round}
+.minidiag{margin-bottom:var(--space-2)}
+.minidiag svg{display:block;width:100%;height:130px}
+
+/* ---- PHOTO FIGURES ---- */
+.figure{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow);margin:0}
+.figure img{display:block;width:100%;height:220px;object-fit:cover;background:var(--surface)}
+.figure.contain img{object-fit:contain}
+.figure figcaption{padding:9px 14px;font-size:.84rem;color:var(--muted);line-height:1.35}
+.figure figcaption strong{color:var(--ink)}
+.figure.do{border-left:3px solid var(--green)}
+.figure.dont{border-left:3px solid var(--red)}
+.figure-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:var(--space-3);margin-top:var(--space-3)}
+
+body.presenter .diagram svg{max-height:240px}
+body.presenter .figure img{height:170px}
+
 @media(max-width:820px){
   .code-strip{grid-template-columns:repeat(2,1fr)}
   .rule-grid{grid-template-columns:1fr}
@@ -367,6 +403,27 @@ body.presenter .module:has(.flow) .callout{font-size:.95rem;padding:8px 14px;mar
       </div>
     </div>
 
+    <div class="diagram">
+      <svg viewBox="0 0 640 300" role="img" aria-label="Top-down gable roof with two 3-foot pathways on separate planes, one on the street side, and a clear setback straddling the ridge">
+        <rect class="roof" x="70" y="40" width="500" height="210" rx="4"/>
+        <rect class="roof2" x="72" y="42" width="496" height="101"/>
+        <rect class="panel" x="82" y="52" width="156" height="81" rx="2"/>
+        <rect class="panel" x="307" y="52" width="251" height="81" rx="2"/>
+        <rect class="panel" x="82" y="157" width="336" height="81" rx="2"/>
+        <rect class="panel" x="487" y="157" width="71" height="81" rx="2"/>
+        <rect class="setb" x="70" y="133" width="500" height="24"/>
+        <rect class="path" x="250" y="40" width="45" height="105"/>
+        <rect class="path" x="430" y="145" width="45" height="105"/>
+        <line class="ridge" x1="70" y1="145" x2="100" y2="145"/>
+        <line class="ridge" x1="222" y1="145" x2="570" y2="145"/>
+        <text class="lbl-a" x="272" y="34" text-anchor="middle">3&prime; pathway</text>
+        <text class="lbl-a" x="452" y="268" text-anchor="middle">3&prime; pathway</text>
+        <text class="lbl-r" x="160" y="150" text-anchor="middle">ridge setback</text>
+        <text class="lbl" x="320" y="290" text-anchor="middle">STREET</text>
+      </svg>
+      <figcaption>Two 3-foot pathways on separate roof planes (one on the street side) and a clear setback straddling the ridge.</figcaption>
+    </div>
+
     <div class="callout"><strong>The single-slope exception.</strong> If the array is on only one slope of a single-ridge roof and the opposite slope has clear access with a roof access point, the eave-to-ridge pathway is not required on the array's slope. The same logic applies to one side of a hip or valley.</div>
 
     <div class="manager-prompt">Draw a simple gable roof on the board. Ask a rep to place two compliant pathways and explain why each one qualifies.</div>
@@ -398,6 +455,21 @@ body.presenter .module:has(.flow) .callout{font-size:.95rem;padding:8px 14px;mar
       </div>
     </div>
 
+    <div class="diagram">
+      <svg viewBox="0 0 640 220" role="img" aria-label="Top-down roof showing a clear setback band straddling the ridge, with panels held back on both sides">
+        <rect class="roof" x="70" y="30" width="500" height="160" rx="4"/>
+        <rect class="roof2" x="72" y="32" width="496" height="78"/>
+        <rect class="panel" x="84" y="42" width="472" height="50" rx="2"/>
+        <rect class="panel" x="84" y="128" width="472" height="50" rx="2"/>
+        <rect class="setb" x="70" y="96" width="500" height="28"/>
+        <line class="ridge" x1="70" y1="110" x2="210" y2="110"/>
+        <line class="ridge" x1="430" y1="110" x2="570" y2="110"/>
+        <text class="lbl-m" x="320" y="22" text-anchor="middle">Panels held off both sides of the ridge</text>
+        <text class="lbl-r" x="320" y="115" text-anchor="middle">RIDGE SETBACK &middot; 18&Prime; / 36&Prime;</text>
+      </svg>
+      <figcaption>A clear band straddles the ridge: 18&Prime; each side at 33% coverage or less, 36&Prime; above it.</figcaption>
+    </div>
+
     <div class="callout callout--compliance"><strong>Genesis calculates it, you confirm it.</strong> The Genesis and Web Gen platforms have a built-in calculator that adjusts the required ridge setback based on roof space used. After any layout change, always <strong>Refresh Setbacks</strong> to confirm it recalculated. Edit the array up past 33% and forget to refresh, and the model is out of code.</div>
 
     <div class="manager-prompt">Ask the room: an array edit pushes coverage from 30% to 45%. What changes, and what's the one button you must hit?</div>
@@ -419,18 +491,54 @@ body.presenter .module:has(.flow) .callout{font-size:.95rem;padding:8px 14px;mar
     <div class="card-grid">
       <div class="training-card training-card--green">
         <h3>Access roofs</h3>
+        <div class="minidiag"><svg viewBox="0 0 200 130" role="img" aria-label="One roof plane with panels, the opposing plane left clear as an access roof with a ground access point">
+          <rect class="roof" x="24" y="16" width="152" height="96" rx="3"/>
+          <rect class="acc" x="100" y="18" width="74" height="92"/>
+          <rect class="panel" x="30" y="24" width="64" height="80" rx="2"/>
+          <line class="ridge" x1="100" y1="16" x2="100" y2="112"/>
+          <circle class="dot" cx="137" cy="118" r="4"/>
+          <text class="lbl-g" x="137" y="62" text-anchor="middle">ACCESS</text>
+          <text class="lbl-g" x="137" y="78" text-anchor="middle">ROOF</text>
+        </svg></div>
         <p>When modules are on only one slope and the opposing roof is clear, that opposing roof can serve as the access roof. It must be street or driveway facing with at least one ground access point free of doors and windows. <strong>If an access roof is used, pathways aren't required.</strong></p>
       </div>
       <div class="training-card training-card--amber">
         <h3>Height differences</h3>
+        <div class="minidiag"><svg viewBox="0 0 200 130" role="img" aria-label="Two houses with roofs more than a foot apart in height, marked not adjacent">
+          <rect class="wall" x="22" y="52" width="64" height="58"/>
+          <polygon class="roof" points="16,52 54,30 92,52"/>
+          <rect class="wall" x="114" y="76" width="64" height="34"/>
+          <polygon class="roof" points="108,76 146,58 184,76"/>
+          <line class="dimline" x1="100" y1="52" x2="100" y2="76"/>
+          <line class="dimline" x1="95" y1="52" x2="105" y2="52"/>
+          <line class="dimline" x1="95" y1="76" x2="105" y2="76"/>
+          <text class="lbl-r" x="100" y="48" text-anchor="middle">&gt;1&prime;</text>
+          <text class="lbl-r" x="100" y="126" text-anchor="middle">NOT ADJACENT</text>
+        </svg></div>
         <p>If two roofs differ in height by more than 1 foot, they aren't "adjacent." Treat them as two separate buildings, and each one needs its own minimum of two pathways.</p>
       </div>
       <div class="training-card">
         <h3>Emergency egress</h3>
+        <div class="minidiag"><svg viewBox="0 0 200 130" role="img" aria-label="A bedroom window above a roof with a clear 3-foot egress path down to the eave">
+          <rect class="roof" x="24" y="22" width="152" height="90" rx="3"/>
+          <rect class="panel" x="30" y="28" width="60" height="78" rx="2"/>
+          <rect class="panel" x="150" y="28" width="20" height="78" rx="2"/>
+          <rect class="path" x="100" y="22" width="44" height="90"/>
+          <rect class="wall" x="104" y="6" width="36" height="14"/>
+          <text class="lbl-a" x="122" y="128" text-anchor="middle">3&prime; egress</text>
+        </svg></div>
         <p>If a bedroom window sits above a roof surface, a 3-foot emergency egress pathway must run from that window to the lowest point of the roof. It's an escape route, so it stays clear.</p>
       </div>
       <div class="training-card">
         <h3>Detached structures</h3>
+        <div class="minidiag"><svg viewBox="0 0 200 130" role="img" aria-label="A main house and a smaller detached garage labeled no setback">
+          <rect class="wall" x="20" y="46" width="84" height="64"/>
+          <polygon class="roof" points="14,46 62,24 110,46"/>
+          <rect class="wall" x="132" y="74" width="48" height="36"/>
+          <polygon class="roof" points="126,74 156,58 186,74"/>
+          <text class="lbl-m" x="62" y="126" text-anchor="middle">house</text>
+          <text class="lbl-g" x="156" y="126" text-anchor="middle">no setback</text>
+        </svg></div>
         <p>Detached, non-habitable structures (a standalone garage) don't need setbacks. But if the structure has living space someone could sleep in, setbacks apply. Roofs pitched 10 degrees or less are also exempt.</p>
       </div>
     </div>
@@ -509,6 +617,17 @@ body.presenter .module:has(.flow) .callout{font-size:.95rem;padding:8px 14px;mar
       </div>
     </div>
 
+    <div class="figure-grid">
+      <figure class="figure dont">
+        <img src="/solar/system-design/assets/system-design/tree-removal-stump.jpg" alt="A bare tree stump with no surrounding reference points" loading="lazy">
+        <figcaption><strong>Don't:</strong> a stump-only photo. Nothing shows where on the property the tree stood.</figcaption>
+      </figure>
+      <figure class="figure do">
+        <img src="/solar/system-design/assets/system-design/tree-removal-marked.jpg" alt="Tree removal marked on an overhead view with street-level reference photos of the house" loading="lazy">
+        <figcaption><strong>Do:</strong> mark the removal on the overhead and include the house as a reference, before and after.</figcaption>
+      </figure>
+    </div>
+
     <div class="training-card training-card--ink">
       <h3>Reading the roof-information key</h3>
       <div class="keygrid">
@@ -521,6 +640,10 @@ body.presenter .module:has(.flow) .callout{font-size:.95rem;padding:8px 14px;mar
         <div class="k"><span class="sym">KW</span> <span class="mean">System size</span></div>
       </div>
       <p>The <strong>Roof Square Calculator</strong> sits in the bottom-left of Web Gen and gives total squares with waste included. Multiple structures are calculated separately; if you can't verify which building to use, contact RSA.</p>
+      <figure class="figure">
+        <img src="/solar/system-design/assets/system-design/roof-square-calculator.jpg" alt="Genesis Web Gen overhead roof view with the Roof Square Calculator readout at the bottom" loading="lazy">
+        <figcaption><strong>Roof Square Calculator.</strong> Bottom-left of Web Gen: total squares with waste included, each structure counted separately.</figcaption>
+      </figure>
     </div>
 
     <details class="recall-check">
