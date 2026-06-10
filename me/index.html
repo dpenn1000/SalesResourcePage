@@ -293,6 +293,19 @@
     padding: 10px 18px; border-radius: 8px; cursor: pointer;
   }
   .pf-save:disabled { opacity: 0.5; cursor: not-allowed; }
+  /* DISC hover/tap card */
+  [data-disc] { cursor: help; }
+  .disc-tip {
+    position: fixed; z-index: 400; max-width: 290px;
+    background: var(--header); color: #fff;
+    border: 1px solid rgba(255,255,255,0.16); border-radius: 11px;
+    padding: 12px 14px; box-shadow: 0 10px 34px rgba(0,0,0,0.32);
+    font-size: 12.5px; line-height: 1.55;
+    opacity: 0; transform: translateY(4px); transition: opacity .12s, transform .12s; pointer-events: none;
+  }
+  .disc-tip.show { opacity: 1; transform: translateY(0); }
+  .disc-tip .dt-name { font-weight: 800; font-size: 13px; margin-bottom: 5px; }
+  .disc-tip .dt-sales { margin-top: 7px; color: #cfe9ff; }
 </style>
 </head>
 <body>
@@ -503,6 +516,31 @@ async function initApp(profile, session) {
 // ============================================================================
 const DISC_COLOR = { D:'#E84040', I:'#F5A623', S:'#78C832', C:'#29A9E1' };
 const DISC_NAME  = { D:'Driver', I:'Influencer', S:'Steady', C:'Conscientious' };
+const DISC_INFO = {
+  D: { name:'Driver', sub:'Dominance', quality:'Direct, decisive, results-first. Wants the bottom line and to stay in control.',
+       sales:'Be brief and confident. Lead with results and the number, give clear options, and let them decide. Skip the small talk.' },
+  I: { name:'Influencer', sub:'Influence', quality:'Outgoing, optimistic, driven by relationships and recognition. Thinks out loud.',
+       sales:'Match their energy. Use stories and social proof, keep it upbeat, let them talk, and make them feel like the hero of the decision.' },
+  S: { name:'Steady', sub:'Steadiness', quality:'Patient, loyal, dependable. Values security and dislikes being pushed.',
+       sales:'Slow down and build trust. Reassure, lean on safety, support, and family, and never hard-close. Confident small next steps win.' },
+  C: { name:'Conscientious', sub:'Compliance', quality:'Analytical, precise, careful. Wants accuracy and proof before deciding.',
+       sales:'Bring data and specifics. Be accurate, hand over documentation, give them time, and answer every objection thoroughly. No fluff.' }
+};
+let _discTipEl = null;
+function _discTip(){ if(!_discTipEl){ _discTipEl=document.createElement('div'); _discTipEl.className='disc-tip'; document.body.appendChild(_discTipEl); } return _discTipEl; }
+function showDiscTip(letter, x, y){
+  const d = DISC_INFO[String(letter||'').toUpperCase()]; if(!d) return;
+  const t = _discTip();
+  t.innerHTML = '<div class="dt-name" style="color:'+(DISC_COLOR[String(letter).toUpperCase()]||'#fff')+'">'+esc(d.name)+' ('+esc(d.sub)+')</div>'+
+    '<div>'+esc(d.quality)+'</div><div class="dt-sales"><b>On the appointment:</b> '+esc(d.sales)+'</div>';
+  t.style.left = Math.max(8, Math.min(x, window.innerWidth - 300)) + 'px';
+  t.style.top  = (y + 12) + 'px';
+  t.classList.add('show');
+}
+function hideDiscTip(){ if(_discTipEl) _discTipEl.classList.remove('show'); }
+document.addEventListener('mouseover', function(e){ const el=e.target.closest && e.target.closest('[data-disc]'); if(el){ const r=el.getBoundingClientRect(); showDiscTip(el.getAttribute('data-disc'), r.left, r.bottom); } });
+document.addEventListener('mouseout',  function(e){ if(e.target.closest && e.target.closest('[data-disc]')) hideDiscTip(); });
+document.addEventListener('click',     function(e){ const el=e.target.closest && e.target.closest('[data-disc]'); if(el){ const r=el.getBoundingClientRect(); const t=_discTip(); if(t.classList.contains('show') && t.dataset.k===el.getAttribute('data-disc')){ hideDiscTip(); } else { t.dataset.k=el.getAttribute('data-disc'); showDiscTip(el.getAttribute('data-disc'), r.left, r.bottom); } } else { hideDiscTip(); } });
 
 async function loadProfileExtras(){
   wirePhoto();
@@ -541,6 +579,7 @@ function renderCoaching(d){
   const r = d.result || {};
   $('coachingPill').textContent = d.disc ? 'DISC ' + d.disc : 'ready';
   $('coachingPill').className = 'section-pill green';
+  if (d.disc) $('coachingPill').setAttribute('data-disc', String(d.disc).charAt(0));
   let h = '';
   if (r.summary) h += '<div style="font-size:14px;line-height:1.6;margin-bottom:12px">' + esc(r.summary) + '</div>';
   if (r.disc_frame) h += '<div class="addr p-low" style="margin-bottom:14px"><div class="addr-body">' + esc(r.disc_frame) + '</div></div>';
@@ -597,17 +636,18 @@ function renderDisc(disc){
   }
   $('discPill').textContent = disc.primary_style + (disc.secondary_style ? '/' + disc.secondary_style : '');
   $('discPill').className = 'section-pill green';
+  $('discPill').setAttribute('data-disc', disc.primary_style || '');
   const rows = ['D','I','S','C'].map(function(k){
     const v = Number(disc['score_' + k.toLowerCase()] || 0);
     const pct = Math.max(2, Math.min(100, v));
-    return '<div class="disc-row"><span class="disc-k" style="background:' + DISC_COLOR[k] + '">' + k + '</span>' +
+    return '<div class="disc-row"><span class="disc-k" data-disc="' + k + '" title="' + esc(DISC_NAME[k]) + '" style="background:' + DISC_COLOR[k] + '">' + k + '</span>' +
       '<span class="disc-track"><span class="disc-fill" style="width:' + pct + '%;background:' + DISC_COLOR[k] + '"></span></span>' +
       '<span class="disc-v">' + v.toFixed(1) + '</span></div>';
   }).join('');
-  $('discBody').innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Primary <b>' +
+  $('discBody').innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Primary <b data-disc="' + esc(disc.primary_style) + '">' +
     esc(DISC_NAME[disc.primary_style] || disc.primary_style) + '</b>' +
-    (disc.secondary_style ? ', secondary <b>' + esc(DISC_NAME[disc.secondary_style] || disc.secondary_style) + '</b>' : '') +
-    ' &middot; taken ' + fmtDate(disc.taken_at) + '</div>' + rows;
+    (disc.secondary_style ? ', secondary <b data-disc="' + esc(disc.secondary_style) + '">' + esc(DISC_NAME[disc.secondary_style] || disc.secondary_style) + '</b>' : '') +
+    ' &middot; taken ' + fmtDate(disc.taken_at) + '<span style="color:var(--text3)"> &middot; tap a letter to learn it</span></div>' + rows;
 }
 
 function renderPersonal(prof){
