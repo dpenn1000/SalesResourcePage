@@ -515,11 +515,14 @@ async function initApp(){
       sb.from('people').select('name,role,spd_slug').eq('status','active').order('name'),
     ]);
     contacts = cl || [];
+    // Leadership who carry an spd_slug but should NOT receive call-list leads.
+    const NON_DISPATCH_MANAGERS=new Set(['Melvin DeJesus','Ken Ebbert']);
     // Dedupe defensively in case two people share a display name.
     const seen=new Set();people=[];
     for(const p of (peopleRows||[])){
       if(!p||!p.name||seen.has(p.name))continue;
-      const dispatchable=(p.role==='rep')||(p.role==='manager'&&!!p.spd_slug);
+      const dispatchable=!NON_DISPATCH_MANAGERS.has(p.name)
+        && ((p.role==='rep')||(p.role==='manager'&&!!p.spd_slug));
       if(!dispatchable)continue;
       seen.add(p.name);people.push(p.name);
     }
