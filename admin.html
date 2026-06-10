@@ -3170,9 +3170,17 @@ async function deleteFeedback(id) {
       const { data: cdata } = await supa.rpc('get_rep_contacts', { p_rep_name: nm });
       contacts = cdata || [];
     } catch (e) { console.warn('[people] get_rep_contacts failed:', e); }
+    // DM Focus applicable to this person (universal + their group + individual),
+    // resolved + ordered server-side. Wrapped so a missing RPC (before the
+    // dm-focus migration is applied) can never break the detail load.
+    let focus = [];
+    try {
+      const { data: fdata } = await supa.rpc('get_focus_for_person', { p_person: repId });
+      focus = fdata || [];
+    } catch (e) { console.warn('[people] get_focus_for_person failed:', e); }
     return { activity:acts.data||[], assignments:assigns.data||[], attempts:attempts.data||[],
       shadows:shadows.data||[], helps:helps.data||[], certs:certs.data||[], calls:calls.data||[], contacts,
-      feedback:fb.data||[] };
+      feedback:fb.data||[], focus };
   }
 
   function renderTabBar() {
@@ -3205,14 +3213,15 @@ async function deleteFeedback(id) {
       ${dRow('Last sign-in', lastSeenLabel(r.lastSeen))}
       ${dRow('Must change password', r.must_change_password ? 'Yes' : 'No')}
     </div>`;
-    if (!window.IS_ADMIN) return card;
+    const focusCard = focusCardHtml();
+    if (!window.IS_ADMIN) return card + focusCard;
     if (EDITING) {
       const opts = MANAGERS.map(m =>
         `<option value="${m.id}"${m.id === r.manager_id ? ' selected' : ''}>${escapeHtml(m.name || '')}</option>`).join('');
       const cohortVal = r.cohort_start_date ? String(r.cohort_start_date).slice(0, 10) : '';
       const initMgr = r.manager_id ? PEOPLE_BY_ID[r.manager_id] : null;
       const initChain = chainDisplayHtml(r.name || 'This person', initMgr);
-      return card + `
+      return card + focusCard + `
       <div class="d-card edit-card">
         <div class="section-h" style="margin-top:4px">Edit assignment</div>
         <div id="editErr" class="auth-error" style="display:none"></div>
@@ -3248,12 +3257,55 @@ async function deleteFeedback(id) {
           ${isMgr ? `<button class="btn-edit" onclick="toggleAdminFlag()">${r.is_admin ? 'Demote admin' : 'Make admin'}</button>` : ''}
           <button class="btn-del-person" onclick="deletePerson()">Delete</button>
         </div>`;
-    return card + `
+    return card + focusCard + `
       <div class="d-card edit-card">
         <div class="section-h" style="margin-top:4px">Admin actions</div>
         <div id="acctMsg" class="auth-error" style="display:none"></div>
         ${acctInner}
       </div>`;
+  }
+
+  // Read-only DM Focus card for the rep-detail Profile tab. Resolved + ordered
+  // server-side by get_focus_for_person (north_star first, then priority).
+  // Surfaces the cascade framing and source so the manager passes it down
+  // word-for-word. This is where a future /me/ rep self-view would read the
+  // same RPC for the signed-in rep.
+  function focusCardHtml() {
+    const items = (D_DATA && D_DATA.focus) || [];
+    if (!items.length) {
+      return `<div class="d-card">
+        <div class="section-h" style="margin-top:4px">Focus</div>
+        <div class="d-empty">No focus items apply to this rep right now.</div>
+      </div>`;
+    }
+    const block = (tier, label) => {
+      const rows = items.filter(f => f.tier === tier);
+      if (!rows.length) return '';
+      const cards = rows.map(f => {
+        const meta = [
+          f.target_metric ? `<strong>Metric:</strong> ${escapeHtml(f.target_metric)}` : '',
+          f.source ? `<strong>Source:</strong> ${escapeHtml(f.source)}` : '',
+        ].filter(Boolean).join(' &middot; ');
+        const scopeTag = f.scope === 'universal' ? 'Everyone'
+          : f.scope === 'group' ? ('Group: ' + escapeHtml(f.group_name || ''))
+          : 'This rep';
+        return `<div style="padding:10px 12px;border:1px solid var(--border,#DFE2DA);border-radius:8px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <strong>${escapeHtml(f.title)}</strong>
+            <span style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#6b7a90;">${scopeTag}</span>
+          </div>
+          ${f.why ? `<div style="margin-top:4px;color:#4a5568;font-size:0.9rem;">${escapeHtml(f.why)}</div>` : ''}
+          ${f.cascade_framing ? `<div style="margin-top:6px;padding:7px 10px;background:#EFF1EC;border-radius:6px;font-size:0.9rem;"><span style="font-weight:700;font-size:0.66rem;text-transform:uppercase;letter-spacing:0.05em;color:#6b7a90;">Say it like this</span><br>${escapeHtml(f.cascade_framing)}</div>` : ''}
+          ${meta ? `<div style="margin-top:6px;font-size:0.78rem;color:#6b7a90;">${meta}</div>` : ''}
+        </div>`;
+      }).join('');
+      return `<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#6b7a90;margin:6px 0 6px;">${label}</div>${cards}`;
+    };
+    return `<div class="d-card">
+      <div class="section-h" style="margin-top:4px">Focus</div>
+      ${block('north_star', 'North Star')}
+      ${block('period', 'This Period')}
+    </div>`;
   }
 
   // Promote rep -> manager, or demote manager -> rep.

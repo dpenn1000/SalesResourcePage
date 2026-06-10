@@ -368,6 +368,7 @@ table.data tbody tr:hover { background: #F5F7F0; }
     <button data-tab="training" onclick="setTab('training')">
       Training Program <span class="count" id="training-count" style="display:none;">0</span>
     </button>
+    <button data-tab="focus" onclick="setTab('focus')">Focus</button>
     <button data-tab="shadows" onclick="setTab('shadows')">Shadow Logs</button>
     <button data-tab="managers" onclick="setTab('managers')">Managers</button>
     <button data-tab="help" onclick="setTab('help')">Help Requests</button>
@@ -597,6 +598,117 @@ table.data tbody tr:hover { background: #F5F7F0; }
       </div>
     </div>
 
+    <!-- FOCUS -->
+    <div id="view-focus" class="view">
+      <h2>Focus</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        The directive board. North Star items stay up as the things we always sell toward. This Period items are the priorities that turn over. Each item carries the why, how we measure it, and how to say it when you pass it down.
+      </p>
+
+      <!-- North Star board -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3>North Star</h3>
+            <p>Standing directives. These do not expire on their own.</p>
+          </div>
+        </div>
+        <div id="focus-northstar"></div>
+      </div>
+
+      <!-- This Period board -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3>This Period</h3>
+            <p>Current priorities. Set an end date so they retire when the period closes.</p>
+          </div>
+        </div>
+        <div id="focus-period"></div>
+      </div>
+
+      <!-- Composer -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="titles">
+            <h3 id="focus-form-title">Add a focus item</h3>
+            <p>Write it once, scope it to everyone, a group, or one rep. It surfaces on the matching reps' profiles.</p>
+          </div>
+        </div>
+        <form onsubmit="saveFocus(event)">
+          <input type="hidden" id="focus-id" value="">
+          <div style="display:grid; grid-template-columns: 1fr 2fr; gap: var(--s-3); align-items: end;">
+            <div class="form-group" style="margin:0;">
+              <label>Tier</label>
+              <select id="focus-tier">
+                <option value="north_star">North Star</option>
+                <option value="period">This Period</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>Title</label>
+              <input type="text" id="focus-title" required placeholder="e.g., Three-product minimum, effective July 1">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: var(--s-3);">
+            <label>Why it matters <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+            <textarea id="focus-why" rows="2" placeholder="The reason this is on the board."></textarea>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap: var(--s-3);">
+            <div class="form-group" style="margin-top: var(--s-3); margin-bottom:0;">
+              <label>Target metric <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+              <input type="text" id="focus-metric" placeholder="How we measure it">
+            </div>
+            <div class="form-group" style="margin-top: var(--s-3); margin-bottom:0;">
+              <label>Source <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+              <input type="text" id="focus-source" placeholder="e.g., Trad Leadership Call 2026-06-10">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: var(--s-3);">
+            <label>Say it like this <span style="color: var(--text-subtle); font-weight: 400;">(cascade framing, optional)</span></label>
+            <textarea id="focus-cascade" rows="2" placeholder="The words to use when you pass this down to a rep."></textarea>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-3); align-items: end;">
+            <div class="form-group" style="margin-top: var(--s-3); margin-bottom:0;">
+              <label>Scope</label>
+              <select id="focus-scope" onchange="onFocusScopeChange()">
+                <option value="universal">Everyone</option>
+                <option value="group">A group</option>
+                <option value="individual">One rep</option>
+              </select>
+            </div>
+            <div class="form-group" id="focus-group-wrap" style="margin-top: var(--s-3); margin-bottom:0; display:none;">
+              <label>Group</label>
+              <select id="focus-group"></select>
+            </div>
+            <div class="form-group" id="focus-person-wrap" style="margin-top: var(--s-3); margin-bottom:0; display:none;">
+              <label>Rep</label>
+              <select id="focus-person"></select>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-3); align-items: end;">
+            <div class="form-group" style="margin-top: var(--s-3); margin-bottom:0;">
+              <label>Active from</label>
+              <input type="date" id="focus-from">
+            </div>
+            <div class="form-group" style="margin-top: var(--s-3); margin-bottom:0;">
+              <label>Active to <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
+              <input type="date" id="focus-to">
+            </div>
+            <div class="form-group" style="margin-top: var(--s-3); margin-bottom:0;">
+              <label>Priority <span style="color: var(--text-subtle); font-weight: 400;">(higher shows first)</span></label>
+              <input type="number" id="focus-priority" value="0" step="10">
+            </div>
+          </div>
+          <div style="margin-top: var(--s-4);">
+            <button type="submit" class="btn btn-primary">Save focus item</button>
+            <button type="button" class="btn btn-ghost" id="focus-cancel" style="display:none;" onclick="resetFocusForm()">Cancel edit</button>
+            <span id="focus-msg" style="margin-left: var(--s-3);"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -630,6 +742,8 @@ let state = {
   trainingEvents: [],
   attendance: [],
   trainingRecs: [],
+  focusItems: [],
+  focusGroups: [],
   activeTab: 'queue',
   shadowFilter: 'all',
   helpFilter: 'all',
@@ -676,6 +790,7 @@ window.initApp = async function (profile, session) {
   renderShadows();
   renderHelp();
   renderTraining();
+  renderFocus();
 };
 
 async function loadAll() {
@@ -693,6 +808,21 @@ async function loadAll() {
     supa.from('training_attendance').select('*'),
     supa.from('training_recommendations').select('*').eq('status', 'open').order('priority'),
   ]);
+
+  // Focus board + groups. Wrapped so a missing dm_focus table (before the
+  // migration is applied) can never blank the whole portal.
+  try {
+    const [focusRes, groupsRes] = await Promise.all([
+      supa.from('dm_focus').select('*').order('priority', { ascending: false }),
+      supa.from('groups').select('id,name,active').eq('active', true).order('name'),
+    ]);
+    state.focusItems = focusRes.data || [];
+    state.focusGroups = groupsRes.data || [];
+  } catch (e) {
+    console.warn('[focus] load failed (table may not exist yet):', e);
+    state.focusItems = [];
+    state.focusGroups = [];
+  }
   // Alias people.parent_id -> manager_id / parent_manager_id so existing
   // renderers that reference those field names keep working unchanged.
   state.reps = (repsRes.data || []).map(r => Object.assign(r, { manager_id: r.parent_id }));
@@ -728,6 +858,7 @@ function setTab(tab) {
   document.getElementById('view-' + tab).classList.add('active');
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'training') renderTraining();
+  if (tab === 'focus') renderFocus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -1715,6 +1846,184 @@ function renderRolodex() {
           </tr>`).join('')}
       </tbody>
     </table>`;
+}
+
+// ===================== FOCUS =====================
+function renderFocus() {
+  populateFocusScopePickers();
+  renderFocusBoard('north_star', 'focus-northstar', 'No North Star items yet. Add your first standing directive below.');
+  renderFocusBoard('period', 'focus-period', 'No items for this period yet. Add one below.');
+}
+
+function _focusScopeLabel(f) {
+  if (f.scope === 'universal') return 'Everyone';
+  if (f.scope === 'individual') return 'Rep: ' + _personName(f.target_person_id);
+  if (f.scope === 'group') {
+    const g = (state.focusGroups || []).find(x => x.id === f.target_group_id);
+    return 'Group: ' + (g ? g.name : 'unknown');
+  }
+  return '';
+}
+
+function _focusInWindow(f) {
+  const today = new Date().toISOString().slice(0, 10);
+  if (f.active_from && f.active_from > today) return false;
+  if (f.active_to && f.active_to < today) return false;
+  return true;
+}
+
+function renderFocusBoard(tier, elId, emptyMsg) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const items = (state.focusItems || [])
+    .filter(f => f.tier === tier)
+    .sort((a, b) => (b.priority || 0) - (a.priority || 0)
+                 || (a.created_at || '').localeCompare(b.created_at || ''));
+  if (!items.length) { el.innerHTML = `<div class="empty">${escapeHtml(emptyMsg)}</div>`; return; }
+
+  el.innerHTML = items.map(f => {
+    const dim = (!f.is_active || !_focusInWindow(f)) ? 'opacity:0.55;' : '';
+    const statusTag = !f.is_active
+      ? `<span style="font-size:0.7rem; font-weight:700; color: var(--text-subtle);">PAUSED</span>`
+      : (!_focusInWindow(f) ? `<span style="font-size:0.7rem; font-weight:700; color: var(--text-subtle);">OUT OF WINDOW</span>` : '');
+    const window = [f.active_from ? 'from ' + formatDate(f.active_from) : null,
+                    f.active_to ? 'to ' + formatDate(f.active_to) : null].filter(Boolean).join(' ');
+    return `
+      <div style="padding: var(--s-4); border:1px solid var(--hairline); border-radius: var(--r-sm); margin-bottom: var(--s-3); ${dim}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: var(--s-3);">
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+              <strong style="font-size:1.0625rem;">${escapeHtml(f.title)}</strong>
+              <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color: var(--text-subtle);">${escapeHtml(_focusScopeLabel(f))}</span>
+              ${statusTag}
+            </div>
+            ${f.why ? `<div style="margin-top:6px; color: var(--text-muted);">${escapeHtml(f.why)}</div>` : ''}
+            ${f.cascade_framing ? `<div style="margin-top:8px; padding:8px 12px; background: var(--surface-2, #f3f5f0); border-radius: var(--r-sm); font-size:0.9375rem;"><span style="font-weight:700; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color: var(--text-subtle);">Say it like this</span><br>${escapeHtml(f.cascade_framing)}</div>` : ''}
+            <div style="margin-top:8px; font-size:0.8125rem; color: var(--text-subtle); display:flex; gap:14px; flex-wrap:wrap;">
+              ${f.target_metric ? `<span><strong>Metric:</strong> ${escapeHtml(f.target_metric)}</span>` : ''}
+              ${f.source ? `<span><strong>Source:</strong> ${escapeHtml(f.source)}</span>` : ''}
+              ${window ? `<span><strong>Active:</strong> ${escapeHtml(window)}</span>` : ''}
+              <span><strong>Priority:</strong> ${f.priority || 0}</span>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+            <button class="btn btn-ghost btn-sm" onclick="editFocus('${f.id}')">Edit</button>
+            <button class="btn btn-ghost btn-sm" onclick="toggleFocusActive('${f.id}')">${f.is_active ? 'Pause' : 'Resume'}</button>
+            <button class="btn btn-ghost btn-sm" onclick="deleteFocus('${f.id}')">Delete</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function populateFocusScopePickers() {
+  const gsel = document.getElementById('focus-group');
+  if (gsel) {
+    gsel.innerHTML = (state.focusGroups || [])
+      .map(g => `<option value="${g.id}">${escapeHtml(g.name)}</option>`).join('')
+      || '<option value="">(no groups)</option>';
+  }
+  const psel = document.getElementById('focus-person');
+  if (psel) {
+    psel.innerHTML = (state.reps || []).slice()
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+      .map(r => `<option value="${r.id}">${escapeHtml(r.name)}</option>`).join('')
+      || '<option value="">(no reps)</option>';
+  }
+}
+
+function onFocusScopeChange() {
+  const scope = document.getElementById('focus-scope').value;
+  document.getElementById('focus-group-wrap').style.display = scope === 'group' ? '' : 'none';
+  document.getElementById('focus-person-wrap').style.display = scope === 'individual' ? '' : 'none';
+}
+
+function editFocus(id) {
+  const f = (state.focusItems || []).find(x => x.id === id);
+  if (!f) return;
+  document.getElementById('focus-form-title').textContent = 'Edit focus item';
+  document.getElementById('focus-id').value = f.id;
+  document.getElementById('focus-tier').value = f.tier;
+  document.getElementById('focus-title').value = f.title || '';
+  document.getElementById('focus-why').value = f.why || '';
+  document.getElementById('focus-metric').value = f.target_metric || '';
+  document.getElementById('focus-source').value = f.source || '';
+  document.getElementById('focus-cascade').value = f.cascade_framing || '';
+  document.getElementById('focus-scope').value = f.scope;
+  document.getElementById('focus-from').value = f.active_from ? String(f.active_from).slice(0, 10) : '';
+  document.getElementById('focus-to').value = f.active_to ? String(f.active_to).slice(0, 10) : '';
+  document.getElementById('focus-priority').value = f.priority || 0;
+  onFocusScopeChange();
+  if (f.scope === 'group' && f.target_group_id) document.getElementById('focus-group').value = f.target_group_id;
+  if (f.scope === 'individual' && f.target_person_id) document.getElementById('focus-person').value = f.target_person_id;
+  document.getElementById('focus-cancel').style.display = '';
+  document.getElementById('focus-msg').textContent = '';
+  document.getElementById('focus-form-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetFocusForm() {
+  const form = document.querySelector('#view-focus form');
+  if (form) form.reset();
+  document.getElementById('focus-id').value = '';
+  document.getElementById('focus-form-title').textContent = 'Add a focus item';
+  document.getElementById('focus-cancel').style.display = 'none';
+  document.getElementById('focus-msg').textContent = '';
+  onFocusScopeChange();
+}
+
+async function saveFocus(e) {
+  e.preventDefault();
+  const msg = document.getElementById('focus-msg');
+  const scope = document.getElementById('focus-scope').value;
+  const row = {
+    tier: document.getElementById('focus-tier').value,
+    title: document.getElementById('focus-title').value.trim(),
+    why: document.getElementById('focus-why').value.trim() || null,
+    target_metric: document.getElementById('focus-metric').value.trim() || null,
+    cascade_framing: document.getElementById('focus-cascade').value.trim() || null,
+    source: document.getElementById('focus-source').value.trim() || null,
+    scope,
+    target_group_id: scope === 'group' ? (document.getElementById('focus-group').value || null) : null,
+    target_person_id: scope === 'individual' ? (document.getElementById('focus-person').value || null) : null,
+    active_from: document.getElementById('focus-from').value || null,
+    active_to: document.getElementById('focus-to').value || null,
+    priority: parseInt(document.getElementById('focus-priority').value, 10) || 0,
+  };
+  if (!row.title) { msg.textContent = 'A title is required.'; return; }
+  if (scope === 'group' && !row.target_group_id) { msg.textContent = 'Pick a group.'; return; }
+  if (scope === 'individual' && !row.target_person_id) { msg.textContent = 'Pick a rep.'; return; }
+
+  msg.textContent = 'Saving...';
+  const id = document.getElementById('focus-id').value;
+  let error;
+  if (id) {
+    ({ error } = await supa.from('dm_focus').update(row).eq('id', id));
+  } else {
+    row.created_by = state.manager ? state.manager.id : null;
+    ({ error } = await supa.from('dm_focus').insert(row));
+  }
+  if (error) { msg.textContent = 'Error: ' + error.message; return; }
+  msg.textContent = 'Saved.';
+  resetFocusForm();
+  await loadAll();
+  renderFocus();
+}
+
+async function toggleFocusActive(id) {
+  const f = (state.focusItems || []).find(x => x.id === id);
+  if (!f) return;
+  const { error } = await supa.from('dm_focus').update({ is_active: !f.is_active }).eq('id', id);
+  if (error) { alert(error.message); return; }
+  await loadAll();
+  renderFocus();
+}
+
+async function deleteFocus(id) {
+  if (!confirm('Delete this focus item? This cannot be undone.')) return;
+  const { error } = await supa.from('dm_focus').delete().eq('id', id);
+  if (error) { alert(error.message); return; }
+  await loadAll();
+  renderFocus();
 }
 
 // ===================== MODAL =====================
