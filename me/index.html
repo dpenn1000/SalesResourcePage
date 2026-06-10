@@ -143,6 +143,11 @@
   .metric-sub   { font-size: 11px; color: var(--text2); margin-top: 3px; font-weight: 500; }
   .metric-sub.up   { color: var(--green-dk); }
   .metric-sub.down { color: #a13c1d; }
+  .metric-rank { font-size: 11px; font-weight: 700; color: var(--text2); margin-top: 5px; line-height: 1.2; }
+  .metric-hbar { display: block; height: 5px; border-radius: 4px; background: var(--border); overflow: hidden; margin-top: 4px; }
+  .metric-hbar-fill { display: block; height: 100%; border-radius: 4px; }
+  .book-toggle { font-family: inherit; font-size: 22px; font-weight: 800; color: var(--text); background: none; border: none; padding: 0; margin: 0; cursor: pointer; letter-spacing: -0.01em; line-height: 1.1; }
+  .book-toggle:hover { color: var(--green-dk); }
 
   /* Stack-up row (rank) */
   .stack-row {
@@ -261,10 +266,10 @@
   .hero-id { flex: 1; min-width: 0; position: relative; }
   .hero-avatar-wrap { position: relative; flex-shrink: 0; z-index: 1; }
   .hero-avatar {
-    width: 72px; height: 72px; border-radius: 18px;
+    width: 128px; height: 128px; border-radius: 24px;
     background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.25);
     display: flex; align-items: center; justify-content: center;
-    font-size: 26px; font-weight: 800; color: #fff; text-transform: uppercase;
+    font-size: 44px; font-weight: 800; color: #fff; text-transform: uppercase;
     background-size: cover; background-position: center;
   }
   .hero-avatar-edit {
@@ -317,7 +322,7 @@
   /* Quick Launch (gateway to Resources + key destinations) */
   .qlaunch { display:grid; grid-template-columns:1.5fr 1fr; gap:14px; margin-bottom:18px; }
   @media (max-width:680px){ .qlaunch { grid-template-columns:1fr; } }
-  .ql-hero { display:block; background:linear-gradient(135deg, var(--green) 0%, #4f9a1c 100%); color:#0b1120; border-radius:14px; padding:18px 20px; text-decoration:none; box-shadow:var(--shadow); transition:transform .12s, box-shadow .12s; }
+  .ql-hero { display:block; background:linear-gradient(125deg, #B0E66E 0%, #6FBF3B 52%, #2DB0A6 116%); color:#0b1120; border-radius:14px; padding:18px 20px; text-decoration:none; box-shadow:var(--shadow); transition:transform .12s, box-shadow .12s; }
   .ql-hero:hover { transform:translateY(-1px); box-shadow:var(--shadow-h); }
   .ql-hero-eyebrow { font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; opacity:.72; }
   .ql-hero-title { font-size:21px; font-weight:800; margin-top:4px; letter-spacing:-.01em; }
@@ -989,7 +994,7 @@ async function loadMetricsSnapshot(me){
   // Headline metric cards
   const tiles = [];
   const teamN = data.team_count || null;
-  const rankTxt = (r) => (r != null && teamN) ? ' (#' + r + ' / ' + teamN + ')' : '';
+  const rankTxt = (r) => rankHtml(r, teamN);
 
   tiles.push(metric('Contracts', fmtNum(data.contracts) + rankTxt(data.contracts_rank),
     data.team_avg_contracts != null ? 'team avg ' + Number(data.team_avg_contracts).toFixed(1) : '',
@@ -1004,7 +1009,7 @@ async function loadMetricsSnapshot(me){
     ppaCardColor(data.ppa_gap)));
 
   if (data.balance != null) {
-    tiles.push(metric('Book', fmtMoney(data.balance),
+    tiles.push(metric('Book', bookVal(fmtMoney(data.balance)),
       data.comm_status ? data.comm_status + ' status' : '',
       bookCardColor(data.balance)));
   }
@@ -1019,6 +1024,23 @@ async function loadMetricsSnapshot(me){
     renderStackUp(data);
 }
 
+function rankHtml(rank, of){
+  rank = (rank != null) ? Number(rank) : null;
+  of = of ? Number(of) : null;
+  if (rank == null || !of) return '';
+  var pos = of > 1 ? (rank - 1) / (of - 1) : 0;
+  var color = pos <= 0.34 ? 'var(--green)' : (pos <= 0.67 ? 'var(--amber)' : 'var(--red)');
+  var fill = Math.max(6, Math.round((1 - pos) * 100));
+  return '<div class="metric-rank">#' + rank + ' of ' + of +
+    '<span class="metric-hbar"><span class="metric-hbar-fill" style="width:' + fill + '%;background:' + color + '"></span></span></div>';
+}
+function bookVal(v){ return '<button type="button" class="book-toggle" data-val="' + esc(v) + '" aria-label="Show book value">&bull;&bull;&bull;&bull; tap</button>'; }
+document.addEventListener('click', function(e){
+  var b = e.target.closest && e.target.closest('.book-toggle'); if (!b) return;
+  e.preventDefault();
+  if (b.dataset.shown === '1'){ b.innerHTML = '&bull;&bull;&bull;&bull; tap'; b.dataset.shown = '0'; }
+  else { b.textContent = b.getAttribute('data-val'); b.dataset.shown = '1'; }
+});
 function metric(label, value, sub, cls){
   return '<div class="metric ' + (cls || '') + '">' +
     '<div class="metric-label">' + esc(label) + '</div>' +
@@ -1089,7 +1111,7 @@ function commColor(s){ return s === 'healthy' ? 'green' : s === 'watch' ? 'amber
 
 function renderMePerf(d){
   const r = d.rep || {}, ranks = d.ranks || {}, ta = d.team_avg || {}, club = d.sales_club || {}, climb = d.to_climb || {};
-  const rankTxt = (x) => (x && x.rank) ? ' (#' + x.rank + ' / ' + x.of + ')' : '';
+  const rankTxt = (x) => x ? rankHtml(x.rank, x.of) : '';
   $('metricsPill').textContent = (d.percentile_contracts != null ? 'top ' + Math.max(1, 100 - d.percentile_contracts) + '%' : 'live');
   $('metricsPill').className = 'section-pill green';
 
@@ -1101,7 +1123,7 @@ function renderMePerf(d){
   tiles.push(metric('Avg PPA', (r.avg_ppa != null ? '$' + Number(r.avg_ppa).toFixed(4) : '--') + rankTxt(ranks.ppa),
     ta.avg_ppa != null ? 'team ' + Number(ta.avg_ppa).toFixed(4) : '', teamColor(r.avg_ppa, ta.avg_ppa)));
   if (r.balance != null) {
-    tiles.push(metric('Book', fmtMoney(r.balance), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
+    tiles.push(metric('Book', bookVal(fmtMoney(r.balance)), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
   }
   if (club && (club.current_tier || club.projected_tier || club.active != null)) {
     const tier = club.current_tier || club.projected_tier;
