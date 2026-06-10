@@ -57,6 +57,9 @@
   .radios label{font-size:13px;border:1px solid var(--border);border-radius:7px;padding:6px 10px;cursor:pointer;background:#fff}
   .radios input{margin-right:5px}
   .radios label:has(input:checked){background:var(--green);color:#0b1120;border-color:var(--green);font-weight:600}
+  /* Loud, persistent validation message when a rep tries to log without an outcome. */
+  .logerr{background:#fff4f4;border:1px solid #f3cdcd;color:#a02020;border-radius:7px;padding:8px 11px;margin:-2px 0 8px;font-size:12.5px;font-weight:600}
+  .radios.needs-pick{outline:2px solid #e3a3a3;outline-offset:3px;border-radius:8px}
   .effqty{width:46px;font-size:13px;padding:6px;border:1px solid var(--border);border-radius:7px;background:#fff;color:var(--ink);margin-left:-2px}
   .frow{margin-bottom:9px}
   .frow label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600;margin-bottom:3px}
@@ -123,11 +126,11 @@
   <div class="wrap">
     <div id="viewAsBar" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:#eef6ff;border:1px solid #cfe4f5;border-radius:10px">
       <span style="font-size:13px;font-weight:700;color:var(--ink)">Manager view</span>
-      <label for="viewAs" style="font-size:12px;color:var(--muted)">View as rep:</label>
+      <label for="viewAs" style="font-size:12px;color:var(--muted)">Show calls for:</label>
       <select id="viewAs" onchange="onViewAs()" style="font-family:inherit;font-size:14px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;min-width:190px">
-        <option value="">Select a rep...</option>
+        <option value="">Select...</option>
       </select>
-      <span style="font-size:11px;color:var(--muted)">Full access: log calls and see every field as this rep. Your entries are tagged to your name.</span>
+      <span style="font-size:11px;color:var(--muted)">Pick your own name to work leads dispatched to you, or a rep to see and log on their list (your entries stay tagged to you).</span>
     </div>
     <div id="kpis" class="kpis"></div>
     <div class="toolbar">
@@ -180,7 +183,23 @@ const sb = window.sb;            // shared client + session from /auth-gate.js
 // for CUSTOM objects (a1v = Direct Lead) -- it strands reps on a generic page when
 // they lack Opportunity access. This form always lands on the DL page.
 const SF = 'https://trinity-solar.lightning.force.com/{}';
+// Salesforce link for a lead. Prefer the Direct Lead record (dl_sf_id); fall back
+// to the Opportunity (opportunity_ids[0]) so recycle-pool leads -- which usually
+// lack the DL id but keep an opp id -- still link into SF for the phone number.
+function sfHref(rec){
+  const id=(rec&&rec.dl_sf_id)||(rec&&rec.opportunity_ids&&rec.opportunity_ids[0])||'';
+  return id?SF.replace('{}',esc(id)):'';
+}
 let ME='', VIEW_AS='', leads=[], contacts=[], byOpp={}, openSet=new Set(), flagsByDl={};
+// In-progress log-form text, keyed by DL. Captured on input so a re-render (filter
+// change, KPI refresh, logging another card) never wipes a half-typed note. This is
+// client-only -- nothing reaches the DB without an outcome via saveCall.
+const drafts={};
+function captureDraft(dl){
+  const v=id=>{const e=document.getElementById(id+'-'+dl);return e?e.value:'';};
+  const d={nt:v('nt'),ns:v('ns'),hs:v('hs'),fs:v('fs'),fu:v('fu')};
+  if(d.nt||d.ns||d.hs||d.fs||d.fu)drafts[dl]=d; else delete drafts[dl];
+}
 let REPS=[], MANAGERS=[];   // active roster for reassign / swap / send-to-manager controls
 let allDeals=[], touchesByDl={};   // post-sale deals-in-progress + sent customer touches
 let todoShown=false;               // on-load To-Do popup fires once per session
@@ -270,14 +289,20 @@ async function setupViewAs(){
   const sel = document.getElementById('viewAs');
   bar.style.display = 'flex';
   document.getElementById('userLabel').textContent = '· manager view';
-  document.getElementById('list').innerHTML = '<div class="empty">Pick a rep above to view their call list.</div>';
+  document.getElementById('list').innerHTML = '<div class="empty">Pick your own name or a rep above to view a call list.</div>';
   const { data, error } = await sb.from('people').select('name').eq('status','active').eq('role','rep').order('name');
   if (error) { document.getElementById('list').innerHTML = '<div class="empty">Could not load reps: ' + esc(error.message) + '</div>'; return; }
-  sel.innerHTML = '<option value="">Select a rep...</option>' +
-    (data||[]).map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('');
-  // Optional deep link: /my-calls.html?as=Rep%20Name preselects that rep.
+  // A manager can dispatch leads to themselves, so list their own name first --
+  // selecting it loads leads where assigned_to = the manager (RLS mgr_select
+  // already grants read on every lead). Reps follow in their own group.
+  sel.innerHTML = '<option value="">Select...</option>' +
+    (ME ? `<option value="${esc(ME)}">My own leads (${esc(ME)})</option>` : '') +
+    '<optgroup label="Reps">' +
+    (data||[]).map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('') +
+    '</optgroup>';
+  // Optional deep link: /my-calls.html?as=Name preselects that rep (or the manager).
   const want = new URLSearchParams(location.search).get('as');
-  if (want && (data||[]).some(r => r.name === want)) { sel.value = want; onViewAs(); }
+  if (want && (want === ME || (data||[]).some(r => r.name === want))) { sel.value = want; onViewAs(); }
 }
 function onViewAs(){
   VIEW_AS = document.getElementById('viewAs').value || '';
@@ -285,10 +310,10 @@ function onViewAs(){
   if (!VIEW_AS) {
     lbl.textContent = '· manager view';
     document.getElementById('kpis').innerHTML = '';
-    document.getElementById('list').innerHTML = '<div class="empty">Pick a rep above to view their call list.</div>';
+    document.getElementById('list').innerHTML = '<div class="empty">Pick your own name or a rep above to view a call list.</div>';
     return;
   }
-  lbl.textContent = '· viewing as ' + VIEW_AS;
+  lbl.textContent = (VIEW_AS === ME) ? '· my leads' : ('· viewing as ' + VIEW_AS);
   loadLeads();
 }
 
@@ -495,12 +520,16 @@ function render(){
 function cardHtml(l){
   const d=DISPO[l.lifecycle_state]||['',''];
   const town=(l.properties&&l.properties.town)||'--';
+  const dft=drafts[l.dl_number]||{};   // restore any in-progress note text across re-renders
   const cs=callsFor(l);const lastCall=cs[0];
   const open=openSet.has(l.dl_number);
   const calledBadge=cs.length?`<span class="badge b-done">${cs.length} call${cs.length>1?'s':''}</span>`:'';
   const target = window.IS_MANAGER ? VIEW_AS : ME;
-  const logHeading = window.IS_MANAGER
-    ? `Log this call <span style="font-weight:500;color:var(--muted);font-size:11px">on behalf of ${esc(VIEW_AS||'this rep')}, tagged to you</span>`
+  // A manager working their OWN dispatched leads (VIEW_AS === ME) is the rep here,
+  // so drop the "on behalf of" framing -- it only applies when viewing a rep.
+  const onBehalf = window.IS_MANAGER && VIEW_AS && VIEW_AS !== ME;
+  const logHeading = onBehalf
+    ? `Log this call <span style="font-weight:500;color:var(--muted);font-size:11px">on behalf of ${esc(VIEW_AS)}, tagged to you</span>`
     : 'Log this call';
   const logForm = `<div class="logform">
         <h4>${logHeading}</h4>
@@ -512,15 +541,16 @@ function cardHtml(l){
           <label><input type="checkbox" value="Has Interest">Has interest</label>
           <label><input type="checkbox" value="Appointment Set" onchange="apptNotice(this)">Appt set</label>
         </div>
-        <div style="font-size:11px;color:var(--muted);margin:-2px 0 8px">Tick everything you did this round. Two calls, a voicemail, and a text all log as separate efforts.</div>
+        <div style="font-size:11px;color:var(--muted);margin:-2px 0 8px">Tick everything you did this round. Two calls, a voicemail, and a text all log as separate efforts. An outcome is required -- a note on its own won't log until you pick one.</div>
+        <div id="oce-${esc(l.dl_number)}" class="logerr" style="display:none"></div>
         <div class="frow two">
-          <div><label>Home Owner Status (their reaction)</label><select id="hs-${esc(l.dl_number)}">${HSTATES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
-          <div><label>Frustration source (coaching intel)</label><select id="fs-${esc(l.dl_number)}">${FSOURCES.map(s=>`<option>${esc(s)}</option>`).join('')}</select></div>
+          <div><label>Home Owner Status (their reaction)</label><select id="hs-${esc(l.dl_number)}" onchange="captureDraft('${esc(l.dl_number)}')">${HSTATES.map(s=>`<option ${s===(dft.hs||'')?'selected':''}>${esc(s)}</option>`).join('')}</select></div>
+          <div><label>Frustration source (coaching intel)</label><select id="fs-${esc(l.dl_number)}" onchange="captureDraft('${esc(l.dl_number)}')">${FSOURCES.map(s=>`<option ${s===(dft.fs||'')?'selected':''}>${esc(s)}</option>`).join('')}</select></div>
         </div>
-        <div class="frow"><label>Notes -- what was said, their mood, feedback</label><textarea id="nt-${esc(l.dl_number)}" rows="2"></textarea></div>
+        <div class="frow"><label>Notes -- what was said, their mood, feedback</label><textarea id="nt-${esc(l.dl_number)}" rows="2" oninput="captureDraft('${esc(l.dl_number)}')">${esc(dft.nt||'')}</textarea></div>
         <div class="frow two">
-          <div><label>Next step</label><input id="ns-${esc(l.dl_number)}" type="text" placeholder="callback, setter handoff, resolved..."></div>
-          <div><label>Follow-up date</label><input id="fu-${esc(l.dl_number)}" type="date"></div>
+          <div><label>Next step</label><input id="ns-${esc(l.dl_number)}" type="text" placeholder="callback, setter handoff, resolved..." value="${esc(dft.ns||'')}" oninput="captureDraft('${esc(l.dl_number)}')"></div>
+          <div><label>Follow-up date</label><input id="fu-${esc(l.dl_number)}" type="date" value="${esc(dft.fu||'')}" onchange="captureDraft('${esc(l.dl_number)}')"></div>
         </div>
         <button class="btn-primary" onclick="saveCall('${esc(l.dl_number)}')">Log attempts</button>
       </div>`;
@@ -535,7 +565,7 @@ function cardHtml(l){
         <button class="btn-flag" onclick="flagLead('${esc(l.dl_number)}')">Send for review</button>
       </div>`;
   const leadForm = `<div class="logform" style="background:#fff7ef;border-color:#f0d9b8;margin-top:10px">
-        <h4>Update lead${window.IS_MANAGER?` <span style="font-weight:500;color:var(--muted);font-size:11px">for ${esc(VIEW_AS||'this rep')}</span>`:''}</h4>
+        <h4>Update lead${onBehalf?` <span style="font-weight:500;color:var(--muted);font-size:11px">for ${esc(VIEW_AS)}</span>`:''}</h4>
         <div class="frow"><label>Call List status -- your workflow state for this lead (stays in this tool, not pushed to Skedulo/SF)</label><select id="ds-${esc(l.dl_number)}">
           <option value="">Keep current${l.status&&l.status!=='pending'?' ('+esc(CALL_STATUS_LABEL[l.status]||l.status)+')':''}</option>
           ${CALL_STATUS.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('')}
@@ -566,7 +596,7 @@ function cardHtml(l){
         <div><div class="k">Lead source</div>${esc(l.lead_source||'--')}</div>
         <div><div class="k">Last outcome</div>${esc(l.last_outcome||'--')}</div>
         <div><div class="k">Last appt</div>${fmtDate(l.last_appt_date)}</div>
-        <div><div class="k">Direct Lead</div>${l.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(l.dl_sf_id))}">Open in SF &nearr; (phone here)</a>`:'<span class="card-sub">no SF link</span>'}</div>
+        <div><div class="k">Direct Lead</div>${(()=>{const u=sfHref(l);return u?`<a class="sflink" target="_blank" rel="noopener" href="${u}">Open in SF &nearr; (phone here)</a>`:'<span class="card-sub">no SF link</span>';})()}</div>
       </div>
       ${cs.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:4px">Call history</div>'+cs.map(c=>`<div class="hist"><b>${fmtDate(c.contacted_at)}</b> &middot; ${esc(c.outcome||'')}${c.homeowner_state?' &middot; '+esc(c.homeowner_state):''}${c.frustration_source?' &middot; '+esc(c.frustration_source):''}${c.logged_by&&c.logged_by!==target?' &middot; <span style="color:var(--accent);font-weight:600">by '+esc(c.logged_by)+'</span>':''}${c.notes?'<br>'+esc(c.notes):''}${c.next_step?'<br>Next: '+esc(c.next_step):''}</div>`).join(''):''}
       ${logForm}${leadForm}${moveForm}${flaggedBanner}${flagForm}
@@ -580,7 +610,22 @@ async function saveCall(dl){
   const btn=card?card.querySelector('.logform .btn-primary'):null;
   const box=document.getElementById('oc-'+dl);
   const checked=box?[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value):[];
-  if(!checked.length){toast('Pick at least one outcome');return;}
+  // An outcome is REQUIRED -- a note with no outcome is not a logged call and is
+  // not saved. The old code returned on a bare toast, so the typed note sat in the
+  // textarea looking saved and then vanished on the next re-render (the
+  // "disappearing notes" report). Now we show a loud, persistent inline error and
+  // keep the text put (captureDraft preserves it across re-renders) so nothing is
+  // lost -- the rep just has to tick what they did before it logs.
+  const errEl=document.getElementById('oce-'+dl);
+  if(!checked.length){
+    if(errEl){errEl.textContent='Not saved yet -- tick at least one outcome (No answer, Voicemail, Sent SMS, Reached...) so this logs. Your note is kept.';errEl.style.display='block';}
+    if(box)box.classList.add('needs-pick');
+    if(errEl&&errEl.scrollIntoView)errEl.scrollIntoView({block:'nearest'});
+    toast("Pick an outcome -- your note isn't saved yet");
+    return;
+  }
+  if(errEl)errEl.style.display='none';
+  if(box)box.classList.remove('needs-pick');
   // Order by significance so the primary effort carries the shared notes/state.
   const PRIO=['Appointment Set','Reached','Has Interest','Voicemail','Sent SMS','No Answer'];
   const bySig=(a,b)=>PRIO.indexOf(a)-PRIO.indexOf(b);
@@ -605,6 +650,7 @@ async function saveCall(dl){
   if(btn){btn.disabled=true;btn.textContent='Saving...';}
   const { data, error }=await sb.rpc('log_contacts_for',args);
   if(error){toast('Save failed: '+error.message);if(btn){btn.disabled=false;btn.textContent='Log attempts';}return;}
+  delete drafts[dl];   // logged for real -- discard the in-progress draft
   /* reflect locally so call history + KPIs update without a reload; primary first */
   const baseTs=(data&&data.contacted_at)||new Date().toISOString();
   const rows=outcomes.map((o,i)=>({
@@ -620,7 +666,8 @@ async function saveCall(dl){
   }));
   for(let i=rows.length-1;i>=0;i--){contacts.unshift(rows[i]);(byOpp[rows[i].opportunity_id]=byOpp[rows[i].opportunity_id]||[]).unshift(rows[i]);}
   const n=outcomes.length;
-  toast(window.IS_MANAGER?(`Logged ${n} for `+(VIEW_AS||'rep')):`Logged ${n} attempt${n>1?'s':''}`);
+  const behalf=window.IS_MANAGER&&VIEW_AS&&VIEW_AS!==ME;
+  toast(behalf?(`Logged ${n} for `+VIEW_AS):`Logged ${n} attempt${n>1?'s':''}`);
   renderKpis();render();
 }
 // Update the lead record itself (disposition + sold). Allowed by direct_leads RLS:
@@ -645,7 +692,7 @@ async function saveLead(dl){
   const { error }=await sb.from('direct_leads').update(patch).eq('dl_number',dl);
   if(error){toast('Update failed: '+error.message);if(btn){btn.disabled=false;btn.textContent='Save lead update';}return;}
   Object.assign(l,patch);
-  toast('Lead updated'+(window.IS_MANAGER&&VIEW_AS?(' for '+VIEW_AS):''));
+  toast('Lead updated'+(window.IS_MANAGER&&VIEW_AS&&VIEW_AS!==ME?(' for '+VIEW_AS):''));
   renderKpis();render();
 }
 // Kick a lead back to the manager for review. Attribution is derived server-side
