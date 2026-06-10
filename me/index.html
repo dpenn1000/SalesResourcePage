@@ -1390,6 +1390,18 @@ function renderMePerf(d){
     ta.kw != null ? 'team avg ' + Number(ta.kw).toFixed(1) : '', teamColor(r.kw, ta.kw)));
   tiles.push(metric('Avg PPA', (r.avg_ppa != null ? '$' + Number(r.avg_ppa).toFixed(4) : '--') + rankTxt(ranks.ppa),
     ta.avg_ppa != null ? 'team ' + Number(ta.avg_ppa).toFixed(4) : '', teamColor(r.avg_ppa, ta.avg_ppa)));
+  // close_rate / sit_rate are stored as whole-number percents (e.g. 52.9), the
+  // same form the Performance Dashboard shows. Render rank + team comparison only
+  // when present, so the tiles degrade to a bare value before the launcher restart
+  // (ranks.close_rate / team_avg.sit_rate absent on older payloads).
+  if (r.close_rate != null) {
+    tiles.push(metric('Close Rate', Number(r.close_rate).toFixed(1) + '%' + rankTxt(ranks.close_rate),
+      ta.close_rate != null ? 'team avg ' + Number(ta.close_rate).toFixed(1) + '%' : '', teamColor(r.close_rate, ta.close_rate)));
+  }
+  if (r.sit_rate != null) {
+    tiles.push(metric('Sit Rate', Number(r.sit_rate).toFixed(1) + '%' + rankTxt(ranks.sit_rate),
+      ta.sit_rate != null ? 'team avg ' + Number(ta.sit_rate).toFixed(1) + '% (PowerBI funnel)' : 'PowerBI sit rate', teamColor(r.sit_rate, ta.sit_rate)));
+  }
   if (r.balance != null) {
     tiles.push(metric('Book', bookReveal(r.balance, r.draw_rate), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
   }
