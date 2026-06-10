@@ -148,6 +148,7 @@
   .metric-hbar-fill { display: block; height: 100%; border-radius: 4px; }
   .book-toggle { font-family: inherit; font-size: 22px; font-weight: 800; color: var(--text); background: none; border: none; padding: 0; margin: 0; cursor: pointer; letter-spacing: -0.01em; line-height: 1.1; }
   .book-toggle:hover { color: var(--green-dk); }
+  .metrics-scope { font-size: 11px; color: var(--text2); margin-bottom: 11px; line-height: 1.45; }
 
   /* Stack-up row (rank) */
   .stack-row {
@@ -1112,6 +1113,10 @@ function commColor(s){ return s === 'healthy' ? 'green' : s === 'watch' ? 'amber
 function renderMePerf(d){
   const r = d.rep || {}, ranks = d.ranks || {}, ta = d.team_avg || {}, club = d.sales_club || {}, climb = d.to_climb || {};
   const rankTxt = (x) => x ? rankHtml(x.rank, x.of) : '';
+  const _win = d.data_window || {};
+  const _fmtW = (s) => { try { return new Date(String(s) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch (e) { return String(s); } };
+  const _headScope = (_win.from && _win.to) ? (_fmtW(_win.from) + ' to ' + _fmtW(_win.to)) : 'latest synced data';
+  const scopeCaption = '<div class="metrics-scope"><b>Contracts, kW, PPA:</b> latest Performance Dashboard data (' + esc(_headScope) + '). <b>Sales Club:</b> this quarter to date.</div>';
   $('metricsPill').textContent = (d.percentile_contracts != null ? 'top ' + Math.max(1, 100 - d.percentile_contracts) + '%' : 'live');
   $('metricsPill').className = 'section-pill green';
 
@@ -1128,7 +1133,7 @@ function renderMePerf(d){
   if (club && (club.current_tier || club.projected_tier || club.active != null)) {
     const tier = club.current_tier || club.projected_tier;
     tiles.push(metric('Sales Club', tier || '--',
-      'Q pace: ' + (club.projected_tier || 'not yet') + ' · ' + (club.active || 0) + 'a/' + (club.installs || 0) + 'i',
+      'QTD pace: ' + (club.projected_tier || 'not yet') + ' · ' + (club.active || 0) + 'a/' + (club.installs || 0) + 'i',
       club.current_tier ? 'green' : (club.projected_tier ? 'amber' : '')));
   }
 
@@ -1147,7 +1152,7 @@ function renderMePerf(d){
     ? '<div class="addr p-low" style="margin-top:16px"><div class="addr-title">How to climb</div><div class="addr-body">' + bits.join(' ') + '</div></div>'
     : '';
 
-  $('metricsBody').innerHTML = '<div class="metrics-grid">' + tiles.join('') + '</div>' + climbHtml;
+  $('metricsBody').innerHTML = scopeCaption + '<div class="metrics-grid">' + tiles.join('') + '</div>' + climbHtml;
 }
 
 // ============================================================================
