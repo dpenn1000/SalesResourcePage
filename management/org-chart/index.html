@@ -673,7 +673,16 @@ function initApp(profile, session) {
       + '<p style="color:#6b7a90;line-height:1.6">This is a manager preview (V2) of the org chart. '
       + 'A rep-facing version is coming. If you believe you should have access, contact Dan Pennington.</p>'
       + '<p style="margin-top:20px"><a href="/" style="color:#3f8e1c;font-weight:600;text-decoration:none">&larr; Back to the Resource Page</a></p></div>';
+    return;
   }
+  // Deep-link: ?focus=<id> focuses a branch in the chart; ?open=<id> opens that node's detail drawer.
+  // Lets the Track C manager training land on Sales Operations with the Track C owner open.
+  try {
+    var q = new URLSearchParams(location.search);
+    var f = q.get('focus'), o = q.get('open');
+    if (f && N[f]) focusNode(f);
+    if (o && N[o] && N[o].c) setTimeout(function(){ openDrawer(o); }, 60);
+  } catch (e) {}
 }
 </script>
 </body>
