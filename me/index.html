@@ -306,6 +306,14 @@
   .disc-tip.show { opacity: 1; transform: translateY(0); }
   .disc-tip .dt-name { font-weight: 800; font-size: 13px; margin-bottom: 5px; }
   .disc-tip .dt-sales { margin-top: 7px; color: #cfe9ff; }
+  /* Action Center */
+  .ac-item { display:flex; align-items:center; gap:11px; padding:10px 0; border-top:1px solid var(--border); font-size:14px; }
+  .ac-item:first-child { border-top:none; padding-top:0; }
+  .ac-item:last-child { padding-bottom:0; }
+  .ac-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .ac-text { flex:1; color:var(--text); }
+  .ac-cta { margin-left:auto; flex-shrink:0; font-size:12px; font-weight:700; color:var(--blue); background:none; border:1px solid var(--border); border-radius:7px; padding:5px 11px; cursor:pointer; text-decoration:none; white-space:nowrap; font-family:inherit; }
+  .ac-cta:hover { border-color:var(--blue); }
 </style>
 </head>
 <body>
@@ -344,6 +352,15 @@
       <div class="hero-meta" id="heroMeta"></div>
       <div class="hero-tags" id="heroTags"></div>
     </div>
+  </div>
+
+  <!-- ACTION CENTER: what needs you this week (self-view only) -->
+  <div class="section" id="actionCenter" style="display:none">
+    <div class="section-head">
+      <div class="section-title">This Week</div>
+      <div class="section-pill" id="acPill">--</div>
+    </div>
+    <div class="section-body" id="acBody"></div>
   </div>
 
   <!-- KEY METRICS + STACK-UP -->
@@ -549,7 +566,8 @@ async function loadProfileExtras(){
   const overview = (ov && ov.data) || {};
   if (prof){ renderAvatar(prof); renderPersonal(prof); }
   renderDisc(overview.disc);
-  loadCoaching();
+  const coaching = await loadCoaching();
+  buildActionCenter(prof, overview, coaching);
 }
 
 // ── Coaching (DISC-aware trend) -- read-only from the launcher cache ──
@@ -565,11 +583,88 @@ async function loadCoaching(){
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const d = await res.json();
-    if (d && d.status === 'ready' && d.result) renderCoaching(d);
-    else coachingEmpty('Your coaching summary appears here after your manager runs the next dashboard refresh.');
+    if (d && d.status === 'ready' && d.result){ renderCoaching(d); return d; }
+    coachingEmpty('Your coaching summary appears here after your manager runs the next dashboard refresh.');
+    return null;
   } catch (e) {
     coachingEmpty('Your coaching connects here in the next update.');
+    return null;
   }
+}
+
+// ── Action Center: aggregate "what needs you this week" from clean sources ──
+async function buildActionCenter(prof, overview, coaching){
+  const sec = $('actionCenter'); if (!sec) return;
+  sec.style.display = 'block';
+  const uni = (overview && overview.university) || {};
+  const items = [];  // {pri, text, cta:{label,href} | onclick}
+
+  // Schedule: open period not yet submitted
+  try {
+    const { data: per } = await sb.from('sched_periods')
+      .select('id,label,status').eq('status','open')
+      .order('start_date',{ascending:false}).limit(1).maybeSingle();
+    if (per && prof && prof.id){
+      const { data: sub } = await sb.from('sched_submissions')
+        .select('status').eq('period_id', per.id).eq('person_id', prof.id).maybeSingle();
+      const st = sub && sub.status;
+      if (st !== 'submitted' && st !== 'approved'){
+        items.push({ pri:'high', text:'Submit your availability for ' + (per.label || 'the open period'),
+          cta:{ label:'Open Scheduling', href:'/scheduling/' } });
+      }
+    }
+  } catch (e) {}
+
+  // Manager action items (open)
+  try {
+    if (prof && prof.id){
+      const { count } = await sb.from('rep_addressables')
+        .select('id', { count:'exact', head:true })
+        .eq('rep_id', prof.id).eq('status','open');
+      if (count > 0) items.push({ pri:'high',
+        text: count + ' action item' + (count>1?'s':'') + ' from your manager',
+        onclick: "document.getElementById('addrBody').scrollIntoView({behavior:'smooth'})" });
+    }
+  } catch (e) {}
+
+  // This week's coaching focus
+  if (coaching && coaching.result && coaching.result.focus && coaching.result.focus.point){
+    items.push({ pri:'med', text: "This week's focus: " + coaching.result.focus.point,
+      onclick: "document.getElementById('coachingSection').scrollIntoView({behavior:'smooth'})" });
+  }
+
+  // University to-dos
+  if ((uni.certs_in_progress||0) > 0) items.push({ pri:'med',
+    text:'Finish ' + uni.certs_in_progress + ' certification' + (uni.certs_in_progress>1?'s':''),
+    cta:{ label:'University', href:'/traditional-university/' } });
+  if ((uni.help_open||0) > 0) items.push({ pri:'low',
+    text: uni.help_open + ' open University help request' + (uni.help_open>1?'s':'') });
+
+  // Profile completeness
+  if (overview && !overview.disc) items.push({ pri:'med', text:'Take your DISC assessment',
+    cta:{ label:'Know Your Style', href:'/traditional-university/disc-assessment.html' } });
+  if (prof && !prof.photo_url) items.push({ pri:'low', text:'Add a profile photo',
+    onclick: "document.getElementById('photoInput').click()" });
+  const pers = (prof && prof.personal) || {};
+  if (!pers.family && !pers.hobbies && !pers.favorites && !pers.self_reflection)
+    items.push({ pri:'low', text:'Tell your team about yourself',
+      onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
+
+  const PRI = { high:'var(--red)', med:'var(--amber)', low:'var(--blue)' };
+  $('acPill').textContent = items.length ? items.length + ' to do' : 'clear';
+  $('acPill').className = 'section-pill ' + (items.some(i=>i.pri==='high') ? 'red' : (items.length ? 'amber' : 'green'));
+  if (!items.length){
+    $('acBody').innerHTML = '<div class="empty success">You\'re all caught up. Nice work.</div>';
+    return;
+  }
+  const order = { high:0, med:1, low:2 };
+  items.sort((a,b)=>order[a.pri]-order[b.pri]);
+  $('acBody').innerHTML = items.map(function(i){
+    const cta = i.cta ? '<a href="'+i.cta.href+'" class="ac-cta">'+esc(i.cta.label)+' &rarr;</a>'
+              : (i.onclick ? '<button class="ac-cta" onclick="'+i.onclick+'">Open</button>' : '');
+    return '<div class="ac-item"><span class="ac-dot" style="background:'+PRI[i.pri]+'"></span>'
+      + '<span class="ac-text">'+esc(i.text)+'</span>' + cta + '</div>';
+  }).join('');
 }
 function coachingEmpty(msg){
   $('coachingPill').textContent = 'soon';
