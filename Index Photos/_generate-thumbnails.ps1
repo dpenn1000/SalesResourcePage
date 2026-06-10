@@ -51,6 +51,7 @@ $T = @{
  tech         = @('#061A30','#0E5288','#2EE6FF','#5BE0A0','#6FE6F0','#9FC2D6','#2EE6FF','#1E6E9E','circuit',$CON,0.56,86)
  cx           = @('#34164A','#8A2E7E','#FF8A3C','#FF5BA8','#FFA6C8','#D6B6CE','#FF5BA8','#7A3E9E','envelope',$CAN,0.52,104)
  hr           = @('#143038','#2C6E72','#62D0C8','#8AE0A0','#8FD8D0','#AEC8C8','#62D0C8','#2C6E72','people',$CAL,0.50,104)
+ elite        = @('#141410','#2A2414','#F0D77A','#D4AF37','#F0D77A','#C9BD93','#F0D77A','#9A7B2E','coin',$PAL,0.50,110)
 }
 
 function FitFont($lines,$wf,$cap){ $m=0; foreach($l in $lines){ if($l.Length -gt $m){$m=$l.Length} }; if($m -lt 1){$m=1}; $fit=[int]([math]::Floor(1040.0/($m*$wf))); if($fit -gt $cap){return $cap}; return $fit }
@@ -145,7 +146,9 @@ $cards = @(
  @('onebutton-top-10','tech','TECHNOLOGY','oneBUTTON','Top 10','What breaks, and the fix','circuit'),
  @('submit-a-clean-deal','control','DEAL SUBMISSION','Submit a','Clean Deal','Stay off Track C',''),
  @('track-c-manager-companion','control','DEAL SUBMISSION','Track C','for Managers','Coach the clean submission',''),
- @('selling-with-integrity','fieldmastery','FIELD MASTERY','Selling with','Integrity','Honest framing protects you','')
+ @('selling-with-integrity','fieldmastery','FIELD MASTERY','Selling with','Integrity','Honest framing protects you',''),
+ @('commission-calculator','elite','COMMISSION','Commission','Calculator','Model your pay by club',''),
+ @('commissions-and-clubs','elite','COMMISSION','How Your','Pay Works','Commissions and the clubs','')
 )
 
 $n=0
