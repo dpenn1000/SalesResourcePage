@@ -225,10 +225,10 @@ blockquote.script{background:var(--surface);border-left:3px solid var(--blue);pa
         <div class="chart-ctrl-row">
           <span class="chart-ctrl-label">Scenarios:</span>
           <button class="chart-btn active" id="btnHigh"   onclick="toggleHigh()">CT High (~4%/yr)</button>
-          <button class="chart-btn active" id="btnBase"   onclick="toggleBase()">CT Base (~2.5%/yr)</button>
-          <button class="chart-btn active" id="btnSol299" onclick="toggleSol299()">Solar 2.99% (EVS 17&cent;)</button>
-          <button class="chart-btn active" id="btnSol199" onclick="toggleSol199()">Solar 1.99% (EVS 18.35&cent;)</button>
-          <button class="chart-btn active" id="btnSol099" onclick="toggleSol099()">Solar 0.99% (EVS 19.68&cent;)</button>
+          <button class="chart-btn" id="btnBase"   onclick="toggleBase()">CT Base (~2.5%/yr)</button>
+          <button class="chart-btn" id="btnSol299" onclick="toggleSol299()">Solar 2.99% (EVS 17&cent;)</button>
+          <button class="chart-btn" id="btnSol199" onclick="toggleSol199()">Solar 1.99% (EVS 18.35&cent;)</button>
+          <button class="chart-btn" id="btnSol099" onclick="toggleSol099()">Solar 0.99% (EVS 19.68&cent;)</button>
         </div>
         <div class="chart-ctrl-row">
           <span class="chart-ctrl-label">Overlays:</span>
@@ -498,14 +498,17 @@ const events = [
   { yr:2026, lbl:'Rate case up', yF:0.76, red:true },
 ];
 
+// Default view = CT High vs Your Offer only (plus Key Events + the escalator
+// reference). Base and the three fixed solar tier lines start hidden; the rep
+// can toggle them on.
 let showEvt    = true;
 let showNE     = false;
 let showEsc    = true;
 let showHigh   = true;
-let showBase   = true;
-let showSol299 = true;
-let showSol199 = true;
-let showSol099 = true;
+let showBase   = false;
+let showSol299 = false;
+let showSol199 = false;
+let showSol099 = false;
 
 const whiteBg = {
   id: 'wb',
@@ -690,6 +693,12 @@ const cfg = {
 
 const chart = new Chart(document.getElementById('rc'), cfg);
 
+// Apply the default visibility from the show* flags (single source of truth).
+[[2, showNE], [3, showHigh], [4, showBase], [5, showEsc],
+ [6, showSol299], [7, showSol199], [8, showSol099]]
+  .forEach(([i, on]) => { chart.data.datasets[i].hidden = !on; });
+chart.update();
+
 function toggleHigh()   { showHigh   = !showHigh;   document.getElementById('btnHigh').classList.toggle('active', showHigh);     chart.data.datasets[3].hidden = !showHigh;   chart.update(); }
 function toggleBase()   { showBase   = !showBase;   document.getElementById('btnBase').classList.toggle('active', showBase);     chart.data.datasets[4].hidden = !showBase;   chart.update(); }
 function toggleSol299() { showSol299 = !showSol299; document.getElementById('btnSol299').classList.toggle('active', showSol299); chart.data.datasets[6].hidden = !showSol299; chart.update(); }
@@ -700,6 +709,10 @@ function toggleEsc()    { showEsc    = !showEsc;    document.getElementById('btn
 function toggleNE()     { showNE     = !showNE;     document.getElementById('btnNE').classList.toggle('active', showNE);         chart.data.datasets[2].hidden = !showNE;     chart.update(); }
 
 const ESC_VALUES = [0, 0.0099, 0.0199, 0.0299];
+// EVS entry rate per escalator tier. 0% (21.00c) and 2.99% (17.00c) are the native
+// anchors; 0.99% (19.68c) and 1.99% (18.35c) are the calculated in-betweens. Moving
+// the escalator drives the entry rate to its tier (index-aligned with ESC_VALUES).
+const ENTRY_BY_ESC = [21.00, 19.68, 18.35, 17.00];
 const offerRateInput = document.getElementById('offerRate');
 const offerEscInput  = document.getElementById('offerEsc');
 const offerRateVal   = document.getElementById('offerRateVal');
@@ -724,17 +737,24 @@ function recomputeOffer() {
   chart.update('none');
 }
 
+// Escalator drives the entry rate to its EVS tier; the entry slider stays
+// available for manual fine-tuning after.
+function applyEscTier() {
+  const idx = parseInt(offerEscInput.value, 10);
+  offerRateInput.value = ENTRY_BY_ESC[idx].toFixed(2);
+  recomputeOffer();
+}
 offerRateInput.addEventListener('input', recomputeOffer);
-offerEscInput.addEventListener('input', recomputeOffer);
+offerEscInput.addEventListener('input', applyEscTier);
 
 escTickLabels.forEach(s => {
   s.addEventListener('click', () => {
     offerEscInput.value = s.dataset.i;
-    recomputeOffer();
+    applyEscTier();
   });
 });
 
-recomputeOffer();
+applyEscTier();  // sync the default entry rate to the default escalator tier
 
 function toggleOffer() {
   showOffer = !showOffer;
