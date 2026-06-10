@@ -255,6 +255,44 @@
   @media (min-width: 900px) {
     .metrics-grid { grid-template-columns: repeat(4, 1fr); }
   }
+
+  /* ---- Profile extras: photo, DISC, personal editor ---- */
+  .hero { display: flex; gap: 18px; align-items: center; }
+  .hero-id { flex: 1; min-width: 0; position: relative; }
+  .hero-avatar-wrap { position: relative; flex-shrink: 0; z-index: 1; }
+  .hero-avatar {
+    width: 72px; height: 72px; border-radius: 18px;
+    background: rgba(255,255,255,0.12); border: 2px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 800; color: #fff; text-transform: uppercase;
+    background-size: cover; background-position: center;
+  }
+  .hero-avatar-edit {
+    position: absolute; right: -6px; bottom: -6px; width: 28px; height: 28px;
+    border-radius: 50%; background: var(--green); color: #0b1120;
+    border: 2px solid #1A2332; cursor: pointer; font-size: 13px; font-weight: 800; line-height: 1;
+  }
+  .disc-row { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 8px; }
+  .disc-row:last-child { margin-bottom: 0; }
+  .disc-k { width: 20px; text-align: center; font-weight: 800; color: #fff; border-radius: 5px; padding: 2px 0; }
+  .disc-track { flex: 1; height: 9px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .disc-fill { height: 100%; border-radius: 6px; }
+  .disc-v { width: 42px; text-align: right; color: var(--text2); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .disc-soon { font-size: 10px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--blue); }
+  .pf-field { margin-bottom: 13px; }
+  .pf-field label { display: block; font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); margin-bottom: 5px; }
+  .pf-field input, .pf-field textarea {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 14px; color: var(--text); background: var(--bg); resize: vertical;
+  }
+  .pf-field textarea { min-height: 60px; }
+  .pf-field .hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+  .pf-save {
+    background: var(--green); color: #0b1120; border: none; font-weight: 800;
+    font-size: 13px; letter-spacing: 0.5px; text-transform: uppercase;
+    padding: 10px 18px; border-radius: 8px; cursor: pointer;
+  }
+  .pf-save:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
 </head>
 <body>
@@ -284,9 +322,15 @@
 
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-name" id="heroName">Loading...</div>
-    <div class="hero-meta" id="heroMeta"></div>
-    <div class="hero-tags" id="heroTags"></div>
+    <div class="hero-avatar-wrap" id="heroAvatarWrap" style="display:none">
+      <div class="hero-avatar" id="heroAvatar"></div>
+      <button class="hero-avatar-edit" id="heroAvatarEdit" title="Change photo" type="button">&#9998;</button>
+    </div>
+    <div class="hero-id">
+      <div class="hero-name" id="heroName">Loading...</div>
+      <div class="hero-meta" id="heroMeta"></div>
+      <div class="hero-tags" id="heroTags"></div>
+    </div>
   </div>
 
   <!-- KEY METRICS + STACK-UP -->
@@ -298,6 +342,15 @@
     <div class="section-body" id="metricsBody">
       <div class="loading">Loading metrics...</div>
     </div>
+  </div>
+
+  <!-- DISC STYLE -->
+  <div class="section" id="discSection" style="display:none">
+    <div class="section-head">
+      <div class="section-title">My DISC Style</div>
+      <div class="section-pill" id="discPill">--</div>
+    </div>
+    <div class="section-body" id="discBody"></div>
   </div>
 
   <!-- NEED TO ADDRESS -->
@@ -344,9 +397,20 @@
     </div>
   </div>
 
+  <!-- PERSONAL INFO (self-editable, canonical) -->
+  <div class="section" id="personalSection" style="display:none">
+    <div class="section-head">
+      <div class="section-title">Personal Info</div>
+      <div class="section-pill" id="personalPill">you control this</div>
+    </div>
+    <div class="section-body" id="personalBody"></div>
+  </div>
+
 </main>
 
 </div>
+
+<input type="file" id="photoInput" accept="image/*" style="display:none">
 
 <script src="https://unpkg.com/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
@@ -418,6 +482,121 @@ async function initApp(profile, session) {
     loadAndRenderUniversity(me),
     loadAndRenderCallActivity(me)
   ]);
+
+  // ── Profile extras (self only): photo, DISC, personal info ──
+  // These use the Phase 1 self-scoped RPCs and are skipped in manager View-As.
+  if (!IS_VIEW_AS) loadProfileExtras();
+}
+
+// ============================================================================
+// PROFILE EXTRAS -- photo, DISC, personal info (signed-in rep's own view only)
+// Backed by the self-scoped RPCs get_me_profile / get_me_overview / update_my_profile.
+// ============================================================================
+const DISC_COLOR = { D:'#E84040', I:'#F5A623', S:'#78C832', C:'#29A9E1' };
+const DISC_NAME  = { D:'Driver', I:'Influencer', S:'Steady', C:'Conscientious' };
+
+async function loadProfileExtras(){
+  wirePhoto();
+  const [pr, ov] = await Promise.all([ sb.rpc('get_me_profile'), sb.rpc('get_me_overview') ]);
+  const prof = pr && pr.data;
+  const overview = (ov && ov.data) || {};
+  if (prof){ renderAvatar(prof); renderPersonal(prof); }
+  renderDisc(overview.disc);
+}
+
+function initials(name){
+  return (name || '?').split(/\s+/).filter(Boolean).map(w => w[0]).slice(0,2).join('');
+}
+
+function renderAvatar(prof){
+  const wrap = $('heroAvatarWrap'); if (!wrap) return;
+  wrap.style.display = 'block';
+  const av = $('heroAvatar');
+  if (prof.photo_url){
+    av.style.backgroundImage = 'url("' + String(prof.photo_url).replace(/"/g,'') + '")';
+    av.textContent = '';
+  } else {
+    av.style.backgroundImage = '';
+    av.textContent = initials(prof.name);
+  }
+}
+
+function renderDisc(disc){
+  const sec = $('discSection'); if (!sec) return;
+  sec.style.display = 'block';
+  if (!disc){
+    $('discPill').textContent = 'not taken';
+    $('discBody').innerHTML = '<div class="empty">You haven\'t taken your DISC assessment yet.<br>' +
+      '<a href="/traditional-university/disc-assessment.html" style="color:var(--blue);font-weight:700;text-decoration:none">Know Your Style &rarr;</a></div>';
+    return;
+  }
+  $('discPill').textContent = disc.primary_style + (disc.secondary_style ? '/' + disc.secondary_style : '');
+  $('discPill').className = 'section-pill green';
+  const rows = ['D','I','S','C'].map(function(k){
+    const v = Number(disc['score_' + k.toLowerCase()] || 0);
+    const pct = Math.max(2, Math.min(100, v));
+    return '<div class="disc-row"><span class="disc-k" style="background:' + DISC_COLOR[k] + '">' + k + '</span>' +
+      '<span class="disc-track"><span class="disc-fill" style="width:' + pct + '%;background:' + DISC_COLOR[k] + '"></span></span>' +
+      '<span class="disc-v">' + v.toFixed(1) + '</span></div>';
+  }).join('');
+  $('discBody').innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Primary <b>' +
+    esc(DISC_NAME[disc.primary_style] || disc.primary_style) + '</b>' +
+    (disc.secondary_style ? ', secondary <b>' + esc(DISC_NAME[disc.secondary_style] || disc.secondary_style) + '</b>' : '') +
+    ' &middot; taken ' + fmtDate(disc.taken_at) + '</div>' + rows;
+}
+
+function renderPersonal(prof){
+  const sec = $('personalSection'); if (!sec) return;
+  sec.style.display = 'block';
+  const p = prof.personal || {};
+  const v = function(k){ return esc(p[k] || ''); };
+  $('personalBody').innerHTML =
+    '<div class="pf-field"><label>Headline</label><input id="pf_bio" maxlength="120" value="' + esc(prof.bio || '') + '" placeholder="e.g. CT North closer, golf on weekends"></div>' +
+    '<div class="pf-field"><label>Family</label><textarea id="pf_family" placeholder="Spouse, kids, who is at home">' + v('family') + '</textarea></div>' +
+    '<div class="pf-field"><label>Hobbies &amp; interests</label><textarea id="pf_hobbies" placeholder="What you do outside work">' + v('hobbies') + '</textarea></div>' +
+    '<div class="pf-field"><label>Important dates</label><input id="pf_dates" value="' + v('dates') + '" placeholder="Birthday, anniversary, milestones"></div>' +
+    '<div class="pf-field"><label>Favorites</label><input id="pf_favorites" value="' + v('favorites') + '" placeholder="Coffee order, team, food spot"></div>' +
+    '<div class="pf-field"><label>What I am working on <span class="disc-soon">feeds my coaching</span></label><textarea id="pf_reflection" placeholder="Your own read on where you want to grow">' + v('self_reflection') + '</textarea><div class="hint">Used to tailor your focus &amp; action plan.</div></div>' +
+    '<button class="pf-save" id="pf_save" type="button" onclick="savePersonal()">Save my info</button>';
+}
+
+async function savePersonal(){
+  const btn = $('pf_save'); btn.disabled = true; btn.textContent = 'Saving...';
+  const personal = {
+    family:          $('pf_family').value.trim(),
+    hobbies:         $('pf_hobbies').value.trim(),
+    dates:           $('pf_dates').value.trim(),
+    favorites:       $('pf_favorites').value.trim(),
+    self_reflection: $('pf_reflection').value.trim()
+  };
+  const bio = $('pf_bio').value.trim();
+  const { data, error } = await sb.rpc('update_my_profile', { p_personal: personal, p_bio: bio, p_photo_url: null });
+  btn.disabled = false; btn.textContent = 'Save my info';
+  if (error){ alert('Save failed: ' + error.message); return; }
+  if (data) renderAvatar(data);
+}
+
+let _photoWired = false;
+function wirePhoto(){
+  if (_photoWired) return; _photoWired = true;
+  const edit = $('heroAvatarEdit'), input = $('photoInput');
+  if (edit && input) edit.addEventListener('click', function(){ input.click(); });
+  if (input) input.addEventListener('change', onPhotoPick);
+}
+async function onPhotoPick(){
+  const file = this.files && this.files[0]; if (!file) return;
+  if (file.size > 5 * 1024 * 1024){ alert('Image must be under 5 MB'); this.value = ''; return; }
+  const uid = window.AUTH_SESSION && window.AUTH_SESSION.user && window.AUTH_SESSION.user.id;
+  if (!uid){ this.value = ''; return; }
+  const ext = ((file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')) || 'jpg';
+  const path = uid + '/avatar_' + Date.now() + '.' + ext;
+  const up = await sb.storage.from('rep-photos').upload(path, file, { contentType: file.type || 'image/jpeg', upsert: true });
+  if (up.error){ alert('Upload failed: ' + up.error.message); this.value = ''; return; }
+  const url = sb.storage.from('rep-photos').getPublicUrl(path).data.publicUrl;
+  const { data, error } = await sb.rpc('update_my_profile', { p_personal: null, p_bio: null, p_photo_url: url });
+  this.value = '';
+  if (error){ alert('Photo saved but profile update failed: ' + error.message); return; }
+  if (data) renderAvatar(data);
 }
 
 function renderViewAsBanner(me, profile){
