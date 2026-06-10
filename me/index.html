@@ -353,6 +353,15 @@
     <div class="section-body" id="discBody"></div>
   </div>
 
+  <!-- COACHING: what I do well + my focus (DISC-aware trend, generated on the dashboard) -->
+  <div class="section" id="coachingSection" style="display:none">
+    <div class="section-head">
+      <div class="section-title">What I Do Well &amp; My Focus</div>
+      <div class="section-pill" id="coachingPill">--</div>
+    </div>
+    <div class="section-body" id="coachingBody"></div>
+  </div>
+
   <!-- NEED TO ADDRESS -->
   <div class="section">
     <div class="section-head">
@@ -502,6 +511,62 @@ async function loadProfileExtras(){
   const overview = (ov && ov.data) || {};
   if (prof){ renderAvatar(prof); renderPersonal(prof); }
   renderDisc(overview.disc);
+  loadCoaching();
+}
+
+// ── Coaching (DISC-aware trend) -- read-only from the launcher cache ──
+async function loadCoaching(){
+  const sec = $('coachingSection'); if (!sec) return;
+  sec.style.display = 'block';
+  $('coachingBody').innerHTML = '<div class="loading">Loading your coaching...</div>';
+  try {
+    const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
+    if (!token) throw new Error('no token');
+    const res = await fetch(LAUNCHER_BASE + '/api/me/coaching', {
+      headers: { Authorization: 'Bearer ' + token }, mode: 'cors'
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const d = await res.json();
+    if (d && d.status === 'ready' && d.result) renderCoaching(d);
+    else coachingEmpty('Your coaching summary appears here after your manager runs the next dashboard refresh.');
+  } catch (e) {
+    coachingEmpty('Your coaching connects here in the next update.');
+  }
+}
+function coachingEmpty(msg){
+  $('coachingPill').textContent = 'soon';
+  $('coachingBody').innerHTML = '<div class="empty">' + esc(msg) + '</div>';
+}
+function renderCoaching(d){
+  const r = d.result || {};
+  $('coachingPill').textContent = d.disc ? 'DISC ' + d.disc : 'ready';
+  $('coachingPill').className = 'section-pill green';
+  let h = '';
+  if (r.summary) h += '<div style="font-size:14px;line-height:1.6;margin-bottom:12px">' + esc(r.summary) + '</div>';
+  if (r.disc_frame) h += '<div class="addr p-low" style="margin-bottom:14px"><div class="addr-body">' + esc(r.disc_frame) + '</div></div>';
+  const strengths = r.strengths || [];
+  if (strengths.length){
+    h += '<div class="metric-label" style="margin-bottom:7px">What you do well</div>';
+    strengths.forEach(s => {
+      h += '<div class="note"><div class="note-body"><strong>' + esc(s.point || '') + '</strong>' +
+        (s.example ? '<div style="color:var(--text2);font-size:12px;margin-top:4px">' + esc(s.example) + '</div>' : '') +
+        '</div></div>';
+    });
+  }
+  const f = r.focus;
+  if (f && (f.point || f.action)){
+    h += '<div class="metric-label" style="margin:16px 0 7px">Your focus</div>';
+    h += '<div class="addr p-medium"><div class="addr-title">' + esc(f.point || '') + '</div>';
+    if (f.why) h += '<div class="addr-body">' + esc(f.why) + '</div>';
+    if (f.action) h += '<div class="addr-body" style="margin-top:6px"><strong>Try this:</strong> ' + esc(f.action) + '</div>';
+    const ex = f.examples || [];
+    if (ex.length) h += '<div class="addr-meta">' + ex.map(esc).join(' &middot; ') + '</div>';
+    h += '</div>';
+  }
+  const cf = r.compliance_flags || [];
+  if (cf.length) h += '<div class="addr p-high" style="margin-top:12px"><div class="addr-title">Compliance</div><div class="addr-body">' + cf.map(esc).join('; ') + '</div></div>';
+  if (d.generated_at) h += '<div class="addr-meta" style="margin-top:10px">Updated ' + fmtRel(d.generated_at) + ' &middot; last ' + (d.window_days || 25) + ' days</div>';
+  $('coachingBody').innerHTML = h || '<div class="empty">No coaching yet.</div>';
 }
 
 function initials(name){
