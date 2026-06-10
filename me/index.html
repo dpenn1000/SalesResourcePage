@@ -7,7 +7,7 @@
 <title>My Page - CT Traditional</title>
 <link rel="stylesheet" href="/auth-gate.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:        #f5f3ee;
@@ -376,11 +376,14 @@
 
   /* ---- Sales Club (full-width, black-gold) ---- */
   .sc-section {
-    --gold: #D4AF37; --gold-lt: #F0D77A; --sc-ink: #141410; --sc-line: rgba(212,175,55,0.22);
-    background: linear-gradient(160deg, #1c1a12 0%, #141410 55%, #100f0b 100%);
+    --gold: #D4AF37; --gold-lt: #F0D77A; --sc-ink: #0b0b0b; --sc-line: rgba(212,175,55,0.28);
+    background:
+      radial-gradient(135% 90% at 0% 0%, rgba(212,175,55,0.22), transparent 44%),
+      radial-gradient(135% 90% at 100% 100%, rgba(212,175,55,0.15), transparent 44%),
+      linear-gradient(160deg, #191919 0%, #0c0c0c 55%, #050505 100%);
     border: 1px solid var(--sc-line); border-radius: 14px;
     margin-bottom: 14px; overflow: hidden; color: #ece7d6;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.28);
+    box-shadow: 0 6px 24px rgba(0,0,0,0.40);
   }
   .sc-head {
     display: flex; align-items: center; justify-content: space-between;
@@ -388,8 +391,11 @@
     background: linear-gradient(180deg, rgba(212,175,55,0.07) 0%, rgba(212,175,55,0) 100%);
   }
   .sc-title {
-    font-size: 12px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+    font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+    font-size: 20px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
     color: var(--gold-lt);
+    background: linear-gradient(180deg, #FBEFB0 0%, #E6C453 48%, #C99B2C 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   }
   .sc-pill {
     font-size: 10px; font-weight: 800; letter-spacing: 0.5px; padding: 4px 11px; border-radius: 20px;
@@ -422,6 +428,23 @@
     font-size: 16px; font-weight: 800; letter-spacing: 0.01em; color: #fff; margin-bottom: 11px;
   }
   .sc-card.here .sc-card-name { color: var(--gold-lt); }
+  .sc-card.pacing {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 1px var(--gold), 0 0 16px rgba(212,175,55,0.40);
+    animation: scGlow 2.4s ease-in-out infinite;
+  }
+  @keyframes scGlow {
+    0%,100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.7), 0 0 12px rgba(212,175,55,0.30); }
+    50%     { box-shadow: 0 0 0 1px var(--gold-lt), 0 0 24px rgba(212,175,55,0.62); }
+  }
+  @media (prefers-reduced-motion: reduce){ .sc-card.pacing { animation: none; } }
+  .sc-card.pacing .sc-card-name { color: var(--gold-lt); }
+  .sc-pacebadge {
+    position: absolute; top: -9px; right: 12px;
+    font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    background: rgba(212,175,55,0.16); color: var(--gold-lt); border: 1px solid var(--gold);
+    padding: 2px 9px; border-radius: 20px;
+  }
   .sc-band { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 5px 0; }
   .sc-band-lbl { font-size: 11px; font-weight: 600; color: #a89f86; text-transform: uppercase; letter-spacing: 0.5px; }
   .sc-band-val { font-size: 14px; font-weight: 800; color: #ece7d6; font-variant-numeric: tabular-nums; }
@@ -1469,11 +1492,12 @@ function renderSalesClub(d, cfg){
 
   // ── Three tier cards ──
   const cards = CLUB_TIERS.map(function(t){
-    const isHere = (t.code === standingCode);
+    const isCurrent = (currentCode !== 'none' && t.code === currentCode);
+    const isPacing  = (projCode !== 'none' && t.code === projCode && !isCurrent);
     const installs = bandTxt(t.instMin, t.instMax);
     const active   = bandTxt(t.actMin, t.actMax);
-    return '<div class="sc-card' + (isHere ? ' here' : '') + '">' +
-      (isHere ? '<span class="sc-here">You are here</span>' : '') +
+    return '<div class="sc-card' + (isCurrent ? ' here' : (isPacing ? ' pacing' : '')) + '">' +
+      (isCurrent ? '<span class="sc-here">You are here</span>' : (isPacing ? '<span class="sc-pacebadge">Pacing for</span>' : '')) +
       '<div class="sc-card-name">' + esc(t.name) + '</div>' +
       '<div class="sc-band"><span class="sc-band-lbl">Installs</span><span class="sc-band-val">' + esc(installs) + '</span></div>' +
       '<div class="sc-band"><span class="sc-band-lbl">Active contracts</span><span class="sc-band-val">' + esc(active) + '</span></div>' +
