@@ -898,6 +898,26 @@ function escapeHtml(s) {
 // auth-gate.js calls this once, after the user is signed in and the role
 // check has passed. profile = { kind, name, is_admin, is_active }.
 async function initApp(profile, session) {
+  // ── Front-door routing: sellers + ADMs/DMs open to their /me/ home; VPs and
+  // non-selling accounts stay here on the Resource Page. Root only; a one-time
+  // session skip (set when they click through to Resources via ?stay=1) prevents
+  // a bounce loop between / and /me/.
+  try {
+    const _qs = new URLSearchParams(location.search);
+    if (_qs.get('stay') === '1') sessionStorage.setItem('skipMeLanding', '1');
+    const _isRoot = location.pathname === '/' || /\/index\.html?$/i.test(location.pathname);
+    if (_isRoot && sessionStorage.getItem('skipMeLanding') !== '1') {
+      const { data: _me } = await sb.rpc('get_me_profile');
+      if (_me) {
+        const _tier = String(_me.tier || '').toLowerCase();
+        if (_tier !== 'vp' && (_tier === 'adm' || _tier === 'dm' || !!_me.spd_slug)) {
+          location.replace('/me/');
+          return;
+        }
+      }
+    }
+  } catch (e) { /* never block the page on a routing hiccup */ }
+
   // Role-aware rep tool entry in the header. Reps go to their own call list;
   // managers and admins go to the Rep Console oversight roster. auth-gate.js
   // sets window.IS_MANAGER / window.IS_REP before this runs.
