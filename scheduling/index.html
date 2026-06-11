@@ -114,6 +114,10 @@
   .iconbtn{font-size:12px; padding:4px 9px; border-radius:6px; border:1px solid var(--border); background:#fff; cursor:pointer; font-weight:600;}
   .iconbtn.approve{color:#3f8f1e; border-color:#b6e09a;}
   .iconbtn.changes{color:var(--red); border-color:#ffc9c2;}
+  .segbar{display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; flex-shrink:0;}
+  .segbar button{padding:6px 12px; border:none; background:#fff; font-family:inherit; font-weight:700; font-size:12px; color:var(--muted); cursor:pointer;}
+  .segbar button+button{border-left:1px solid var(--border);}
+  .segbar button.active{background:var(--ink); color:#fff;}
 </style>
 </head>
 <body>
@@ -172,7 +176,7 @@ const S = {
   me:null, period:null, shifts:[], shiftCodes:[],
   myEntries:{}, mySub:null,
   reps:[], allEntries:{}, subs:{},   // manager state
-  tab:'mine'
+  tab:'mine', gridColor:'shift'      // Combined Grid cell coloring: 'shift' | 'sat'
 };
 
 // ---- date helpers (work_date is 'YYYY-MM-DD'; avoid UTC parsing) ----
@@ -769,6 +773,12 @@ const CODEMAP={
   'Shift 1&2':{t:'1&middot;2',c:'c-combo'}, 'Shift 2&3':{t:'2&middot;3',c:'c-combo'}, 'Shift 1&3':{t:'1&middot;3',c:'c-combo'}
 };
 function cellHTML(id,iso,code){ const m=CODEMAP[code]||CODEMAP['Off All-Day'];
+  // Saturation mode: tint each cell by how that shift compares to demand (same scale as
+  // the Rep View / Coverage tab). Off-days, Sundays, and no-baseline fall back to shift color.
+  if(S.gridColor==='sat' && S.shiftStatus){
+    const r = (code!=='Off All-Day' && !isSundayISO(iso)) ? codeRatio(code, S.shiftStatus) : null;
+    if(r!=null) return `<span class="cell" style="background:${ratioTint(r)};color:${ratioColor(r)}" data-id="${id}" data-date="${iso}" data-code="${esc(code)}" title="${esc(code)} &middot; ${ratioLabel(r)} (${Math.round(r*100)}% of target)">${m.t}</span>`;
+  }
   return `<span class="cell ${m.c}" data-id="${id}" data-date="${iso}" data-code="${esc(code)}" title="${esc(code)}">${m.t}</span>`; }
 function renderCombined(){
   const editable = S.period.status==='open';
@@ -789,18 +799,28 @@ function renderCombined(){
     }
     body+=`<tr>${tds}</tr>`;
   }
-  const legend=Object.entries(CODEMAP).map(([code,m])=>`<span class="${m.c}">${m.t} ${esc(code.replace('Off All-Day','Off').replace('All-Day','All day'))}</span>`).join('');
+  const mode=S.gridColor||'shift';
+  const shiftLegend=Object.entries(CODEMAP).map(([code,m])=>`<span class="${m.c}">${m.t} ${esc(code.replace('Off All-Day','Off').replace('All-Day','All day'))}</span>`).join('');
+  const legend = mode==='sat'
+    ? (S.shiftStatus ? coverageLegendHTML()
+        : `<div class="muted" style="font-size:12px;margin-top:10px">No demand baseline yet, so there is nothing to scale coverage color against. Run <code>coverage_builder.py</code> to publish appointment demand, then this view fills in.</div>`)
+    : `<div class="clegend">${shiftLegend}</div>`;
   document.getElementById('view').innerHTML=`<div class="card combined fullbleed">
-    <div class="row" style="justify-content:space-between;margin-bottom:8px">
+    <div class="row" style="justify-content:space-between;margin-bottom:8px;align-items:center;gap:12px">
       <div class="muted">${editable?'Click any cell to change it. Saves immediately.':'Period is locked (read-only).'} ${S.reps.length} reps.</div>
+      <div class="segbar" title="Color cells by shift type, or by how each shift compares to appointment demand (same scale as Rep View and Coverage)">
+        <button data-mode="shift" class="${mode==='shift'?'active':''}">Shift color</button>
+        <button data-mode="sat" class="${mode==='sat'?'active':''}">Saturation color</button>
+      </div>
     </div>
     <div style="overflow-x:auto"><table class="cgrid"><thead><tr>${head1}</tr><tr>${head2}</tr></thead><tbody>${body}</tbody></table></div>
-    <div class="clegend">${legend}</div></div>`;
+    ${legend}</div>`;
   if(editable){
     document.querySelector('#view .cgrid tbody').addEventListener('click', e=>{
       const cell=e.target.closest('.cell'); if(!cell) return; openCellEditor(cell);
     });
   }
+  document.querySelectorAll('#view .segbar button').forEach(b=>b.onclick=()=>{ S.gridColor=b.dataset.mode; renderCombined(); });
 }
 function el(html){ const t=document.createElement('template'); t.innerHTML=html.trim(); return t.content.firstChild; }
 function openCellEditor(cell){
