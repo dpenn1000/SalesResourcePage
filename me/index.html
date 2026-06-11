@@ -531,6 +531,11 @@
   .su-chip::before { content:'+ '; color:#4A8A14; }
   .su-chip:hover { border-color:var(--green); }
   .su-dismiss { background:none; border:none; font-size:22px; line-height:1; color:var(--text2); cursor:pointer; }
+  /* Address autocomplete */
+  .addr-suggest { display:none; position:absolute; left:0; right:0; top:100%; z-index:50; background:var(--card); border:1px solid var(--border); border-top:none; border-radius:0 0 8px 8px; box-shadow:0 8px 20px rgba(0,0,0,.12); max-height:240px; overflow:auto; }
+  .addr-opt { padding:9px 12px; font-size:13px; cursor:pointer; border-top:1px solid var(--border); color:var(--text); }
+  .addr-opt:first-child { border-top:none; }
+  .addr-opt:hover { background:var(--bg); }
 </style>
 </head>
 <body>
@@ -978,6 +983,7 @@ async function loadProfileExtras(me){
   renderDisc(discData, style);
   if (!IS_VIEW_AS){
     window._meOverview = overview;
+    window._meProf = prof;
     const dealsInfo = await loadDeals(prof);
     buildActionCenter(prof, overview, coaching, dealsInfo);
     buildSetupBanner(prof, overview);
@@ -1309,27 +1315,75 @@ function renderPersonal(prof){
     '<div class="pf-field"><label>Hobbies &amp; interests</label><textarea id="pf_hobbies" placeholder="What you do outside work">' + v('hobbies') + '</textarea></div>' +
     '<div class="pf-field"><label>Important dates</label><input id="pf_dates" value="' + v('dates') + '" placeholder="Birthday, anniversary, milestones"></div>' +
     '<div class="pf-field"><label>Favorites</label><input id="pf_favorites" value="' + v('favorites') + '" placeholder="Coffee order, team, food spot"></div>' +
-    '<div class="pf-field"><label>Home address</label><input id="pf_address" value="' + v('address') + '" placeholder="Street, town, ST"></div>' +
+    '<div class="pf-field" style="position:relative"><label>Home address</label><input id="pf_address" autocomplete="off" value="' + v('address') + '" placeholder="Start typing your address" oninput="onAddressInput(this.value)"><div id="addr-suggest" class="addr-suggest"></div>' + (p.home_town ? '<div class="hint">Home town on file: ' + esc(p.home_town) + '. Pick your full street address.</div>' : '') + '</div>' +
     '<div class="pf-field"><label>What I am working on <span class="disc-soon">feeds my coaching</span></label><textarea id="pf_reflection" placeholder="Your own read on where you want to grow">' + v('self_reflection') + '</textarea><div class="hint">Used to tailor your focus &amp; action plan.</div></div>' +
     '<button class="pf-save" id="pf_save" type="button" onclick="savePersonal()">Save my info</button>';
 }
 
 async function savePersonal(){
   const btn = $('pf_save'); btn.disabled = true; btn.textContent = 'Saving...';
-  const personal = {
+  const addr = $('pf_address').value.trim();
+  // Merge onto the existing personal blob so backfilled keys (home_town, coords)
+  // aren't dropped (update_my_profile replaces the whole jsonb).
+  const base = (window._meProf && window._meProf.personal) || {};
+  const personal = Object.assign({}, base, {
     family:          $('pf_family').value.trim(),
     hobbies:         $('pf_hobbies').value.trim(),
     dates:           $('pf_dates').value.trim(),
     favorites:       $('pf_favorites').value.trim(),
-    address:         $('pf_address').value.trim(),
+    address:         addr,
     self_reflection: $('pf_reflection').value.trim()
-  };
+  });
+  if (_addrPick && _addrPick.address === addr && _addrPick.lat != null){
+    personal.address_lat = _addrPick.lat; personal.address_lon = _addrPick.lon;
+  }
   const bio = $('pf_bio').value.trim();
   const { data, error } = await sb.rpc('update_my_profile', { p_personal: personal, p_bio: bio, p_photo_url: null });
   btn.disabled = false; btn.textContent = 'Save my info';
   if (error){ alert('Save failed: ' + error.message); return; }
-  if (data){ renderAvatar(data); buildSetupBanner(data, window._meOverview); }
+  if (data){ window._meProf = data; renderAvatar(data); buildSetupBanner(data, window._meOverview); }
 }
+
+// ── Address autocomplete (OpenStreetMap / Photon, free, no key) ──
+let _addrTimer = null, _addrPick = null;
+function onAddressInput(q){
+  clearTimeout(_addrTimer);
+  const box = $('addr-suggest'); if (!box) return;
+  q = (q || '').trim();
+  if (q.length < 4){ box.style.display = 'none'; box.innerHTML = ''; return; }
+  _addrTimer = setTimeout(async function(){
+    try {
+      const url = 'https://photon.komoot.io/api/?lang=en&limit=5&lat=41.6&lon=-72.7&q=' + encodeURIComponent(q);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('geo');
+      const j = await res.json();
+      const feats = (j.features || []).filter(function(f){ return f.properties; });
+      window._addrFeats = feats;
+      if (!feats.length){ box.style.display = 'none'; box.innerHTML = ''; return; }
+      box.innerHTML = feats.map(function(f, i){ return '<div class="addr-opt" onclick="pickAddress(' + i + ')">' + esc(fmtPhoton(f.properties)) + '</div>'; }).join('');
+      box.style.display = 'block';
+    } catch (e) { box.style.display = 'none'; }
+  }, 320);
+}
+function fmtPhoton(p){
+  const l1 = [p.housenumber, p.street || p.name].filter(Boolean).join(' ');
+  const l2 = [p.city || p.town || p.village || p.county, p.state, p.postcode].filter(Boolean).join(', ');
+  return [l1, l2].filter(Boolean).join(', ');
+}
+function pickAddress(i){
+  const f = (window._addrFeats || [])[i]; if (!f) return;
+  const a = fmtPhoton(f.properties);
+  const inp = $('pf_address'); if (inp) inp.value = a;
+  const c = (f.geometry && f.geometry.coordinates) || [];
+  _addrPick = { address: a, lon: (c[0] != null ? c[0] : null), lat: (c[1] != null ? c[1] : null) };
+  const box = $('addr-suggest'); if (box){ box.style.display = 'none'; box.innerHTML = ''; }
+}
+document.addEventListener('click', function(e){
+  const box = $('addr-suggest');
+  if (box && box.style.display !== 'none' && !(e.target.closest && e.target.closest('#addr-suggest')) && e.target.id !== 'pf_address'){
+    box.style.display = 'none';
+  }
+});
 
 let _photoWired = false;
 function wirePhoto(){
