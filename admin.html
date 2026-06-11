@@ -3905,12 +3905,19 @@ async function deleteFeedback(id) {
     const d = D_DATA;
     const latestAttempt = {};
     d.attempts.forEach(at => { if (!latestAttempt[at.cert_id]) latestAttempt[at.cert_id] = at; });
-    const assigned = new Set(d.assignments.map(a => a.cert_id));
+    const assignMap = {};
+    d.assignments.forEach(a => { assignMap[a.cert_id] = a; });
     const certRows = d.certs.map(c => {
       const at = latestAttempt[c.id];
-      const st = at ? at.status : (assigned.has(c.id) ? 'assigned' : 'not assigned');
+      const asg = assignMap[c.id];
+      // Status precedence: a live quiz attempt is the most granular signal; else a
+      // completed assignment (e.g. the DISC "Know Your Style" self-assessment, which
+      // has no quiz) counts as done -- matching what Rep 360 reads from ca.status.
+      const st = at ? at.status
+        : (asg && asg.status === 'completed') ? 'completed'
+        : asg ? 'assigned' : 'not assigned';
       const score = at && at.auto_max ? ` &middot; ${at.auto_score}/${at.auto_max}` : '';
-      const cls = st === 'approved' ? 'ok' : st === 'pending_review' ? 'info' : st === 'retake' ? 'bad' : 'warn';
+      const cls = (st === 'approved' || st === 'completed') ? 'ok' : st === 'pending_review' ? 'info' : st === 'retake' ? 'bad' : 'warn';
       return `<div class="d-item"><div class="it-top">
         <div><span class="it-title">${escapeHtml(c.name)}</span><div class="it-meta">Stage ${c.stage}${score}</div></div>
         <span class="pill ${st === 'not assigned' ? '' : cls}">${escapeHtml(uniStatusLabel(st))}</span>
@@ -4064,7 +4071,7 @@ async function deleteFeedback(id) {
 
   // ── Helpers (local to the IIFE; shadow any admin globals safely) ──
   function uniStatusLabel(s) {
-    return ({ 'approved':'Complete','pending_review':'In review','retake':'Retake','in_progress':'In progress','assigned':'Assigned','not assigned':'Not assigned' }[s] || s);
+    return ({ 'approved':'Complete','completed':'Complete','pending_review':'In review','retake':'Retake','in_progress':'In progress','assigned':'Assigned','not assigned':'Not assigned' }[s] || s);
   }
   function callStatusClass(s) {
     return s === 'sold' || s === 'appointment_set' ? 'ok' : s === 'dead' || s === 'no_answer' ? 'bad' : 'warn';
