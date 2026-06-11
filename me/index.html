@@ -1812,32 +1812,37 @@ async function loadAndRenderAddressables(me){
   const body = $('addrBody');
   window._meCtx = me;
   const today = new Date().toISOString().slice(0, 10);
-  const [dpRes, tcRes, addrRes] = await Promise.all([
+  const [dpRes, tcRes, addrRes, disRes] = await Promise.all([
     me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,ahj_township,product_category,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
     me.name ? sb.from('deal_touches').select('dl_number,touch_key') : Promise.resolve({ data: [] }),
-    me.id   ? sb.from('rep_addressables').select('id,title,body,priority,due_date,created_at').eq('rep_id', me.id).eq('status', 'open') : Promise.resolve({ data: [] })
+    me.id   ? sb.from('rep_addressables').select('id,title,body,priority,due_date,created_at').eq('rep_id', me.id).eq('status', 'open') : Promise.resolve({ data: [] }),
+    me.id   ? sb.from('rep_action_dismissals').select('item_key').eq('rep_id', me.id) : Promise.resolve({ data: [] })
   ]);
   const deals = dpRes.data || [], touches = tcRes.data || [], addr = addrRes.data || [];
+  const dismissed = new Set((disRes.data || []).map(r => r.item_key));
 
   let html = '', count = 0, urgent = false;
   const group = (title, inner) => { if (inner) html += '<div class="ti-group"><div class="ti-head">' + esc(title) + '</div>' + inner + '</div>'; };
   const item = (color, text, extra) => '<div class="ti-item"><span class="ti-dot" style="background:' + color + '"></span><span class="ti-text">' + text + '</span>' + (extra || '') + '</div>';
 
-  // 1. Installations (upcoming)
-  const installs = [];
+  // 1. Installations (upcoming, not yet closed out)
+  let installs = [];
   deals.forEach(d => {
     const cust = tiCleanCust(d.customer_name);
     [['Solar', d.install_start_date], ['Battery', d.battery_install_date], ['Roof', d.roofing_install_date]].forEach(p => {
       const dt = p[1] ? String(p[1]).slice(0, 10) : null;
-      if (dt && dt >= today) installs.push({ cust: cust, type: p[0], date: dt });
+      if (dt && dt >= today) installs.push({ cust: cust, type: p[0], date: dt, key: 'install:' + d.dl_number + ':' + p[0] });
     });
   });
+  installs = installs.filter(i => !dismissed.has(i.key));
   installs.sort((a, b) => a.date.localeCompare(b.date));
   if (installs.length){
     count += installs.length;
     const rows = installs.slice(0, 6).map(i => {
       const soon = tiDaysUntil(i.date) <= 7; if (soon) urgent = true;
-      return item(soon ? 'var(--red)' : 'var(--blue)', '<b>' + esc(i.cust) + '</b> ' + esc(i.type) + ' install', '<span class="ti-when">' + fmtDate(i.date) + '</span>');
+      const right = '<span class="ti-when">' + fmtDate(i.date) + '</span>' +
+        (IS_VIEW_AS ? '' : '<button class="ti-cta" style="margin-left:8px" onclick="dismissActionItem(\'' + esc(i.key) + '\')">Done</button>');
+      return item(soon ? 'var(--red)' : 'var(--blue)', '<b>' + esc(i.cust) + '</b> ' + esc(i.type) + ' install', right);
     }).join('');
     group('Installations (' + installs.length + ')', rows + (installs.length > 6 ? '<div class="ti-more">+ ' + (installs.length - 6) + ' more</div>' : ''));
   }
@@ -1862,7 +1867,7 @@ async function loadAndRenderAddressables(me){
     const rows = addr.map(a => {
       if (a.priority === 'high') urgent = true;
       const txt = '<b>' + esc(a.title) + '</b>' + (a.body ? '<div class="ti-sub">' + esc(a.body) + '</div>' : '');
-      const cta = IS_VIEW_AS ? '' : '<button class="ti-cta" data-resolve="' + esc(a.id) + '">Resolve</button>';
+      const cta = IS_VIEW_AS ? '' : '<button class="ti-cta" data-resolve="' + esc(a.id) + '">Done</button>';
       return item(a.priority === 'high' ? 'var(--red)' : 'var(--amber)', txt, cta);
     }).join('');
     group('From Your Manager', rows);
@@ -1902,8 +1907,9 @@ function touchRow(d, inModal){
       '<div class="tm-msg">' + esc(msg) + '</div>' +
       '<div style="margin-top:6px">' + copyBtn + sentBtn + '</div></div>';
   }
+  const sentBtn = IS_VIEW_AS ? '' : '<button class="ti-cta" style="margin-left:6px" type="button" onclick="markTouchSent(\'' + esc(d.dl_number) + '\')">Sent</button>';
   return '<div class="ti-item"><span class="ti-dot" style="background:var(--amber)"></span>' +
-    '<span class="ti-text"><b>' + esc(name) + '</b> <span class="ti-sub" style="display:inline">' + esc(label) + '</span></span>' + copyBtn + '</div>';
+    '<span class="ti-text"><b>' + esc(name) + '</b> <span class="ti-sub" style="display:inline">' + esc(label) + '</span></span>' + copyBtn + sentBtn + '</div>';
 }
 function copyTouch(dl){
   const d = (TOUCH_DEALS || []).find(x => x.dl_number === dl); if (!d) return;
@@ -1928,6 +1934,12 @@ function openTouchModal(){
   $('touchModal').style.display = 'flex';
 }
 function closeTouchModal(){ const m = $('touchModal'); if (m) m.style.display = 'none'; }
+async function dismissActionItem(key){
+  const { error } = await sb.rpc('dismiss_action_item', { p_key: key });
+  if (error){ meToast('Could not close: ' + error.message); return; }
+  meToast('Marked done');
+  if (window._meCtx) loadAndRenderAddressables(window._meCtx);
+}
 
 async function resolveAddressable(id, me){
   const { error } = await sb.from('rep_addressables').update({
