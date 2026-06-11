@@ -199,15 +199,23 @@ window.initApp = async function(profile, session){
   const [meRes, shiftRes, perRes] = await Promise.all([
     sb.from('people').select('id,spd_slug,name,sf_name,role,division,sales_office').eq('auth_user_id', uid).maybeSingle(),
     sb.from('sched_shift_types').select('*').eq('active',true).order('sort'),
-    sb.from('sched_periods').select('*').eq('status','open').order('start_date',{ascending:false}).limit(1).maybeSingle()
+    sb.from('sched_periods').select('*').order('start_date',{ascending:false})
   ]);
   S.me = meRes.data;
   S.shifts = shiftRes.data || [];
   S.shiftCodes = S.shifts.map(s=>s.code);
-  S.period = perRes.data;
+  // Load ALL periods so a locked/sealed period stays viewable (read-only) and you
+  // can pick a month to look back. Default to the open period, else the most
+  // recently started (current), else the newest. Locking a period no longer
+  // bricks the app -- non-open periods just render read-only (change requests only).
+  const _today = new Date().toISOString().slice(0,10);
+  S.periods = perRes.data || [];
+  S.period = S.periods.find(p=>p.status==='open')
+          || S.periods.find(p=>p.start_date <= _today)
+          || S.periods[0] || null;
 
   renderBanner();
-  if(!S.period){ document.getElementById('view').innerHTML='<div class="card empty">No open scheduling period right now. A manager needs to open one.</div>'; return; }
+  if(!S.period){ document.getElementById('view').innerHTML='<div class="card empty">No scheduling periods yet. Create one in Export &amp; Period.</div>'; return; }
 
   const inRoster = S.me && S.me.sales_office; // only roster reps fill a grid
   if(window.IS_MANAGER){
@@ -224,9 +232,27 @@ function renderBanner(){
   const b=document.getElementById('periodBanner');
   if(!S.period){ b.style.display='none'; return; }
   b.style.display='flex';
+  let picker='';
+  if((S.periods||[]).length>1){
+    picker = `<select id="periodPick" aria-label="Choose a period to view"
+      style="margin-left:auto;font:inherit;padding:4px 8px;border:1px solid var(--line,#d8ddd4);border-radius:6px;background:#fff;color:inherit;cursor:pointer">`
+      + S.periods.map(p=>`<option value="${esc(p.id)}" ${p.id===S.period.id?'selected':''}>${esc(p.label||p.start_date)}${p.status!=='open'?' (locked)':''}</option>`).join('')
+      + `</select>`;
+  }
   b.innerHTML = `<b>${esc(S.period.label||'Current period')}</b>
     <span class="pill ${S.period.status}">${S.period.status}</span>
-    <span class="muted">${S.period.num_weeks} weeks &middot; ${esc(S.period.region)}</span>`;
+    <span class="muted">${S.period.num_weeks} weeks &middot; ${esc(S.period.region)}</span>${picker}`;
+  const sel=document.getElementById('periodPick');
+  if(sel) sel.onchange=()=>selectPeriod(sel.value);
+}
+
+// Switch the viewed period (look-back). Non-open periods render read-only via the
+// existing status==='open' gates, so this is safe for any period.
+async function selectPeriod(id){
+  const p=(S.periods||[]).find(x=>x.id===id); if(!p || (S.period && p.id===S.period.id)) return;
+  S.period=p; renderBanner();
+  if(window.IS_MANAGER){ await switchTab(S.tab||'tracker'); }
+  else { await loadMine(); renderMine(); }
 }
 
 // ===================== TABS (manager) =====================
@@ -852,13 +878,17 @@ function renderExport(){
   document.getElementById('dlBtn').onclick=exportXlsx;
   document.getElementById('lockBtn').onclick=async()=>{
     try{ await sb.rpc('sched_lock_period',{p_period_id:S.period.id, p_unlock:S.period.status!=='open'});
-      const {data}=await sb.from('sched_periods').select('*').eq('id',S.period.id).maybeSingle(); S.period=data; renderBanner(); renderExport(); toast('Updated');
+      const {data}=await sb.from('sched_periods').select('*').eq('id',S.period.id).maybeSingle(); S.period=data;
+      S.periods=(S.periods||[]).map(x=>x.id===data.id?data:x);
+      renderBanner(); renderExport(); toast('Updated');
     }catch(err){ toast('Failed: '+(err.message||err)); }
   };
   document.getElementById('createBtn').onclick=async()=>{
     const v=document.getElementById('newStart').value; if(!v){ toast('Pick a Monday'); return; }
     try{ const {data}=await sb.rpc('sched_create_period',{p_start_date:v}); toast('Period created');
-      const {data:p}=await sb.from('sched_periods').select('*').eq('id',data).maybeSingle(); S.period=p; renderBanner(); await switchTab('export');
+      const {data:p}=await sb.from('sched_periods').select('*').eq('id',data).maybeSingle(); S.period=p;
+      S.periods=[p, ...(S.periods||[]).filter(x=>x.id!==p.id)].sort((a,b)=>(a.start_date<b.start_date?1:-1));
+      renderBanner(); await switchTab('export');
     }catch(err){ toast('Failed: '+(err.message||err)); }
   };
 }
