@@ -825,7 +825,43 @@ async function loadProfileExtras(me){
   if (!IS_VIEW_AS) buildActionCenter(prof, overview, coaching);
 }
 
-// ── Coaching (DISC-aware trend) -- read-only from the launcher cache ──
+// ── Coaching (DISC-aware trend) ──────────────────────────────────────────
+// The coaching summary is generated on the launcher from the rep's recent
+// calls. To keep the card from going stale, every time a rep opens their own
+// profile we re-fetch the cached result and, when it's missing or older than
+// COACHING_STALE_MS, fire a best-effort regeneration and poll for the fresh
+// copy. Everything here degrades gracefully: if the launcher has no refresh
+// route, or any request fails, the rep still sees the last good card.
+//
+// NOTE: the launcher's refresh endpoint could not be verified from this repo,
+// so the path below is the assumed contract -- a POST that kicks regeneration
+// for the signed-in rep and returns 200/202. Adjust COACHING_REFRESH_PATH if
+// the backend uses a different route. Self-view only triggers regen; manager
+// view-as stays read-only (Refresh All on the dashboard owns bulk regen).
+const COACHING_STALE_MS    = 24 * 60 * 60 * 1000; // older than this -> stale
+const COACHING_REFRESH_PATH = '/api/me/coaching/refresh';
+const COACHING_POLL_MS     = 4000; // gap between status polls while regenerating
+const COACHING_POLL_TRIES  = 8;    // ~32s ceiling, then fall back to cache
+
+function coachingReadUrl(me){
+  return IS_VIEW_AS
+    ? (LAUNCHER_BASE + '/api/rep/coaching?slug=' + encodeURIComponent(me.spd_slug))
+    : (LAUNCHER_BASE + '/api/me/coaching');
+}
+function coachingReady(d){ return !!(d && d.status === 'ready' && d.result); }
+function coachingFresh(d){
+  if (!coachingReady(d)) return false;
+  if (!d.generated_at) return true;            // no timestamp -> treat as current
+  const t = new Date(d.generated_at).getTime();
+  if (isNaN(t)) return true;
+  return (Date.now() - t) < COACHING_STALE_MS;
+}
+async function fetchCoaching(url, token){
+  const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
 async function loadCoaching(me){
   const sec = $('coachingSection'); if (!sec) return null;
   sec.style.display = 'block';
@@ -833,20 +869,70 @@ async function loadCoaching(me){
   try {
     const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
     if (!token) throw new Error('no token');
-    const url = IS_VIEW_AS
-      ? (LAUNCHER_BASE + '/api/rep/coaching?slug=' + encodeURIComponent(me.spd_slug))
-      : (LAUNCHER_BASE + '/api/me/coaching');
-    const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const d = await res.json();
-    if (d && d.status === 'ready' && d.result){ renderCoaching(d); return d; }
-    coachingEmpty(IS_VIEW_AS
-      ? 'No coaching generated for this rep yet. Run Refresh All on the Appointment Dashboard.'
-      : 'Your coaching summary appears here after your manager runs the next dashboard refresh.');
+    const readUrl = coachingReadUrl(me);
+
+    let d = await fetchCoaching(readUrl, token);
+    // Show whatever we already have immediately -- never a blank card while a
+    // refresh runs in the background.
+    if (coachingReady(d)) renderCoaching(d);
+
+    // Fresh enough, or a manager just browsing -> use the cached result as-is.
+    if (coachingFresh(d) || IS_VIEW_AS){
+      if (coachingReady(d)) return d;
+      coachingEmpty(IS_VIEW_AS
+        ? 'No coaching generated for this rep yet. Run Refresh All on the Appointment Dashboard.'
+        : 'Your coaching summary appears here after your manager runs the next dashboard refresh.');
+      return null;
+    }
+
+    // Self-view, stale or missing -> kick a best-effort regeneration.
+    const refreshed = await refreshCoaching(readUrl, token, d);
+    if (refreshed){ renderCoaching(refreshed); return refreshed; }
+
+    // Couldn't get a fresher copy. Keep the stale-but-real card if we have one,
+    // otherwise show the waiting copy.
+    if (coachingReady(d)) return d;
+    coachingEmpty('Your coaching summary appears here after your manager runs the next dashboard refresh.');
     return null;
   } catch (e) {
     coachingEmpty('Coaching connects here in the next update.');
     return null;
+  }
+}
+
+// Ask the launcher to regenerate this rep's coaching, then poll the read
+// endpoint until a newer result lands. Returns the fresh payload, or null if
+// regen isn't available / didn't complete in time -- callers fall back to the
+// cached card. Intentionally tolerant: a missing route or any error is a no-op.
+async function refreshCoaching(readUrl, token, prev){
+  const prevAt = (prev && prev.generated_at) ? new Date(prev.generated_at).getTime() : 0;
+  const pill = $('coachingPill');
+  const pillPrev = pill ? pill.textContent : '';
+  if (pill) pill.textContent = 'refreshing...';
+  if (!coachingReady(prev)) $('coachingBody').innerHTML = '<div class="loading">Refreshing your coaching...</div>';
+  try {
+    let kicked = false;
+    try {
+      const res = await fetch(LAUNCHER_BASE + COACHING_REFRESH_PATH, {
+        method: 'POST', headers: { Authorization: 'Bearer ' + token }, mode: 'cors'
+      });
+      kicked = res.ok || res.status === 202;
+    } catch (e) { kicked = false; }
+    if (!kicked) return null;
+
+    for (let i = 0; i < COACHING_POLL_TRIES; i++){
+      await new Promise(r => setTimeout(r, COACHING_POLL_MS));
+      let d;
+      try { d = await fetchCoaching(readUrl, token); } catch (e) { continue; }
+      if (coachingReady(d)){
+        const at = d.generated_at ? new Date(d.generated_at).getTime() : 0;
+        if (!prevAt || !at || at > prevAt) return d;   // newer result -> done
+      }
+    }
+    return null;
+  } finally {
+    // If we bailed without rendering a new card, restore the prior pill text.
+    if (pill && pill.textContent === 'refreshing...') pill.textContent = pillPrev;
   }
 }
 
