@@ -232,6 +232,7 @@
     <button class="tab" data-tab="qc" onclick="setTab('qc')">QC Review</button>
     <button class="tab" data-tab="flags" onclick="setTab('flags')">Flags<span id="flagsTabCount"></span></button>
     <button class="tab" data-tab="pipeline" onclick="setTab('pipeline')">Pipeline<span id="plCount"></span></button>
+    <button class="tab" data-tab="community" onclick="setTab('community')">Community<span id="commCount"></span></button>
     <button class="tab" data-tab="load" onclick="setTab('load')">Load</button>
   </div>
   <div class="wrap">
@@ -353,6 +354,23 @@
       </div>
       <div class="sub" style="margin:2px 0 10px">The worked pipeline by rep: scheduled appts, go-backs, ran, and no-sale leads that have already sat. The pre-sit recycle pool (deleted / no-show / cancel) lives in the Leads tab and Quick Dispatch. Direct / self-gen leads are excluded. Open a rep to work the buckets, isolate stale leads, and reassign (a whole bucket, the first N, or a hand-picked chunk).</div>
       <div id="plBody"><div class="empty">Loading pipeline...</div></div>
+    </div>
+
+    <div id="tab-community" class="tabpanel" style="display:none">
+      <div class="sub" style="margin:2px 0 10px">Communities (Stewardship) program leads -- partner organizations connect us with their members. Their own bucket: <b>QC</b> = never called, work them first. <b>Pipeline</b> = a rep is already working them. <b>Feedback</b> = negative / not-a-lead / already-ours (not dispatched). Phone is inline; these are Salesforce Lead records, so "SF" opens the Lead.</div>
+      <div class="toolbar" style="flex-wrap:wrap;gap:8px">
+        <span class="lane-pills" id="commLanes"></span>
+        <select id="commStew" onchange="renderCommunity()"><option value="">All partner orgs</option></select>
+        <input type="search" id="commQ" placeholder="Search name, town, phone..." oninput="renderCommunity()" style="flex:1;min-width:160px">
+      </div>
+      <div id="commDispatchBar" class="dispatch-bar" style="display:none">
+        <strong id="commDispatchCount">0 selected</strong>
+        <span class="sub">&rarr; dispatch to</span>
+        <select id="commDispatchRep"><option value="">Choose rep...</option></select>
+        <button class="btn-primary" onclick="commDispatch()">Dispatch</button>
+        <button class="act" onclick="commClearSel()">Clear</button>
+      </div>
+      <div id="commWrap"><div class="loading">Loading community leads...</div></div>
     </div>
 
     <div id="tab-load" class="tabpanel" style="display:none">
@@ -879,6 +897,97 @@ function setTab(t){
   if(t==='qc')renderQc();
   if(t==='flags'){if(!flagsLoaded)loadFlags();else renderFlags();}
   if(t==='pipeline')renderPipeline();
+  if(t==='community')loadCommunity();
+}
+
+/* ── Community (Stewardship) leads: own bucket, QC / Pipeline / Feedback lanes ── */
+let COMM=[], commNotes={}, commRepId={}, commLoaded=false, commLane='qc', commSel=new Set();
+const COMM_SF='https://trinity-solar.lightning.force.com/{}';
+const COMM_FB_LABEL={already_customer:'Already our customer',another_rep:"Another rep's lead",has_solar:'Already has solar',duplicate:'Duplicate',hostile:'Hostile / refused',do_not_call:'Do not call',out_of_state:'Out of territory'};
+const COMM_CS_LABEL={working:'Working',reached:'Reached',callback:'Callback',appt_requested:'Appt requested',not_interested:'Not interested',bad_number:'Bad number',do_not_call:'Do not call',resolved:'Resolved'};
+async function loadCommunity(){
+  if(commLoaded){renderCommunity();return;}
+  const wrap=document.getElementById('commWrap');
+  wrap.innerHTML='<div class="loading">Loading community leads...</div>';
+  const [{data:leads,error:e1},{data:notes},{data:ppl}]=await Promise.all([
+    sb.from('community_leads').select('id,sf_lead_id,full_name,phone,email,town,state,stewardship_account,lead_owner,lead_status,bucket,call_status,feedback_reason,assigned_to,assignee_id,follow_up_date,dnc,sold,salesperson_notes'),
+    sb.from('community_lead_notes').select('community_lead_id,note,author,noted_at,kind').order('noted_at',{ascending:false}),
+    sb.from('people').select('name,id').eq('status','active'),
+  ]);
+  if(e1){wrap.innerHTML='<div class="empty">Could not load community leads: '+esc(e1.message)+'</div>';return;}
+  COMM=leads||[]; commNotes={};
+  for(const n of (notes||[]))(commNotes[n.community_lead_id]=commNotes[n.community_lead_id]||[]).push(n);
+  commRepId={}; for(const p of (ppl||[]))commRepId[p.name]=p.id;
+  commLoaded=true;
+  const ss=document.getElementById('commStew');
+  if(ss&&ss.options.length<=1)for(const s of [...new Set(COMM.map(l=>l.stewardship_account).filter(Boolean))].sort())ss.appendChild(new Option(s,s));
+  const dr=document.getElementById('commDispatchRep');
+  if(dr&&dr.options.length<=1)for(const n of people)dr.appendChild(new Option(n,n));
+  updateCommCount(); renderCommunity();
+}
+function updateCommCount(){
+  const el=document.getElementById('commCount');if(!el)return;
+  const qc=COMM.filter(l=>l.bucket==='qc').length;
+  el.innerHTML=qc?` <span class="badge" style="margin-left:5px;background:rgba(120,200,50,.18);color:#3a7010">${qc}</span>`:'';
+}
+function commLaneCounts(){const c={qc:0,pipeline:0,feedback:0};for(const l of COMM)c[l.bucket]=(c[l.bucket]||0)+1;return c;}
+function setCommLane(l){commLane=l;commSel.clear();renderCommunity();}
+function commToggleSel(id,on){if(on)commSel.add(id);else commSel.delete(id);commUpdateBar();}
+function commClearSel(){commSel.clear();renderCommunity();}
+function commUpdateBar(){
+  const bar=document.getElementById('commDispatchBar');if(!bar)return;
+  bar.style.display=(commLane!=='feedback'&&commSel.size)?'flex':'none';
+  const c=document.getElementById('commDispatchCount');if(c)c.textContent=commSel.size+' selected';
+}
+function commSelectAll(on){
+  document.querySelectorAll('#commWrap .commchk').forEach(cb=>{cb.checked=on;const id=cb.dataset.id;if(on)commSel.add(id);else commSel.delete(id);});
+  commUpdateBar();
+}
+function renderCommunity(){
+  const wrap=document.getElementById('commWrap');if(!wrap)return;
+  const counts=commLaneCounts();
+  const pill=(k,label)=>`<button onclick="setCommLane('${k}')" style="font:inherit;font-size:13px;padding:6px 12px;border:1px solid ${commLane===k?'var(--accent)':'var(--border)'};background:${commLane===k?'var(--accent)':'#fff'};color:${commLane===k?'#fff':'var(--ink)'};border-radius:8px;cursor:pointer;font-weight:600;margin-right:6px">${label} <span style="opacity:.85">${counts[k]||0}</span></button>`;
+  document.getElementById('commLanes').innerHTML=pill('qc','QC')+pill('pipeline','Pipeline')+pill('feedback','Feedback');
+  const stew=document.getElementById('commStew').value;
+  const q=(document.getElementById('commQ').value||'').trim().toLowerCase();
+  let rows=COMM.filter(l=>l.bucket===commLane);
+  if(stew)rows=rows.filter(l=>l.stewardship_account===stew);
+  if(q)rows=rows.filter(l=>((l.full_name||'')+' '+(l.town||'')+' '+(l.phone||'')).toLowerCase().includes(q));
+  rows.sort((a,b)=>(a.stewardship_account||'').localeCompare(b.stewardship_account||'')||(a.full_name||'').localeCompare(b.full_name||''));
+  if(!rows.length){wrap.innerHTML='<div class="empty">No '+commLane+' community leads'+(stew?' for '+esc(stew):'')+'.</div>';commUpdateBar();return;}
+  const sfLink=l=>l.sf_lead_id?`<a class="sflink" target="_blank" rel="noopener" href="${COMM_SF.replace('{}',esc(l.sf_lead_id))}">SF &nearr;</a>`:'<span class="sub">--</span>';
+  const noteCell=l=>{const a=commNotes[l.id]||[];if(!a.length)return '<span class="sub">--</span>';const n=a[0];return `<span title="${esc(n.note||'')}">${esc((n.note||'').slice(0,80))}${(n.note||'').length>80?'...':''}</span>`;};
+  let h;
+  if(commLane==='qc'){
+    h='<table><thead><tr><th style="width:30px"><input type="checkbox" onchange="commSelectAll(this.checked)" title="Select all shown"></th><th>Name</th><th>Phone</th><th>Town</th><th>Partner org</th><th>SF status</th><th>SF</th></tr></thead><tbody>';
+    for(const l of rows)h+=`<tr><td style="text-align:center"><input type="checkbox" class="commchk" data-id="${esc(l.id)}" ${commSel.has(l.id)?'checked':''} onchange="commToggleSel('${esc(l.id)}',this.checked)"></td>
+      <td><span class="name">${esc(l.full_name||'--')}</span></td><td>${esc(l.phone||'--')}</td><td>${esc(l.town||'--')}</td><td>${esc(l.stewardship_account||'--')}</td><td class="sub">${esc(l.lead_status||'--')}</td><td>${sfLink(l)}</td></tr>`;
+  }else if(commLane==='pipeline'){
+    h='<table><thead><tr><th>Name</th><th>Phone</th><th>Town</th><th>Partner org</th><th>Assigned</th><th>Call status</th><th>Follow-up</th><th>Last note</th><th>SF</th></tr></thead><tbody>';
+    for(const l of rows)h+=`<tr><td><span class="name">${esc(l.full_name||'--')}</span></td><td>${esc(l.phone||'--')}</td><td>${esc(l.town||'--')}</td><td>${esc(l.stewardship_account||'--')}</td><td>${esc(l.assigned_to||'--')}</td><td class="sub">${esc(COMM_CS_LABEL[l.call_status]||l.call_status||'--')}</td><td>${l.follow_up_date?fmtDate(l.follow_up_date):'--'}</td><td class="sub">${noteCell(l)}</td><td>${sfLink(l)}</td></tr>`;
+  }else{
+    h='<table><thead><tr><th>Name</th><th>Phone</th><th>Town</th><th>Partner org</th><th>Reason</th><th>DNC</th><th>Last note</th><th>SF</th></tr></thead><tbody>';
+    for(const l of rows)h+=`<tr><td><span class="name">${esc(l.full_name||'--')}</span></td><td>${esc(l.phone||'--')}</td><td>${esc(l.town||'--')}</td><td>${esc(l.stewardship_account||'--')}</td><td><span class="badge b-review">${esc(COMM_FB_LABEL[l.feedback_reason]||l.feedback_reason||'--')}</span></td><td>${l.dnc?'<span class="badge b-dnc">DNC</span>':'--'}</td><td class="sub">${noteCell(l)}</td><td>${sfLink(l)}</td></tr>`;
+  }
+  h+='</tbody></table>';
+  wrap.innerHTML=h; commUpdateBar();
+}
+async function commDispatch(){
+  const rep=document.getElementById('commDispatchRep').value;
+  if(!rep){toast('Choose a rep to dispatch to');return;}
+  const ids=[...commSel];if(!ids.length){toast('No leads selected');return;}
+  const pid=commRepId[rep]||null;
+  if(!pid){toast('Could not resolve that rep');return;}
+  if(!confirm(`Dispatch ${ids.length} community lead${ids.length===1?'':'s'} to ${rep}? They move from QC into the Pipeline bucket.`))return;
+  const btn=document.querySelector('#commDispatchBar .btn-primary');if(btn){btn.disabled=true;btn.textContent='Dispatching...';}
+  const patch={assigned_to:rep,assignee_id:pid,bucket:'pipeline',call_status:'working',updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('community_leads').update(patch).in('id',ids).select('id');
+  if(btn){btn.disabled=false;btn.textContent='Dispatch';}
+  if(error){toast('Dispatch failed: '+error.message);return;}
+  const ok=new Set((data||[]).map(r=>r.id));
+  for(const l of COMM)if(ok.has(l.id))Object.assign(l,patch);
+  toast(`Dispatched ${ok.size} to ${rep}`);
+  commSel.clear();updateCommCount();renderCommunity();
 }
 /* ── Flags tab: rep kick-backs for manager review ── */
 function dlRow(dl){for(const g of props){for(const d of g.dls){if(d.dl_number===dl)return {dl:d,prop:g.property||{}};}}return null;}
