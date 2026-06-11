@@ -1537,7 +1537,7 @@ function _qdGroups(){
   }
   return groups;
 }
-function openQuickDispatch(){document.querySelector('#qdModal .qd-title').innerHTML='&#9889; Quick Dispatch';renderQuickDispatch();document.getElementById('qdModal').style.display='flex';}
+async function openQuickDispatch(){document.querySelector('#qdModal .qd-title').innerHTML='&#9889; Quick Dispatch';if(!commLoaded)await loadCommunity();renderQuickDispatch();document.getElementById('qdModal').style.display='flex';}
 function closeQuickDispatch(){document.getElementById('qdModal').style.display='none';}
 function renderQuickDispatch(){
   const groups=_qdGroups();
@@ -1561,7 +1561,51 @@ function renderQuickDispatch(){
       </div>
       <div class="qd-hint sub" id="qd-hint-${esc(st)}" style="flex-basis:100%;margin-top:2px"></div></div>`;
   }
+  // Communities (Stewardship) bucket -- QC leads from the separate community_leads
+  // table, dispatched into the Community Pipeline. Filter by partner org instead of
+  // county. Sits in the same modal as the recycle dispositions.
+  const cqc=(typeof COMM!=='undefined'?COMM:[]).filter(l=>l.bucket==='qc');
+  if(cqc.length){
+    const byOrg={};for(const l of cqc){const k=l.stewardship_account||'(no partner org)';byOrg[k]=(byOrg[k]||0)+1;}
+    const orgOpts='<option value="">All partner orgs ('+cqc.length+')</option>'+
+      Object.entries(byOrg).sort((a,b)=>b[1]-a[1]).map(([o,n])=>`<option value="${esc(o)}">${esc(o)} (${n})</option>`).join('');
+    html+=`<div class="dispatch-group" style="border-color:var(--accent)">
+      <div><span class="gname">&#127968; Communities (Stewardship)</span><span class="gct">${cqc.length} unassigned QC</span></div>
+      <div class="dispatch-row">
+        <label>Partner org</label><select id="qd-comm-org" class="qd-sel" onchange="qdCommOrgChange()">${orgOpts}</select>
+        <label>First</label><input type="number" id="qd-comm-ct" class="qd-num" min="1" max="${cqc.length}" value="${cqc.length}">
+        <label>to</label><select id="qd-comm-rep" class="qd-sel"><option value="">pick rep...</option>${repOpts}</select>
+        <button class="btn-primary" onclick="dispatchCommGroup()">Assign</button>
+      </div>
+      <div class="qd-hint sub" style="flex-basis:100%;margin-top:2px">Stewardship-program leads. Assigning moves them into the Community Pipeline so the rep works them in My Call List.</div></div>`;
+  }
   document.getElementById('qdBody').innerHTML=html||'<div class="empty">No unassigned callable leads to dispatch right now.</div>';
+}
+function qdCommOrgChange(){
+  const org=(document.getElementById('qd-comm-org')||{}).value||'';
+  const qc=(typeof COMM!=='undefined'?COMM:[]).filter(l=>l.bucket==='qc'&&(!org||l.stewardship_account===org));
+  const ct=document.getElementById('qd-comm-ct');if(ct){ct.max=qc.length||1;ct.value=qc.length;}
+}
+async function dispatchCommGroup(){
+  const rep=document.getElementById('qd-comm-rep').value;
+  if(!rep){toast('Pick a rep for Communities');return;}
+  const pid=commRepId[rep];if(!pid){toast('Could not resolve that rep');return;}
+  const org=(document.getElementById('qd-comm-org')||{}).value||'';
+  const pool=COMM.filter(l=>l.bucket==='qc'&&(!org||l.stewardship_account===org));
+  const ct=Math.min(parseInt(document.getElementById('qd-comm-ct').value||pool.length,10)||pool.length,pool.length);
+  const ids=pool.slice(0,ct).map(l=>l.id);
+  if(!ids.length){toast('Nothing to assign');return;}
+  if(!confirm(`Dispatch ${ids.length} ${org||'Communities'} lead${ids.length===1?'':'s'} to ${rep}? They move into the Community Pipeline.`))return;
+  const patch={assigned_to:rep,assignee_id:pid,bucket:'pipeline',call_status:'working',updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('community_leads').update(patch).in('id',ids).select('id');
+  if(error){toast('Dispatch failed: '+error.message);return;}
+  const ok=new Set((data||[]).map(r=>r.id));
+  for(const l of COMM)if(ok.has(l.id))Object.assign(l,patch);
+  toast(`Dispatched ${ok.size} to ${rep}`);
+  if(typeof updateCommCount==='function')updateCommCount();
+  renderQuickDispatch();
+  const ct2=document.getElementById('tab-community');
+  if(ct2&&ct2.style.display!=='none'&&typeof renderCommunity==='function')renderCommunity();
 }
 /* County filter changed: narrow the assignable count and, when a known CT county
    is picked, reorder the rep dropdown nearest-first (Spanish bucket keeps Spanish
