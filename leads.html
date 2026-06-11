@@ -361,7 +361,9 @@
       <div class="toolbar" style="flex-wrap:wrap;gap:8px">
         <span class="lane-pills" id="commLanes"></span>
         <select id="commStew" onchange="renderCommunity()"><option value="">All partner orgs</option></select>
-        <input type="search" id="commQ" placeholder="Search name, town, phone..." oninput="renderCommunity()" style="flex:1;min-width:160px">
+        <select id="commReason" onchange="renderCommunity()"><option value="">All reasons</option></select>
+        <input type="search" id="commQ" placeholder="Search name, town, phone..." oninput="renderCommunity()" style="flex:1;min-width:150px">
+        <button class="act" onclick="openCommQuickDispatch()" style="border-color:var(--accent);color:var(--accent);font-weight:600">&#9889; Quick Dispatch</button>
       </div>
       <div id="commDispatchBar" class="dispatch-bar" style="display:none">
         <strong id="commDispatchCount">0 selected</strong>
@@ -931,7 +933,12 @@ function updateCommCount(){
   el.innerHTML=qc?` <span class="badge" style="margin-left:5px;background:rgba(120,200,50,.18);color:#3a7010">${qc}</span>`:'';
 }
 function commLaneCounts(){const c={qc:0,pipeline:0,feedback:0};for(const l of COMM)c[l.bucket]=(c[l.bucket]||0)+1;return c;}
-function setCommLane(l){commLane=l;commSel.clear();renderCommunity();}
+function commLaneField(){
+  if(commLane==='feedback')return {field:'feedback_reason',labels:COMM_FB_LABEL,ph:'All reasons'};
+  if(commLane==='pipeline')return {field:'call_status',labels:COMM_CS_LABEL,ph:'All call statuses'};
+  return {field:'lead_status',labels:{},ph:'All SF statuses'};
+}
+function setCommLane(l){commLane=l;commSel.clear();const r=document.getElementById('commReason');if(r)r.value='';renderCommunity();}
 function commToggleSel(id,on){if(on)commSel.add(id);else commSel.delete(id);commUpdateBar();}
 function commClearSel(){commSel.clear();renderCommunity();}
 function commUpdateBar(){
@@ -950,8 +957,15 @@ function renderCommunity(){
   document.getElementById('commLanes').innerHTML=pill('qc','QC')+pill('pipeline','Pipeline')+pill('feedback','Feedback');
   const stew=document.getElementById('commStew').value;
   const q=(document.getElementById('commQ').value||'').trim().toLowerCase();
+  // Adaptive Reason filter: feedback -> feedback_reason, pipeline -> call_status,
+  // qc -> SF lead_status. Repopulated from the lane's distinct values each render.
+  const lf=commLaneField();
+  const rsel=document.getElementById('commReason');const curR=rsel.value;
+  const vals=[...new Set(COMM.filter(l=>l.bucket===commLane).map(l=>l[lf.field]).filter(Boolean))].sort();
+  rsel.innerHTML=`<option value="">${lf.ph}</option>`+vals.map(v=>`<option value="${esc(v)}" ${v===curR?'selected':''}>${esc(lf.labels[v]||v)}</option>`).join('');
   let rows=COMM.filter(l=>l.bucket===commLane);
   if(stew)rows=rows.filter(l=>l.stewardship_account===stew);
+  if(rsel.value)rows=rows.filter(l=>(l[lf.field]||'')===rsel.value);
   if(q)rows=rows.filter(l=>((l.full_name||'')+' '+(l.town||'')+' '+(l.phone||'')).toLowerCase().includes(q));
   rows.sort((a,b)=>(a.stewardship_account||'').localeCompare(b.stewardship_account||'')||(a.full_name||'').localeCompare(b.full_name||''));
   if(!rows.length){wrap.innerHTML='<div class="empty">No '+commLane+' community leads'+(stew?' for '+esc(stew):'')+'.</div>';commUpdateBar();return;}
@@ -988,6 +1002,45 @@ async function commDispatch(){
   for(const l of COMM)if(ok.has(l.id))Object.assign(l,patch);
   toast(`Dispatched ${ok.size} to ${rep}`);
   commSel.clear();updateCommCount();renderCommunity();
+}
+/* Community Quick Dispatch modal: QC leads grouped by partner org, assign first-N
+   (or a whole org) to a rep. Reuses the shared #qdModal shell. */
+let commQdGroups=[];
+function openCommQuickDispatch(){
+  const qc=COMM.filter(l=>l.bucket==='qc');
+  if(!qc.length){toast('No QC community leads to dispatch');return;}
+  const byOrg={};for(const l of qc){const k=l.stewardship_account||'(no partner org)';(byOrg[k]=byOrg[k]||[]).push(l);}
+  commQdGroups=Object.entries(byOrg).map(([org,leads])=>({org,leads})).sort((a,b)=>b.leads.length-a.leads.length);
+  const repOpts='<option value="">Choose rep...</option>'+people.map(n=>`<option>${esc(n)}</option>`).join('');
+  const sel=`style="font-family:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink)"`;
+  document.querySelector('#qdModal .qd-title').innerHTML='&#9889; Community Quick Dispatch';
+  document.getElementById('qdSub').textContent=`${qc.length} QC leads across ${commQdGroups.length} partner orgs -- assign the first N of a group to a rep`;
+  const groupRow=(label,n,idx)=>`<div class="dispatch-group"><div><span class="gname">${esc(label)}</span><span class="gct">${n} lead${n===1?'':'s'}</span></div>
+      <div class="dispatch-row"><label>first <input type="number" id="cqd-n-${idx}" min="1" max="${n}" value="${idx===-1?Math.min(25,n):n}" style="width:64px;padding:5px;border:1px solid var(--border);border-radius:6px"></label>
+        <select id="cqd-to-${idx}" ${sel}>${repOpts}</select>
+        <button class="btn-primary" onclick="commQdAssign(${idx})">Dispatch</button></div></div>`;
+  let h=groupRow('All QC leads',qc.length,-1);
+  commQdGroups.forEach((g,i)=>{h+=groupRow(g.org,g.leads.length,i);});
+  document.getElementById('qdBody').innerHTML=h;
+  document.getElementById('qdModal').style.display='flex';
+}
+async function commQdAssign(idx){
+  const rep=document.getElementById('cqd-to-'+idx).value;
+  if(!rep){toast('Choose a rep');return;}
+  const pid=commRepId[rep];if(!pid){toast('Could not resolve that rep');return;}
+  const pool=idx===-1?COMM.filter(l=>l.bucket==='qc'):commQdGroups[idx].leads;
+  const n=parseInt(document.getElementById('cqd-n-'+idx).value||'0',10)||pool.length;
+  const ids=pool.slice(0,n).map(l=>l.id);
+  if(!ids.length){toast('Nothing to dispatch');return;}
+  const lbl=idx===-1?'QC':commQdGroups[idx].org;
+  if(!confirm(`Dispatch ${ids.length} ${lbl} community lead${ids.length===1?'':'s'} to ${rep}? They move into the Pipeline bucket.`))return;
+  const patch={assigned_to:rep,assignee_id:pid,bucket:'pipeline',call_status:'working',updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('community_leads').update(patch).in('id',ids).select('id');
+  if(error){toast('Dispatch failed: '+error.message);return;}
+  const ok=new Set((data||[]).map(r=>r.id));
+  for(const l of COMM)if(ok.has(l.id))Object.assign(l,patch);
+  toast(`Dispatched ${ok.size} to ${rep}`);
+  closeQuickDispatch();updateCommCount();renderCommunity();
 }
 /* ── Flags tab: rep kick-backs for manager review ── */
 function dlRow(dl){for(const g of props){for(const d of g.dls){if(d.dl_number===dl)return {dl:d,prop:g.property||{}};}}return null;}
@@ -1484,7 +1537,7 @@ function _qdGroups(){
   }
   return groups;
 }
-function openQuickDispatch(){renderQuickDispatch();document.getElementById('qdModal').style.display='flex';}
+function openQuickDispatch(){document.querySelector('#qdModal .qd-title').innerHTML='&#9889; Quick Dispatch';renderQuickDispatch();document.getElementById('qdModal').style.display='flex';}
 function closeQuickDispatch(){document.getElementById('qdModal').style.display='none';}
 function renderQuickDispatch(){
   const groups=_qdGroups();
