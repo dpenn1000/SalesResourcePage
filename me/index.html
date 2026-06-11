@@ -1408,6 +1408,17 @@ function renderMePerf(d){
     tiles.push(metric('Sit Rate', Number(r.sit_rate).toFixed(1) + '%' + rankTxt(ranks.sit_rate),
       ta.sit_rate != null ? 'team avg ' + Number(ta.sit_rate).toFixed(1) + '% (PowerBI funnel)' : 'PowerBI sit rate', teamColor(r.sit_rate, ta.sit_rate)));
   }
+  // Self-Gen %: share of your deals you generated yourself. The value computes
+  // client-side now (self_gen / contracts); rank + team comparison arrive with
+  // the launcher restart. Higher is better -- self-gen carries the pay adder and
+  // is the lead-economics signal leadership rewards.
+  var sgPct = (r.self_gen_pct != null) ? r.self_gen_pct
+            : (r.contracts ? Math.round(100 * (r.self_gen || 0) / r.contracts) : null);
+  if (sgPct != null) {
+    tiles.push(metric('Self-Gen %', sgPct + '%' + rankTxt(ranks.self_gen_pct),
+      ta.self_gen_pct != null ? 'team avg ' + Math.round(ta.self_gen_pct) + '%' : 'self-generated share',
+      teamColor(sgPct, ta.self_gen_pct)));
+  }
   if (r.balance != null) {
     tiles.push(metric('Book', bookReveal(r.balance, r.draw_rate), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
   }
