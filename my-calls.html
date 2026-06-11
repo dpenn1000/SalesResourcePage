@@ -143,6 +143,7 @@
         <option value="deals">Deals in Progress</option>
         <option value="all">All my leads</option>
         <option value="history">Call History</option>
+        <option value="community">Community leads</option>
       </select>
     </div>
     <div id="list"><div class="loading">Loading your leads...</div></div>
@@ -235,6 +236,7 @@ window.initApp = async function(profile){
   ME = profile.name || '';
   await loadRoster();                 // reps + managers for the move/reassign controls
   await loadDeals();                  // post-sale deals-in-progress + sent touches (for the Deals tab + To-Do)
+  await loadCommunityRep();           // Community (Stewardship) leads assigned to this rep
   if (window.IS_MANAGER) {            // managers/admins have no calls of their own; they pick a rep to view
     setupViewAs();
   } else {
@@ -533,11 +535,90 @@ function showTodos(){
     (items?`<div class="card-sub" style="text-transform:none;letter-spacing:0;margin-bottom:4px">Next up:</div><ul style="margin:0 0 12px 18px;font-size:13.5px">${items}</ul>`:'');
   document.getElementById('todoModal').style.display='flex';
 }
+/* ── Community (Stewardship) leads: rep works their assigned pipeline here ── */
+let COMMR=[], commrNotes={};
+const COMMR_SF='https://trinity-solar.lightning.force.com/{}';
+const COMMR_CS=[['working','Working'],['reached','Reached, still working'],['callback','Callback scheduled'],['appt_requested','Appointment requested'],['not_interested','Not interested'],['bad_number','Bad / wrong number'],['do_not_call','Do not call'],['resolved','Resolved / closed']];
+const COMMR_CS_LABEL=Object.fromEntries(COMMR_CS);
+async function loadCommunityRep(){
+  try{
+    const [{data:leads},{data:notes}]=await Promise.all([
+      sb.from('community_leads').select('id,full_name,phone,email,town,stewardship_account,lead_status,bucket,call_status,assigned_to,follow_up_date,salesperson_notes,sf_lead_id'),
+      sb.from('community_lead_notes').select('community_lead_id,note,author,noted_at,kind,outcome').order('noted_at',{ascending:false}),
+    ]);
+    COMMR=(leads||[]).filter(l=>l.bucket==='pipeline');   // reps work the pipeline bucket only
+    commrNotes={};
+    for(const n of (notes||[]))(commrNotes[n.community_lead_id]=commrNotes[n.community_lead_id]||[]).push(n);
+  }catch(e){ COMMR=COMMR||[]; }
+}
+function renderCommunityRep(q){
+  const target=window.IS_MANAGER?VIEW_AS:ME;
+  const list=document.getElementById('list');
+  if(window.IS_MANAGER && !target){list.innerHTML='<div class="empty">Pick a rep above to see their Community leads.</div>';return;}
+  let rows=COMMR.filter(l=>(l.assigned_to||'')===target);
+  if(q)rows=rows.filter(l=>((l.full_name||'')+' '+(l.town||'')+' '+(l.phone||'')+' '+(l.stewardship_account||'')).toLowerCase().includes(q));
+  if(!rows.length){list.innerHTML='<div class="empty">No Community leads assigned to you. Your manager dispatches these from the Community bucket.</div>';return;}
+  rows.sort((a,b)=>(a.stewardship_account||'').localeCompare(b.stewardship_account||'')||(a.full_name||'').localeCompare(b.full_name||''));
+  list.innerHTML=rows.map(commrCard).join('');
+}
+function commrCard(l){
+  const open=openSet.has('c-'+l.id);
+  const notes=commrNotes[l.id]||[]; const last=notes[0];
+  const sf=l.sf_lead_id?`<a class="sflink" target="_blank" rel="noopener" href="${COMMR_SF.replace('{}',esc(l.sf_lead_id))}">Open in Salesforce &nearr; (phone here too)</a>`:'<span class="card-sub">no SF link</span>';
+  const hist=notes.length?'<div style="font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-top:8px">History</div>'+notes.map(n=>`<div class="hist"><b>${fmtDate(n.noted_at)}</b>${n.author?' &middot; '+esc(n.author):''}${n.outcome?' &middot; '+esc(n.outcome):''}${n.kind==='rep_note'?' <span class="badge b-status">prior note</span>':''}${n.note?'<br>'+esc(n.note):''}</div>`).join(''):'';
+  const csOpts=COMMR_CS.map(([v,t])=>`<option value="${v}" ${l.call_status===v?'selected':''}>${esc(t)}</option>`).join('');
+  const form=`<div class="logform">
+      <h4>Log a call</h4>
+      <div class="frow"><label>Call status</label><select id="ccs-${esc(l.id)}">${csOpts}</select></div>
+      <div class="frow"><label>Notes -- what was said, their mood, feedback</label><textarea id="cnt-${esc(l.id)}" rows="2"></textarea></div>
+      <div class="frow"><label>Follow-up date</label><input id="cfu-${esc(l.id)}" type="date" value="${esc(l.follow_up_date||'')}"></div>
+      <button class="btn-primary" onclick="saveCommunityCall('${esc(l.id)}')">Log call</button>
+    </div>`;
+  return `<div class="card${open?' open':''}" id="cc-${esc(l.id)}">
+    <div class="card-head" onclick="commrToggle('${esc(l.id)}')">
+      <div><div class="nm">${esc(l.full_name||'--')}</div><div class="card-sub">${esc(l.town||'--')} &middot; ${esc(l.stewardship_account||'community')}${last?' &middot; last '+fmtDate(last.noted_at):''}</div></div>
+      <span class="badge b-status">${esc(COMMR_CS_LABEL[l.call_status]||l.call_status||'new')}</span>
+      <span class="chev">${open?'&#9662;':'&#9656;'}</span>
+    </div>
+    <div class="card-body">
+      <div class="meta">
+        <div><div class="k">Phone</div><a href="tel:${esc((l.phone||'').replace(/[^0-9]/g,''))}">${esc(l.phone||'--')}</a></div>
+        <div><div class="k">Partner org</div>${esc(l.stewardship_account||'--')}</div>
+        <div><div class="k">SF status</div>${esc(l.lead_status||'--')}</div>
+        <div><div class="k">Salesforce</div>${sf}</div>
+      </div>
+      ${l.salesperson_notes?`<div class="hist"><b>SF salesperson notes</b><br>${esc(l.salesperson_notes)}</div>`:''}
+      ${hist}${form}
+    </div>
+  </div>`;
+}
+function commrToggle(id){const k='c-'+id;if(openSet.has(k))openSet.delete(k);else openSet.add(k);const c=document.getElementById('cc-'+id);if(c){c.classList.toggle('open');const ch=c.querySelector('.chev');if(ch)ch.innerHTML=c.classList.contains('open')?'&#9662;':'&#9656;';}}
+async function saveCommunityCall(id){
+  const l=COMMR.find(x=>x.id===id);if(!l)return;
+  const cs=document.getElementById('ccs-'+id).value;
+  const note=(document.getElementById('cnt-'+id).value||'').trim();
+  const fu=document.getElementById('cfu-'+id).value||null;
+  if(!note && cs===l.call_status && fu===(l.follow_up_date||null)){toast('Nothing to log -- add a note or change status');return;}
+  const card=document.getElementById('cc-'+id);const btn=card?card.querySelector('.logform .btn-primary'):null;
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  if(note){
+    const {error:ne}=await sb.from('community_lead_notes').insert({community_lead_id:id,kind:'call',note:note,outcome:(COMMR_CS_LABEL[cs]||cs),author:ME});
+    if(ne){toast('Could not save: '+ne.message);if(btn){btn.disabled=false;btn.textContent='Log call';}return;}
+  }
+  const {error}=await sb.from('community_leads').update({call_status:cs,follow_up_date:fu,notes_updated_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',id);
+  if(btn){btn.disabled=false;btn.textContent='Log call';}
+  if(error){toast('Update failed: '+error.message);return;}
+  l.call_status=cs; l.follow_up_date=fu;
+  if(note)(commrNotes[id]=commrNotes[id]||[]).unshift({community_lead_id:id,note,author:ME,noted_at:new Date().toISOString(),kind:'call',outcome:(COMMR_CS_LABEL[cs]||cs)});
+  toast('Logged');
+  render();
+}
 function render(){
   const q=document.getElementById('q').value.trim().toLowerCase();
   const v=document.getElementById('fView').value;
   if(v==='pipeline'){renderPipelineView(q);return;}
   if(v==='deals'){renderDealsView(q);return;}
+  if(v==='community'){renderCommunityRep(q);return;}
   if(v==='followup'){renderCallsView('followup',q);return;}
   if(v==='history'){renderCallsView('history',q);return;}
   const today=new Date().toISOString().slice(0,10);
