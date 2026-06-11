@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Call Guide | Trinity Solar CT</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--green:#78C832;--accent:#29A9E1;--ink:#1A2332;--muted:#6b7a8d;--border:#DFE2DA;--bg:#EFF1EC;--surface:#fff;--radius:12px;--shadow:0 1px 4px rgba(0,0,0,.07)}
+  html{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;font-size:16px;line-height:1.7}
+  .page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 32px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px}
+  .logo-mark{width:36px;height:36px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#0b1120;flex-shrink:0}
+  .header-text{flex:1;min-width:0}
+  .header-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;line-height:1.2}
+  .header-sub{font-size:13px;color:var(--muted);margin-top:1px}
+  .header-link{font-size:14px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;flex-shrink:0}
+  .header-link:hover{opacity:.8}
+  .main{max-width:1100px;margin:0 auto;padding:36px 32px 80px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin-bottom:10px}
+  h1.title{font-family:'Fraunces',serif;font-size:clamp(26px,5vw,40px);line-height:1.1;max-width:760px}
+  .lede{font-size:18px;color:var(--muted);max-width:720px;margin-top:18px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 26px;margin-top:22px}
+  .card h2{font-family:'Fraunces',serif;font-size:21px;margin-bottom:6px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 4px}
+  .card p{margin:8px 0}
+  .card ul{margin:8px 0 8px 20px}
+  .card li{margin:6px 0}
+  .lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+  .lane{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+  .lane .tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;margin-bottom:10px}
+  .tag-qc{background:rgba(120,200,50,.16);color:#3a7010}
+  .tag-pipe{background:rgba(41,169,225,.14);color:#1070a0}
+  .tag-fb{background:rgba(214,48,48,.12);color:#a02020}
+  .lane p{font-size:14.5px;color:var(--ink);margin:6px 0}
+  .script{background:#f6f9f1;border:1px solid #d8e8c4;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:12px 0;font-size:15.5px}
+  .script .who{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:4px}
+  b.g{color:#3a7010}
+  .note{font-size:14px;color:var(--muted);margin-top:6px}
+  @media(max-width:720px){.lanes{grid-template-columns:1fr}.main{padding:24px 18px 60px}.page-header{padding:14px 18px}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+<header class="page-header">
+  <div class="header-inner">
+    <a href="/?stay=1" class="logo-mark" style="text-decoration:none;color:inherit;cursor:pointer">T</a>
+    <div class="header-text">
+      <div class="header-title">Community Call Guide</div>
+      <div class="header-sub">Trinity Solar CT &middot; Stewardship Program leads</div>
+    </div>
+    <a class="header-link" href="/my-calls.html">Open My Call List &rarr;</a>
+  </div>
+</header>
+
+<main class="main">
+  <div class="eyebrow">Call Playbook</div>
+  <h1 class="title">Community calls are warm. Open like they are.</h1>
+  <p class="lede">These homeowners raised their hand through an organization they already trust: their church, their kids' scouts council, a local nonprofit, a school. That connection is your opening. This is not the cold recycle list. Lead with the relationship and the hang-up reflex never fires.</p>
+
+  <div class="card">
+    <h2>What the Communities program is</h2>
+    <p>Trinity partners with local organizations, and the organization earns a donation when one of their people goes solar with us. The homeowner gets a good system and supports something they care about at the same time. So when you call, you are not a stranger with a list. You are following up on a connection they made on purpose.</p>
+    <p class="note">The partner org for each lead is on the card (the "stewardship account"): Masconn, Sterling House, Operation Hope, Wilton Go Green, a scouts council, and others. Say the org by name. It is the warmest word in the call.</p>
+  </div>
+
+  <div class="lanes">
+    <div class="lane">
+      <span class="tag tag-qc">QC</span>
+      <p><b>Never called.</b> Your first job is quality control: confirm it's a real, interested homeowner who owns the home, and get the record right in Salesforce. The sale surfaces on its own if they're receptive.</p>
+    </div>
+    <div class="lane">
+      <span class="tag tag-pipe">Pipeline</span>
+      <p><b>Being worked.</b> A rep already engaged this homeowner. Read the prior notes first, pick up where they left off, and keep the call status and follow-up date current.</p>
+    </div>
+    <div class="lane">
+      <span class="tag tag-fb">Feedback</span>
+      <p><b>Send it back.</b> Already our customer, another rep's active lead, a duplicate, a wrong number, a hard no, or out of territory. Flag it so the program list stays clean. Do not keep calling it.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The opening</h2>
+    <div class="script">
+      <div class="who">You</div>
+      Hi [first name], this is [your name] with Trinity Solar. You connected with us through <b class="g">[partner org]</b> a while back about looking at solar, and I'm following up to make sure we actually took care of you. Did anyone ever get out to you?
+    </div>
+    <p>Two things are doing the work there. You named the organization they trust, and you framed the call as making sure they were handled, not selling them. Most people relax and tell you the truth: nobody showed, the timing was off, or they're still curious.</p>
+  </div>
+
+  <div class="card">
+    <h2>"I don't remember signing up"</h2>
+    <p>Common, and not a problem. Use Feel, Felt, Found.</p>
+    <div class="script">
+      <div class="who">You</div>
+      Totally understand, a lot of folks <b>feel</b> that way when we reconnect. Others through [partner org] <b>felt</b> the same and didn't remember either, and what they <b>found</b> was it only took a few minutes to see whether their roof and usage even qualify. Worst case you know where you stand. Want me to take a quick look with you?
+    </div>
+    <p class="note">Keep it light. You are offering a look, not a pitch. If they're not interested, thank them and log it.</p>
+  </div>
+
+  <div class="card">
+    <h2>Why solar, kept honest</h2>
+    <p>Lead with what solar can do, and set the bar low so the home over-delivers. Roughly one in three homes is a strong fit, so frame the call as finding out whether theirs is one of them. Even a homeowner who covers a portion of their usage comes out ahead, and that's a fine place to start the conversation.</p>
+    <p>If you reach for urgency, make it specific to their own bill, not a vague line about rates. The cost of waiting is the months they keep paying the utility full price while they think about it. Put a real number on it when you can.</p>
+    <p class="note">Never promise to wipe out the bill, and never lead with a percentage. Show what's realistic, then let the appointment prove it.</p>
+  </div>
+
+  <div class="card">
+    <h2>What to log, every time</h2>
+    <ul>
+      <li><b>Pick a call status.</b> Working, reached, callback, appointment requested, not interested, bad number, do not call, resolved. A note alone won't save, the status is what moves the lead.</li>
+      <li><b>Write what was said.</b> Their mood, what they pushed back on, what they cared about. The next person reads it.</li>
+      <li><b>Set a follow-up date</b> when there's a reason to call again (a callback, a "try me in the spring").</li>
+      <li><b>Flag the bad ones to Feedback</b> the moment you learn they're already a customer, someone else's lead, a wrong number, or a hard no.</li>
+    </ul>
+    <p class="note">Keep the Salesforce Lead record current too. The "Open in Salesforce" link on each card has the phone and the full history.</p>
+  </div>
+</main>
+</div>
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session){ /* static guide; nothing to init */ }
+</script>
+</body>
+</html>

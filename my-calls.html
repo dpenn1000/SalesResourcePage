@@ -559,7 +559,8 @@ function renderCommunityRep(q){
   if(q)rows=rows.filter(l=>((l.full_name||'')+' '+(l.town||'')+' '+(l.phone||'')+' '+(l.stewardship_account||'')).toLowerCase().includes(q));
   if(!rows.length){list.innerHTML='<div class="empty">No Community leads assigned to you. Your manager dispatches these from the Community bucket.</div>';return;}
   rows.sort((a,b)=>(a.stewardship_account||'').localeCompare(b.stewardship_account||'')||(a.full_name||'').localeCompare(b.full_name||''));
-  list.innerHTML=rows.map(commrCard).join('');
+  const guide='<div style="margin:0 0 12px;font-size:13px"><a href="/community-call-guide.html" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">Community Call Guide &nearr;</a> &middot; these came in through a partner org. Open warm.</div>';
+  list.innerHTML=guide+rows.map(commrCard).join('');
 }
 function commrCard(l){
   const open=openSet.has('c-'+l.id);
