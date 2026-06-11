@@ -373,6 +373,7 @@
   #repPicker { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:10px 14px; box-shadow:var(--shadow); }
   .rp-label { font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text2); }
   .rp-select { flex:1; max-width:340px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:14px; color:var(--text); background:#fff; }
+  .rp-count { font-size:11px; font-weight:700; color:var(--text2); white-space:nowrap; }
 
   /* ---- Sales Club (full-width, black-gold) ---- */
   .sc-section {
@@ -740,17 +741,21 @@ async function initApp(profile, session) {
 async function renderRepPicker(currentSlug){
   const host = $('repPicker'); if (!host) return;
   try {
-    const { data } = await sb.from('people')
-      .select('name,spd_slug').not('spd_slug','is',null).eq('status','active').order('name');
-    const reps = (data || []).filter(r => r.spd_slug);
+    // Scoped to the caller's OWN reps via get_my_reps(): an ADM sees their reps,
+    // a DM their whole subtree, Regional/VP + admins see everyone. A plain rep
+    // has no subtree, so the list is empty and the picker stays hidden.
+    const { data, error } = await sb.rpc('get_my_reps');
+    if (error) return;
+    const reps = (data || []).filter(function(r){ return r.spd_slug; });
     if (!reps.length) return;
     host.style.display = 'flex';
     let opts = '<option value="">My own page</option>';
     reps.forEach(function(r){
       opts += '<option value="'+esc(r.spd_slug)+'"'+(r.spd_slug===currentSlug?' selected':'')+'>'+esc(r.name)+'</option>';
     });
-    host.innerHTML = '<span class="rp-label">View as</span>'
-      + '<select class="rp-select" onchange="onRepPick(this.value)">'+opts+'</select>';
+    host.innerHTML = '<span class="rp-label">View a rep</span>'
+      + '<select class="rp-select" onchange="onRepPick(this.value)" aria-label="View one of your reps">'+opts+'</select>'
+      + '<span class="rp-count">'+reps.length+' rep'+(reps.length===1?'':'s')+'</span>';
   } catch (e) { /* picker is best-effort */ }
 }
 function onRepPick(slug){
