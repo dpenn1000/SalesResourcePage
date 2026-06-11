@@ -820,8 +820,12 @@ async function loadProfileExtras(me){
     discData = (disc360 && disc360.data && disc360.data[0]) || null;
   }
   if (prof){ renderAvatar(prof); renderPersonal(prof); }
-  renderDisc(discData);
+  renderDisc(discData);                       // bars now (no wait on the launcher)
   const coaching = await loadCoaching(me);
+  // The selling-style blurb lives in the coaching artifact; layer it onto the
+  // DISC section once it's loaded.
+  const style = coaching && coaching.result && coaching.result.selling_style;
+  renderDisc(discData, style);
   if (!IS_VIEW_AS) buildActionCenter(prof, overview, coaching);
 }
 
@@ -988,7 +992,6 @@ function renderCoaching(d){
   if (d.disc) $('coachingPill').setAttribute('data-disc', String(d.disc).charAt(0));
   let h = '';
   if (r.summary) h += '<div style="font-size:14px;line-height:1.6;margin-bottom:12px">' + esc(r.summary) + '</div>';
-  if (r.disc_frame) h += '<div class="addr p-low" style="margin-bottom:14px"><div class="addr-body">' + esc(r.disc_frame) + '</div></div>';
   const strengths = r.strengths || [];
   if (strengths.length){
     h += '<div class="metric-label" style="margin-bottom:7px">What you do well</div>';
@@ -1032,13 +1035,24 @@ function renderAvatar(prof){
   }
 }
 
-function renderDisc(disc){
+// `style` is the rep-specific selling-style blurb from the coaching artifact
+// (result.selling_style): DISC psychology anchored on their self-assessment,
+// colored by their notes. Shown above the bars.
+function renderDisc(disc, style){
   const sec = $('discSection'); if (!sec) return;
   sec.style.display = 'block';
+  const blurb = style
+    ? '<div class="disc-blurb" style="font-size:14px;line-height:1.6;margin-bottom:14px">' + esc(style) + '</div>'
+    : '';
   if (!disc){
-    $('discPill').textContent = 'not taken';
-    $('discBody').innerHTML = '<div class="empty">You haven\'t taken your DISC assessment yet.<br>' +
+    // No self-assessment on file. Show the style read if we inferred one, plus
+    // the nudge to take the assessment for the full picture.
+    $('discPill').textContent = style ? 'inferred' : 'not taken';
+    $('discPill').className = 'section-pill ' + (style ? 'amber' : '');
+    const cta = '<div class="empty" style="margin-top:' + (style ? '4px' : '0') + '">' +
+      (style ? 'This read is inferred from your recent appointments. ' : 'You haven\'t taken your DISC assessment yet.<br>') +
       '<a href="/traditional-university/disc-assessment.html" style="color:var(--blue);font-weight:700;text-decoration:none">Know Your Style &rarr;</a></div>';
+    $('discBody').innerHTML = blurb + cta;
     return;
   }
   $('discPill').textContent = disc.primary_style + (disc.secondary_style ? '/' + disc.secondary_style : '');
@@ -1051,7 +1065,8 @@ function renderDisc(disc){
       '<span class="disc-track"><span class="disc-fill" style="width:' + pct + '%;background:' + DISC_COLOR[k] + '"></span></span>' +
       '<span class="disc-v">' + v.toFixed(1) + '</span></div>';
   }).join('');
-  $('discBody').innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Primary <b data-disc="' + esc(disc.primary_style) + '">' +
+  $('discBody').innerHTML = blurb +
+    '<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Primary <b data-disc="' + esc(disc.primary_style) + '">' +
     esc(DISC_NAME[disc.primary_style] || disc.primary_style) + '</b>' +
     (disc.secondary_style ? ', secondary <b data-disc="' + esc(disc.secondary_style) + '">' + esc(DISC_NAME[disc.secondary_style] || disc.secondary_style) + '</b>' : '') +
     ' &middot; taken ' + fmtDate(disc.taken_at) + '<span style="color:var(--text3)"> &middot; tap a letter to learn it</span></div>' + rows;
