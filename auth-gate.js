@@ -165,20 +165,38 @@
     }
   }
 
-  async function loadProfile(session) {
+  async function loadProfile(session, _attempt) {
     // One round trip: get_user_profile() checks managers then reps server-side
     // (SECURITY DEFINER) and returns the caller's identity row, managers first.
     // Replaces the prior two sequential client queries. The `session` arg is
     // kept for signature compatibility; the RPC reads auth.uid() from the JWT.
+    _attempt = _attempt || 1;
     const { data, error } = await sb.rpc('get_user_profile');
     if (error) {
-      // The RPC itself errored -- almost always an expired/revoked token (e.g.
-      // the user's session was invalidated by a password reset), which makes the
-      // request fall back to `anon` (no EXECUTE on get_user_profile). This is a
-      // SESSION problem, NOT an authorization one. Signal it distinctly so the
-      // gate does not tell a legitimately-authorized user they are "not authorized".
-      console.warn('[auth-gate] get_user_profile error:', error.message);
-      return { _sessionError: true };
+      // An RPC error is NOT automatically a dead session. It can be transient (a
+      // network blip, a 5xx, or a token that lapsed a split-second before the
+      // SDK's background auto-refresh caught up). Previously ANY error here force-
+      // signed-the-user-out -- which bounced legitimately-logged-in users to the
+      // login screen on a token refresh / tab focus / reconnect (the "keeps having
+      // to log in again" bug). So: RETRY a few times (autoRefresh runs in the
+      // background, so a short backoff usually clears a lapsed-token race), and
+      // only sign out when the session is genuinely unrecoverable.
+      const msg = (error.message || '').toLowerCase();
+      const code = error.code || '';
+      const authDead = code === 'PGRST301' || code === '42501'
+        || msg.includes('jwt') || msg.includes('expired') || msg.includes('permission denied');
+      if (_attempt < 3) {
+        await new Promise(function (r) { setTimeout(r, 400 * _attempt); });
+        return loadProfile(session, _attempt + 1);
+      }
+      if (authDead) {
+        console.warn('[auth-gate] get_user_profile: session unrecoverable, signing out:', error.message);
+        return { _sessionError: true };
+      }
+      // Transient failure after retries -- keep the user signed in; a later
+      // event (focus/refresh/navigation) will retry. Do NOT bounce them.
+      console.warn('[auth-gate] get_user_profile transient failure (kept session):', error.message);
+      return { _transientError: true };
     }
     const row = Array.isArray(data) ? data[0] : data;
     if (!row) return null;
@@ -299,9 +317,20 @@
     // them inside this callback deadlocks the SDK (sign-in hangs forever).
     setTimeout(async () => {
       const profile = await loadProfile(session);
+      if (profile && profile._transientError) {
+        // A transient profile-load failure on a session we still hold. Do NOT
+        // sign out -- leave the user where they are; the next auth event
+        // (focus/refresh/navigation) retries. Only reveal the login screen if no
+        // app screen is up yet (so a cold load that can't reach Supabase still
+        // shows something actionable rather than a blank page).
+        var appEl = document.getElementById('appWrap');
+        var appUp = appEl && getComputedStyle(appEl).display !== 'none';
+        if (!appStarted && !appUp) showOnly('loginScreen');
+        return;
+      }
       if (profile && profile._sessionError) {
-        // Token/RPC failure (expired or password-reset-revoked session). Clear the
-        // dead session so the next sign-in is clean, and tell the user the truth.
+        // Genuinely dead session (expired/revoked, e.g. a password reset). Clear
+        // it so the next sign-in is clean, and tell the user the truth.
         showLoginError('Your session expired. Please sign in again.');
         await sb.auth.signOut();
         return;
