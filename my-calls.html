@@ -212,8 +212,9 @@ const DISPO={deleted:['Deleted (pre-run)','b-deleted'],noshow:['No Show','b-nosh
 // touches it). These are NOT Skedulo/Salesforce outcomes -- nothing is pushed there.
 const CALL_STATUS=[['working','Working'],['reached','Reached, still working'],['callback','Callback scheduled'],['appt_requested','Appointment requested'],['not_interested','Not interested'],['bad_number','Bad / wrong number'],['do_not_call','Do not call'],['resolved','Resolved / closed']];
 const CALL_STATUS_LABEL=Object.fromEntries(CALL_STATUS);
-// Statuses that take a lead OFF the active "To call" list.
-const CLOSED_STATUS=new Set(['appt_requested','not_interested','bad_number','do_not_call','resolved','sold']);
+// Statuses that take a lead OFF the active "To call" list. 'dq' is set by a
+// manager from the Flags queue (disqualified / removed from the call pool).
+const CLOSED_STATUS=new Set(['appt_requested','not_interested','bad_number','do_not_call','resolved','sold','dq']);
 // Reasons a rep can kick a lead back to the manager for review. flag_type values
 // must match the lead_flags check constraint + the queue in leads.html.
 const FLAG_REASONS=[['spanish','Spanish speaker'],['language_other','Other language need'],['not_mine',"Shouldn't be on my list -- existing lead / another rep's customer or SG/referral"],['bad_info','Wrong / bad lead info'],['review','Needs your review (general)'],['other','Other']];
