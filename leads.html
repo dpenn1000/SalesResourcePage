@@ -431,6 +431,7 @@ function sfHref(rec){
 let appStarted = false, IS_ADMIN = false;
 let props = [];        // [{property, dls:[...], primary}]
 let people = [];       // managers + reps (names)
+let repCounty = {};    // name -> home county (for proximity dispatch; county-level, non-PII)
 let contacts = [];     // contact_log
 let oppToProp = {};    // opportunity_id -> property index
 let propByKey = {};    // row key -> property group (lazy detail expand)
@@ -511,20 +512,21 @@ async function initApp(){
       // reps plus selling managers -- a manager who carries a book has an spd_slug,
       // so they can dispatch leads to themselves. Pure-leadership accounts (no
       // spd_slug) are excluded. Feeds the rep filter, manual-add assign, per-row
-      // picker, and the dispatch picker.
-      sb.from('people').select('name,role,spd_slug').eq('status','active').order('name'),
+      // picker, and the dispatch picker. base_county feeds proximity dispatch.
+      sb.from('people').select('name,role,spd_slug,base_county').eq('status','active').order('name'),
     ]);
     contacts = cl || [];
     // Leadership who carry an spd_slug but should NOT receive call-list leads.
     const NON_DISPATCH_MANAGERS=new Set(['Melvin DeJesus','Ken Ebbert']);
     // Dedupe defensively in case two people share a display name.
-    const seen=new Set();people=[];
+    const seen=new Set();people=[];repCounty={};
     for(const p of (peopleRows||[])){
       if(!p||!p.name||seen.has(p.name))continue;
       const dispatchable=!NON_DISPATCH_MANAGERS.has(p.name)
         && ((p.role==='rep')||(p.role==='manager'&&!!p.spd_slug));
       if(!dispatchable)continue;
       seen.add(p.name);people.push(p.name);
+      if(p.base_county)repCounty[p.name]=p.base_county;   // home county for proximity ranking
     }
     groupByProperty(dls||[]);
     const rsel=document.getElementById('fRep');
@@ -1228,6 +1230,40 @@ async function bulkDispatch(){
 }
 
 /* ── Quick Dispatch modal: group unassigned callable leads by disposition, assign first-N to a rep (mirrors the classic tool) ── */
+/* ── Proximity dispatch (self-contained, county-level) ────────────────────
+   Reps carry a home county (people.base_county); leads carry a property county.
+   We rank reps by straight-line distance between CT county centroids -- a rough
+   "who's closest" read, not true drive time, but it needs no backend and matches
+   the county-level resolution of the rep data. Pick a county in Quick Dispatch to
+   sort the rep list nearest-first; "All counties" keeps the original behavior. */
+const CT_COUNTY_LL={
+  'Fairfield':[41.23,-73.37],'Hartford':[41.81,-72.73],'Litchfield':[41.79,-73.24],
+  'Middlesex':[41.43,-72.53],'New Haven':[41.35,-72.90],'New London':[41.47,-72.10],
+  'Tolland':[41.86,-72.34],'Windham':[41.83,-71.99]
+};
+function _haversineMi(a,b){
+  const R=3959,toRad=d=>d*Math.PI/180;
+  const dLat=toRad(b[0]-a[0]),dLng=toRad(b[1]-a[1]);
+  const s=Math.sin(dLat/2)**2+Math.cos(toRad(a[0]))*Math.cos(toRad(b[0]))*Math.sin(dLng/2)**2;
+  return Math.round(2*R*Math.asin(Math.sqrt(s)));
+}
+function countyMiles(c1,c2){const a=CT_COUNTY_LL[c1],b=CT_COUNTY_LL[c2];return (a&&b)?_haversineMi(a,b):null;}
+/* Reps ranked by home-county distance to a target county. Known home counties
+   sort nearest-first; reps with no home county fall to the bottom. */
+function repsByProximity(targetCounty){
+  return people.map(n=>{const hc=repCounty[n]||null;return {name:n,county:hc,mi:hc?countyMiles(hc,targetCounty):null};})
+    .sort((a,b)=>{
+      if(a.mi==null&&b.mi==null)return a.name.localeCompare(b.name);
+      if(a.mi==null)return 1; if(b.mi==null)return -1;
+      return a.mi-b.mi||a.name.localeCompare(b.name);
+    });
+}
+/* Counties present in a dispatch group, with counts, most-leads first. Leads
+   with no county are bucketed under '' and shown as "Unknown". */
+function _qdCounties(grp){
+  const m={};for(const g of grp){const c=(g.property&&g.property.county)||'';m[c]=(m[c]||0)+1;}
+  return Object.keys(m).map(c=>({county:c,n:m[c]})).sort((a,b)=>b.n-a.n||a.county.localeCompare(b.county));
+}
 const QD_LABEL={spanish:'Spanish-speaking',deleted:'Deleted (pre-run)',noshow:'No Show',cancel:'Cancelled',new:'New (manual)',ready:'Scheduled',goback:'Go Back',nosale:'No Sale',ran:'Ran',other:'Other'};
 const QD_ORDER=['spanish','deleted','noshow','cancel','new'];
 /* Reps who speak Spanish. Put them at the top of the rep picker when dispatching
@@ -1277,25 +1313,57 @@ function renderQuickDispatch(){
   const groups=_qdGroups();
   const states=Object.keys(groups).sort((a,b)=>{const ia=QD_ORDER.indexOf(a),ib=QD_ORDER.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib);});
   const tot=Object.values(groups).reduce((a,g)=>a+g.length,0);
-  document.getElementById('qdSub').textContent=tot?`${tot} unassigned callable leads -- assign a batch per disposition`:'';
+  document.getElementById('qdSub').textContent=tot?`${tot} unassigned callable leads -- assign a batch per disposition, or pick a county to dispatch to the nearest rep`:'';
   const repOpts=people.map(n=>`<option>${esc(n)}</option>`).join('');
   let html='';
   for(const st of states){
     const grp=groups[st];
+    const counties=_qdCounties(grp).filter(c=>c.county);   // drop no-county leads (can't be ranked); "All counties" still covers them
+    const ctyOpts='<option value="">All counties ('+grp.length+')</option>'
+      +counties.map(c=>`<option value="${esc(c.county)}">${esc(c.county)} (${c.n})</option>`).join('');
     html+=`<div class="dispatch-group">
       <div><span class="gname">${esc(QD_LABEL[st]||st)}</span><span class="gct">${grp.length} unassigned</span></div>
       <div class="dispatch-row">
+        <label>County</label><select id="qd-cty-${esc(st)}" class="qd-sel" onchange="qdCountyChange('${esc(st)}')">${ctyOpts}</select>
         <label>First</label><input type="number" id="qd-ct-${esc(st)}" class="qd-num" min="1" max="${grp.length}" value="${grp.length}">
         <label>to</label><select id="qd-rep-${esc(st)}" class="qd-sel"><option value="">pick rep...</option>${_qdRepOptsFor(st)}</select>
         <button class="btn-primary" onclick="dispatchGroup('${esc(st)}')">Assign</button>
-      </div></div>`;
+      </div>
+      <div class="qd-hint sub" id="qd-hint-${esc(st)}" style="flex-basis:100%;margin-top:2px"></div></div>`;
   }
   document.getElementById('qdBody').innerHTML=html||'<div class="empty">No unassigned callable leads to dispatch right now.</div>';
+}
+/* County filter changed: narrow the assignable count and, when a known CT county
+   is picked, reorder the rep dropdown nearest-first (Spanish bucket keeps Spanish
+   reps on top, then by distance). "All counties" restores the default ordering. */
+function qdCountyChange(st){
+  const cty=(document.getElementById('qd-cty-'+st)||{}).value||'';
+  const grp=_qdGroups()[st]||[];
+  const subset=cty?grp.filter(g=>((g.property&&g.property.county)||'')===cty):grp;
+  const ctEl=document.getElementById('qd-ct-'+st);if(ctEl){ctEl.max=subset.length||1;ctEl.value=subset.length;}
+  const repSel=document.getElementById('qd-rep-'+st);
+  const hint=document.getElementById('qd-hint-'+st);
+  if(cty&&CT_COUNTY_LL[cty]){
+    let ranked=repsByProximity(cty);
+    if(st==='spanish'){const sp=new Set(SPANISH_REPS);ranked=[...ranked.filter(r=>sp.has(r.name)),...ranked.filter(r=>!sp.has(r.name))];}
+    repSel.innerHTML='<option value="">pick rep...</option>'+ranked.map(r=>{
+      const tag=r.mi==null?'no home county':`${r.county}, ~${r.mi} mi`;
+      return `<option value="${esc(r.name)}">${esc(r.name)} (${esc(tag)})</option>`;
+    }).join('');
+    const near=ranked.find(r=>r.mi!=null);
+    if(hint)hint.textContent=near?`Nearest${st==='spanish'?' Spanish':''} rep: ${near.name} -- home ${near.county}, ~${near.mi} mi from ${cty}.`:'No reps with a home county on file.';
+  }else{
+    repSel.innerHTML='<option value="">pick rep...</option>'+_qdRepOptsFor(st);
+    if(hint)hint.textContent=cty?'Distance unavailable for this county.':'';
+  }
 }
 async function dispatchGroup(st){
   const rep=document.getElementById('qd-rep-'+st).value;
   if(!rep){toast('Pick a rep for this group');return;}
-  const grp=(_qdGroups()[st]||[]).slice().sort((a,b)=>(b.primary.last_appt_date||'').localeCompare(a.primary.last_appt_date||''));
+  const cty=(document.getElementById('qd-cty-'+st)||{}).value||'';
+  let grp=_qdGroups()[st]||[];
+  if(cty)grp=grp.filter(g=>((g.property&&g.property.county)||'')===cty);
+  grp=grp.slice().sort((a,b)=>(b.primary.last_appt_date||'').localeCompare(a.primary.last_appt_date||''));
   const ct=Math.min(parseInt(document.getElementById('qd-ct-'+st).value||grp.length,10)||grp.length,grp.length);
   const batch=grp.slice(0,ct);const dls=batch.map(g=>g.primary.dl_number);
   if(!dls.length){toast('Nothing to assign');return;}
@@ -1310,7 +1378,7 @@ async function dispatchGroup(st){
     for(const g of props)if(ok.has(g.primary.dl_number)){g.primary.assigned_to=rep;g.dls.forEach(d=>{if(d.dl_number===g.primary.dl_number)d.assigned_to=rep;});}
   }
   if(!done){toast('Not permitted (need manager access).');return;}
-  toast(`${done} ${QD_LABEL[st]||st} assigned to ${rep}`);
+  toast(`${done} ${QD_LABEL[st]||st}${cty?' ('+cty+')':''} assigned to ${rep}`);
   renderQuickDispatch();renderKpis();renderDashDetail();render();
 }
 
