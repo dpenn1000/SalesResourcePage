@@ -643,7 +643,7 @@
   <!-- CALL ACTIVITY -->
   <div class="section">
     <div class="section-head">
-      <div class="section-title">Call Activity</div>
+      <div class="section-title">Call History</div>
       <div class="section-pill" id="callPill">--</div>
     </div>
     <div class="section-body" id="callBody">
@@ -1922,58 +1922,46 @@ async function loadAndRenderUniversity(me){
 // CALL ACTIVITY
 // ============================================================================
 async function loadAndRenderCallActivity(me){
-  const { data: leads } = await sb.from('direct_leads')
-    .select('dl_number, homeowner_name, status, lifecycle_state, last_outcome, last_appt_date, appt_count, sold')
-    .eq('assignee_id', me.id)
-    .order('last_appt_date', { ascending: false, nullsFirst: false })
-    .limit(8);
-
-  const all = leads || [];
-  const sold = all.filter(l => l.sold).length;
-  $('callPill').textContent = all.length + ' leads / ' + sold + ' sold';
-  $('callPill').className = 'section-pill ' + (sold > 0 ? 'green' : '');
-
-  // Window 90d activity counts via contact_log (logged_by uses name)
-  const session = window.AUTH_SESSION;
-  const { data: contacts } = await sb.from('contact_log')
-    .select('id, contacted_at, outcome, opp_name')
+  // Real call history from the call log (contact_log), not appointment/lead data.
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: calls } = await sb.from('contact_log')
+    .select('contacted_at, outcome, opp_name, notes, next_step, follow_up_date')
     .eq('logged_by', me.name)
-    .gte('contacted_at', new Date(Date.now() - 90 * 86400000).toISOString())
     .order('contacted_at', { ascending: false })
-    .limit(5);
+    .limit(12);
 
-  const leadRows = all.length
-    ? all.map(l =>
-      '<div class="list-row">' +
-      '  <div><div class="l-name">' + esc(l.homeowner_name || l.dl_number || '--') + '</div>' +
-      '       <div class="l-sub">' + esc(l.lifecycle_state || '--') + (l.last_outcome ? ' / ' + esc(l.last_outcome) : '') + '</div></div>' +
-      '  <div class="l-right' + (l.sold ? ' green' : '') + '">' +
-      (l.sold ? 'SOLD' : (l.last_appt_date ? fmtRel(l.last_appt_date) : 'no appt')) +
-      '  </div>' +
-      '</div>'
-    ).join('')
-    : '<div class="empty">No leads assigned right now.</div>';
+  const c = calls || [];
+  const due = c.filter(x => x.follow_up_date && x.follow_up_date <= today).length;
+  $('callPill').textContent = c.length
+    ? (c.length + ' logged' + (due ? ' / ' + due + ' follow-up' + (due>1?'s':'') + ' due' : ''))
+    : 'no calls';
+  $('callPill').className = 'section-pill ' + (due > 0 ? 'amber' : '');
 
-  const contactRows = (contacts && contacts.length)
-    ? '<div style="margin-top:14px"><div class="metric-label" style="margin-bottom:7px">Recent Contacts</div>' +
-      contacts.map(c =>
-        '<div class="list-row">' +
-        '  <div><div class="l-name">' + esc(c.opp_name || '(unknown)') + '</div>' +
-        '       <div class="l-sub">' + esc(c.outcome || '--') + '</div></div>' +
-        '  <div class="l-right">' + fmtRel(c.contacted_at) + '</div>' +
-        '</div>'
-      ).join('') + '</div>'
-    : '';
-
-  // CTA: open the live call queue (the rep's work surface). Hidden in
-  // view-as mode -- the manager already has their own queue elsewhere and
-  // /my-calls.html would show theirs, not this rep's.
+  // CTA: the live call queue is where calls get logged + worked.
   const cta = IS_VIEW_AS ? '' :
     '<div style="margin-top:14px;text-align:right">' +
-    '<a href="/my-calls.html" style="display:inline-block;padding:9px 16px;background:var(--header);color:#fff;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;text-decoration:none">Open My Calls Queue --&gt;</a>' +
+    '<a href="/my-calls.html" style="display:inline-block;padding:9px 16px;background:var(--header);color:#fff;border-radius:8px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;text-decoration:none">Open My Calls to log &amp; work --&gt;</a>' +
     '</div>';
 
-  $('callBody').innerHTML = leadRows + contactRows + cta;
+  if (!c.length){
+    $('callBody').innerHTML = '<div class="empty">No logged calls yet. Calls you log in My Calls show up here.</div>' + cta;
+    return;
+  }
+
+  const rows = c.map(function(x){
+    const isDue = x.follow_up_date && x.follow_up_date <= today;
+    const right = x.follow_up_date
+      ? '<div class="l-right' + (isDue ? ' amber' : '') + '">' + (isDue ? 'follow up due' : 'follow up ' + fmtDate(x.follow_up_date)) + '</div>'
+      : '<div class="l-right">' + fmtRel(x.contacted_at) + '</div>';
+    const sub = [x.outcome, x.next_step ? 'next: ' + x.next_step : ''].filter(Boolean).join(' / ')
+      || fmtRel(x.contacted_at);
+    const note = x.notes ? '<div class="l-sub" style="margin-top:2px;white-space:normal">' + esc(String(x.notes).slice(0, 90)) + '</div>' : '';
+    return '<div class="list-row">' +
+      '<div><div class="l-name">' + esc(x.opp_name || '(unknown)') + '</div>' +
+      '<div class="l-sub">' + esc(sub) + '</div>' + note + '</div>' + right + '</div>';
+  }).join('');
+
+  $('callBody').innerHTML = rows + cta;
 }
 </script>
 
