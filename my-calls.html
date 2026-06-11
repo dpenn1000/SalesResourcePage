@@ -142,6 +142,7 @@
         <option value="pipeline">My Pipeline</option>
         <option value="deals">Deals in Progress</option>
         <option value="all">All my leads</option>
+        <option value="history">Call History</option>
       </select>
     </div>
     <div id="list"><div class="loading">Loading your leads...</div></div>
@@ -325,7 +326,7 @@ async function loadLeads(){
     const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,language,properties(town,county,dnc)';
     const [{data:dl,error:e1},{data:cl},{data:fl}] = await Promise.all([
       sb.from('direct_leads').select(SEL).not('assigned_to','is',null).order('last_appt_date',{ascending:false,nullsFirst:false}),
-      sb.from('contact_log').select('opportunity_id,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source').order('contacted_at',{ascending:false}),
+      sb.from('contact_log').select('opportunity_id,opp_name,logged_by,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source').order('contacted_at',{ascending:false}),
       sb.from('lead_flags').select('id,dl_number,flag_type,note,flagged_by,created_at,status').eq('status','open'),
     ]);
     if(e1)throw e1;
@@ -339,13 +340,44 @@ async function loadLeads(){
   }catch(err){document.getElementById('list').innerHTML='<div class="empty">Could not load: '+esc(err.message||err)+'</div>';}
 }
 function callsFor(l){const ids=new Set((l.opportunity_ids||[]));ids.add(l.dl_number);let out=[];for(const id of ids)out=out.concat(byOpp[id]||[]);return out.sort((a,b)=>(b.contacted_at||'').localeCompare(a.contacted_at||''));}
+// Call-level helpers: the rep's own logged calls, independent of the lead join, so
+// follow-ups + history never depend on opportunity_ids being populated on a lead.
+function myCalls(){const t=window.IS_MANAGER?VIEW_AS:ME;return contacts.filter(c=>(c.logged_by||'')===t);}
+function leadForOpp(oppId){if(!oppId)return null;return leads.find(l=>(l.opportunity_ids||[]).includes(oppId))||null;}
+function jumpToLead(dl){const s=document.getElementById('fView');if(s)s.value='all';const q=document.getElementById('q');if(q)q.value=dl;render();}
+function callRow(c,today){
+  const due=c.follow_up_date&&c.follow_up_date<=today;
+  const lead=leadForOpp(c.opportunity_id);
+  const fu=c.follow_up_date?`<span class="badge ${due?'b-cancel':'b-status'}">follow up ${due?'due':fmtDate(c.follow_up_date)}</span>`:'';
+  return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);margin-bottom:8px;padding:12px 14px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="nm">${esc(c.opp_name||'(unknown)')}</div>
+      <span class="card-sub">${c.contacted_at?esc(fmtDate(c.contacted_at)):''}</span>
+      ${c.outcome?`<span class="badge b-done">${esc(c.outcome)}</span>`:''}${fu}
+    </div>
+    ${c.next_step?`<div class="card-sub" style="margin-top:4px;text-transform:none;letter-spacing:0">Next: ${esc(c.next_step)}</div>`:''}
+    ${c.notes?`<div style="font-size:13px;margin-top:5px;white-space:pre-wrap">${esc(c.notes)}</div>`:''}
+    ${lead?`<div style="margin-top:8px"><button class="btn-flag" onclick="jumpToLead('${esc(lead.dl_number)}')">Open lead</button></div>`:''}
+  </div>`;
+}
+function renderCallsView(mode,q){
+  const list=document.getElementById('list');
+  const today=new Date().toISOString().slice(0,10);
+  let rows=myCalls();
+  if(mode==='followup')rows=rows.filter(c=>c.follow_up_date&&c.follow_up_date<=today);
+  if(q)rows=rows.filter(c=>(((c.opp_name||'')+' '+(c.notes||'')+' '+(c.outcome||'')+' '+(c.next_step||''))).toLowerCase().includes(q));
+  rows.sort(mode==='followup'?(a,b)=>(a.follow_up_date||'').localeCompare(b.follow_up_date||''):(a,b)=>(b.contacted_at||'').localeCompare(a.contacted_at||''));
+  if(!rows.length){list.innerHTML='<div class="empty">'+(mode==='followup'?'No follow-ups due. Set a follow-up date when you log a call and it shows here on or after that day.':('No logged calls'+(q?' match that search.':' yet.')))+'</div>';return;}
+  list.innerHTML=rows.map(c=>callRow(c,today)).join('');
+}
 function jumpView(v){const s=document.getElementById('fView');if(s){s.value=v;render();}}
 function renderKpis(){
   const callable=leads.filter(isCallable);
   const pipe=leads.filter(inMyPipeline);
   const today=new Date().toISOString().slice(0,10);
-  let calledToday=0,due=0;
-  for(const l of leads){const cs=callsFor(l);if(cs.some(c=>(c.contacted_at||'').slice(0,10)===today))calledToday++;if(cs.some(c=>c.follow_up_date&&c.follow_up_date<=today))due++;}
+  // Follow-ups are a call-level commitment: count the rep's own due calls directly,
+  // not via the lead join (which needs opportunity_ids populated on the lead).
+  const due=myCalls().filter(c=>c.follow_up_date&&c.follow_up_date<=today).length;
   // KPI cards double as quick view switches so a rep with no "to call" still finds their pipeline.
   const k=[['To call',callable.length,'callable'],['Pipeline',pipe.length,'pipeline'],['In Progress',(typeof myDeals==='function'?myDeals().length:0),'deals'],['Follow-ups due',due,'followup'],['My leads',leads.length,'all']];
   document.getElementById('kpis').innerHTML=k.map(([l,n,v])=>`<div class="kpi" style="cursor:pointer" onclick="jumpView('${v}')" title="Show ${esc(l)}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
@@ -506,12 +538,13 @@ function render(){
   const v=document.getElementById('fView').value;
   if(v==='pipeline'){renderPipelineView(q);return;}
   if(v==='deals'){renderDealsView(q);return;}
+  if(v==='followup'){renderCallsView('followup',q);return;}
+  if(v==='history'){renderCallsView('history',q);return;}
   const today=new Date().toISOString().slice(0,10);
   let rows=leads.filter(l=>{
     const cs=callsFor(l);
     if(v==='callable'&&!isCallable(l))return false;
     if(v==='today'&&!cs.some(c=>(c.contacted_at||'').slice(0,10)===today))return false;
-    if(v==='followup'&&!cs.some(c=>c.follow_up_date&&c.follow_up_date<=today))return false;
     if(q){const hay=((l.homeowner_name||'')+' '+((l.properties&&l.properties.town)||'')+' '+l.dl_number).toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
