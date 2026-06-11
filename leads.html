@@ -281,6 +281,12 @@
           <option value="direct">Direct (rep-owned)</option>
           <option value="unknown">Unknown source</option>
         </select>
+        <select id="fDateBasis" onchange="render()" title="Which date the range below applies to">
+          <option value="appt">Appt sat date</option>
+          <option value="touch">Last touched</option>
+        </select>
+        <input type="date" id="fDateFrom" onchange="render()" title="From date (inclusive)" style="font-family:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:8px">
+        <input type="date" id="fDateTo" onchange="render()" title="To date (inclusive)" style="font-family:inherit;font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:8px">
         <label class="chk"><input type="checkbox" id="dupOnly" onchange="render()"> duplicates only</label>
         <button class="act" onclick="openQuickDispatch()" style="margin-left:auto;border-color:var(--accent);color:var(--accent);font-weight:600">&#9889; Quick Dispatch</button>
         <button class="act" id="expandAllBtn" onclick="toggleExpandAll()">Expand all</button>
@@ -1758,10 +1764,24 @@ function render(){
   const fView=document.getElementById('fView').value||'callable';
   const fType=document.getElementById('fType').value;
   const dupOnly=document.getElementById('dupOnly').checked;
+  const dBasis=(document.getElementById('fDateBasis')||{}).value||'appt';
+  const dFrom=(document.getElementById('fDateFrom')||{}).value||'';
+  const dTo=(document.getElementById('fDateTo')||{}).value||'';
+  // Index contacts by opportunity once (powers "last worked by" + the last-touched date filter).
+  const _byOpp={};for(const c of contacts){(_byOpp[c.opportunity_id]=_byOpp[c.opportunity_id]||[]).push(c);}
+  const lastContactOf=g=>{let best=null;for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))for(const c of (_byOpp[oid]||[])){if(!best||(c.contacted_at||'')>(best.contacted_at||''))best=c;}return best;};
+  const touchDate=g=>{const lc=lastContactOf(g);const a=(g.primary.last_appt_date||'').slice(0,10);const b=((lc&&lc.contacted_at)||'').slice(0,10);return a>b?a:b;};
   let rows=props.filter(g=>{
     const cat=leadCategory(g);
-    /* a name/DL search looks across every view (it's the manager-review entry point); browsing respects the view lens */
-    if(fView!=='all' && !q && cat!==fView)return false;
+    /* Name/DL search spans every view. An explicit State pick overrides the view
+       lens, so "No Sale" shows every nosale lead instead of only callable ones. */
+    if(fView!=='all' && !q && !fState && cat!==fView)return false;
+    if(dFrom||dTo){
+      const d=(dBasis==='touch'?touchDate(g):(g.primary.last_appt_date||'').slice(0,10));
+      if(!d)return false;
+      if(dFrom&&d<dFrom)return false;
+      if(dTo&&d>dTo)return false;
+    }
     if(fType && leadType(g)!==fType)return false;
     if(dupOnly&&g.dls.length<2)return false;
     const st=g.primary.lifecycle_state||'';
@@ -1776,9 +1796,6 @@ function render(){
   const visDls=new Set(rows.map(g=>g.primary.dl_number));
   selected=new Set([...selected].filter(d=>visDls.has(d)));
   if(!rows.length){const vl=document.querySelector('#fView option:checked');document.getElementById('tableWrap').innerHTML='<div class="empty">No leads in the <b>'+esc(vl?vl.textContent:'current')+'</b> view'+(q?' matching &ldquo;'+esc(q)+'&rdquo;':'')+'. Try a different view filter'+(q?'':' or search by name')+'.</div>';updateDispatchBar();return;}
-  // Index contacts by opportunity once so "last worked by" is O(1) per row.
-  const _byOpp={};for(const c of contacts){(_byOpp[c.opportunity_id]=_byOpp[c.opportunity_id]||[]).push(c);}
-  const lastContactOf=g=>{let best=null;for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))for(const c of (_byOpp[oid]||[])){if(!best||(c.contacted_at||'')>(best.contacted_at||''))best=c;}return best;};
   let h='<table><thead><tr><th style="width:30px"><input type="checkbox" id="selAll" onchange="selectAllVisible(this.checked)" title="Select all shown"></th><th>Homeowner</th><th>Town</th><th>State</th><th>Status</th><th>Assigned</th><th>Last appt</th><th>Last outcome</th><th title="Days since the lead entered the platform">Age</th><th title="When the lead record last changed (dispatch, status, sold, sales-notes sync)">Updated</th><th title="Rep who last logged a call on this lead">By whom</th><th>Contacts</th><th>Salesforce</th><th></th></tr></thead><tbody>';
   for(const g of rows){
     const p=g.primary;const town=g.property.town||'--';const county=g.property.county?` <span class="sub">(${esc(g.property.county)})</span>`:'';
