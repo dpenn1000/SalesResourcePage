@@ -587,6 +587,15 @@
     <div class="section-body" id="acBody"></div>
   </div>
 
+  <!-- MY SCHEDULE: signed-in rep's availability for the current period -->
+  <div class="section" id="schedSection" style="display:none">
+    <div class="section-head">
+      <div class="section-title">My Schedule</div>
+      <div class="section-pill" id="schedPill">--</div>
+    </div>
+    <div class="section-body" id="schedBody"></div>
+  </div>
+
   <!-- KEY METRICS + STACK-UP -->
   <div class="section">
     <div class="section-head">
@@ -693,6 +702,20 @@
 
 <input type="file" id="photoInput" accept="image/*" style="display:none">
 
+<style>
+  .sched-grid{width:100%;border-collapse:collapse;font-size:13px}
+  .sched-grid th,.sched-grid td{padding:7px 8px;text-align:center;border:1px solid var(--line,#e2e6ec)}
+  .sched-grid thead th{background:var(--soft,#f3f5f8);font-weight:600;color:var(--muted,#5b6472);font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+  .sched-grid td.wk{text-align:left;font-weight:600;white-space:nowrap}
+  .sched-grid .wk-dt{display:block;font-weight:400;color:var(--muted,#8a93a3);font-size:11px}
+  .sched-grid td.cell-on{background:rgba(120,200,50,.16);color:#2f6b12;font-weight:600;min-width:52px}
+  .sched-grid td.cell-off{color:var(--muted,#aab1bd);min-width:52px}
+  .sched-grid td.hrs{font-weight:600}
+  .gb-yes{color:#2f6b12;font-weight:700}
+  .gb-no{color:var(--muted,#8a93a3)}
+  .gb-na{color:var(--muted,#c3c9d2)}
+  .sched-note{margin-top:10px;font-size:12px;color:var(--muted,#5b6472)}
+</style>
 <script src="https://unpkg.com/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
 <script src="/deal-touches.js"></script>
@@ -767,6 +790,7 @@ async function initApp(profile, session) {
 
   // ── Fire all section loaders in parallel ──
   Promise.allSettled([
+    loadAndRenderMySchedule(me),
     loadAndRenderMetrics(me),
     loadAndRenderAddressables(me),
     loadAndRenderNotes(me),
@@ -776,6 +800,81 @@ async function initApp(profile, session) {
 
   // Profile extras work for self AND manager view-as (read-only) now.
   loadProfileExtras(me);
+}
+
+// ── My Schedule: the signed-in rep's own availability for the current period ──
+// Reads sched_entries (RLS allows person_id = self) + sched_goback for weekly
+// go-back eligibility. Works for self and manager view-as.
+function _schedAddDays(iso, n){ const d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function _schedMD(iso){ const p=iso.split('-'); return (+p[1])+'/'+(+p[2]); }
+async function loadAndRenderMySchedule(me){
+  const sec = $('schedSection'); if (!sec || !me || !me.id) return;
+  const body = $('schedBody'); const pill = $('schedPill');
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    let { data: per } = await sb.from('sched_periods')
+      .select('id,start_date,num_weeks,label,status')
+      .eq('region','CT').lte('start_date', today)
+      .order('start_date',{ascending:false}).limit(1).maybeSingle();
+    if (!per){
+      const up = await sb.from('sched_periods').select('id,start_date,num_weeks,label,status')
+        .eq('region','CT').order('start_date',{ascending:true}).limit(1).maybeSingle();
+      per = up.data;
+    }
+    if (!per){ sec.style.display='block'; pill.textContent='none';
+      body.innerHTML='<div class="empty">No schedule period is set up yet.</div>'; return; }
+
+    const weeks = per.num_weeks || 4;
+    const endIso = _schedAddDays(per.start_date, weeks*7 - 1);
+    const [{ data: ents }, { data: gb }] = await Promise.all([
+      sb.from('sched_entries').select('work_date,shift_code').eq('period_id', per.id).eq('person_id', me.id),
+      sb.from('sched_goback').select('week_start,available_hours,eligible,is_override')
+        .eq('person_id', me.id).gte('week_start', per.start_date).lte('week_start', endIso)
+    ]);
+    const byDate = {}; (ents||[]).forEach(e => byDate[e.work_date] = e.shift_code);
+    const gbByWeek = {}; (gb||[]).forEach(g => gbByWeek[g.week_start] = g);
+
+    sec.style.display = 'block';
+    if (!ents || !ents.length){
+      pill.textContent = (per.status==='open' ? 'not submitted' : 'none');
+      body.innerHTML = '<div class="empty">No schedule on file for ' + esc(per.label||'this period') + '.'
+        + (per.status==='open' ? ' <a href="/scheduling/">Submit your availability &rarr;</a>' : '') + '</div>';
+      return;
+    }
+    pill.textContent = esc(per.label || 'current');
+
+    const DOW = ['Mon','Tue','Wed','Thu','Fri','Sat'];
+    const off = c => !c || c === 'Off All-Day';
+    const short = c => off(c) ? 'Off' : c.replace('Shift ','S').replace('All-Day','All Day');
+    let html = '<div style="overflow-x:auto"><table class="sched-grid"><thead><tr><th>Week</th>';
+    DOW.forEach(d => html += '<th>'+d+'</th>');
+    html += '<th>Hrs</th><th>Go-Back</th></tr></thead><tbody>';
+    for (let w=0; w<weeks; w++){
+      const wkIso = _schedAddDays(per.start_date, w*7);
+      html += '<tr><td class="wk">Wk '+(w+1)+'<span class="wk-dt">'+_schedMD(wkIso)+'</span></td>';
+      for (let d=0; d<6; d++){
+        const iso = _schedAddDays(per.start_date, w*7+d);
+        const code = byDate[iso];
+        html += '<td class="'+(off(code)?'cell-off':'cell-on')+'">'+esc(short(code))+'</td>';
+      }
+      const g = gbByWeek[wkIso];
+      const hrs = g ? (g.available_hours||0) : '';
+      let gbCell = '<span class="gb-na">n/a</span>';
+      if (g) gbCell = g.eligible
+        ? '<span class="gb-yes">Eligible'+(g.is_override?'*':'')+'</span>'
+        : '<span class="gb-no">No</span>';
+      html += '<td class="hrs">'+hrs+'</td><td>'+gbCell+'</td></tr>';
+    }
+    html += '</tbody></table></div>';
+    html += '<div class="sched-note">Go-Back eligible at 35+ submitted hours'
+      + (gb && gb.some(g=>g.is_override) ? ' (* manager exception)' : '') + '. '
+      + (per.status==='open' ? '<a href="/scheduling/">Edit in Scheduling &rarr;</a>' : 'This period is locked.')
+      + '</div>';
+    body.innerHTML = html;
+  } catch (e){
+    sec.style.display='block'; if(pill) pill.textContent='error';
+    body.innerHTML = '<div class="empty">Could not load your schedule right now.</div>';
+  }
 }
 
 // Manager/admin rep picker: view any rep's full profile. RLS limits the list
