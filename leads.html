@@ -162,6 +162,8 @@
   .rep-ov-name{font-weight:700;font-size:15px;margin-bottom:8px}
   .rep-mini{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:3px}
   .rep-mini span:last-child{font-weight:600;color:var(--ink)}
+  .rep-ov-total{font-size:11px;font-weight:500;color:var(--muted)}
+  .rep-sect{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:9px 0 4px;padding-top:7px;border-top:1px dashed var(--border)}
   .qd-overlay{position:fixed;inset:0;background:rgba(15,32,56,.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
   .qd-box{background:var(--surface);border-radius:12px;width:100%;max-width:660px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
   .qd-head{background:#1A2332;color:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between}
@@ -1626,21 +1628,30 @@ function renderRepOverview(){
   const byOpp={};for(const c of contacts){(byOpp[c.opportunity_id]=byOpp[c.opportunity_id]||[]).push(c);}
   const cur=document.getElementById('repPick');const selRep=cur?cur.value:'';
   const card=rep=>{
-    const mine=byRep[rep];let callable=0,contacted=0,reached=0,appts=0,sold=0;
+    // Split each rep's book into the two things that were conflated under "Assigned":
+    //   call queue  = recycle leads dispatched to them to QC-call (callable now)
+    //   pipeline    = their own deals (scheduled appt, sat/resting, sold)
+    const mine=byRep[rep];let callable=0,contacted=0,reached=0,appts=0,scheduled=0,resting=0,sold=0;
     for(const g of mine){
-      if(leadCategory(g)==='callable')callable++; if(g.anySold)sold++;
+      const cat=leadCategory(g);
+      if(cat==='callable')callable++; else if(cat==='scheduled')scheduled++; else if(cat==='cooldown'||cat==='review')resting++;
+      if(g.anySold)sold++;
       const ids=new Set();for(const d of g.dls)for(const oid of (d.opportunity_ids||[]))ids.add(oid);
       let hc=false,hr=false,ha=false;
       for(const oid of ids)for(const c of (byOpp[oid]||[])){hc=true;if(c.outcome==='Appointment Set'){ha=true;hr=true;}else if(c.outcome==='Reached'||c.outcome==='Has Interest')hr=true;}
       if(hc)contacted++; if(hr)reached++; if(ha)appts++;
     }
     const s=(l,v,c)=>`<div class="rep-mini"><span>${l}</span><span style="${c?'color:'+c+';font-weight:700':''}">${v}</span></div>`;
+    const sect=t=>`<div class="rep-sect">${t}</div>`;
     return `<div class="rep-ov-card${rep===selRep?' selected':''}" onclick="pickRep(this.dataset.rep)" data-rep="${esc(rep)}">
-      <div class="rep-ov-name">${esc(rep)}</div>
-      ${s('Assigned',mine.length)}${s('Callable now',callable,'#3f7a16')}${s('Contacted',contacted)}${s('Reached',reached,'#52961a')}${s('Appts set',appts,'#3a7010')}${s('Sold',sold)}
+      <div class="rep-ov-name">${esc(rep)} <span class="rep-ov-total">&middot; ${mine.length} total</span></div>
+      ${sect('Dispatched call queue')}
+      ${s('Callable now',callable,'#3f7a16')}${s('Contacted',contacted)}${s('Reached',reached,'#52961a')}${s('Appts set (calls)',appts,'#3a7010')}
+      ${sect('Own sales pipeline')}
+      ${s('Scheduled',scheduled)}${s('Sat / resting',resting)}${s('Sold',sold,'#3f7a16')}
     </div>`;
   };
-  el.innerHTML=`<div class="panel"><h2>Reps with assigned leads <span class="sub">&middot; click to drill in</span></h2><div class="rep-ov-grid">${reps.map(card).join('')}</div></div>`;
+  el.innerHTML=`<div class="panel"><h2>Reps with assigned leads <span class="sub">&middot; click to drill in</span></h2><div class="sub" style="margin:-4px 0 12px">Two buckets per rep: the <b>call queue</b> we dispatched for QC calling, and their <b>own sales pipeline</b> (appointments and deals that belong to them, not call-list leads).</div><div class="rep-ov-grid">${reps.map(card).join('')}</div></div>`;
 }
 function pickRep(r){const sel=document.getElementById('repPick');if(sel)sel.value=r;renderRep();renderRepOverview();}
 function catBadge(c){const M={callable:['Callable','b-callable'],scheduled:['Scheduled','b-sched'],review:['Review','b-review'],cooldown:['Cooldown','b-cooldown'],sold:['Sold','b-sold'],dnc:['DNC','b-dnc'],other:['Other','']};const m=M[c]||['--',''];return `<span class="badge ${m[1]}">${m[0]}</span>`;}
