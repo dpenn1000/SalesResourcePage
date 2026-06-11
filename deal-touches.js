@@ -11,7 +11,8 @@
       { key: "submitted", label: "Submitted & Tracking", channel: "Text", msg: "Hey [Customer], great news. 🎉 Your project's been submitted and is now with our Quality Control team for a full structural and electrical review. Once it clears, it heads to design and engineering. Some projects take up to 5-6 months depending on permits and approvals, but we're on it, and I'll guide you through the whole journey." }
     ],
     5: [
-      { key: "engineering", label: "Engineering", channel: "Text", msg: "Hi [Customer], quick update. Your project officially moved to our Design and Engineering team to prep the next application phase. 🚀 There's still a small chance we run into utility restrictions, but you're with Trinity Solar, 30 years strong and second to none at finding solutions. I'll keep you posted every step. You're in great hands." }
+      { key: "engineering", label: "Engineering", channel: "Text", msg: "Hi [Customer], quick update. Your project officially moved to our Design and Engineering team to prep the next application phase. 🚀 There's still a small chance we run into utility restrictions, but you're with Trinity Solar, 30 years strong and second to none at finding solutions. I'll keep you posted every step. You're in great hands." },
+      { key: "upgrades", label: "Upgrades & Obstacles (if needed)", channel: "Text", msg: "Good afternoon [Customer]. Every home is unique 🏡, and sometimes we find opportunities to upgrade things like your electrical service ⚡ or roof to bring it up to today's codes. Your project does need some additional work. The good news: done as part of your solar install ☀️, the cost is far lower than hiring outside contractors, and it adds long-term value and safety. ✅ Let's connect today so I can walk you through it." }
     ],
     6: [
       { key: "prelim", label: "Preliminary Application", channel: "Text", msg: "It's application time. 📝 Your engineering letter, plan set, and required permits are underway across state, utility, and town. Applications process in sequence, utility before town, so thanks for your patience. We're tracking everything, and I'm here if you need anything. We're getting there." },
@@ -57,4 +58,7 @@
     const ts = window.DP_TOUCHES[stageNum];
     return ts && ts[0] ? ts[0] : null;
   };
+  // Generic-name aliases so consumers can call firstName()/fillMsg() directly.
+  window.firstName = window.dtFirstName;
+  window.fillMsg = window.dtFillMsg;
 })();
