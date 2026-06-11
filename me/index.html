@@ -598,6 +598,15 @@
     <div class="section-body" id="coachingBody"></div>
   </div>
 
+  <!-- DEALS IN PROGRESS: post-sale customer-touch cadence (Constant Contact) -->
+  <div class="section" id="dealsSection" style="display:none">
+    <div class="section-head">
+      <div class="section-title">Deals in Progress</div>
+      <div class="section-pill" id="dealsPill">--</div>
+    </div>
+    <div class="section-body" id="dealsBody"></div>
+  </div>
+
   <!-- NEED TO ADDRESS -->
   <div class="section">
     <div class="section-head">
@@ -826,7 +835,53 @@ async function loadProfileExtras(me){
   // DISC section once it's loaded.
   const style = coaching && coaching.result && coaching.result.selling_style;
   renderDisc(discData, style);
-  if (!IS_VIEW_AS) buildActionCenter(prof, overview, coaching);
+  if (!IS_VIEW_AS){
+    const dealsInfo = await loadDeals(prof);
+    buildActionCenter(prof, overview, coaching, dealsInfo);
+  }
+}
+
+// ── Deals in Progress: post-sale customer touches (Constant Contact cadence) ──
+// Mirrors the My Calls model: deal_progress (by salesperson name) + deal_touches
+// (sent log). "Needs a touch" = the current stage's primary touch isn't logged.
+const DP_LABEL   = { 4:'Contracted', 5:'Engineering', 6:'Prelim', 7:'Installation', 8:'Inspection', 9:'Final App', 10:'Complete' };
+const DP_PRIMARY = { 4:'call24', 5:'engineering', 6:'prelim', 7:'confirm_install', 8:'whats_to_come', 9:'on_to_pto', 10:'pto' };
+
+async function loadDeals(prof){
+  const sec = $('dealsSection'); if (!sec || !prof || !prof.name) return { total:0, needTouch:0 };
+  let deals = [], touches = [];
+  try {
+    const [{ data: dp }, { data: tc }] = await Promise.all([
+      sb.from('deal_progress').select('dl_number,stage_num').eq('salesperson', prof.name).order('stage_num'),
+      sb.from('deal_touches').select('dl_number,touch_key')
+    ]);
+    deals = dp || []; touches = tc || [];
+  } catch (e) { return { total:0, needTouch:0 }; }
+  if (!deals.length) return { total:0, needTouch:0 };
+  sec.style.display = 'block';
+
+  const sent = {};
+  touches.forEach(t => { (sent[t.dl_number] = sent[t.dl_number] || {})[t.touch_key] = 1; });
+  const byStage = {}; let needTouch = 0;
+  deals.forEach(d => {
+    byStage[d.stage_num] = (byStage[d.stage_num] || 0) + 1;
+    const k = DP_PRIMARY[d.stage_num];
+    if (k && !(sent[d.dl_number] && sent[d.dl_number][k])) needTouch++;
+  });
+  $('dealsPill').textContent = needTouch > 0 ? needTouch + ' need a touch' : deals.length + ' in progress';
+  $('dealsPill').className = 'section-pill ' + (needTouch > 0 ? 'amber' : 'green');
+
+  const tiles = [4,5,6,7,8,9,10].filter(n => byStage[n]).map(n =>
+    '<div style="flex:1;min-width:74px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 11px;text-align:center">' +
+    '<div style="font-size:18px;font-weight:800">' + byStage[n] + '</div>' +
+    '<div style="font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">' + esc(DP_LABEL[n]) + '</div></div>').join('');
+  const note = needTouch > 0
+    ? '<div class="addr p-medium" style="margin-top:12px"><div class="addr-title">' + needTouch + ' deal' + (needTouch>1?'s':'') + ' need a customer touch</div>' +
+      '<div class="addr-body">Each contracted-to-complete deal has a Constant Contact message ready to send at its current stage.</div></div>'
+    : '<div class="empty success" style="margin-top:12px">All current-stage touches are sent. Nice.</div>';
+  $('dealsBody').innerHTML = '<div style="display:flex;gap:8px;flex-wrap:wrap">' + tiles + '</div>' + note +
+    '<a class="linkbtn" style="display:inline-block;margin-top:12px;color:var(--blue);font-weight:700;text-decoration:none" href="/my-calls.html">Open My Calls to send touches &rarr;</a>';
+  return { total: deals.length, needTouch: needTouch };
 }
 
 // ── Coaching (DISC-aware trend) ──────────────────────────────────────────
@@ -908,11 +963,16 @@ async function buildCoaching(token){
 }
 
 // ── Action Center: aggregate "what needs you this week" from clean sources ──
-async function buildActionCenter(prof, overview, coaching){
+async function buildActionCenter(prof, overview, coaching, dealsInfo){
   const sec = $('actionCenter'); if (!sec) return;
   sec.style.display = 'block';
   const uni = (overview && overview.university) || {};
   const items = [];  // {pri, text, cta:{label,href} | onclick}
+
+  // Constant Contact customer touches due on in-progress deals
+  if (dealsInfo && dealsInfo.needTouch > 0) items.push({ pri:'high',
+    text: dealsInfo.needTouch + ' deal' + (dealsInfo.needTouch>1?'s':'') + ' need a customer touch (Constant Contact)',
+    cta:{ label:'My Calls', href:'/my-calls.html' } });
 
   // Schedule: open period not yet submitted
   try {
