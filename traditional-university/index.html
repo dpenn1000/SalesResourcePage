@@ -655,6 +655,7 @@ let state = {
   help: [],
   activeTab: 'dashboard',
   activeQuiz: null, // { cert, attempt, questions, responses }
+  activeCourse: null, // { cert, attempt, steps, checks, finals, idx, responses }
 };
 
 // ===================== AUTH =====================
@@ -758,11 +759,12 @@ function renderDashboard() {
 
   // Next up
   const nextCert = findNextCert();
+  const nuRecert = nextCert && certIsRecertDue(nextCert.id);
   document.getElementById('next-up').innerHTML = nextCert
-    ? `<div class="cert-card stage-${nextCert.stage}" onclick="openCert('${nextCert.id}')">
+    ? `<div class="cert-card stage-${nextCert.stage === 0 ? 1 : nextCert.stage}" onclick="openCert('${nextCert.id}')">
          <div class="head">
            <div class="icon">${nextCert.icon || '📘'}</div>
-           <span class="stage-chip">Stage ${nextCert.stage}</span>
+           <span class="stage-chip">${nextCert.badge || 'Stage ' + nextCert.stage}</span>
          </div>
          <div>
            <div class="core">${nextCert.core}</div>
@@ -770,7 +772,7 @@ function renderDashboard() {
          </div>
          <p class="desc">${nextCert.description || ''}</p>
          <div class="footer">
-           <span class="status-badge ${statusBadgeClass(certStatus(nextCert.id))}">${statusLabel(certStatus(nextCert.id))}</span>
+           <span class="status-badge ${statusBadgeClass(nuRecert ? 'retake' : certStatus(nextCert.id))}">${nuRecert ? 'Recert due' : statusLabel(certStatus(nextCert.id))}</span>
            <span class="action">Open →</span>
          </div>
        </div>`
@@ -802,7 +804,10 @@ function renderDashboard() {
 }
 
 function findNextCert() {
-  // First incomplete Stage 1, then Stage 2 if Stage 1 done
+  // Recerts come first (a due cert is a live obligation), then incomplete
+  // Stage 1, then Stage 2 once Stage 1 is done.
+  const recert = state.certs.find(c => certIsRecertDue(c.id));
+  if (recert) return recert;
   const s1 = state.certs.filter(c => c.stage === 1);
   const s1Next = s1.find(c => certStatus(c.id) !== 'approved');
   if (s1Next) return s1Next;
@@ -820,16 +825,39 @@ function renderCerts() {
   grid.innerHTML = state.certs.map(cert => {
     const status = certStatus(cert.id);
     const isAssess = cert.kind === 'assessment';
+    const isCourse = cert.kind === 'course';
     const assigned = state.assignments.some(a => a.cert_id === cert.id);
+    const recertDue = certIsRecertDue(cert.id);
     const locked = cert.stage === 2 && !stage2Unlocked;
     const clickable = !locked;
+    const visualStage = cert.stage === 0 ? 1 : cert.stage; // stage-0 (assessment/course) uses stage-1 styling
+    const chip = cert.badge || (isAssess ? 'Assessment' : 'Stage ' + cert.stage);
+
+    // Badge: locked > recert-due > status/assigned > not-assigned
+    let badgeState, badgeLabel;
+    if (locked) { badgeState = 'locked'; badgeLabel = 'Locked'; }
+    else if (recertDue) { badgeState = 'retake'; badgeLabel = 'Recert due'; }
+    else if (assigned || status !== 'not-started') { badgeState = status; badgeLabel = statusLabel(status); }
+    else { badgeState = 'not-assigned'; badgeLabel = 'Not assigned'; }
+
+    // Expiry note when certified and the cert recerts on a cadence
+    const days = (status === 'approved') ? daysUntil(certExpiresAt(cert.id)) : null;
+    const expNote = (days !== null)
+      ? `<div style="font-size:0.75rem; color:${days > 0 ? 'var(--text-subtle)' : 'var(--disc-d, #E84040)'}; margin-top:8px; text-align:right;">${days > 0 ? `Expires in ${days} day${days === 1 ? '' : 's'}` : 'Recert overdue'}</div>`
+      : '';
+
+    // Action verb
+    const verb = isAssess ? (status === 'approved' ? 'Review' : 'Take it')
+      : recertDue ? 'Start recert'
+      : (isCourse && status === 'not-started') ? 'Start course'
+      : actionLabel(status);
 
     return `
-      <div class="cert-card stage-${isAssess ? 1 : cert.stage} ${locked ? 'unavailable' : ''}"
+      <div class="cert-card stage-${visualStage} ${locked ? 'unavailable' : ''}"
            ${clickable ? `onclick="openCert('${cert.id}')"` : ''}>
         <div class="head">
           <div class="icon">${cert.icon || '📘'}</div>
-          <span class="stage-chip">${isAssess ? 'Assessment' : 'Stage ' + cert.stage}</span>
+          <span class="stage-chip">${chip}</span>
         </div>
         <div>
           <div class="core">${cert.core}</div>
@@ -837,27 +865,38 @@ function renderCerts() {
         </div>
         <p class="desc">${cert.description || ''}</p>
         <div class="footer">
-          <span class="status-badge ${statusBadgeClass(locked ? 'locked' : (assigned || status !== 'not-started' ? status : 'not-assigned'))}">
-            ${locked ? 'Locked' : (assigned || status !== 'not-started' ? statusLabel(status) : 'Not assigned')}
-          </span>
-          ${clickable ? `<span class="action">${isAssess ? (status === 'approved' ? 'Review' : 'Take it') : actionLabel(status)} →</span>` : ''}
+          <span class="status-badge ${statusBadgeClass(badgeState)}">${badgeLabel}</span>
+          ${clickable ? `<span class="action">${verb} →</span>` : ''}
         </div>
+        ${expNote}
       </div>`;
   }).join('');
 }
+
+function certAssignment(certId) { return state.assignments.find(a => a.cert_id === certId) || null; }
+function certCycle(certId) { const a = certAssignment(certId); return (a && a.cycle) ? a.cycle : 1; }
+function certExpiresAt(certId) { const a = certAssignment(certId); return (a && a.expires_at) ? a.expires_at : null; }
+function daysUntil(ts) { return ts ? Math.round((new Date(ts) - new Date()) / 86400000) : null; }
 
 function certStatus(certId) {
   // Assessment-kind certs (e.g. Know Your Style) complete via cert_assignments
   // (driven by the assessment itself), not quiz attempts.
   const cert = state.certs.find(c => c.id === certId);
   if (cert && cert.kind === 'assessment') {
-    const a = state.assignments.find(x => x.cert_id === certId);
+    const a = certAssignment(certId);
     return (a && a.status === 'completed') ? 'approved' : 'not-started';
   }
-  // Return the most recent attempt status, or 'not-started'
-  const attempts = state.attempts.filter(a => a.cert_id === certId);
+  // Quiz/course certs: only count attempts from the CURRENT recert cycle, so a
+  // recertified cert (cycle bumped) reads as 'not-started' again until retaken.
+  const cyc = certCycle(certId);
+  const attempts = state.attempts.filter(a => a.cert_id === certId && (a.cycle || 1) === cyc);
   if (!attempts.length) return 'not-started';
   return attempts[0].status;
+}
+
+// Recert due = a prior cycle completed (cycle > 1) but the current cycle is unstarted.
+function certIsRecertDue(certId) {
+  return certCycle(certId) > 1 && certStatus(certId) === 'not-started';
 }
 
 function statusBadgeClass(s) {
@@ -905,6 +944,9 @@ async function openCert(certId) {
     return;
   }
 
+  // Course certs: in-portal lesson player (content + inline checks + final quiz)
+  if (cert.kind === 'course') { await startCourse(cert); return; }
+
   // Start or resume
   await startOrResumeQuiz(cert);
 }
@@ -922,12 +964,13 @@ async function startOrResumeQuiz(cert) {
     return;
   }
 
-  // Find or create in-progress attempt
-  let attempt = state.attempts.find(a => a.cert_id === cert.id && a.status === 'in_progress');
+  // Find or create in-progress attempt for the CURRENT recert cycle
+  const cyc = certCycle(cert.id);
+  let attempt = state.attempts.find(a => a.cert_id === cert.id && a.status === 'in_progress' && (a.cycle || 1) === cyc);
   if (!attempt) {
     const { data: newAttempt, error } = await supa
       .from('quiz_attempts')
-      .insert({ rep_id: state.rep.id, cert_id: cert.id })
+      .insert({ rep_id: state.rep.id, cert_id: cert.id, cycle: cyc })
       .select()
       .single();
     if (error) { alert(error.message); return; }
@@ -1136,15 +1179,244 @@ async function showCertSummary(cert) {
 
 async function retakeQuiz(certId) {
   const cert = state.certs.find(c => c.id === certId);
-  // Start a new attempt
+  // Start a new attempt in the current recert cycle
   const { data: newAttempt, error } = await supa
     .from('quiz_attempts')
-    .insert({ rep_id: state.rep.id, cert_id: cert.id })
+    .insert({ rep_id: state.rep.id, cert_id: cert.id, cycle: certCycle(certId) })
     .select()
     .single();
   if (error) { alert(error.message); return; }
   state.attempts = [newAttempt, ...state.attempts];
+  if (cert.kind === 'course') { await startCourse(cert); return; }
   await startOrResumeQuiz(cert);
+}
+
+// ===================== COURSE PLAYER =====================
+// A 'course' cert is an in-portal lesson: ordered content steps, each with
+// optional inline checkpoint questions (answer-as-you-go), then a short final
+// quiz. Fully auto-graded courses with a pass_threshold self-certify via the
+// submit_auto_pass RPC; otherwise the final routes to manager review.
+async function startCourse(cert) {
+  const [stepsRes, qRes] = await Promise.all([
+    supa.from('lesson_steps').select('*').eq('cert_id', cert.id).order('order_index'),
+    supa.from('quiz_questions').select('*').eq('cert_id', cert.id).order('order_index'),
+  ]);
+  const steps = stepsRes.data || [];
+  const questions = qRes.data || [];
+  if (!steps.length && !questions.length) {
+    alert('This course has no content yet. Ask your manager.');
+    return;
+  }
+  // Group checkpoints by the step they follow; finals are the closing quiz.
+  const checks = {};
+  questions.filter(q => q.section === 'checkpoint').forEach(q => {
+    (checks[q.step_index] = checks[q.step_index] || []).push(q);
+  });
+  const finals = questions.filter(q => q.section === 'final');
+
+  // Find or create an in-progress attempt for the current recert cycle.
+  const cyc = certCycle(cert.id);
+  let attempt = state.attempts.find(a => a.cert_id === cert.id && a.status === 'in_progress' && (a.cycle || 1) === cyc);
+  if (!attempt) {
+    const { data: newAttempt, error } = await supa
+      .from('quiz_attempts')
+      .insert({ rep_id: state.rep.id, cert_id: cert.id, cycle: cyc })
+      .select().single();
+    if (error) { alert(error.message); return; }
+    attempt = newAttempt;
+    state.attempts = [attempt, ...state.attempts];
+  }
+
+  state.activeCourse = { cert, attempt, steps, checks, finals, idx: 0, phase: steps.length ? 'lesson' : 'final', responses: {} };
+  setTab('quiz');
+  renderCourse();
+}
+
+function renderCourse() {
+  const c = state.activeCourse;
+  const total = c.steps.length;
+  document.getElementById('quiz-title').textContent = c.cert.name;
+
+  if (c.phase === 'lesson') {
+    const step = c.steps[c.idx];
+    const stepChecks = c.checks[step.order_index] || [];
+    document.getElementById('quiz-subtitle').textContent = `Lesson · Step ${c.idx + 1} of ${total}`;
+    const body = document.getElementById('quiz-body');
+    body.innerHTML = `
+      <div class="course-progress" style="display:flex; gap:4px; margin-bottom:var(--s-4);">
+        ${c.steps.map((s, i) => `<div style="flex:1; height:4px; border-radius:2px; background:${i <= c.idx ? 'var(--solar-green, #78C832)' : 'var(--hairline, #DFE2DA)'};"></div>`).join('')}
+      </div>
+      <div class="panel" style="margin-bottom:var(--s-4);">
+        ${step.heading ? `<h2 style="margin-bottom:var(--s-3);">${escapeHtml(step.heading)}</h2>` : ''}
+        <div class="lesson-body">${step.body_html || ''}</div>
+      </div>
+      ${stepChecks.length ? `
+        <div class="panel" id="checkpoint-panel" style="margin-bottom:var(--s-4); border-left:3px solid var(--solar-green, #78C832);">
+          <div class="q-number" style="color:var(--solar-green-dark, #5FA520); font-weight:700;">Quick check</div>
+          ${stepChecks.map((q, i) => renderCourseQuestion(q, i)).join('')}
+          <div id="check-feedback" style="margin-top:var(--s-3);"></div>
+        </div>` : ''}
+      <div class="quiz-actions">
+        <button class="btn btn-ghost" onclick="setTab('certs')">Save &amp; exit</button>
+        <button class="btn btn-primary" onclick="advanceCourse()">${c.idx + 1 >= total ? 'Go to final quiz' : 'Continue'} →</button>
+      </div>`;
+    attachCourseListeners(stepChecks);
+  } else {
+    // Final quiz
+    document.getElementById('quiz-subtitle').textContent = `Final certification quiz · ${c.finals.length} questions`;
+    const body = document.getElementById('quiz-body');
+    body.innerHTML = `
+      ${c.finals.map((q, i) => renderCourseQuestion(q, i, true)).join('')}
+      <div class="quiz-actions">
+        <button class="btn btn-ghost" onclick="backToLesson()">← Back to lesson</button>
+        <button class="btn btn-primary" onclick="submitCourseFinal()">Submit certification</button>
+      </div>`;
+    attachCourseListeners(c.finals);
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderCourseQuestion(q, idx, isFinal) {
+  const name = (isFinal ? 'fin-' : 'chk-') + q.id;
+  let opts = '';
+  if (q.question_type === 'mc') {
+    opts = `<div class="q-options">${(q.options_json || []).map(o => `
+      <label class="q-option" data-q="${q.id}">
+        <input type="radio" name="${name}" value="${o.key}">
+        <span><strong>${o.key.toUpperCase()}.</strong> ${escapeHtml(o.text)}</span>
+      </label>`).join('')}</div>`;
+  } else if (q.question_type === 'tf') {
+    opts = `<div class="q-options">
+      <label class="q-option" data-q="${q.id}"><input type="radio" name="${name}" value="true"><span>True</span></label>
+      <label class="q-option" data-q="${q.id}"><input type="radio" name="${name}" value="false"><span>False</span></label>
+    </div>`;
+  } else {
+    opts = `<textarea data-q="${q.id}" placeholder="Your answer..." style="width:100%; min-height:120px; padding:12px; font-family:inherit; font-size:0.9375rem; border:1px solid var(--hairline); border-radius:var(--r-sm); background:var(--surface-raised);"></textarea>`;
+  }
+  return `<div class="question" data-qid="${q.id}">
+    ${isFinal ? `<div class="q-number">Question ${idx + 1} · ${q.question_type.toUpperCase()}</div>` : ''}
+    <div class="q-prompt">${escapeHtml(q.prompt)}</div>
+    ${opts}
+  </div>`;
+}
+
+function attachCourseListeners(questions) {
+  const body = document.getElementById('quiz-body');
+  questions.forEach(q => {
+    if (q.question_type !== 'text') {
+      body.querySelectorAll(`input[name$="${q.id}"]`).forEach(inp => {
+        inp.addEventListener('change', e => {
+          state.activeCourse.responses[q.id] = { option: e.target.value };
+          body.querySelectorAll(`.q-option[data-q="${q.id}"]`).forEach(o => o.classList.toggle('selected', o.querySelector('input').checked));
+        });
+      });
+    } else {
+      const ta = body.querySelector(`textarea[data-q="${q.id}"]`);
+      if (ta) ta.addEventListener('input', e => { state.activeCourse.responses[q.id] = { text: e.target.value }; });
+    }
+  });
+}
+
+// Continue from a lesson step: grade its checkpoints inline; must be correct to advance.
+function advanceCourse() {
+  const c = state.activeCourse;
+  const step = c.steps[c.idx];
+  const stepChecks = c.checks[step.order_index] || [];
+  const fb = document.getElementById('check-feedback');
+
+  if (stepChecks.length) {
+    const unanswered = stepChecks.filter(q => !c.responses[q.id]);
+    if (unanswered.length) { if (fb) fb.innerHTML = `<span style="color:var(--disc-d, #E84040);">Answer the quick check to continue.</span>`; return; }
+    const wrong = stepChecks.filter(q => {
+      const r = c.responses[q.id];
+      if (q.question_type === 'text') return false; // formative only
+      return r.option !== q.correct_answer;
+    });
+    if (wrong.length) {
+      if (fb) fb.innerHTML = `<span style="color:var(--disc-d, #E84040);">Not quite — review the section above and try again.</span>`;
+      wrong.forEach(q => { delete c.responses[q.id]; document.querySelectorAll(`.q-option[data-q="${q.id}"]`).forEach(o => { o.classList.remove('selected'); const inp = o.querySelector('input'); if (inp) inp.checked = false; }); });
+      return;
+    }
+    if (fb) fb.innerHTML = `<span style="color:var(--solar-green-dark, #5FA520); font-weight:600;">Correct.</span>`;
+  }
+
+  if (c.idx + 1 >= c.steps.length) { c.phase = 'final'; }
+  else { c.idx += 1; }
+  renderCourse();
+}
+
+function backToLesson() {
+  const c = state.activeCourse;
+  if (!c.steps.length) return;
+  c.phase = 'lesson';
+  c.idx = c.steps.length - 1;
+  renderCourse();
+}
+
+async function submitCourseFinal() {
+  const c = state.activeCourse;
+  const { cert, attempt, finals, responses } = c;
+
+  const missing = finals.filter(q => {
+    const r = responses[q.id];
+    if (!r) return true;
+    return q.question_type === 'text' ? !(r.text && r.text.trim()) : !r.option;
+  });
+  if (missing.length) { alert(`Please answer all ${finals.length} questions. Missing ${missing.length}.`); return; }
+
+  // Persist only the final-quiz responses (checkpoints are formative).
+  let autoScore = 0, autoMax = 0;
+  const rows = finals.map(q => {
+    const r = responses[q.id];
+    let isCorrect = null;
+    if (q.question_type === 'mc' || q.question_type === 'tf') {
+      autoMax += q.points; isCorrect = r.option === q.correct_answer; if (isCorrect) autoScore += q.points;
+    }
+    return { attempt_id: attempt.id, question_id: q.id,
+      response_option: q.question_type !== 'text' ? r.option : null,
+      response_text: q.question_type === 'text' ? r.text : null, is_correct: isCorrect };
+  });
+  const { error: insErr } = await supa.from('quiz_responses').insert(rows);
+  if (insErr) { alert(insErr.message); return; }
+
+  // Fully auto-graded cert with a pass bar -> self-certify via RPC.
+  if (cert.pass_threshold != null) {
+    const { data, error } = await supa.rpc('submit_auto_pass', { p_attempt_id: attempt.id });
+    if (error) { alert(error.message); return; }
+    await loadAll(); renderCerts(); renderDashboard();
+    showCourseResult(cert, data);
+    state.activeCourse = null;
+    return;
+  }
+
+  // Otherwise route to manager review (same as a quiz cert).
+  const { error: updErr } = await supa.from('quiz_attempts')
+    .update({ submitted_at: new Date().toISOString(), auto_score: autoScore, auto_max: autoMax, status: 'pending_review' })
+    .eq('id', attempt.id);
+  if (updErr) { alert(updErr.message); return; }
+  await loadAll(); renderCerts(); renderDashboard();
+  showQuizResult(cert, autoScore, autoMax);
+  state.activeCourse = null;
+}
+
+function showCourseResult(cert, data) {
+  const body = document.getElementById('quiz-body');
+  const passed = data && data.passed;
+  body.innerHTML = passed
+    ? `<div class="result-card">
+         <div class="result-icon">✅</div>
+         <h2>Certified</h2>
+         <div class="score">${data.score} / ${data.max}</div>
+         <p class="note">You passed the ${escapeHtml(cert.name)} certification${data.expires_at ? `. This recertifies on ${formatDate(data.expires_at)}.` : '.'}</p>
+       </div>
+       <div class="quiz-actions"><button class="btn btn-primary" onclick="setTab('certs')">Back to certifications</button></div>`
+    : `<div class="result-card">
+         <div class="result-icon">🔁</div>
+         <h2>Almost there</h2>
+         <div class="score">${data.score} / ${data.max}</div>
+         <p class="note">You need ${cert.pass_threshold}% to certify. Review the lesson and try the quiz again.</p>
+       </div>
+       <div class="quiz-actions"><button class="btn btn-primary" onclick="openCert('${cert.id}')">Restart course</button></div>`;
 }
 
 // ===================== SHADOW LOG =====================

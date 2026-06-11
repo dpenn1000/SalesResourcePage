@@ -871,7 +871,7 @@ function renderDashboard() {
 
   const rows = reps.map(rep => {
     const assigned = state.assignments.filter(a => a.rep_id === rep.id);
-    const done = assigned.filter(a => a.status === 'approved');
+    const done = assigned.filter(a => a.status === 'approved' || a.status === 'completed');
     const attempts = A.filter(a => a.rep_id === rep.id);
     const passed = attempts.filter(a => a.status === 'approved');
     const shadows = state.shadows.filter(s => s.rep_id === rep.id);
@@ -899,6 +899,9 @@ function renderDashboard() {
   const totalAttempts = A.length;
   const passRate = totalAttempts ? Math.round((A.filter(a => a.status === 'approved').length / totalAttempts) * 100) : 0;
   const totalShadows = (state.shadows || []).length;
+  const repIds = new Set(reps.map(r => r.id));
+  const recertDue = (state.assignments || []).filter(a =>
+    repIds.has(a.rep_id) && a.expires_at && new Date(a.expires_at) < new Date()).length;
 
   const kpi = (n, l, color) => `<div class="kpi"><div class="n" style="color:${color}">${n}</div><div class="l">${l}</div></div>`;
   document.getElementById('dash-kpis').innerHTML =
@@ -906,6 +909,7 @@ function renderDashboard() {
     kpi(certifiedReps, 'Fully certified', 'var(--solar-green-dark)') +
     kpi(certsEarned, 'Certs earned', 'var(--solar-green-dark)') +
     kpi(needAttention, 'Need attention', needAttention ? 'var(--accent-rose)' : 'var(--text-muted)') +
+    kpi(recertDue, 'Recert due', recertDue ? 'var(--accent-rose)' : 'var(--text-muted)') +
     kpi(totalAttempts, `Quiz attempts &middot; ${passRate}% passed`, 'var(--ink)') +
     kpi(totalShadows, 'Shadows logged', 'var(--ink)');
 
@@ -1111,34 +1115,24 @@ function setVerdict(responseId, verdict) {
 async function finalizeAttempt(attemptId, decision) {
   const notes = document.getElementById('mgr-notes').value.trim() || null;
 
-  // Save text verdicts
-  const updates = Object.entries(window.__textVerdicts || {}).map(([id, verdict]) =>
-    supa.from('quiz_responses').update({ manager_verdict: verdict }).eq('id', id)
-  );
-  await Promise.all(updates);
+  // Manager verdicts are keyed by response id in the UI; the RPC keys by
+  // question id. Translate via the loaded responses.
+  const respById = {};
+  (window.__attemptResponses || []).forEach(r => { respById[r.id] = r; });
+  const textVerdicts = {};
+  Object.entries(window.__textVerdicts || {}).forEach(([rid, v]) => {
+    if (v && respById[rid]) textVerdicts[respById[rid].question_id] = v;
+  });
 
-  // Update attempt
-  const { error } = await supa.from('quiz_attempts').update({
-    status: decision,
-    manager_notes: notes,
-    approved_by: state.manager.id,
-    approved_at: new Date().toISOString(),
-  }).eq('id', attemptId);
+  // finalize_cert_attempt (SECURITY DEFINER) stamps the attempt, completes the
+  // assignment with an expiry, and writes the cert_completions history row.
+  const { error } = await supa.rpc('finalize_cert_attempt', {
+    p_attempt_id: attemptId,
+    p_decision: decision === 'approved' ? 'approve' : 'retake',
+    p_notes: notes,
+    p_text_verdicts: textVerdicts,
+  });
   if (error) { alert(error.message); return; }
-
-  // Update cert_assignment if approved
-  if (decision === 'approved') {
-    const attempt = state.pendingAttempts.find(a => a.id === attemptId);
-    const existing = state.assignments.find(
-      a => a.rep_id === attempt.rep_id && a.cert_id === attempt.cert_id
-    );
-    if (existing) {
-      await supa.from('cert_assignments').update({
-        status: 'approved',
-        completed_at: new Date().toISOString()
-      }).eq('id', existing.id);
-    }
-  }
 
   closeModal();
   await loadAll();
@@ -1314,10 +1308,10 @@ function renderReps() {
       <tbody>
         ${state.reps.map(rep => {
           const s1Done = state.assignments.filter(a =>
-            a.rep_id === rep.id && a.status === 'approved' && s1Certs.some(c => c.id === a.cert_id)
+            a.rep_id === rep.id && (a.status === 'approved' || a.status === 'completed') && s1Certs.some(c => c.id === a.cert_id)
           ).length;
           const s2Done = state.assignments.filter(a =>
-            a.rep_id === rep.id && a.status === 'approved' && s2Certs.some(c => c.id === a.cert_id)
+            a.rep_id === rep.id && (a.status === 'approved' || a.status === 'completed') && s2Certs.some(c => c.id === a.cert_id)
           ).length;
           const day = rep.cohort_start_date ? daysSince(rep.cohort_start_date) : '--';
           return `
@@ -1587,7 +1581,22 @@ function renderAssignments() {
   const body = document.getElementById('assignments-body');
   if (!state.reps.length) { body.innerHTML = `<div class="empty">Add a rep first.</div>`; return; }
 
-  body.innerHTML = state.reps.map(rep => {
+  // Recertify a whole cert across the active roster. Recert-capable certs are
+  // those with a recert interval (course/quiz certs you want reps to refresh).
+  const recertable = state.certs.filter(c => c.recert_interval_days != null);
+  const recertPanel = recertable.length ? `
+    <div class="panel" style="margin-bottom: var(--s-4); border-left:3px solid var(--solar-green-dark, #5FA520);">
+      <div class="panel-head"><div class="titles"><h3>Recertify</h3>
+        <p>Reopen a recurring cert for the whole active roster. Reps keep their history and retake the latest version.</p></div></div>
+      <div style="display:flex; gap:var(--s-3); align-items:center; flex-wrap:wrap;">
+        <select id="recert-cert" style="padding:8px; border:1px solid var(--hairline); border-radius:var(--r-sm);">
+          ${recertable.map(c => `<option value="${c.id}">${c.icon || ''} ${escapeHtml(c.name)} (every ${c.recert_interval_days}d)</option>`).join('')}
+        </select>
+        <button class="btn btn-primary btn-sm" onclick="recertifyAll()">Recertify all active reps</button>
+      </div>
+    </div>` : '';
+
+  body.innerHTML = recertPanel + state.reps.map(rep => {
     const repAssigns = state.assignments.filter(a => a.rep_id === rep.id);
     return `
       <div class="panel">
@@ -1601,7 +1610,8 @@ function renderAssignments() {
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--s-3);">
           ${state.certs.map(c => {
             const assigned = repAssigns.find(a => a.cert_id === c.id);
-            const completed = assigned && assigned.status === 'approved';
+            const completed = assigned && (assigned.status === 'approved' || assigned.status === 'completed');
+            const canRecert = completed && c.recert_interval_days != null;
             return `
               <div style="padding: var(--s-3); border: 1px solid var(--hairline); border-radius: var(--r-sm); background: ${assigned ? 'var(--surface-raised)' : 'var(--surface-white)'};">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
@@ -1614,7 +1624,7 @@ function renderAssignments() {
                            onchange="toggleAssign('${rep.id}', '${c.id}', this.checked)">
                   </label>
                 </div>
-                ${assigned ? `<div style="margin-top: 6px;"><span class="status-badge status-${assigned.status === 'approved' ? 'approved' : assigned.status === 'pending_review' ? 'pending' : assigned.status === 'retake' ? 'retake' : 'in-progress'}">${assigned.status.replace('_', ' ')}</span></div>` : ''}
+                ${assigned ? `<div style="margin-top: 6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><span class="status-badge status-${(assigned.status === 'approved' || assigned.status === 'completed') ? 'approved' : assigned.status === 'pending_review' ? 'pending' : assigned.status === 'retake' ? 'retake' : 'in-progress'}">${assigned.status.replace('_', ' ')}</span>${canRecert ? `<a href="#" onclick="recertifyOne('${rep.id}','${c.id}');return false;" style="font-size:0.75rem; color:var(--solar-green-dark, #5FA520);">Recertify</a>` : ''}${(completed && assigned.expires_at) ? `<span style="font-size:0.7rem; color:var(--text-subtle);">exp ${formatDate(assigned.expires_at)}</span>` : ''}</div>` : ''}
               </div>`;
           }).join('')}
         </div>
@@ -1630,7 +1640,7 @@ async function toggleAssign(repId, certId, assign) {
     if (error && !error.message.includes('duplicate')) { alert(error.message); return; }
   } else {
     const existing = state.assignments.find(a => a.rep_id === repId && a.cert_id === certId);
-    if (existing && existing.status !== 'approved') {
+    if (existing && existing.status !== 'approved' && existing.status !== 'completed') {
       await supa.from('cert_assignments').delete().eq('id', existing.id);
     }
   }
@@ -1651,6 +1661,35 @@ async function bulkAssign(repId, stage) {
   await loadAll();
   renderAssignments();
   renderReps();
+}
+
+// Recertify a cert across the whole active roster (bumps each rep's cycle).
+async function recertifyAll() {
+  const certId = document.getElementById('recert-cert').value;
+  const cert = state.certs.find(c => c.id === certId);
+  const repIds = state.reps.map(r => r.id);
+  if (!repIds.length) return;
+  if (!confirm(`Recertify "${cert ? cert.name : 'this cert'}" for all ${repIds.length} active reps? They keep their history and retake it.`)) return;
+  const { data, error } = await supa.rpc('recertify_reps', { p_cert_id: certId, p_rep_ids: repIds, p_reason: 'roster recert' });
+  if (error) { alert(error.message); return; }
+  await loadAll();
+  renderAssignments();
+  renderReps();
+  renderDashboard();
+  alert(`Recertified ${data} rep${data === 1 ? '' : 's'}.`);
+}
+
+// Recertify a single rep for one cert.
+async function recertifyOne(repId, certId) {
+  const rep = state.reps.find(r => r.id === repId);
+  const cert = state.certs.find(c => c.id === certId);
+  if (!confirm(`Recertify ${rep ? rep.name : 'this rep'} on "${cert ? cert.name : 'this cert'}"?`)) return;
+  const { error } = await supa.rpc('recertify_reps', { p_cert_id: certId, p_rep_ids: [repId], p_reason: 'manual recert' });
+  if (error) { alert(error.message); return; }
+  await loadAll();
+  renderAssignments();
+  renderReps();
+  renderDashboard();
 }
 
 // ===================== TRAINING PROGRAM =====================
