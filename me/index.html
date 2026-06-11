@@ -1405,6 +1405,19 @@ function renderMePerf(d){
   const scopeCaption = '<div class="metrics-scope"><b>Contracts, kW, PPA:</b> latest Performance Dashboard data (' + esc(_headScope) + '). <b>Sales Club:</b> this quarter to date.</div>';
   $('metricsPill').textContent = (d.percentile_contracts != null ? 'top ' + Math.max(1, 100 - d.percentile_contracts) + '%' : 'live');
   $('metricsPill').className = 'section-pill green';
+  $('metricsPill').style.background = '';
+  $('metricsPill').style.color = '';
+  // Freshness guard: if the data window's end is more than 3 days old, flag it
+  // amber with the as-of date so staleness is visible instead of silently trusted.
+  if (_win.to) {
+    var _ageDays = Math.floor((Date.now() - new Date(String(_win.to) + 'T00:00:00').getTime()) / 86400000);
+    if (_ageDays > 3) {
+      $('metricsPill').textContent = 'as of ' + _fmtW(_win.to);
+      $('metricsPill').className = 'section-pill';
+      $('metricsPill').style.background = 'var(--amber, #F5A623)';
+      $('metricsPill').style.color = '#1A2332';
+    }
+  }
 
   const tiles = [];
   tiles.push(metric('Contracts', fmtNum(r.contracts) + rankTxt(ranks.contracts),
