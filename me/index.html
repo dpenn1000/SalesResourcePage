@@ -520,6 +520,7 @@
   .me-toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--header); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; z-index:600; opacity:0; transition:opacity .2s; pointer-events:none; }
   .me-toast.show { opacity:1; }
   .tm-goal-edit { cursor:pointer; color:var(--blue); font-weight:700; margin-left:3px; text-decoration:underline; }
+  .pf-field select { width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:14px; color:var(--text); background:#fff; }
 </style>
 </head>
 <body>
@@ -2075,6 +2076,41 @@ async function dismissActionItem(key){
   if (window._meCtx) loadAndRenderAddressables(window._meCtx);
 }
 
+// ── Log a Shadow (writes to shadow_logs, same as the University portal) ──
+function openShadowModal(){
+  const m = $('shadowModal'); if (!m) return;
+  const d = $('sh-date'); if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
+  m.style.display = 'flex';
+}
+function closeShadowModal(){ const m = $('shadowModal'); if (m) m.style.display = 'none'; }
+async function submitShadowLog(e){
+  e.preventDefault();
+  const me = window._uniMe;
+  if (!me || !me.id){ meToast('Could not identify you'); return; }
+  const val = (id) => { const el = $(id); return el ? el.value : ''; };
+  const name = val('sh-name').trim(), date = val('sh-date');
+  if (!name || !date){ meToast('Rep name and date are required'); return; }
+  const rec = {
+    rep_id: me.id,
+    shadowed_rep_name: name,
+    shadow_date: date,
+    duration_minutes: val('sh-duration') ? parseInt(val('sh-duration'), 10) : null,
+    appointment_type: val('sh-type') || null,
+    outcome: val('sh-outcome').trim() || null,
+    self_rating: val('sh-rating') ? parseInt(val('sh-rating'), 10) : null,
+    what_worked: val('sh-worked').trim() || null,
+    objections_seen: val('sh-objections').trim() || null,
+    key_takeaways: val('sh-takeaways').trim() || null,
+    notes: val('sh-notes').trim() || null
+  };
+  const { error } = await sb.from('shadow_logs').insert(rec);
+  if (error){ meToast('Could not log: ' + error.message); return; }
+  meToast('Shadow logged. Your manager approves each entry.');
+  e.target.reset();
+  closeShadowModal();
+  loadAndRenderUniversity(me);
+}
+
 async function resolveAddressable(id, me){
   const { error } = await sb.from('rep_addressables').update({
     status: 'resolved',
@@ -2132,6 +2168,7 @@ async function loadAndRenderNotes(me){
 // UNIVERSITY
 // ============================================================================
 async function loadAndRenderUniversity(me){
+  window._uniMe = me;
   const [{ data: certs }, { data: quizzes }, { data: shadows }, { data: helpOpen }] = await Promise.all([
     sb.from('cert_assignments').select('id, status, assigned_at, completed_at, cert_id').eq('rep_id', me.id),
     sb.from('quiz_attempts').select('id, status, auto_score, auto_max, submitted_at').eq('rep_id', me.id),
@@ -2161,7 +2198,8 @@ async function loadAndRenderUniversity(me){
       : '<div class="list-row"><div><div class="l-name">Shadow Logs</div><div class="l-sub">None recorded</div></div></div>') +
     ((helpOpen && helpOpen.length)
       ? '<div class="list-row"><div><div class="l-name">Open Help Requests</div><div class="l-sub">awaiting response</div></div><div class="l-right amber">' + helpOpen.length + '</div></div>'
-      : '');
+      : '') +
+    (IS_VIEW_AS ? '' : '<button class="ti-cta" style="margin-top:14px" onclick="openShadowModal()">+ Log a Shadow</button>');
 }
 
 // ============================================================================
@@ -2215,6 +2253,26 @@ async function loadAndRenderCallActivity(me){
   <div class="tm-card">
     <div class="tm-card-head"><div class="tm-card-title">Customer Touches to send</div><button class="tm-close" onclick="closeTouchModal()" type="button">&times;</button></div>
     <div id="touchModalBody" class="tm-card-body"></div>
+  </div>
+</div>
+<div id="shadowModal" class="tm-overlay" style="display:none" onclick="if(event.target===this)closeShadowModal()">
+  <div class="tm-card">
+    <div class="tm-card-head"><div class="tm-card-title">Log a Shadow</div><button class="tm-close" onclick="closeShadowModal()" type="button">&times;</button></div>
+    <div class="tm-card-body">
+      <form onsubmit="submitShadowLog(event)">
+        <div class="pf-field"><label>Rep you shadowed</label><input id="sh-name" required placeholder="Full name"></div>
+        <div class="pf-field"><label>Date</label><input id="sh-date" type="date" required></div>
+        <div class="pf-field"><label>Appointment type</label><select id="sh-type"><option value="">Select...</option><option>Solar</option><option>Roofing</option><option>Battery</option><option>Multiple</option></select></div>
+        <div class="pf-field"><label>Duration (minutes)</label><input id="sh-duration" type="number" min="1" placeholder="60"></div>
+        <div class="pf-field"><label>Outcome</label><input id="sh-outcome" placeholder="Sat / sold / no sale / go-back..."></div>
+        <div class="pf-field"><label>How you'd rate it (1-5)</label><select id="sh-rating"><option value="">--</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+        <div class="pf-field"><label>What worked</label><textarea id="sh-worked"></textarea></div>
+        <div class="pf-field"><label>Objections you saw</label><textarea id="sh-objections"></textarea></div>
+        <div class="pf-field"><label>Key takeaways</label><textarea id="sh-takeaways"></textarea></div>
+        <div class="pf-field"><label>Notes</label><textarea id="sh-notes"></textarea></div>
+        <button class="pf-save" type="submit">Log Shadow</button>
+      </form>
+    </div>
   </div>
 </div>
 <div id="meToast" class="me-toast"></div>
