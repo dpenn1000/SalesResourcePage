@@ -493,6 +493,19 @@
   .sc-uplift-b { font-size: 12.5px; line-height: 1.5; color: #c9c1a8; margin-top: 5px; }
   .sc-link { color: var(--gold-lt); font-weight: 700; text-decoration: none; border-bottom: 1px solid rgba(240,215,122,0.4); }
   .sc-link:hover { border-bottom-color: var(--gold-lt); }
+  /* Top Action Items */
+  .ti-group { margin-bottom:14px; }
+  .ti-group:last-child { margin-bottom:0; }
+  .ti-head { font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--text2); margin-bottom:5px; }
+  .ti-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--border); font-size:14px; }
+  .ti-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .ti-text { flex:1; color:var(--text); min-width:0; }
+  .ti-sub { font-size:12px; color:var(--text2); margin-top:2px; }
+  .ti-when { font-size:12px; color:var(--text2); font-weight:600; white-space:nowrap; }
+  .ti-cta { margin-left:auto; flex-shrink:0; font-size:12px; font-weight:700; color:var(--blue); background:none; border:1px solid var(--border); border-radius:7px; padding:4px 11px; cursor:pointer; text-decoration:none; white-space:nowrap; font-family:inherit; }
+  .ti-cta:hover { border-color:var(--blue); }
+  .ti-soon { opacity:.6; }
+  .ti-more { font-size:12px; color:var(--text3); padding:6px 0 0 18px; }
 </style>
 </head>
 <body>
@@ -610,7 +623,7 @@
   <!-- NEED TO ADDRESS -->
   <div class="section">
     <div class="section-head">
-      <div class="section-title">Need to Address</div>
+      <div class="section-title">Top Action Items</div>
       <div class="section-pill" id="addrPill">--</div>
     </div>
     <div class="section-body" id="addrBody">
@@ -969,10 +982,7 @@ async function buildActionCenter(prof, overview, coaching, dealsInfo){
   const uni = (overview && overview.university) || {};
   const items = [];  // {pri, text, cta:{label,href} | onclick}
 
-  // Constant Contact customer touches due on in-progress deals
-  if (dealsInfo && dealsInfo.needTouch > 0) items.push({ pri:'high',
-    text: dealsInfo.needTouch + ' deal' + (dealsInfo.needTouch>1?'s':'') + ' need a customer touch (Constant Contact)',
-    cta:{ label:'My Calls', href:'/my-calls.html' } });
+  // (Installations + Constant Contact touches + manager items live in Top Action Items.)
 
   // Schedule: open period not yet submitted
   try {
@@ -987,18 +997,6 @@ async function buildActionCenter(prof, overview, coaching, dealsInfo){
         items.push({ pri:'high', text:'Submit your availability for ' + (per.label || 'the open period'),
           cta:{ label:'Open Scheduling', href:'/scheduling/' } });
       }
-    }
-  } catch (e) {}
-
-  // Manager action items (open)
-  try {
-    if (prof && prof.id){
-      const { count } = await sb.from('rep_addressables')
-        .select('id', { count:'exact', head:true })
-        .eq('rep_id', prof.id).eq('status','open');
-      if (count > 0) items.push({ pri:'high',
-        text: count + ' action item' + (count>1?'s':'') + ' from your manager',
-        onclick: "document.getElementById('addrBody').scrollIntoView({behavior:'smooth'})" });
     }
   } catch (e) {}
 
@@ -1785,48 +1783,81 @@ function renderSalesClub(d, cfg){
 // ============================================================================
 // NEED TO ADDRESS
 // ============================================================================
+function tiCleanCust(s){
+  if(!s) return '(customer)';
+  let x = String(s).replace(/\([^)]*\)/g,'').replace(/[-\s]+$/,'').trim();
+  if(x.includes(',')){ const p=x.split(','); x=((p[1]||'').trim()+' '+(p[0]||'').trim()).trim(); }
+  return x || '(customer)';
+}
+function tiDaysUntil(d){ const t=Date.parse(d); return isNaN(t)?999:Math.ceil((t-Date.now())/86400000); }
+
+// Top Action Items: the rep's operational to-do hub. Aggregates upcoming
+// installations, Constant Contact touches due, manager action items, and
+// placeholders for reports not wired up yet (Missing Docs, Rep Responsible).
 async function loadAndRenderAddressables(me){
-  const { data } = await sb.from('rep_addressables')
-    .select('id, title, body, priority, status, due_date, created_at, author_id, resolved_at')
-    .eq('rep_id', me.id)
-    .order('status', { ascending: true })
-    .order('priority', { ascending: false })
-    .order('created_at', { ascending: false });
-
   const body = $('addrBody');
-  const all = data || [];
-  const open = all.filter(a => a.status === 'open');
+  const today = new Date().toISOString().slice(0, 10);
+  const [dpRes, tcRes, addrRes] = await Promise.all([
+    me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
+    me.name ? sb.from('deal_touches').select('dl_number,touch_key') : Promise.resolve({ data: [] }),
+    me.id   ? sb.from('rep_addressables').select('id,title,body,priority,due_date,created_at').eq('rep_id', me.id).eq('status', 'open') : Promise.resolve({ data: [] })
+  ]);
+  const deals = dpRes.data || [], touches = tcRes.data || [], addr = addrRes.data || [];
 
-  if (!open.length){
-    body.innerHTML = '<div class="empty success">No open items. You\'re all clear.</div>';
-    $('addrPill').textContent = '0 open';
-    $('addrPill').className   = 'section-pill green';
-    return;
+  let html = '', count = 0, urgent = false;
+  const group = (title, inner) => { if (inner) html += '<div class="ti-group"><div class="ti-head">' + esc(title) + '</div>' + inner + '</div>'; };
+  const item = (color, text, extra) => '<div class="ti-item"><span class="ti-dot" style="background:' + color + '"></span><span class="ti-text">' + text + '</span>' + (extra || '') + '</div>';
+
+  // 1. Installations (upcoming)
+  const installs = [];
+  deals.forEach(d => {
+    const cust = tiCleanCust(d.customer_name);
+    [['Solar', d.install_start_date], ['Battery', d.battery_install_date], ['Roof', d.roofing_install_date]].forEach(p => {
+      const dt = p[1] ? String(p[1]).slice(0, 10) : null;
+      if (dt && dt >= today) installs.push({ cust: cust, type: p[0], date: dt });
+    });
+  });
+  installs.sort((a, b) => a.date.localeCompare(b.date));
+  if (installs.length){
+    count += installs.length;
+    const rows = installs.slice(0, 6).map(i => {
+      const soon = tiDaysUntil(i.date) <= 7; if (soon) urgent = true;
+      return item(soon ? 'var(--red)' : 'var(--blue)', '<b>' + esc(i.cust) + '</b> ' + esc(i.type) + ' install', '<span class="ti-when">' + fmtDate(i.date) + '</span>');
+    }).join('');
+    group('Installations (' + installs.length + ')', rows + (installs.length > 6 ? '<div class="ti-more">+ ' + (installs.length - 6) + ' more</div>' : ''));
   }
 
-  $('addrPill').textContent = open.length + ' open';
-  $('addrPill').className   = 'section-pill ' + (open.some(a => a.priority === 'high') ? 'red' : 'amber');
+  // 2. Constant Contact touches due
+  const sent = {}; touches.forEach(t => { (sent[t.dl_number] = sent[t.dl_number] || {})[t.touch_key] = 1; });
+  let needTouch = 0; deals.forEach(d => { const k = DP_PRIMARY[d.stage_num]; if (k && !(sent[d.dl_number] && sent[d.dl_number][k])) needTouch++; });
+  if (needTouch > 0){
+    count += needTouch; urgent = true;
+    group('Customer Touches', item('var(--amber)', needTouch + ' deal' + (needTouch > 1 ? 's' : '') + ' need a Constant Contact message',
+      IS_VIEW_AS ? '' : '<a class="ti-cta" href="/my-calls.html">Send</a>'));
+  }
 
-  body.innerHTML = open.map(a =>
-    '<div class="addr p-' + esc(a.priority || 'medium') + '" data-id="' + esc(a.id) + '">' +
-    '  <div class="addr-head">' +
-    '    <div class="addr-title">' + esc(a.title) + '</div>' +
-    (IS_VIEW_AS
-      ? ''
-      : '    <button class="addr-resolve" data-resolve="' + esc(a.id) + '">Mark Resolved</button>') +
-    '  </div>' +
-    (a.body ? '<div class="addr-body">' + esc(a.body) + '</div>' : '') +
-    '  <div class="addr-meta">' +
-    esc((a.priority || 'medium').toUpperCase()) + ' / ' + fmtRel(a.created_at) +
-    (a.due_date ? '  /  due ' + fmtDate(a.due_date) : '') +
-    '  </div>' +
-    '</div>'
-  ).join('');
+  // 3. From your manager (rep_addressables)
+  if (addr.length){
+    count += addr.length;
+    const rows = addr.map(a => {
+      if (a.priority === 'high') urgent = true;
+      const txt = '<b>' + esc(a.title) + '</b>' + (a.body ? '<div class="ti-sub">' + esc(a.body) + '</div>' : '');
+      const cta = IS_VIEW_AS ? '' : '<button class="ti-cta" data-resolve="' + esc(a.id) + '">Resolve</button>';
+      return item(a.priority === 'high' ? 'var(--red)' : 'var(--amber)', txt, cta);
+    }).join('');
+    group('From Your Manager', rows);
+  }
 
-  if (!IS_VIEW_AS) {
-    body.querySelectorAll('[data-resolve]').forEach(btn => {
-      btn.addEventListener('click', () => resolveAddressable(btn.dataset.resolve, me));
-    });
+  // 4-5. Reports not wired up yet -- placeholders so the structure is visible.
+  group('Missing Docs', '<div class="ti-item ti-soon"><span class="ti-dot" style="background:var(--text3)"></span><span class="ti-text">Coming soon. No report wired up yet.</span></div>');
+  group('Rep Responsible', '<div class="ti-item ti-soon"><span class="ti-dot" style="background:var(--text3)"></span><span class="ti-text">Coming soon. No report wired up yet.</span></div>');
+
+  $('addrPill').textContent = count > 0 ? count + ' to do' : 'all clear';
+  $('addrPill').className = 'section-pill ' + (urgent ? 'red' : (count > 0 ? 'amber' : 'green'));
+  body.innerHTML = html;
+
+  if (!IS_VIEW_AS){
+    body.querySelectorAll('[data-resolve]').forEach(btn => btn.addEventListener('click', () => resolveAddressable(btn.dataset.resolve, me)));
   }
 }
 async function resolveAddressable(id, me){
