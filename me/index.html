@@ -523,6 +523,14 @@
   .me-toast.show { opacity:1; }
   .tm-goal-edit { cursor:pointer; color:var(--blue); font-weight:700; margin-left:3px; text-decoration:underline; }
   .pf-field select { width:100%; padding:9px 11px; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:14px; color:var(--text); background:#fff; }
+  /* New-rep setup banner */
+  #setupBanner { background:linear-gradient(135deg, rgba(120,200,50,0.13), rgba(41,169,225,0.08)); border:1px solid var(--green); border-radius:11px; padding:12px 14px; margin-bottom:16px; display:flex; align-items:flex-start; gap:12px; box-shadow:var(--shadow); }
+  .su-title { font-weight:800; font-size:14px; color:var(--text); margin-bottom:7px; }
+  .su-chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .su-chip { display:inline-block; background:var(--card); border:1px solid var(--border); border-radius:999px; padding:6px 13px; font-size:13px; font-weight:700; color:var(--text); cursor:pointer; text-decoration:none; font-family:inherit; }
+  .su-chip::before { content:'+ '; color:#4A8A14; }
+  .su-chip:hover { border-color:var(--green); }
+  .su-dismiss { background:none; border:none; font-size:22px; line-height:1; color:var(--text2); cursor:pointer; }
 </style>
 </head>
 <body>
@@ -549,6 +557,9 @@
     <span><strong style="color:#5a3d00">Viewing as another rep.</strong> <span id="viewAsBannerSub" style="font-weight:500">Notes and metrics are read-only here.</span></span>
     <a href="/me/" style="padding:7px 14px;background:#1A2332;color:#fff;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;white-space:nowrap">Back to my page</a>
   </div>
+
+  <!-- New-rep setup nudge (self only; dismissible) -->
+  <div id="setupBanner" style="display:none"></div>
 
   <!-- Rep picker (managers/admins): view any rep's full profile -->
   <div id="repPicker" style="display:none;align-items:center;gap:10px;margin-bottom:14px;"></div>
@@ -966,9 +977,41 @@ async function loadProfileExtras(me){
   const style = coaching && coaching.result && coaching.result.selling_style;
   renderDisc(discData, style);
   if (!IS_VIEW_AS){
+    window._meOverview = overview;
     const dealsInfo = await loadDeals(prof);
     buildActionCenter(prof, overview, coaching, dealsInfo);
+    buildSetupBanner(prof, overview);
   }
+}
+
+// ── New-rep setup nudge: a dismissible checklist of profile-setup items ──
+async function buildSetupBanner(prof, overview){
+  if (IS_VIEW_AS) return;
+  const banner = $('setupBanner'); if (!banner || !prof) return;
+  let dismissed = false;
+  try {
+    const { data } = await sb.from('rep_action_dismissals').select('item_key').eq('item_key', 'setup_banner').limit(1);
+    dismissed = !!(data && data.length);
+  } catch (e) {}
+  if (dismissed){ banner.style.display = 'none'; return; }
+  const p = prof.personal || {};
+  const items = [];
+  if (!prof.photo_url) items.push({ label: 'Add a photo', onclick: "document.getElementById('photoInput').click()" });
+  if (!p.family && !p.hobbies && !p.self_reflection) items.push({ label: 'Family & goals', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
+  if (!p.address) items.push({ label: 'Confirm your address', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
+  if (overview && !overview.disc) items.push({ label: 'Take your DISC', href: '/traditional-university/disc-assessment.html' });
+  if (!items.length){ banner.style.display = 'none'; return; }
+  banner.style.display = 'flex';
+  banner.innerHTML =
+    '<div style="flex:1"><div class="su-title">Finish setting up your profile</div><div class="su-chips">' +
+    items.map(function(i){ return i.href
+      ? '<a class="su-chip" href="' + i.href + '">' + esc(i.label) + '</a>'
+      : '<button class="su-chip" type="button" onclick="' + i.onclick + '">' + esc(i.label) + '</button>'; }).join('') +
+    '</div></div><button class="su-dismiss" type="button" onclick="dismissSetup()" title="Dismiss">&times;</button>';
+}
+async function dismissSetup(){
+  const b = $('setupBanner'); if (b) b.style.display = 'none';
+  try { await sb.rpc('dismiss_action_item', { p_key: 'setup_banner' }); } catch (e) {}
 }
 
 // ── Deals in Progress: post-sale customer touches (Constant Contact cadence) ──
@@ -1256,7 +1299,7 @@ function renderPersonal(prof){
     // Read-only view of the rep's personal info (managers can't edit it here).
     const row = function(label, val){ return val ? '<div class="pf-field"><label>'+label+'</label><div style="font-size:14px;color:var(--text);white-space:pre-wrap">'+esc(val)+'</div></div>' : ''; };
     const html = row('Headline', prof.bio) + row('Family', p.family) + row('Hobbies &amp; interests', p.hobbies)
-      + row('Important dates', p.dates) + row('Favorites', p.favorites) + row('What they are working on', p.self_reflection);
+      + row('Important dates', p.dates) + row('Favorites', p.favorites) + row('Home address', p.address) + row('What they are working on', p.self_reflection);
     $('personalBody').innerHTML = html || '<div class="empty">This rep hasn\'t filled in personal info yet.</div>';
     return;
   }
@@ -1266,6 +1309,7 @@ function renderPersonal(prof){
     '<div class="pf-field"><label>Hobbies &amp; interests</label><textarea id="pf_hobbies" placeholder="What you do outside work">' + v('hobbies') + '</textarea></div>' +
     '<div class="pf-field"><label>Important dates</label><input id="pf_dates" value="' + v('dates') + '" placeholder="Birthday, anniversary, milestones"></div>' +
     '<div class="pf-field"><label>Favorites</label><input id="pf_favorites" value="' + v('favorites') + '" placeholder="Coffee order, team, food spot"></div>' +
+    '<div class="pf-field"><label>Home address</label><input id="pf_address" value="' + v('address') + '" placeholder="Street, town, ST"></div>' +
     '<div class="pf-field"><label>What I am working on <span class="disc-soon">feeds my coaching</span></label><textarea id="pf_reflection" placeholder="Your own read on where you want to grow">' + v('self_reflection') + '</textarea><div class="hint">Used to tailor your focus &amp; action plan.</div></div>' +
     '<button class="pf-save" id="pf_save" type="button" onclick="savePersonal()">Save my info</button>';
 }
@@ -1277,13 +1321,14 @@ async function savePersonal(){
     hobbies:         $('pf_hobbies').value.trim(),
     dates:           $('pf_dates').value.trim(),
     favorites:       $('pf_favorites').value.trim(),
+    address:         $('pf_address').value.trim(),
     self_reflection: $('pf_reflection').value.trim()
   };
   const bio = $('pf_bio').value.trim();
   const { data, error } = await sb.rpc('update_my_profile', { p_personal: personal, p_bio: bio, p_photo_url: null });
   btn.disabled = false; btn.textContent = 'Save my info';
   if (error){ alert('Save failed: ' + error.message); return; }
-  if (data) renderAvatar(data);
+  if (data){ renderAvatar(data); buildSetupBanner(data, window._meOverview); }
 }
 
 let _photoWired = false;
@@ -1306,7 +1351,7 @@ async function onPhotoPick(){
   const { data, error } = await sb.rpc('update_my_profile', { p_personal: null, p_bio: null, p_photo_url: url });
   this.value = '';
   if (error){ alert('Photo saved but profile update failed: ' + error.message); return; }
-  if (data) renderAvatar(data);
+  if (data){ renderAvatar(data); buildSetupBanner(data, window._meOverview); }
 }
 
 function renderViewAsBanner(me, profile){
