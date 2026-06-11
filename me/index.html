@@ -506,6 +506,19 @@
   .ti-cta:hover { border-color:var(--blue); }
   .ti-soon { opacity:.6; }
   .ti-more { font-size:12px; color:var(--text3); padding:6px 0 0 18px; }
+  /* Customer-touch modal + toast */
+  .tm-overlay { position:fixed; inset:0; z-index:500; background:rgba(10,15,25,.5); display:flex; align-items:flex-start; justify-content:center; padding:40px 14px; overflow:auto; }
+  .tm-card { background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.3); max-width:560px; width:100%; max-height:84vh; display:flex; flex-direction:column; }
+  .tm-card-head { display:flex; align-items:center; justify-content:space-between; padding:15px 18px; border-bottom:1px solid var(--border); }
+  .tm-card-title { font-weight:800; font-size:16px; }
+  .tm-close { background:none; border:none; font-size:24px; line-height:1; color:var(--text2); cursor:pointer; }
+  .tm-card-body { padding:6px 18px 18px; overflow:auto; }
+  .tm-row { padding:14px 0; border-top:1px solid var(--border); }
+  .tm-row:first-child { border-top:none; }
+  .tm-row-head { font-size:14px; margin-bottom:6px; }
+  .tm-msg { font-size:13px; line-height:1.5; white-space:pre-wrap; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
+  .me-toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--header); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px; z-index:600; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .me-toast.show { opacity:1; }
 </style>
 </head>
 <body>
@@ -681,6 +694,7 @@
 
 <script src="https://unpkg.com/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
+<script src="/deal-touches.js"></script>
 <script>
 // ============================================================================
 // initApp(profile, session) -- called by auth-gate.js after sign-in.
@@ -1796,9 +1810,10 @@ function tiDaysUntil(d){ const t=Date.parse(d); return isNaN(t)?999:Math.ceil((t
 // placeholders for reports not wired up yet (Missing Docs, Rep Responsible).
 async function loadAndRenderAddressables(me){
   const body = $('addrBody');
+  window._meCtx = me;
   const today = new Date().toISOString().slice(0, 10);
   const [dpRes, tcRes, addrRes] = await Promise.all([
-    me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
+    me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,ahj_township,product_category,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
     me.name ? sb.from('deal_touches').select('dl_number,touch_key') : Promise.resolve({ data: [] }),
     me.id   ? sb.from('rep_addressables').select('id,title,body,priority,due_date,created_at').eq('rep_id', me.id).eq('status', 'open') : Promise.resolve({ data: [] })
   ]);
@@ -1827,13 +1842,18 @@ async function loadAndRenderAddressables(me){
     group('Installations (' + installs.length + ')', rows + (installs.length > 6 ? '<div class="ti-more">+ ' + (installs.length - 6) + ' more</div>' : ''));
   }
 
-  // 2. Constant Contact touches due
+  // 2. Constant Contact touches due -- copy/send right here, full list in a modal.
   const sent = {}; touches.forEach(t => { (sent[t.dl_number] = sent[t.dl_number] || {})[t.touch_key] = 1; });
-  let needTouch = 0; deals.forEach(d => { const k = DP_PRIMARY[d.stage_num]; if (k && !(sent[d.dl_number] && sent[d.dl_number][k])) needTouch++; });
-  if (needTouch > 0){
-    count += needTouch; urgent = true;
-    group('Customer Touches', item('var(--amber)', needTouch + ' deal' + (needTouch > 1 ? 's' : '') + ' need a Constant Contact message',
-      IS_VIEW_AS ? '' : '<a class="ti-cta" href="/my-calls.html">Send</a>'));
+  const touchDeals = deals.filter(d => { const k = DP_PRIMARY[d.stage_num]; return k && !(sent[d.dl_number] && sent[d.dl_number][k]); });
+  touchDeals.sort((a, b) => b.stage_num - a.stage_num);   // closest-to-complete first
+  TOUCH_DEALS = touchDeals;
+  if (touchDeals.length){
+    count += touchDeals.length; urgent = true;
+    const top = touchDeals.slice(0, 3).map(d => touchRow(d, false)).join('');
+    const more = touchDeals.length > 3
+      ? '<div class="ti-more"><button class="ti-cta" onclick="openTouchModal()">View all ' + touchDeals.length + ' &rarr;</button></div>'
+      : '';
+    group('Customer Touches (' + touchDeals.length + ')', top + more);
   }
 
   // 3. From your manager (rep_addressables)
@@ -1860,6 +1880,55 @@ async function loadAndRenderAddressables(me){
     body.querySelectorAll('[data-resolve]').forEach(btn => btn.addEventListener('click', () => resolveAddressable(btn.dataset.resolve, me)));
   }
 }
+// ── Customer-touch actions (Constant Contact) in Top Action Items ──
+let TOUCH_DEALS = [];
+let _meToastT = null;
+function meToast(msg){
+  const t = $('meToast'); if (!t) return;
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(_meToastT); _meToastT = setTimeout(() => t.classList.remove('show'), 2400);
+}
+function touchRow(d, inModal){
+  const t = window.dtPrimaryTouch ? window.dtPrimaryTouch(d.stage_num) : null;
+  const name = window.dtFirstName ? window.dtFirstName(d.customer_name) : (d.customer_name || 'customer');
+  const label = t ? t.label : 'Customer touch';
+  const stageLab = (window.DP_STAGE_LABEL && window.DP_STAGE_LABEL[d.stage_num]) || '';
+  const copyBtn = '<button class="ti-cta" type="button" onclick="copyTouch(\'' + esc(d.dl_number) + '\')">Copy</button>';
+  if (inModal){
+    const msg = t ? window.dtFillMsg(t.msg, d) : '';
+    const sentBtn = IS_VIEW_AS ? '' : '<button class="ti-cta" style="margin-left:8px" type="button" onclick="markTouchSent(\'' + esc(d.dl_number) + '\')">Mark sent</button>';
+    return '<div class="tm-row"><div class="tm-row-head"><b>' + esc(name) + '</b> <span class="ti-sub" style="display:inline">' + esc(label) +
+      (t && t.channel ? ' &middot; ' + esc(t.channel) : '') + (stageLab ? ' &middot; ' + esc(stageLab) : '') + '</span></div>' +
+      '<div class="tm-msg">' + esc(msg) + '</div>' +
+      '<div style="margin-top:6px">' + copyBtn + sentBtn + '</div></div>';
+  }
+  return '<div class="ti-item"><span class="ti-dot" style="background:var(--amber)"></span>' +
+    '<span class="ti-text"><b>' + esc(name) + '</b> <span class="ti-sub" style="display:inline">' + esc(label) + '</span></span>' + copyBtn + '</div>';
+}
+function copyTouch(dl){
+  const d = (TOUCH_DEALS || []).find(x => x.dl_number === dl); if (!d) return;
+  const t = window.dtPrimaryTouch(d.stage_num); if (!t) return;
+  const msg = window.dtFillMsg(t.msg, d);
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(msg).then(() => meToast('Copied. Paste into your text or email.')).catch(() => meToast('Copy failed'));
+  } else { meToast('Copy not supported here'); }
+}
+async function markTouchSent(dl){
+  const d = (TOUCH_DEALS || []).find(x => x.dl_number === dl); if (!d) return;
+  const t = window.dtPrimaryTouch(d.stage_num); if (!t) return;
+  const { error } = await sb.rpc('log_deal_touch', { p_dl_number: dl, p_product: d.product_category || null, p_touch_key: t.key, p_channel: t.channel || null, p_note: null });
+  if (error){ meToast('Could not log: ' + error.message); return; }
+  meToast('Logged as sent');
+  closeTouchModal();
+  if (window._meCtx) loadAndRenderAddressables(window._meCtx);
+}
+function openTouchModal(){
+  const list = (TOUCH_DEALS || []).map(d => touchRow(d, true)).join('');
+  $('touchModalBody').innerHTML = list || '<div class="empty">No touches due.</div>';
+  $('touchModal').style.display = 'flex';
+}
+function closeTouchModal(){ const m = $('touchModal'); if (m) m.style.display = 'none'; }
+
 async function resolveAddressable(id, me){
   const { error } = await sb.from('rep_addressables').update({
     status: 'resolved',
@@ -1995,6 +2064,14 @@ async function loadAndRenderCallActivity(me){
   $('callBody').innerHTML = rows + cta;
 }
 </script>
+
+<div id="touchModal" class="tm-overlay" style="display:none" onclick="if(event.target===this)closeTouchModal()">
+  <div class="tm-card">
+    <div class="tm-card-head"><div class="tm-card-title">Customer Touches to send</div><button class="tm-close" onclick="closeTouchModal()" type="button">&times;</button></div>
+    <div id="touchModalBody" class="tm-card-body"></div>
+  </div>
+</div>
+<div id="meToast" class="me-toast"></div>
 
 </body>
 </html>
