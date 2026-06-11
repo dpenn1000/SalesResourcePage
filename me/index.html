@@ -826,20 +826,14 @@ async function loadProfileExtras(me){
 }
 
 // ── Coaching (DISC-aware trend) ──────────────────────────────────────────
-// The coaching summary is generated on the launcher from the rep's recent
-// calls. On a rep's own profile we render the last cached card immediately
-// (serve-stale) and, when it's stale, ask the launcher to refresh. The refresh
-// is SYNCHRONOUS: POST /api/me/coaching/refresh (re)generates and returns the
-// finished artifact in the response, so we render it directly -- no polling for
-// a timestamp that might never advance. Everything degrades gracefully: any
-// failure leaves the rep on the last good card. Manager view-as is read-only
-// (the dashboard's Refresh All owns bulk regen).
-//
-// Staleness keys off `checked_at` (when the launcher last confirmed the card
-// against the rep's notes), NOT `generated_at` (the content's true age): an
-// unchanged card that was just re-checked is fresh and won't re-prompt a
-// refresh every load. We still DISPLAY "Updated <generated_at>".
-const COACHING_STALE_MS    = 24 * 60 * 60 * 1000; // checked longer ago than this -> refresh
+// Coaching is a WEEKLY artifact: the launcher regenerates every rep's card once
+// a week (parse_coordinator's weekly coaching refresh, + the dashboard's Refresh
+// All), and it only changes when the rep's notes change. So each rep opens their
+// profile to a CONSISTENT focus that holds for the week. The profile just READS
+// and displays it -- a ready card is never re-generated on view (that would
+// churn the focus mid-week). The only on-view generation is a COLD START: a rep
+// who has no card yet gets one built once via the synchronous refresh endpoint.
+// Manager view-as is always read-only.
 const COACHING_REFRESH_PATH = '/api/me/coaching/refresh';
 
 function coachingReadUrl(me){
@@ -848,14 +842,6 @@ function coachingReadUrl(me){
     : (LAUNCHER_BASE + '/api/me/coaching');
 }
 function coachingReady(d){ return !!(d && d.status === 'ready' && d.result); }
-function coachingFresh(d){
-  if (!coachingReady(d)) return false;
-  const stamp = d.checked_at || d.generated_at;   // prefer last-checked time
-  if (!stamp) return true;                         // no timestamp -> treat as current
-  const t = new Date(stamp).getTime();
-  if (isNaN(t)) return true;
-  return (Date.now() - t) < COACHING_STALE_MS;
-}
 async function fetchCoaching(url, token){
   const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -871,26 +857,21 @@ async function loadCoaching(me){
     if (!token) throw new Error('no token');
     const readUrl = coachingReadUrl(me);
 
-    let d = await fetchCoaching(readUrl, token);
-    // Show whatever we already have immediately -- never a blank card while a
-    // refresh runs.
-    if (coachingReady(d)) renderCoaching(d);
+    const d = await fetchCoaching(readUrl, token);
+    // Ready -> show this week's card as-is. Never regenerate a ready card on
+    // view; the weekly refresh owns regeneration so the focus stays consistent.
+    if (coachingReady(d)){ renderCoaching(d); return d; }
 
-    // Fresh enough, or a manager just browsing -> use the cached result as-is.
-    if (coachingFresh(d) || IS_VIEW_AS){
-      if (coachingReady(d)) return d;
-      coachingEmpty(IS_VIEW_AS
-        ? 'No coaching generated for this rep yet. Run Refresh All on the Appointment Dashboard.'
-        : 'Your coaching appears here once you have a few appointments with notes. Keep logging them.');
+    // No card yet. Managers just see the empty state (read-only).
+    if (IS_VIEW_AS){
+      coachingEmpty('No coaching generated for this rep yet. Run Refresh All on the Appointment Dashboard.');
       return null;
     }
 
-    // Self-view, stale or missing -> synchronous refresh; render what it returns.
-    const refreshed = await refreshCoaching(token, d);
-    if (coachingReady(refreshed)){ renderCoaching(refreshed); return refreshed; }
+    // Self-view cold start -> build this rep's first card once (synchronous).
+    const built = await buildCoaching(token);
+    if (coachingReady(built)){ renderCoaching(built); return built; }
 
-    // Couldn't refresh. Keep the stale-but-real card if we have one.
-    if (coachingReady(d)) return d;
     coachingEmpty('Your coaching appears here once you have a few appointments with notes. Keep logging them.');
     return null;
   } catch (e) {
@@ -899,27 +880,26 @@ async function loadCoaching(me){
   }
 }
 
-// Synchronously (re)generate this rep's coaching and return the finished
-// artifact. The launcher only calls the model when the rep's notes actually
-// changed, so this is fast on an unchanged card. Returns the artifact on
-// success, or null on any error/non-ready response -- callers keep the cached
-// card. Intentionally tolerant.
-async function refreshCoaching(token, prev){
+// Cold-start only: build this rep's first coaching card via the synchronous
+// refresh endpoint. Returns the finished artifact, or null on any error/non-
+// ready response (the caller then shows the empty state). Intentionally
+// tolerant -- a rep with no sales data just keeps the empty state.
+async function buildCoaching(token){
   const pill = $('coachingPill');
   const pillPrev = pill ? pill.textContent : '';
-  if (pill) pill.textContent = 'refreshing...';
-  if (!coachingReady(prev)) $('coachingBody').innerHTML = '<div class="loading">Refreshing your coaching from your recent appointments...</div>';
+  if (pill) pill.textContent = 'building...';
+  $('coachingBody').innerHTML = '<div class="loading">Building your coaching from your recent appointments...</div>';
   try {
     const res = await fetch(LAUNCHER_BASE + COACHING_REFRESH_PATH, {
       method: 'POST', headers: { Authorization: 'Bearer ' + token }, mode: 'cors'
     });
     if (!res.ok) return null;
     const d = await res.json();
-    return coachingReady(d) ? d : null;   // {status:'error',...} -> keep cached
+    return coachingReady(d) ? d : null;   // {status:'error',...} -> empty state
   } catch (e) {
     return null;
   } finally {
-    if (pill && pill.textContent === 'refreshing...') pill.textContent = pillPrev;
+    if (pill && pill.textContent === 'building...') pill.textContent = pillPrev;
   }
 }
 
