@@ -1329,13 +1329,30 @@ function thisMonthCard(tm, cfg){
   const total = tm.total != null ? tm.total : (solar + roof + battery);
   const pace  = tm.pace != null ? tm.pace : 0;
 
-  // status by total vs floor/goal
+  // status colour by total vs floor/goal
   const statusCls = total >= goal ? 'green' : (total < floor ? 'red' : 'amber');
-  const statusMsg = total >= goal
-    ? 'At or above the standard of ' + goal + ' products this month. Keep it going.'
-    : (total < floor
-        ? 'Below ' + floor + ' products this month is a dismissal risk. The standard is ' + goal + ' a month.'
-        : 'On the way. The standard is ' + goal + ' products a month, and staying above ' + floor + ' keeps you clear of dismissal risk.');
+
+  // Transparent pace line: where you are, days left, projected finish, and the gap.
+  const _now = new Date();
+  const _dim = new Date(_now.getFullYear(), _now.getMonth() + 1, 0).getDate();
+  const _daysLeft = Math.max(0, _dim - _now.getDate());
+  const _proj = pace || (_now.getDate() > 0 ? Math.round(total / _now.getDate() * _dim) : total);
+  const _need = Math.max(0, goal - total);
+  const _rate = (_daysLeft > 0 && _need > 0)
+    ? (_need / _daysLeft >= 1 ? Math.ceil(_need / _daysLeft) + ' a day'
+                              : 'about 1 every ' + Math.ceil(_daysLeft / _need) + ' days')
+    : null;
+  const _dl = _daysLeft + ' day' + (_daysLeft === 1 ? '' : 's') + ' left';
+  let statusMsg;
+  if (total >= goal) {
+    statusMsg = 'Standard cleared: ' + total + ' of ' + goal + ' with ' + _dl + '. Every sale from here is ahead of pace.';
+  } else if (_proj >= goal) {
+    statusMsg = total + ' in, ' + _dl + '. At this pace you finish around ' + _proj + ', clearing the ' + goal + ' standard. Hold the line.';
+  } else {
+    statusMsg = total + ' in, ' + _dl + '. At this pace you finish around ' + _proj + ', short of ' + goal +
+                (_rate ? '. You need ' + _need + ' more, ' + _rate + ', to get there' : '') + '.';
+    if (total < floor) statusMsg += ' Under ' + floor + ' is a dismissal-risk month.';
+  }
 
   // Stacked horizontal bar, full at the goal. Cap visual width at 100% but show real numbers.
   const pctOf = (n) => goal > 0 ? Math.min(100, (n / goal) * 100) : 0;
