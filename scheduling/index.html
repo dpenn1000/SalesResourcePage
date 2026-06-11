@@ -395,7 +395,7 @@ function wireRepChangeBuilder(){
       const sh=shiftFromCode(from); out.textContent='Checking who could cover...';
       try{ const {data}=await sb.rpc('sched_coverage_candidates',{p_period_id:S.period.id,p_work_date:iso,p_shift:sh});
         const list=data||[];
-        out.innerHTML=list.length?`<b>Teammates in your area off ${SHIFT_META[sh].name} ${fmtMD(iso)} (reach out to ask for coverage):</b> ${list.map(c=>esc(c.name)).join(', ')}`:`No same-area teammates are free for ${SHIFT_META[sh].name} that day.`;
+        out.innerHTML=list.length?`<b>Teammates in your area off ${SHIFT_META[sh].name} ${fmtMD(iso)} (reach out to ask for coverage):</b> ${list.map(c=>esc(c.name)+(c.rank!=null?' (R'+Math.round(c.rank)+')':'')).join(', ')}`:`No same-area teammates are free for ${SHIFT_META[sh].name} that day.`;
       }catch(e){ out.textContent=''; }
     } else out.textContent='';
   };
@@ -752,7 +752,7 @@ async function crCover(btn){
   const out=btn.closest('.card').querySelector('.cover-out'); out.textContent='Checking...';
   try{ const {data}=await sb.rpc('sched_coverage_candidates',{p_period_id:S.period.id,p_work_date:date,p_shift:shift,p_for_person:pid});
     const list=data||[];
-    out.innerHTML=list.length?`<b>Could cover ${SHIFT_META[shift].name} ${fmtMD(date)}:</b> ${list.map(c=>esc(c.name)).join(', ')}`:`No same-territory teammates are free for ${SHIFT_META[shift].name} that day.`;
+    out.innerHTML=list.length?`<b>Could cover ${SHIFT_META[shift].name} ${fmtMD(date)}:</b> ${list.map(c=>esc(c.name)+(c.rank!=null?' (R'+Math.round(c.rank)+')':'')).join(', ')}`:`No same-territory teammates are free for ${SHIFT_META[shift].name} that day.`;
   }catch(err){ out.textContent='Lookup failed: '+(err.message||err); }
 }
 
