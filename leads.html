@@ -263,6 +263,7 @@
           <option value="cooldown">In cooldown</option>
           <option value="sold">Sold</option>
           <option value="dnc">Do-Not-Contact</option>
+          <option value="dq">DQ / removed</option>
           <option value="all">All leads</option>
         </select>
         <select id="fRep" onchange="render()"><option value="">All reps</option><option value="__unassigned">Unassigned</option></select>
@@ -573,7 +574,7 @@ function contactCount(g){
 /* call-log lookup: opportunity_id -> its logged QC calls */
 function contactsByOpp(list){list=list||contacts;const m={};for(const c of list){(m[c.opportunity_id]=m[c.opportunity_id]||[]).push(c);}return m;}
 function renderKpis(){
-  const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
+  const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,dq:0,other:0};
   let unassigned=0,deletedCt=0;
   for(const g of props){const c=leadCategory(g);cat[c]=(cat[c]||0)+1;if(c==='callable'&&!g.primary.assigned_to)unassigned++;if((g.primary.lifecycle_state||'')==='deleted')deletedCt++;}
   /* call-attributed outcomes: count an appt/sale only when a QC call on THIS list drove it */
@@ -590,6 +591,7 @@ function renderKpis(){
     ['Unassigned',unassigned,'','#6f7d8c','Callable leads not yet dispatched to a rep.'],
     ['In cooldown',cat.cooldown,'','#3f6f96','Sat / Stage-2 leads resting 14 days before they can be re-dispatched.'],
     ['Needs review',cat.review,cat.review>0?'hot':'','#b8770f','Cooldown elapsed: a manager must approve re-dispatch before these return to the call list.'],
+    ['DQ / removed',cat.dq,'','#7a3f6f','Disqualified or rep-owned leads a manager pulled out of the call pool (via a flag). Excluded from callable and Quick Dispatch.'],
     ['Appts set (calls)',apptCalls,'','#5aa522','Appointments set FROM a QC call on this list (a call logged as Appointment Set). Not appointments already on the calendar.'],
     ['Sold (calls)',soldCalls,'','#3f7a16','Jobs sold from leads that were called on this list (sold and had at least one logged QC call).'],
     ['Total leads',props.length,'','#1A2332','Every tracked lead (home) in the call list.'],
@@ -897,20 +899,57 @@ function updateFlagsTabCount(){
   const el=document.getElementById('flagsTabCount');
   if(el)el.innerHTML=n?` <span class="badge b-review" style="margin-left:5px">${n}</span>`:'';
 }
-function renderFlags(){
-  updateFlagsTabCount();
-  const body=document.getElementById('flagBody');
+/* The flags matching the current status / reason / search filters. */
+function currentFlagRows(){
   const st=document.getElementById('flagStatus').value;
   const rf=document.getElementById('flagReason').value;
   const q=document.getElementById('flagq').value.trim().toLowerCase();
-  const rows=flags.filter(f=>{
+  return flags.filter(f=>{
     if(st!=='all'&&f.status!==st)return false;
     if(rf&&f.flag_type!==rf)return false;
     if(q){const c=dlRow(f.dl_number);const nm=c?(c.dl.homeowner_name||''):'';const hay=(nm+' '+f.dl_number+' '+(f.flagged_by||'')+' '+(f.note||'')).toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
-  document.getElementById('flagSummary').textContent=`${rows.length} ${st==='all'?'':st} flag${rows.length===1?'':'s'}`;
+}
+/* Triage chips: open-flag counts per reason, click to filter the list. */
+function flagTypeChips(){
+  const open=flags.filter(f=>f.status==='open');
+  if(!open.length)return '';
+  const by={};for(const f of open)by[f.flag_type]=(by[f.flag_type]||0)+1;
+  const rf=document.getElementById('flagReason').value;
+  const chip=(k,label,n,active)=>`<button class="act${active?' review':''}" style="padding:3px 9px" onclick="flagPickReason('${esc(k)}')">${esc(label)} ${n}</button>`;
+  return `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 10px">`
+    +chip('','All open',open.length,!rf)
+    +Object.keys(by).sort((a,b)=>by[b]-by[a]).map(k=>chip(k,FLAG_LABEL[k]||k,by[k],rf===k)).join('')
+    +`</div>`;
+}
+function flagPickReason(k){document.getElementById('flagReason').value=k;renderFlags();}
+function renderFlags(){
+  updateFlagsTabCount();
+  const body=document.getElementById('flagBody');
+  const st=document.getElementById('flagStatus').value;
+  const rows=currentFlagRows();
+  const openShown=rows.filter(f=>f.status==='open').length;
+  document.getElementById('flagSummary').innerHTML=flagTypeChips()
+    +`<span>${rows.length} ${st==='all'?'':st} flag${rows.length===1?'':'s'} shown`
+    +(openShown?` &middot; <button class="act danger" style="padding:3px 9px" onclick="bulkResolveShown()">Resolve all ${openShown} open shown</button>`:'')
+    +`</span>`;
   body.innerHTML=rows.length?rows.map(flagCard).join(''):'<div class="empty">No flags here.</div>';
+}
+/* Clear every open flag in the current view (triage only -- does not change the
+   leads). Use the per-flag "Mark DQ" action when a lead should leave the pool. */
+async function bulkResolveShown(){
+  const rows=currentFlagRows().filter(f=>f.status==='open');
+  if(!rows.length){toast('No open flags shown');return;}
+  if(!confirm(`Resolve all ${rows.length} open flag${rows.length===1?'':'s'} shown? This clears the flags without changing the leads.`))return;
+  let done=0,failed=0;
+  for(const f of rows){
+    const { error }=await sb.rpc('resolve_lead_flag',{p_flag_id:f.id,p_status:'resolved',p_resolution:'Bulk resolved',p_language_set:null});
+    if(error){failed++;continue;}
+    f.status='resolved';f.resolved_by=ME;f.resolved_at=new Date().toISOString();f.resolution_note='Bulk resolved';done++;
+  }
+  toast(`Resolved ${done}${failed?`, ${failed} failed`:''}`);
+  renderFlags();
 }
 function flagCard(f){
   const c=dlRow(f.dl_number);
@@ -925,7 +964,8 @@ function flagCard(f){
   let actions;
   if(open){
     const langBtn=isLang?`<button class="act review" onclick="resolveFlag('${f.id}','resolved','spanish')" title="Set this lead's language to Spanish and resolve the flag">Set Spanish + resolve</button> `:'';
-    actions=`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">${langBtn}<button class="act" onclick="resolveFlag('${f.id}','resolved','')">Resolve</button><button class="act danger" onclick="resolveFlag('${f.id}','dismissed','')">Dismiss</button></div>`;
+    const deadBtn=isLang?'':`<button class="act" onclick="markDeadResolve('${f.id}')" title="Mark the lead disqualified / pull it out of the call pool, then resolve this flag">${f.flag_type==='not_mine'?'Remove from pool':'Mark DQ'} + resolve</button> `;
+    actions=`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">${langBtn}${deadBtn}<button class="act" onclick="resolveFlag('${f.id}','resolved','')">Resolve</button><button class="act danger" onclick="resolveFlag('${f.id}','dismissed','')">Dismiss</button></div>`;
   } else {
     actions=`<div class="sub" style="margin-top:8px">${esc(f.status==='dismissed'?'Dismissed':'Resolved')} by ${esc(f.resolved_by||'--')}${f.resolved_at?' &middot; '+fmtDate(f.resolved_at):''}${f.language_set?' &middot; set language='+esc(f.language_set):''}${f.resolution_note?'<br>'+esc(f.resolution_note):''} &middot; <button class="act" onclick="resolveFlag('${f.id}','open','')">Reopen</button></div>`;
   }
@@ -941,6 +981,23 @@ async function resolveFlag(id,status,lang){
   toast(status==='open'?'Reopened':(status==='dismissed'?'Dismissed':'Resolved'));
   renderFlags();
 }
+/* Mark the flagged lead disqualified (status='dq') so it leaves the callable pool
+   and Quick Dispatch, then resolve the flag. Covers DQ'd-for-cause leads and
+   rep-owned/self-gen kickbacks -- both should stop recycling into the call list. */
+async function markDeadResolve(id){
+  const f=flags.find(x=>x.id===id);if(!f)return;
+  const verb=f.flag_type==='not_mine'?'remove this lead from the call pool':'mark this lead DQ and remove it from the call pool';
+  if(!confirm(`This will ${verb}. Continue?`))return;
+  const { error:e1 }=await sb.from('direct_leads').update({status:'dq'}).eq('dl_number',f.dl_number);
+  if(e1){toast('Could not update lead: '+esc(e1.message));return;}
+  for(const g of props)for(const d of g.dls)if(d.dl_number===f.dl_number){d.status='dq';if(g.primary.dl_number===f.dl_number)g.primary.status='dq';}
+  const note='Removed from call pool (DQ) via flag';
+  const { error:e2 }=await sb.rpc('resolve_lead_flag',{p_flag_id:id,p_status:'resolved',p_resolution:note,p_language_set:null});
+  if(e2){toast('Lead updated, but flag resolve failed: '+esc(e2.message));return;}
+  f.status='resolved';f.resolved_by=ME;f.resolved_at=new Date().toISOString();f.resolution_note=note;
+  toast('Removed from pool + resolved');
+  renderFlags();renderKpis();render();
+}
 /* ── Recovery tab: stagnant leads that need handling apart from the call list ── */
 const REC_LABEL={selfgen:'Self-gen / Direct',goback:'Unresolved go-back',stage2:'Aged Stage-2'};
 // A few reps appear in the SF appointment data under a spelling that differs from
@@ -954,11 +1011,22 @@ function matchRep(name){
   if(REP_ALIASES[n])return REP_ALIASES[n];
   return people.find(p=>p.toLowerCase()===n)||null;
 }
+/* Canonical display name: collapse known spelling variants (Brandilee Madera ->
+   Brandi Madera, DChristopher Wyant -> Christopher Wyant) to the roster name. */
+function displayRep(name){return name?(matchRep(name)||name):name;}
+/* Two names are the same person if they canonicalize to the same roster entry.
+   Applies REP_ALIASES so a rep's own leads under a variant spelling are not
+   surfaced as misassigned / "not mine". */
+function sameRep(x,y){
+  if(!x||!y)return false;
+  const norm=v=>String(matchRep(v)||v).trim().toLowerCase();
+  return norm(x)===norm(y);
+}
 function recStagnant(g){const d=daysSince(g.primary.last_appt_date);return d!=null?d:daysSince(g.primary.first_appt_date);}
 function isMisassigned(g){
   if(leadType(g)!=='direct')return false;
   const a=g.primary.assigned_to,o=g.primary.original_rep;
-  return !!(a&&o&&a.trim().toLowerCase()!==o.trim().toLowerCase());
+  return !!(a&&o&&!sameRep(a,o));
 }
 /* ── Pipeline helpers. Direct/self-gen leads are EXCLUDED everywhere in this
    tab -- they belong to their rep and are never dispatched or rebalanced. ── */
@@ -1387,7 +1455,7 @@ const STATE={noshow:['No Show','b-noshow'],cancel:['Cancelled','b-cancel'],gobac
 function stateBadge(s){const m=STATE[s];if(m)return `<span class="badge ${m[1]}">${m[0]}</span>`;const lbl={ready:'Scheduled',ran:'Ran',sold:'Sold',dq:'DQ',new:'New',deleted:'Deleted (pre-run)'}[s]||s||'--';return `<span class="badge ${s==='deleted'?'b-noshow':''}">${esc(lbl)}</span>`;}
 function buildDetail(g){
   const p=g.primary;
-  const meta=[['Lead source',p.lead_source],['Set by',p.set_by],['Original rep',p.original_rep],['First appt',fmtDate(p.first_appt_date)],['Appointments',p.appt_count],['County',g.property.county]];
+  const meta=[['Lead source',p.lead_source],['Set by',p.set_by],['Original rep',displayRep(p.original_rep)],['First appt',fmtDate(p.first_appt_date)],['Appointments',p.appt_count],['County',g.property.county]];
   const _lb=langBadge(g);
   let h=_lb?`<div style="margin-bottom:8px">${_lb}</div>`:'';
   h+='<div class="dgrid">'+meta.map(([k,v])=>`<div><div class="k">${esc(k)}</div>${esc(v==null||v===''?'--':v)}</div>`).join('')+'</div>';
@@ -1451,6 +1519,7 @@ const COOLDOWN_DAYS=14;
 function daysSince(d){if(!d)return null;const t=new Date(d).getTime();if(isNaN(t))return null;return Math.floor((Date.now()-t)/86400000);}
 function leadCategory(g){
   if(g.anySold)return 'sold';
+  if(g.primary.status==='dq')return 'dq';   // manager marked it disqualified / removed from the call pool
   if(g.dnc || g.primary.lifecycle_state==='dnc' || /forge/i.test(g.primary.lead_source||''))return 'dnc';
   const st=g.primary.lifecycle_state||'';
   if(st==='ready')return 'scheduled';
@@ -1587,7 +1656,7 @@ function renderRep(){
   const body=document.getElementById('repBody');
   if(!rep){body.innerHTML='<div class="empty">Pick a rep to see their lead-call detail: a 30-day appointment activity graph and every lead tied to them.</div>';return;}
   const mine=props.filter(g=>repOf(g)===rep);
-  const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,other:0};
+  const cat={callable:0,scheduled:0,review:0,cooldown:0,sold:0,dnc:0,dq:0,other:0};
   for(const g of mine)cat[leadCategory(g)]=(cat[leadCategory(g)]||0)+1;
   const sat=cat.sold+cat.review+cat.cooldown;const conv=sat?Math.round(cat.sold/sat*100):0;
   /* #10: the Reps drill-in leads with CALL activity (contact_log), not appt/sale data. */
