@@ -230,6 +230,13 @@ function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;'
 function fmtDate(d){if(!d)return '--';try{return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});}catch(e){return d;}}
 function isCallable(l){const s=l.lifecycle_state||'';return !l.sold && !CLOSED_STATUS.has(l.status) && (s==='deleted'||s==='noshow'||s==='cancel'||s==='new');}
 function oppOf(l){return (l.opportunity_ids&&l.opportunity_ids[0])||l.dl_number;}
+// Leads that should never be on a rep's list. Out-of-state: match positively on a
+// real non-CT US state code (the state field is sometimes polluted with lifecycle
+// junk on CT leads, so never infer OOS from "not CT"). DQ: manager-disqualified or
+// a disqualified appointment outcome.
+const OOS_STATES=new Set(['AL','AK','AZ','AR','CA','CO','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC']);
+function isOutOfState(l){const s=((l.properties&&l.properties.state)||'').trim().toUpperCase();return OOS_STATES.has(s)||((l.properties&&l.properties.quality_flags)||[]).includes('non_ct');}
+function isDqLead(l){if(l.status==='dq')return true;if(/disqualif/i.test(l.last_outcome||''))return true;return (l.appointments||[]).some(a=>/disqualif/i.test((a&&a.outcome)||''));}
 
 // auth-gate.js owns sign-in / role / screen switching and calls this once authed.
 window.initApp = async function(profile){
@@ -325,14 +332,14 @@ async function loadLeads(){
   const target = window.IS_MANAGER ? VIEW_AS : ME;   // managers view a chosen rep; reps view themselves
   if(!target) return;                                // manager hasn't picked a rep yet
   try{
-    const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,language,properties(town,county,dnc)';
+    const SEL='dl_number,dl_sf_id,homeowner_name,lead_source,lifecycle_state,last_outcome,last_appt_date,appointments,opportunity_ids,assigned_to,status,sold,language,properties(town,county,dnc,state,quality_flags)';
     const [{data:dl,error:e1},{data:cl},{data:fl}] = await Promise.all([
       sb.from('direct_leads').select(SEL).not('assigned_to','is',null).order('last_appt_date',{ascending:false,nullsFirst:false}),
       sb.from('contact_log').select('opportunity_id,opp_name,logged_by,contacted_at,outcome,notes,next_step,follow_up_date,homeowner_state,frustration_source').order('contacted_at',{ascending:false}),
       sb.from('lead_flags').select('id,dl_number,flag_type,note,flagged_by,created_at,status').eq('status','open'),
     ]);
     if(e1)throw e1;
-    leads=(dl||[]).filter(l=>(l.assigned_to||'')===target && !(l.properties&&l.properties.dnc) && !/forge/i.test(l.lead_source||''));   // scope to rep; never show DNC'd or Forge-source leads
+    leads=(dl||[]).filter(l=>(l.assigned_to||'')===target && !(l.properties&&l.properties.dnc) && !/forge/i.test(l.lead_source||'') && !isOutOfState(l) && !isDqLead(l));   // scope to rep; never show DNC'd, Forge-source, out-of-state, or DQ'd leads
     flagsByDl={};                                                       // open kick-backs, keyed by DL (RLS gives reps their own; managers see all)
     for(const f of (fl||[])){(flagsByDl[f.dl_number]=flagsByDl[f.dl_number]||[]).unshift(f);}
     contacts=cl||[]; byOpp={};
