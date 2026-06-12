@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get the Yes: The Assumptive Close · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/training-system.css">
+<style>
+/* Page-specific components for Get the Yes. Built on shared tokens; no inline
+   styles. Standard components come from training-system.css. */
+
+/* pull quote + illustrative-note (defined page-local like the other decks) */
+.pullquote{font-family:var(--serif);font-size:1.4rem;font-style:italic;line-height:1.35;color:var(--ink);padding:var(--space-4);border-left:3px solid var(--amber);background:var(--warm);border-radius:0 var(--r-md) var(--r-md) 0;margin-top:var(--space-3)}
+.pullquote .attr{display:block;font-family:var(--sans);font-size:.74rem;font-style:normal;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:12px}
+.eff-rate{margin-top:var(--space-3);font-size:.9rem;color:var(--muted)}
+
+/* close-rate split bar (order-taker floor / the winnable middle / genuine no) */
+.split-bar{display:grid;grid-template-columns:1fr 3fr 1fr;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--shadow)}
+.split-bar .seg{padding:var(--space-4);text-align:center}
+.split-bar .seg .pct{font-family:var(--serif);font-size:2rem;line-height:1;display:block}
+.split-bar .seg .nm{font-size:.74rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-top:8px;display:block}
+.split-bar .seg .cap{font-size:.84rem;color:var(--muted);margin-top:6px;display:block}
+.split-bar .easy{background:rgba(95,165,32,.10)}
+.split-bar .easy .pct{color:var(--green)}
+.split-bar .mid{background:var(--warm);border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.split-bar .lost{background:rgba(232,64,64,.06)}
+.split-bar .lost .pct{color:var(--red)}
+
+@media(max-width:820px){
+  .split-bar{grid-template-columns:1fr}
+  .split-bar .mid{border-left:none;border-right:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<script src="/training-system.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer">
+        <span class="logo">Trinity Solar</span>
+        <span class="team">CT Traditional · Closing Technique</span>
+      </a>
+      <button id="presentBtn" class="present-toggle">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#direction"><span class="num">1</span> Direction, Not Information</a>
+      <a href="#less"><span class="num">2</span> Less Education</a>
+      <a href="#problem"><span class="num">3</span> Create the Problem</a>
+      <a href="#pain"><span class="num">4</span> Find the Pain</a>
+      <a href="#assume"><span class="num">5</span> Assume the Sale</a>
+      <a href="#think"><span class="num">6</span> "Think About It"</a>
+      <a href="#no"><span class="num">7</span> Go Get the No</a>
+      <a href="#messup"><span class="num">8</span> Don't Mess It Up</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Closing Technique · The One-Call Craft</span>
+    <h1>Get <em>the Yes</em></h1>
+    <p class="lede">
+      90% of our sales are one-call closes.
+      <strong>Either you close them, or they close you.</strong>
+      The framework lives in One-Touch Close. This is the craft: how the best closers in the company actually get the yes at the table.
+    </p>
+    <div class="split-bar">
+      <div class="seg easy"><span class="pct">~20%</span><span class="nm">Sign With Anyone</span><span class="cap">Good company, good product. They were always going to sign.</span></div>
+      <div class="seg mid"><span class="pct">~60%</span><span class="nm">The Real Job</span><span class="cap">Winnable, but only if you find the need. This is where order-takers become closers.</span></div>
+      <div class="seg lost"><span class="pct">~20%</span><span class="nm">Genuine No</span><span class="cap">Not today, for real reasons. Still worth every swing.</span></div>
+    </div>
+  </div>
+</section>
+
+<main class="training-page">
+
+<!-- 1: DIRECTION -->
+<section class="module" id="direction">
+  <div class="wrap">
+    <span class="eyebrow">Part 1 · The Mindset</span>
+    <h2>People respond to direction, not information</h2>
+    <p class="intro">Information sits there. Direction moves people. "The garbage is full" changes nothing at home. "Take the garbage out" gets it done. The same gap decides whether you close.</p>
+
+    <div class="do-dont">
+      <div class="do"><strong>Give direction.</strong> "Here's what we're doing: a soft credit check, get you enrolled, take a few photos." A decision is an action, and you lead the action.</div>
+      <div class="dont"><strong>Give information.</strong> "Your bills are high, here's how solar works, let me know what you think." You handed them facts and left the deciding to a room you're not in.</div>
+    </div>
+
+    <div class="pullquote">"If they can't take the information you gave them and make a decision while you're there, how effective will they be at making that same decision when you're gone? People need direction, not information."<span class="attr">Ken Ebbert · Coffee with Closers</span></div>
+
+    <div class="training-card training-card--ink">
+      <h3>Begin with the end in mind</h3>
+      <p>One-call closing starts as an intent, before you knock. Order-takers only close the people who were already buying. Closers walk in knowing a decision gets made in this house today, and they make sure the customer knows it too.</p>
+    </div>
+
+    <div class="manager-prompt">Ask the room: think of your last lost deal. Were you giving direction, or just good information?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What is the difference between an order-taker and a closer?</summary>
+      <p class="answer">Intent. The order-taker only closes people already in a buying position. The closer walks in to help the customer make a decision today, and gives direction instead of information.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 2: LESS EDUCATION -->
+<section class="module" id="less">
+  <div class="wrap">
+    <span class="eyebrow">Part 2 · Keep It Simple</span>
+    <h2>Less education, more closing</h2>
+    <p class="intro">Solar is an emotional buy. Every inverter, optimizer, and production curve you explain turns it back into a big, scary decision. Overeducating is the number-one thing that kills a one-call close.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>What the top closers do</h3>
+        <ul>
+          <li><strong>Talk less about solar.</strong> One closer broke down the bill maybe 5 times in 200 installs. Another sold a deal last night without really talking about solar at all.</li>
+          <li><strong>Lead with rapport.</strong> Become a genuine friend. Attack something you see in the home, ask where they used to live. Less is more, and it has to be sincere.</li>
+          <li><strong>Keep the decision small.</strong> Make it simple, make it feel easy, keep them on one clear path forward.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--amber">
+        <h3>What overeducating does</h3>
+        <ul>
+          <li><strong>Adds objections</strong> you never needed to raise. Mention the inverter brand and they are Googling it instead of signing.</li>
+          <li><strong>Makes it a big decision.</strong> The more technical detail, the more it feels like a major purchase to research, not a simple switch.</li>
+          <li><strong>Stalls the close.</strong> A confused mind says "let me think about it" every time.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="manager-prompt">Role-play: pitch the program in 60 seconds with zero technical words. What did you cut, and did anything important get lost?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why does overeducating cost the close?</summary>
+      <p class="answer">It turns an emotional, simple decision into a big technical one and raises objections you never needed to bring up. Less is more.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 3: CREATE THE PROBLEM -->
+<section class="module" id="problem">
+  <div class="wrap">
+    <span class="eyebrow">Part 3 · The Foundation</span>
+    <h2>Create the problem first, or nothing else lands</h2>
+    <p class="intro">On paper, solar fits almost everyone you sit with. So why does only about 30% sign? Complacency. Before you arrived, no one in that house thought their electric bill was a problem. Your first job is to make the problem real.</p>
+
+    <div class="pullquote">"Imagine a tsunami hits your island in 3 hours and someone comes door to door selling life rafts for $1,000. You are not saying 'let me think about it.' You are buying the raft. If you have not made them feel that, you have not earned the close."<span class="attr">David Spagnoli · Coffee with Closers</span></div>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--ink">
+        <h3>Make the choice a no-brainer</h3>
+        <p>You are fighting a monopoly and you are fighting complacency. Once the problem is real, the close gets simple:</p>
+        <blockquote class="script-example"><span class="who">Say</span>"As long as you live here, you will always need electricity. You can pay more, or you can pay less. Is that really a choice you need a slideshow to make?"</blockquote>
+      </div>
+      <div class="training-card training-card--green">
+        <h3>Put it on yourself</h3>
+        <p>If they still are not sure, take ownership. It builds trust and reopens the real objection.</p>
+        <blockquote class="script-example"><span class="who">Say</span>"If this does not feel like a no-brainer yet, that's on me. I clearly have not done my job explaining it. Let me fix that."</blockquote>
+      </div>
+    </div>
+
+    <div class="callout"><strong>Make inaction specific.</strong> The pain is not "rates go up." It is their own number: every month they wait, that $300 to $800 bill keeps coming, and it never comes back. Tie urgency to the bill on their table, not a slogan.</div>
+
+    <div class="manager-prompt">Ask the room: in your own words, what is the problem you create before you ever talk price? Say it out loud.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why do 70% walk without signing when solar fits on paper?</summary>
+      <p class="answer">They never felt a problem. Complacency, not price, is the obstacle. Create the problem first, or every technique after it falls flat.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 4: FIND THE PAIN -->
+<section class="module" id="pain">
+  <div class="wrap">
+    <span class="eyebrow">Part 4 · Discovery</span>
+    <h2>Find the pain, and make them say it</h2>
+    <p class="intro">You cannot sell something to someone who does not feel a need. The pain is rarely just the bill. It might be control, a hated utility, a fear of outages, a roof, or worry about the future. Find the one that's real, and let them name it.</p>
+
+    <div class="split-bar">
+      <div class="seg easy"><span class="pct">&lt;20%</span><span class="nm">Order-Taker</span><span class="cap">You only close the people who walked in ready. Price is your only tool.</span></div>
+      <div class="seg mid"><span class="pct">20 &rarr; 40%+</span><span class="nm">Real Closer</span><span class="cap">You find the need, build the pain, and win the winnable middle.</span></div>
+      <div class="seg lost"><span class="pct">Race</span><span class="nm">to the Bottom</span><span class="cap">Cut price until yes, and you give away the profit on a deal that was never about money.</span></div>
+    </div>
+
+    <div class="training-card training-card--green">
+      <h3>Dig past the first answer</h3>
+      <ul class="list-cols">
+        <li><strong>"Why solar?" "To save money."</strong> Everyone says that. Great, you will. Now ask: what does saving money actually look like for you?</li>
+        <li><strong>Ask three follow-ups</strong> before you move off a topic. One answer is a smokescreen; the third gets the truth.</li>
+        <li><strong>Listen for the real driver:</strong> control, the utility, outages, the roof, the future. Money is often the cover story.</li>
+        <li><strong>Then stay in the pain.</strong> Once they feel the need, hold there until they are ready to act. Do not rush off it.</li>
+      </ul>
+    </div>
+
+    <div class="manager-prompt">Ask the room: name a deal where the real pain was not money. What was it, and how did you find it?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What separates a 20% closer from a 40% closer?</summary>
+      <p class="answer">Finding and building the real need instead of racing to the lowest price. Sub-20% means you are only taking the orders that were already placed.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 5: ASSUME -->
+<section class="module" id="assume">
+  <div class="wrap">
+    <span class="eyebrow">Part 5 · The Assumptive Close</span>
+    <h2>Set the agenda, then assume the sale</h2>
+    <p class="intro">Be so assumptive that you are genuinely surprised when they don't move forward. But you only earn that assumption once you have built rapport and found the pain. Assume too early and it's pressure; assume after you've earned it and it's leadership.</p>
+
+    <ol class="step-grid">
+      <li class="step"><h3>1. Set the agenda up front</h3><p>Tell them at the start they can sign up today. "I'm excited, I can take you A to Z today as long as you qualify." Now the close is no surprise.</p></li>
+      <li class="step"><h3>2. Walk in with momentum</h3><p>Bring the energy of someone here to close. One closer's mind is already in the attic planning the photos before he knocks.</p></li>
+      <li class="step"><h3>3. Get them on the train</h3><p>Move to the next step as a given: "We'll do a soft credit check, get you enrolled, and take a few photos." Direction, not a request.</p></li>
+      <li class="step"><h3>4. Use "program" and "qualify"</h3><p>Two of the most powerful words at the table. "This is a program. Honestly, most people don't qualify. We submit and find out in 30 to 60 days." It lowers pressure and raises value.</p></li>
+    </ol>
+
+    <div class="training-card training-card--ink">
+      <h3>Make the concept click</h3>
+      <p>When a customer cannot grasp the PPA, drop the jargon and use a picture they know:</p>
+      <blockquote class="script-example"><span class="who">Say</span>"A store buys chicken wholesale and sells it to you at retail. Right now you buy power at retail from the utility. We cut out the retail markup, so you buy your electricity at the wholesale price instead. That's the whole program."</blockquote>
+    </div>
+
+    <div class="manager-prompt">Ask the room: what is your exact agenda-setting line in the first 5 minutes? Does it tell them a decision happens today?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What earns you the right to assume the close?</summary>
+      <p class="answer">Rapport plus a real, discovered pain. Setting the agenda early makes the close expected. Assuming before you've earned it reads as pressure.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 6: THINK ABOUT IT -->
+<section class="module" id="think">
+  <div class="wrap">
+    <span class="eyebrow">Part 6 · The Move</span>
+    <h2>"I need to think about it" is not a no</h2>
+    <p class="intro">Most reps panic at "let me think about it." That reaction is exactly what the customer expects. Do the opposite: agree completely, and keep moving. It defuses the standoff and surfaces the real objection.</p>
+
+    <div class="objection-handling">
+      <p class="objection">"We need some time to think about it."</p>
+      <p>Don't flinch. "Of course you should think about it. I would hope so. I'm going to step outside, take a few photos and measurements, and enter some data. Back in 20 minutes." Then get up and do it. They think while you work, and you return to their real questions instead of a wall.</p>
+    </div>
+
+    <div class="training-card training-card--green">
+      <h3>Why the move works</h3>
+      <ul class="list-cols">
+        <li><strong>Removes the standoff.</strong> You agreed with them, so there's nothing to push against.</li>
+        <li><strong>Surfaces the truth.</strong> When you come back, the actual concern is usually waiting for you, and now you can clear it.</li>
+        <li><strong>Stays a porch-light move.</strong> Use it when you need it, not as a scripted finish line. If you created the problem well, you may not need it at all.</li>
+        <li><strong>Pairs with a tie-down.</strong> "Next month that utility bill still shows up. What we're doing today replaces it. Does that part make sense?"</li>
+      </ul>
+    </div>
+
+    <div class="callout">See <a href="../../solar/field-mastery/one-touch-close.html#think">One-Touch Close</a> for what "I need to think about it" actually means underneath, and the decision-maker rule that goes with it.</div>
+
+    <div class="manager-prompt">Role-play the move end to end: they stall, you agree and step out, you come back. What real objection showed up?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What do you do the moment a customer says "I need to think about it"?</summary>
+      <p class="answer">Agree with them, don't react, and keep moving. Step out to take photos and measurements, let them think, and come back to the real objection.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 7: GO GET THE NO -->
+<section class="module" id="no">
+  <div class="wrap">
+    <span class="eyebrow">Part 7 · Get in the Battle</span>
+    <h2>Go get the no</h2>
+    <p class="intro">Not closing is usually fear of rejection. Reps would rather leave with hope than draw the line and hear a real answer. But if they're not in a yes, they're already in a no. You have nothing to lose by asking.</p>
+
+    <div class="card-grid">
+      <div class="metric-callout"><span class="figure">80%</span><span class="caption">Of salespeople never even ask for the close</span></div>
+      <div class="metric-callout"><span class="figure">3 to 5</span><span class="caption">No's most people give before a yes</span></div>
+      <div class="metric-callout"><span class="figure">All</span><span class="caption">Lost if you walk out without asking</span></div>
+    </div>
+
+    <div class="pullquote">"Someone is getting closed in that house every time you go. Either you're closing them, or they're closing you. Take every swing, and never try to bunt."<span class="attr">Ken Ebbert · Coffee with Closers</span></div>
+
+    <div class="training-card training-card--ink">
+      <h3>Be prepared to hear no</h3>
+      <p>You prepare your calendar, your iPad, your bill breakdown, your design. Prepare for the no too. When it comes, you are not rattled. You ask another question, find what you missed, and turn it into a yes.</p>
+      <blockquote class="script-example"><span class="who">Say</span>"I clearly missed something, because this should be an easy yes for you. Help me understand what's really holding you back."</blockquote>
+    </div>
+
+    <div class="manager-prompt">Ask the room: when you get a no, what is your very next sentence? If you don't have one, that's the gap.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why is asking for the close a free shot?</summary>
+      <p class="answer">If they're not already a yes, they're a no, so you've lost nothing by asking. Most people give 3 to 5 no's before a yes, and 80% of reps never even ask.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 8: DON'T MESS IT UP -->
+<section class="module" id="messup">
+  <div class="wrap">
+    <span class="eyebrow">Part 8 · Stay Out of Your Own Way</span>
+    <h2>Don't mess up the deal you already had</h2>
+    <p class="intro">A lot of houses are yours to lose. Who offends the least makes the most. The skill is not just saying the right thing, it's not saying the wrong one, and reading who you're actually selling.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>Protect the sale</h3>
+        <ul>
+          <li><strong>Skip the landmines.</strong> No politics, no religion. One closer lost a ready deal the second a stray photo flashed on his phone.</li>
+          <li><strong>Don't volunteer objections.</strong> Don't bring up the roof warranty or inverter brand unprompted. You'll start a worry that wasn't there.</li>
+          <li><strong>Read the decision-maker.</strong> If he checks her face after every answer, she decides. Sell to her.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--amber">
+        <h3>Sell the confidence</h3>
+        <ul>
+          <li><strong>Stand firm on price.</strong> Start higher, hold it, and give ground only for a real reason. Reps who stopped racing down on price closed more, and sold more batteries.</li>
+          <li><strong>Be the premium brand.</strong> We'll be here in 20 years. Confidence in that, not the lowest number, is what sells.</li>
+          <li><strong>Be unique.</strong> Five reps sound the same. Be a little bold, a little fun, take a side. Standing out beats blending in.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="manager-prompt">Ask the room: what is one thing you used to say in the home that created an objection? When did you stop?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What does "who offends the least makes the most" mean in practice?</summary>
+      <p class="answer">Many deals are yours to lose. Avoid landmines (politics, unprompted roof or inverter talk), read the real decision-maker, and don't talk yourself out of a sale that was already closing.</p>
+    </details>
+  </div>
+</section>
+
+<!-- KEY TAKEAWAYS -->
+<section class="key-takeaways" id="takeaways">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>One-sentence reminders</h2>
+    <ul>
+      <li>People respond to direction, not information.</li>
+      <li>Less education, more closing. It's an emotional buy.</li>
+      <li>Create the problem first, or nothing else lands.</li>
+      <li>Find the real pain, and make them say it out loud.</li>
+      <li>Earn the right, then assume the sale.</li>
+      <li>"Think about it" is not a no. Agree, step out, come back.</li>
+      <li>Go get the no. Either you close them, or they close you.</li>
+      <li>Many deals are yours to lose. Don't mess them up.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8593;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8595;</button>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Closing craft synthesized from the Coffee with Closers call (May 2026): Michael Melusky, Kevin McSorley, Ken Ebbert, David Spagnoli, Casey Snyder, Anthony Venditto, Craig Groenewold, Richard Korfel, Merritt Walsh, Ata Sarmeh, and Andrew Oppenheim. The framework lives in One-Touch Close.
+  </div>
+</footer>
+
+</div><!-- /#appWrap -->
+
+</body>
+</html>

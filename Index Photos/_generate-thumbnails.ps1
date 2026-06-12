@@ -125,6 +125,7 @@ $cards = @(
  @('know-your-buyer','fieldmastery','FIELD MASTERY','Know Your','Buyer','Sell to every personality',''),
  @('know-your-style','fieldmastery','FIELD MASTERY','Know Your','Style','Find your DISC style',''),
  @('roleplay-app','fieldmastery','FIELD MASTERY','Roleplay','App','Practice before the door',''),
+ @('the-assumptive-close','fieldmastery','FIELD MASTERY','The Assumptive','Close','Get the one-call yes',''),
  @('sales-ops-master-reference','reference','REFERENCE','Sales Ops','Master Ref','SOP, pricing, checklists',''),
  @('market-data','reference','REFERENCE','Why','Trinity','Market data and credibility',''),
  @('video-library','reference','REFERENCE','Video','Library','Watch / Search / Reference',''),
