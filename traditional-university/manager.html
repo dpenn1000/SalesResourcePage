@@ -1705,6 +1705,32 @@ function _resourceById(id) {
   return (state.resources || []).find(r => r.id === id) || null;
 }
 
+// The metric that triggered a recommendation, rendered cleanly (not raw JSON).
+function _recMetric(r) {
+  const m = r.metric, b = r.benchmark, n = v => (v == null ? '?' : Math.round(v * 10) / 10);
+  switch (r.signal_type) {
+    case 'close_rate_low':     return `Close rate <strong>${n(m)}%</strong> vs CT median ${n(b)}%`;
+    case 'sit_rate_low':       return `Sit rate <strong>${n(m)}%</strong> vs CT median ${n(b)}%`;
+    case 'ppw_discounting':    return `PPW gap <strong>${m > 0 ? '+' : ''}${n(m)}/W</strong> vs ${n(b)}/W floor`;
+    case 'battery_attach_low': return `Battery attach <strong>${n(m * 100)}%</strong> vs ${n(b * 100)}% target`;
+    case 'roofing_attach_low': return `Roofing attach <strong>${n(m * 100)}%</strong> vs ${n(b * 100)}% target`;
+    case 'track_quality':      return `Project track: <strong>${escapeHtml((r.evidence && r.evidence.track_assessment) || 'flagged')}</strong>`;
+    case 'no_bill_goback':     return `No-bill go-backs <strong>${Math.round((m || 0) * 100)}%</strong> of notes vs ${Math.round((b || 0) * 100)}% threshold`;
+  }
+  if (r.scope === 'cohort' && m != null) return `<strong>${Math.round(m * 100)}%</strong> of lost appts vs ${Math.round((b || 0) * 100)}% threshold`;
+  if (m != null || b != null) return `<strong>${n(m)}</strong> vs ${n(b)}`;
+  return '';
+}
+
+// Supporting evidence as readable chips (skip the long notes_sample array).
+function _recEvidence(r) {
+  if (!r.evidence || typeof r.evidence !== 'object') return '';
+  return Object.entries(r.evidence)
+    .filter(([k]) => k !== 'notes_sample' && k !== 'track_assessment')
+    .map(([k, v]) => `${escapeHtml(k.replace(/_/g, ' '))}: ${typeof v === 'number' ? v : escapeHtml(String(v))}`)
+    .join(' · ');
+}
+
 function renderTraining() {
   renderTrainingRecs();
   populateLogForm();
@@ -1726,8 +1752,10 @@ function renderTrainingRecs() {
     const who = r.scope === 'cohort' ? 'Team-wide' : escapeHtml(_personName(r.person_id));
     const priColor = r.priority === 'high' ? 'var(--accent-rose, #d9534f)'
                    : r.priority === 'medium' ? 'var(--accent-amber, #c98a00)' : 'var(--text-subtle)';
-    const ev = r.evidence && Object.keys(r.evidence).length
-      ? `<div style="font-size:0.75rem; color: var(--text-subtle); margin-top:4px;">${escapeHtml(JSON.stringify(r.evidence))}</div>` : '';
+    const metricLine = _recMetric(r);
+    const evText = _recEvidence(r);
+    const metric = metricLine ? `<div style="margin-top:4px; font-size:0.875rem; color: var(--ink);">${metricLine}</div>` : '';
+    const ev = evText ? `<div style="font-size:0.72rem; color: var(--text-subtle); margin-top:4px;">${evText}</div>` : '';
     return `
       <div style="padding: var(--s-3); border:1px solid var(--hairline); border-radius: var(--r-sm); margin-bottom: var(--s-3);">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: var(--s-3);">
@@ -1736,6 +1764,7 @@ function renderTrainingRecs() {
               <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color:${priColor};">${escapeHtml(r.priority)}</span>
               <span style="font-size:0.75rem; color: var(--text-subtle); text-transform:uppercase; letter-spacing:0.06em;">${who} · ${escapeHtml(r.signal_type)}</span>
             </div>
+            ${metric}
             <div style="margin-top:4px;">${escapeHtml(r.suggested_action || '')}</div>
             <div style="font-size:0.8125rem; margin-top:4px;">Training: ${target}</div>
             ${ev}
