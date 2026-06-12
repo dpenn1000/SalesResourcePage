@@ -1416,8 +1416,11 @@ async function submitCourseFinal() {
   const { error: insErr } = await supa.from('quiz_responses').insert(rows);
   if (insErr) { alert(insErr.message); return; }
 
-  // Fully auto-graded cert with a pass bar -> self-certify via RPC.
-  if (cert.pass_threshold != null) {
+  // Auto-pass only when the cert has a pass bar AND no manager-graded (text)
+  // questions. With short-answers present, route to manager review instead
+  // (submit_auto_pass rejects text-bearing certs).
+  const hasText = finals.some(q => q.question_type === 'text');
+  if (cert.pass_threshold != null && !hasText) {
     const { data, error } = await supa.rpc('submit_auto_pass', { p_attempt_id: attempt.id });
     if (error) { alert(error.message); return; }
     await loadAll(); renderCerts(); renderDashboard();
