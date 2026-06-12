@@ -863,6 +863,8 @@ function setTab(tab) {
 }
 
 // ===================== DASHBOARD =====================
+function setDashFilter(f) { state.dashFilter = f; renderDashboard(); }
+
 function renderDashboard() {
   const reps = state.reps || [];
   const A = state.allAttempts || [];
@@ -918,13 +920,21 @@ function renderDashboard() {
 
   const wrap = document.getElementById('dash-table-wrap');
   if (!reps.length) { wrap.innerHTML = `<div class="empty">No reps yet. Add reps on the Reps tab.</div>`; return; }
+  state.dashFilter = state.dashFilter || 'all';
+  const onboardingRows = rows.filter(r => ['Not started', 'In progress', 'Stalled'].includes(r.status));
+  const tableRows = state.dashFilter === 'onboarding' ? onboardingRows : rows;
+  const dchip = (f, l) => `<button class="chip ${state.dashFilter === f ? 'active' : ''}" onclick="setDashFilter('${f}')">${l}</button>`;
   wrap.innerHTML = `
+    <div style="display:flex; gap:8px; margin-bottom: var(--s-3);">
+      ${dchip('all', 'All reps (' + rows.length + ')')}
+      ${dchip('onboarding', 'Onboarding &middot; Foundations in progress (' + onboardingRows.length + ')')}
+    </div>
     <table class="data">
       <thead><tr>
         <th>Rep</th><th>Cohort day</th><th>Certs</th><th>Quizzes (passed/tried)</th><th>Shadows</th><th>Last activity</th><th>Status</th>
       </tr></thead>
       <tbody>
-        ${rows.map(r => `
+        ${tableRows.map(r => `
           <tr>
             <td data-label="Rep"><strong>${escapeHtml(r.rep.name)}</strong></td>
             <td data-label="Cohort day">${r.rep.cohort_start_date ? 'Day ' + daysSince(r.rep.cohort_start_date) : '--'}</td>

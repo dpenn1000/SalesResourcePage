@@ -453,6 +453,8 @@ main { padding: var(--s-7) 0 var(--s-8); min-height: 70vh; }
         </div>
       </div>
 
+      <div id="foundations-path" class="panel" style="margin-bottom: var(--s-5);"></div>
+
       <div class="panel">
         <div class="panel-head">
           <h3>Recent activity</h3>
@@ -826,6 +828,8 @@ function renderDashboard() {
            </div>
          </div>`).join('')}</div>`
     : `<div class="empty">No activity yet.</div>`;
+
+  renderFoundationsPath();
 }
 
 function findNextCert() {
@@ -838,6 +842,46 @@ function findNextCert() {
   if (s1Next) return s1Next;
   const s2 = state.certs.filter(c => c.stage === 2);
   return s2.find(c => certStatus(c.id) !== 'approved');
+}
+
+// The onboarding track: the Stage 1 Foundations courses in order, with status.
+function renderFoundationsPath() {
+  const el = document.getElementById('foundations-path');
+  if (!el) return;
+  const fnd = state.certs.filter(c => c.stage === 1).sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+  if (!fnd.length) { el.innerHTML = ''; el.style.display = 'none'; return; }
+  el.style.display = '';
+  const done = fnd.filter(c => certStatus(c.id) === 'approved').length;
+  const next = findNextCert();
+  el.innerHTML = `
+    <div class="panel-head">
+      <h3>Your Foundations path</h3>
+      <p>Complete these in order to graduate. ${done} of ${fnd.length} done.</p>
+    </div>
+    <div class="list">
+      ${fnd.map((c, i) => {
+        const st = certStatus(c.id);
+        const recert = certIsRecertDue(c.id);
+        const isNext = next && next.id === c.id;
+        const label = recert ? 'Recert due'
+          : st === 'approved' ? 'Complete'
+          : st === 'pending_review' ? 'In review'
+          : st === 'in_progress' ? 'In progress'
+          : isNext ? 'Start here' : 'Up next';
+        const cls = recert ? 'retake'
+          : st === 'approved' ? 'approved'
+          : st === 'pending_review' ? 'pending'
+          : st === 'in_progress' ? 'in-progress'
+          : isNext ? 'pending' : 'not-started';
+        return `<div class="list-item" style="cursor:pointer;${isNext ? ' border-left:3px solid var(--solar-green, #78C832); padding-left:10px;' : ''}" onclick="openCert('${c.id}')">
+          <div class="main">
+            <div class="title">${i + 1}. ${c.icon || ''} ${escapeHtml(c.name)}</div>
+            <div class="meta">${escapeHtml(c.core || '')}</div>
+          </div>
+          <span class="status-badge ${statusBadgeClass(cls)}">${label}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 // ===================== CERTS =====================
