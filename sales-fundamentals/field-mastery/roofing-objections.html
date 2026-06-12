@@ -1570,6 +1570,60 @@ const OBJECTIONS = [
     technique: "Short Answer, Long Answer.",
     standardResponse: "The mounts are engineered for waterproofing, sealed, flashed, and backed by our 25-year craftsmanship warranty. If anything ever leaks at a mount, you call us. Because we install both the roof and the solar, there's no finger-pointing between contractors. With a separate roofer and solar installer, a leak at a mount in year 4 means both blame each other. With us, it's one call.",
     repFailure: "Vague answers. The 'one call, no finger-pointing' frame is the strongest piece."
+  },
+  {
+    id: "OBJ-RF-A03", section: "A", sectionName: "Aesthetic", title: "I Don't Like How It Looks",
+    product: "Universal", difficulty: "Warm",
+    surface: ["I just don't love the look of it.", "It doesn't really go with the house.", "I'm picky about how the house looks."],
+    rootCause: "Almost never a real obstacle. Nobody studies their own roof, so the aesthetic worry is abstract. A friendly bet exposes that, then the color tools resolve the genuine piece.",
+    disc: { D: "States it flatly and moves on.", I: "Cares most here. Curb appeal is emotional.", S: "Worries the neighbors will notice.", C: "Wants to see exact colors before committing." },
+    technique: "A bet they can't win, then Feel/Felt/Found, then the Viewer.",
+    standardResponse: "Let me ask you something, and it's not a trick. Two houses down on your side of the street, what color is their roof? Most people can't answer that, and that's the point. You weren't admiring your roof when I pulled up, and your neighbors aren't studying it either. I know how you feel. A lot of customers felt the same way before they saw the options. What they found is that the right color actually lifts the whole curb appeal. Let me pull up the Viewer with a photo of your house and show you.",
+    note: "9 of 10 customers cannot name a neighbor's roof color. Use that bet to disarm the worry, then the IKO Viewer to settle the real preference. A color must be on the contract before submission.",
+    repFailure: "Treating the looks objection as a hard no. Skipping the bet and the Viewer that turn it into a buying conversation."
+  },
+  {
+    id: "OBJ-RF-C04", section: "C", sectionName: "Comparison", title: "I Want To Get A Few Quotes",
+    product: "Universal", difficulty: "Medium",
+    surface: ["I want to shop this around.", "I always get three quotes.", "Let me see what else is out there first."],
+    rootCause: "A reflex, not a real plan. People value their time and are prone to inaction. The unworried rep who hands them the questions to ask usually keeps the deal, because most customers never actually get around to calling anyone else.",
+    disc: { D: "Wants to control the process. Hand them the questions.", I: "Says it to be polite. Stay warm and confident.", S: "Genuinely wants to be thorough. Help them.", C: "Will actually compare. Arm them to compare correctly." },
+    technique: "Be unworried. Arm them with questions, then name the cost of waiting.",
+    standardResponse: "That's smart, and I'd never talk you out of it. Let me actually help you. Here are 5 to 10 questions to ask any other roofer: How long is the labor warranty? Is the price cash or financed? Are permits, full drip edge, and underlayment included? How long have they been in business? Are service calls answered 24/7? The one thing I'd say is this: we already found a water issue on your roof, and every week you wait risks a several-thousand-dollar leak. I know how you feel. Most customers feel better getting a few numbers. What they find is they're confident enough after our questions that they never end up making the calls.",
+    note: "The questions are the close. A confident, unworried rep who hands over the comparison list usually keeps the deal, because most customers value their time and never bother to quote.",
+    repFailure: "Looking worried or pushing back hard. Not arming them with the questions. Not tying a specific cost of delay to their own roof."
+  },
+  {
+    id: "OBJ-RF-W06", section: "W", sectionName: "Warranty", title: "It's Still Under Warranty / My Roof Is Newer",
+    product: "Universal", difficulty: "Medium",
+    surface: ["The roof was redone before we bought.", "It should still be under warranty.", "It's only a few years old."],
+    rootCause: "Information gap. Most homeowners assume a warranty exists and transfers automatically. It often does not. Manufacturer warranties transfer only once and within a short window after purchase, and many were never registered in the first place.",
+    technique: "Hot Potato. Ask for the certificate, then walk the transfer rules.",
+    standardResponse: "Good, let's use that. When you bought the house, did they hand you a copy of the warranty certificate? If you have it, that's great, and we'll work around it. Here's the part most people don't know: if there's no certificate, there's a real chance the original contractor never registered it, or it never transferred to you. These warranties usually transfer only once, within about 30 days of the sale. So you may not actually have the warranty you think you have. Let me take a look and we'll find out where you really stand.",
+    note: "No certificate usually means no registration or no transfer. Surface it as a question, not an accusation. If they produce a valid certificate, respect it and work around it.",
+    repFailure: "Accepting 'it's under warranty' at face value. Not asking for the certificate. Not knowing the transfer-once, short-window rule."
+  },
+  {
+    id: "OBJ-RF-C05", section: "C", sectionName: "Comparison", title: "Someone Quoted Me A Lot Less",
+    product: "Universal", difficulty: "Hard",
+    surface: ["I got a number way under yours.", "Another company came in thousands cheaper.", "How is yours so much more?"],
+    rootCause: "One low quote is not 'the market.' Every roof is custom, like a portrait, so you wouldn't expect three identical numbers. A price far below the rest is often one weak rep in town on a performance plan, not the company's real price. The rep's own reaction to the number is the message.",
+    disc: { D: "Pushes hard on the gap. Match the directness.", I: "Mentions the other rep seemed nice. Stay confident.", S: "Quietly leans toward the cheaper, safer-feeling number.", C: "Has the written quote. Welcome it and compare." },
+    technique: "Control your reaction. Reframe the low number, then the Walk-Around Compare.",
+    standardResponse: "Wow, that's a really low number. Honestly, I don't understand how anyone could do a complete roof for that. You wouldn't get three quotes to paint a family portrait and expect them to match, because every home is custom. A price that far under the rest is usually one rep in your town who needs the sale this week, not the company's real price. Not everyone having a going-out-of-business sale puts up a sign. Show me what they put in writing and let's compare it line by line. A real quote stands up. A cheap verbal number rarely does.",
+    note: "If your face loses color when you hear the number, you've told the customer to worry. React with calm surprise instead, then move to the Walk-Around Compare in OBJ-RF-F04. Never drop your price to match a number you haven't seen in writing.",
+    repFailure: "Flinching at the low number. Matching it on the spot. Treating one cheap quote as the market instead of an outlier."
+  },
+  {
+    id: "OBJ-RF-T05", section: "T", sectionName: "Timing", title: "It's Fine For Now",
+    product: "Universal", difficulty: "Medium",
+    surface: ["I'll just patch it for now.", "A repair will hold us over.", "It's not leaking badly, it can wait."],
+    rootCause: "The customer is treating a system failure as a logistics delay. A repair on an aging roof is a band-aid on a bullet hole. The enemy of wood is water, and the damage compounds behind the wall before anyone notices it.",
+    technique: "Be Proactive. Make the cost of delay concrete and physical.",
+    standardResponse: "I understand the instinct, and a lot of customers feel that way at first. Here's what they found. A repair on a roof this age is a band-aid on a bullet hole. You might stop the drip you can see, but the enemy of wood is water, and water you can't see is already in the plywood. The real question isn't the leak today. It's what already happened behind the wall before you noticed: the soft decking, the start of mold. Roofing prices also climb every year, so the same roof costs more next spring. Doing it now, while it's still just shingles and underlayment, is how you avoid a much larger bill later.",
+    ctContext: "A leak that reaches the plywood can turn a shingle job into a full decking replacement, which can run thousands on top of the roof. Replacement plywood is included up to the contracted amount; beyond that it's $100 per sheet on a change order you approve.",
+    note: "Pair with the inspection. Show the soft decking or the attic moisture, don't just describe it. The cost of delay is the damage already in progress, not a vague 'prices go up.'",
+    repFailure: "Letting 'it's fine for now' stand as a repair plan. Not making the hidden, compounding water damage concrete and visible."
   }
 ];
 
