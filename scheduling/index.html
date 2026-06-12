@@ -805,26 +805,52 @@ function renderRebalance(){
     ${line(allWeek.length,'reps saturated on every shift (redeploy all week)', allWeek.map(esc).join(', '))}
   </div>`;
 
-  // ---- calendar deficit grid ----
-  let cal=`<div class="card"><div class="weekhd">Coverage by day and shift</div>
-    <div class="muted" style="font-size:12px;margin-bottom:8px">Each cell is the gap for that day and shift. <b style="color:#2a8">Green = short</b> (add reps), <b style="color:#c52">red = over</b> (free reps). Expected demand is the average for that weekday; Sunday is off-schedule and omitted.</div>
-    <div style="display:flex;gap:18px;flex-wrap:wrap">`;
-  for(const s of SH){
-    cal+=`<div style="flex:1;min-width:300px"><div style="font-weight:700;margin-bottom:4px">${SHIFT_META[s].name} <span class="muted" style="font-weight:400;font-size:12px">${SHIFT_META[s].time}</span></div>
-      <table style="border-collapse:separate;border-spacing:3px;width:100%"><thead><tr><th></th>${DOWL.map(x=>`<th class="muted" style="font-size:11px;font-weight:600">${x}</th>`).join('')}</tr></thead><tbody>`;
-    for(let w=0;w<S.period.num_weeks;w++){
-      cal+=`<tr><td class="muted" style="font-size:10px">W${w+1}</td>`;
-      for(let d=0;d<6;d++){ const iso=dayDate(S.period,w,d); const c=cellAt(iso,s,d); const r=c.ratio, g=Math.round(c.gap);
-        cal+=`<td title="${dowName(iso)} ${fmtMD(iso)} ${SHIFT_META[s].name}: ${c.sup} scheduled, expected ${c.t.toFixed(1)}" style="background:${r==null?'#eee':ratioTint(r)};border:1px solid ${r==null?'#ddd':ratioColor(r)};border-radius:5px;text-align:center;padding:5px 2px;min-width:32px">
-          <div style="font-weight:700;font-size:12px;color:${r==null?'#999':ratioColor(r)}">${g>=0?'+':''}${g}</div></td>`;
-      }
-      cal+=`</tr>`;
+  // ---- calendar deficit grid with what-if simulator ----
+  S.wf={from:null, moves:[], delta:{}};
+  const eff=(iso,s)=> supplyAt(iso,s) + (S.wf.delta[s+'|'+iso]||0);
+  const cellSim=(iso,s,d)=>{ const sup=eff(iso,s), t=((S.dow[s]||{})[d]||0)*rate[s]; return {ratio:t>0?sup/t:null, gap:sup-t, sup, t}; };
+  const calCard=`<div class="card"><div class="weekhd">Coverage by day and shift</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Each cell is the gap for that day and shift. <b style="color:#2a8">Green = short</b> (add reps), <b style="color:#c52">red = over</b> (free reps). Expected demand is the average for that weekday; Sunday is off-schedule and omitted. <b>Click a red cell, then a green cell, to simulate moving a rep and watch both rebalance.</b></div>
+    <div id="wfsim" style="margin-bottom:8px"></div><div id="wfcal"></div></div>`;
+  document.getElementById('view').innerHTML = ml + ex + calCard;
+  window.wfReset=()=>{ S.wf={from:null,moves:[],delta:{}}; drawCal(); };
+  window.wfClick=(iso,s)=>{ const k=s+'|'+iso;
+    if(!S.wf.from){ S.wf.from={iso,s,k}; }
+    else if(S.wf.from.k===k){ S.wf.from=null; }
+    else{ if(eff(S.wf.from.iso,S.wf.from.s)>0){ S.wf.delta[S.wf.from.k]=(S.wf.delta[S.wf.from.k]||0)-1; S.wf.delta[k]=(S.wf.delta[k]||0)+1; S.wf.moves.push({f:S.wf.from,t:{iso,s}}); } S.wf.from=null; }
+    drawCal();
+  };
+  function drawCal(){
+   try{
+    const sim=document.getElementById('wfsim');
+    if(sim){ const n=S.wf.moves.length;
+      const msg=S.wf.from ? ('Source picked: '+dowName(S.wf.from.iso)+' '+fmtMD(S.wf.from.iso)+' '+S.wf.from.s+'. Now click a green (short) cell.')
+                          : 'Click a red (over) cell, then a green (short) cell, to simulate a move.';
+      sim.innerHTML=`<div class="row" style="gap:10px;align-items:center;flex-wrap:wrap"><span class="muted" style="font-size:12px">${msg}</span>`
+        +(n?` <button class="btn btn-ghost" onclick="wfReset()">Reset (${n} move${n>1?'s':''})</button>`:'')
+        +(n?` <span class="muted" style="font-size:12px">Simulated: `+S.wf.moves.map(m=>dowName(m.f.iso)+' '+fmtMD(m.f.iso)+' '+m.f.s+' &rarr; '+dowName(m.t.iso)+' '+fmtMD(m.t.iso)+' '+m.t.s).join(' &middot; ')+`</span>`:'')
+        +`</div>`;
     }
-    cal+=`</tbody></table></div>`;
+    const host=document.getElementById('wfcal'); if(!host) return;
+    let cal=`<div style="display:flex;gap:18px;flex-wrap:wrap">`;
+    for(const s of SH){
+      cal+=`<div style="flex:1;min-width:300px"><div style="font-weight:700;margin-bottom:4px">${SHIFT_META[s].name} <span class="muted" style="font-weight:400;font-size:12px">${SHIFT_META[s].time}</span></div>
+        <table style="border-collapse:separate;border-spacing:3px;width:100%"><thead><tr><th></th>${DOWL.map(x=>`<th class="muted" style="font-size:11px;font-weight:600">${x}</th>`).join('')}</tr></thead><tbody>`;
+      for(let w=0;w<S.period.num_weeks;w++){
+        cal+=`<tr><td class="muted" style="font-size:10px">W${w+1}</td>`;
+        for(let d=0;d<6;d++){ const iso=dayDate(S.period,w,d); const c=cellSim(iso,s,d); const r=c.ratio, g=Math.round(c.gap);
+          const sel=S.wf.from&&S.wf.from.k===(s+'|'+iso);
+          cal+=`<td onclick="wfClick('${iso}','${s}')" title="${dowName(iso)} ${fmtMD(iso)} ${SHIFT_META[s].name}: ${c.sup} scheduled, expected ${c.t.toFixed(1)}" style="cursor:pointer;background:${r==null?'#eee':ratioTint(r)};border:${sel?'2px solid #1A2332':'1px solid '+(r==null?'#ddd':ratioColor(r))};border-radius:5px;text-align:center;padding:5px 2px;min-width:32px">
+            <div style="font-weight:700;font-size:12px;color:${r==null?'#999':ratioColor(r)}">${g>=0?'+':''}${g}</div></td>`;
+        }
+        cal+=`</tr>`;
+      }
+      cal+=`</tbody></table></div>`;
+    }
+    cal+=`</div>`; host.innerHTML=cal;
+   }catch(e){ const h=document.getElementById('wfcal'); if(h) h.innerHTML='<div class="muted">Calendar unavailable.</div>'; }
   }
-  cal+=`</div></div>`;
-
-  document.getElementById('view').innerHTML = ml + ex + cal;
+  drawCal();
 }
 
 // ===================== MANAGER: REP VIEW (preview) =====================
