@@ -94,6 +94,7 @@ $cards = @(
  @('rate-escalator','solar','SOLAR','The Rate','Escalator','The cost of doing nothing',''),
  @('system-design-and-codes','syscodes','SYSTEM & CODES','System Design','& Codes','Design rules, setbacks, the tester','roof'),
  @('electrical-upgrades','syscodes','SYSTEM & CODES','Electrical','Reviews & Upgrades','Equipment, upgrades, and clearances','circuit'),
+ @('design-lab','syscodes','SYSTEM & CODES','Design','Lab','Practice the system design','sun'),
  # Financing portals use their real lender LOGOS (not generated). Do NOT re-add here
  # or a generator run will clobber them. service-finance-portal-thumbnail.svg is a
  # hand-built white logo card; goodleap/sunlight/palmetto point at storage logos.
@@ -112,6 +113,7 @@ $cards = @(
  @('low-income-verification','battery','BATTERY FORM','Low Income','Verification','Confirm eligibility',''),
  @('ess-terms-conditions','battery','BATTERY FORM','ESS Terms','& Conditions','What the customer acknowledges',''),
  @('contractor-resources','battery','BATTERY','Contractor','Resources','Installer specs and docs',''),
+ @('selling-the-self-powered-home','battery','BATTERY','Self-Powered','Home','Lead with backup, not savings',''),
  @('credit-conversation','finance','FINANCE','The Credit','Conversation','When credit says no',''),
  @('titlework','finance','FINANCE','Understanding','Title Work','Get the right signer on title',''),
  @('whats-the-catch','finance','FINANCE','What''s the','Catch','The honest version of solar',''),
