@@ -293,6 +293,9 @@
           <option value="ready">Scheduled</option><option value="ran">Ran</option><option value="new">New (manual)</option>
           <option value="deleted">Deleted (pre-run)</option>
         </select>
+        <select id="fTerritory" onchange="render()" title="Filter by the lead's territory (state). CT is our service area; NJ/NY etc. are out-of-territory leaks.">
+          <option value="">All territory</option>
+        </select>
         <select id="fType" onchange="render()" title="Direct leads belong to a rep -- don't dispatch them">
           <option value="">All types</option>
           <option value="trad">Traditional (dispatchable)</option>
@@ -586,6 +589,7 @@ async function initApp(){
     for(const r of Object.keys(repCount).sort((a,b)=>repCount[b]-repCount[a]))rp.appendChild(new Option(`${r} (${repCount[r]})`,r));
     const la=document.getElementById('li_assign');for(const n of people)la.appendChild(new Option(n,n));
     const dr=document.getElementById('dispatchRep');for(const n of people)dr.appendChild(new Option(n,n));
+    syncTerritoryFilter();
     renderKpis();renderTeamChart();renderDashDetail();render();updatePlCount();updateGbCount();
   }catch(err){
     document.getElementById('tableWrap').innerHTML='<div class="empty">Load failed: '+esc(err.message||err)+'</div>';
@@ -1832,6 +1836,22 @@ function satActivity(g){
 // lead (or a location-stripped ghost) never reaches the call team.
 const SERVED_STATES=new Set(['CT']);   // org territory today; grows as we expand
 function isOos(g){const st=window.leadState(g.property);return !st || !SERVED_STATES.has(st);}
+// Populate the Territory (US state) filter from the states actually present, with
+// our served state(s) first, then others alphabetical, then "(unknown)". Lets a
+// manager isolate CT vs. out-of-territory leaks (NJ/NY/...). Preserves selection.
+function syncTerritoryFilter(){
+  const sel=document.getElementById('fTerritory'); if(!sel) return;
+  const cur=sel.value, counts={};
+  for(const g of props){const ls=window.leadState(g.property)||'(unknown)';counts[ls]=(counts[ls]||0)+1;}
+  const keys=Object.keys(counts).sort((a,b)=>{
+    const sa=SERVED_STATES.has(a),sb=SERVED_STATES.has(b);
+    if(sa!==sb)return sa?-1:1;                       // served territory first
+    if((a==='(unknown)')!==(b==='(unknown)'))return a==='(unknown)'?1:-1;   // unknown last
+    return a.localeCompare(b);
+  });
+  sel.innerHTML='<option value="">All territory</option>'+keys.map(k=>`<option value="${esc(k)}">${esc(k)} (${counts[k]})</option>`).join('');
+  if(cur==='' || keys.includes(cur))sel.value=cur;
+}
 function isDq(g){const pr=g.primary||{};if(pr.status==='dq')return true;if(/disqualif/i.test(pr.last_outcome||''))return true;return (g.dls||[]).some(d=>(d.appointments||[]).some(a=>/disqualif/i.test((a&&a.outcome)||'')));}
 function notDispatchable(g){return isOos(g)||isDq(g);}
 function leadCategory(g){
@@ -1868,6 +1888,7 @@ function render(){
   const q=document.getElementById('q').value.trim().toLowerCase();
   const fRep=document.getElementById('fRep').value;
   const fState=document.getElementById('fState').value;
+  const fTerr=(document.getElementById('fTerritory')||{}).value||'';
   const fView=document.getElementById('fView').value||'callable';
   const fType=document.getElementById('fType').value;
   const dupOnly=document.getElementById('dupOnly').checked;
@@ -1890,6 +1911,7 @@ function render(){
       if(dTo&&d>dTo)return false;
     }
     if(fType && leadType(g)!==fType)return false;
+    if(fTerr && (window.leadState(g.property)||'(unknown)')!==fTerr)return false;   // territory (US state) filter
     if(dupOnly&&g.dls.length<2)return false;
     const st=g.primary.lifecycle_state||'';
     if(fState && st!==fState)return false;
