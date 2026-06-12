@@ -175,6 +175,8 @@ ul.kids.collapsed{display:none}
 <link rel="stylesheet" href="/auth-gate.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
+<script src="/org-data.js"></script>
+<script src="/org-intake.js"></script>
 <script src="/site-back.js" defer></script>
 </head>
 <body>
@@ -236,200 +238,10 @@ ul.kids.collapsed{display:none}
 
 <script>
 /* ---------- DATA (seed; later becomes an org_chart table) ---------- */
-// c = contact drawer: {does, when, reach:[{k,v}], callout, escalation}
-const N = {
-  rj:{p:null,n:'RJ Sparks',t:'President & CEO',o:'Wall NJ',span:20,d:'spine'},
-  kurt:{p:'rj',n:'Kurt Wingenfeld',t:'VP, Strategic Finance',o:'Wall NJ',span:7,d:'spine',
-    c:{does:'Leads Strategic Finance: Sales Operations, RSA, Commissions, Finance Partner Ops, and Warehouse.',
-       reach:[{k:'Role',v:'Final escalation point for Sales Operations (Phase 3).'}]}},
-  jp:{p:'rj',n:'JP McEvenue',t:'COO',o:'Wall NJ',span:13,d:'spine',
-    c:{does:'Chief Operating Officer — leads the Operations pillar: field operations, QA/QC, the Regional VPs, roofing, and safety.'}},
-  // --- Strategic Finance / Sales Ops ---
-  victoria:{p:'kurt',n:'Victoria Broszeit',t:'Director, Sales Support & Contracts',o:'Wall NJ',span:2,d:'green',
-    c:{does:'Director over Sales Support and Contract Writing.',when:'Most rep needs route through her teams — Sales Support is the email front door for any rep.'}},
-  mae:{p:'kurt',n:'Meagan (Mae) Yenger',t:'Director, QA/QC',o:'Wall NJ',span:2,d:'green',
-    c:{does:'Director, QA/QC — over Document Processing, Pre-Install Change Orders, and Training.'}},
-  jessica:{p:'kurt',n:'Jessica Tauscher',t:'Director, Strategic Initiatives',o:'Wall NJ',d:'green',
-    c:{does:'Owns sales-ops strategic initiatives and the deal-stage training.',when:'Copy on urgent (within-48h) escalations alongside your manager.'}},
-  thomas:{p:'kurt',n:'Thomas Pugliese',t:'RSA Manager',o:'Wall NJ',span:16,d:'rsa',
-    c:{does:'Certifies the digital site assessments and home models, including ground mounts.',when:'A site assessment or home-model question or correction.',
-       reach:[{k:'Salesforce',v:'@RSA Team'},{k:'Ground mounts',v:'@GroundMount RSA'}]}},
-  christine:{p:'kurt',n:'Christine Breuer',t:'Commissions Manager',o:'Wall NJ',span:3,d:'green',
-    c:{does:'Runs Commissions.',when:'Commission questions.',callout:'Roster and contact channel still to confirm.'}},
-  kristi:{p:'kurt',n:'Kristi Turner',t:'Director, Finance Partner Operations',o:'Wall NJ',span:11,d:'violet',
-    c:{does:'Owns all-partner milestone submissions, post–Stage 5 contract review/processing, and all post-install change orders. A separate org pulled out of Sales Ops in summer 2025. Reports to Kurt Wingenfeld (confirmed by Dan); ADP does not draw her under him.',
-       when:'Escalated customers only — clawback risk, finance-partner cancellation, urgent milestone/CO issues.',
-       reach:[{k:'Inbox',v:'milestones@trinity-solar.com or changeorders@trinity-solar.com'},{k:'General Qs',v:'Through your manager (not the inbox)'},{k:'Hours',v:'8a–5p Mon–Fri'}],
-       callout:'Reserve the inboxes for escalated customers. Do NOT use Chatter for this team.',
-       escalation:'LightReach → Ethan Hacker / Monique Gazzoni · IGS → Monique · GoodLeap → Bryan Machesky · Resigns/Sunlight/Service Finance/Cash → Katie Connor · All/policies → Kristi.',
-       partner:[
-         {k:'LightReach',v:'Phil Ahsler · LightReach chat'},
-         {k:'Sunlight',v:'Jerry.Thomas@sunlightfinancial.com · 888-850-3359'},
-         {k:'Service Finance',v:'sales@svcfin.com · 877-661-6793'},
-         {k:'GoodLeap',v:'Matt Mullen / Bryan Machesky'},
-         {k:'IGS',v:'andy.mauch@igs.com · 877-995-4447'},
-         {k:'Sunnova',v:'dealersupport@sunnova.com · 866-786-6682'},
-         {k:'Enerbank',v:'888-700-9610'}
-       ]}},
-  // Sales Ops teams
-  debby:{p:'victoria',n:'Deborah English',t:'Manager, Contract Writing',o:'Wall NJ',span:5,d:'green',
-    c:{does:'Contract creation, Stage 3 revisions, post-signing resigns, LOI, install-date updates.',when:'Direct reps only — Traditional reps write their own.',
-       reach:[{k:'Salesforce',v:'@ContractWriting'},{k:'Channel',v:'Email-preferred; no direct phone'}]}},
-  scott:{p:'victoria',n:'Scott McDermott',t:'Manager, Sales Support',o:'Wall NJ',span:7,d:'green',
-    c:{does:'Triages the shared mailbox + phone lines, routes each request to the right team, backs up Direct reps in-home.',when:'The email front door for everything — any rep, any question.',
-       reach:[{k:'Email',v:'Sales.Ops@Trinity-Solar.com (all reps)'},{k:'Phone',v:'848-220-9688 (Direct in-home only)'},{k:'Hours',v:'Mon–Fri 8a–8p, Sat 8a–4p'}]}},
-  luke:{p:'mae',n:'Luke Grady',t:'Manager, Document Processing & Pre-Install Change Orders',o:'Wall NJ',span:13,d:'green',
-    c:{does:'Stage 4 readiness review, Track A/B/C assignment, document integrity (owns Track C); plus all pre-install change orders, sales approvals, signature coordination.',
-       when:'Document/Track issues and pre-install change orders.',
-       reach:[{k:'Salesforce',v:'@ProjecTracking · @SO: Pre-Install ChangeOrders'},{k:'Change order',v:'Email Sales.Ops to request — you can’t run your own CO'}],
-       callout:'Track C lives on ONE thread — Reply All to the existing email, never start a new one.'}},
-  caitlin:{p:'mae',n:'Caitlin Veneziano',t:'Manager, Training',o:'Wall NJ',d:'green',
-    c:{does:'Guides, videos, sessions, assessments, new-hire and department training.',when:'Training material or onboarding questions.',reach:[{k:'Channel',v:'Email + Teams'}]}},
-  // RSA
-  dallas:{p:'thomas',n:'Dallas Orear',t:'RSA Manager',o:'Wall NJ',d:'rsa'},
-  greg:{p:'thomas',n:'Gregory Vuksanic',t:'RSA Supervisor',o:'Wall NJ',d:'rsa'},
-  eric:{p:'thomas',n:'Eric Istvanditsch',t:'Physical Site Assessment Supervisor',o:'Wall NJ',d:'rsa'},
-  rsaGroup:{p:'thomas',group:1,n:'Analysts · Specialists · Drone',d:'rsa'},
-  r_kyle:{p:'rsaGroup',n:'Kyle Lewis',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
-  r_reyes:{p:'rsaGroup',n:'Nicholas Reyes',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
-  r_imp:{p:'rsaGroup',n:'Richard Imparato',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
-  r_nap:{p:'rsaGroup',n:'Brian Napoliton',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
-  r_lab:{p:'rsaGroup',n:'Cheryl Labella',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
-  r_berg:{p:'rsaGroup',n:'Deanna Berghino',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
-  r_josh:{p:'rsaGroup',n:'Joshua Rucki',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
-  r_june:{p:'rsaGroup',n:'June Stochel',t:'RSA Analyst',o:'Wall NJ',d:'rsa'},
-  r_cav:{p:'rsaGroup',n:'Michael Cavalli',t:'RSA Specialist',o:'Wall NJ',d:'rsa'},
-  r_palm:{p:'rsaGroup',n:'Anthony Palmieri',t:'RSA Specialist',o:'Wall NJ',d:'rsa'},
-  r_jim:{p:'rsaGroup',n:'Matthew Jimenez',t:'RSA Specialist',o:'Wall NJ',d:'rsa'},
-  r_cint:{p:'rsaGroup',n:'Angel Cintron',t:'Drone Operator',o:'Holyoke MA',d:'rsa'},
-  r_fors:{p:'rsaGroup',n:'Steven Forsyth',t:'Drone Operator',o:'Wall NJ',d:'rsa'},
-  thomasC:{}, // placeholder
-  // Finance Partner Ops
-  bryan:{p:'kristi',n:'Bryan Machesky',t:'Manager, Finance Partner Ops',o:'Wall NJ',span:4,d:'violet',
-    c:{does:'Manages Finance Partner Ops; owns GoodLeap milestones.',when:'GoodLeap milestone questions.',
-       reach:[{k:'Partner (milestones)',v:'GoodLeap'},{k:'Team Lead',v:'James Cantwell'},{k:'Channel',v:'Chatter, Email, Teams'},{k:'External support',v:'Matt Mullen / Bryan Machesky'}]}},
-  katie:{p:'kristi',n:'Katie Connor',t:'Manager, Milestone Processing',o:'Wall NJ',span:1,d:'violet',
-    c:{does:'Milestone processing for Resigns, Sunlight, Service Finance, and Cash.',when:'Escalated milestone issues for those partners (via the inbox).',
-       reach:[{k:'Partners (milestones)',v:'Service Finance · Cash · Sunlight · Resigns'},{k:'Channel',v:'Chatter, Email, Teams'}]}},
-  diana:{p:'kristi',n:'Diana Mennella',t:'Finance Partner Operations Specialist',o:'Wall NJ',d:'violet',
-    c:{does:'High-urgency projects — preventing/mitigating clawbacks and finance-partner cancellations. A main responder to rep questions in the inbox.',when:'Clawback or cancellation risk.'}},
-  kim:{p:'kristi',n:'Kimberly Pereira',t:'Finance Partner Ops (Change Order)',o:'Wall NJ',d:'violet',
-    c:{does:'Post-install change orders + high-urgency projects; monitors the rep question inbox.',when:'Post-install change-order escalations.'}},
-  ethan:{p:'bryan',n:'Ethan Hacker',t:'Team Lead — LightReach',o:'Wall NJ',d:'violet'},
-  james:{p:'bryan',n:'James Cantwell',t:'Team Lead — Finance Partner Ops',o:'Wall NJ',d:'violet'},
-  monique:{p:'katie',n:'Monique Gazzoni',t:'Team Lead — LightReach / IGS',o:'Wall NJ',d:'violet'},
-  msGroup:{p:'katie',group:1,n:'Milestone Processing team',d:'violet'},
-  m_carmel:{p:'msGroup',n:'Carmel Bonevitch',t:'Milestone Management',o:'Wall NJ',d:'violet'},
-  m_rina:{p:'msGroup',n:'Rina Shiflett',t:'Milestone Management',o:'Cheshire CT',d:'violet'},
-  m_morgan:{p:'msGroup',n:'Morgan Yenger',t:'Milestone Management',o:'Wall NJ',d:'violet'},
-  m_emma:{p:'msGroup',n:'Emma Hickey',t:'Milestone Management',o:'Cheshire CT',d:'violet'},
-  m_may:{p:'msGroup',n:'Maylene Malichanh',t:'Milestone Management',o:'Wall NJ',d:'violet'},
-  m_amanda:{p:'msGroup',n:'Amanda Pedersen',t:'Milestone Management',o:'Wall NJ',d:'violet'},
-  // --- Operations / COO ---
-  condit:{p:'jp',n:'William Condit',t:'EVP, Operations',o:'Wall NJ',d:'spine'},
-  billie:{p:'jp',n:'Billie Klecko',t:'Corporate VP of Operations',o:'Wall NJ',span:4,d:'teal'},
-  kevin:{p:'jp',n:'Kevin Kura',t:'SVP, QA/QC',o:'Wall NJ',span:5,d:'violet',
-    c:{does:'SVP of QA/QC — over Design, Solar QA/QC, Structural, Electrical, and Corporate Operations. Co-approves trenches over 250 ft with Phil Kelly.'}},
-  rvps:{p:'jp',n:'Keith Oliver · Phil Smith · Russell Pierson',t:'Regional VPs',o:'Multi-region',d:'teal'},
-  slaninka:{p:'jp',n:'Michael Slaninka',t:'VP, Roofing Operations',o:'Wall NJ',span:5,d:'teal'},
-  rucki:{p:'jp',n:'Kenneth Rucki',t:'Safety Director',o:'Wall NJ',span:1,d:'teal'},
-  oleg:{p:'jp',n:'Oleg Koninin',t:'Senior Director, Call Center',o:'Wall NJ',span:8,d:'blue',dotted:1,flag:'line TBD',
-    c:{does:'Senior Director of the Call Center — inbound/outbound calling, campaigns, call quality, and call systems.',when:'To confirm with Oleg and Courtney: lead handoffs, campaign questions, or a call-system issue.'}},
-  phil:{p:'jp',n:'Phil Kelly',t:'VP, Custom Projects (CPR)',o:'Wall NJ',span:6,d:'amber',dotted:1,flag:'line TBD',
-    c:{does:'Prices and approves custom work: ground mounts, ballasted systems, long trenches.',when:'A ground mount, ballasted system, or trench needing pricing/approval.',
-       reach:[{k:'Salesforce',v:'Chatter Phil Kelly'},{k:'Trench >250ft',v:'Chatter Kevin Kura + Phil Kelly'}],
-       approvals:[
-         {title:'Ground Mount pricing',who:'Phil Kelly (all markets) · Dan Riddle (PA)',provide:'State and utility, finance partner, current gross and net PPW, GM PPW for the territory, trench length',note:'All ground-mount contracts also need Sales Ops leadership review.'},
-         {title:'Trench over 250 ft',who:'Phil Kelly + Kevin Kura (Chatter both)',provide:'Ground-mount info plus the actual trench cost',note:'Case-by-case. Trenching protocol does not apply to GMs (different cost structure).'},
-         {title:'Ballasted systems',who:'CPR / Phil Kelly',provide:'State and utility, finance partner, current gross and net PPW, min/floor PPW',note:'Needs a special request to RSA for an Aurora design (not Genesis). Nets $4.20-$4.50 after electrical and structural; CPR may except to $4/W with approval. Contingent on SSV results (flat / under-5-degree roofs).'},
-         {title:'Customer trenching (own trench)',who:'CPR / Phil Kelly · Russ Pierson (PA/MD)',provide:'Scope (dig-only vs conduit/wiring), who supplies material, depth photos, sight tubes',note:'Gather full info from sales/customer first.'},
-         {title:'Low Income Discount',who:'Sales RMs and VPs (+ Phil Kelly if unsure)',provide:'State and utility, low-income rate, current rate/escalator, PPW and floor',note:'Below floor needs regional approval.'},
-         {title:'Roofs in PPAs',who:'Phil Kelly · Jan Kelly · Kevin Erbe',provide:'PPW and floor, current and starting rate, roof squares, roof EPC and price/sq, net solar EPC',note:'Moving away from full roofs in PPAs; target about $6/sq split between loan and solar.'}
-       ]}},
-  rachael:{p:'jp',n:'Rachael Guadagno',t:'Director, Customer Service',o:'Wall NJ',span:3,d:'rose',dotted:1,flag:'line TBD',
-    c:{does:'Post-sale customer relationship: customer service, Client Resources, reputation management.',when:'At-risk customer or service/reputation issue tied to a deal.',callout:'Scope & contact channel to confirm with Rachael.'}},
-  john:{p:'jp',n:'John English',t:'General Counsel',o:'Wall NJ',span:4,d:'grey',dotted:1,flag:'line TBD',
-    c:{does:'Legal operations, licensing, contract/legal review, attorneys.',when:'Rarely directly — route legal questions through the intake process (being defined) and your manager.',callout:'Rep-facing legal intake is being defined by Dan with Marissa Vila.'}},
-  // Operations children
-  gill:{p:'billie',n:'Sarah Gill',t:'Corporate Operations Director',o:'Wall NJ',d:'teal'},
-  wills:{p:'billie',n:'Peter Wills',t:'Corporate Operations Sr Director',o:'Wall NJ',span:2,d:'teal'},
-  buannic:{p:'billie',n:'Suzanne Buannic',t:'Corporate Operations Director',o:'Wall NJ',d:'teal'},
-  kseaberg:{p:'billie',n:'Katie Seaberg',t:'Corporate Operations Director',o:'Wall NJ',span:6,d:'teal'},
-  jason:{p:'kevin',n:'Jason Stolze',t:'Design Manager',o:'Wall NJ',span:17,d:'violet',
-    c:{does:'Produces and reviews the system design + home model the contract, applications, and install run on.',when:'A design question, model correction, or design revision.',callout:'Contact channel to confirm with Jason.'}},
-  rocha:{p:'kevin',n:'Edward Rocha',t:'Solar QA/QC Manager',o:'Wall NJ',span:4,d:'violet'},
-  almaraz:{p:'kevin',n:'Ayracon Almaraz',t:'Structural Engineer',o:'Wall NJ',span:6,d:'violet'},
-  dickson:{p:'kevin',n:'James Dickson',t:'Electrical State License Holder',o:'Wall NJ',d:'violet'},
-  eaton:{p:'kevin',n:'Kevin Eaton',t:'Corporate Operations Director',o:'Wall NJ',span:2,d:'violet'},
-  designGroup:{p:'jason',group:1,n:'Designers (17)',d:'violet'},
-  d_seaberg:{p:'designGroup',n:'James Seaberg',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_kdickson:{p:'designGroup',n:'Karl Dickson',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_milewski:{p:'designGroup',n:'Pete Milewski',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_mccarthy:{p:'designGroup',n:'Michael McCarthy',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_howe:{p:'designGroup',n:'Nicolas Howe',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_seybolt:{p:'designGroup',n:'Jonathan Seybolt',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_faiges:{p:'designGroup',n:'Randall Faiges',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_clarkin:{p:'designGroup',n:'Jillian Clarkin',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_pauciello:{p:'designGroup',n:'Tori Pauciello',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_salsano:{p:'designGroup',n:'Matthew Salsano',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_loftus:{p:'designGroup',n:'Brian Loftus',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_debari:{p:'designGroup',n:'Michael Debari',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_mckeon:{p:'designGroup',n:'Thomas McKeon',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_mrucki:{p:'designGroup',n:'Matthew Rucki',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_kirkland:{p:'designGroup',n:'William Kirkland',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_tobin:{p:'designGroup',n:'Shaylyn Tobin',t:'Designer',o:'Wall NJ',d:'violet'},
-  d_drucki:{p:'designGroup',n:'David Rucki',t:'Designer',o:'Wall NJ',d:'violet'},
-  courtney:{p:'oleg',n:'Courtney Romano',t:'Call Center Director',o:'Wall NJ',span:2,d:'blue'},
-  hertz:{p:'oleg',n:'Michael Hertz',t:'Call Center Manager',o:'Wall NJ',span:5,d:'blue'},
-  marotta:{p:'oleg',n:'Caitlin Marotta',t:'Call Center Manager',o:'Wall NJ',span:4,d:'blue'},
-  meunier:{p:'oleg',n:'Lori Meunier',t:'Call Quality Assurance Manager',o:'Wall NJ',span:11,d:'blue'},
-  taylor:{p:'oleg',n:'Rourke Taylor',t:'Call Systems Manager',o:'Cheshire CT',span:2,d:'blue'},
-  cprGroup:{p:'phil',group:1,n:'Custom Project Specialists (6)',d:'amber'},
-  cp_struben:{p:'cprGroup',n:'Alexandra Struben',t:'Custom Project Specialist',o:'Wall NJ',d:'amber'},
-  cp_vander:{p:'cprGroup',n:'Kristen Vander Drift',t:'Custom Project Specialist',o:'Wall NJ',d:'amber'},
-  cp_morera:{p:'cprGroup',n:'Emmanuel Morera',t:'Custom Project Specialist',o:'Cheshire CT',d:'amber'},
-  cp_wescott:{p:'cprGroup',n:'Patrick Wescott',t:'Custom Project Specialist',o:'Wall NJ',d:'amber'},
-  cp_ricc:{p:'cprGroup',n:'Stephanie Ricciardulli',t:'Custom Project Specialist',o:'Wall NJ',d:'amber'},
-  cp_linck:{p:'cprGroup',n:'Fred Linck',t:'Custom Project Specialist',o:'Cheshire CT',d:'amber'},
-  kayla:{p:'rachael',n:'Kayla Desrochers',t:'Manager, Client Resources',o:'Long Island NY',span:7,d:'rose'},
-  erin:{p:'rachael',n:'Erin Buchansky',t:'Manager, Reputation Management',o:'Wall NJ',span:1,d:'rose'},
-  mahady:{p:'rachael',n:'Thomas Mahady',t:'Customer Experience Coordinator',o:'Wall NJ',d:'rose'},
-  reinhard:{p:'john',n:'Christina Reinhard',t:'Head of Legal Operations & Licensing',o:'Wall NJ',span:4,d:'grey'},
-  acker:{p:'john',n:'Christina Acker',t:'Associate General Counsel',o:'Wall NJ',d:'grey'},
-  marissa:{p:'john',n:'Marissa Vila',t:'Associate General Counsel — legal intake',o:'Wall NJ',d:'grey',
-    c:{does:'Associate General Counsel; the contact for the legal intake process Dan is defining.',when:'Through the intake process once it’s set.'}},
-  green:{p:'john',n:'Nicole Green',t:'Attorney',o:'Wall NJ',d:'grey'},
-};
-delete N.thomasC;
-Object.assign(N,{
-  inf_approvals:{info:1,n:'Special Pricing & Approvals',t:'Who approves what, and what to provide',d:'amber',
-    c:{does:'Every special-pricing / approval type and who owns it. Sourced from the Master Sales Ops Reference.',
-       approvals:[
-         {title:'Direct Rate (below-standard contract creation)',who:'Sales RMs — Jay Celozzi / Kevin Erbe (north), Dan Riddle / Justin Dashiell (south)',provide:'State and utility, PPW and floor, current and starting rate, reason',note:'Rates below starting/min 2.99%, all fixed (0%) rates, other escalators, roof pricing below $7.99/sq.'},
-         {title:'Ground Mount pricing',who:'Phil Kelly (all markets) · Dan Riddle (PA)',provide:'State and utility, finance partner, gross and net PPW, GM PPW for territory, trench length',note:'Also needs Sales Ops leadership review.'},
-         {title:'Trench over 250 ft',who:'Phil Kelly + Kevin Kura',provide:'Ground-mount info plus actual trench cost',note:'Case-by-case.'},
-         {title:'Steep pitch (over 46 degrees)',who:'Local Operations Manager',provide:'Roof numbers (OneDraw/Genesis), pitch in degrees',note:'46-49 needs local ops approval. CT installs up to 52; 53+ needs special approval.'},
-         {title:'Microinverters',who:'No approval needed',provide:'',note:'5-panel systems / customer request; PPW above minimum.'},
-         {title:'Ballasted systems',who:'CPR / Phil Kelly',provide:'State and utility, finance partner, gross and net PPW, min/floor',note:'Needs an Aurora design from RSA. Nets $4.20-$4.50 after electrical and structural.'},
-         {title:'Single battery',who:'Ken Ebbert',provide:'State and utility, finance partner and purchase method, pricing request',note:'For Direct contract creation.'},
-         {title:'Customer trenching (own trench)',who:'CPR / Phil Kelly · Russ Pierson (PA/MD)',provide:'Scope, materials, depth photos, sight tubes',note:''},
-         {title:'Roofing adders',who:'Quotes team — quotes@trinity-solar.com',provide:'Roof Quote Request email (full template in the Master Reference)',note:'Plywood over 5 sheets, 3+ roofing layers, slate/cedar, chimney, 4+ skylights, gutters, partial roof.'},
-         {title:'Pricing below floor',who:'Sales VPs',provide:'State and utility, PPW and floor, rates, reason',note:'Rare (e.g. flip contracts).'},
-         {title:'Low Income Discount',who:'Sales RMs and VPs (+ Phil Kelly if unsure)',provide:'State and utility, low-income rate, current rate/escalator, PPW and floor',note:'Below floor needs regional approval.'},
-         {title:'Roofs in PPAs',who:'Phil Kelly · Jan Kelly · Kevin Erbe',provide:'PPW and floor, rates, roof squares, roof EPC and price/sq, net solar EPC',note:'Target about $6/sq split between loan and solar.'}
-       ]}},
-  inf_inboxes:{info:1,n:'Key Inboxes & Escalations',t:'Where to send things, and who to escalate to',d:'green',
-    c:{does:'The front-door inboxes and the sales-escalation ladder.',
-       reach:[
-         {k:'Sales Ops',v:'Sales.Ops@Trinity-Solar.com · 848-220-9688 (Direct in-home only)'},
-         {k:'Milestones',v:'milestones@trinity-solar.com (escalated customers)'},
-         {k:'Change Orders',v:'changeorders@trinity-solar.com (escalated customers)'},
-         {k:'Customer Success',v:'Customer.Success@trinity-solar.com'},
-         {k:'Quotes (roof adders)',v:'quotes@trinity-solar.com'},
-         {k:'Adobe Sign CC',v:'documents.salesops@trinity-solar.com'}
-       ],
-       escalation:'Traditional — CT: Dan Pennington · MA/RI: Anthony Giordano · MD/NJ E&S: RJ Sneyers · NJ N/NW/W: Craig Groenwold · NY South: David Spagnoli · NH/FL: Ken Ebbert / Mike Cortese.   Direct — MA/CT/NH: Jason Celozzi & Kevin Erbe · PA/NJ/FL: Daniel Riddle.'}}
-});
+// Org data (people + tree + per-person contact) now loads from Supabase
+// (org_chart) via /org-data.js at init -- see initApp(). One source of truth;
+// the org-chart and departments-communications pages can no longer drift.
+const N = {};
 
 const DEPTS=[
   {grp:'Overview',items:[{k:'rj',label:'Whole Company',root:'rj',d:'spine'}]},
@@ -656,7 +468,8 @@ document.getElementById('q').addEventListener('input',e=>{
   },40);
 });
 
-renderRail();renderTree();
+// Initial render is deferred to initApp() -- it runs after /org-data.js loads
+// the org graph from Supabase (N starts empty). renderRail() uses static DEPTS.
 document.getElementById('railToggle').addEventListener('click',()=>document.getElementById('rail').classList.toggle('open'));
 document.getElementById('rail').addEventListener('click',e=>{if(e.target.closest('button'))document.getElementById('rail').classList.remove('open');});
 </script>
@@ -664,7 +477,7 @@ document.getElementById('rail').addEventListener('click',e=>{if(e.target.closest
 <script>
 // Required by /auth-gate.js -- called once after sign-in + role check pass.
 // Managers-only preview (V2). Non-managers get a notice instead of the chart.
-function initApp(profile, session) {
+async function initApp(profile, session) {
   if (!window.IS_MANAGER) {
     var w = document.getElementById('appWrap');
     if (w) w.innerHTML = '<div style="max-width:560px;margin:18vh auto;padding:0 24px;'
@@ -675,6 +488,21 @@ function initApp(profile, session) {
       + '<p style="margin-top:20px"><a href="/" style="color:#3f8e1c;font-weight:600;text-decoration:none">&larr; Back to the Resource Page</a></p></div>';
     return;
   }
+  // Load the org graph from Supabase (single source of truth) into N, then render.
+  var oData;
+  try {
+    oData = await window.OrgData.load();
+    Object.assign(N, oData.N);
+  } catch (e) {
+    var c = document.getElementById('tree');
+    if (c) c.innerHTML = '<div style="padding:40px;color:#6b7a90;font:15px Manrope,sans-serif">'
+      + 'Could not load the org chart data. ' + (e && e.message ? e.message : '') + '</div>';
+    return;
+  }
+  if (!N[active]) active = (DEPTS[0] && DEPTS[0].items[0] && DEPTS[0].items[0].root) || Object.keys(N)[0];
+  renderRail(); renderTree();
+  if (window.OrgIntake) window.OrgIntake.mount(oData);
+
   // Deep-link: ?focus=<id> focuses a branch in the chart; ?open=<id> opens that node's detail drawer.
   // Lets the Track C manager training land on Sales Operations with the Track C owner open.
   try {

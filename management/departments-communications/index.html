@@ -263,6 +263,8 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
 <link rel="stylesheet" href="/auth-gate.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
+<script src="/org-data.js"></script>
+<script src="/org-intake.js"></script>
 <script src="/site-back.js" defer></script>
 </head><body>
 <div id="loginScreen" style="display:none">
@@ -424,13 +426,13 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </div>
         <div class="dept-col">
           <div class="lbl">Team</div>
-          <div class="people">
+          <div class="people" data-org-people="contract-writing">
             <div class="person"><div class="pav">VB</div><div><div class="pn">Victoria Broszeit</div><div class="pr">Director</div></div></div>
             <div class="person"><div class="pav">DE</div><div><div class="pn">Deborah English</div><div class="pr">Manager</div></div></div>
           </div>
           <div class="roster">Joseph Martinez, Liam Healey, Lorraine Connor, Nolan Spengler, Ritchie Lyn Linga. Plus hybrid members shared with RSA about two days a week (Richard Imparato, Nicholas Reyes, Kyle Lewis), pending Victoria's call.</div>
           <div class="lbl">How to reach them</div>
-          <div class="reach">
+          <div class="reach" data-org-reach="contract-writing">
             <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com (preferred)</div>
             <div class="reach-line"><b>Salesforce Handle:</b> @ContractWriting</div>
             <div class="reach-line"><b>Phone:</b> no direct line</div>
@@ -459,13 +461,13 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </div>
         <div class="dept-col">
           <div class="lbl">Team</div>
-          <div class="people">
+          <div class="people" data-org-people="sales-support">
             <div class="person"><div class="pav">VB</div><div><div class="pn">Victoria Broszeit</div><div class="pr">Director</div></div></div>
             <div class="person"><div class="pav">SM</div><div><div class="pn">Scott McDermott</div><div class="pr">Manager</div></div></div>
           </div>
           <div class="roster">Kristen Blum, Caroline Cookman, Noah Egan, Jennifer Mundell, Jordan Mitchell, Chellsea Diebold, Jessica Gold. Noah and Chellsea cover Saturdays.</div>
           <div class="lbl">How to reach them</div>
-          <div class="reach">
+          <div class="reach" data-org-reach="sales-support">
             <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com (preferred)</div>
             <div class="reach-line"><b>Phone:</b> 848-220-9688 (Direct reps, in-home only)</div>
             <div class="reach-line"><b>Salesforce Handle:</b> none</div>
@@ -492,13 +494,13 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </div>
         <div class="dept-col">
           <div class="lbl">Team</div>
-          <div class="people">
+          <div class="people" data-org-people="document-processing">
             <div class="person"><div class="pav">MY</div><div><div class="pn">Mae Yenger</div><div class="pr">Director</div></div></div>
             <div class="person"><div class="pav">LG</div><div><div class="pn">Luke Grady</div><div class="pr">Manager</div></div></div>
             <div class="person"><div class="pav">CR</div><div><div class="pn">Courtney Rindsberg</div><div class="pr">Team Lead</div></div></div>
           </div>
           <div class="lbl">How to reach them</div>
-          <div class="reach">
+          <div class="reach" data-org-reach="document-processing">
             <div class="reach-line"><b>Salesforce Handle:</b> @ProjecTracking</div>
             <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com</div>
             <div class="reach-line"><b>Track C:</b> <b>Reply All</b> to the existing Track C thread</div>
@@ -525,12 +527,12 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </div>
         <div class="dept-col">
           <div class="lbl">Team</div>
-          <div class="people">
+          <div class="people" data-org-people="change-orders">
             <div class="person"><div class="pav">MY</div><div><div class="pn">Mae Yenger</div><div class="pr">Director</div></div></div>
             <div class="person"><div class="pav">LG</div><div><div class="pn">Luke Grady</div><div class="pr">Manager</div></div></div>
           </div>
           <div class="lbl">How to reach them</div>
-          <div class="reach">
+          <div class="reach" data-org-reach="change-orders">
             <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com (request a CO here)</div>
             <div class="reach-line"><b>Salesforce Handle:</b> @SO: Pre-Install ChangeOrders</div>
           </div>
@@ -556,12 +558,12 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </div>
         <div class="dept-col">
           <div class="lbl">Team</div>
-          <div class="people">
+          <div class="people" data-org-people="training">
             <div class="person"><div class="pav">MY</div><div><div class="pn">Mae Yenger</div><div class="pr">Director</div></div></div>
             <div class="person"><div class="pav">CV</div><div><div class="pn">Caitlin Veneziano</div><div class="pr">Manager</div></div></div>
           </div>
           <div class="lbl">How to reach them</div>
-          <div class="reach">
+          <div class="reach" data-org-reach="training">
             <div class="reach-line"><b>Email:</b> Sales.Ops@Trinity-Solar.com</div>
             <div class="reach-line"><b>Teams:</b> chat and meetings</div>
           </div>
@@ -586,14 +588,14 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </div>
         <div class="dept-col">
           <div class="lbl">Team</div>
-          <div class="people">
+          <div class="people" data-org-people="rsa">
             <div class="person"><div class="pav">TP</div><div><div class="pn">Thomas Pugliese</div><div class="pr">RSA Manager</div></div></div>
             <div class="person"><div class="pav">GV</div><div><div class="pn">Gregory Vuksanic</div><div class="pr">RSA Supervisor</div></div></div>
             <div class="person"><div class="pav">EI</div><div><div class="pn">Eric Istvanditsch</div><div class="pr">Physical Site Assessment Supervisor</div></div></div>
           </div>
           <div class="roster">A 16-person team of RSA analysts, specialists, and drone operators. Dallas Orear is a second RSA Manager.</div>
           <div class="lbl">How to reach them</div>
-          <div class="reach">
+          <div class="reach" data-org-reach="rsa">
             <div class="reach-line"><b>Salesforce Handle:</b> @RSA Team</div>
             <div class="reach-line"><b>Ground mounts:</b> @GroundMount RSA</div>
           </div>
@@ -757,7 +759,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         </div>
         <div class="dept-col">
           <div class="lbl">How to reach them</div>
-          <div class="reach">
+          <div class="reach" data-org-reach="custom-projects-contact">
             <div class="reach-line"><b>Salesforce Handle:</b> Chatter Phil Kelly</div>
             <div class="reach-line"><b>Trench over 250 ft:</b> Chatter Kevin Kura and Phil Kelly</div>
             <div class="reach-line"><b>Provide:</b> state and utility, finance partner, gross and net PPW, the GM PPW for the territory, and trench length</div>
@@ -1006,7 +1008,7 @@ window.SEARCH_INDEX = [
 <script>
 // Required by /auth-gate.js -- called once after sign-in + role check pass.
 // This resource is managers-only for now; a rep-facing version comes later.
-function initApp(profile, session) {
+async function initApp(profile, session) {
   if (!window.IS_MANAGER) {
     var w = document.getElementById('appWrap');
     if (w) w.innerHTML = '<div style="max-width:560px;margin:18vh auto;padding:0 24px;'
@@ -1015,6 +1017,19 @@ function initApp(profile, session) {
       + '<p style="color:#6b7a90;line-height:1.6">This resource is restricted to managers for now. '
       + 'A rep-facing version is coming soon. If you believe you should have access, contact Dan Pennington.</p>'
       + '<p style="margin-top:20px"><a href="/" style="color:#3f8e1c;font-weight:600;text-decoration:none">&larr; Back to the Resource Page</a></p></div>';
+    return;
+  }
+  // Single source of truth: fill the department people + contact blocks from
+  // Supabase (org_chart / org_departments) so this page can't drift from the
+  // org chart. The authored HTML inside each data-org-* block stays as a
+  // fallback and is overwritten only when live data exists. Then mount the
+  // "Suggest a change" intake. Failure leaves the authored content in place.
+  try {
+    var oData = await window.OrgData.load();
+    window.OrgData.injectPlaceholders(oData);
+    if (window.OrgIntake) window.OrgIntake.mount(oData);
+  } catch (e) {
+    if (window.console) console.warn('[dept-comms] org data load failed, using authored fallback:', e && e.message);
   }
 }
 </script>
