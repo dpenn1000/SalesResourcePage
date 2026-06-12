@@ -245,14 +245,50 @@
     <div class="club-foot" id="clubFoot"></div>
   </div>
 
+  <!-- How this is calculated -->
+  <style>
+    .calc-how { margin-top: 10px; }
+    .ch-grp { margin-bottom: 14px; }
+    .ch-h { font-size: 12px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: #5a6472; margin-bottom: 7px; }
+    .ch-formula { font-family: ui-monospace, "DM Mono", Menlo, monospace; font-size: 13px; font-weight: 700; color: #1A2332; background: #f4f6f2; border: 1px solid #DFE2DA; border-radius: 8px; padding: 9px 11px; margin-bottom: 9px; }
+    .ch-row { display: flex; gap: 12px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #eef0ea; flex-wrap: wrap; }
+    .ch-row > span { flex: 0 0 120px; font-weight: 700; color: #1A2332; font-size: 13px; }
+    .ch-row > code { font-family: ui-monospace, "DM Mono", Menlo, monospace; font-size: 12.5px; color: #34404f; }
+    .ch-note { font-size: 12px; color: #5a6472; margin-top: 8px; }
+    .ch-why { font-size: 13px; font-weight: 700; color: #3c7a14; background: #eef7e6; border: 1px solid #cfe8b8; border-radius: 8px; padding: 9px 11px; margin-top: 6px; }
+  </style>
+  <div class="card">
+    <div class="card-hint" style="font-weight:800;color:#1A2332;font-size:15px;margin-bottom:2px;">How this is calculated</div>
+    <div class="card-hint">Every figure here is built from your inputs in these steps. Rates, fees, and minimums are editable in the admin Commission tab.</div>
+    <div class="calc-how">
+      <div class="ch-grp">
+        <div class="ch-h">1. Size the system</div>
+        <div class="ch-row"><span>System size</span><code>panels &times; panel watts &divide; 1000 = kW</code></div>
+        <div class="ch-row"><span>Base EPC</span><code>system watts &times; base PPW (per state)</code></div>
+        <div class="ch-row"><span>System EPC</span><code>system watts &times; your PPW</code></div>
+        <div class="ch-row"><span>Above-base EPC</span><code>System EPC &minus; Base EPC</code></div>
+      </div>
+      <div class="ch-grp">
+        <div class="ch-h">2. Build the commission</div>
+        <div class="ch-formula">Commission = Base payout &minus; Lead fee + Above-base adder + Club adder</div>
+        <div class="ch-row"><span>Base payout</span><code>Company: 4% &times; Base EPC&nbsp; &bull; &nbsp;Self-gen: 6% (4% base + 2% adder) &times; Base EPC</code></div>
+        <div class="ch-row"><span>Lead fee</span><code>Company: $475 (no club) / $375 (club)&nbsp; &bull; &nbsp;Self-gen: $0</code></div>
+        <div class="ch-row"><span>Above-base adder</span><code>25% (no club) / 33% (any club) &times; Above-base EPC</code></div>
+        <div class="ch-row"><span>Club adder</span><code>High Flyer 0.5% / President 0.75% / Royalty 1.0% &times; Club value</code></div>
+        <div class="ch-note">If the deal is priced below base PPW, every tier pays the $750 minimum instead of the formula.</div>
+      </div>
+      <div class="ch-why">Self-gen always out-earns a company lead on the same deal: it earns the higher 6% base and pays no lead fee.</div>
+    </div>
+  </div>
+
   <!-- Notes for Dan -->
   <div class="note note-flag">
-    <span class="note-label">Flag for review &middot; self-gen lead fee</span>
-    The detailed line-by-line calc zeroes the lead fee on a Self-Gen deal (no company lead was bought). The Elite Club matrix in the spreadsheet always subtracts a lead fee, even on Self-Gen. This page follows the spreadsheet exactly: the breakdown above uses the no-lead-fee rule for Self-Gen, and the club comparison keeps the lead fee in. On a Self-Gen deal the two will differ by the lead fee amount. Please confirm which behavior is correct so both can be aligned.
+    <span class="note-label">Correction applied &middot; self-gen pay</span>
+    The source spreadsheet labelled F8 a "Self-Gen Adder" but used it alone as a 2% rate, so above about 7.9 kW a self-gen deal paid LESS than a company lead. This page applies the adder as intended: self-gen earns base pay plus the adder (4% + 2% = 6%) and never pays a lead fee, in both the breakdown and the club comparison. Self-gen now out-pays a company lead on every deal. Confirm against the official offer letter before this is treated as final.
   </div>
 
   <div class="note note-draft">
-    <strong>Draft for Dan's review.</strong> Numbers replicate "Sales Comissions Calculator.xlsx" cell for cell. This page is not yet linked from any menu.
+    <strong>Draft for Dan's review.</strong> Built from "Sales Comissions Calculator.xlsx" with the self-gen correction above. Rates, fees, and minimums are editable in the admin Commission tab.
   </div>
 
   <div class="note note-flag" id="defaultsNote" style="display:none;">
@@ -450,7 +486,10 @@ function deal() {
 // so the headline breakdown uses the "None" club rules (matches the sheet's default C13).
 function breakdownCalc(d, club) {
   const belowBase = d.ppw < d.basePpw;                                  // C7 < C8
-  const basePayout = (saleType === 'Self Gen') ? d.baseEPC * OFFER.selfGenRate
+  // Self-gen earns base pay PLUS the self-gen adder (4% + 2% = 6%). The source
+  // sheet labelled F8 a "Self-Gen Adder" but used it alone as a 2% rate, which
+  // made big self-gen jobs pay LESS than a company lead. Corrected here.
+  const basePayout = (saleType === 'Self Gen') ? d.baseEPC * (OFFER.basePayCompany + OFFER.selfGenRate)
                                                : d.baseEPC * OFFER.basePayCompany; // C14
   const leadFee = (saleType === 'Outreach')
     ? (club === 'None' ? OFFER.leadFeeNoClub : OFFER.leadFeeClub)       // C15
@@ -464,18 +503,20 @@ function breakdownCalc(d, club) {
   return { belowBase, basePayout, leadFee, aboveAdder, clubAdder, commission, pct };
 }
 
-// Commission Matrix per-job (I-column). NOTE: always subtracts a lead fee, even Self-Gen.
-//   Company (I8/I11/I14/I17):  (F7*C9) - leadFee + (F13/F9*C10) + (adder*C17)
-//   Self Gen (I9/I12/I15/I18): (F8*C9) - leadFee + (F13/F9*C10) + (adder*C17)
-// I8/I9 (No Club) use F10 lead fee + F9 above-base; clubs use F14 lead fee + F13 above-base.
+// Commission Matrix per-job (I-column). Corrected from the source sheet: self-gen
+// earns base + adder (6%) and pays NO lead fee, matching the detailed breakdown
+// (the sheet used a 2% self-gen rate and charged it a lead fee here).
+//   Company:  (basePay*C9) - leadFee + (aboveRate*C10) + (adder*C17)
+//   Self Gen: ((basePay+adder)*C9) - 0 + (aboveRate*C10) + (adder*C17)
 function matrixPerJob(d, club) {
   if (d.ppw < d.basePpw) return OFFER.minCommission; // IF($C$7<$C$8,750,...)
-  const basePayRate = (saleType === 'Self Gen') ? OFFER.selfGenRate : OFFER.basePayCompany;
+  const isSelf = saleType === 'Self Gen';
+  const basePayRate = isSelf ? (OFFER.basePayCompany + OFFER.selfGenRate) : OFFER.basePayCompany;
   const basePayout = basePayRate * d.baseEPC;
   if (club === 'None') {
-    return basePayout - OFFER.leadFeeNoClub + (OFFER.aboveBaseNoClub * d.aboveEPC);
+    return basePayout - (isSelf ? 0 : OFFER.leadFeeNoClub) + (OFFER.aboveBaseNoClub * d.aboveEPC);
   }
-  return basePayout - OFFER.leadFeeClub
+  return basePayout - (isSelf ? 0 : OFFER.leadFeeClub)
        + (OFFER.aboveBaseClub * d.aboveEPC)
        + (OFFER.adder[club] * d.clubValue);
 }
@@ -501,7 +542,7 @@ function render() {
   const leadFeeShown = b.leadFee;
   $('breakdown').innerHTML = `
     <div class="brow">
-      <div class="lbl">Base payout<small>${(saleType === 'Self Gen') ? '2% of base EPC (self-gen)' : '4% of base EPC'}</small></div>
+      <div class="lbl">Base payout<small>${(saleType === 'Self Gen') ? (((OFFER.basePayCompany + OFFER.selfGenRate)*100).toFixed(0) + '% of base EPC (' + (OFFER.basePayCompany*100).toFixed(0) + '% base + ' + (OFFER.selfGenRate*100).toFixed(0) + '% self-gen adder)') : ((OFFER.basePayCompany*100).toFixed(0) + '% of base EPC')}</small></div>
       <div class="val">${money(b.basePayout)}</div>
     </div>
     <div class="brow">

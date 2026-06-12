@@ -2005,7 +2005,9 @@ function jobCommission(systemKw, ppw, basePpw, saleType, tier, cfg){
   const aboveBaseEpc = systemEpc - baseEpc;
   const clubValue    = systemKw * 1000 * Math.min(ppw, basePpw);
 
-  const basePayout = baseEpc * (saleType === 'selfgen' ? base_pay_selfgen : base_pay_company);
+  // Self-gen earns base pay PLUS the self-gen adder (4% + 2% = 6%), and pays no
+  // lead fee -- so a self-gen deal always out-earns a company lead.
+  const basePayout = baseEpc * (saleType === 'selfgen' ? (base_pay_company + base_pay_selfgen) : base_pay_company);
   const leadFee = (saleType === 'selfgen') ? 0 : (tier === 'none' ? lead_fee_noclub : lead_fee_club);
   const aboveBaseAdder = Math.max(0, aboveBaseEpc * (tier === 'none' ? above_base_noclub : above_base_club));
   const clubAdder = clubValue * (tier === 'hf' ? club_adder_hf : tier === 'pres' ? club_adder_pres : tier === 'royalty' ? club_adder_royalty : 0);
