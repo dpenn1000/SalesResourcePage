@@ -278,7 +278,6 @@
           <option value="callable">Callable now</option>
           <option value="scheduled">Scheduled (appt set)</option>
           <option value="review">Needs review</option>
-          <option value="cooldown">In cooldown</option>
           <option value="sold">Sold</option>
           <option value="dnc">Do-Not-Contact</option>
           <option value="dq">DQ / removed</option>
@@ -328,7 +327,6 @@
           <option value="callable">Callable now</option>
           <option value="scheduled">Scheduled</option>
           <option value="review">Needs review</option>
-          <option value="cooldown">In cooldown</option>
           <option value="sold">Sold</option>
         </select>
       </div>
@@ -636,8 +634,7 @@ function renderKpis(){
     ['Callable now',cat.callable,'','#5aa522','Leads ready to be called now: deleted-before-ran, no-shows, cancels, and fresh manual adds. The QC work queue.'],
     ['Deleted (pre-run)',deletedCt,'','#a85a3f','Appointments dispatched then deleted off the rep calendar before they ran. The core re-engagement list this tool was built for.'],
     ['Unassigned',unassigned,'','#6f7d8c','Callable leads not yet dispatched to a rep.'],
-    ['In cooldown',cat.cooldown,'','#3f6f96','Sat / Stage-2 leads resting 14 days before they can be re-dispatched.'],
-    ['Needs review',cat.review,cat.review>0?'hot':'','#b8770f','Cooldown elapsed: a manager must approve re-dispatch before these return to the call list.'],
+    ['Sat, ready to re-engage',cat.review,cat.review>0?'hot':'','#b8770f','Leads that already sat (go-back / no-sale / ran). Eligible immediately, no cooldown -- a manager clicks Redispatch to return them to the call list.'],
     ['DQ / removed',cat.dq,'','#7a3f6f','Disqualified or rep-owned leads a manager pulled out of the call pool (via a flag). Excluded from callable and Quick Dispatch.'],
     ['Appts set (calls)',apptCalls,'','#5aa522','Appointments set FROM a QC call on this list (a call logged as Appointment Set). Not appointments already on the calendar.'],
     ['Sold (calls)',soldCalls,'','#3f7a16','Jobs sold from leads that were called on this list (sold and had at least one logged QC call).'],
@@ -1799,16 +1796,18 @@ function toggleDetail(key){
   const g=propByKey[key];if(!g)return;
   row.insertAdjacentHTML('afterend','<tr class="detail"><td colspan="14">'+buildDetail(g)+'</td></tr>');
 }
-/* ── Lead category: 2-week sat/Stage-2+ cooldown + manager review ──
+/* ── Lead category: sat/Stage-2+ manager review (no cooldown) ──
    QC re-engagement targets are leads that NEVER sat (no-show / cancel).
-   Leads that sat / ran (Stage 2+: go-back, no-sale, ran) drop off for 14 days,
-   then need a manager Redispatch before returning to the callable list.
+   Leads that sat / ran (Stage 2+: go-back, no-sale, ran) are eligible for
+   re-engagement immediately -- no resting period, because our own data shows a
+   sat lead's close odds bleed every day. They land in Review, where a manager
+   clicks Redispatch to return them to the callable list (the one deliberate
+   gate, so the call team doesn't cold-call a lead a rep is actively closing).
    "Stage 2+" is proxied via the sat/ran disposition (no raw SF stage in feed).
    'ready' = an appointment is on the books with no outcome recorded yet
    (scheduled / upcoming) -> NOT a QC-call target; held in its own Scheduled lens. */
 const SAT_STATES=new Set(['goback','nosale','ran']);
 const QC_STATES=new Set(['noshow','cancel']);
-const COOLDOWN_DAYS=14;
 function daysSince(d){if(!d)return null;const t=new Date(d).getTime();if(isNaN(t))return null;return Math.floor((Date.now()-t)/86400000);}
 // Never dispatchable: out-of-state (positive match on a real non-CT state code, or
 // the parser's non_ct flag) and DQ (manager-disqualified or a disqualified outcome).
@@ -1827,8 +1826,7 @@ function leadCategory(g){
   if(QC_STATES.has(st))return 'callable';
   if(SAT_STATES.has(st)){
     if(g.primary.redispatch_approved)return 'callable';
-    const d=daysSince(g.primary.last_appt_date);
-    return (d!=null&&d>=COOLDOWN_DAYS)?'review':'cooldown';
+    return 'review';   // no cooldown: a sat lead is eligible the moment it sits; a manager Redispatch returns it to the call list
   }
   return 'other';
 }
@@ -1894,7 +1892,7 @@ function render(){
     const sfUrl=sfHref(p);const link=sfUrl?`<a class="sflink" href="${sfUrl}" target="_blank" rel="noopener">${p.dl_sf_id?'Open DL':'Open Opp'} &nearr;</a>`:'<span class="sub">no link</span>';
     const repOpts=['<option value="">Unassigned</option>'].concat(people.map(n=>`<option ${n===p.assigned_to?'selected':''}>${esc(n)}</option>`)).join('');
     const cat=leadCategory(g);const dsince=daysSince(p.last_appt_date);
-    const flag=cat==='review'?' <span class="badge b-review">REVIEW</span>':(cat==='cooldown'?` <span class="badge b-cooldown">cooldown${dsince!=null?' '+Math.max(0,COOLDOWN_DAYS-dsince)+'d':''}</span>`:'');
+    const flag=cat==='review'?' <span class="badge b-review">REVIEW</span>':'';
     const redispatchBtn=cat==='review'?`<button class="act review" onclick="approveRedispatch('${esc(p.dl_number)}')" title="Sat/Stage-2 lead${dsince!=null?', '+dsince+' days ago':''}. Approve to return it to the callable list.">Redispatch</button> `:'';
     const key=g.property.property_id||p.dl_number;propByKey[key]=g;
     const ageDays=daysSince(p.created_at);const ageStr=ageDays==null?'--':ageDays+'d';
@@ -1957,7 +1955,7 @@ function renderRepOverview(){
       ${sect('Dispatched call queue')}
       ${s('Callable now',callable,'#3f7a16')}${s('Contacted',contacted)}${s('Reached',reached,'#52961a')}${s('Appts set (calls)',appts,'#3a7010')}
       ${sect('Own sales pipeline')}
-      ${s('Scheduled',scheduled)}${s('Sat / resting',resting)}${s('Sold',sold,'#3f7a16')}
+      ${s('Scheduled',scheduled)}${s('Sat, open',resting)}${s('Sold',sold,'#3f7a16')}
     </div>`;
   };
   el.innerHTML=`<div class="panel"><h2>Reps with assigned leads <span class="sub">&middot; click to drill in</span></h2><div class="sub" style="margin:-4px 0 12px">Two buckets per rep: the <b>call queue</b> we dispatched for QC calling, and their <b>own sales pipeline</b> (appointments and deals that belong to them, not call-list leads).</div><div class="rep-ov-grid">${reps.map(card).join('')}</div></div>`;
@@ -2078,9 +2076,9 @@ async function toggleDnc(propId, isDnc){
   const g=props.find(x=>x.property&&x.property.property_id===propId);if(g){g.property.dnc=!isDnc;g.dnc=!isDnc;}
   toast(!isDnc?'Marked DNC (switch the view filter to "Do-Not-Contact" to see it)':'DNC removed');renderKpis();renderDashDetail();render();
 }
-/* Manager approval to return a sat/Stage-2 lead to the callable list after the 2-week cooldown. */
+/* Manager approval to return a sat/Stage-2 lead to the callable list (no cooldown -- eligible the moment it sits). */
 async function approveRedispatch(dlNumber){
-  if(!confirm('Approve this sat / Stage-2 lead to return to the callable list?\n\nIt completed the 2-week cooldown and is flagged for individual manager review. Once approved it becomes callable again.'))return;
+  if(!confirm('Approve this sat / Stage-2 lead to return to the callable list?\n\nSat leads are eligible immediately (no cooldown). Approving puts it back in the call pool now.'))return;
   const { data, error }=await sb.from('direct_leads').update({redispatch_approved:true, reviewed_at:new Date().toISOString(), reviewed_by:ME||null}).eq('dl_number',dlNumber).select('dl_number');
   if(error){toast('Redispatch failed: '+error.message);return;}
   if(!data||!data.length){toast('Not permitted (need manager access).');return;}
