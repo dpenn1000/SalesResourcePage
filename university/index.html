@@ -1007,6 +1007,11 @@ strong { font-weight: 700; }
     .mc-tile.t-gold::before  { background: var(--accent-warm); }
     .mc-tile.t-ink   { background: rgba(15,32,56,0.04); }
     .mc-tile.t-ink::before   { background: var(--ink); }
+    a.mc-tile { display: block; text-decoration: none; color: inherit; }
+    .mc-tile.mc-clickable { cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease; }
+    .mc-tile.mc-clickable:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+    .mc-tile.mc-clickable:focus-visible { outline: 2px solid var(--solar-green); outline-offset: 2px; }
+    .mc-tile.mc-clickable .mc-tile-name::after { content: ' →'; opacity: 0.45; font-weight: 400; }
     .mc-tile-stage {
       font-size: 0.6rem;
       font-weight: 800;
@@ -1324,69 +1329,69 @@ strong { font-weight: 700; }
         <div class="rm-panel-body">
           <div class="mc-stage-label s1">Stage 1, Foundations (New Hire) · 7 courses</div>
           <div class="mc-grid">
-            <div class="mc-tile t-gold">
+            <a class="mc-tile t-gold mc-clickable" href="/traditional-university/?cert=how-we-sell">
               <div class="mc-tile-stage">New Hire · 101</div>
               <div class="mc-tile-name">🤝 How We Sell</div>
               <div class="mc-tile-topics">Posture and rapport · Listening and discovery · The pitch · Confident delivery · Feel, Felt, Found · How to be in the home</div>
-            </div>
-            <div class="mc-tile t-green">
+            </a>
+            <a class="mc-tile t-green mc-clickable" href="/traditional-university/?cert=solar-foundations">
               <div class="mc-tile-stage">Solar · 101</div>
               <div class="mc-tile-name">☀️ Solar Foundations</div>
               <div class="mc-tile-topics">How solar works · Net metering · Why rates climb · PPA structure · System design · Utility bill review</div>
-            </div>
-            <div class="mc-tile t-green">
+            </a>
+            <a class="mc-tile t-green mc-clickable" href="/traditional-university/?cert=ppa-review">
               <div class="mc-tile-stage">Finance · 101</div>
               <div class="mc-tile-name">📄 Walk the LightReach PPA</div>
               <div class="mc-tile-topics">The agreement page by page · What we promise vs. what they sign · Payments and autopay · Transfer and cancellation · The close</div>
-            </div>
-            <div class="mc-tile t-blue">
+            </a>
+            <a class="mc-tile t-blue mc-clickable" href="/traditional-university/?cert=roof-advisor">
               <div class="mc-tile-stage">Roof · 101</div>
               <div class="mc-tile-name">🏠 Roof Advisor</div>
               <div class="mc-tile-topics">IKO Dynasty · Qualification criteria · Starting the conversation · Two warranties stacked · Combo opportunity</div>
-            </div>
-            <div class="mc-tile t-gold">
+            </a>
+            <a class="mc-tile t-gold mc-clickable" href="/traditional-university/?cert=sales-associate">
               <div class="mc-tile-stage">Sales · 101</div>
               <div class="mc-tile-name">💬 Sales Associate</div>
               <div class="mc-tile-topics">10-step process · Sell the rate with conviction · Objection handling · Mock pitch · Go-backs and follow-up</div>
-            </div>
-            <div class="mc-tile t-ink">
+            </a>
+            <a class="mc-tile t-ink mc-clickable" href="/traditional-university/?cert=tech-certified">
               <div class="mc-tile-stage">Tech · 101</div>
               <div class="mc-tile-name">🔧 Technology &amp; Setup</div>
               <div class="mc-tile-topics">Day-one logins · Salesforce · OneButton · SiteCapture · Skedulo · CT-Resource-Page as home base</div>
-            </div>
-            <div class="mc-tile t-gold">
+            </a>
+            <a class="mc-tile t-gold mc-clickable" href="/traditional-university/?cert=frictionless">
               <div class="mc-tile-stage">Field Mastery · 101</div>
               <div class="mc-tile-name">🎯 Frictionless: Staying Present</div>
               <div class="mc-tile-topics">Run the room without getting buried in the software · Tool mastery · Rapport first, numbers last · Slow is confidence</div>
-            </div>
+            </a>
           </div>
 
           <div class="mc-stage-label s1">Run early, at no cost to the company</div>
           <div class="mc-grid">
-            <div class="mc-tile t-gold">
+            <a class="mc-tile t-gold mc-clickable" href="/traditional-university/?cert=phone-call-list">
               <div class="mc-tile-stage">Specialty · Phone skills</div>
               <div class="mc-tile-name">📞 Phone &amp; Call List Certified</div>
               <div class="mc-tile-topics">The voice and rapport · QC-first open · Book the sit, do not close on the phone · Community and Pipeline lanes · Honest savings · DNC compliance</div>
-            </div>
-            <div class="mc-tile t-ink">
+            </a>
+            <a class="mc-tile t-ink mc-clickable" href="/traditional-university/?cert=know-your-style">
               <div class="mc-tile-stage">Specialty · DISC</div>
               <div class="mc-tile-name">🧭 Know Your Style</div>
               <div class="mc-tile-topics">Your own DISC profile · How to harness it · Self-awareness in the home (reading other homeowners comes in 201)</div>
-            </div>
+            </a>
           </div>
 
           <div class="mc-stage-label s2">Stage 2, Professional</div>
           <div class="mc-grid">
-            <div class="mc-tile t-blue">
+            <a class="mc-tile t-blue mc-clickable" href="/traditional-university/?cert=roof-professional">
               <div class="mc-tile-stage">Roof · 201 · Live</div>
               <div class="mc-tile-name">🏠 Roof Professional</div>
               <div class="mc-tile-topics">ArmourZone · IKO vs. GAF vs. OC · Competitive strategy · Custom pricing · Combo deal structure</div>
-            </div>
-            <div class="mc-tile t-gold">
+            </a>
+            <a class="mc-tile t-gold mc-clickable" href="/traditional-university/?cert=sales-professional">
               <div class="mc-tile-stage">Sales · 201 · Live</div>
               <div class="mc-tile-name">💬 Sales Professional</div>
               <div class="mc-tile-topics">KPIs and Viper · Goal setting · Manager QC · DISC-adapted closes · Pipeline discipline</div>
-            </div>
+            </a>
             <div class="mc-tile t-green" style="opacity:0.6">
               <div class="mc-tile-stage">Solar · 201 · In build</div>
               <div class="mc-tile-name">☀️ Solar Professional</div>

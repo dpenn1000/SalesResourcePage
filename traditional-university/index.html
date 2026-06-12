@@ -706,6 +706,7 @@ window.initApp = async function (profile, session) {
       renderUploads();
       renderHelp();
       populateCertDropdown();
+      openCertFromUrl();
       return;
     }
     document.getElementById('appWrap').innerHTML =
@@ -726,6 +727,7 @@ window.initApp = async function (profile, session) {
   renderUploads();
   renderHelp();
   populateCertDropdown();
+  openCertFromUrl();
 };
 
 async function loadAll() {
@@ -1018,6 +1020,23 @@ async function openCert(certId) {
 
   // Start or resume
   await startOrResumeQuiz(cert);
+}
+
+// Deep-link: /traditional-university/?cert=<slug> opens that cert after load.
+// Used by the public University overview tiles. Best-effort; respects the Stage 2 lock.
+function openCertFromUrl() {
+  try {
+    const slug = new URLSearchParams(location.search).get('cert');
+    if (!slug) return;
+    const cert = (state.certs || []).find(c => c.slug === slug);
+    if (!cert) return;
+    setTab('certs');
+    const s1Done = state.certs.filter(c => c.stage === 1 && certStatus(c.id) === 'approved').length;
+    const s1Total = state.certs.filter(c => c.stage === 1).length;
+    const stage2Unlocked = state.preview || (s1Done === s1Total);
+    if (cert.stage === 2 && !stage2Unlocked) return; // locked: land on the certs tab, do not open
+    openCert(cert.id);
+  } catch (e) { /* deep-link is best-effort */ }
 }
 
 async function startOrResumeQuiz(cert) {
