@@ -45,6 +45,17 @@
   .btn-flag{background:#fff;color:#a02020;border:1px solid #e3a3a3;border-radius:8px;padding:9px 18px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
   .btn-flag:hover{background:#fdecec}.btn-flag:disabled{opacity:.6;cursor:default}
   .chev{margin-left:auto;color:var(--muted);font-size:13px}
+  /* Go-Backs board ("Work these now") */
+  .gb-banner{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 18px;margin-bottom:10px}
+  .gb-stat{display:flex;flex-direction:column;line-height:1.1}
+  .gb-stat .big{font-size:26px;font-weight:800;color:#5aa522}
+  .gb-stat .lab{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600}
+  .gb-math{font-size:12.5px;font-weight:600;line-height:1.4;color:var(--text,#222)}
+  .gb-check{background:#fbfdf7;border:1px solid #d9e8c4;border-radius:10px;padding:11px 15px;margin-bottom:14px;font-size:13px}
+  .gb-check ul{margin:6px 0 0;padding-left:18px}.gb-check li{margin:2px 0}
+  .gb-tier{display:flex;align-items:center;gap:8px;margin:18px 0 8px;font-weight:700;font-size:14px}
+  .gb-dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+  .gb-sub{font-weight:500;font-size:12px;color:var(--muted)}
   .card-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
   .card.open .card-body{display:block}
   .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px 16px;margin:12px 0;font-size:13px}
@@ -139,9 +150,10 @@
       <select id="fView" onchange="render()">
         <option value="callable">To call</option>
         <option value="followup">Follow-ups due</option>
+        <option value="gobacks">&#9889; Work these now (go-backs)</option>
         <option value="today">Called today</option>
         <option value="pipeline">My Pipeline</option>
-        <option value="deals">Deals in Progress</option>
+        <option value="deals">After the Sale &mdash; Customer Touches</option>
         <option value="all">All my leads</option>
         <option value="history">Call History</option>
         <option value="community">Community leads</option>
@@ -173,7 +185,8 @@
     <h3>👋 Your to-do list</h3>
     <div id="todoBody"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
-      <button class="btn-primary" onclick="closeTodos();jumpView('deals')">Open Deals in Progress</button>
+      <button class="btn-primary" id="todoGobackBtn" style="display:none" onclick="closeTodos();jumpView('gobacks')">&#9889; Work go-backs now</button>
+      <button class="btn-primary" onclick="closeTodos();jumpView('deals')">Open after-the-sale touches</button>
       <button class="hbtn" style="padding:10px 14px;border:1px solid var(--border);border-radius:8px" onclick="closeTodos()">Got it</button>
     </div>
   </div>
@@ -345,8 +358,13 @@ async function loadLeads(){
     for(const f of (fl||[])){(flagsByDl[f.dl_number]=flagsByDl[f.dl_number]||[]).unshift(f);}
     contacts=cl||[]; byOpp={};
     for(const c of contacts){(byOpp[c.opportunity_id]=byOpp[c.opportunity_id]||[]).push(c);}
-    renderKpis(); render();
-    if(!todoShown){todoShown=true;setTimeout(showTodos,400);}   // on-load To-Do nudge (reps)
+    renderKpis();
+    // Honor a deep-link view (e.g. the profile's "Work these now" card -> ?view=gobacks).
+    const wantView=new URLSearchParams(location.search).get('view');
+    const sv=document.getElementById('fView');
+    if(wantView&&sv&&[...sv.options].some(o=>o.value===wantView))sv.value=wantView;
+    render();
+    if(!todoShown&&!wantView){todoShown=true;setTimeout(showTodos,400);}   // on-load To-Do nudge (reps); skip when deep-linked
   }catch(err){document.getElementById('list').innerHTML='<div class="empty">Could not load: '+esc(err.message||err)+'</div>';}
 }
 function callsFor(l){const ids=new Set((l.opportunity_ids||[]));ids.add(l.dl_number);let out=[];for(const id of ids)out=out.concat(byOpp[id]||[]);return out.sort((a,b)=>(b.contacted_at||'').localeCompare(a.contacted_at||''));}
@@ -388,9 +406,15 @@ function renderKpis(){
   // Follow-ups are a call-level commitment: count the rep's own due calls directly,
   // not via the lead join (which needs opportunity_ids populated on the lead).
   const due=myCalls().filter(c=>c.follow_up_date&&c.follow_up_date<=today).length;
+  const gobacks=myGobacks();const gbRisk=gbAtRiskMC(gobacks);
   // KPI cards double as quick view switches so a rep with no "to call" still finds their pipeline.
-  const k=[['To call',callable.length,'callable'],['Pipeline',pipe.length,'pipeline'],['In Progress',(typeof myDeals==='function'?myDeals().length:0),'deals'],['Follow-ups due',due,'followup'],['My leads',leads.length,'all']];
-  document.getElementById('kpis').innerHTML=k.map(([l,n,v])=>`<div class="kpi" style="cursor:pointer" onclick="jumpView('${v}')" title="Show ${esc(l)}"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
+  // Go-backs carry a risk accent: a red top-border + count when any are past the 7-day warm window.
+  const k=[['To call',callable.length,'callable'],['Go-backs',gobacks.length,'gobacks',gbRisk],['Pipeline',pipe.length,'pipeline'],['After sale',(typeof myDeals==='function'?myDeals().length:0),'deals'],['Follow-ups due',due,'followup'],['My leads',leads.length,'all']];
+  document.getElementById('kpis').innerHTML=k.map(([l,n,v,risk])=>{
+    const accent=risk?'border-top:3px solid var(--red,#c0392b);':'';
+    const tag=risk?` <span class="badge b-flag" style="font-size:10px;padding:1px 6px">${risk} at risk</span>`:'';
+    return `<div class="kpi" style="cursor:pointer;${accent}" onclick="jumpView('${v}')" title="Show ${esc(l)}"><div class="n">${n}</div><div class="l">${esc(l)}${tag}</div></div>`;
+  }).join('');
 }
 // ── My Pipeline ──  the rep's WORKED leads: scheduled appts, go-backs, ran, and
 // no-sale leads they sat (lifecycle ready/goback/ran/nosale). These are not on the
@@ -429,6 +453,44 @@ function renderPipelineView(q){
     html+=grp.map(cardHtml).join('');
   }
   list.innerHTML=html;
+}
+// ── Work these now: the rep's GO-BACK board ───────────────────────────────
+// The rep-facing twin of the Leads console Go-Backs board. Every active go-back
+// (lifecycle 'goback', not yet sold), ranked by urgency off our own close-rate
+// decay: warm 0-7d, slipping 8-14d, cold 15+d. 86% of go-backs never close and
+// the odds halve the moment you leave the sit, so this board exists to get them
+// RUN while they're warm. Cards are the full call-logging cards, so a rep can
+// work a go-back without leaving the board. PRE-sale -- distinct from the
+// After-the-Sale customer touches below.
+function myGobacks(){return leads.filter(l=>(l.lifecycle_state||'')==='goback' && !l.sold);}
+function gbTierMC(l){const d=plDaysSince(l.last_appt_date);return d==null?'slip':(d<=7?'warm':(d<=14?'slip':'cold'));}
+function gbAtRiskMC(list){return (list||myGobacks()).filter(l=>{const d=plDaysSince(l.last_appt_date);return d==null||d>7;}).length;}
+function renderGobacksView(q){
+  const list=document.getElementById('list');
+  let rows=myGobacks();
+  if(q)rows=rows.filter(l=>((l.homeowner_name||'')+' '+((l.properties&&l.properties.town)||'')+' '+l.dl_number).toLowerCase().includes(q));
+  if(!rows.length){list.innerHTML='<div class="empty">No active go-backs right now'+(q?' match that search':'')+'. When you promise a homeowner you\'ll circle back, that lead lands here so it gets run while it\'s warm.</div>';return;}
+  const warm=[],slip=[],cold=[];
+  for(const l of rows){const t=gbTierMC(l);(t==='warm'?warm:t==='slip'?slip:cold).push(l);}
+  const oldFirst=(a,b)=>(plDaysSince(b.last_appt_date)??1e9)-(plDaysSince(a.last_appt_date)??1e9);
+  warm.sort(oldFirst);slip.sort(oldFirst);cold.sort(oldFirst);
+  let h=`<div class="gb-banner">
+    <div class="gb-stat"><span class="big">${rows.length}</span><span class="lab">Your go-backs</span></div>
+    <div class="gb-stat"><span class="big" style="color:#d99a2b">${slip.length+cold.length}</span><span class="lab">Slipping or cold</span></div>
+    <div class="gb-stat" style="margin-left:auto;max-width:430px"><span class="lab">The math</span><span class="gb-math">86% of go-backs never close. Your closing odds halve the moment you leave the sit, then bleed every week. Run them inside 7 days.</span></div>
+  </div>
+  <div class="gb-check"><b>Hard follow-up plan for every go-back</b><ul>
+    <li><b>Run it in the first week.</b> Warm beats convenient.</li>
+    <li><b>Confirm 24 hours out</b> by phone, not text.</li>
+    <li><b>Both deciders locked</b> for the time. One-leggers cancel ~80%.</li>
+    <li><b>Go back to SIGN, not to decide.</b> Coach the present homeowner on exactly what to say.</li>
+    <li><b>Set the agenda:</b> what gets resolved and what they are signing.</li>
+  </ul></div>`;
+  const section=(label,color,arr,sub)=>arr.length?`<div class="gb-tier"><span class="gb-dot" style="background:${color}"></span>${label} (${arr.length}) <span class="gb-sub">&middot; ${sub}</span></div>`+arr.map(cardHtml).join(''):'';
+  h+=section('Warm','#5aa522',warm,'0-7 days. Highest close odds. Run now.')
+    +section('Slipping','#d99a2b',slip,'8-14 days. Cooling. Chase today.')
+    +section('Cold','#c0392b',cold,'15+ days. Last chance, or close it out.');
+  list.innerHTML=h;
 }
 // ── Deals in Progress (post-sale customer-touch cadence) ──
 // Stage buckets from the All Contracts report; each stage carries its touch(es)
@@ -509,19 +571,22 @@ function computeTodos(){
     if(inMyPipeline(l)){const a=plDaysSince(l.last_appt_date);if(a!=null&&a>=30)out.stale++;}
     if(callsFor(l).some(c=>c.follow_up_date&&c.follow_up_date<=today))out.due++;
   }
+  out.gbRisk=gbAtRiskMC();   // go-backs past the 7-day warm window -- run them now
   return out;
 }
 function showTodos(){
   if(window.IS_MANAGER)return;                       // rep-focused
   const t=computeTodos();
-  if(!(t.touch.length+t.stale+t.due))return;          // nothing to nag about
+  if(!(t.touch.length+t.stale+t.due+(t.gbRisk||0)))return;   // nothing to nag about
   const pr=x=>x.d.stage_num===4?0:(x.d.stage_num>=7?1:2);   // remorse call first, then install-phase
   t.touch.sort((a,b)=>pr(a)-pr(b)||a.d.stage_num-b.d.stage_num);
   const items=t.touch.slice(0,7).map(x=>`<li><b>${esc(x.t.label)}</b> &rarr; ${esc(firstName(x.d.customer_name))} <span class="card-sub">(${esc(x.d.stage)})</span></li>`).join('');
   const parts=[];
+  if(t.gbRisk)parts.push(`<b>${t.gbRisk}</b> go-back${t.gbRisk>1?'s':''} slipping past the warm window`);
   if(t.touch.length)parts.push(`<b>${t.touch.length}</b> deal${t.touch.length>1?'s':''} need a customer touch`);
   if(t.stale)parts.push(`<b>${t.stale}</b> pipeline lead${t.stale>1?'s':''} stale 30+ days`);
   if(t.due)parts.push(`<b>${t.due}</b> follow-up${t.due>1?'s':''} due`);
+  const gbBtn=document.getElementById('todoGobackBtn');if(gbBtn)gbBtn.style.display=t.gbRisk?'inline-block':'none';
   document.getElementById('todoBody').innerHTML=
     `<p style="margin:0 0 8px">${parts.join(' &middot; ')}.</p>`+
     (items?`<div class="card-sub" style="text-transform:none;letter-spacing:0;margin-bottom:4px">Next up:</div><ul style="margin:0 0 12px 18px;font-size:13.5px">${items}</ul>`:'');
@@ -609,6 +674,7 @@ async function saveCommunityCall(id){
 function render(){
   const q=document.getElementById('q').value.trim().toLowerCase();
   const v=document.getElementById('fView').value;
+  if(v==='gobacks'){renderGobacksView(q);return;}
   if(v==='pipeline'){renderPipelineView(q);return;}
   if(v==='deals'){renderDealsView(q);return;}
   if(v==='community'){renderCommunityRep(q);return;}
