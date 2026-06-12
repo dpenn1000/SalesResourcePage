@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="760" viewBox="0 0 1100 760" font-family="'Segoe UI',system-ui,-apple-system,sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f7f9f7"/><stop offset="1" stop-color="#eef2ee"/>
+    </linearGradient>
+    <linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ec63f"/><stop offset="1" stop-color="#4f9a1c"/></linearGradient>
+    <linearGradient id="gLime"  x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b6c63f"/><stop offset="1" stop-color="#8aa52a"/></linearGradient>
+    <linearGradient id="gAmber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0a92b"/><stop offset="1" stop-color="#c2851a"/></linearGradient>
+    <linearGradient id="gOrange"x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9742b"/><stop offset="1" stop-color="#b5531f"/></linearGradient>
+    <linearGradient id="gRed"   x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c0392b"/><stop offset="1" stop-color="#8f1f1f"/></linearGradient>
+  </defs>
+  <rect width="1100" height="760" fill="url(#bg)"/>
+
+  <!-- Header -->
+  <text x="60" y="74" font-size="46" font-weight="800" fill="#14213A" letter-spacing="-0.5">Close at the sit.</text>
+  <text x="60" y="110" font-size="20" font-weight="600" fill="#5a6b5a">What a go-back actually costs — measured from CT Traditional's own appointment data.</text>
+
+  <!-- Hero stat strip -->
+  <g transform="translate(60,140)">
+    <rect width="980" height="92" rx="12" fill="#14213A"/>
+    <text x="34" y="40" font-size="15" font-weight="700" fill="#9fb1c4" letter-spacing="1.5">AT THE TABLE</text>
+    <text x="34" y="78" font-size="40" font-weight="800" fill="#7ec63f">25.4%</text>
+    <text x="250" y="58" font-size="34" font-weight="800" fill="#cfd8e2">&#8594;</text>
+    <text x="330" y="40" font-size="15" font-weight="700" fill="#9fb1c4" letter-spacing="1.5">ONCE YOU LEAVE FOR A GO-BACK</text>
+    <text x="330" y="78" font-size="40" font-weight="800" fill="#e0a92b">13.8%</text>
+    <line x1="620" y1="20" x2="620" y2="72" stroke="#33445c" stroke-width="1.5"/>
+    <text x="660" y="40" font-size="15" font-weight="700" fill="#9fb1c4" letter-spacing="1.5">GO-BACKS THAT NEVER CLOSE</text>
+    <text x="660" y="78" font-size="40" font-weight="800" fill="#e35d4a">86%</text>
+  </g>
+
+  <!-- Decay chart -->
+  <g transform="translate(0,270)">
+    <text x="60" y="30" font-size="18" font-weight="800" fill="#14213A">Every week after the sit, the deal cools</text>
+    <text x="60" y="54" font-size="14" font-weight="600" fill="#6f7d8c">Close rate by how long the go-back waited to run</text>
+
+    <!-- baseline -->
+    <line x1="60" y1="350" x2="1040" y2="350" stroke="#cdd6cd" stroke-width="2"/>
+
+    <!-- bars: baseline y=350, scale 13 px per % -->
+    <!-- At the sit 25.4% -> h330 top20 -->
+    <g>
+      <rect x="92"  y="20"  width="120" height="330" rx="7" fill="url(#gGreen)"/>
+      <text x="152" y="8"   font-size="26" font-weight="800" fill="#3f7a16" text-anchor="middle">25.4%</text>
+      <text x="152" y="384" font-size="15" font-weight="800" fill="#14213A" text-anchor="middle">At the sit</text>
+      <text x="152" y="404" font-size="12.5" fill="#6f7d8c" text-anchor="middle">close it now</text>
+    </g>
+    <!-- Within a week 12% -> h156 top194 -->
+    <g>
+      <rect x="277" y="194" width="120" height="156" rx="7" fill="url(#gLime)"/>
+      <text x="337" y="182" font-size="24" font-weight="800" fill="#7a8f24" text-anchor="middle">~12%</text>
+      <text x="337" y="384" font-size="15" font-weight="800" fill="#14213A" text-anchor="middle">Go-back &#8804; 1 week</text>
+      <text x="337" y="404" font-size="12.5" fill="#6f7d8c" text-anchor="middle">still warm</text>
+    </g>
+    <!-- 1-2 weeks 8.5% -> h110 top240 -->
+    <g>
+      <rect x="462" y="240" width="120" height="110" rx="7" fill="url(#gAmber)"/>
+      <text x="522" y="228" font-size="24" font-weight="800" fill="#b07d14" text-anchor="middle">8.5%</text>
+      <text x="522" y="384" font-size="15" font-weight="800" fill="#14213A" text-anchor="middle">1&#8211;2 weeks</text>
+      <text x="522" y="404" font-size="12.5" fill="#6f7d8c" text-anchor="middle">cooling</text>
+    </g>
+    <!-- 2-4 weeks 5.7% -> h74 top276 -->
+    <g>
+      <rect x="647" y="276" width="120" height="74" rx="7" fill="url(#gOrange)"/>
+      <text x="707" y="264" font-size="24" font-weight="800" fill="#a8501c" text-anchor="middle">5.7%</text>
+      <text x="707" y="384" font-size="15" font-weight="800" fill="#14213A" text-anchor="middle">2&#8211;4 weeks</text>
+      <text x="707" y="404" font-size="12.5" fill="#6f7d8c" text-anchor="middle">nearly gone</text>
+    </g>
+    <!-- 1 month+ ~0% -> h8 top342 -->
+    <g>
+      <rect x="832" y="338" width="120" height="12" rx="5" fill="url(#gRed)"/>
+      <text x="892" y="326" font-size="24" font-weight="800" fill="#8f1f1f" text-anchor="middle">~0%</text>
+      <text x="892" y="384" font-size="15" font-weight="800" fill="#14213A" text-anchor="middle">A month+</text>
+      <text x="892" y="404" font-size="12.5" fill="#6f7d8c" text-anchor="middle">dead</text>
+    </g>
+
+    <!-- decay trend line over bar tops -->
+    <polyline points="152,20 337,194 522,240 707,276 892,338" fill="none" stroke="#14213A" stroke-width="2.5" stroke-dasharray="2 6" stroke-linecap="round" opacity="0.55"/>
+  </g>
+
+  <!-- Bottom callouts -->
+  <g transform="translate(60,700)">
+    <rect width="478" height="44" rx="10" fill="#fff" stroke="#e3b94a" stroke-width="1.5"/>
+    <text x="18" y="28" font-size="14.5" font-weight="700" fill="#b5531f">&#9888; The One-Legger Rule:</text>
+    <text x="190" y="28" font-size="14.5" font-weight="600" fill="#14213A">leave a one-legger un-sold &#8594; ~80% cancel.</text>
+  </g>
+  <g transform="translate(562,700)">
+    <rect width="478" height="44" rx="10" fill="#14213A"/>
+    <text x="239" y="28" font-size="15.5" font-weight="800" fill="#7ec63f" text-anchor="middle">The yes is worth the most while you're still sitting there.</text>
+  </g>
+</svg>
