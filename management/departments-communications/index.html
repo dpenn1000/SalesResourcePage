@@ -618,13 +618,58 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
     </div>
   </section>
 
+<style>
+/* Finance Partner Operations -- compact, columned layout. The fn-* / sup-grid
+   classes were authored but never styled, so the section fell back to one long
+   stacked column. Define them as real grids and top-align the section. */
+#finance.module{justify-content:flex-start;padding-top:var(--space-2);padding-bottom:var(--space-2)}
+#finance .intro{max-width:none;margin:6px 0 10px}        /* full-width header blurb */
+#finance .callout{margin-bottom:10px}
+#finance .org-apex{margin-bottom:8px}
+#finance .fn-grid + .roster{margin:4px 0 10px}
+#finance .fn-support-grid{margin-top:8px}
+#finance .org-stem{display:none}
+#finance .roster{margin-top:8px}
+.fn-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-bottom:var(--space-3);align-items:start}
+.fn-card{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--violet);border-radius:var(--r-md);box-shadow:var(--shadow);padding:12px 14px}
+.fn-card h3{font-size:.92rem;margin-bottom:2px}
+.fn-card .fn-lead{font-size:.76rem;color:var(--green);font-weight:700;margin-bottom:7px}
+.fn-list{list-style:none;margin:0;padding:0;font-size:.82rem;color:#36404e}
+.fn-list li{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-top:1px solid var(--line-soft)}
+.fn-list li:first-child{border-top:none}
+.fn-list li span{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);align-self:center;white-space:nowrap}
+.fn-support-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);align-items:start;margin-top:var(--space-2)}
+.fn-support{background:var(--warm);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 15px}
+.fn-support .lbl{margin-bottom:8px}
+.sup-grid{display:grid;grid-template-columns:1fr;gap:5px;font-size:.84rem;color:#36404e;line-height:1.45}
+.sup-grid b{color:var(--ink)}
+.fn-support .roster{font-size:.78rem;margin-top:9px}
+/* density pass so the whole section fits one screen */
+#finance .sec-head{margin-bottom:2px}
+#finance .intro{font-size:.98rem;line-height:1.45}
+#finance .callout{padding:10px 13px;font-size:.86rem;gap:9px}
+#finance .fn-apex{display:inline-flex;align-items:center;gap:13px;text-align:left;padding:9px 18px}
+#finance .fn-apex .av{margin:0;width:38px;height:38px;font-size:13px;flex:0 0 auto}
+#finance .fn-apex .own{margin-top:2px}
+.fn-card{padding:10px 13px}
+.fn-card h3{font-size:.88rem}
+.fn-list{font-size:.8rem}
+.fn-list li{padding:2px 0}
+.fn-support{padding:11px 14px}
+.sup-grid{gap:4px;font-size:.82rem}
+#finance .roster{font-size:.8rem}
+/* the long Milestone Processing roster flows into two columns */
+#finance .fn-grid .fn-card:nth-child(2) .fn-list{columns:2;column-gap:16px}
+#finance .fn-grid .fn-card:nth-child(2) .fn-list li{border-top:none;break-inside:avoid;padding:2px 0}
+@media(max-width:820px){.fn-grid{grid-template-columns:1fr}.fn-support-grid,.sup-grid{grid-template-columns:1fr}}
+</style>
 <section class="module" id="finance">
     <div class="wrap">
       <div class="sec-head"><h2>Finance Partner Operations</h2><span class="badge badge--wip">In progress</span></div>
       <p class="intro">A separate organization under Kristi Turner, who reports to Kurt Wingenfeld, the same VP the Sales Ops directors report to. It was pulled out of Sales Operations in summer 2025 and made its own department, and now runs parallel to it. The team owns <b>all milestone submissions for every finance partner</b>, <b>post&ndash;Stage 5 contract review and processing</b>, and <b>all post-install change orders</b>. Hours are 8am&ndash;5pm Monday&ndash;Friday; overnight staff handle data entry and milestone processing but do not interface with reps. Confirmed by Kristi Turner, June 9, 2026.</p>
       <div class="callout"><span>&#128231;</span><div><b>How to reach the team.</b> Email <b>milestones@trinity-solar.com</b> or <b>changeorders@trinity-solar.com</b> depending on the topic &mdash; and <b>reserve these inboxes for escalated customers, not general questions.</b> They are a small team with limited bandwidth; the inboxes are triaged for the most urgent situations, so &ldquo;general&rdquo; or &ldquo;what&rsquo;s the latest&rdquo; emails are deprioritized. Route <b>general finance-partner questions through your manager</b> so they can be handled at a higher level. <b>Do not use Chatter</b> to reach this team.</div></div>
       <div class="org-apex">
-        <div class="node node--boss"><div class="av">KT</div><div class="nm">Kristi Turner</div><div class="ti">Director, Finance Partner Operations</div><div class="own">Span 11 &middot; reports to Kurt Wingenfeld</div></div>
+        <div class="node node--boss fn-apex"><div class="av">KT</div><div class="fn-apex-t"><div class="nm">Kristi Turner</div><div class="ti">Director, Finance Partner Operations</div><div class="own">Span 11 &middot; reports to Kurt Wingenfeld</div></div></div>
       </div>
       <div class="org-stem"></div>
       <div class="fn-grid">
@@ -633,6 +678,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
         <div class="fn-card"><h3>Change Order &middot; post-install</h3><div class="fn-lead">Post-install change orders</div><ul class="fn-list"><li>Rebekah Bouchard</li><li>Kimberly Pereira</li><li>William Pitts</li></ul></div>
       </div>
       <p class="roster"><b>Department is split by finance partner.</b> The team-card groupings above are being confirmed in Kristi&rsquo;s updated org doc (expected week of June 9, 2026). Kimberly Pereira and Diana Mennella focus on high-urgency projects &mdash; preventing and mitigating clawbacks and finance-partner cancellations &mdash; and are the main responders to rep questions in the inbox. <b>Diana Mennella</b> is a Finance Partner Operations Specialist. Also here: Samantha Sneyers (Training Associate). The team spans the Wall NJ, Cheshire CT, and Hanover MD offices.</p>
+      <div class="fn-support-grid">
       <div class="fn-support">
         <div class="lbl">Sales leadership escalation contacts (overall info or extremely escalated situations)</div>
         <div class="sup-grid">
@@ -655,6 +701,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
           <div><b>Sunnova:</b> dealersupport@sunnova.com, 866-786-6682</div>
         </div>
         <p class="roster">Per-stage lines (SC/FC/PTO, extensions, EBill, IT) live in the Master Sales Ops Reference.</p>
+      </div>
       </div>
     </div>
   </section>
