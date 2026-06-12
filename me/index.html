@@ -1772,6 +1772,9 @@ function thisMonthCard(tm, cfg){
 
 function renderMePerf(d){
   const r = d.rep || {}, ranks = d.ranks || {}, ta = d.team_avg || {}, club = d.sales_club || {}, climb = d.to_climb || {};
+  // Expose the rep's live club tier so the install-commission estimate (Top
+  // Action Items) can apply the correct club adder.
+  window._meClubTier = clubTierCode(club.current_tier);
   const rankTxt = (x) => x ? rankHtml(x.rank, x.of) : '';
   const _win = d.data_window || {};
   const _fmtW = (s) => { try { return new Date(String(s) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch (e) { return String(s); } };
@@ -2041,6 +2044,25 @@ function tiCleanCust(s){
 }
 function tiDaysUntil(d){ const t=Date.parse(d); return isNaN(t)?999:Math.ceil((t-Date.now())/86400000); }
 
+// Estimated per-install commission for a SOLAR deal, reusing the page's own
+// commission engine (jobCommission) and the editable config. Returns a number
+// or null when the inputs aren't present (kW + contract amount), so roof/battery
+// installs simply show no figure -- matching Dan's "commission amount if
+// available." It is an ESTIMATE: implied PPW = amount / (kW * 1000), sale type
+// read from the lead source, club adder from the rep's live standing.
+function estInstallComm(amount, kw, leadSource){
+  const a = Number(amount), k = Number(kw);
+  if (!isFinite(a) || !isFinite(k) || a <= 0 || k <= 0) return null;
+  const cfg = _commConfig; if (!cfg) return null;
+  const v = cfg.values || {};
+  const basePpw = (v.base_ppw_default != null && isFinite(Number(v.base_ppw_default))) ? Number(v.base_ppw_default) : 3.0;
+  const ppw = a / (k * 1000);
+  const saleType = /self.?gen|referral|repeat customer|word of mouth/i.test(String(leadSource || '')) ? 'selfgen' : 'company';
+  const tier = window._meClubTier || 'none';
+  const c = jobCommission(k, ppw, basePpw, saleType, tier, cfg);
+  return (isFinite(c) && c > 0) ? c : null;
+}
+
 // Top Action Items: the rep's operational to-do hub. Aggregates upcoming
 // installations, Constant Contact touches due, manager action items, and
 // placeholders for reports not wired up yet (Missing Docs, Rep Responsible).
@@ -2049,7 +2071,7 @@ async function loadAndRenderAddressables(me){
   window._meCtx = me;
   const today = new Date().toISOString().slice(0, 10);
   const [dpRes, tcRes, addrRes, disRes] = await Promise.all([
-    me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,ahj_township,product_category,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
+    me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,ahj_township,product_category,lead_source,amount,system_kw,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
     me.name ? sb.from('deal_touches').select('dl_number,touch_key') : Promise.resolve({ data: [] }),
     me.id   ? sb.from('rep_addressables').select('id,title,body,priority,due_date,created_at').eq('rep_id', me.id).eq('status', 'open') : Promise.resolve({ data: [] }),
     me.id   ? sb.from('rep_action_dismissals').select('item_key').eq('rep_id', me.id) : Promise.resolve({ data: [] })
@@ -2065,9 +2087,13 @@ async function loadAndRenderAddressables(me){
   let installs = [];
   deals.forEach(d => {
     const cust = tiCleanCust(d.customer_name);
+    const town = (d.ahj_township || '').replace(/\s+/g, ' ').trim();
+    // Commission only on the Solar product row (the engine is solar PPW/kW based,
+    // and `amount` is that row's solar contract value); roof/battery show no figure.
+    const comm = estInstallComm(d.amount, d.system_kw, d.lead_source);
     [['Solar', d.install_start_date], ['Battery', d.battery_install_date], ['Roof', d.roofing_install_date]].forEach(p => {
       const dt = p[1] ? String(p[1]).slice(0, 10) : null;
-      if (dt && dt >= today) installs.push({ cust: cust, type: p[0], date: dt, key: 'install:' + d.dl_number + ':' + p[0] });
+      if (dt && dt >= today) installs.push({ cust: cust, type: p[0], date: dt, town: town, comm: p[0] === 'Solar' ? comm : null, key: 'install:' + d.dl_number + ':' + p[0] });
     });
   });
   installs = installs.filter(i => !dismissed.has(i.key));
@@ -2078,7 +2104,11 @@ async function loadAndRenderAddressables(me){
       const soon = tiDaysUntil(i.date) <= 7; if (soon) urgent = true;
       const right = '<span class="ti-when">' + fmtDate(i.date) + '</span>' +
         (IS_VIEW_AS ? '' : '<button class="ti-cta" style="margin-left:8px" onclick="dismissActionItem(\'' + esc(i.key) + '\')">Done</button>');
-      return item(soon ? 'var(--red)' : 'var(--blue)', '<b>' + esc(i.cust) + '</b> ' + esc(i.type) + ' install', right);
+      const meta = [];
+      if (i.town) meta.push(esc(i.town));
+      if (i.comm != null) meta.push('~' + fmtMoney(i.comm) + ' est. commission');
+      const sub = meta.length ? '<div class="ti-sub">' + meta.join(' &middot; ') + '</div>' : '';
+      return item(soon ? 'var(--red)' : 'var(--blue)', '<b>' + esc(i.cust) + '</b> ' + esc(i.type) + ' install' + sub, right);
     }).join('');
     group('Installations (' + installs.length + ')', rows + (installs.length > 6 ? '<div class="ti-more">+ ' + (installs.length - 6) + ' more</div>' : ''));
   }
