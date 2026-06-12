@@ -1080,13 +1080,11 @@
     <!-- ── Admin / Maintenance ───────────────────────────────────────────────
          Hidden by default; revealed in initApp() only when window.IS_ADMIN.
          Houses the admin-only server tools (previously reachable only from the
-         launcher's gear menu) plus the Grid Edge data refresh and a quick link
-         back to the launcher itself, which is now demoted from the everyone-
-         facing row to an admin convenience. -->
+         launcher's gear menu) plus the Grid Edge data refresh. -->
     <div id="adminToolsSection" style="display:none;">
       <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
         <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Admin / Maintenance <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;">Admins only</span></h3>
-        <p style="color:var(--text2);font-size:12px;margin:0;">Data refresh, system config, and the raw launcher. Most of these write to the home-office server -- change with care.</p>
+        <p style="color:var(--text2);font-size:12px;margin:0;">Data refresh and system config. Most of these write to the home-office server -- change with care.</p>
       </div>
       <div class="tools-grid">
         <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/analytics-engine" target="_blank" rel="noopener">
@@ -1123,12 +1121,6 @@
           <div class="tool-icon">&#9889;</div>
           <span class="tool-type">Data Refresh</span>
           <div class="tool-name">Grid Edge Map Data</div>
-          <span class="tool-arrow">&#8599;</span>
-        </a>
-        <a class="tool-card theme-dark cat-hub" href="https://tools.ct-resource-page.com/" target="_blank" rel="noopener">
-          <div class="tool-icon">&#127968;</div>
-          <span class="tool-type">Launcher</span>
-          <div class="tool-name">CT Tools Launcher</div>
           <span class="tool-arrow">&#8599;</span>
         </a>
       </div>
