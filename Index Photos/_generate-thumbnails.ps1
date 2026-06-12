@@ -151,7 +151,24 @@ $cards = @(
  @('track-c-manager-companion','control','DEAL SUBMISSION','Track C','for Managers','Coach the clean submission',''),
  @('selling-with-integrity','fieldmastery','FIELD MASTERY','Selling with','Integrity','Honest framing protects you',''),
  @('commission-calculator','elite','COMMISSION','Commission','Calculator','Model your pay by club',''),
- @('commissions-and-clubs','elite','COMMISSION','How Your','Pay Works','Commissions and the clubs','')
+ @('commissions-and-clubs','elite','COMMISSION','How Your','Pay Works','Commissions and the clubs',''),
+ # --- Coffee with Closers build (2026-06): roofing curriculum, playbooks, flagships ---
+ @('roof-system-101','roofing','ROOFING','Roof System','101','We sell a system, not a shingle',''),
+ @('warranty-teardown','roofing','ROOFING','The Warranty','Teardown','What the warranty really pays',''),
+ @('win-the-comparison','roofing','ROOFING','Win the','Comparison','Beat the shop on trust',''),
+ @('be-the-assessor','roofing','ROOFING','Be the','Assessor','Read the roof, create the problem',''),
+ @('price-negotiation','roofing','ROOFING','After the','Number','Hold the price, earn the move',''),
+ @('roofing-the-monthly','finance','FINANCE','Lead With','the Monthly','Cash-flow buyers, not price buyers',''),
+ @('ken-ebbert','elite','CLOSER PLAYBOOK','Ken','Ebbert','The principle teacher','people'),
+ @('casey-snyder','elite','CLOSER PLAYBOOK','Casey','Snyder','The relationship-first closer','people'),
+ @('kevin-mcsorley','elite','CLOSER PLAYBOOK','Kevin','McSorley','The closing mechanic','people'),
+ @('david-spagnoli','elite','CLOSER PLAYBOOK','David','Spagnoli','The referral engine','people'),
+ @('michael-slaninka','elite','CLOSER PLAYBOOK','Michael','Slaninka','The roofing authority','people'),
+ @('active-listening','fieldmastery','FIELD MASTERY','Active','Listening','Listen your way to the close',''),
+ @('tonality','fieldmastery','FIELD MASTERY','Tonality','How It Lands','Tone carries the meaning',''),
+ @('total-home-opportunity','fieldmastery','FIELD MASTERY','Total Home','Opportunity','You are talking to a homeowner',''),
+ @('handling-production-concerns','cx','CUSTOMER EXPERIENCE','Production','Concerns','When the bill comes in',''),
+ @('referral-engine','cx','CUSTOMER EXPERIENCE','The Referral','Engine','50 customers, no more crutches','')
 )
 
 $n=0
