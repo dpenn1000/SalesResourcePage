@@ -260,7 +260,7 @@ function buildTabs(inRoster){
   const bar=document.getElementById('tabBar'); bar.style.display='flex';
   const tabs=[];
   if(inRoster) tabs.push(['mine','My Schedule']);
-  tabs.push(['tracker','Ready to Submit'],['coverage','Coverage'],['changes','Change Requests'],['combined','Combined Grid'],['repview','Rep View'],['export','Export & Period']);
+  tabs.push(['tracker','Ready to Submit'],['coverage','Coverage'],['rebalance','Rebalance'],['changes','Change Requests'],['combined','Combined Grid'],['repview','Rep View'],['export','Export & Period']);
   bar.innerHTML = tabs.map(([k,l])=>`<button class="tab ${k===S.tab?'active':''}" data-tab="${k}">${l}</button>`).join('');
   bar.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
 }
@@ -271,6 +271,7 @@ async function switchTab(tab){
   if(tab==='mine'){ await loadMine(); renderMine(); }
   else if(tab==='tracker'){ await loadManagerData(); renderTracker(); }
   else if(tab==='coverage'){ await loadManagerData(); renderCoverage(); }
+  else if(tab==='rebalance'){ await loadManagerData(); await loadRebalanceData(); renderRebalance(); }
   else if(tab==='changes'){ await loadManagerData(); renderChangeRequests(); }
   else if(tab==='repview'){ await loadManagerData(); renderRepView(); }
   else if(tab==='combined'){ await loadManagerData(); renderCombined(); }
@@ -732,6 +733,98 @@ function renderCoverage(){
       }catch(err){ toast('Failed: '+(err.message||err)); }
     };
   });
+}
+
+// ===================== MANAGER: REBALANCE COCKPIT =====================
+// Day x shift calendar (deficit), ranked redeploys, and an exception checklist.
+// Computed client-side from the saturation tables + reach matrix + day-of-week
+// demand. The engine does the exhaustive scan; the views validate each call.
+async function loadRebalanceData(){
+  S.reach = {}; S.dow = {};
+  try{
+    // paginate: the reach matrix is ~2,700 rows and the API caps a page at 1000
+    let off=0;
+    while(true){
+      const {data,error}=await sb.from('sched_reach_matrix').select('person_id,town,drive_min')
+        .order('person_id').order('town').range(off, off+999);
+      if(error || !data || !data.length) break;
+      data.forEach(r=>{ (S.reach[r.person_id]=S.reach[r.person_id]||{})[r.town]=r.drive_min; });
+      if(data.length<1000) break;
+      off+=1000;
+    }
+  }catch(e){}
+  try{
+    const {data}=await sb.from('sched_demand_dow').select('shift,dow,avg_appts')
+      .eq('region',S.period.region||'CT').eq('scope','state');
+    (data||[]).forEach(r=>{ (S.dow[r.shift]=S.dow[r.shift]||{})[r.dow]=Number(r.avg_appts); });
+  }catch(e){}
+}
+function renderRebalance(){
+  const SH=['S1','S2','S3'], DOWL=['Mon','Tue','Wed','Thu','Fri','Sat'];
+  const radius={}; S.reps.forEach(r=>radius[r.id]=r.radius_min||90);
+  const nameOf=pid=>(S.peopleById[pid]&&S.peopleById[pid].name)||pid;
+  const supplyAt=(iso,s)=>{ let n=0; for(const pid in S.allEntries){ const c=S.allEntries[pid][iso]; if(c&&SHIFT_COVERS[s].includes(c)) n++; } return n; };
+  // rate per shift so an average weekday lands near 1.0
+  const tot={S1:[0,0],S2:[0,0],S3:[0,0]};
+  for(let w=0;w<S.period.num_weeks;w++) for(let d=0;d<6;d++){ const iso=dayDate(S.period,w,d);
+    for(const s of SH){ tot[s][0]+=supplyAt(iso,s); tot[s][1]+=((S.dow[s]||{})[d]||0); } }
+  const rate={}; SH.forEach(s=>rate[s]=tot[s][1]>0?tot[s][0]/tot[s][1]:0);
+  const cellAt=(iso,s,d)=>{ const sup=supplyAt(iso,s), t=((S.dow[s]||{})[d]||0)*rate[s];
+    return {ratio:t>0?sup/t:null, gap:sup-t, sup, t}; };
+
+  // ---- ranked redeploys ----
+  const repOver={};
+  for(const pid in S.repCells){ let mx=null,ms=null; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v!=null&&(mx==null||v>mx)){mx=v;ms=s;} } if(mx!=null&&mx>1.1) repOver[pid]={ratio:mx,shift:ms}; }
+  const targets=(S.townSat||[]).filter(t=>t.ratio!=null&&t.ratio<0.9&&t.demand>=5)
+    .sort((a,b)=>((1-b.ratio)*b.demand)-((1-a.ratio)*a.demand));
+  const used={}, moves=[];
+  for(const t of targets){
+    let best=null;
+    for(const pid in repOver){ if(used[pid]) continue; const dm=(S.reach[pid]||{})[t.town]; if(dm==null||dm>radius[pid]) continue; if(best==null||dm<best.dm) best={pid,dm}; }
+    if(!best) continue; used[best.pid]=1;
+    const rp=S.reach[best.pid]||{}; let home='?',hm=1e9; for(const tn in rp){ if(rp[tn]<hm){hm=rp[tn];home=tn;} }
+    moves.push({rep:nameOf(best.pid),home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',appts:t.demand,drive:Math.round(best.dm)+'m'});
+    if(moves.length>=12) break;
+  }
+  let ml=`<div class="card"><div class="weekhd">Top redeploys</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Each row sends an over-stacked rep where coverage is short, nearest first. The drive is from their home base. One-click send-to-rep is the next step; for now it is the worklist.</div>
+    <table class="cov"><thead><tr><th>Move this rep</th><th>Home base</th><th>Over on</th><th>Send to</th><th>Appts</th><th>Drive</th></tr></thead><tbody>
+    ${moves.length?moves.map(m=>`<tr><td class="county">${esc(m.rep)}</td><td>${esc(m.home)}</td><td>${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td></tr>`).join(''):'<tr><td colspan="6" class="muted">No high-value redeploys found. Coverage is balanced, or the saturation build has not run for this period.</td></tr>'}
+    </tbody></table></div>`;
+
+  // ---- exception checklist ----
+  const thin=(S.townSat||[]).filter(t=>t.ratio!=null&&t.demand>=5&&t.ratio<0.25).sort((a,b)=>a.ratio-b.ratio);
+  const shortDays=[]; for(let w=0;w<S.period.num_weeks;w++) for(let d=0;d<6;d++){ const iso=dayDate(S.period,w,d); for(const s of SH){ const c=cellAt(iso,s,d); if(c.gap<=-3) shortDays.push({iso,s,gap:Math.round(c.gap)}); } }
+  shortDays.sort((a,b)=>a.gap-b.gap);
+  const allWeek=[]; for(const pid in S.repCells){ let allover=true; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v==null||v<=1.1){allover=false;break;} } if(allover) allWeek.push(nameOf(pid)); }
+  const line=(n,label,extra)=>`<div style="margin-top:6px;display:flex;gap:8px"><b style="color:${n?'#c52':'#2a8'};min-width:28px">${n}</b><div>${label}${n&&extra?': <span class="muted">'+extra+'</span>':''}</div></div>`;
+  const ex=`<div class="card"><div class="weekhd">Exception checklist</div>
+    <div class="muted" style="font-size:12px;margin-bottom:4px">Hard flags to clear to zero. Nothing here hides in the grid.</div>
+    ${line(thin.length,'town-shifts with demand and almost no reachable coverage', thin.slice(0,8).map(t=>esc(t.town)+' '+t.shift).join(', '))}
+    ${line(shortDays.length,'day-shifts short by 3+ reps', shortDays.slice(0,6).map(x=>dowName(x.iso)+' '+fmtMD(x.iso)+' '+x.s+' ('+x.gap+')').join(', '))}
+    ${line(allWeek.length,'reps saturated on every shift (redeploy all week)', allWeek.map(esc).join(', '))}
+  </div>`;
+
+  // ---- calendar deficit grid ----
+  let cal=`<div class="card"><div class="weekhd">Coverage by day and shift</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Each cell is the gap for that day and shift. <b style="color:#2a8">Green = short</b> (add reps), <b style="color:#c52">red = over</b> (free reps). Expected demand is the average for that weekday; Sunday is off-schedule and omitted.</div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap">`;
+  for(const s of SH){
+    cal+=`<div style="flex:1;min-width:300px"><div style="font-weight:700;margin-bottom:4px">${SHIFT_META[s].name} <span class="muted" style="font-weight:400;font-size:12px">${SHIFT_META[s].time}</span></div>
+      <table style="border-collapse:separate;border-spacing:3px;width:100%"><thead><tr><th></th>${DOWL.map(x=>`<th class="muted" style="font-size:11px;font-weight:600">${x}</th>`).join('')}</tr></thead><tbody>`;
+    for(let w=0;w<S.period.num_weeks;w++){
+      cal+=`<tr><td class="muted" style="font-size:10px">W${w+1}</td>`;
+      for(let d=0;d<6;d++){ const iso=dayDate(S.period,w,d); const c=cellAt(iso,s,d); const r=c.ratio, g=Math.round(c.gap);
+        cal+=`<td title="${dowName(iso)} ${fmtMD(iso)} ${SHIFT_META[s].name}: ${c.sup} scheduled, expected ${c.t.toFixed(1)}" style="background:${r==null?'#eee':ratioTint(r)};border:1px solid ${r==null?'#ddd':ratioColor(r)};border-radius:5px;text-align:center;padding:5px 2px;min-width:32px">
+          <div style="font-weight:700;font-size:12px;color:${r==null?'#999':ratioColor(r)}">${g>=0?'+':''}${g}</div></td>`;
+      }
+      cal+=`</tr>`;
+    }
+    cal+=`</tbody></table></div>`;
+  }
+  cal+=`</div></div>`;
+
+  document.getElementById('view').innerHTML = ml + ex + cal;
 }
 
 // ===================== MANAGER: REP VIEW (preview) =====================
