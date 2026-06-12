@@ -297,14 +297,18 @@ function oppOf(l){return (l.opportunity_ids&&l.opportunity_ids[0])||l.dl_number;
 const CT_COUNTIES=new Set(['FAIRFIELD','HARTFORD','LITCHFIELD','MIDDLESEX','NEW HAVEN','NEW LONDON','TOLLAND','WINDHAM']);
 const STATE_NAME2CODE={CONNECTICUT:'CT','NEW JERSEY':'NJ','NEW YORK':'NY',PENNSYLVANIA:'PA',MASSACHUSETTS:'MA','RHODE ISLAND':'RI'};
 let STATE_SCOPE=['CT'];   // codes the viewed person works; null => national (any verifiable state)
-// Best-effort state for a lead: normalize the state field, else infer from a CT
-// county (CT records often ship a blank state but a valid county).
+// Best-effort state for a lead. A CT county is AUTHORITATIVE and checked first:
+// CT leads frequently ship a polluted state field (junk "NJ"/"NY" values) while
+// the county and town are correctly CT, so a recognized CT county wins over the
+// state field. Only when the county isn't a known CT county do we fall back to
+// the (normalized) state field. (Expansion to states whose county names collide
+// with CT's will need a per-state county map.)
 function leadState(l){
   const p=l.properties; if(!p) return null;
-  const s=((p.state||'').trim().toUpperCase());
-  if(s){ if(s.length===2) return s; if(STATE_NAME2CODE[s]) return STATE_NAME2CODE[s]; }
   const co=((p.county||'').trim().toUpperCase());
   if(CT_COUNTIES.has(co)) return 'CT';
+  const s=((p.state||'').trim().toUpperCase());
+  if(s){ if(s.length===2) return s; if(STATE_NAME2CODE[s]) return STATE_NAME2CODE[s]; }
   return null;
 }
 function inStateScope(l){
