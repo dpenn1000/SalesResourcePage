@@ -485,10 +485,10 @@
 <body>
 
 <header>
-  <div>
+  <a href="index.html" style="text-decoration:none;cursor:pointer" title="Back to site home">
     <span class="logo-ct">CT</span>
     <span class="logo-sub">Traditional</span>
-  </div>
+  </a>
   <h1 style="display:none">/ Resource Admin</h1>
   <div class="header-right">
     <span class="user-label" id="userLabel"></span>
@@ -496,7 +496,6 @@
       <button class="btn-hdr btn-gear" onclick="toggleSettings()" title="Settings" aria-label="Settings">&#9881;</button>
       <div class="settings-menu" id="settingsMenu">
         <a href="index.html">&larr; View site</a>
-        <a href="https://tools.ct-resource-page.com/" target="_blank" rel="noopener" id="settingsLauncher" style="display:none">CT Tools Launcher &#8599;</a>
         <div class="menu-div"></div>
         <button onclick="signOut()">Sign out</button>
         <div class="menu-foot">CT Traditional &middot; Admin</div>
@@ -1354,8 +1353,6 @@ window.initApp = function (profile, session) {
   if (window.IS_ADMIN) {
     const adminSec = document.getElementById('adminToolsSection');
     if (adminSec) adminSec.style.display = '';
-    const launcherLink = document.getElementById('settingsLauncher');
-    if (launcherLink) launcherLink.style.display = '';
   }
   loadResources();
   // Commission settings tab: visible to admins and VPs. The gate is the
