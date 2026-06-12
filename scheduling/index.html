@@ -484,7 +484,7 @@ function renderMine(){
 async function loadManagerData(){
   const region=S.period.region||'CT';
   const [reps,ent,subs,dem,tgt,cr,ci]=await Promise.all([
-    sb.from('people').select('id,name,sf_name,spd_slug,division,sales_office,base_county').eq('status','active').like('sales_office','CT%').order('sales_office').order('name'),
+    sb.from('people').select('id,name,sf_name,spd_slug,division,sales_office,base_county,home_lat,home_lng,radius_min').eq('status','active').like('sales_office','CT%').order('sales_office').order('name'),
     sb.from('sched_entries').select('person_id,work_date,shift_code').eq('period_id',S.period.id),
     sb.from('sched_submissions').select('*').eq('period_id',S.period.id),
     sb.from('sched_demand_baseline').select('*').eq('region',region),
@@ -700,6 +700,18 @@ function renderCoverage(){
           <td><span class="covflag" style="background:${ratioTint(t.ratio)};color:${ratioColor(t.ratio)}">${ratioLabel(t.ratio)} &middot; ${Math.round(t.ratio*100)}%</span></td></tr>`).join('')}</tbody></table></div>`;
     }
   }
+  // Reach settings (Territory + Radius P4) -- editable per-rep drive radius (+ PIN status)
+  if(S.reps && S.reps.length){
+    html+=`<div class="card"><div class="weekhd">Reach settings &middot; per-rep drive radius</div>
+      <div class="muted" style="margin-bottom:8px;font-size:12px">A rep's territory = towns within this drive-time radius of their home PIN. Default 90 min; smaller = tighter local territory. Changes apply on the next coverage refresh (weekly, or rebuild on demand).</div>
+      <table class="cov"><thead><tr><th>Rep</th><th>Office</th><th>PIN</th><th>Radius (min)</th></tr></thead>
+      <tbody>${S.reps.map(r=>`<tr>
+        <td class="county">${esc(r.sf_name||r.name)}</td>
+        <td class="muted">${esc(r.sales_office||'')}</td>
+        <td>${r.home_lat!=null?`<span class="muted">set${r.base_county?' &middot; '+esc(r.base_county):''}</span>`:'<span style="color:#c22">no PIN</span>'}</td>
+        <td><input type="number" min="10" max="240" step="5" class="radinput" data-id="${r.id}" value="${r.radius_min!=null?r.radius_min:90}" style="width:64px;padding:4px;border:1px solid var(--border);border-radius:5px;font-size:12px;text-align:right;font-family:inherit"></td>
+      </tr>`).join('')}</tbody></table></div>`;
+  }
   document.getElementById('view').innerHTML=html;
   // wire editable shift targets (managers)
   document.querySelectorAll('#view .tgtinput').forEach(inp=>{
@@ -707,6 +719,16 @@ function renderCoverage(){
       const shift=inp.dataset.shift, v=inp.value.trim();
       try{ await sb.rpc('sched_set_shift_target',{p_shift:shift, p_target: v===''?null:Number(v)});
         await loadManagerData(); renderCoverage(); toast('Target saved');
+      }catch(err){ toast('Failed: '+(err.message||err)); }
+    };
+  });
+  // wire editable per-rep reach radius (managers)
+  document.querySelectorAll('#view .radinput').forEach(inp=>{
+    inp.onchange=async()=>{
+      const id=inp.dataset.id, v=parseInt(inp.value,10);
+      if(!(v>=10 && v<=240)){ toast('Radius must be 10-240 min'); return; }
+      try{ await sb.rpc('sched_set_rep_reach',{p_person_id:id, p_radius_min:v});
+        toast('Saved -- applies on next coverage refresh');
       }catch(err){ toast('Failed: '+(err.message||err)); }
     };
   });
