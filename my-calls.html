@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
 <script src="/deal-touches.js"></script>
+<script src="/lead-geo.js"></script>
 <script src="/site-back.js" defer></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -294,25 +295,11 @@ function oppOf(l){return (l.opportunity_ids&&l.opportunity_ids[0])||l.dl_number;
 // change. A lead whose state can't be determined (no state field, no recognizable
 // county) is dropped -- those are the data-stripped ghosts that used to leak
 // (out-of-region recycle leads mis-dispatched onto a CT list).
-const CT_COUNTIES=new Set(['FAIRFIELD','HARTFORD','LITCHFIELD','MIDDLESEX','NEW HAVEN','NEW LONDON','TOLLAND','WINDHAM']);
-const STATE_NAME2CODE={CONNECTICUT:'CT','NEW JERSEY':'NJ','NEW YORK':'NY',PENNSYLVANIA:'PA',MASSACHUSETTS:'MA','RHODE ISLAND':'RI'};
+// leadState() (county-authoritative) lives in the shared /lead-geo.js so this page
+// and the dispatch console (leads.html) classify leads identically.
 let STATE_SCOPE=['CT'];   // codes the viewed person works; null => national (any verifiable state)
-// Best-effort state for a lead. A CT county is AUTHORITATIVE and checked first:
-// CT leads frequently ship a polluted state field (junk "NJ"/"NY" values) while
-// the county and town are correctly CT, so a recognized CT county wins over the
-// state field. Only when the county isn't a known CT county do we fall back to
-// the (normalized) state field. (Expansion to states whose county names collide
-// with CT's will need a per-state county map.)
-function leadState(l){
-  const p=l.properties; if(!p) return null;
-  const co=((p.county||'').trim().toUpperCase());
-  if(CT_COUNTIES.has(co)) return 'CT';
-  const s=((p.state||'').trim().toUpperCase());
-  if(s){ if(s.length===2) return s; if(STATE_NAME2CODE[s]) return STATE_NAME2CODE[s]; }
-  return null;
-}
 function inStateScope(l){
-  const st=leadState(l);
+  const st=window.leadState(l.properties);
   if(!st) return false;                                   // undeterminable -> drop (ghosts/out-of-region)
   return STATE_SCOPE===null || STATE_SCOPE.includes(st);  // national sees any verifiable state
 }
