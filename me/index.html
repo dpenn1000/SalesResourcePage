@@ -400,7 +400,7 @@
   }
   .sc-title {
     font-family: 'Cinzel', 'Palatino Linotype', Georgia, serif;
-    font-size: 20px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+    font-size: 23px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
     color: var(--gold-lt);
     background: linear-gradient(180deg, #FBEFB0 0%, #E6C453 48%, #C99B2C 100%);
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
@@ -1725,12 +1725,14 @@ async function loadMePerfLive(me){
 function commColor(s){ return s === 'healthy' ? 'green' : s === 'watch' ? 'amber' : s === 'critical' ? 'red' : ''; }
 
 // "This Month" card: monthly product sales against the rep's personal goal, with
-// the company standard (PIP threshold) and the dismissal floor as markers.
+// the company standard (PIP threshold) and the dismissal floor as markers. The
+// card color and the PIP / dismissal verdict are driven by the projected
+// month-end PACE (not the current total), so the signal is forward-looking.
 // tm = d.this_month payload; cfg = { floor, pip, goal }.
-//   total < floor        -> dismissal risk (terminatable)
-//   floor <= total < pip -> PIP (under the company standard)
-//   pip   <= total < goal-> building toward the personal goal
-//   total >= goal        -> goal reached
+//   pace < floor        -> dismissal risk (terminatable)
+//   floor <= pace < pip -> PIP (under the company standard)
+//   pip   <= pace < goal-> building toward the personal goal
+//   pace >= goal        -> goal reached
 function thisMonthCard(tm, cfg){
   if (!tm) return '';
   const floor = cfg && cfg.floor != null ? cfg.floor : 3;
@@ -1741,11 +1743,14 @@ function thisMonthCard(tm, cfg){
   const solar = tm.solar || 0, roof = tm.roof || 0, battery = tm.battery || 0;
   const total = tm.total != null ? tm.total : (solar + roof + battery);
 
-  const statusCls = total < pip ? 'red' : (total < goal ? 'amber' : 'green');
-
   const _now = new Date();
   const _dim = new Date(_now.getFullYear(), _now.getMonth() + 1, 0).getDate();
   const _proj = tm.pace != null ? tm.pace : (_now.getDate() > 0 ? Math.round(total / _now.getDate() * _dim) : total);
+
+  // Card color + the PIP / dismissal verdict track the projected month-end PACE,
+  // not the current total: a slow start that is still pacing to goal reads green,
+  // and a stall that projects below standard flags early, while there is time to act.
+  const statusCls = _proj < pip ? 'red' : (_proj < goal ? 'amber' : 'green');
 
   const pctOf = (n) => goal > 0 ? Math.min(100, (n / goal) * 100) : 0;
   const wSolar = pctOf(solar);
@@ -1762,10 +1767,10 @@ function thisMonthCard(tm, cfg){
     esc(label) + ' <b>' + n + '</b></span>';
 
   let statusMsg;
-  if (total < floor)     statusMsg = 'Dismissal risk. Under the ' + floor + ' monthly minimum.';
-  else if (total < pip)  statusMsg = 'PIP territory. ' + (pip - total) + ' more to clear the ' + pip + ' company standard.';
-  else if (total < goal) statusMsg = (goal - total) + ' more to reach your ' + goal + ' goal.';
-  else                   statusMsg = 'Goal reached: ' + total + ' of ' + goal + '. Keep stacking.';
+  if (_proj < floor)     statusMsg = 'Pacing to ' + _proj + ', below the ' + floor + ' monthly minimum. Dismissal risk. Act now.';
+  else if (_proj < pip)  statusMsg = 'Pacing to ' + _proj + '. ' + (pip - _proj) + ' more on pace to clear the ' + pip + ' company standard (PIP territory).';
+  else if (_proj < goal) statusMsg = 'Pacing to ' + _proj + '. ' + (goal - _proj) + ' more on pace to hit your ' + goal + ' goal.';
+  else                   statusMsg = 'Pacing to ' + _proj + ', at or above your ' + goal + ' goal. Keep stacking.';
 
   const goalEdit = IS_VIEW_AS ? '' : ' <span class="tm-goal-edit" onclick="setMonthlyGoal()" title="Set your goal for this month">edit</span>';
 
