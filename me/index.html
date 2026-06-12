@@ -423,9 +423,14 @@
     border: 1px solid var(--sc-line); border-radius: 11px; padding: 14px 15px;
   }
   .sc-card.here {
-    background: linear-gradient(165deg, rgba(212,175,55,0.16) 0%, rgba(212,175,55,0.05) 100%);
+    background: linear-gradient(165deg, rgba(212,175,55,0.20) 0%, rgba(212,175,55,0.06) 100%);
     border-color: var(--gold);
-    box-shadow: 0 0 0 1px rgba(212,175,55,0.35), 0 6px 18px rgba(212,175,55,0.12);
+    box-shadow: 0 0 0 1px var(--gold), 0 0 22px rgba(212,175,55,0.45), 0 6px 18px rgba(212,175,55,0.18);
+    animation: scGlowHere 2.6s ease-in-out infinite;
+  }
+  @keyframes scGlowHere {
+    0%,100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.80), 0 0 16px rgba(212,175,55,0.38), 0 6px 18px rgba(212,175,55,0.16); }
+    50%     { box-shadow: 0 0 0 1px var(--gold-lt), 0 0 30px rgba(212,175,55,0.70), 0 6px 20px rgba(212,175,55,0.22); }
   }
   .sc-here {
     position: absolute; top: -9px; right: 12px;
@@ -445,7 +450,7 @@
     0%,100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.7), 0 0 12px rgba(212,175,55,0.30); }
     50%     { box-shadow: 0 0 0 1px var(--gold-lt), 0 0 24px rgba(212,175,55,0.62); }
   }
-  @media (prefers-reduced-motion: reduce){ .sc-card.pacing { animation: none; } }
+  @media (prefers-reduced-motion: reduce){ .sc-card.pacing, .sc-card.here { animation: none; } }
   .sc-card.pacing .sc-card-name { color: var(--gold-lt); }
   .sc-pacebadge {
     position: absolute; top: -9px; right: 12px;
@@ -1901,12 +1906,15 @@ function jobCommission(systemKw, ppw, basePpw, saleType, tier, cfg){
   return basePayout - leadFee + aboveBaseAdder + clubAdder;
 }
 
-// Map a config tier label (Sales Club RPC strings) to the short code the math uses.
+// Map a tier label to the short code the card uses. Accepts both the launcher's
+// short keys (RC / PC / HF from store_query._CLUB_TIERS) and full names (Royalty
+// Club / President's Club / High Flyer). Without the key handling, "PC"/"HF"/"RC"
+// all fall through to 'none' and a real club reads as NO CLUB.
 function clubTierCode(label){
   const s = String(label || '').toLowerCase();
-  if (s.indexOf('royal') >= 0) return 'royalty';
-  if (s.indexOf('pres') >= 0)  return 'pres';
-  if (s.indexOf('high') >= 0 || s.indexOf('flyer') >= 0) return 'hf';
+  if (s === 'rc' || s.indexOf('royal') >= 0) return 'royalty';
+  if (s === 'pc' || s.indexOf('pres')  >= 0) return 'pres';
+  if (s === 'hf' || s.indexOf('high')  >= 0 || s.indexOf('flyer') >= 0) return 'hf';
   return 'none';
 }
 const CLUB_TIERS = [
