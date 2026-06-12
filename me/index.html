@@ -680,7 +680,7 @@
        list / "Work these now" go-back board so the two stop reading as one thing. -->
   <div class="section" id="dealsSection" style="display:none">
     <div class="section-head">
-      <div class="section-title">After the Sale &mdash; Customer Touches</div>
+      <div class="section-title">Constant Contact</div>
       <div class="section-pill" id="dealsPill">--</div>
     </div>
     <div class="section-body" id="dealsBody"></div>
@@ -1090,7 +1090,7 @@ async function loadGobacks(me){
       '<div style="font-size:10px;color:var(--text3)">'+sub+'</div></div>').join('')+'</div>';
   const headline = rows.length+' go-back'+(rows.length>1?'s':'')+' need you'+(atRisk>0?' &mdash; '+atRisk+' past the 7-day warm window':'');
   $('gobacksBody').innerHTML =
-    '<div class="addr-body" style="margin-bottom:10px">Homeowners who sat but didn\'t sign &mdash; you promised to circle back. 86% of go-backs never close and the odds halve the moment you leave the sit, so run them while they\'re warm. This is <b>pre-sale</b>, separate from your After-the-Sale touches.</div>'+
+    '<div class="addr-body" style="margin-bottom:10px">Homeowners who sat but didn\'t sign &mdash; you promised to circle back. 86% of go-backs never close and the odds halve the moment you leave the sit, so run them while they\'re warm. This is <b>pre-sale</b>, separate from your Constant Contact (post-sale) touches.</div>'+
     '<div class="addr '+(atRisk>0?'p-high':'p-medium')+'" style="margin-bottom:12px"><div class="addr-title">'+headline+'</div></div>'+
     tiles + top +
     '<a class="linkbtn" style="display:inline-block;margin-top:12px;color:var(--blue);font-weight:700;text-decoration:none" href="'+link+'">Open the go-back board to work them &rarr;</a>';
@@ -2222,7 +2222,7 @@ async function loadAndRenderAddressables(me){
     const more = touchDeals.length > 3
       ? '<div class="ti-more"><button class="ti-cta" onclick="openTouchModal()">View all ' + touchDeals.length + ' &rarr;</button></div>'
       : '';
-    group('After the Sale — Customer Touches (' + touchDeals.length + ')', top + more);
+    group('Constant Contact — touches due (' + touchDeals.length + ')', top + more);
   }
 
   // 3. From your manager (rep_addressables)
@@ -2480,7 +2480,7 @@ async function loadAndRenderCallActivity(me){
 
 <div id="touchModal" class="tm-overlay" style="display:none" onclick="if(event.target===this)closeTouchModal()">
   <div class="tm-card">
-    <div class="tm-card-head"><div class="tm-card-title">Customer Touches to send</div><button class="tm-close" onclick="closeTouchModal()" type="button">&times;</button></div>
+    <div class="tm-card-head"><div class="tm-card-title">Constant Contact — touches to send</div><button class="tm-close" onclick="closeTouchModal()" type="button">&times;</button></div>
     <div id="touchModalBody" class="tm-card-body"></div>
   </div>
 </div>
