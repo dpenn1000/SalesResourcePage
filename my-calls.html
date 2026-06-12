@@ -16,14 +16,16 @@
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{--green:#78C832;--accent:#29A9E1;--ink:#1A2332;--muted:#6b7a8d;--border:#DFE2DA;--bg:#EFF1EC;--surface:#fff;--radius:10px;--shadow:0 1px 4px rgba(0,0,0,.07);--red:#D63030;--amber:#C88C00}
   html{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;font-size:15px;line-height:1.5}
-  .hdr{background:var(--surface);padding:12px 20px;position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .hdr{background:var(--surface);position:sticky;top:0;z-index:50;box-shadow:0 1px 3px rgba(0,0,0,.05)}
   .hdr::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--green),var(--accent))}
+  .hdr-inner{max-width:1180px;margin:0 auto;padding:11px 22px}
+  .hdr-brand{display:flex;align-items:center;gap:14px}
   .logo{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:700;color:#0b1120}
   .htitle{font-family:'Fraunces',serif;font-size:18px;font-weight:700;flex:1}
   .htitle small{display:block;font-family:'Manrope';font-size:12px;color:var(--muted);font-weight:500}
   .hbtn{font-size:13px;color:var(--accent);text-decoration:none;font-weight:600;cursor:pointer;background:none;border:none}
   .guidebtn{font-size:13px;font-weight:700;color:#0b1120;background:var(--green);border-radius:7px;padding:7px 13px;text-decoration:none}
-  .wrap{max-width:760px;margin:0 auto;padding:16px 16px 64px}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 22px 64px}
   .kpis{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
   .kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;box-shadow:var(--shadow);flex:1;min-width:90px}
   .kpi .n{font-family:'Fraunces',serif;font-size:22px;font-weight:700}
@@ -31,19 +33,31 @@
   .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
   .toolbar input,.toolbar select{font-family:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff}
   .toolbar input[type=search]{flex:1;min-width:160px}
-  /* Icon tab-bar (view nav) -- replaces the old dropdown + KPI strip, carries live counts */
-  .vnav{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin-bottom:6px;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
-  .vnav::-webkit-scrollbar{height:6px}
-  .vnav::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-  .vnav-tab{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:9px 14px;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;box-shadow:var(--shadow);transition:transform .14s,box-shadow .14s,background .14s,color .14s,border-color .14s;white-space:nowrap}
-  .vnav-tab:hover{color:var(--ink);border-color:#c3cbd0;transform:translateY(-1px)}
-  .vnav-tab.active{background:var(--green);color:#0b1120;border-color:var(--green);box-shadow:0 3px 10px rgba(120,200,50,.34)}
+  /* In-header view tab-bar -- square gradient selectors. Wraps to fit (no scrollbar);
+     collapses behind a hamburger on small screens. Replaces the old dropdown + KPI strip. */
+  .vnav{display:flex;flex-wrap:wrap;gap:8px;padding-top:11px}
+  .vnav-tab{display:inline-flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:8px 13px;font-family:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;transition:transform .14s,box-shadow .14s,background .14s,color .14s,border-color .14s;white-space:nowrap}
+  .vnav-tab:hover{color:var(--ink);border-color:#bcd0a8;transform:translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.07);background:linear-gradient(135deg,rgba(120,200,50,.10),rgba(41,169,225,.10))}
+  .vnav-tab.active{background:linear-gradient(135deg,var(--green),var(--accent));color:#fff;border-color:transparent;box-shadow:0 4px 13px rgba(41,169,225,.34)}
   .vnav-ic{display:flex;width:17px;height:17px;flex:0 0 auto}
   .vnav-ic svg{width:100%;height:100%;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .vnav-count{font-size:11px;font-weight:800;background:var(--bg);color:var(--ink);border-radius:999px;padding:1px 7px;min-width:19px;text-align:center}
-  .vnav-tab.active .vnav-count{background:rgba(11,17,32,.14);color:#0b1120}
-  .vnav-risk{font-size:10px;font-weight:800;background:var(--red);color:#fff;border-radius:999px;padding:1px 6px;min-width:17px;text-align:center}
+  .vnav-count{font-size:11px;font-weight:800;background:var(--bg);color:var(--ink);border-radius:6px;padding:1px 7px;min-width:19px;text-align:center}
+  .vnav-tab.active .vnav-count{background:rgba(255,255,255,.26);color:#fff}
+  .vnav-risk{font-size:10px;font-weight:800;background:var(--red);color:#fff;border-radius:6px;padding:1px 6px;min-width:17px;text-align:center}
+  .vnav-tab.active .vnav-risk{background:rgba(255,255,255,.9);color:var(--red)}
   .vnav-tab.risk{border-color:#eab0a6}
+  /* Hamburger (mobile) + the actions that collapse into the open menu */
+  .hamburger{display:none;margin-left:auto;width:42px;height:42px;align-items:center;justify-content:center;background:var(--surface);border:1px solid var(--border);border-radius:9px;cursor:pointer;color:var(--ink);flex:0 0 auto}
+  .hamburger svg{width:22px;height:22px;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+  .hdr-mobile-actions{display:none;gap:10px;align-items:center}
+  @media (max-width:820px){
+    .hide-mobile{display:none}
+    .hamburger{display:inline-flex}
+    .vnav{display:none;flex-direction:column;padding-top:10px}
+    .hdr.nav-open .vnav{display:flex}
+    .hdr.nav-open .hdr-mobile-actions{display:flex;padding-top:11px;border-top:1px solid var(--border);margin-top:4px}
+    .vnav-tab{width:100%;justify-content:flex-start;font-size:14.5px;padding:11px 14px}
+  }
   .view-intro{font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:9px 13px;margin-bottom:12px;line-height:1.45}
   .card{transition:box-shadow .15s,transform .15s}
   .card:hover{box-shadow:0 4px 14px rgba(0,0,0,.09)}
@@ -147,10 +161,22 @@
 
 <div id="appWrap" style="display:none">
   <header class="hdr">
-    <div class="logo">T</div>
-    <div class="htitle">My Call List <small id="userLabel"></small></div>
-    <a class="guidebtn" href="/call-list-guide.html">Call Guide</a>
-    <button class="hbtn" onclick="signOut()">Sign out</button>
+    <div class="hdr-inner">
+      <div class="hdr-brand">
+        <div class="logo">T</div>
+        <div class="htitle">My Call List <small id="userLabel"></small></div>
+        <a class="guidebtn hide-mobile" href="/call-list-guide.html">Call Guide</a>
+        <button class="hbtn hide-mobile" onclick="signOut()">Sign out</button>
+        <button class="hamburger" id="navToggle" onclick="toggleNav()" aria-label="Views menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+      <nav id="viewNav" class="vnav" aria-label="Call list views"></nav>
+      <div class="hdr-mobile-actions">
+        <a class="guidebtn" href="/call-list-guide.html">Call Guide</a>
+        <button class="hbtn" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
   </header>
   <div class="wrap">
     <div id="viewAsBar" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;background:#eef6ff;border:1px solid #cfe4f5;border-radius:10px">
@@ -161,7 +187,6 @@
       </select>
       <span style="font-size:11px;color:var(--muted)">Pick your own name to work leads dispatched to you, or a rep to see and log on their list (your entries stay tagged to you).</span>
     </div>
-    <nav id="viewNav" class="vnav" aria-label="Call list views"></nav>
     <div class="toolbar">
       <input type="search" id="q" placeholder="Search name, town, DL#..." oninput="render()">
     </div>
@@ -418,7 +443,9 @@ function renderCallsView(mode,q){
   list.innerHTML=rows.map(c=>callRow(c,today)).join('');
 }
 function jumpView(v){const s=document.getElementById('fView');if(s){s.value=v;render();}}
-function selectView(v){const s=document.getElementById('fView');if(s)s.value=v;render();}
+function selectView(v){const s=document.getElementById('fView');if(s)s.value=v;closeNav();render();}
+function toggleNav(){const h=document.querySelector('.hdr');if(!h)return;const open=h.classList.toggle('nav-open');const t=document.getElementById('navToggle');if(t)t.setAttribute('aria-expanded',open?'true':'false');}
+function closeNav(){const h=document.querySelector('.hdr');if(h)h.classList.remove('nav-open');const t=document.getElementById('navToggle');if(t)t.setAttribute('aria-expanded','false');}
 // Inline SVG glyphs for the view tab-bar -- 24x24 stroke icons, colored by currentColor.
 const VICON={
   phone:'<svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg>',
