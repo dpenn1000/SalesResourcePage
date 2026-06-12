@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frictionless: Staying Present · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/training-system.css">
+<style>
+/* Page-specific: the closer pullquote. Built on shared tokens, no inline styles.
+   Standard components (hero/module/training-card/compare-grid/step-grid/do-dont/
+   script-example/objection-handling/callout/recall-check/manager-prompt/
+   key-takeaways) come from training-system.css. */
+.pullquote{font-family:var(--serif);font-style:italic;font-size:1.4rem;line-height:1.4;color:var(--ink);border-left:3px solid var(--amber);padding:var(--space-2) var(--space-4);margin:var(--space-3) 0 0;max-width:74ch}
+.pullquote .attr{display:block;font-family:var(--sans);font-style:normal;font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:var(--space-2)}
+body.presenter .pullquote{font-size:1.8rem}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<script src="/training-system.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer">
+        <span class="logo">Trinity Solar</span>
+        <span class="team">CT Traditional · Sales Field Mastery</span>
+      </a>
+      <button id="presentBtn" class="present-toggle">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#friction"><span class="num">1</span> The Friction Is Real</a>
+      <a href="#prep"><span class="num">2</span> Prep Kills Friction</a>
+      <a href="#mastery"><span class="num">3</span> Tools as Presence</a>
+      <a href="#sequence"><span class="num">4</span> Rapport First</a>
+      <a href="#greatnews"><span class="num">5</span> Everything Is Great News</a>
+      <a href="#slow"><span class="num">6</span> Slow Is Confidence</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Sales Field Mastery · The Frictionless Consultation</span>
+    <h1>Stay <em>Present</em>, Not Buried in the Software</h1>
+    <p class="lede">
+      We carry batteries, roofing, OneButton, SiteCapture, Salesforce, and LightReach into every home.
+      <strong>People buy when you make it easy to buy.</strong>
+      The job is to run the room, not wrestle the tools. Here is how the best closers stay present while the software does its thing.
+    </p>
+  </div>
+</section>
+
+<main class="training-page">
+
+<!-- 1: FRICTION -->
+<section class="module" id="friction">
+  <div class="wrap">
+    <span class="eyebrow">Part 1 · The Problem</span>
+    <h2>Friction is what loses the sale you already had</h2>
+    <p class="intro">The homeowner does not feel your software. They feel you. When you disappear into a screen, fumble the quote, or take pictures while half-listening, the room cools. Every one of those is a disconnect, and disconnects add up.</p>
+
+    <div class="card-grid">
+      <div class="training-card training-card--amber">
+        <h3>Where the friction comes from</h3>
+        <ul>
+          <li><strong>Building the quote</strong> while the homeowner watches you click.</li>
+          <li><strong>SiteCapture photos</strong> taken while the conversation drops.</li>
+          <li><strong>Talking too much,</strong> which raises objections they never had.</li>
+          <li><strong>A tool that stalls,</strong> and the stress that shows on your face.</li>
+        </ul>
+      </div>
+      <div class="do-dont">
+        <div class="do"><strong>Present.</strong> Eyes up, the homeowner involved, the iPad serving the conversation.</div>
+        <div class="dont"><strong>Buried.</strong> Head down in the screen, the room waiting on you, the energy gone.</div>
+      </div>
+    </div>
+
+    <div class="pullquote">"We know people are going to buy when you make it easy for them to buy."<span class="attr">Anthony Giordano · Coffee with Closers</span></div>
+
+    <div class="manager-prompt">Ask the room: what is the last deal that cooled because the rep got stuck in the software instead of staying with the customer?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What actually loses these sales?</summary>
+      <p class="answer">Friction. The homeowner feels you, not your tools. Disconnects compound, and two or three of them in one visit is how a winnable sale slips.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 2: PREP -->
+<section class="module" id="prep">
+  <div class="wrap">
+    <span class="eyebrow">Part 2 · Before You Knock</span>
+    <h2>Most friction is prevented in the driveway</h2>
+    <p class="intro">The numbers are the smallest part of the visit. When the design, the rate, and the roof squares are already in your head, the quote takes five minutes, not fifty. Prep is what buys you presence.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>Walk in ready</h3>
+        <ul>
+          <li><strong>Full design and rate</strong> built before you sit down.</li>
+          <li><strong>Roof squares known,</strong> even if they are not buying a roof.</li>
+          <li><strong>Arrive 15 minutes early</strong> to catch a broken RSA.</li>
+          <li><strong>Fix it before the door:</strong> call the center, chat the RSA team.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>Why prep reads as confidence</h3>
+        <p>A homeowner can tell the difference between a rep who knows their home and one who is seeing it for the first time on screen. Prep lets the numbers feel like a confirmation, not a calculation.</p>
+        <blockquote class="script-example"><span class="who">Casey Snyder · says</span>"I always get to my appointments 15 minutes early. I am going to make sure that RSA works. If something is wrong, I will get it expedited before I walk in."</blockquote>
+      </div>
+    </div>
+
+    <div class="pullquote">"The numbers in the design are really the smallest part of the conversation. You can get it done in five minutes if you prepped ahead of time."<span class="attr">Michael Buonadonna · Coffee with Closers</span></div>
+
+    <div class="manager-prompt">Ask the room: what does your pre-appointment prep actually look like? What gets skipped when you run behind, and what does it cost you?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why does prep matter for presence?</summary>
+      <p class="answer">Because prepped numbers take five minutes, so the iPad is down for almost the whole visit. A broken RSA gets fixed before the door, never in front of the homeowner.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 3: MASTERY -->
+<section class="module" id="mastery">
+  <div class="wrap">
+    <span class="eyebrow">Part 3 · The Tools</span>
+    <h2>Tool mastery is presence, not avoidance</h2>
+    <p class="intro">The reps who look effortless are not dodging the software. They have done the reps until it is second nature. When the tool is automatic, you can be in it and keep the conversation flowing at the same time.</p>
+
+    <div class="card-grid">
+      <div class="training-card training-card--green">
+        <h3>Get a rhythm</h3>
+        <p><strong>Repetition is the secret.</strong> Comfort with OneButton, SiteCapture, and LightReach lets you keep talking while you work, with a rhythm to your presentation instead of dead air.</p>
+      </div>
+      <div class="training-card training-card--amber">
+        <h3>Bring them in</h3>
+        <p><strong>Make it a two-person job.</strong> Have the homeowner help build the design and tag along for the SiteCapture photos. Show them what you see and why it matters.</p>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>Investment compounds</h3>
+        <p><strong>Involvement is ownership.</strong> A homeowner who helped place the panels and walked the roof with you is already invested before you ever show a number.</p>
+      </div>
+    </div>
+
+    <div class="pullquote">"The secret is repetition and getting very comfortable with the tools, so you can keep the conversation flowing. When customers get involved in their design, they get more and more invested."<span class="attr">Dan Watrous · Coffee with Closers</span></div>
+
+    <div class="callout"><strong>Turn the tool into a prop.</strong> SiteCapture is not an interruption if the homeowner is looking at the roof with you. The walk-around becomes discovery, and the photos become their investment.</div>
+
+    <div class="manager-prompt">Ask the room: which tool trips reps up most in the home? What is one drill this week to make it automatic?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> How do you stay present and still use the tools?</summary>
+      <p class="answer">Master them through repetition until they are automatic, and pull the homeowner into the design and the photos so the tool becomes shared, not a screen you hide behind.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 4: SEQUENCE -->
+<section class="module" id="sequence">
+  <div class="wrap">
+    <span class="eyebrow">Part 4 · The Order</span>
+    <h2>Rapport first, the problem second, numbers last</h2>
+    <p class="intro">The iPad stays down until you have earned the numbers. Build rapport, walk the house, and create the problem first. The design is a five-minute confirmation at the end, not the opening act.</p>
+
+    <ol class="step-grid">
+      <li class="step">
+        <h3>1. Build rapport</h3>
+        <p><strong>Be a real person.</strong> Make deposits, listen to the stories, let the room warm up. The iPad is in the bag.</p>
+      </li>
+      <li class="step">
+        <h3>2. Create the problem</h3>
+        <p><strong>Walk the house.</strong> The attic, the roof, the bill that hurts. Build the pain until they feel it.</p>
+      </li>
+      <li class="step">
+        <h3>3. Earn the screen</h3>
+        <p><strong>Now the numbers.</strong> When they take a break or offer a drink, that is your window to pull the design.</p>
+      </li>
+    </ol>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>The drill that builds the habit</h3>
+        <p>See how long you can go without taking out the iPad. The longer you stay a real person in the room, the easier the close becomes.</p>
+        <blockquote class="script-example"><span class="who">Ken Ebbert · the drill</span>"See how long you can go without taking out your iPad. Just sit there and talk with the person, let them feel heard, then take it out."</blockquote>
+      </div>
+      <div class="do-dont">
+        <div class="do"><strong>Earn it.</strong> Rapport and the problem first. The iPad comes out once they trust you and the pain is real.</div>
+        <div class="dont"><strong>Jump the gun.</strong> Dig into the iPad seven minutes in, looking for the bill, before you built anything. They feel the "pay me."</div>
+      </div>
+    </div>
+
+    <div class="pullquote">"My iPad stays under the table for almost an hour while we talk. Then they need a break, and I say, let me give you some numbers in a minute. They are grateful for the break."<span class="attr">Michael Buonadonna · Coffee with Closers</span></div>
+
+    <div class="manager-prompt">Ask the room: where in your visit does the iPad come out? Could it come out later, and what would you do with that time instead?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> When do the numbers come out?</summary>
+      <p class="answer">Last. After rapport and after you have created the problem. Pull the design when they take a break, so the screen never competes with the conversation.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 5: GREAT NEWS -->
+<section class="module" id="greatnews">
+  <div class="wrap">
+    <span class="eyebrow">Part 5 · The Pivot</span>
+    <h2>Whatever goes wrong, it is great news</h2>
+    <p class="intro">The homeowner does not know your internal process, so nothing that breaks has to look broken. The only person who knows how it is supposed to go is you. Pivot smoothly, and the hiccup never registers.</p>
+
+    <div class="card-grid">
+      <div class="objection-handling">
+        <p class="objection">No design on the first visit.</p>
+        <p><strong>"That is normal.</strong> We usually do not have the design the first day. I will get you exact numbers and follow up."</p>
+      </div>
+      <div class="objection-handling">
+        <p class="objection">Only 15 minutes today.</p>
+        <p><strong>"Perfect.</strong> Fifteen minutes is all I need to get started, get to know you, and take a few pictures."</p>
+      </div>
+      <div class="objection-handling">
+        <p class="objection">The RSA will not load.</p>
+        <p><strong>"Let me get up in the attic</strong> and take some measurements. Then I will call you with exact numbers."</p>
+      </div>
+    </div>
+
+    <div class="pullquote">"The only person who knows your process is you. You do not have an RSA? One hundred percent normal. Here is what we are going to do."<span class="attr">Kevin O'Connor · Coffee with Closers</span></div>
+
+    <div class="callout"><strong>Never show the stress.</strong> A disconnect is one stumble. Two or three in a row is a pattern the homeowner reads as "this is not going well." Pivot calmly and keep the room with you.</div>
+
+    <div class="manager-prompt">Ask the room: what is the tech failure that rattles you most in the home? Script the "great news" pivot for it right now.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why can a broken tool be "great news"?</summary>
+      <p class="answer">Because only you know the process. To the homeowner, taking measurements and following up with exact numbers is normal and thorough, not a failure. The stress only shows if you let it.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 6: SLOW -->
+<section class="module" id="slow">
+  <div class="wrap">
+    <span class="eyebrow">Part 6 · The Pace</span>
+    <h2>Slow is confidence, and you read the room</h2>
+    <p class="intro">A calm pace reads as certainty. More listening than talking. But not every home is the same visit, so you carry a small, a medium, and a large, and you fit the one in front of you.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>Slow is confidence</h3>
+        <ul>
+          <li><strong>Move at a calm pace</strong> and speak clearly. The homeowner hears certainty.</li>
+          <li><strong>Listen more than you talk.</strong> Make deposits before you ask for anything.</li>
+          <li><strong>Never let them see you sweat,</strong> no matter what the tools do.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--amber">
+        <h3>Read the room</h3>
+        <ul>
+          <li><strong>Some want an hour,</strong> shoes off, the long conversation.</li>
+          <li><strong>Some want the point,</strong> fast and respectful of their time.</li>
+          <li><strong>Carry small, medium, large,</strong> and match what is behind the door.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pullquote">"Prep is everything. You flow, you have your process. And never let them see you sweat. All appointments are not equal. You have to read the room. Have a small, a medium, and a large."<span class="attr">Ivery Bell · Coffee with Closers</span></div>
+
+    <div class="manager-prompt">Ask the room: what is your tell that you are rushing? What is the cue from a homeowner that they want the short version, and do you honor it?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why slow down, and why not the same way every time?</summary>
+      <p class="answer">A calm pace reads as confidence and keeps you present. But appointments are not equal, so you read the room and bring a small, medium, or large version to fit the home.</p>
+    </details>
+  </div>
+</section>
+
+<!-- KEY TAKEAWAYS -->
+<section class="key-takeaways" id="takeaways">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>One-sentence reminders</h2>
+    <ul>
+      <li>People buy when you make it easy to buy. Run the room, not the software.</li>
+      <li>Prep in the driveway. Prepped numbers take five minutes, not fifty.</li>
+      <li>Master the tools so you can be in them and still be present.</li>
+      <li>Rapport first, the problem second, the iPad last.</li>
+      <li>Whatever breaks, it is great news. Only you know the process.</li>
+      <li>Disconnects compound. Two or three and the sale cools.</li>
+      <li>Slow is confidence. Read the room and bring a small, medium, and large.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8593;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8595;</button>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Field technique synthesized from the Coffee with Closers call (June 2026): Anthony Giordano, Dan Watrous, Sealtiel Carrizosa-Lopez, Casey Snyder, Kevin O'Connor, Michael Buonadonna, Ata Sarmeh, Craig Groenewold, Kevin McSorley, and Ivery Bell.
+  </div>
+</footer>
+
+</div><!-- /#appWrap -->
+
+</body>
+</html>
