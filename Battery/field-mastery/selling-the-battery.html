@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sell the Self-Powered Home · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/training-system.css">
+<style>
+/* Page-specific components for Sell the Self-Powered Home. Built on shared tokens;
+   no inline styles. Standard components (hero/module/training-card/script-example/
+   callout/recall-check/manager-prompt/objection-handling/key-takeaways) come from
+   training-system.css. */
+
+/* market-size strip inside the hero */
+.market-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-3);margin-top:var(--space-4)}
+.market-strip .mk{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:var(--r-md);padding:var(--space-3);text-align:center}
+.market-strip .num{font-family:var(--serif);font-size:1.9rem;line-height:1}
+.market-strip .label{font-size:.74rem;font-weight:800;letter-spacing:.06em;color:#fff;margin-top:6px}
+.market-strip .sub{font-size:.72rem;color:rgba(255,255,255,.65);margin-top:2px}
+.m-solar{color:#7FB3E6}.m-store{color:#9BD66A}.m-roof{color:#F2C277}.m-home{color:#fff}
+
+/* the three-number ladder: do nothing / solar / self-powered */
+.ladder{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-3);border-radius:var(--r-md);overflow:hidden}
+.ladder .rung{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--space-4);box-shadow:var(--shadow);display:flex;flex-direction:column}
+.ladder .rung.nothing{background:rgba(232,64,64,.05);border-left:3px solid var(--red)}
+.ladder .rung.solar{border-left:3px solid var(--amber)}
+.ladder .rung.powered{background:rgba(95,165,32,.08);border-left:3px solid var(--green)}
+.ladder .lbl{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.ladder .num{font-family:var(--serif);font-size:2.3rem;line-height:1;margin-bottom:2px}
+.ladder .per{font-size:.78rem;color:var(--muted);margin-bottom:10px}
+.ladder .nothing .num{color:var(--red)}
+.ladder .powered .num{color:var(--green)}
+.ladder .desc{font-size:.9rem;color:var(--ink-soft)}
+.ladder .tag{margin-top:auto;padding-top:10px;font-size:.74rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.ladder .nothing .tag{color:var(--red)}
+.ladder .solar .tag{color:var(--amber)}
+.ladder .powered .tag{color:var(--green)}
+
+/* good/better/best tier bar */
+.gbb{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3)}
+.gbb .tier{position:relative;background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--space-4);box-shadow:var(--shadow)}
+.gbb .tier .rank{font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.gbb .tier h3{margin:0 0 6px}
+.gbb .tier .stack{font-size:.92rem;color:var(--ink);font-weight:700;margin-bottom:8px}
+.gbb .tier .why{font-size:.88rem;color:var(--ink-soft)}
+.gbb .best{border-top:3px solid var(--green)}
+.gbb .better{border-top:3px solid var(--blue)}
+.gbb .good{border-top:3px solid var(--amber)}
+
+@media(max-width:820px){
+  .market-strip{grid-template-columns:repeat(2,1fr)}
+  .ladder,.gbb{grid-template-columns:1fr}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<script src="/training-system.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer">
+        <span class="logo">Trinity Solar</span>
+        <span class="team">CT Traditional · Battery Field Mastery</span>
+      </a>
+      <button id="presentBtn" class="present-toggle">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#homeowner"><span class="num">1</span> Homeowner, Not Solar</a>
+      <a href="#ladder"><span class="num">2</span> Lead With the Higher Number</a>
+      <a href="#tiers"><span class="num">3</span> Good / Better / Best</a>
+      <a href="#discovery"><span class="num">4</span> Discovery That Closes</a>
+      <a href="#insurance"><span class="num">5</span> Insurance That Pays Back</a>
+      <a href="#urgency"><span class="num">6</span> The CT Window</a>
+      <a href="#objections"><span class="num">7</span> Handle the Cost</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Battery Field Mastery · The Self-Powered Home</span>
+    <h1>Sell <em>the Backup</em>, Not the Savings</h1>
+    <p class="lede">
+      You did not knock a solar customer. You knocked a homeowner.
+      <strong>Solar is the smallest net you can cast.</strong>
+      Storage and roofing are bigger markets and bigger problems for this family. Lead with the self-powered home, and let solar be the easy part.
+    </p>
+    <div class="market-strip">
+      <div class="mk"><div class="num m-solar">~$15B</div><div class="label">Residential Solar</div><div class="sub">The smallest bucket</div></div>
+      <div class="mk"><div class="num m-store">~$25B</div><div class="label">Storage + Generators</div><div class="sub">Bigger than solar</div></div>
+      <div class="mk"><div class="num m-roof">~$70B</div><div class="label">Roofing</div><div class="sub">The biggest of all</div></div>
+      <div class="mk"><div class="num m-home">1 home</div><div class="label">In Front of You</div><div class="sub">Sell to all of it</div></div>
+    </div>
+  </div>
+</section>
+
+<main class="training-page">
+
+<!-- 1: HOMEOWNER -->
+<section class="module" id="homeowner">
+  <div class="wrap">
+    <span class="eyebrow">Part 1 · The Reframe</span>
+    <h2>You are talking to a homeowner, not a solar customer</h2>
+    <p class="intro">Walk in thinking "solar appointment" and you fish the smallest pond. The same family has a roof that ages and a grid that fails. Storage and roofing are the larger markets and the problems they feel first.</p>
+
+    <div class="pullquote">"If you walk in only talking about solar, you are casting the smallest net. The bigger buckets are the ones that help you sell the rest."<span class="attr">Ken Ebbert · Coffee with Closers</span></div>
+
+    <div class="training-card training-card--green">
+      <h3>Why the battery mindset wins more jobs</h3>
+      <ul>
+        <li><strong>Bigger market, bigger need.</strong> Storage and roofing dwarf residential solar. The demand is already in the home before you arrive.</li>
+        <li><strong>Saves dead leads.</strong> Door resistance like "I do not want solar" is not a no to backup power. Pivot: "We are not here to sell you solar. We are here to talk batteries and your roof."</li>
+        <li><strong>A different sale.</strong> Backup is a visible, physical product. Walk the house, find the meter, picture the battery. Solar is a math sale; backup is a peace-of-mind sale.</li>
+        <li><strong>Diversifies the deal.</strong> More products lower our cost per customer and grow the contract, even when the family takes only one.</li>
+      </ul>
+    </div>
+
+    <div class="callout"><strong>The pivot line.</strong> When the notes say "did not want the solar appointment," you still have a reason to be there. Lead with the roof and the battery, and the door opens.</div>
+
+    <div class="manager-prompt">Ask the room: what is the last deal that died on "not interested in solar" that a battery or roof could have saved?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Who did you actually knock?</summary>
+      <p class="answer">A homeowner, not a solar customer. Storage and roofing are larger markets and felt needs. Solar-only casts the smallest net.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 2: LADDER -->
+<section class="module" id="ladder">
+  <div class="wrap">
+    <span class="eyebrow">Part 2 · The Number Frame</span>
+    <h2>Lead with the higher number, then back it out</h2>
+    <p class="intro">Stop spending the customer's money for them. Present the self-powered home first. You can always subtract the battery and land on solar-only. You can almost never add a battery's monthly back after you anchored low.</p>
+
+    <div class="ladder">
+      <div class="rung nothing">
+        <div class="lbl">Do Nothing</div>
+        <div class="num">$300</div>
+        <div class="per">per month to the utility</div>
+        <div class="desc">Pays for nothing they keep. The number climbs every year, and the power still goes out.</div>
+        <div class="tag">No asset, no control</div>
+      </div>
+      <div class="rung solar">
+        <div class="lbl">Solar Only</div>
+        <div class="num">$240</div>
+        <div class="per">per month, locked</div>
+        <div class="desc">A better version of the bill they already have. Locks the rate and protects against inflation. A better mousetrap, same job.</div>
+        <div class="tag">Saves money</div>
+      </div>
+      <div class="rung powered">
+        <div class="lbl">Self-Powered Home</div>
+        <div class="num">$350</div>
+        <div class="per">per month, net</div>
+        <div class="desc">Solar plus backup. The house runs in an outage. A fundamentally better product than what they have today, not just a cheaper one.</div>
+        <div class="tag">Saves money + security</div>
+      </div>
+    </div>
+    <p class="eff-rate">Illustrative numbers. Run the real ones at the table. The point is the order: present the powered home first, then decompress down if they ask.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--ink">
+        <h3>Why the higher number lands</h3>
+        <p>Some families are doing fine. Saving $60 is nice, but it does not move them. Backup security does. The team keeps finding the $350 home is <strong>more</strong> appealing than the $240 home for those buyers.</p>
+        <blockquote class="script-example"><span class="who">Say</span>"Our standard package is solar plus two Powerwalls, so the whole house keeps running when the grid does not. Why would you not want that? If you would rather, we can pull the batteries back out and just do the solar."</blockquote>
+      </div>
+      <div class="do-dont">
+        <div class="do"><strong>Lead high.</strong> Present the self-powered home as the standard, then subtract if needed. The battery is in the room from the first number.</div>
+        <div class="dont"><strong>Lead low.</strong> Quote solar-only first, then try to add $150 a month for a battery. That extra now feels like a penalty.</div>
+      </div>
+    </div>
+
+    <div class="manager-prompt">Role-play both orders on one customer. Which version makes the battery feel like an upgrade, and which makes it feel like a tax?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Which number do you present first, and why?</summary>
+      <p class="answer">The self-powered home (the highest). You can back the payment out to solar-only later. Anchoring low first makes the battery's monthly feel like an add-on penalty, and it rarely gets added back.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 3: GOOD/BETTER/BEST -->
+<section class="module" id="tiers">
+  <div class="wrap">
+    <span class="eyebrow">Part 3 · Trinity Total Home</span>
+    <h2>Good, better, best: three real choices</h2>
+    <p class="intro">Frame every consultation in the Total Home language you already use. Three tiers give the customer a choice of yes instead of a single yes-or-no, and the top tier gives the rest room to land.</p>
+
+    <div class="gbb">
+      <div class="tier best">
+        <div class="rank">Best</div>
+        <h3>Trinity Total Home</h3>
+        <p class="stack">Roof + Battery + Solar</p>
+        <p class="why">Handle the future roof now, beat the cost of waiting, and add backup. One crew, one plan, one number.</p>
+      </div>
+      <div class="tier better">
+        <div class="rank">Better</div>
+        <h3>Peace-of-Mind Package</h3>
+        <p class="stack">Battery + Solar</p>
+        <p class="why">Skip the roof for now. With the CT program this strong, the battery is close to free to add. Hard to pass up in good conscience.</p>
+      </div>
+      <div class="tier good">
+        <div class="rank">Good</div>
+        <h3>Trinity Solar</h3>
+        <p class="stack">Solar only</p>
+        <p class="why">The a-la-carte option. Real savings, but they are leaving value on the table. "You do not want the standard? That is fine."</p>
+      </div>
+    </div>
+
+    <div class="training-card training-card--green">
+      <h3>Why three tiers beats one offer</h3>
+      <ul class="list-cols">
+        <li><strong>Decompression.</strong> When the top option is the priciest, "no" to the battery becomes "yes" to solar instead of "no" to everything.</li>
+        <li><strong>They leave with something.</strong> Like a suit shop: not every customer buys the jacket, but they walk out with a belt and a tie. Multi-product means the house is rarely a zero.</li>
+        <li><strong>Solar can be the add-on.</strong> Sell the roof or the battery first, and solar becomes the easy attachment on top.</li>
+        <li><strong>Bigger, better deals.</strong> One rep booked 4 batteries on 7 deals in a month just by presenting all three every time.</li>
+      </ul>
+    </div>
+
+    <div class="callout"><strong>Standard, then a-la-carte.</strong> Total Home is the standard you present. "We are roof, battery, and solar. You can go a-la-carte, but you would be doing yourself a disservice."</div>
+
+    <div class="manager-prompt">Have each rep say their good/better/best out loud in 30 seconds, in Total Home language. Where does the top tier feel bolted on instead of standard?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What does the highest tier do for the sale, even when they decline it?</summary>
+      <p class="answer">It decompresses the decision. Saying no to the top option lets them say yes to a middle one, so they leave with something instead of nothing.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 4: DISCOVERY -->
+<section class="module" id="discovery">
+  <div class="wrap">
+    <span class="eyebrow">Part 4 · Discovery</span>
+    <h2>The questions that close a battery</h2>
+    <p class="intro">You cannot sell backup you have not made them feel. Build the benefit before you ever name the cost. Ask, then ask the next question, until the outage is personal.</p>
+
+    <div class="training-card training-card--ink">
+      <h3>Walk them into the outage</h3>
+      <ul>
+        <li>"When the power goes out, what is the first thing you do?"</li>
+        <li>"Does it tend to happen in the summer, or the winter?"</li>
+        <li>"What happens to the fridge and freezer when it is out for a day?"</li>
+        <li>"Anyone in the home on medical equipment, or working from home?"</li>
+        <li>"How do your days change when you lose power for two or three of them?"</li>
+      </ul>
+    </div>
+
+    <div class="pullquote">"I finally realized they were not losing power in the winter. It was every summer, and four years in a row they lost the food in their fridge. The battery plus the spoiled food each year? You are going to come out ahead. They signed right then."<span class="attr">Chris Wyant · Coffee with Closers</span></div>
+
+    <div class="objection-handling">
+      <p class="objection">"I want my bill as low as possible."</p>
+      <p>Lay out every option with pros and cons, then let them choose. People who say "lowest bill" often pick more once they see the value. Do not decide for them. Scared money makes no money, and stuffing product down a throat raises your decay rate. Show, do not shove.</p>
+    </div>
+
+    <div class="callout callout--compliance"><strong>Earn it before you cost it.</strong> Most reps who skip multi-product are afraid of the cost or never built the benefit. Do the discovery first. Value minus cost equals value, and the value has to exist in their head before the price shows up.</div>
+
+    <div class="manager-prompt">Ask the room: what is the one discovery question that gets a customer most emotional about losing power? Why that one?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What has to happen before you name the battery's price?</summary>
+      <p class="answer">Build the benefit. Walk them through their own outage history until the loss is specific and felt. Value has to exist in their mind before the cost lands.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 5: INSURANCE -->
+<section class="module" id="insurance">
+  <div class="wrap">
+    <span class="eyebrow">Part 5 · The Value Frame</span>
+    <h2>A battery is insurance that pays you back</h2>
+    <p class="intro">Families spend $800 to $1,000 a month on insurance they may never use, all for peace of mind. For a fraction of that, a battery protects them from real losses and can put money back in their pocket. That is a better deal than any policy they own.</p>
+
+    <div class="card-grid">
+      <div class="metric-callout"><span class="figure">$2,000</span><span class="caption">Food lost in the fridge and freezer in a long outage</span></div>
+      <div class="metric-callout"><span class="figure">$600</span><span class="caption">A night in a hotel during a hurricane, times several nights</span></div>
+      <div class="metric-callout"><span class="figure">$10,000</span><span class="caption">Water damage when the sump pump dies in a basement</span></div>
+      <div class="metric-callout"><span class="figure">1 to 2</span><span class="caption">Days of lost work when there is no power to work from home</span></div>
+    </div>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>What backup actually protects</h3>
+        <ul>
+          <li><strong>The food and the freezer</strong> through every multi-day outage, not just the scary ones.</li>
+          <li><strong>The basement</strong> when the sump pump needs power it does not have.</li>
+          <li><strong>Work and income</strong> for anyone running their day from home.</li>
+          <li><strong>The medical and the comfort load,</strong> the equipment and the heat or AC that cannot just stop.</li>
+          <li><strong>The rate structure ahead,</strong> the time-of-use and tiered pricing already live in California and coming here.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--amber">
+        <h3>Feel, felt, found</h3>
+        <p>For the family that calls it a luxury:</p>
+        <blockquote class="script-example"><span class="who">Say</span>"I hear you, it can feel like an extra. A lot of folks I have helped felt the same way. What they found is that the first time the grid went down and their house stayed on, the battery stopped feeling like a cost and started feeling like the smartest thing they bought."</blockquote>
+      </div>
+    </div>
+
+    <div class="callout callout--compliance"><strong>Frame the incentive honestly.</strong> The CT program pays an upfront incentive plus ongoing dispatch value, but the dollars depend on the home and the program rules. Use the ESS calculator for real figures. Never promise a guaranteed monthly check. Sell the protection and the avoided losses, and let the incentive be the bonus.</div>
+
+    <div class="manager-prompt">Ask the room: which avoided-loss number lands hardest in your towns, the food, the hotel, the basement, or the lost workdays?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What is the one-line frame for a battery's cost?</summary>
+      <p class="answer">It is insurance that pays you back. People pay far more for insurance they never use; a battery protects against real losses and can return value through the program.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 6: URGENCY -->
+<section class="module" id="urgency">
+  <div class="wrap">
+    <span class="eyebrow">Part 6 · The CT Window</span>
+    <h2>It will never be better than it is today</h2>
+    <p class="intro">Connecticut's storage program is the strongest it has ever been, and the most money in any program is always available early. Urgency here is real and specific, not the vague "rates always go up."</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>Why now is the window</h3>
+        <ul>
+          <li><strong>Best money is early.</strong> Incentive budgets are richest at the start of a program and shrink as they fill. Waiting a year is leaving real dollars behind.</li>
+          <li><strong>A better program than before.</strong> The new dispatch model gives the customer more control than the old one did. This version is worth getting into.</li>
+          <li><strong>Demand is outrunning supply.</strong> AI and electrification are driving consumption up fast on a New England grid never built for it. New power plants take years, and almost none are being filed.</li>
+          <li><strong>Incentive today, mandate tomorrow.</strong> Governments incentivize first, then stop, then require. The golden years are now.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>The grid story, simply</h3>
+        <p>Solar is a peak-load solution, not a total one. Pair it with storage and you cover peak and base load both.</p>
+        <p>The utility has two choices: build trillion-dollar battery farms far away and fight congestion, or put a battery on every house and feed the grid from the street. The home battery is the better answer, and the state is paying to build it.</p>
+        <blockquote class="script-example"><span class="who">Say</span>"You are not just protecting your house. On the hottest days, your battery helps feed the block. That is why the state is paying so well to put one in right now."</blockquote>
+      </div>
+    </div>
+
+    <div class="callout"><strong>Make inaction specific.</strong> Tie the cost of waiting to this customer: the incentive dollars that shrink next cycle, and the bill that keeps climbing on their own statement. Skip the generic "rates go up." For the program mechanics, eligibility, and the calculator, send them and yourself to the <a href="../general/ct-ess-consultant-training-v6.html">CT ESS Program Training</a> and the <a href="../grid-edge-checker.html">Grid Edge Checker</a>.</div>
+
+    <div class="manager-prompt">Ask the room: what is the specific cost of waiting one program cycle for a customer in your territory? Name the dollars, not the slogan.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What makes the CT urgency real instead of a slogan?</summary>
+      <p class="answer">Incentive money is richest early and shrinks as budgets fill, and the program will not stay this generous. Tie it to the specific dollars this customer loses by waiting, plus their own climbing bill.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 7: OBJECTIONS -->
+<section class="module" id="objections">
+  <div class="wrap">
+    <span class="eyebrow">Part 7 · Handle the Cost</span>
+    <h2>The dragon to slay is the fear of the price</h2>
+    <p class="intro">Most reps lose battery sales they never lost, because they never offered. The trepidation is yours, not the customer's. When you lead with price, value drops. When you build value first, the price has somewhere to land.</p>
+
+    <div class="objection-handling">
+      <p class="objection">"That is too expensive, I just want the cheapest option."</p>
+      <p>Reframe to value, do not defend the number. A $1 pen and a $100 pen look the same until the $100 one grants any wish you write. Cost is not the question; value is. When value exceeds price, people buy every time. Lay out the avoided losses again, then let them choose.</p>
+    </div>
+
+    <div class="objection-handling">
+      <p class="objection">"I will just add the battery later if I need it."</p>
+      <p>Name the cost of later. Customers who buy solar-only and call back a month after the next outage pay more and wait longer, and competitors call them first. Build the value while you are in the home, the day you are there, not after their heart gets broken in the next storm.</p>
+    </div>
+
+    <div class="objection-handling">
+      <p class="objection">"I need to talk to my spouse before we spend that much."</p>
+      <p>Both decision-makers, or sell the present one the concept and lock a dated go-back. Skipping this is where most of these cancel. Treat "let me think" as a trust shield, not a no, and answer the real worry underneath it.</p>
+    </div>
+
+    <div class="callout"><strong>Lead with the battery, let solar attach.</strong> If you can sell the roof or the battery, solar becomes the easy slide on top. Lose the trepidation, build the muscle, and stop talking yourself out of the sale before the customer ever does.</div>
+
+    <div class="manager-prompt">Role-play the "I will add it later" objection. How do you make the cost of waiting specific without pressuring? Where does it tip into pushy?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Who usually kills the battery sale?</summary>
+      <p class="answer">The rep, by not offering it out of fear of the cost. Build value before price, present every product, and let the customer decide.</p>
+    </details>
+  </div>
+</section>
+
+<!-- KEY TAKEAWAYS -->
+<section class="key-takeaways" id="takeaways">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>One-sentence reminders</h2>
+    <ul>
+      <li>You knocked a homeowner, not a solar customer. Sell to the whole house.</li>
+      <li>Lead with the higher number. You can back it down; you can rarely add it back.</li>
+      <li>Good, better, best. The top tier lets the rest land.</li>
+      <li>Build the outage before you name the price. Make the loss personal.</li>
+      <li>A battery is insurance that pays you back.</li>
+      <li>It will never be better than it is today. Name the specific cost of waiting.</li>
+      <li>The dragon is the fear of the price, and it is yours, not theirs.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8593;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8595;</button>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Sales Resource Center<br>
+    Field technique synthesized from the Coffee with Closers call (June 2026): Ken Ebbert, Chris Wyant, Zach Milbourn, Jake Diamond, Ivery Bell, Anthony Venditto, and Dan Pennington. Program mechanics live in the CT ESS Program Training.
+  </div>
+</footer>
+
+</div><!-- /#appWrap -->
+
+</body>
+</html>
