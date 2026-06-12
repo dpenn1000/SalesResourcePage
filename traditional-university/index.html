@@ -656,6 +656,7 @@ let state = {
   activeTab: 'dashboard',
   activeQuiz: null, // { cert, attempt, questions, responses }
   activeCourse: null, // { cert, attempt, steps, checks, finals, idx, responses }
+  preview: false, // manager/admin read-only catalog preview (no rep record)
 };
 
 // ===================== AUTH =====================
@@ -681,6 +682,29 @@ window.initApp = async function (profile, session) {
   if (rep) rep.manager_id = rep.parent_id;
 
   if (error || !rep) {
+    // No rep record. If the account is a manager/admin, drop into a read-only
+    // catalog preview so they can review courses, instead of a dead-end.
+    const { data: mgr } = await supa
+      .from('people').select('*')
+      .eq('auth_user_id', session.user.id).maybeSingle();
+    if (mgr && (mgr.role === 'manager' || mgr.is_admin)) {
+      state.preview = true;
+      mgr.manager_id = mgr.parent_id;
+      state.rep = mgr;
+      document.getElementById('header-name').textContent = (mgr.name || 'Manager') + ' · preview';
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:#FFF4D6;border-bottom:1px solid #E9A648;color:#7a5a12;padding:8px 16px;text-align:center;font-size:0.85rem;font-weight:600;';
+      banner.textContent = 'Manager preview. Browse and open any course to review it. Stage 2 is unlocked, and your answers are not recorded.';
+      document.getElementById('appWrap').insertBefore(banner, document.getElementById('appWrap').firstChild);
+      await loadAll();
+      renderDashboard();
+      renderCerts();
+      renderShadows();
+      renderUploads();
+      renderHelp();
+      populateCertDropdown();
+      return;
+    }
     document.getElementById('appWrap').innerHTML =
       '<div style="padding:40px;text-align:center;">' +
       '<h2>Account not linked to a rep profile</h2>' +
@@ -820,7 +844,7 @@ function renderCerts() {
   const grid = document.getElementById('cert-grid');
   const s1Done = state.certs.filter(c => c.stage === 1 && certStatus(c.id) === 'approved').length;
   const s1Total = state.certs.filter(c => c.stage === 1).length;
-  const stage2Unlocked = s1Done === s1Total;
+  const stage2Unlocked = state.preview || (s1Done === s1Total);
 
   grid.innerHTML = state.certs.map(cert => {
     const status = certStatus(cert.id);
@@ -967,6 +991,7 @@ async function startOrResumeQuiz(cert) {
   // Find or create in-progress attempt for the CURRENT recert cycle
   const cyc = certCycle(cert.id);
   let attempt = state.attempts.find(a => a.cert_id === cert.id && a.status === 'in_progress' && (a.cycle || 1) === cyc);
+  if (!attempt && state.preview) attempt = { id: 'preview', cert_id: cert.id, cycle: cyc, status: 'in_progress' };
   if (!attempt) {
     const { data: newAttempt, error } = await supa
       .from('quiz_attempts')
@@ -1051,6 +1076,8 @@ function renderQuestion(q, idx) {
 
 async function submitQuiz() {
   const { cert, attempt, questions, responses } = state.activeQuiz;
+
+  if (state.preview) { alert('Manager preview: answers are not recorded.'); setTab('certs'); state.activeQuiz = null; return; }
 
   // Validate everything answered
   const missing = questions.filter(q => {
@@ -1217,6 +1244,7 @@ async function startCourse(cert) {
   // Find or create an in-progress attempt for the current recert cycle.
   const cyc = certCycle(cert.id);
   let attempt = state.attempts.find(a => a.cert_id === cert.id && a.status === 'in_progress' && (a.cycle || 1) === cyc);
+  if (!attempt && state.preview) attempt = { id: 'preview', cert_id: cert.id, cycle: cyc, status: 'in_progress' };
   if (!attempt) {
     const { data: newAttempt, error } = await supa
       .from('quiz_attempts')
@@ -1356,6 +1384,14 @@ function backToLesson() {
 async function submitCourseFinal() {
   const c = state.activeCourse;
   const { cert, attempt, finals, responses } = c;
+
+  if (state.preview) {
+    document.getElementById('quiz-body').innerHTML =
+      '<div class="result-card"><div class="result-icon">👀</div><h2>Preview complete</h2>'
+      + '<p class="note">Manager preview. Nothing was recorded.</p></div>'
+      + '<div class="quiz-actions"><button class="btn btn-primary" onclick="setTab(\'certs\')">Back to certifications</button></div>';
+    state.activeCourse = null; return;
+  }
 
   const missing = finals.filter(q => {
     const r = responses[q.id];
