@@ -196,7 +196,6 @@
       <option value="callable">To call</option>
       <option value="followup">Follow-ups due</option>
       <option value="gobacks">Work these now (go-backs)</option>
-      <option value="today">Called today</option>
       <option value="pipeline">My Pipeline</option>
       <option value="deals">Constant Contact</option>
       <option value="all">All my leads</option>
@@ -469,7 +468,6 @@ function renderViewNav(){
   const pipe=leads.filter(inMyPipeline);
   const today=new Date().toISOString().slice(0,10);
   const due=myCalls().filter(c=>c.follow_up_date&&c.follow_up_date<=today).length;
-  const todayN=leads.filter(l=>callsFor(l).some(c=>(c.contacted_at||'').slice(0,10)===today)).length;
   const gobacks=myGobacks();const gbRisk=gbAtRiskMC(gobacks);
   const cc=(typeof myDeals==='function')?myDeals().length:0;
   const target=window.IS_MANAGER?VIEW_AS:ME;
@@ -482,7 +480,6 @@ function renderViewNav(){
     ['followup','Follow-ups','bell',due],
     ['pipeline','Pipeline','layers',pipe.length],
     ['deals','Constant Contact','spark',cc],
-    ['today','Called today','check',todayN],
     ['all','All leads','list',leads.length],
     ['history','History','clock',null],
     ['community','Community','users',comm]
@@ -767,11 +764,8 @@ function render(){
   if(v==='community'){renderCommunityRep(q);return;}
   if(v==='followup'){renderCallsView('followup',q);return;}
   if(v==='history'){renderCallsView('history',q);return;}
-  const today=new Date().toISOString().slice(0,10);
   let rows=leads.filter(l=>{
-    const cs=callsFor(l);
     if(v==='callable'&&!isCallable(l))return false;
-    if(v==='today'&&!cs.some(c=>(c.contacted_at||'').slice(0,10)===today))return false;
     if(q){const hay=((l.homeowner_name||'')+' '+((l.properties&&l.properties.town)||'')+' '+l.dl_number).toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
