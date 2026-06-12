@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Referral Engine · David Spagnoli · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#fifty"><span class="num">1</span> Build Off 50</a>
+      <a href="#tsunami"><span class="num">2</span> Create the Problem</a>
+      <a href="#surgeon"><span class="num">3</span> Be a Surgeon</a>
+      <a href="#second-sale"><span class="num">4</span> The Second Sale</a>
+      <a href="#emotion"><span class="num">5</span> Engineer the Emotion</a>
+      <a href="#cashflow"><span class="num">6</span> Lead With the Monthly</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Closer Playbook · David Spagnoli</span>
+    <h1>The <em>Referral</em> Engine</h1>
+    <p class="lede"><strong>Build a self-sustaining business off a small base of well-cared-for customers, and make the customer feel the problem so the solution is obvious.</strong> Take care of 50 customers like no one in the industry, and you never need a lead again. This is how David Spagnoli runs it.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="fifty">
+    <div class="wrap">
+      <h2>Build a Business Off 50 Customers</h2>
+      <p class="intro">Company leads and outreach are a crutch. The reps who never run dry built a machine instead: a small base of customers cared for better than anyone in the industry, each one a door to the next 50. Do the math once and you stop chasing leads.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>The math is the mindset</h3>
+          <p><strong>50 customers, 250 connections each, is 12,500 relationships.</strong> If you take care of the first 50 like no one else does, they lead you to everyone they know. The bloodline replaces the calendar after a few hundred installs.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Manufacture the touch points</h3>
+          <p><strong>Frame a photo of the family in front of their system and bring it back.</strong> Write down their birthday at credit-run and stop by on the day. No utility company calls anyone on their birthday, which is exactly why it lands.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Any relationship is repairable</h3>
+          <p><strong>Go back to a customer you have not seen in 3 years.</strong> Apologize for being out of touch, tell them you are still their rep. It does not matter how fractured you think it is. It is never broken.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"Fifty customers, 250 connections each, that's 12,500 connections. You're telling me you can't find the next 50? You don't need leads whatsoever. You just need to take care of your customers."</blockquote>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"What if there was no outreach, no help coming, no leads? What would I do to keep my business going infinitely? Get rid of the crutches. You alone control your destiny here."</blockquote>
+
+      <div class="callout"><strong>Try this week:</strong> pick 5 past customers you have gone quiet on. Call each one, apologize for being MIA, and ask one real question about their life. That is the first turn of the engine.</div>
+
+      <div class="manager-prompt">Ask the room: if your company leads stopped on Monday, who are the first 10 people you would call, and what would you say to earn the referral?</div>
+
+      <details class="recall-check">
+        <summary>Why does Spags say you don't need leads?</summary>
+        <p class="answer"><span class="label">Answer</span>Because 50 well-cared-for customers, each with about 250 connections, is 12,500 relationships. Take care of them better than anyone in the industry through relentless touch points (framed photos, birthday visits, repairing old relationships) and they lead you to the next 50, and the next. Leads become a crutch you no longer need.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="tsunami">
+    <div class="wrap">
+      <h2>Create the Problem: the Tsunami and the Life Raft</h2>
+      <p class="intro">You sign roughly 30% because you never built the problem. The customer has never seen their electric bill as a problem, so the solution feels optional. Make them feel the doom first, then step in as the answer.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>No problem, no sale</h3>
+          <p><strong>You are fighting complacency and a monopoly.</strong> If the customer does not believe they have a problem, that is your biggest problem. A solution to a problem they do not feel is just a "let me think about it."</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>The life-raft test</h3>
+          <p><strong>On an island 3 hours from a tsunami, a $1,000 life raft is an instant yes.</strong> Same price, same raft, but the problem is real and felt. Your job is to build the bill into impending doom, then offer the raft.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"On an island three hours from a tsunami, someone offers you a life raft for $1,000. You're not saying, let me think about it. If you're not convincing them there's no alternative, they don't think they have a problem, and that is your biggest problem."</blockquote>
+
+      <div class="callout"><strong>Try this week:</strong> on your next appointment, do not open the iPad until the customer has said out loud why their rising utility bill bothers them. Build the problem first. The presentation is the raft.</div>
+
+      <div class="manager-prompt">Ask the room: think of a recent "let me think about it." Was it really a price problem, or did you skip building the problem so the solution felt optional?</div>
+
+      <details class="recall-check">
+        <summary>What is the lesson of the tsunami and the life raft?</summary>
+        <p class="answer"><span class="label">Answer</span>People only buy the solution when they feel the problem. A $1,000 life raft 3 hours from a tsunami is an instant yes because the danger is real and felt. If you have not made the customer feel that their bill is a genuine problem, no presentation closes, because they do not think they need a raft.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="surgeon">
+    <div class="wrap">
+      <h2>Be a Surgeon, Not a Toolbox</h2>
+      <p class="intro">Master every close and every tool, then deploy only the one this customer needs. Reaching for a tool you do not need creates an objection you did not have. Rapport earns you the right to say the hard things at the very end.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Diagnose, then pull one tool</h3>
+          <p><strong>Figure out exactly what is wrong with this customer.</strong> That is the tool you pull. They are all different. Do not run a porch-light close, or raise inverters or penetrations, unless this specific room needs it.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Rapport earns the hard truth</h3>
+          <p><strong>By the end you can say things you could never say walking in.</strong> "If this doesn't make sense, don't do it. You can pay more or pay less. Is that really a choice?" You earned the right over the whole visit.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Put the failure on yourself</h3>
+          <p><strong>If it is not a no-brainer, that is on you, not them.</strong> Apologizing for failing to make it obvious is disarming, because it is the opposite of pressure. It tells them you were here to help, not to win.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"You're like a surgeon. You figure out exactly what's wrong with this customer, and that's the tool you pull out. They're all different. I don't do a porch-light close unless I think I need a porch-light close."</blockquote>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"There are things you can say at the end that you could never say walking in, because you hadn't earned the right. If I failed to make this a no-brainer, then I apologize, because I did you a disservice."</blockquote>
+
+      <div class="callout"><strong>Try this week:</strong> on one appointment, consciously hold back a close you would normally reach for. Diagnose first. Pull only the tool the customer's actual concern calls for.</div>
+
+      <div class="manager-prompt">Ask the room: name a time you created an objection by bringing up something the customer never asked about. What tool should you have left in the bag?</div>
+
+      <details class="recall-check">
+        <summary>What does "be a surgeon" mean for your closes?</summary>
+        <p class="answer"><span class="label">Answer</span>Know every close and tool, but diagnose the one thing wrong with this customer and pull only the tool that fits. Reaching for extra closes, or raising inverters and penetrations when they are not needed, manufactures objections. And because you built rapport, you earned the right to say the hard things at the end, even putting the failure on yourself if it is not a no-brainer.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="second-sale">
+    <div class="wrap">
+      <h2>The Second Sale Is Emotional</h2>
+      <p class="intro">The referral ask is a second sale, and it runs on emotion, not logistics. It also buttons up the first sale. And most post-install complaints are not about the dollar at all. They are about a customer who does not feel heard.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>Ask on emotion, reinforce the first sale</h3>
+          <ul>
+            <li><strong>Tie the ask to feeling:</strong> money they can feel, or helping someone they care about.</li>
+            <li><strong>Everything you say about helping a neighbor</strong> is exactly why they signed: lower bill, rising utilities.</li>
+            <li><strong>So the referral ask doubles back</strong> and reinforces the purchase they just made.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Complaints are about being heard</h3>
+          <ul>
+            <li><strong>Most escalations are tiny in dollars</strong> and huge in feeling. The real message is "my voice is not being heard."</li>
+            <li><strong>Be the sounding board.</strong> Let them vent, and you turn a complaint into a friend who refers.</li>
+            <li><strong>Start your call list</strong> with the customers you expect to be difficult.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"This is your second sale and it needs to be based on emotion. And everything I'm telling you about helping someone else is exactly why you signed up. You're reinforcing the sale you just wrote."</blockquote>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"He was driving himself up a wall over $30. It's not about a dollar amount, it's: my voice is not being heard. Become the friend who also does solar, and you'll crush it here."</blockquote>
+
+      <div class="callout"><strong>Try this week:</strong> call the one past customer you have been avoiding because they were "difficult." Let them talk. Do not solve, just listen. Watch the relationship turn.</div>
+
+      <div class="manager-prompt">Ask the room: when a customer is upset over a small dollar amount, what are they actually telling you? How do you make them feel heard before you fix anything?</div>
+
+      <details class="recall-check">
+        <summary>The $30 story: what was the complaint really about?</summary>
+        <p class="answer"><span class="label">Answer</span>Not the $30. The customer was driving himself up a wall because his voice was not being heard. Most escalations are small in dollars and large in feeling. Be the sounding board, let them vent, and you become the friend who also does solar, which turns the complaint into a referral source.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="emotion">
+    <div class="wrap">
+      <h2>Engineer the Emotion Through Topic</h2>
+      <p class="intro">The sale is made when emotion is high, and you steer emotion by steering the topic. Talk about the utility to surface anger and resentment. Talk about Trinity and family to surface warmth and good memories. And remember: the rep who dominates the room is trusted less.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--red">
+          <h3>Utility topic = anger</h3>
+          <p><strong>When you talk about the utility, you are reaching for anger, pain, and resentment.</strong> That is the felt problem from slide 2. Let them say it out loud.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Trinity and family = warmth</h3>
+          <p><strong>"How did you two meet?" reliably opens a warm story.</strong> So does "what's your favorite restaurant." When you talk about Trinity, you are reaching for good memories and love.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>The quiet rep is the trusted rep</h3>
+          <p><strong>The person who dominates the conversation is rated less trustworthy and less friendly.</strong> Listen to understand, not to reply. Your pace, volume, and inflection are the instrument.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"When we talk about the utility you're trying to bring up anger, pain, resentment. When you talk about Trinity, good memories and love. Hey, how did you guys meet? It always brings up a good story."</blockquote>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"The person who dominates the conversation is generally considered less trustworthy and less friendly. When I shadow, the rep who talked the most always has a false sense it went great, when it didn't."</blockquote>
+
+      <div class="callout"><strong>Try this week:</strong> open your next sit with "how did you two meet?" Then say less. Let the warm story run before you ever touch the bill.</div>
+
+      <div class="manager-prompt">Ask the room: what 2 questions reliably warm a room for you? And honestly, who talked more on your last appointment, you or the customer?</div>
+
+      <details class="recall-check">
+        <summary>How do you engineer emotion, and why talk less?</summary>
+        <p class="answer"><span class="label">Answer</span>Steer the topic. The utility raises anger and resentment (the felt problem); Trinity and family questions like "how did you two meet?" raise warmth and good memories. The sale lands when emotion is high. And talk less: the dominant talker is rated less trustworthy and less friendly, and the rep who dominated almost always overrates how it went.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="cashflow">
+    <div class="wrap">
+      <h2>Lead With the Monthly, Set Expectations at PTO</h2>
+      <p class="intro">Most customers are cash-flow buyers, not price buyers. Lead with the monthly payment, not the sticker. Then protect the sale after it is signed: set expectations the day the system turns on, and read the bill correctly before you ever blame production.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Move</th><th>What to do</th><th>Why it works</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Lead with the monthly</td><td>Get them comfortable with the payment ("if you're comfortable at $125 a month") and the total price becomes almost irrelevant.</td><td>We overvalue the price gap and undervalue that we can give a monthly. Most homeowners live paycheck to paycheck.</td></tr>
+          <tr><td>Reframe the comparison</td><td>It is not their price versus your price. It is how much money they have to come up with today.</td><td>Competitors usually want half up front. The monthly is the real advantage.</td></tr>
+          <tr><td>Reset at PTO</td><td>The day the system energizes, revisit what you discussed at the sale: "Now it's actual. Here's what to expect for the next 3 months."</td><td>Expectations decay. A real date and a real bill replace a concept, so the winter-bill call never happens.</td></tr>
+          <tr><td>Read the bill first</td><td>Verify the cycle and charges before assuming the system underproduced. Check for a back balance or a budget-billing plan that was never removed.</td><td>Half of "my bill is huge" complaints are bill-reading errors, not production problems.</td></tr>
+        </tbody>
+      </table>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"We grossly overvalue the price difference and severely undervalue that we can give a monthly. Most homeowners live paycheck to paycheck. It's not their price versus your price, it's how much do you have to come up with today."</blockquote>
+
+      <blockquote class="script-example"><span class="who">David Spagnoli</span>"He owed money, a back balance kept adding to the current statement. In his head his bill was through the roof, but his current bill was zero. They're just asking for money he owed."</blockquote>
+
+      <div class="callout"><strong>Try this week:</strong> on your next price conversation, name the monthly payment before any total. After your next install energizes, make one "set the expectations" call and read the first bill with the customer line by line.</div>
+
+      <div class="manager-prompt">Ask the room: who leads with the total instead of the monthly, and why? And when did a "my bill is huge" panic turn out to be a back balance or budget-billing leftover?</div>
+
+      <details class="recall-check">
+        <summary>Why lead with the monthly, and what is the back-balance trap?</summary>
+        <p class="answer"><span class="label">Answer</span>Most customers are cash-flow buyers who live paycheck to paycheck, so the real comparison is how much they come up with today, not price versus price. Lead with the monthly and the total becomes almost irrelevant. After PTO, reset expectations so the winter-bill call never happens, and always read the bill first: a back balance or a leftover budget-billing plan makes a $0 actual bill look "through the roof."</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>50 customers, 250 connections each, is 12,500 relationships. Care for them like no one else and you never need a lead.</li>
+      <li>No felt problem, no sale. The $1,000 life raft 3 hours from a tsunami is an instant yes.</li>
+      <li>Be a surgeon: diagnose the one tool this customer needs, and rapport earns the right to say the hard things at the end.</li>
+      <li>The referral is a second sale on emotion that reinforces the first; complaints are about being heard, not the dollar.</li>
+      <li>Engineer emotion through topic: utility raises anger, Trinity and family raise warmth. The dominant talker is trusted less.</li>
+      <li>Lead with the monthly for cash-flow buyers, reset expectations at PTO, and read the bill correctly before blaming production.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Closer Playbooks series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

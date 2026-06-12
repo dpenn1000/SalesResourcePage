@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Warranty Teardown · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#covered"><span class="num">1</span> Covered Twice</a>
+      <a href="#fifty"><span class="num">2</span> The 50-Year Myth</a>
+      <a href="#algae"><span class="num">3</span> The Algae Trap</a>
+      <a href="#denials"><span class="num">4</span> Five Denials</a>
+      <a href="#why-pays"><span class="num">5</span> Why IKO Pays</a>
+      <a href="#field"><span class="num">6</span> In the Living Room</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Roofing · Anatomy · Warranty</span>
+    <h1>The Warranty <em>Teardown</em></h1>
+    <p class="lede"><strong>A warranty is only worth what it pays when something goes wrong.</strong> The other guy's headline number is bigger and his coverage is thinner. Here is what a Trinity roof actually promises, and the five ways a cheaper warranty quietly gets denied.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="covered">
+    <div class="wrap">
+      <h2>Covered Twice, Under One Roof</h2>
+      <p class="intro">Most homeowners are covered once, if at all. A Trinity roof is covered twice, by two companies whose terms match, through one phone number. Lead with that, because it is rare in the industry.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>The manufacturer covers the material</h3>
+          <ul>
+            <li><strong>IKO Dynasty:</strong> a registered manufacturer warranty on the shingle system itself.</li>
+            <li><strong>Filed for you.</strong> Trinity registers it and files any claim, so it never sits in a drawer unregistered.</li>
+            <li><strong>Honored on photos,</strong> within guidelines, with no adversarial inspection.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Trinity covers the workmanship</h3>
+          <ul>
+            <li><strong>25-year labor warranty</strong> on how the roof was installed.</li>
+            <li><strong>One company, 32 years in business,</strong> still here to answer the call.</li>
+            <li><strong>One house, one customer, one phone call.</strong> No finger-pointing between a manufacturer and an installer.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"You are not covered once here, you are covered twice. IKO stands behind the shingle, and Trinity stands behind the work for 25 years. Two companies, matching terms, one phone call. Most roofs in this town do not have that."</blockquote>
+
+      <div class="manager-prompt">Ask the room: when a competitor's roof leaks and the manufacturer blames the installer, who does the homeowner call? What happens when that installer is gone?</div>
+
+      <details class="recall-check">
+        <summary>What does "covered twice" actually mean?</summary>
+        <p class="answer"><span class="label">Answer</span>The manufacturer (IKO) warranties the material and the installer (Trinity) warranties the 25-year workmanship, with matching terms, handled through one company. The competitor usually offers one warranty, often unregistered, split between two parties who can blame each other.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="fifty">
+    <div class="wrap">
+      <h2>The "50-Year" Headline Is Window Dressing</h2>
+      <p class="intro">A bigger number on the brochure is not bigger coverage. The headline warranty exists to sell the shingle, not to replace your roof. Read what it actually pays.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--red">
+          <h3>What the 50 years pays</h3>
+          <p><strong>A depreciated, material-only check.</strong> By the time a 50-year shingle fails, the average payout is around a $150 check, or a store voucher toward more shingles.</p>
+        </div>
+        <div class="training-card training-card--red">
+          <h3>What it does not pay</h3>
+          <p><strong>No tear-off, no labor, no disposal.</strong> The parts that cost real money on a roof are exactly the parts the headline warranty leaves on you.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Why it exists</h3>
+          <p><strong>To get you to buy the shingle.</strong> The number is a marketing number. A warranty you can actually use beats a warranty that looks good on paper.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"That 50-year warranty sounds great. Here is the part they hope you never read: at 50 years the average homeowner gets about a $150 check, material only. No tear-off, no labor, no dumpster. It was built to sell the shingle, not to put a new roof on your house."</blockquote>
+
+      <div class="manager-prompt">Ask the room: a customer waves a competitor's "lifetime" warranty. In two sentences, how do you open the hood on it without calling them a liar?</div>
+
+      <details class="recall-check">
+        <summary>Why is a headline 50-year warranty weaker than it sounds?</summary>
+        <p class="answer"><span class="label">Answer</span>It pays a small, depreciated, material-only amount (around $150 or a shingle voucher) and excludes the tear-off, labor, and disposal that make up most of a roof's real cost. It is designed to sell the shingle.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="algae">
+    <div class="wrap">
+      <h2>The Algae Warranty Trap</h2>
+      <p class="intro">Some "25-year" algae warranties carry a maintenance string most homeowners never see, and lose without knowing. It can cost them thousands over the life of the roof. A Trinity IKO roof asks for none of it.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>The string attached</h3>
+          <ul>
+            <li><strong>Proof of a certified chemical wash</strong> every two years, with approved chemicals only.</li>
+            <li><strong>$500 to $1,200 per wash,</strong> roughly $6,000 to $13,000 over the roof's life.</li>
+            <li><strong>Fine print clauses</strong> on banned chemicals and "excessive roof traffic" that void it.</li>
+            <li><strong>Lose one receipt</strong> over ten-plus years and the claim is denied. Many homeowners are out by year three and do not know it.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>The Trinity IKO answer</h3>
+          <ul>
+            <li><strong>Zero maintenance required</strong> to keep the warranty valid.</li>
+            <li><strong>Nothing to schedule,</strong> nothing to pay for, no receipts to keep for a decade.</li>
+            <li><strong>The coverage is still there</strong> in year twelve, because there was never a string to cut.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"Their algae warranty has a catch. You have to prove a certified wash every two years, $500 to $1,200 a pop. Who keeps five receipts over ten years? Lose one and you are denied. Most people are out by year three and never know. Ours asks you for nothing."</blockquote>
+
+      <div class="manager-prompt">Ask the room: total the hidden wash cost over a roof's life. How does that change the "but they were cheaper" conversation?</div>
+
+      <details class="recall-check">
+        <summary>How does a competitor's algae warranty quietly get voided?</summary>
+        <p class="answer"><span class="label">Answer</span>It requires proof of a certified chemical wash every two years ($500 to $1,200 each, $6,000 to $13,000 over the roof's life), with banned-chemical and roof-traffic clauses. A single missing receipt denies the claim, so most homeowners lose it within a few years without realizing it. IKO requires no maintenance.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="denials">
+    <div class="wrap">
+      <h2>Five Ways a Cheap Warranty Gets Denied</h2>
+      <p class="intro">A claim denied is a warranty that never existed. These are the five most common denial paths a homeowner walks into without knowing. Each one is a reason to keep the roof and the solar under one trusted installer.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Denial path</th><th>How it happens</th><th>The number</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Solar penetrations</td><td>Another company drills the roof for panels with no manufacturer relationship that accounts for solar. The penetration becomes the reason to deny.</td><td>~65% more likely to be denied</td></tr>
+          <tr><td>Contractor out of business</td><td>The labor warranty dies with the company. Roughly 3 of 4 contractors are gone within five years, and the claim goes with them.</td><td>~75% more likely to be denied</td></tr>
+          <tr><td>Cold-weather install</td><td>Competitor fine print voids claims on shingles laid below a temperature threshold. They check the receipt date and deny a winter install years later.</td><td>Date on the receipt</td></tr>
+          <tr><td>Never registered / not transferred</td><td>The original contractor never filed the warranty, or it was never transferred at the home sale (often a one-time, ~30-day window). No certificate, no coverage.</td><td>$0 if unregistered</td></tr>
+          <tr><td>Maintenance lapse</td><td>A required wash or upkeep was missed (see the algae trap), so the manufacturer denies on the clause the homeowner never read.</td><td>One missing receipt</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout"><strong>The through-line:</strong> IKO honors within its guidelines with no adversarial inspection, and Trinity, 32 years in, is still here to file it. With one installer doing the roof and the solar, none of these five doors is open.</div>
+
+      <div class="manager-prompt">Ask the room: which of these five does your competitor never mention at the kitchen table? How do you raise it without sounding like you are bashing them?</div>
+
+      <details class="recall-check">
+        <summary>Name three ways a competitor warranty gets denied.</summary>
+        <p class="answer"><span class="label">Answer</span>Any three: solar penetrations from an installer with no manufacturer relationship (~65% more likely denied), the contractor going out of business (~75% more likely denied), a cold-weather install voided by fine print, a warranty never registered or never transferred at sale, or a missed maintenance requirement.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="why-pays">
+    <div class="wrap">
+      <h2>Why IKO Pays When Others Don't</h2>
+      <p class="intro">A warranty is only as good as the company behind it. IKO is built to honor claims, not to dodge them, and the reasons are concrete enough to say out loud.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Honors on photos, no fight</h3>
+          <p><strong>Within guidelines, IKO honors a claim on a few photos,</strong> no adversarial inspection. A competitor's whole inspection process is often designed to find a reason not to pay.</p>
+        </div>
+        <div class="training-card">
+          <h3>Vertical integration</h3>
+          <p><strong>IKO makes every component in-house</strong> (granules, adhesive, mats), so it owns quality end to end. When a competitor buys parts from others, no one owns the failure.</p>
+        </div>
+        <div class="training-card">
+          <h3>Not on the store shelf, on purpose</h3>
+          <p><strong>You do not know the name because IKO spends on the product, not on licensing and golf tournaments.</strong> Architectural-grade plants, not marketing. That is a feature, not a weakness.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>A true square is a true square</h3>
+          <p><strong>Three bundles of IKO make a full 100 sq ft.</strong> Some competitors' three bundles cover 98.4, so more bundles get added on install day. That is one reason cheaper jobs "magically" need another stack in the truck.</p>
+        </div>
+      </div>
+
+      <div class="manager-prompt">Ask the room: how do you turn "I've never heard of IKO" into a selling point in one sentence?</div>
+
+      <details class="recall-check">
+        <summary>A customer says "I've never heard of IKO." What's the reframe?</summary>
+        <p class="answer"><span class="label">Answer</span>IKO spends on the product and the factory instead of national advertising, licensing, and rep trips, which is why contractors who know roofing choose it. Not being on the store shelf is the point: the money went into the shingle, and into a warranty they actually honor on photos.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="field">
+    <div class="wrap">
+      <h2>Run It in the Living Room</h2>
+      <p class="intro">The warranty conversation is a discovery tool, not a brochure. A few questions expose whether the homeowner is actually covered, and most are not.</p>
+
+      <div class="compare-grid">
+        <div class="objection-handling">
+          <p class="objection">"My roof is newer, it's still under warranty."</p>
+          <p class="counter"><strong>Ask for the certificate.</strong> "When you bought the house, did they hand you the warranty certificate? If you do not have it, you do not even know the original contractor ever registered it. Roofing warranties usually transfer once, within about 30 days of the sale. You may not have one at all."</p>
+        </div>
+        <div class="objection-handling">
+          <p class="objection">"It's cheaper with the other company."</p>
+          <p class="counter"><strong>Price the denial, not the shingle.</strong> "Cheaper today, sure. Add the $6,000 to $13,000 in required washes, and a claim that is 65% more likely to be denied once they drill it for solar. The cheaper warranty is the one that costs you when you finally need it."</p>
+        </div>
+      </div>
+
+      <h3 class="checklist-head">Warranty discovery checklist</h3>
+      <ul class="checklist list-cols">
+        <li>Asked whether they have the actual warranty certificate.</li>
+        <li>Confirmed if it was registered and transferred at the sale.</li>
+        <li>Surfaced any maintenance string (algae wash, upkeep).</li>
+        <li>Flagged that another company's solar penetrations can void it.</li>
+        <li>Framed Trinity as covered twice, one phone call, 32 years in.</li>
+        <li>Led with what the warranty pays, not the headline number.</li>
+      </ul>
+
+      <div class="callout callout--compliance"><strong>Stay honest.</strong> Open the hood on the competitor's coverage with facts and questions. Do not call another company a liar or guarantee a claim outcome. Let the homeowner read their own fine print and reach the conclusion.</div>
+
+      <div class="manager-prompt">Role-play: a homeowner insists their three-year-old roof is covered. Walk the certificate question live, start to finish.</div>
+
+      <details class="recall-check">
+        <summary>What's the one question that exposes most "I'm still covered" claims?</summary>
+        <p class="answer"><span class="label">Answer</span>"Do you have the warranty certificate?" Most homeowners do not, which means the original contractor may never have registered it or it never transferred at the sale, so the coverage they think they have may not exist.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>A warranty is worth what it pays when something breaks, not the number on the brochure.</li>
+      <li>Trinity is covered twice: IKO on the material, Trinity on 25-year labor, one phone call.</li>
+      <li>The "50-year" headline pays a depreciated, material-only amount, around $150 or a voucher.</li>
+      <li>The algae warranty hides $6,000 to $13,000 of required washes, lost on one missing receipt.</li>
+      <li>Five denial paths: solar penetrations (~65%), contractor gone (~75%), cold-weather, unregistered, maintenance lapse.</li>
+      <li>The certificate question exposes most "I'm still covered" claims. Most homeowners do not have one.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Roofing Anatomy series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

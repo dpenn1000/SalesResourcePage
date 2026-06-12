@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Principle Teacher · Ken Ebbert · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#temperature"><span class="num">1</span> Sell What It Buys</a>
+      <a href="#deep"><span class="num">2</span> Go Deep, Not Wide</a>
+      <a href="#direction"><span class="num">3</span> Direction, Not Info</a>
+      <a href="#integrity"><span class="num">4</span> Fall on the Sword</a>
+      <a href="#billboard"><span class="num">5</span> Every Install a Billboard</a>
+      <a href="#price"><span class="num">6</span> Price Is the Value</a>
+      <a href="#negotiate"><span class="num">7</span> The 5 Moves</a>
+      <a href="#totalhome"><span class="num">8</span> Total Home</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Closer Playbook · Ken Ebbert</span>
+    <h1>The <em>Principle</em> Teacher</h1>
+    <p class="lede"><strong>Ken teaches the durable why behind every move.</strong> Most reps collect tactics. Ken builds the principles those tactics hang on, so the right move shows up on its own in the home. Master these 8 and the script takes care of itself.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="temperature">
+    <div class="wrap">
+      <h2>Don't Sell Solar. Sell What It Buys.</h2>
+      <p class="intro">The product is never the point. People do not want panels, they want what the panels free up: vacations, a kid's tuition, breathing room. Your first job in the home is to set the temperature so they feel the bill, not just report it.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>Sell the outcome, not the equipment</h3>
+          <ul>
+            <li><strong>Say "solar" as little as you can.</strong> The word puts them in shopping mode and invites comparison.</li>
+            <li><strong>Name the real prizes:</strong> a new refrigerator, more vacations, time with their kids, money for college.</li>
+            <li><strong>You are not selling savings either.</strong> You are selling what the savings turn into.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Set the temperature: ask the highest bill</h3>
+          <ul>
+            <li><strong>Never ask the average bill.</strong> The average is a spreadsheet number with no feeling in it.</li>
+            <li><strong>Ask the highest bill they ever got.</strong> The number itself does not matter. The feeling does.</li>
+            <li><strong>Make them relive it:</strong> "How did you pay that? What did you do differently that month?"</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"I try to see how little I can say the word solar in an appointment. We don't sell solar and we don't sell savings. I sell a new refrigerator, more vacations, time with their kids, money for college, their hobbies."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Never ask their average bill. Ask the highest bill, but I don't care what the number is. I want them to feel the highest bill with me. How do you pay that? What did you have to do differently that month?"</blockquote>
+
+      <div class="callout"><strong>Try this on your next appointment:</strong> ban the word "average." Open with the highest bill they remember, then ask the two follow-ups (how did you pay it, what did you change). You are warming the room before you ever show a number.</div>
+
+      <div class="manager-prompt">Ask the room: what does a rep give up the moment they ask for the "average" bill instead of the highest one?</div>
+
+      <details class="recall-check">
+        <summary>Why ask for the highest bill instead of the average?</summary>
+        <p class="answer"><span class="label">Answer</span>The average is a flat number with no emotion attached. The highest bill is one the customer felt, so asking how they paid it and what they changed makes them relive the pain. You are setting the temperature, not gathering data, because the decision gets made on feeling, not arithmetic.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="deep">
+    <div class="wrap">
+      <h2>Go Deep, Not Wide</h2>
+      <p class="intro">A pile of surface questions is not discovery. The goal is not a question count, it is reaching the core of what they feel. Get there and a "no" becomes a "no" to themselves, which almost nobody can say.</p>
+
+      <ul class="step-grid">
+        <li class="step"><h3>Pick one thread</h3><p>Find the answer that has a little heat in it and follow that one down. Do not spray questions sideways across ten topics.</p></li>
+        <li class="step"><h3>Go 3 to 5 deep</h3><p>Two, three, five questions deep on the same thread until you hit an anchor point they cannot walk away from.</p></li>
+        <li class="step"><h3>Reflect it back</h3><p>When they finish, repeat back what mattered to them. That is when a customer who got 10 quotes says, "you actually heard me."</p></li>
+      </ul>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Too many questions to me isn't a number, it's how they unfold. Go two, three, five questions deep where you get to the core of their emotions. When you get there, if they say no it's like saying no to themselves, and people don't say no to their own beliefs."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"If you're skipping across the top surface of the water, you're never getting to any depth. Do a three to five question follow-up till you find a foothold, an anchor point they can't walk away from."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Your goal when listening should be: when they're done, I can repeat back what I heard that's important to them. That's when a customer who got ten quotes says, I feel like you actually heard me, even if it was the same plan everyone else offered."</blockquote>
+
+      <div class="manager-prompt">Role-play: a rep asks 8 shallow rapport questions in a row. Stop them and coach a single thread 5 questions deep instead. What changed?</div>
+
+      <details class="recall-check">
+        <summary>What makes a "no" so hard for the customer once you've gone deep?</summary>
+        <p class="answer"><span class="label">Answer</span>When you reach the core of what they feel, the decision is now tied to their own beliefs and words, not your pitch. Saying no means saying no to themselves, and people do not refuse their own convictions. Reflecting it back proves they were heard, which is what separates you from the 10 other quotes.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="direction">
+    <div class="wrap">
+      <h2>Give Direction, Not Information</h2>
+      <p class="intro">Reps drown customers in facts and call it value. Facts do not move people, direction does. And the reason most reps never ask for the close is not the customer, it is their own fear of hearing no.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Direction over information</h3>
+          <p><strong>"The dishwasher is full" does nothing.</strong> "Run the dishwasher" does. People need to be told where to go, not handed more data to sort.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Nothing to lose: the free lottery ticket</h3>
+          <p><strong>If they are not in a yes, they are already in a no,</strong> and you have lost nothing yet. So try anything, say anything, before you walk out. It is a free lottery ticket.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>One-call closing is about your fear</h3>
+          <p><strong>Not closing in the home is fear of rejection.</strong> Someone gets closed every appointment. Either you close them, or they close you with "let me think about it."</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"It's the difference between information and direction. The dishwasher is full does nothing. Can you please run the dishwasher does. People need direction, not information."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"If they're not in a yes position, they're in a no position and we've already lost. So we have nothing to lose. It's a free lottery ticket. Try anything, say anything, before you walk out of that house."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Not one-call-closing is about your fear of rejection. People would rather leave with hopium than get a yes or a no. Someone gets closed in every appointment, either you close them or they close you."</blockquote>
+
+      <div class="callout"><strong>Try this:</strong> on the next appointment that is sliding toward "let me think about it," treat it as a free lottery ticket. You are already in a no, so make one more direct ask. You cannot lose a deal you have not won yet.</div>
+
+      <div class="manager-prompt">Ask the room: name a moment last week you left with "hopium" instead of a yes or a no. What were you actually afraid of?</div>
+
+      <details class="recall-check">
+        <summary>Why is walking out without an ask never "playing it safe"?</summary>
+        <p class="answer"><span class="label">Answer</span>If the customer is not in a yes, they are already in a no, so the deal is lost the moment you leave without trying. There is nothing to protect. One more direct ask is a free lottery ticket. Avoiding it is not caution, it is fear of rejection, and someone gets closed every appointment regardless.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="integrity">
+    <div class="wrap">
+      <h2>Post-Sale Integrity: Fall on the Sword</h2>
+      <p class="intro">How you handle the angry call after the sale decides whether that customer becomes your best reference or your worst review. Own it fully, but never use one word. And know that emotion is rarely solved in the first conversation.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>Fall on the sword</h3>
+          <ul>
+            <li><strong>Take ownership yourself.</strong> The customer forgives the salesperson they fell in love with far more than the company they are stuck with.</li>
+            <li><strong>Never say "I lied,"</strong> even sincerely. They will repeat it word for word to your manager, Client Resources, and the BBB.</li>
+            <li><strong>Say instead:</strong> "Sorry I didn't explain this fully," or "I set the wrong expectation."</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>The second conversation</h3>
+          <ul>
+            <li><strong>You don't solve emotion in the first talk,</strong> the same way you don't end a fight with your spouse in one round.</li>
+            <li><strong>The first call's only job</strong> is to acknowledge and let the heat settle so they can hear you.</li>
+            <li><strong>The answer lands in the second conversation,</strong> once they are in a place to receive it.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Fall on the sword, they forgive you more than anybody. But never say I lied. They'll tell your manager, Client Resources, the BBB: my salesman admitted he lied to me. Say sorry I didn't explain this fully."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Do you ever solve a fight with your spouse in the first conversation? Not in my house. Sometimes we try to tell people something they're not in a space to hear."</blockquote>
+
+      <div class="callout callout--compliance"><strong>Stay honest and stay safe.</strong> Owning a gap in your explanation is integrity. Admitting you "lied" is a sentence that follows you into a complaint file. Apologize for what you did not explain, not for a deception you did not commit.</div>
+
+      <div class="manager-prompt">Ask the room: a customer calls furious that the bill is higher than they expected. What is the only goal of that first call, and what word is off limits?</div>
+
+      <details class="recall-check">
+        <summary>Why "I didn't explain this fully" instead of "I lied"?</summary>
+        <p class="answer"><span class="label">Answer</span>Both own the problem, but "I lied" is a line the customer repeats verbatim to your manager, Client Resources, and the BBB, turning a fixable moment into a documented admission. "I didn't explain this fully" carries the ownership that earns forgiveness without handing them ammunition. And the real resolution comes in the second conversation, once the emotion has settled.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="billboard">
+    <div class="wrap">
+      <h2>Every Install Is a Billboard</h2>
+      <p class="intro">Once a system is on the roof, that customer is advertising for you or against you. Stay connected and they become your single best reference, because nobody can fake how long a company keeps its people and its promises.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>The install is a billboard</h3>
+          <p><strong>Every PTOed system is a raving fan or an enemy.</strong> You think you have nothing to lose by not calling. You have everything to lose by not connecting a few times a year.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>The angry customer is usually wrong</h3>
+          <p><strong>9 times out of 10</strong> "my solar isn't working" is changed usage, changed rates, an EV, or the in-laws moving in. That customer is who you go sell another system to.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>You are the best reference</h3>
+          <p><strong>Any company can hand you their best 3 customers.</strong> What sets Trinity apart is results and how long the employees stay. Treat employees that well, you never worry how they treat customers.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Profitability is a 25-year promise</h3>
+          <p><strong>It's not an unfair advantage, it's an unaffordable price.</strong> If a company isn't profitable, it is making a 25-year promise it already knows it can't keep.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Every PTOed install is a billboard. It's either a raving fan or somebody against you and your product. When you say you have nothing to lose by not calling them, you have everything to lose if you're not connecting with every customer at least a few times a year."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Any company can give you the best three customers they ever served. What makes us who we are is the results, and how long our employees stay. If this company takes such good care of their employees, I never worry about how they treat their customers."</blockquote>
+
+      <div class="manager-prompt">Ask the room: who is the one PTOed customer you have not called in 6 months? What is that billboard saying about you right now?</div>
+
+      <details class="recall-check">
+        <summary>How does "how long employees stay" become a closing tool?</summary>
+        <p class="answer"><span class="label">Answer</span>Any company can cherry-pick 3 happy customers, so customer references are weak proof. Employee tenure cannot be faked: if a company treats its people well enough that they stay, the customer can trust it will treat them well too over the 25-year life of the system. It reframes "best reference" from a customer list to the company's own track record.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="price">
+    <div class="wrap">
+      <h2>The Price Is the Value</h2>
+      <p class="intro">If you flinch on your price, you tell the customer your product is worth less. Defend it with conviction and the cheap quoter never even enters the conversation. Live in the high bracket, not the dumpster.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>Mercedes vs Lexus</h3>
+          <ul>
+            <li><strong>If you don't show conviction, the price becomes the value.</strong> A low price reads as a lesser product.</li>
+            <li><strong>Would anyone buy a Mercedes at 12 grand</strong> next to a Lexus at 25? The number itself signals worth.</li>
+            <li><strong>Price at the top of the bracket</strong> and nobody is even talking about Chuck-in-a-truck.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Live in the bracket, not the dumpster</h3>
+          <ul>
+            <li><strong>Down low, your only offer is price,</strong> competing with the cheapest quoter on his one strength.</li>
+            <li><strong>Up where it's about quality and service,</strong> you stop racing to the bottom.</li>
+            <li><strong>Nobody offers best quality, best service, and lowest price.</strong> The math does not work.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"If we don't show our conviction and commitment to the price, the price is the value. How many people would buy a Mercedes if it were 12 grand and a Lexus was 25? When you price at 10 to 12, nobody's even talking about Chuck-in-a-truck."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Nobody provides the best quality and best service at the lowest price. The math doesn't work. I'd rather apologize to you today for the price you don't want to pay than for the next 25 years for the quality and service you'd have to deal with."</blockquote>
+
+      <div class="callout"><strong>Try this:</strong> next time you feel the urge to soften your number, say it slower and with more conviction instead. "I'd rather apologize once today for the price than for 25 years of the quality and service you would have had to live with."</div>
+
+      <div class="manager-prompt">Ask the room: when you rush or mumble your price, what are you telling the customer about your product before they say a word?</div>
+
+      <details class="recall-check">
+        <summary>What does dropping or softening your price quietly tell the customer?</summary>
+        <p class="answer"><span class="label">Answer</span>That the product was worth less than you first claimed. Conviction on price signals value, the same way a higher sticker tells a buyer a Mercedes is worth more than a cut-rate one. Apologize once today for a price they do not love, rather than for 25 years of the quality and service a bargain would have forced on them.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="module" id="negotiate">
+    <div class="wrap">
+      <h2>The 5-Move Negotiation Framework</h2>
+      <p class="intro">When the price pushback comes, you do not have to choose between caving and losing the deal. Ken runs a sequence: defend the value first, and make any concession earned. Because the moment you drop the price, you confirm they may have overpaid.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Move</th><th>What it does</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Question the question</td><td>Quantify and qualify "too much." Compared to what? By how much? You cannot solve an objection you have not measured.</td></tr>
+          <tr><td>Change the way to pay</td><td>Float a shorter, higher-payment loan to test the real ceiling, and keep the longer, lower-payment term in your pocket as the release.</td></tr>
+          <tr><td>Divide the difference</td><td>Break the gap into a dollar a day for Trinity quality versus a Chuck-in-a-truck. Small numbers shrink a big-sounding difference.</td></tr>
+          <tr><td>Trade the value</td><td>Make them earn any discount: sign today, give referrals, or bundle products. A concession given for nothing teaches them to ask again.</td></tr>
+          <tr><td>Resign for a reason</td><td>If you do move, frame it as a gift with a reason behind it, never a random drop, so the value stays intact.</td></tr>
+        </tbody>
+      </table>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Question the question, change the way to pay, divide the difference, trade the value, resign for a reason. Don't just drop the price, make them earn it and keep your value intact."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"When you lower your price you confirm they may have overpaid. The first question is could I pay less. The second is could I pay even less, and is it even worth what you said? Stand and defend the value first."</blockquote>
+
+      <div class="callout"><strong>Try this:</strong> pick one move (start with "question the question") and use it on the next price objection before you touch the number. Most reps skip straight to dividing the difference and give away margin they never needed to.</div>
+
+      <div class="manager-prompt">Role-play: customer says "it's too expensive." Walk all 5 moves in order out loud, without dropping a dollar until the trade.</div>
+
+      <details class="recall-check">
+        <summary>Why does dropping the price create more objections than it solves?</summary>
+        <p class="answer"><span class="label">Answer</span>It answers "could I pay less?" but triggers worse questions: "could I pay even less?" and "was it really worth what you first said, and why wasn't that the price to begin with?" Cutting confirms they may have overpaid. The 5 moves defend the value first and make any concession earned, so the price keeps its meaning.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="module" id="totalhome">
+    <div class="wrap">
+      <h2>Total Home: The Bigger Opportunity</h2>
+      <p class="intro">Walk in talking only solar and you cast the smallest net in the house. You are not in front of a solar customer, you are in front of a homeowner who owns a roof, a power bill, and the risk of an outage. And to do this for a career, you have to throttle.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>Cast the widest net</h3>
+          <ul>
+            <li><strong>Solar is a 15 billion dollar market.</strong> Storage is 25. Roofing is 70.</li>
+            <li><strong>Walk in talking only solar</strong> and you are fishing the smallest pond on purpose.</li>
+            <li><strong>You're talking to a homeowner, not a solar customer.</strong> Introduce all three every time.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Don't let their heart get broken</h3>
+          <ul>
+            <li><strong>If they take an outage and damage</strong> and you never offered a battery, that is on you.</li>
+            <li><strong>The top reps just do the 5 to 10%</strong> of things other reps won't, can't, and don't do.</li>
+            <li><strong>Be the reason they were helped,</strong> not the reason they were not.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="training-card training-card--ink">
+        <h3>Throttle: count your selling days</h3>
+        <p><strong>Our most successful people burn out</strong> because they give 100% until they can't. Know your weekly goal, post your target, and learn to pace. Ahead of plan, take a breath; behind it, push. A career is not one heroic week, it is a sustainable pace over many.</p>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Solar is a 15 billion dollar market, storage is 25, roofing is 70. If you walk in only talking solar, you're casting the smallest net. You're talking to a homeowner, not a solar customer."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Ken Ebbert</span>"Our most successful salespeople burn out because they give 100% all the time until they can't. Know your goal, schedule it, and learn to throttle. If I was at 6 for the week I could take a breath. If I was behind, I knew to push."</blockquote>
+
+      <div class="manager-prompt">Ask the room: on your last 5 appointments, how many times did you introduce all 3 products? What did the homeowner not get offered?</div>
+
+      <details class="recall-check">
+        <summary>Why open every home as a "homeowner," not a "solar customer"?</summary>
+        <p class="answer"><span class="label">Answer</span>Solar is the smallest of the three markets (15B solar, 25B storage, 70B roofing). Leading with only solar casts the narrowest net and leaves the roof and the outage risk unaddressed, which can break the customer's heart later. Treating them as a homeowner and introducing all three is both the bigger opportunity and the more complete way to help. Then throttle so you can do it for years.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Don't sell solar, sell what it buys. Ask the highest bill and make them feel it.</li>
+      <li>Go deep, not wide. 3 to 5 questions on one thread, then reflect it back.</li>
+      <li>Give direction, not information. Not closing in the home is fear of rejection, and you have nothing to lose.</li>
+      <li>Fall on the sword, never say "lied." You don't solve emotion in the first conversation.</li>
+      <li>Every install is a billboard, and how long employees stay is your best reference.</li>
+      <li>The price is the value. Live in the bracket, not the dumpster.</li>
+      <li>Run the 5 moves before you ever drop a dollar. Cutting price confirms they overpaid.</li>
+      <li>You're talking to a homeowner, not a solar customer. Cast the wide net, and throttle.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Closer Playbooks series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

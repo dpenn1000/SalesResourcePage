@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roof System 101 · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#system"><span class="num">1</span> System, Not a Shingle</a>
+      <a href="#decking"><span class="num">2</span> Plywood vs OSB</a>
+      <a href="#underlayment"><span class="num">3</span> Synthetic vs Felt</a>
+      <a href="#pull-test"><span class="num">4</span> The Pull-Test</a>
+      <a href="#read-roof"><span class="num">5</span> Read It From the Ground</a>
+      <a href="#ventilation"><span class="num">6</span> The Silent Killer</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Roofing · Anatomy · The System</span>
+    <h1>We Sell a <em>System</em>, Not a Shingle</h1>
+    <p class="lede"><strong>Most companies sell a shingle. Trinity sells an engineered system where every layer works together for the life of the warranty.</strong> Ice-and-water, synthetic underlayment, starter strip, drip edge, decking, ventilation: each piece has a job, and the roof only works when they work together. Knowing the parts makes you the expert in the room.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="system">
+    <div class="wrap">
+      <h2>The Engineered System, Layer by Layer</h2>
+      <p class="intro">A shingle is the part the homeowner sees. What fails a roof is almost always a layer underneath it. Walk the system out loud, and you stop sounding like a salesperson and start sounding like the only person at the kitchen table who actually knows roofs.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Decking</h3>
+          <p><strong>The structural surface</strong> the whole roof is built on. Plywood as standard. Bad sheathing gets replaced, not covered over.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Ice-and-water shield</h3>
+          <p><strong>Self-adhering membrane</strong> at the eaves and valleys. Seals around nails and stops water backing up under shingles when ice dams form. Critical in the Northeast.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Synthetic underlayment</h3>
+          <p><strong>A breathable secondary barrier</strong> over the rest of the deck. Replaces old tar paper, will not tear in the wind during install.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Starter strip and drip edge</h3>
+          <p><strong>The locked-down first course</strong> at the eaves and rakes, plus the metal edge that throws water off the deck. Skipping either is a corner competitors cut.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>The shingle</h3>
+          <p><strong>IKO Dynasty,</strong> the visible armor. It only earns its wind rating because everything below it was installed to spec.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Ventilation</h3>
+          <p><strong>Ridge exhaust plus soffit intake</strong> that keeps the deck cool and dry. Get this wrong and every layer above it ages early.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"We are not selling you a shingle, we are selling you a roofing system. Every piece has to go together to make it function: the ice-and-water, the underlayment, the starter, the decking, the ventilation. Most other places are just selling you the top layer and hoping you never look underneath."</blockquote>
+
+      <div class="manager-prompt">Ask the room: a competitor quote is 2,000 dollars cheaper. Which layer did they leave out, and how do you surface it without calling them a liar?</div>
+
+      <details class="recall-check">
+        <summary>Why do we say "a system, not a shingle"?</summary>
+        <p class="answer"><span class="label">Answer</span>A roof only works when every layer works together: decking, ice-and-water, underlayment, starter and drip edge, shingle, and ventilation. The shingle is the part the customer sees, but what fails a roof is almost always a layer underneath. Most competitors price and sell only the shingle.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="decking">
+    <div class="wrap">
+      <h2>Plywood vs OSB, and Why It Matters</h2>
+      <p class="intro">The decking is the surface everything else is nailed to. If it fails, the roof fails, no matter how good the shingle is. Trinity uses plywood as standard, and the reason is simple enough to say in one breath.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>OSB: the cheapest deck</h3>
+          <ul>
+            <li><strong>Ground-up wood chips</strong> pressed together with glue and heat.</li>
+            <li><strong>Strong when dry,</strong> but swells when it gets wet and does not fully come back.</li>
+            <li><strong>The cheapest option for a reason,</strong> which is exactly why a budget roof uses it.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Plywood: what Trinity uses</h3>
+          <ul>
+            <li><strong>Thin full sheets of wood laminated together,</strong> cross-grained for strength.</li>
+            <li><strong>More impact resistant</strong> and more dimensionally stable when it sees moisture.</li>
+            <li><strong>Higher strength per square foot,</strong> so the deck holds up over decades, not years.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"OSB is the cheapest decking for a reason. It is ground-up wood chips and glue, and when it gets wet it swells. Plywood is thin full sheets laminated together, much stronger and more impact resistant. We use plywood. It gives us higher strength per square foot, which is the whole point of the layer you never see."</blockquote>
+
+      <div class="manager-prompt">Ask the room: where on the inspection do you confirm decking type and condition, and what photo proves it to the office?</div>
+
+      <details class="recall-check">
+        <summary>OSB vs plywood, in one customer sentence?</summary>
+        <p class="answer"><span class="label">Answer</span>OSB is ground-up wood chips pressed with glue, the cheapest deck, and it swells when wet. Plywood is full wood sheets laminated cross-grained, stronger, more impact resistant, and holds up to moisture. Trinity uses plywood for higher strength per square foot.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="underlayment">
+    <div class="wrap">
+      <h2>Synthetic Underlayment vs the "I Want 30-Pound Felt" Objection</h2>
+      <p class="intro">Some homeowners ask for the old tar paper they remember, the 30-pound felt. They are asking for the worse product, they just do not know it yet. Your job is to explain why synthetic gives them everything felt did, without the flaw felt was born with.</p>
+
+      <div class="compare-grid">
+        <div class="objection-handling">
+          <p class="objection">"I want the old 30-pound felt, that is what a real roof has."</p>
+          <p class="counter"><strong>Honor the instinct, then upgrade it.</strong> "I get it, a lot of folks feel the heavy felt is the tougher choice. Here is what I found: as tar paper heats and cools, the tar literally migrates down the roof. The material is degrading from the minute it goes down. Synthetic gives you the same protection that heavy felt gave you, and it breathes, so moisture exits instead of getting trapped in."</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Why synthetic wins</h3>
+          <ul>
+            <li><strong>It breathes,</strong> letting moisture move out of the assembly rather than into it.</li>
+            <li><strong>It stays stable,</strong> while tar paper degrades from day one as it heats and cools.</li>
+            <li><strong>It will not tear</strong> in the wind during install, so the secondary barrier stays intact.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Rep · handling the felt request</span>"Synthetic underlayment is vastly superior to the old tar paper. As tar paper heats and cools, the tar literally migrates down the roof. That material is degrading from the minute you put it down. Synthetic gives you the same protection without that built-in flaw."</blockquote>
+
+      <div class="manager-prompt">Ask the room: weave Feel, Felt, Found into the felt objection live. Where does each piece land?</div>
+
+      <details class="recall-check">
+        <summary>What is the flaw in 30-pound felt that synthetic fixes?</summary>
+        <p class="answer"><span class="label">Answer</span>As felt heats and cools, the tar migrates down the roof, so the material is degrading from the day it goes down. Synthetic underlayment gives the same protection, breathes so moisture exits instead of getting trapped, and will not tear in the wind during install.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="pull-test">
+    <div class="wrap">
+      <h2>The Pull-Test, and the Moisture Sandwich</h2>
+      <p class="intro">Two in-home tools live in this module: one you hand the customer to prove the shingle, and one cautionary story you tell so the customer trusts you to say no when "more" is wrong. A tactile demo beats a spec sheet every time.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>The pull-test: let them try</h3>
+          <ul>
+            <li><strong>An IKO Dynasty shingle nailed to a board,</strong> handed to the customer to pull free.</li>
+            <li><strong>It does not budge,</strong> because the armor-zone nailing strip locks the fastener in.</li>
+            <li><strong>That strip is the 130 mph wind rating</strong> they can now feel in their own hands.</li>
+            <li><strong>The customer is physically unable</strong> to pull the shingle loose, so the spec stops being a number on paper.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--red">
+          <h3>The moisture sandwich: when "more" hurts</h3>
+          <ul>
+            <li><strong>A customer demanded ice-and-water on the entire roof,</strong> overriding the advice to use it only at the eaves and valleys.</li>
+            <li><strong>Full coverage traps moisture</strong> with nowhere to exit, so the deck cannot breathe.</li>
+            <li><strong>A year later:</strong> condensation, mold growing in long beards under the deck, and a ceiling leak.</li>
+            <li><strong>The very thing they thought would protect them</strong> was the thing that hurt them.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home · the pull-test</span>"Go ahead, try to pull this shingle off the board. It is not budging, is it. That is the armor-zone nailing strip, and it is why Dynasty carries a 130 mph wind rating. You are holding the reason your roof stays on in a storm."</blockquote>
+
+      <div class="callout"><strong>Why tell the cautionary story:</strong> it proves you will tell the customer no when "more" is the wrong call. That earns the trust that closes the deal. Ice-and-water belongs at the eaves and valleys where ice dams form, not wall-to-wall.</div>
+
+      <div class="manager-prompt">Ask the room: a customer insists on full ice-and-water "to be safe." Walk the moisture-sandwich story start to finish without being condescending.</div>
+
+      <details class="recall-check">
+        <summary>What makes the pull-test work, and what does the moisture-sandwich story teach?</summary>
+        <p class="answer"><span class="label">Answer</span>The pull-test works because the armor-zone nailing strip locks the fastener in, giving Dynasty its 130 mph wind rating, and the customer physically cannot pull the shingle free, so the spec becomes tactile proof. The moisture-sandwich story teaches that full-roof ice-and-water traps moisture and causes mold and leaks, so the rep is trusted to say no when "more" is wrong.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="read-roof">
+    <div class="wrap">
+      <h2>Read the Roof From the Ground</h2>
+      <p class="intro">You can become "a roofing expert in two seconds" before you ever set a ladder. A handful of tells, called out from the driveway, tell the homeowner you see what they have been ignoring. Each one is also a built-in reason to do it right.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>What you see</th><th>What it means</th><th>What you say</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Curled shingles</td><td>A hot, poorly ventilated attic is cooking the roof from below. Bad ventilation can cut a 30-year roof down to 5 to 8 years.</td><td>"See that curling? The attic is roasting. That roof is aging twice as fast as it should."</td></tr>
+          <tr><td>Fish-mouthing / humped shingles</td><td>Shingles were set too tight, so they hump and lift instead of lying flat. An install mistake you can name on sight.</td><td>"Those humps mean they set the shingles too tight. That is an install problem, not an age problem."</td></tr>
+          <tr><td>Dark stains on the fascia</td><td>Water or condensation is escaping where it should not, a drainage or ventilation tell at the edge of the roof.</td><td>"Those water stains on the trim board mean water is getting out somewhere it should not."</td></tr>
+          <tr><td>Shingles on a low-slope roof</td><td>If the pitch reads about 5 degrees or less and there are shingles up there, odds are it leaks. It needs rolled rubber (EPDM) or SBS, not shingles.</td><td>"Shingles on a roof that flat is a leak waiting to happen. That should have been rolled rubber."</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout"><strong>Why this lands:</strong> when you call a defect from the ground before you climb, you prove the roof was installed wrong and that you knew it in the first two seconds. That is instant credibility, and the low-slope read is also a built-in reason for the right, higher-value material, especially under solar.</div>
+
+      <div class="manager-prompt">Role-play: walk up to a house and narrate the roof out loud. Which tell do you lead with, and how do you turn it into a discovery question?</div>
+
+      <details class="recall-check">
+        <summary>What does a curled shingle tell you, and why does it matter?</summary>
+        <p class="answer"><span class="label">Answer</span>Curled shingles mean a hot, poorly ventilated attic is cooking the roof from below. Bad ventilation can cut a brand-new 30-year roof down to 5 to 8 years, so calling it from the ground proves you spotted the real problem and gives a concrete reason to fix it right.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="ventilation">
+    <div class="wrap">
+      <h2>Ventilation: The Silent Roof-Killer</h2>
+      <p class="intro">Ventilation is the layer that destroys roofs quietly, because the homeowner never sees it working or failing. Get it into the conversation and you protect the customer from buying a great roof that ages like a cheap one.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--amber">
+          <h3>Intake plus exhaust, or nothing</h3>
+          <p><strong>Cool air enters low at the soffit and exits high at the ridge.</strong> Skip the intake or skip the exhaust and the system stops moving air. Both halves are required.</p>
+        </div>
+        <div class="training-card training-card--red">
+          <h3>What bad ventilation costs</h3>
+          <p><strong>A roasting attic cuts a 30-year roof to 5 to 8 years.</strong> If the attic is hot, the roof does not have proper ventilation. There is no question of it.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>The winter side</h3>
+          <p><strong>Trapped heat and moisture grow ice dams and condensation.</strong> The same poor airflow that bakes the deck in summer rots it in winter.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Seal the leaks into the attic</h3>
+          <p><strong>Bath fans, light fixtures, and top plates</strong> let conditioned air leak up and defeat the venting. Air-sealing them is what makes the ventilation actually work.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home · the attic check</span>"Bad ventilation can take a brand-new 30-year roof and cut it down to 5 to 8 years. If your attic is roasting up there, that roof does not have proper ventilation. There is no question of it, none. That is why we look at the soffits and the ridge before we talk about a single shingle."</blockquote>
+
+      <div class="manager-prompt">Ask the room: how do you raise ventilation without scaring the customer off a roof they already need? Where does it become a reason to buy, not a reason to wait?</div>
+
+      <details class="recall-check">
+        <summary>Why is ventilation called the silent roof-killer?</summary>
+        <p class="answer"><span class="label">Answer</span>The homeowner never sees ventilation working or failing, but a roasting, poorly vented attic cuts a 30-year roof down to 5 to 8 years and drives ice dams and condensation in winter. It needs both intake (soffit) and exhaust (ridge), plus air-sealing the leaks into the attic, or the whole roof above it ages early.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>We sell a system, not a shingle. Every layer has a job and only works together.</li>
+      <li>Plywood beats OSB: full sheets laminated, stronger, holds up to moisture. Trinity uses plywood.</li>
+      <li>Synthetic underlayment breathes and stays stable. Felt's tar migrates and degrades from day one.</li>
+      <li>The pull-test proves the 130 mph armor-zone strip. The customer physically cannot pull it free.</li>
+      <li>Full ice-and-water is a moisture sandwich. Eaves and valleys only, and say no when "more" is wrong.</li>
+      <li>Read the roof from the ground: curled shingles equal bad ventilation, a 30-year roof cut to 5 to 8.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Roofing Anatomy series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

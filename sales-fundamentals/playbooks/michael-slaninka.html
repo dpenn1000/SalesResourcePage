@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Roofing Authority · Michael Slaninka · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#system"><span class="num">1</span> System, Not Shingle</a>
+      <a href="#proof"><span class="num">2</span> The Proof Tools</a>
+      <a href="#ground"><span class="num">3</span> Read It From the Ground</a>
+      <a href="#warranty"><span class="num">4</span> The Warranty Teardown</a>
+      <a href="#integration"><span class="num">5</span> Why IKO Makes It All</a>
+      <a href="#mindset"><span class="num">6</span> Over, Under, Around, Through</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Closer Playbook · Michael Slaninka</span>
+    <h1>The <em>Roofing</em> Authority</h1>
+    <p class="lede"><strong>Make yourself the most credible person on any roof.</strong> Know the system, know the warranty, and know what you can read from the ground. Do that, and the customer trusts you before you ever quote a number. This is Michael Slaninka's product knowledge, in his own words.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="system">
+    <div class="wrap">
+      <h2>We Sell a System, Not a Shingle</h2>
+      <p class="intro">The other guy sells a shingle off a shelf. We sell an engineered roof where every layer has a job and works with the layer above and below it for the life of the warranty. That frame is the foundation of every roof conversation, so lead with it.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Every layer has a job</h3>
+          <p><strong>Ice-and-water, synthetic underlayment, starter strip, drip edge, plywood decking, ventilation.</strong> Each piece is engineered to work with the others. Pull one out and the system stops functioning the way it was designed to.</p>
+        </div>
+        <div class="training-card training-card--red">
+          <h3>The competitor sells one part</h3>
+          <p><strong>Most roofers sell you a shingle and call it a roof.</strong> They never explain the decking, the underlayment, or the ventilation, because they are not engineering a system, they are covering a hole.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>The system is the differentiator</h3>
+          <p><strong>You do not win on the shingle alone.</strong> You win because you can walk the customer through the whole assembly and explain why each layer is there. That is what makes you the expert in the room.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"We're not selling a shingle, we're selling a roofing system. Every piece of that system has to go together to make it function. Most other places are not selling you a system."</blockquote>
+
+      <div class="manager-prompt">Ask the room: name the 6 layers of the system out loud, in order, bottom to top. Who can do it without looking?</div>
+
+      <details class="recall-check">
+        <summary>Why lead with "system, not shingle"?</summary>
+        <p class="answer"><span class="label">Answer</span>A roof is an engineered assembly (ice-and-water, synthetic underlayment, starter, drip edge, plywood decking, ventilation) where every layer works with the others for the life of the warranty. The competitor sells one part, a shingle. Owning the whole system is what makes you credible and is the durable reason Trinity is different.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="proof">
+    <div class="wrap">
+      <h2>The Proof Tools You Carry In</h2>
+      <p class="intro">A spec sheet tells. A demo shows. Slaninka built a kit of concrete proofs you can put in a customer's hands, plus cautionary stories that handle the product objections before they harden. Each one gives you something to do or say at the kitchen table.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>The shingle pull-test</h3>
+          <p><strong>An IKO Dynasty shingle nailed to a board.</strong> Hand it to the customer and ask them to pull it free. They cannot. The armor-zone nailing strip gives Dynasty a 130 mph wind rating, and they feel it in their own hands.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Plywood, not OSB</h3>
+          <p><strong>OSB is ground-up wood chips pressed with glue, the cheapest decking, and it swells when wet.</strong> Plywood is laminated full sheets, much stronger and more impact resistant. Trinity uses plywood as standard.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Synthetic, not 30-pound felt</h3>
+          <p><strong>Old tar paper degrades from day one: as it heats and cools, the tar migrates down the roof.</strong> Synthetic underlayment breathes, letting moisture exit instead of enter, with the same protection and none of the decay.</p>
+        </div>
+        <div class="training-card training-card--red">
+          <h3>The moisture sandwich</h3>
+          <p><strong>When a customer demands ice-and-water on the whole roof, tell the ZZ Top story.</strong> One customer overrode the advice, got full ice-and-water, and a year later had condensation, mold, and a ceiling leak. The thing meant to protect them is what hurt them.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"You're going to offer the customer the chance to try to pull it off that piece of wood. It's not budging. The customer will be physically unable to pull the shingle free."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"When you ice and water the entire roof, you've created a moisture sandwich. The very thing they thought was going to protect them was the thing that hurt them."</blockquote>
+
+      <div class="manager-prompt">Ask the room: a customer insists on full ice-and-water across the whole roof. Walk the moisture-sandwich story live, then land the right answer.</div>
+
+      <details class="recall-check">
+        <summary>What are the 4 proof tools, and what does each prove?</summary>
+        <p class="answer"><span class="label">Answer</span>The pull-test (Dynasty armor-zone, 130 mph, the customer cannot pull it free), plywood over OSB (laminated sheets vs glued chips that swell), synthetic underlayment over 30-pound felt (breathes, and tar migrates as felt degrades from day one), and the moisture-sandwich story (full ice-and-water traps moisture and caused mold plus a ceiling leak). Show, do not tell.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="ground">
+    <div class="wrap">
+      <h2>Read the Roof From the Ground</h2>
+      <p class="intro">You become a roofing expert in the first 2 seconds, before you ever set up. A handful of visible tells let you call out the roof's real condition from the driveway, and the customer instantly trusts that you know what you are looking at.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>What you see</th><th>What it tells you</th><th>What you say</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Curled shingles</td><td>A hot, poorly ventilated attic baking the roof from below. Bad ventilation can cut a brand new 30-year roof down to 5 to 8 years.</td><td>"Those curled edges tell me the attic is running hot. That heat is aging the roof from the inside."</td></tr>
+          <tr><td>Fish-mouthing / humping</td><td>Shingles set too tight, with no room to move. They lift and buckle instead of lying flat.</td><td>"See how those are humping up? Those were laid too tight. That is an install problem, not a weather problem."</td></tr>
+          <tr><td>Dark fascia stains</td><td>Drainage or condensation escaping where it should not. Water is finding a way out the wrong place.</td><td>"Those streaks on the fascia mean water is getting out somewhere it shouldn't. Let's find where."</td></tr>
+          <tr><td>Shingles on a low slope</td><td>A pitch around 5 degrees or less should not carry shingles. Odds are it already leaks and needs rolled rubber or SBS.</td><td>"Shingles on a slope that flat will leak. That section needs rubber, not shingle. Whoever did this got it wrong."</td></tr>
+        </tbody>
+      </table>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"Bad ventilation can take a brand new 30-year roof and cut it down to 5 to 8 years. If the attic is roasting, that roof does not have proper ventilation. There's no question of it. None."</blockquote>
+
+      <div class="callout"><strong>The payoff:</strong> calling a defect from the ground earns instant credibility. The customer stops wondering whether you know roofs, and that trust carries the rest of the appointment.</div>
+
+      <div class="manager-prompt">Ask the room: you pull up and the shingle edges are curling. What do you say in one sentence before you even ring the bell?</div>
+
+      <details class="recall-check">
+        <summary>What does a curled shingle tell you, and what's the number behind it?</summary>
+        <p class="answer"><span class="label">Answer</span>Curled shingles signal a hot, poorly ventilated attic. Bad ventilation can cut a brand new 30-year roof down to 5 to 8 years. Calling it from the ground (along with fish-mouthing, fascia stains, and shingles on a low slope) makes you the roofing expert in the first 2 seconds.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="warranty">
+    <div class="wrap">
+      <h2>The Warranty Teardown</h2>
+      <p class="intro">A warranty is only worth what it pays when something breaks. The competitor's headline number is bigger and the coverage is thinner. Here is what an IKO roof actually promises, and the traps that quietly deny a cheaper one.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>The trap</th><th>How it gets denied</th><th>The number</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>The algae warranty</td><td>The "25-year" algae warranty requires proof of a certified chemical wash every 2 years, with banned-chemical and "excessive roof traffic" clauses. Lose one receipt over a decade and the claim is denied. Most customers are out by year 3 and never know.</td><td>$6,000 to $13,000 in hidden washes</td></tr>
+          <tr><td>The "50-year" headline</td><td>It pays a depreciated, material-only check or a store voucher for more shingles. No tear-off, no labor, no disposal. It exists to sell the shingle, not to put a roof on the house.</td><td>~$150 check at 50 years</td></tr>
+          <tr><td>Solar penetrations</td><td>If the roof and solar are done by a company with no manufacturer relationship for solar installs, the penetration becomes the reason to deny.</td><td>~65% more likely to be denied</td></tr>
+          <tr><td>Contractor out of business</td><td>The labor warranty dies with the company. Roughly 75% of businesses fail within 5 years, and the claim goes with them.</td><td>~75% more likely to be denied</td></tr>
+          <tr><td>Cold-weather install</td><td>Competitors embed below-temperature language. They check the receipt, see a January install, and ask if it was below 40. That is where the denial starts.</td><td>The date on the receipt</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout--compliance"><strong>The IKO answer:</strong> zero maintenance to stay valid, the warranty active the minute the shingle goes down (cold weather included), and the customer covered twice, by IKO on the material and Trinity on the labor, matching terms, one phone call. IKO honors within its guidelines on a few photos with no adversarial inspection.</div>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"The customer's not covered once, they're covered twice, by two different companies. That's rare, especially for matching warranties. One roof, one house, one customer, one phone call."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"The 50 year is window dressing. At 50 years the average customer gets about a $150 check, or a voucher to a store for shingles. It was done to get you to buy the shingle. That's all it was."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"They're 65% more likely to have the claim denied if they went with somebody who doesn't have a relationship with the manufacturer for solar installs. There's our mic drop."</blockquote>
+
+      <div class="manager-prompt">Ask the room: which of these 5 traps does the competitor never mention at the table? How do you raise it without calling them a liar?</div>
+
+      <details class="recall-check">
+        <summary>Name the 5 warranty traps and one number for each.</summary>
+        <p class="answer"><span class="label">Answer</span>The algae warranty ($6,000 to $13,000 in required washes, lost on one missing receipt), the "50-year" headline (~$150 material-only check or a voucher), solar penetrations (~65% more likely denied), contractor out of business (~75% more likely denied), and cold-weather install (denied off the receipt date). IKO requires zero maintenance, covers the customer twice, and honors on photos.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="integration">
+    <div class="wrap">
+      <h2>Why IKO Makes Every Component</h2>
+      <p class="intro">A warranty is only as good as the company behind it. IKO owns quality end to end because it builds every piece in-house, and the reasons it pays when others dodge are concrete enough to say out loud.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Vertical integration</h3>
+          <p><strong>IKO makes every component (granules, adhesive, mats) in its own plants.</strong> When you build it yourself, you control quality on every piece. When a competitor buys parts from others, no one owns the failure.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>A true square is a true square</h3>
+          <p><strong>3 bundles of IKO make a full 100 sq ft.</strong> Some competitors' 3 bundles cover 98.4, so more bundles get added on install day. That is one reason cheaper jobs "magically" need another stack in the truck.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Why you don't know the name</h3>
+          <p><strong>IKO spends on the product and the factory, not on licensing, golf tournaments, and Vegas rep trips.</strong> Not being on the store shelf is a feature, not a weakness. They convince contractors with results.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Honors on photos, no fight</h3>
+          <p><strong>Within its guidelines, IKO honors a claim on a few photos, no inspection.</strong> A competitor's whole inspection process is built to find a reason not to pay.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"If you build it yourself, you had quality control over every single component. The person who manufactured a component that went into someone else's shingle bears no responsibility for how it performs."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"It's always shocking how they didn't have enough shingles, but magically they have another stack in the truck they can happily charge you for. That's a hell of a coincidence, isn't it?"</blockquote>
+
+      <div class="manager-prompt">Ask the room: a customer says "I've never heard of IKO." Turn that into a selling point in one sentence.</div>
+
+      <details class="recall-check">
+        <summary>A customer says "I've never heard of IKO." What's the reframe?</summary>
+        <p class="answer"><span class="label">Answer</span>IKO spends on the product and the factory instead of national advertising, licensing, and rep trips, which is why contractors who know roofing choose it. Not being on the store shelf is the point: the money went into the shingle, into vertical integration that controls every component, and into a warranty they honor on photos.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="mindset">
+    <div class="wrap">
+      <h2>Over, Under, Around, or Through the Wall</h2>
+      <p class="intro">Product knowledge makes you credible. Mindset is what carries you when the appointment hits a wall. Slaninka's rule is simple: your first thought decides the outcome, so train the first thought.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>The thought that loses</h3>
+          <p><strong>"I failed."</strong> The moment that is your first reaction to an obstacle, the outcome is decided. You stop looking for the path and start narrating the loss.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>The thought that wins</h3>
+          <p><strong>"How do I get around this?"</strong> Adversity becomes an opening for a clever solution. You find a way over, under, around, or through the wall, because you assumed there was one.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Michael Slaninka</span>"If your first thought is 'I failed,' you did, guaranteed. If your first thought is 'how do I fix the problem, how do I get around this,' you'll be successful. Adversity is an opportunity for a clever solution."</blockquote>
+
+      <h3 class="checklist-head">Carry these into every roof appointment</h3>
+      <ul class="checklist list-cols">
+        <li>Lead with the system, not the shingle.</li>
+        <li>Show a proof, do not recite a spec.</li>
+        <li>Call one defect from the ground for instant credibility.</li>
+        <li>Open the hood on the competitor's warranty with facts.</li>
+        <li>Frame the customer as covered twice, one phone call.</li>
+        <li>When you hit a wall, ask how to get around it.</li>
+      </ul>
+
+      <div class="callout callout--compliance"><strong>Stay honest.</strong> Open the hood on the competitor's coverage with facts and questions. Do not call another company a liar or guarantee a claim outcome. Let the homeowner read their own fine print and reach the conclusion.</div>
+
+      <div class="manager-prompt">Role-play: a roof appointment just stalled on price. Walk the room through finding a way "around the wall" instead of folding.</div>
+
+      <details class="recall-check">
+        <summary>What's the one mindset rule that decides the appointment?</summary>
+        <p class="answer"><span class="label">Answer</span>Your first thought decides the outcome. "I failed" guarantees failure. "How do I get around this?" turns adversity into an opening for a clever solution, so you find a way over, under, around, or through the wall.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>We sell a system, not a shingle: 6 engineered layers working together for the life of the warranty.</li>
+      <li>Show, do not tell: the pull-test (130 mph), plywood over OSB, synthetic over felt, the moisture sandwich.</li>
+      <li>Read the roof from the ground: curled shingles cut a 30-year roof to 5 to 8 years.</li>
+      <li>The warranty traps: algae ($6,000 to $13,000), the $150 "50-year" voucher, solar 65%, contractor gone 75%, cold-weather.</li>
+      <li>IKO makes every component, so it owns quality and honors claims on photos. A true square is a true square.</li>
+      <li>Mindset: "I failed" loses, "how do I get around this" wins. Find a way over, under, around, or through.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Closer Playbooks series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

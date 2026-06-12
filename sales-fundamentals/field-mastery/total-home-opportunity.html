@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trinity Total Home: The Bigger Opportunity · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#homeowner"><span class="num">1</span> A Homeowner, Not a Solar Customer</a>
+      <a href="#heart"><span class="num">2</span> Don't Break the Heart</a>
+      <a href="#higher"><span class="num">3</span> Lead With the Higher Number</a>
+      <a href="#attachment"><span class="num">4</span> Solar as the Attachment</a>
+      <a href="#tiers"><span class="num">5</span> Good, Better, Best</a>
+      <a href="#habit"><span class="num">6</span> Make It a Habit</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Field Mastery · Multi-Product · Total Home</span>
+    <h1>You're Talking to a <em>Homeowner</em></h1>
+    <p class="lede"><strong>Walk in as a solar rep and you cast the smallest net.</strong> US residential solar is roughly a $15 billion market. Storage is bigger, near $25 billion. Roofing is bigger still, near $70 billion. The person across the table owns a whole home, not a solar account, so introduce the whole home every single time.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="homeowner">
+    <div class="wrap">
+      <h2>A Homeowner, Not a Solar Customer</h2>
+      <p class="intro">Sizing the real market reframes the whole appointment. If you only talk solar, you fish the smallest pond in the house. You are statistically more likely to sell a roof or a battery, and Trinity can help the customer pay for either from money already in their budget.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--amber">
+          <h3>Solar, roughly $15B</h3>
+          <p><strong>The smallest net you can cast.</strong> Real, but the narrowest slice of what the homeowner in front of you actually buys and owns.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Storage, roughly $25B</h3>
+          <p><strong>A bigger market than solar.</strong> More homeowners want backup and resilience than you assume, and most have never been offered it.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Roofing, roughly $70B</h3>
+          <p><strong>The largest market of the three.</strong> Every home has a roof, every roof ages, and you can see the problem from the driveway.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"I'm not just here about solar. You own a whole home, and my job is to look at the whole thing: the roof over your head, keeping the lights on in an outage, and your electric bill. Let's start outside and look at all of it together."</blockquote>
+
+      <div class="callout"><strong>The reframe:</strong> introduce yourself as a whole-home consultant, not a solar rep. The moment you are the home expert instead of the solar expert, you have earned the right to talk about the roof and the battery.</div>
+
+      <div class="manager-prompt">Ask the room: when you knock or sit down, do you sound like a solar rep or a home consultant? What is the first sentence that changes that?</div>
+
+      <details class="recall-check">
+        <summary>Why does leading with solar cast the smallest net?</summary>
+        <p class="answer"><span class="label">Answer</span>Solar is roughly a $15 billion market, storage roughly $25 billion, and roofing roughly $70 billion. You are talking to a homeowner who owns all three needs, so a solar-only opening ignores the two larger opportunities sitting in the same house.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="heart">
+    <div class="wrap">
+      <h2>Don't Let the Customer's Heart Get Broken</h2>
+      <p class="intro">Not offering a product is not a neutral act. It is a decision you made for the customer without telling them. If you never raise the battery or the roof, you are betting their home stays lucky, and a competitor will sell them the thing you left on the table.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>What "I'll just do solar" can cost them</h3>
+          <ul>
+            <li><strong>A power outage with damage</strong> after you never offered a battery. That is on you, not on bad luck.</li>
+            <li><strong>A roof failure in a few years</strong> you saw and never raised, now a full out-of-pocket replacement.</li>
+            <li><strong>A competitor's call.</strong> One storage company already phoned Trinity solar-only customers and sold them the batteries Trinity left behind.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Offering it is how you serve</h3>
+          <ul>
+            <li><strong>Present every product</strong> so the homeowner chooses with full information, not a gap you decided for them.</li>
+            <li><strong>Let them say no.</strong> A declined battery is a served customer. A battery never mentioned is an unserved one.</li>
+            <li><strong>You become the reason they were helped,</strong> not the reason they were not.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"I'd rather you tell me no than have me never bring it up. If the power goes out next winter and your basement floods, I don't want that to be the day you find out I could have helped and stayed quiet. So let me show you everything, and you decide."</blockquote>
+
+      <div class="manager-prompt">Ask the room: name a deal where you only sold solar and later found out they needed the roof or the battery. How would you run that appointment today?</div>
+
+      <details class="recall-check">
+        <summary>Why is failing to present a product not "neutral"?</summary>
+        <p class="answer"><span class="label">Answer</span>Skipping the battery or the roof is a choice you made for the customer without telling them. If they later take a loss you could have prevented, that is on you, and a competitor will happily sell the product you left on the table. Offering everything and letting them decline is how you actually serve them.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="higher">
+    <div class="wrap">
+      <h2>Stop Spending Their Money for Them</h2>
+      <p class="intro">Reps trained as "solar equals savings" people instinctively quote the cheapest option and talk the customer out of value. Lead with the higher number, the self-powered home, and let them back down if they want. You can always remove the battery. It is very hard to add $150 a month back in after you anchored low.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--ink">
+          <h3>Pay the utility, get nothing</h3>
+          <p><strong>Roughly $300 a month to the utility,</strong> forever, with nothing to show for it and a rate that keeps climbing.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Solar, lock the rate</h3>
+          <p><strong>Roughly $240 a month for solar,</strong> a locked rate the homeowner controls instead of one the utility raises.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>The self-powered home</h3>
+          <p><strong>Roughly $350 net for solar plus a whole-home battery.</strong> Some homeowners find the backup story more appealing than the savings story, and they never get there if you never offer it.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Rep · presenting the options</span>"You can pay the utility around $300 a month and get nothing back. You can do solar around $240 and lock your rate in. Or for about $350 net you get the self-powered home, solar plus a battery, so an outage stops being your problem. I'll lay all three out and you tell me which fits."</blockquote>
+
+      <div class="callout"><strong>Get your hands out of their pockets.</strong> When you pre-decide that they cannot afford the battery, you have spent their money for them. Present the higher number with conviction. You can always back the payment out. You can rarely add it back.</div>
+
+      <div class="manager-prompt">Ask the room: how often do you quote the cheapest option first because you assumed the budget? What does anchoring on the self-powered home change?</div>
+
+      <details class="recall-check">
+        <summary>Why lead with the higher number instead of the cheapest option?</summary>
+        <p class="answer"><span class="label">Answer</span>You can always back the battery out and drop to solar-only, but it is very hard to add $150 a month back after you anchored low. Leading with the self-powered home lets the customer decompress to a smaller package and still feel they chose it, and some buyers prefer the backup story to the savings story.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="attachment">
+    <div class="wrap">
+      <h2>Let Solar Become the Attachment</h2>
+      <p class="intro">Reps carry a fear of "attachments" that bump the deal cost and scare the customer. Flip it. Lead with the roof or the battery, because if you can sell those, sliding solar in is easy. Every product is still the savings story, just in a new form.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--amber">
+          <h3>The old fear</h3>
+          <ul>
+            <li><strong>Solar first, everything else "extra."</strong> The roof and battery feel like upsells that threaten a clean solar deal.</li>
+            <li><strong>You flinch at the bigger number,</strong> so you never raise the products with the biggest markets.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>The flip</h3>
+          <ul>
+            <li><strong>Lead with the roof or the battery.</strong> They are visible, urgent, and easy for the homeowner to see the need.</li>
+            <li><strong>Solar becomes the easy slide.</strong> Once they trust you on the roof, adding solar is the attachment, not the fight.</li>
+            <li><strong>The roof is the path of least resistance:</strong> it gets the homeowner outside and connected to the house with you.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">On the walk-around</span>"Before we talk panels, how do you feel about your roof? Can I show you what I see? Let's look together. Once we've got a plan for the roof, here's the part most people love: there's a way to help pay for it, and your electric bill, at the same time."</blockquote>
+
+      <div class="callout"><strong>Still the savings story.</strong> A roof saves a future replacement, a denied insurance claim, a lost policy. A battery saves a lost workday, a hotel night, spoiled food, basement water damage, and future time-of-use rates. Every product saves the customer money, just in a new form.</div>
+
+      <div class="manager-prompt">Ask the room: which product are you most afraid to bring up first? What would change if you opened with it on the stoop?</div>
+
+      <details class="recall-check">
+        <summary>What does "let solar become the attachment" mean in practice?</summary>
+        <p class="answer"><span class="label">Answer</span>Lead with the roof or the battery, which are visible and easy for the homeowner to see the need for. Once you have sold one of those, adding solar is an easy slide instead of a separate fight. The dragon to slay is the fear of leading with anything other than solar.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="tiers">
+    <div class="wrap">
+      <h2>Good, Better, Best: The Total Home Tiers</h2>
+      <p class="intro">This is the Men's Wearhouse strategy: offer everything, and the customer still leaves with something. You will not get all three products every time, but naming the full ecosystem reinforces the sale instead of threatening it. A high tier gives buyers a decompression path so they can decline a piece and still buy, feeling they got the value option.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Tier</th><th>What's in it</th><th>The story</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Best · Trinity Total Home</td><td>Roof, battery, solar.</td><td>The whole home handled, with the avoided future roof replacement mapped out. One trip, one trusted installer.</td></tr>
+          <tr><td>Better · Peace of Mind</td><td>Battery plus solar.</td><td>The standard. Locked rate plus whole-home backup, so an outage stops being the customer's problem.</td></tr>
+          <tr><td>Good · Solar</td><td>Solar only.</td><td>A la carte. A locked rate and real savings, but the customer hears what they passed on and chose it knowingly.</td></tr>
+        </tbody>
+      </table>
+
+      <blockquote class="script-example"><span class="who">Rep · naming the tiers</span>"Our Total Home package is the roof, the battery, and the solar, the whole home handled at once. The middle is the peace-of-mind package, battery and solar, and that's the one most people land on. You can go a la carte with just solar, that's fine, I just don't want you to short yourself."</blockquote>
+
+      <div class="callout"><strong>The decompression path:</strong> a customer who sees the high tier can step down to the middle and still feel they got the smart deal. With no high tier to step down from, solar-only feels like the ceiling instead of the floor. Offer everything and you leave with a signed contract of some kind.</div>
+
+      <div class="manager-prompt">Ask the room: when did naming all three tiers turn a solar-only deal into a battery-and-solar deal? Walk it back: what made them step up, or feel good stepping down?</div>
+
+      <details class="recall-check">
+        <summary>Why present a "best" tier you know most won't buy?</summary>
+        <p class="answer"><span class="label">Answer</span>The high tier gives buyers a decompression path: they can decline the roof or battery and still buy solar, feeling they chose the value option rather than hit a ceiling. Offering the full ecosystem (the Men's Wearhouse strategy) means the customer almost always leaves with a signed contract of some kind.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="habit">
+    <div class="wrap">
+      <h2>Make Multi-Product a Habit</h2>
+      <p class="intro">The bigger opportunity only pays off if it becomes automatic. Build two small habits on every appointment: introduce the whole home, and ask the roof age and log it in the notes. A logged roof age turns an unclosed lead into a warm re-engagement three months later with a different product.</p>
+
+      <div class="card-grid">
+        <div class="step">
+          <h3>1. Introduce the whole home</h3>
+          <p>Open as a whole-home consultant, not a solar rep, so you have earned the right to discuss the roof and the battery.</p>
+          <span class="src">Every appointment</span>
+        </div>
+        <div class="step">
+          <h3>2. Ask roof age, log it</h3>
+          <p>Ask the roof age and known issues in discovery, then write it in the Salesforce notes. It costs 10 seconds and it never expires.</p>
+          <span class="src">In the notes</span>
+        </div>
+        <div class="step">
+          <h3>3. Re-engage in 3 months</h3>
+          <p>An unclosed lead is not dead. A logged roof age, a new finance partner, or a battery is a fresh reason to call and a fresh way for them to say yes.</p>
+          <span class="src">The follow-up</span>
+        </div>
+      </div>
+
+      <h3 class="checklist-head">The every-appointment habit</h3>
+      <ul class="checklist list-cols">
+        <li>Introduced yourself as a whole-home consultant, not a solar rep.</li>
+        <li>Walked the roof and asked how they feel about it.</li>
+        <li>Asked the roof age and any known issues.</li>
+        <li>Logged the roof age in the Salesforce notes.</li>
+        <li>Presented the self-powered home before the cheaper option.</li>
+        <li>Named the good, better, best tiers out loud.</li>
+      </ul>
+
+      <div class="callout callout--compliance"><strong>On solar, set the bar low and over-deliver.</strong> Only about 1 in 3 homes qualifies for solar, so lead with what solar CAN do and let the result beat the promise. A customer covering even part of their usage still comes out ahead. Never imply solar erases the entire bill.</div>
+
+      <div class="manager-prompt">Role-play: a solar-only appointment from last quarter that didn't close. Re-engage it today with a roof age you logged and a different product. Run the call live.</div>
+
+      <details class="recall-check">
+        <summary>Why log the roof age even when you don't sell a roof today?</summary>
+        <p class="answer"><span class="label">Answer</span>An unclosed lead is not dead. A roof age logged in the notes lets you re-engage that homeowner in 3 months with a different product (a roof, a battery, or a new finance option), giving them a fresh reason to say yes. It costs 10 seconds at the appointment and never expires.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>You're talking to a homeowner, not a solar customer: solar ~$15B, storage ~$25B, roofing ~$70B.</li>
+      <li>Don't let their heart get broken. Never offering the battery or roof is a failure to serve, not neutral.</li>
+      <li>Lead with the higher number, the self-powered home. You can back the battery out; you can't easily add it back.</li>
+      <li>Let solar become the attachment. Lead with the roof or battery, and sliding solar in is easy.</li>
+      <li>Offer good, better, best. A high tier gives buyers a decompression path and you leave with a signed contract.</li>
+      <li>Ask roof age and log it every appointment, so an unclosed lead is a warm call in 3 months.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Field Mastery series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

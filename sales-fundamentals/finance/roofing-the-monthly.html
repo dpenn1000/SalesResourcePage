@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead With the Monthly · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#cash-flow"><span class="num">1</span> Cash-Flow Buyer</a>
+      <a href="#lead-monthly"><span class="num">2</span> Lead With Monthly</a>
+      <a href="#release"><span class="num">3</span> The Release</a>
+      <a href="#twenty-year"><span class="num">4</span> 20-Year Feature</a>
+      <a href="#ridiculous"><span class="num">5</span> The Ridiculous</a>
+      <a href="#third-party"><span class="num">6</span> Third-Party Anchor</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Finance · Roofing · Cash Flow</span>
+    <h1>Lead With the <em>Monthly</em></h1>
+    <p class="lede"><strong>Most homeowners are cash-flow buyers, not price buyers.</strong> The total price loses them before you reach the payment. Trinity's real roofing advantage is the monthly, so lead with it. Here is how to anchor, release, and shrink the gap until the cheaper roof becomes the expensive one.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="cash-flow">
+    <div class="wrap">
+      <h2>Most Customers Are Cash-Flow Buyers</h2>
+      <p class="intro">Most homeowners live paycheck to paycheck. They do not decide on the sticker price, they decide on whether it fits the month. We overvalue the price gap and undervalue the one thing only we can do: spread it over 20 years.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>How a price buyer thinks</h3>
+          <ul>
+            <li><strong>Their price versus ours.</strong> A side-by-side number game where the lowest figure wins.</li>
+            <li><strong>The rep we are NOT.</strong> Most roofs do not sell on the cheapest number, and chasing it is a losing game.</li>
+            <li><strong>A rare buyer.</strong> Very few homeowners can write a check for the whole roof today.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>How a cash-flow buyer thinks</h3>
+          <ul>
+            <li><strong>What do I come up with today?</strong> The real comparison is the cash out of pocket now, not the total price.</li>
+            <li><strong>Does it fit the month?</strong> They rationalize the buy against the budget they already live on.</li>
+            <li><strong>Trinity's edge.</strong> Competitors usually want half up front. We can hand them a monthly and a 20-year loan most roofers cannot offer.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Rep · framing the decision</span>"It is not their price versus our price. It is how much money you have to come up with today. Most roofers want half up front. We can take the roof you need and turn it into a payment that fits the budget you already have."</blockquote>
+
+      <div class="manager-prompt">Ask the room: think of your last lost roof. Were you arguing total price against a competitor, or did you ever move the conversation to the monthly? What would have changed?</div>
+
+      <details class="recall-check">
+        <summary>What is the real comparison for a cash-flow buyer?</summary>
+        <p class="answer"><span class="label">Answer</span>Not their price versus our price. It is how much cash the homeowner has to come up with today. They live month to month, so the buy gets judged against the monthly budget, which is exactly where our 20-year payment beats a competitor who wants half up front.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="lead-monthly">
+    <div class="wrap">
+      <h2>Lead With the Monthly, Never the Price</h2>
+      <p class="intro">For a cash-flow buyer, "$20,000 roof" is a red-flag phrase. They are sold off the deal before you ever reach the payment. The order you say it in changes the answer, so the monthly comes first, every time.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--red">
+          <h3>The phrase that loses them</h3>
+          <p><strong>"This is a $20,000 roof."</strong> A cash-flow buyer hears one big number, decides they cannot afford it, and stops listening to anything after it.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>The phrase that holds them</h3>
+          <p><strong>"This comes to about $150 a month."</strong> Now it lands against a budget they already manage, and they stay in the conversation to weigh it.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Order changes the answer</h3>
+          <p><strong>Same 10 facts, different result.</strong> Give the monthly first, then the value, then the total only if they ask. How they feel about it is set by what they heard first.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Rep · opening the number</span>"Let me put it in terms that actually matter to your month. This protects the home for about $150 a month. That is what we are really deciding on, not a sticker on a brochure."</blockquote>
+
+      <div class="manager-prompt">Ask the room: a rep blurts the total purchase price first out of habit. In one sentence, how do you reset and put the monthly back in front?</div>
+
+      <details class="recall-check">
+        <summary>Why is the total purchase price a red-flag phrase?</summary>
+        <p class="answer"><span class="label">Answer</span>A cash-flow buyer hears one big number, decides it does not fit, and tunes out before you reach the payment. Lead with the monthly so the buy gets measured against the budget they already live on, then give the total only if they ask.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="release">
+    <div class="wrap">
+      <h2>The Payment-Conditioning Release</h2>
+      <p class="intro">Start with the biggest sword, then release. Quote the 5-year-loan monthly first, let them feel it, then "release" to the same per-square price on a 20-year loan. The conditioning is the close, and the cheaper per-square rate stays in your pocket.</p>
+
+      <ol class="step-grid">
+        <li class="step">
+          <h3>1. Anchor on the 5-year</h3>
+          <p>Present the short loan first: the same roof at <strong>$350 a month</strong> on a 5-year term. Let them react to the big number.</p>
+          <span class="src">Anchor high</span>
+        </li>
+        <li class="step">
+          <h3>2. Release to the 20-year</h3>
+          <p>Same per-square price, longer term: <strong>$150 a month</strong> on a 20-year loan. The relief does the selling.</p>
+          <span class="src">The release</span>
+        </li>
+        <li class="step">
+          <h3>3. Keep the cheap rate in your pocket</h3>
+          <p>The gap between <strong>$8 and $9 a square is only about $17 a month.</strong> Hold the lower per-square rate in reserve for the negotiation, do not lead with it.</p>
+          <span class="src">Hold value</span>
+        </li>
+      </ol>
+
+      <div class="callout"><strong>Why it works:</strong> if you led with $150, they would go hunting for $130. By anchoring on $350 first, the $150 reads as a gift instead of a starting point. You never offered two prices, you offered one price and two terms.</div>
+
+      <blockquote class="script-example"><span class="who">Rep · running the release</span>"On a 5-year payoff this roof runs about $350 a month. I know, that is real money. Here is the good part: same roof, same price per square, stretched over 20 years, it drops to around $150 a month. Same roof, the term is just doing you a favor."</blockquote>
+
+      <div class="manager-prompt">Role-play: run the release start to finish. Anchor on the 5-year, pause for the reaction, then release to the 20-year. What does the rep do with their face during the pause?</div>
+
+      <details class="recall-check">
+        <summary>Why quote the 5-year monthly before the 20-year?</summary>
+        <p class="answer"><span class="label">Answer</span>It anchors them on a high payment ($350), so when you release to the same per-square price on a 20-year loan ($150), the lower number feels like relief instead of a floor to negotiate down from. Keep the cheaper per-square rate ($8 versus $9, about $17 a month) in your pocket for later.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="twenty-year">
+    <div class="wrap">
+      <h2>The 20-Year Loan Is a Feature, Not an Apology</h2>
+      <p class="intro">Do not apologize for the long term. Sell it as fluidity. Most roofers cannot offer a 20-year loan at all, so the term itself is an advantage, and you are encouraged to pay it off early.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Simple interest, no penalty</h3>
+          <p><strong>You are not going to go 20 years.</strong> It is simple interest with no charge for paying early, so an early payoff is rewarded, not penalized.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Keeps the budget fluid</h3>
+          <p><strong>The low payment keeps cash flexible.</strong> The homeowner holds their money instead of draining savings or putting half down up front.</p>
+        </div>
+        <div class="training-card">
+          <h3>Then it drops back down</h3>
+          <p><strong>Pay the roof off and the payment falls</strong> back toward the low solar payment, so the budget headroom comes back over time.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Money already in the budget</h3>
+          <p><strong>Most people who need a roof skip it because they think they cannot afford it.</strong> What they can really afford is to not do it, until it leaks. The 20-year term turns existing monthly budget into a new roof.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Rep · positioning the term</span>"It is 20 years on paper, but you are not going to keep it that long. It is simple interest, no penalty for paying early, we actually reward you for it. It just keeps your money fluid, and when you pay it off the payment drops right back down."</blockquote>
+
+      <div class="manager-prompt">Ask the room: a customer says "20 years, that is forever, I do not want to be paying this when I retire." How do you turn the term into the reason to say yes?</div>
+
+      <details class="recall-check">
+        <summary>How do you sell the 20-year term as a feature?</summary>
+        <p class="answer"><span class="label">Answer</span>It is simple interest with no penalty for paying early, so the long term keeps the budget fluid while letting the homeowner pay it off whenever they want, after which the payment drops back toward the low solar payment. Most roofers cannot offer a 20-year loan at all, so the term is an advantage, not an apology.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="ridiculous">
+    <div class="wrap">
+      <h2>Reduce It to the Ridiculous</h2>
+      <p class="intro">Make big numbers small and small numbers big. When the gap between you and the cheap guy is a few thousand dollars, divide it down to a daily number until it sounds ridiculous to lose the deal over it.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>The gap</th><th>Divided out</th><th>What it really is</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>$3,000 to $5,000 price difference</td><td>Over 300 months</td><td>About $10 a month</td></tr>
+          <tr><td>That same difference</td><td>By the day</td><td>About 50 cents a day</td></tr>
+          <tr><td>What the 50 cents buys</td><td>25-year labor warranty, calls answered 24/7</td><td>Service you can reach versus a dial tone you might not get</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout"><strong>The flip:</strong> a 25-year labor warranty divided out makes the cheap guy the most expensive option. The question is no longer "why are you more?" It becomes "do you really want to risk service over 50 cents a day?"</div>
+
+      <blockquote class="script-example"><span class="who">Rep · shrinking the gap</span>"That difference works out to about $10 a month, call it 50 cents a day. For 50 cents a day, do you want to wonder whether you even get a dial tone when you call for service in year eight? That is the whole decision, 50 cents."</blockquote>
+
+      <div class="manager-prompt">Ask the room: take a real $4,000 gap from this week. Walk the math out loud, 300 months, then per day. How does the customer's body language change when it lands?</div>
+
+      <details class="recall-check">
+        <summary>How do you reduce a $3,000 to $5,000 gap to the ridiculous?</summary>
+        <p class="answer"><span class="label">Answer</span>Divide it over 300 months to get about $10 a month, then down to roughly 50 cents a day. Then attach the value to the number: for 50 cents a day they keep a 25-year labor warranty and service answered 24/7, which makes risking it sound ridiculous.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="third-party">
+    <div class="wrap">
+      <h2>Let a Third Party Do the Conditioning</h2>
+      <p class="intro">You do not have to be the one who sets the price expectation. Cite an outside regional average, establish where you sit against it, then your real number reads as a deal instead of a cold figure you pulled from the air.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--ink">
+          <h3>The third-party anchor</h3>
+          <ul>
+            <li><strong>Cite a regional average.</strong> The Journal of Light Construction publishes a per-square average for the customer's area (for example, $12.50 a square).</li>
+            <li><strong>Establish where you sit.</strong> Show that you are at or below that published average, so the source does the heavy lifting, not you.</li>
+            <li><strong>Then drop to your real number.</strong> Your actual price now reads as a deal against an independent benchmark, and people have just been saying yes to higher.</li>
+          </ul>
+        </div>
+        <div class="objection-handling">
+          <p class="objection">"You are not the cheapest, my buddy got it for less."</p>
+          <p class="counter"><strong>Name the gap before they do, with Feel / Felt / Found.</strong> "I get how that feels, and you are right, we are not the cheapest on the block by any stretch. Other folks have felt the same. What they found is the regional average runs around $12.50 a square, and we came in under that, with a 25-year warranty the cheap quote does not carry. That is the best value, not the lowest price."</p>
+        </div>
+      </div>
+
+      <h3 class="checklist-head">Lead-with-the-monthly checklist</h3>
+      <ul class="checklist list-cols">
+        <li>Identified the buyer as cash-flow, not price, early in the conversation.</li>
+        <li>Led with the monthly payment, kept the total purchase price out of front.</li>
+        <li>Anchored on the 5-year monthly, then released to the 20-year.</li>
+        <li>Held the cheaper per-square rate in your pocket for the negotiation.</li>
+        <li>Sold the 20-year term as fluidity: simple interest, pay early, no penalty.</li>
+        <li>Reduced any remaining gap to a daily number tied to real value.</li>
+        <li>Let a third-party average set the price expectation before your number.</li>
+      </ul>
+
+      <div class="callout callout--compliance"><strong>Stay honest.</strong> Quote real published averages and real loan terms. Do not invent a benchmark or promise a payment a customer does not qualify for. Lead with the monthly to make the value clear, not to hide the total. The homeowner can always see the full number.</div>
+
+      <div class="manager-prompt">Role-play: a customer waves a cheaper competitor quote. Open with the third-party average, establish where you sit, then release to your number. Run it once without ever dropping the per-square rate.</div>
+
+      <details class="recall-check">
+        <summary>Why cite a third-party average before your own price?</summary>
+        <p class="answer"><span class="label">Answer</span>An outside source like the Journal of Light Construction sets the price expectation for you, so it is not your figure they are reacting to. Once they see you are at or below the published regional average ($12.50 a square), your real number reads as a deal against an independent benchmark instead of a cold ask.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Most homeowners are cash-flow buyers. The real comparison is what they come up with today, not their price versus ours.</li>
+      <li>Lead with the monthly. "$20,000 roof" is a red-flag phrase that loses them before the payment.</li>
+      <li>Anchor on the 5-year monthly ($350), then release to the same price on a 20-year loan ($150).</li>
+      <li>Keep the cheaper per-square rate in your pocket. $8 versus $9 a square is only about $17 a month.</li>
+      <li>The 20-year term is a feature: simple interest, no early-payoff penalty, keeps the budget fluid.</li>
+      <li>Reduce the gap to the ridiculous: a $3,000 to $5,000 difference is about $10 a month, 50 cents a day.</li>
+      <li>Let a third-party average ($12.50 a square) condition the price, then your number reads as a deal.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Sales Fundamentals · Finance series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

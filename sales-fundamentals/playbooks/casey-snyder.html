@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Relationship-First Closer · Casey Snyder · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#phrases"><span class="num">1</span> The Three Phrases</a>
+      <a href="#motivation"><span class="num">2</span> Offense vs Defense</a>
+      <a href="#form"><span class="num">3</span> FORM &amp; the Thread</a>
+      <a href="#offends"><span class="num">4</span> Offend the Least</a>
+      <a href="#warm"><span class="num">5</span> Work Your Warm</a>
+      <a href="#roof"><span class="num">6</span> Take the Shot</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Closer Playbook · Casey Snyder</span>
+    <h1>The <em>Relationship-First</em> Closer</h1>
+    <p class="lede"><strong>People forget what you said. They never forget how you felt.</strong> Casey's whole game is lowering every wall, offending no one, and letting the relationship carry the sale. This is his manual: the phrases, the mindset, and the moves that turn a guarded stranger into a customer who asks you what you recommend.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="phrases">
+    <div class="wrap">
+      <h2>The Three Phrases That Lower Every Wall</h2>
+      <p class="intro">Three small language tweaks do most of the heavy lifting. Each one asks permission, protects you, or handles an objection. Used together they make you the tutor sitting beside the customer, not the salesman across the table.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>"May I"</h3>
+          <p><strong>Ask permission, drop the guard.</strong> May I sit next to you. May I take off my shoes. Every request you make and they grant is a small yes that builds the relationship.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>"In my opinion"</h3>
+          <p><strong>Protect yourself on any number.</strong> Frame every figure as an opinion, so you never guaranteed an exact dollar amount. It keeps you honest and keeps you covered.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>"Feel, felt, found"</h3>
+          <p><strong>Handle every objection.</strong> I know how you feel, I felt the same way, here is what I found. It meets the customer where they are before you reframe.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"May I, in my opinion, and feel felt found. Sitting next to them, walls come down, like a tutor not a car salesman. In my opinion gets you out of any number. Feel felt found has made me more money than any phrase."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"I always ask permission to sit next to them. Across the table, somebody puts the guard up. Sit next to them and people associate that with a tutor. The guard comes down."</blockquote>
+
+      <div class="callout"><strong>And at the finish:</strong> the second they sign, give a genuine high five. "Congrats, I'm so excited for you." You watch them go from on the fence to locked in, because you are visibly happy for what just happened on their bill.</div>
+
+      <div class="manager-prompt">Ask the room: which of the three phrases do you already use, and which one do you skip? Have two reps say a feel-felt-found out loud right now.</div>
+
+      <details class="recall-check">
+        <summary>Your move: name the three phrases and what each one does.</summary>
+        <p class="answer"><span class="label">Answer</span>"May I" asks permission and lowers the guard. "In my opinion" protects you on any number so you never guarantee a figure. "Feel, felt, found" handles the objection. Plus: sit beside them not across, and high-five at the signature. Try working all three into your next appointment on purpose.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="motivation">
+    <div class="wrap">
+      <h2>Offense Is Listening. Defense Is Talking.</h2>
+      <p class="intro">Your motivation walking in decides whether you sound genuine. If you came to make a sale, the customer feels it. If you came to help, authenticity follows, and the sale becomes a consequence of being a good human.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>You, on offense</h3>
+          <ul>
+            <li><strong>Listening, saying less.</strong> Every minute you listen, you pick up the keys to the close.</li>
+            <li><strong>Genuinely curious.</strong> The motivation is to help, so the questions are real, not scripted bait.</li>
+            <li><strong>They like you.</strong> People score points with whoever lets them talk.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--red">
+          <h3>You, on defense</h3>
+          <ul>
+            <li><strong>Talking, pitching, filling silence.</strong> When you are talking, you are exposing information, not gathering it.</li>
+            <li><strong>Motivation shows.</strong> If you came to close, the customer reads it and puts the guard up.</li>
+            <li><strong>You stall.</strong> The more you say, the less you learn, and the harder the close gets.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"When somebody's talking, they're on defense. When you're listening, you're on offense. If you're saying less, you're going to score, because they're going to like you."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"If your motivation is to make the sale, you won't be as genuine as humanly possible. If your motivation is to truly help that individual, you're going to be more authentic. The sale is a consequence of you being a good human and caring about people."</blockquote>
+
+      <div class="manager-prompt">Ask the room: in your last appointment, what percent of the talking was you? What would change if you cut your share in half?</div>
+
+      <details class="recall-check">
+        <summary>Your move: who's on offense, the talker or the listener?</summary>
+        <p class="answer"><span class="label">Answer</span>The listener. When the customer talks, they are on defense, exposing what they care about. When you listen, you are on offense, gathering the keys to the close. Try this: pick one upcoming appointment and make it your goal to say less than the customer does.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="form">
+    <div class="wrap">
+      <h2>FORM, the One Thread, and the Flip</h2>
+      <p class="intro">Discovery has a structure: Family, Occupation, Recreation, Motivation. You do not need all four. You need the one that matters most to this customer, and the genuine curiosity to follow it.</p>
+
+      <ul class="step-grid">
+        <li class="step"><h3>F · Family</h3><p>Who lives here, who decides, who they are protecting.</p></li>
+        <li class="step"><h3>O · Occupation</h3><p>What they do, how they think, what they value in a pro.</p></li>
+        <li class="step"><h3>R · Recreation</h3><p>The thing they light up about. Often the real opening.</p></li>
+        <li class="step"><h3>M · Motivation</h3><p>Why this, why now, what they actually want changed.</p></li>
+      </ul>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"I live by FORM: family, occupation, recreation, motivation. If you can identify one of those things that's important to a customer, you're going to sell it seventy, eighty percent of the time."</blockquote>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Find the one genuine thread</h3>
+          <p><strong>Follow the thing you are actually curious about.</strong> A closed-off engineer would not let him in. Casey spotted a wired duck-hunting dog and was genuinely interested. The wall came down.</p>
+          <blockquote class="script-example"><span class="who">Casey Snyder</span>"Engineer wouldn't let me in. It's freezing. I saw a wired duck-hunting dog and was genuinely interested. Forty-five minutes later he's telling me about his adventures across the country, and at the end he said, now what do you recommend?"</blockquote>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Flip the assumption</h3>
+          <p><strong>A question is not always a negative.</strong> Do not defend. Reflect it back, and the "objection" often turns out to be a positive the customer hands you.</p>
+          <blockquote class="script-example"><span class="who">Casey Snyder</span>"She asked what about animals getting under the panels. Instead of saying that never happens, we have guards, I said how do you feel about animals getting under there? She said I'd love that, they'd have another home. Made the sale."</blockquote>
+        </div>
+      </div>
+
+      <div class="manager-prompt">Role-play: a rep gets a concern ("won't this hurt my resale?"). Have them flip it into a question instead of defending. Run it twice.</div>
+
+      <details class="recall-check">
+        <summary>Your move: a customer raises a worry. What do you do before you answer it?</summary>
+        <p class="answer"><span class="label">Answer</span>Reflect it back as a question instead of defending. "How do you feel about that?" The answer often reveals the worry was actually a positive. Pair it with FORM: lock onto the one thread (family, occupation, recreation, or motivation) that matters most and follow it with real curiosity. Try the flip on the next concern you hear.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="offends">
+    <div class="wrap">
+      <h2>Whoever Offends the Least Makes the Most</h2>
+      <p class="intro">Most deals are lost by self-inflicted mistakes, not by the customer. The work here is getting out of your own way: do not volunteer the topics that send people Googling, and treat every hitch as good news.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>Don't hand them a reason to leave</h3>
+          <ul>
+            <li><strong>Skip the inverter brand.</strong> The second you name it, they Google which inverters Trinity uses, and now you are defending instead of closing.</li>
+            <li><strong>Keep your politics off the table.</strong> A Trump photo won one Republican household and immediately lost the next when it auto-popped on his phone.</li>
+            <li><strong>Don't over-volunteer.</strong> There are deals everywhere if you simply do not mess them up.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Everything that goes wrong is "great news"</h3>
+          <ul>
+            <li><strong>No design the first day?</strong> Normal. The customer does not know your process, so set the tone.</li>
+            <li><strong>Only 15 minutes?</strong> Great, that is all you need.</li>
+            <li><strong>Never show the stress.</strong> The more visible disconnects stack up, the less likely the sale.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"Whoever offends the least makes the most. I don't bring up inverters, because the second I do, people Google what inverters Trinity uses. There are so many deals you can grab if you just don't mess it up."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"Whatever it is, it's great news, it's normal. We don't have a design the first day, normal. You only have 15 minutes, great, all I need is 15. The more disconnects add up, the less likely you get the sale."</blockquote>
+
+      <div class="manager-prompt">Ask the room: what is one thing you volunteer in the home that you do not need to? What auto-pops on your screen that you have never thought to turn off?</div>
+
+      <details class="recall-check">
+        <summary>Your move: a hitch comes up mid-appointment. What's your first word?</summary>
+        <p class="answer"><span class="label">Answer</span>"Great." Frame every hitch as good news and normal, because the customer does not know your process and takes the cue from you. And before that: do not volunteer the topics (inverter brand, politics) that send them Googling or put up a wall. Try it: turn off your phone's photo auto-pop before your next appointment.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="warm">
+    <div class="wrap">
+      <h2>Cold Market Is Punishment for Not Working Your Warm</h2>
+      <p class="intro">The relationship does not end at signature, it compounds. The reps driving 90 minutes to a no-show are paying the penalty for an install base they never developed. Decide what you want, then protect the few things that get you there.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--ink">
+          <h3>Develop the warm</h3>
+          <p><strong>Your customers lead you to everyone they know.</strong> A genuine referral on your calendar beats a cold drive to a Home Depot no-show every time.</p>
+          <blockquote class="script-example"><span class="who">Casey Snyder</span>"Cold market is punishment for not developing your warm. When you're driving an hour and a half for a no-show, you could've had an authentic referral on your calendar instead."</blockquote>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Obsessed or average</h3>
+          <p><strong>The wheel of non-negotiables, faith at the hub.</strong> A true non-negotiable is honored like a business you own, not bumped because a friend rolled into town.</p>
+          <blockquote class="script-example"><span class="who">Casey Snyder</span>"You have to be obsessed or be average, that's the reality. Think of your non-negotiables as spokes on a wheel, and your faith at the center. If Trinity is a spoke, you don't close the business because family's in town."</blockquote>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>The daily mirror</h3>
+          <p><strong>Audit your own day against the whole company.</strong> Would your day, copied by everyone, keep the lights on?</p>
+          <blockquote class="script-example"><span class="who">Casey Snyder</span>"If everyone in Trinity did what I did today, would Trinity still be around to cut paychecks?"</blockquote>
+        </div>
+      </div>
+
+      <div class="manager-prompt">Ask the room: run the mirror out loud. If the whole team copied your last 24 hours exactly, are we still cutting paychecks? What's the one non-negotiable you keep bumping?</div>
+
+      <details class="recall-check">
+        <summary>Your move: why is a cold market a punishment, not a starting point?</summary>
+        <p class="answer"><span class="label">Answer</span>Because a developed warm market hands you authentic referrals instead of cold no-shows. The cold drive is the penalty for not working your install base. Pair it with the daily mirror: would your day, copied by everyone, keep Trinity cutting paychecks? Try it tonight, then fix tomorrow's calendar to match the answer.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="roof">
+    <div class="wrap">
+      <h2>Roofing and the Close: Take the Shot Every Time</h2>
+      <p class="intro">The relationship-first game finishes with conviction. If you got in the door, you should be closing. Bring up the roof every chance you get, sell with stories not facts, and do the walk-around, because the dead appointment is often the biggest one.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>The move</th><th>What it sounds like in the home</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Bring up the roof, every time</td><td>Short-term memory, long-term vision. Mention it on every appointment instead of shying away, because it is Total Home now.</td></tr>
+          <tr><td>Facts tell, stories sell</td><td>Tell one true story (the widow whose insurer gave her 30 days) at every house. If you do not have a story, borrow one.</td></tr>
+          <tr><td>Perception over intention</td><td>A small visible bundle drop makes the customer feel they got a deal. Your good intentions do not close, their perception does.</td></tr>
+          <tr><td>Do the walk-around</td><td>On a dead "no solar" appointment, a detached garage with a box of shingles became a 21-panel plus roof deal.</td></tr>
+        </tbody>
+      </table>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"It's bringing it up every chance I get versus shying away. What if we used the savings from the solar to get you a brand new roof? Short-term memory, long-term vision. It's total home now."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"Facts tell, stories sell. My first roof customer was a widow whose insurer gave her 30 days to repair or be dropped. I tell that story every single house. If you don't have a story, you can borrow the story."</blockquote>
+
+      <blockquote class="script-example"><span class="who">Casey Snyder</span>"I would have 100% not sold that deal for solar. But I took the shot, found something in discovery we could work with, and as a result made the deal."</blockquote>
+
+      <div class="callout"><strong>The standard he holds himself to:</strong> if you are in the house, you should be closing 60 to 70%. The slideshow is just DocuSign. The job is not done until they have filled out their ACH and license.</div>
+
+      <div class="manager-prompt">Role-play: a rep gets "we're definitely not doing solar." Have them keep listening and run a walk-around out loud, hunting for a second structure or a roof pain point.</div>
+
+      <details class="recall-check">
+        <summary>Your move: the appointment is dead on solar. What do you still do?</summary>
+        <p class="answer"><span class="label">Answer</span>Take the shot anyway. Keep listening, do the physical walk-around, and look for a roof or a second structure (a shed, a detached garage) you can roll into the program. Lead with a story, not facts, and remember perception over intention. Try it: on your next flat "no," walk the property before you leave.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Casey Snyder Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Three phrases lower every wall: "may I," "in my opinion," "feel felt found." Sit beside them, high-five at the signature.</li>
+      <li>Listening is offense, talking is defense. Come to help, and the sale follows as a consequence.</li>
+      <li>Run FORM, lock onto the one genuine thread, and flip a concern into a question instead of defending it.</li>
+      <li>Whoever offends the least makes the most. Don't volunteer the Google-bait, and call every hitch "great news."</li>
+      <li>Cold market is the punishment for not working your warm. Be obsessed, not average, and run the daily mirror.</li>
+      <li>Take the shot every time: bring up the roof, sell with stories, do the walk-around. The slideshow is just DocuSign.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Closer Playbooks series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

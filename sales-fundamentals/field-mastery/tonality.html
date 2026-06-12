@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tonality · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#lands"><span class="num">1</span> How It Lands</a>
+      <a href="#four-x"><span class="num">2</span> Tone Is 4x</a>
+      <a href="#one-word"><span class="num">3</span> One Wrong Word</a>
+      <a href="#leak"><span class="num">4</span> Frustration Leaks</a>
+      <a href="#channel"><span class="num">5</span> Match the Channel</a>
+      <a href="#concern"><span class="num">6</span> Answer Short</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Field Mastery · Delivery · Tonality</span>
+    <h1>How It <em>Lands</em></h1>
+    <p class="lede"><strong>Customers do not just hear your words. They hear your tone, your confidence, and the pressure you put on them.</strong> You can do the right thing in the home and still lose if it is received wrong. Tone is roughly 4 times more important than the words.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="lands">
+    <div class="wrap">
+      <h2>The Only Thing That Matters Is How It Lands</h2>
+      <p class="intro">The same words can read two opposite ways. The customer across the table is not just hearing what you say, they are reading how you say it. That reception is the only thing that decides the outcome.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--ink">
+          <h3>They hear more than words</h3>
+          <p><strong>Tone, intent, confidence, pressure.</strong> The customer reads all of it at once, often faster than they process the actual sentence. The same line lands warm from one rep and pushy from another.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Same text, opposite read</h3>
+          <p><strong>Two people can read the identical message and feel attacked or reassured.</strong> Without your tone attached, written words drift to whatever mood the reader is already in.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Right move, wrong reception</h3>
+          <p><strong>You can run the perfect process and still lose the room.</strong> If it is received as pressure, the work you did right counts for nothing. Manage the reception, not just the script.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"The customer is not just hearing the words. They are hearing your tone, your confidence, and the pressure you put on them. The only thing that matters is how it lands across the table."</blockquote>
+
+      <div class="manager-prompt">Ask the room: when did you say the exact right thing and still feel the customer close off? What were they actually reacting to?</div>
+
+      <details class="recall-check">
+        <summary>What is the customer actually hearing besides your words?</summary>
+        <p class="answer"><span class="label">Answer</span>Your tone, your intent, your confidence, and the pressure you put on them. The reception is what decides the outcome, so you can do the right thing in the home and still lose if it lands wrong.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="four-x">
+    <div class="wrap">
+      <h2>Tone Is 4x the Words</h2>
+      <p class="intro">The bond you build is mostly tone, only a sliver is vocabulary. That makes tone the highest-leverage skill you own, and the one thing a machine cannot copy. It only gets better with deliberate practice.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>Where the bond comes from</h3>
+          <ul>
+            <li><strong>About 40% of the emotional bond</strong> is created through your tone.</li>
+            <li><strong>Under 10% comes from the actual words.</strong> So tone is roughly 4 times more important than what you say.</li>
+            <li><strong>The bond is the sale.</strong> People buy from the rep they trust, and trust is built in the tone.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Why it is your edge</h3>
+          <ul>
+            <li><strong>Tone is the thing AI cannot replicate.</strong> A chatbot can hand a customer the right words; it cannot make them feel held.</li>
+            <li><strong>That is why the human rep still matters,</strong> and why this is worth drilling.</li>
+            <li><strong>It improves only with practice,</strong> out loud, on purpose, like a free throw.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout"><strong>Drill it:</strong> say your opener and your price line out loud before the appointment. The words are already decided; what you are rehearsing is the delivery that carries 4 out of 5 of the bond.</div>
+
+      <div class="manager-prompt">Ask the room: have everyone say "It's a 2.9% rate" three ways, confident, apologetic, and rushed. Same words. What changed?</div>
+
+      <details class="recall-check">
+        <summary>Roughly how much of the emotional bond is tone versus words?</summary>
+        <p class="answer"><span class="label">Answer</span>About 40% of the bond is tone and under 10% is the actual words, so tone is roughly 4 times more important than vocabulary. It is also the one thing AI cannot replicate, and it only improves with deliberate practice.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="one-word">
+    <div class="wrap">
+      <h2>One Wrong Word Can Kill a Closed Sale</h2>
+      <p class="intro">A single careless word can flip the body language at the moment of the close. The word the customer keeps is the loaded one, even when you meant the opposite. Audit your vocabulary like it decides the deal, because sometimes it does.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>"Stuck" sounded like a trap</h3>
+          <p><strong>A rep told a customer she was "stuck" at a 2.9% rate.</strong> He meant locked in, controlled, protected. She fixated on "stuck," read a trap, and the deal he had already won was cooked. That sale never happened.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Say the word you want kept</h3>
+          <p><strong>Same fact, framed to land right:</strong> "Your rate is locked in and protected at 2.9%, so the utility can never come after you." The meaning is identical. The word they keep is the one that helps you.</p>
+        </div>
+      </div>
+
+      <h3 class="checklist-head">Audit the loaded words</h3>
+      <ul class="checklist list-cols">
+        <li><strong>"Stuck"</strong> reads as a trap. Say locked in, protected, controlled.</li>
+        <li><strong>"Contract"</strong> reads as a noose. Say agreement.</li>
+        <li><strong>"Lied"</strong> is the word they repeat to your manager. Never say it, even sincerely.</li>
+        <li><strong>"Sign here"</strong> can read as final and heavy. Say let's get you taken care of.</li>
+      </ul>
+
+      <div class="callout"><strong>The rule:</strong> the customer keeps one word from the sentence, and it is usually the loaded one. Pick the word that frames the meaning you want before it picks you.</div>
+
+      <div class="manager-prompt">Ask the room: what is one word you say at the close out of habit that could read the wrong way? What replaces it?</div>
+
+      <details class="recall-check">
+        <summary>Why did "stuck at 2.9%" lose a sale that was already closed?</summary>
+        <p class="answer"><span class="label">Answer</span>The rep meant locked in and protected, but the customer kept the word "stuck" and read it as a trap, which flipped her at the moment of signing. The word the customer remembers is the loaded one, so frame the rate as protected and locked in, not stuck.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="leak">
+    <div class="wrap">
+      <h2>Your Frustration Leaks Into Your Tonality</h2>
+      <p class="intro">You may say all the right words while your edge leaks through underneath. The customer hears the frustration before the sentence finishes. One bad ACH-step exchange can cost you weeks.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--red">
+          <h3>What it costs</h3>
+          <p><strong>A late, frustrated rep let repetition and edge creep into his voice at the ACH step.</strong> The customer snapped, "What makes you think you can talk to me this way? I'm the customer." It took 2 weeks to circle back and win the deal.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Be a chameleon</h3>
+          <p><strong>Not every customer wants the same tone.</strong> The easygoing spouse and the serious, question-heavy one need different deliveries. Read the room and adjust, or you lose sales with a one-size voice.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Reset before you speak</h3>
+          <p><strong>If you walked in late or rushed, your tone already shows it.</strong> Take a breath and reset before the paperwork step, where impatience does the most damage.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">Rep · resetting at the table</span>"Take one breath before the signature step. The words are fine. What leaks is the rush. The customer hears the edge before they hear the sentence, so drop the edge first."</blockquote>
+
+      <div class="manager-prompt">Role-play: a rep is behind schedule and the customer is slow on the ACH step. Run it once with the frustration showing, once reset. What did the room hear?</div>
+
+      <details class="recall-check">
+        <summary>How can a rep say the right words and still offend the customer?</summary>
+        <p class="answer"><span class="label">Answer</span>Frustration leaks into your tonality, so the customer hears the edge underneath the words. One frustrated rep at the ACH step drew "What makes you think you can talk to me this way?" and it cost 2 weeks to win the deal back. Be a chameleon: read the room and reset your tone before you speak.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="channel">
+    <div class="wrap">
+      <h2>Match the Channel and Style to the Person</h2>
+      <p class="intro">Tonality 101 applies to text too. Your natural exclamation points and emojis read as yelling to someone who has not met you yet. Ask how and when they want to be reached, and the "unresponsive" customer often becomes responsive.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>Your style can read as yelling</h3>
+          <p><strong>A rep's upbeat texting style drew a reply: "Why are you yelling at me?"</strong> The customer had no tone of his to attach the exclamation points to, so they read as aggression. You cannot be that comfortable before they know you.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Ask for the channel and time</h3>
+          <p><strong>"Should I text you in the morning or evening? Does 6pm work?"</strong> Now you know a lot. If they go quiet later, it is not because you texted at the wrong time on the wrong channel.</p>
+        </div>
+      </div>
+
+      <h3 class="checklist-head">Know when text is not enough</h3>
+      <ul class="checklist list-cols">
+        <li><strong>A long list of questions is a phone call,</strong> not a text reply. They need to hear your conviction.</li>
+        <li><strong>21 questions usually means they searched "what to ask a solar rep."</strong> Set time to call and walk them.</li>
+        <li><strong>The ones they do not raise on the call</strong> were never important to them.</li>
+        <li><strong>It is not a sale until it is installed,</strong> so do not let a real question get a quick text.</li>
+      </ul>
+
+      <blockquote class="script-example"><span class="who">Setting the channel</span>"Before I go: do you prefer a text or a call, and is morning or evening better? I'll always reach you the way you like, so nothing important gets lost."</blockquote>
+
+      <div class="manager-prompt">Ask the room: who has lost a deal to "I texted, they ghosted," when the real question needed a call? How would you catch that next time?</div>
+
+      <details class="recall-check">
+        <summary>Why ask the customer how and when they want to be contacted?</summary>
+        <p class="answer"><span class="label">Answer</span>Your texting style (exclamation points, emojis) can read as yelling to someone who has not met you, and a deep list of questions needs a call so they hear your conviction, not a quick text. Asking the channel and time means a quiet customer is not just being reached the wrong way, and it is not a sale until it is installed.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="concern">
+    <div class="wrap">
+      <h2>Call It a Reasonable Concern, Answer Short</h2>
+      <p class="intro">New reps lose on objections by going defensive and overloading the answer. That reads as combative and raises new objections. Reframe it as a reasonable concern, answer in 2 to 3 words with a smile, and do not empower it by over-talking.</p>
+
+      <div class="compare-grid">
+        <div class="objection-handling">
+          <p class="objection">"What if my roof leaks?"</p>
+          <p class="counter"><strong>Answer short, smile, move on.</strong> "All the work's guaranteed." Two or three words delivered calmly. The long, defensive version makes the concern bigger than it was.</p>
+        </div>
+        <div class="objection-handling">
+          <p class="objection">"I'm not sure about a 2.9% escalator."</p>
+          <p class="counter"><strong>Less is more.</strong> Treat it as a reasonable question, not a fight. "Totally fair, and it's locked in." A short, confident answer reads as conviction. A speech reads as worry.</p>
+        </div>
+      </div>
+
+      <div class="callout"><strong>Feel, felt, found:</strong> "I get how you feel. Other homeowners felt the same. What they found is the work's all guaranteed." It validates the concern in your tone, then closes it short.</div>
+
+      <div class="callout callout--compliance"><strong>Stay honest in the short answer.</strong> Brief is not vague. "All the work's guaranteed" must be true and within your actual warranty. Do not shrink an answer down to something you cannot stand behind.</div>
+
+      <div class="manager-prompt">Ask the room: take one common objection and answer it in 3 words with a smile. Then answer it in a defensive paragraph. Which one would you buy from?</div>
+
+      <details class="recall-check">
+        <summary>How should you handle a "reasonable concern" without empowering it?</summary>
+        <p class="answer"><span class="label">Answer</span>Reframe the objection as a reasonable question or concern, answer in 2 to 3 words with a smile, and stop. Over-talking reads as defensive and raises new objections, so the short, confident answer carries more conviction than a speech. Weave feel, felt, found to validate it in your tone first.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>The only thing that matters is how it lands. The customer reads your tone, not just your words.</li>
+      <li>Tone is about 4x the words: roughly 40% of the bond is tone, under 10% is vocabulary.</li>
+      <li>One wrong word can kill a closed sale. "Stuck" reads as a trap; say locked in and protected.</li>
+      <li>Your frustration leaks into your tonality. Be a chameleon, reset before the signature step.</li>
+      <li>Match the channel and style to the person. A long list of questions is a call, not a text.</li>
+      <li>Call an objection a reasonable concern and answer in 2 to 3 words with a smile.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Field Mastery series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

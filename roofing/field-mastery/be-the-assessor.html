@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Be the Assessor · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS  (theme swap = edit here only)
+   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
+   ============================================================ */
+:root {
+  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
+  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
+  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
+  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
+  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
+  --r-sm:4px; --r-md:8px; --r-lg:12px;
+  --shadow:0 1px 2px rgba(15,32,56,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
+  --maxw:1320px; --header-h:86px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y proximity}
+section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
+h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
+h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
+h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
+p{margin-bottom:var(--space-2)}
+ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
+li{margin-bottom:var(--space-1)}
+strong{font-weight:700;color:var(--ink)}
+.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
+
+/* HEADER + TOC */
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
+.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
+.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
+.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
+.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
+.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.toc-nav::-webkit-scrollbar{display:none}
+.toc-nav .wrap{display:flex;gap:0}
+.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
+.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
+
+/* HERO (slide) */
+.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
+.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
+.hero h1 em{font-style:italic;color:var(--amber)}
+.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
+.hero .lede strong{color:#fff}
+
+/* MODULE = SLIDE */
+.training-page{display:block}
+.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
+.module:nth-child(even){background:var(--warm)}
+.module>.wrap>h2{max-width:32ch}
+.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
+
+/* GRIDS (fill width) */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
+.list-cols{columns:3;column-gap:var(--space-5)}
+.list-cols li{break-inside:avoid}
+
+/* TRAINING CARD */
+.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.training-card--amber{border-left-color:var(--amber)}
+.training-card--green{border-left-color:var(--green)}
+.training-card--ink{border-left-color:var(--ink)}
+.training-card--red{border-left-color:var(--red)}
+.training-card ul{margin-bottom:0}
+.training-card li{font-size:1rem}
+
+/* STEP */
+.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
+.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
+
+/* SCRIPT EXAMPLE */
+.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
+.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* OBJECTION HANDLING */
+.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
+.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
+
+/* DOC TABLE */
+.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
+.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.doc-table tr:last-child td{border-bottom:none}
+.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
+
+/* CHECKLIST */
+.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
+.checklist li{position:relative;padding-left:26px;font-size:1rem}
+.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+
+/* CALLOUT */
+.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
+.callout strong{color:var(--amber)}
+.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
+.callout--compliance strong{color:var(--deep-blue)}
+
+/* RECALL CHECK */
+.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
+.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
+.recall-check summary::-webkit-details-marker{display:none}
+.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
+.recall-check[open] summary::before{content:"\25BC"}
+.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
+.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
+
+/* MANAGER PROMPT (Presenter only) */
+.manager-prompt{display:none}
+
+/* KEY TAKEAWAYS (slide) */
+.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
+.key-takeaways .eyebrow{color:var(--amber)}
+.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
+.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
+.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
+.checklist-head{margin-top:var(--space-4)}
+
+.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
+
+/* DECK NAV (prev / next slide) */
+.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
+.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
+.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
+.deck-nav button:disabled{opacity:.35;cursor:default}
+body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
+@media print{.deck-nav{display:none}}
+
+/* ============================================================
+   PRESENTER MODE  (manager-led wide screen)
+   ============================================================ */
+body.presenter{font-size:22px}
+body.presenter .toc-nav,body.presenter .recall-check{display:none}
+body.presenter #site-back-btn{display:none}
+body.presenter h1{font-size:4rem}
+body.presenter h2{font-size:3rem}
+body.presenter .module .intro{font-size:1.4rem}
+body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
+body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
+
+/* ============================================================
+   MOBILE  (close-up; relax the deck to normal scroll)
+   ============================================================ */
+@media(max-width:820px){
+  html{scroll-snap-type:none}
+  body{font-size:16px}
+  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
+  .compare-grid{grid-template-columns:1fr}
+  .list-cols{columns:1}
+  .key-takeaways ul{grid-template-columns:1fr}
+  .doc-table td:first-child{white-space:normal}
+}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#consultant"><span class="num">1</span> Whole-Home Consultant</a>
+      <a href="#feel"><span class="num">2</span> How Do You Feel</a>
+      <a href="#walkup"><span class="num">3</span> Read the Walk-Up</a>
+      <a href="#diagnose"><span class="num">4</span> Diagnose, Then Prescribe</a>
+      <a href="#create"><span class="num">5</span> Point at the Dip</a>
+      <a href="#onion"><span class="num">6</span> Peel the Onion</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Roofing · Field Mastery · Discovery</span>
+    <h1>Be the <em>Assessor</em></h1>
+    <p class="lede"><strong>Reps pitch roofing the way they pitch solar, and they lose.</strong> A roof is not a savings argument. It is a fact you can see, touch, and show. Diagnose it physically, make the problem concrete, and the customer can no longer kick the can down the road.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="consultant">
+    <div class="wrap">
+      <h2>Walk In as the Whole-Home Consultant</h2>
+      <p class="intro">Your introduction sets your authority before you say a word about the roof. "The solar guy" can talk about panels. A whole-home consultant can talk about the house. Earn the second title at the door, because you cannot diagnose a roof from inside the solar box.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>"Trinity Solar, here about your panels"</h3>
+          <ul>
+            <li><strong>Boxes you in.</strong> You are now the solar expert and nothing more.</li>
+            <li><strong>Roof talk feels like an upsell,</strong> bolted onto a solar visit.</li>
+            <li><strong>No standing to assess.</strong> Why would a solar rep be looking at their decking?</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>"Trinity Total Home, your whole-home consultant"</h3>
+          <ul>
+            <li><strong>Sets you as the home expert,</strong> not just the panel person.</li>
+            <li><strong>The roof is now in scope</strong> from the first handshake.</li>
+            <li><strong>Authority is established</strong> before the conversation starts, so the assessment feels expected.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">At the door</span>"Hi, I'm with Trinity Total Home, your whole-home consultant. I look at the whole picture: the roof, the energy, how the house is holding up. By the time we sit down, you already know I am not just here about panels."</blockquote>
+
+      <div class="manager-prompt">Ask the room: say your normal door intro out loud. Does it make you the solar guy or the home expert? Rewrite it on the spot.</div>
+
+      <details class="recall-check">
+        <summary>Why introduce yourself as a whole-home consultant instead of "the solar guy"?</summary>
+        <p class="answer"><span class="label">Answer</span>How you introduce yourself sets your authority. "Trinity Solar" makes you a solar-only expert, so roof talk feels like an upsell with no standing behind it. "Whole-home consultant" establishes you as the home and construction expert from the first handshake, which is the platform you need to assess and sell a roof.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="feel">
+    <div class="wrap">
+      <h2>"How Do You Feel About Your Roof?" Then Go Silent</h2>
+      <p class="intro">Do not open with "how old is your roof." Open with feeling and history, then stop talking and let them fill the space. Most owners genuinely do not know the age, the layer count, or the last repair, and that gap is your opening.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Lead with feeling</h3>
+          <p><strong>"How do you feel about your roof?"</strong> An open question that invites worry, history, and stories. Then go silent. The first person to talk owns the answer, and it should be them.</p>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Ask the history</h3>
+          <p><strong>"Do you know the history of this roof?"</strong> Most owners do not. Same as a car: you own it 10 years, you know when you did the tires and the transmission. There is real value in knowing the history, and most of them have none.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Why it works</h3>
+          <p><strong>The unknown is the discomfort.</strong> When they cannot answer, they feel the gap themselves. You did not tell them they have a problem. You helped them notice they do not even know.</p>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"Before we get into anything, how do you feel about your roof? [silence] And do you know the history of it, when it was last done, how many layers are up there? It's like a car. After 10 years you know when you did the tires and the transmission. With a roof, most folks have no idea, and that's worth talking about."</blockquote>
+
+      <div class="manager-prompt">Ask the room: who is uncomfortable sitting in silence after a question? Drill it: ask, then count to five before anyone is allowed to speak.</div>
+
+      <details class="recall-check">
+        <summary>Why open with feeling and history instead of "how old is your roof?"</summary>
+        <p class="answer"><span class="label">Answer</span>"How do you feel about your roof?" and "Do you know the history of this roof?" are open questions that surface that most owners do not know the age, layer count, or last repair. Going silent makes them sit in that gap and feel the discomfort themselves, which opens the conversation. A flat age question gets a one-word guess and closes it.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="walkup">
+    <div class="wrap">
+      <h2>Read the Roof on the Walk-Up</h2>
+      <p class="intro">You are diagnosing before you knock. The roof tells on itself from the ground, and calling out one accurate tell makes you a roofing expert in two seconds. Lead with an assumptive condition question, not a permission question.</p>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>What you see from the ground</th><th>What it tells you</th><th>What to say</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Exposed shingle edges, granule loss</td><td>Fiberglass mat is showing through. Usually a 15 to 20 year roof, often older.</td><td>"Any idea how old this roof is? With the edges showing like that, we are usually looking at 15 to 20 years."</td></tr>
+          <tr><td>Curled or cupped shingles</td><td>A hot, poorly ventilated attic. Bad ventilation can cut a 30-year roof down to 5 to 8 years.</td><td>"That curling tells me the attic runs hot. That alone can take years off a roof."</td></tr>
+          <tr><td>Fish-mouthing or humped shingles</td><td>Shingles set too tight on the last install. A workmanship tell.</td><td>"See how those are humping up? Whoever did this set them too tight."</td></tr>
+          <tr><td>Dark streaks or stains on the fascia</td><td>Drainage or condensation escaping where it should not.</td><td>"Those stains on the trim mean water is getting out somewhere it shouldn't."</td></tr>
+        </tbody>
+      </table>
+
+      <blockquote class="script-example"><span class="who">On the walk-up</span>"Any idea what condition the roof is in, any idea how old it is? If the edges of the shingles are exposed like that, more than likely it is in that 15 to 20 year range, if not older."</blockquote>
+
+      <div class="callout"><strong>The move:</strong> name the tell out loud before you sit down. One accurate read on the walk-up buys you the authority to ask for the attic, the photos, and the close.</div>
+
+      <div class="manager-prompt">Ask the room: pull up a street-view of a real appointment. What can you call out from the ground before you ever knock?</div>
+
+      <details class="recall-check">
+        <summary>What does an exposed shingle edge tell you, and how do you use it?</summary>
+        <p class="answer"><span class="label">Answer</span>Exposed edges and granule loss mean the fiberglass mat is showing through, usually a 15 to 20 year roof or older. You read it on the walk-up and lead with an assumptive condition question ("any idea how old it is? With the edges showing, we are usually looking at 15 to 20 years"), which establishes you as a roofing expert before you sit down.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="diagnose">
+    <div class="wrap">
+      <h2>Diagnose Before You Prescribe</h2>
+      <p class="intro">A doctor does not hand you a diagnosis and a bill before examining you. Do not quote a roof from the kitchen table. Get up in the attic, use the moisture meter, take the photos, then come back down and report what you found. The proof is what closes, not the number.</p>
+
+      <ol class="step-grid">
+        <li class="step"><h3>1. Get in the attic</h3><p><strong>Do not be lazy.</strong> The decking, the rafters, and the underside of the roof tell you what the surface hides. This is where you find the mold, the soft wood, and the daylight.</p></li>
+        <li class="step"><h3>2. Use the moisture meter</h3><p><strong>Read the wood, do not guess it.</strong> A moisture meter on the decking turns "your roof is old" into a number the customer cannot argue with.</p></li>
+        <li class="step"><h3>3. Photograph everything</h3><p><strong>Shoot it inside and out.</strong> Attic and decking, dark or cracked wood, soffits, fascia stains, vents, the surface. The camera carries the proof back to the table.</p></li>
+        <li class="step"><h3>4. Come down and report</h3><p><strong>"Here is what you have going on."</strong> Now you are a professional delivering findings, not a salesperson delivering a price.</p></li>
+      </ol>
+
+      <blockquote class="script-example"><span class="who">Rep · running the inspection</span>"You don't go to the doctor and have him give you the diagnosis and the bill before he checks you out. Give me a few minutes. I'm going up in the attic with my moisture meter and I'm taking some photos. Then I'll come back down and walk you through exactly what I found."</blockquote>
+
+      <div class="manager-prompt">Ask the room: who is quoting from the table without going in the attic? Walk through the last roof you sold. Did you diagnose it or describe it?</div>
+
+      <details class="recall-check">
+        <summary>What is the doctor analogy, and what are the four steps?</summary>
+        <p class="answer"><span class="label">Answer</span>A doctor examines you before giving a diagnosis and a bill, so do not quote a roof before inspecting it. The four steps: get in the attic, use the moisture meter, take photos inside and out, then come down and report what you found. The physical proof is what closes, which is why you diagnose before you prescribe.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="create">
+    <div class="wrap">
+      <h2>Create the Problem: Point at the Dip</h2>
+      <p class="intro">Stop pitching roofing like solar. You are not selling savings here, you are showing a risk that is already in the house. Make the defect concrete and emotional. You control how deep and how personal it goes, so go there.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--red">
+          <h3>Pitching it like solar (it fails)</h3>
+          <ul>
+            <li><strong>You describe the roof</strong> in numbers and abstractions.</li>
+            <li><strong>Nothing is concrete,</strong> so the customer kicks the can.</li>
+            <li><strong>You told, you did not show,</strong> and a roof you cannot see is easy to ignore.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--green">
+          <h3>Showing it like a roof (it lands)</h3>
+          <ul>
+            <li><strong>You point at the specific sag</strong> and make them look up at it.</li>
+            <li><strong>You make it personal:</strong> whose bedroom is under that dip?</li>
+            <li><strong>You show the photos</strong> from the attic, the soft wood, the stain. Now it is real.</li>
+          </ul>
+        </div>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"See those dips up there? Whose bedroom is under that? That looks like soft wood to me, it looks like it could cave. Is her bed close to where that dip is? Yeah, then we'd better talk about that. Let me show you what I found in the attic right above it."</blockquote>
+
+      <div class="callout"><strong>Show, do not tell.</strong> Reps lose the roof when they try to pitch it like solar. Get strong at physically showing the customer, inside and out, why they need to make the change. The photo and the finger pointing up beat any paragraph you could say.</div>
+
+      <div class="manager-prompt">Ask the room: take one real roof from this week. Make it emotional in one sentence. Who is sleeping under the worst part of it?</div>
+
+      <details class="recall-check">
+        <summary>What does "stop pitching roofing like solar" mean in practice?</summary>
+        <p class="answer"><span class="label">Answer</span>Solar is a savings argument, but a roof is a physical risk you can show. Instead of describing the roof in numbers, point at the specific sag, make it personal ("whose bedroom is under that dip?"), and show the internal and external damage from your photos. When you show instead of tell, the customer cannot kick the can. When you only describe it, they will.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="onion">
+    <div class="wrap">
+      <h2>Peel the Onion Until You Hit a Foothold</h2>
+      <p class="intro">Customers did not study for this appointment, and they never did this before. If you skip-stone across one question, you stay on the surface and they walk. Go 3 to 5 follow-ups deep on a single thread until you find an anchor point they cannot walk away from.</p>
+
+      <div class="objection-handling">
+        <p class="objection">Surface answer: "The roof's fine, it's a little old but it's fine."</p>
+        <p class="counter"><strong>Do not accept the first answer. Peel it:</strong></p>
+        <ol>
+          <li><strong>"When was it last done, do you have any record of it?"</strong> (most do not)</li>
+          <li><strong>"Any leaks, stains on a ceiling, anything in the attic you've noticed?"</strong></li>
+          <li><strong>"That dip over the back bedroom, how long has that been there?"</strong></li>
+          <li><strong>"If water got behind that wall, who would even know until the ceiling came down?"</strong></li>
+          <li><strong>"What happens to that room, and to her, if we wait another two winters?"</strong></li>
+        </ol>
+      </div>
+
+      <blockquote class="script-example"><span class="who">In the home</span>"If you're skipping across the top of the water, you never get to any depth. So I go three to five questions deep on one thing until I find a foothold, an anchor point they can't walk away from. That's where the real conversation is."</blockquote>
+
+      <div class="callout callout--compliance"><strong>Stay honest while you go deep.</strong> Show real damage and ask real questions. Do not invent a problem that is not there or guarantee an outcome you cannot promise. The dip, the moisture reading, and the photos are the truth. Let the customer reach the conclusion from what is actually on their roof.</div>
+
+      <div class="manager-prompt">Role-play live: a customer says "the roof's fine." Peel it 5 questions deep without sounding like an interrogation. Make each question land softer than the last.</div>
+
+      <details class="recall-check">
+        <summary>Why go 3 to 5 questions deep instead of moving on after the first answer?</summary>
+        <p class="answer"><span class="label">Answer</span>Customers did not study for the appointment and have never done this before, so the first answer is a surface answer. Skipping across one question keeps you on top of the water. Going 3 to 5 follow-ups deep on a single thread takes you to a foothold, an anchor point they cannot walk away from, which is where the real decision lives.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Introduce as the whole-home consultant, not the solar guy. It earns you the right to talk roof.</li>
+      <li>Open with "how do you feel about your roof?" and "do you know the history?" Then go silent.</li>
+      <li>Read the roof on the walk-up. Exposed edges mean 15 to 20 years, curling means a hot attic.</li>
+      <li>Diagnose before you prescribe: attic, moisture meter, photos, then report. A doctor examines first.</li>
+      <li>Create the problem. Point at the dip, ask whose bedroom is under it, show the damage inside and out.</li>
+      <li>Peel the onion 3 to 5 questions deep until you hit a foothold they cannot walk away from.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · CT Traditional · Sales Resource Center · Roofing Field Mastery series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>
