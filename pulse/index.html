@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Frontline Pulse · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="/auth-gate.js"></script>
+<style>
+  :root{
+    --brand:#78C832; --brand-ink:#5a9e22; --blue:#29A9E1; --ink:#1A2332;
+    --paper:#F7F8F5; --card:#ffffff;
+    --text:#1A2332; --text-muted:#5B6576; --text-subtle:#8B94A3;
+    --hairline:#E3E7DE; --hairline-soft:#EFF1EC;
+    --rough:#E8674A; --ok:#F5A623; --great:#78C832;
+    --r-sm:10px; --r-md:14px; --r-lg:20px;
+    --s-2:8px; --s-3:12px; --s-4:16px; --s-5:24px; --s-6:32px; --s-7:48px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Manrope',system-ui,-apple-system,Segoe UI,sans-serif;background:var(--paper);color:var(--text);-webkit-font-smoothing:antialiased;line-height:1.55;}
+  h1,h2,h3{font-family:'Fraunces',Georgia,serif;font-weight:600;letter-spacing:-0.01em;margin:0;}
+  .wrap{max-width:680px;margin:0 auto;padding:0 var(--s-5);}
+  .eyebrow{font-size:0.72rem;font-weight:800;letter-spacing:0.16em;text-transform:uppercase;color:var(--brand-ink);}
+
+  /* sign-in (auth-gate) */
+  .signin-wrap{min-height:90vh;display:flex;align-items:center;justify-content:center;padding:var(--s-5);}
+  .signin-card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:var(--s-6);max-width:400px;width:100%;box-shadow:0 12px 40px rgba(26,35,50,.08);}
+  .signin-card h2{font-size:1.5rem;margin-bottom:6px;}
+  .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:var(--s-5);}
+  .dot{width:12px;height:12px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 4px rgba(120,200,50,.18);}
+  .logo-row span{font-size:0.68rem;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);}
+  .subtitle{color:var(--text-muted);font-size:0.95rem;margin:0 0 var(--s-5);}
+  .form-group{margin-bottom:var(--s-4);}
+  .form-group label{display:block;font-weight:700;font-size:0.82rem;margin-bottom:6px;}
+  .form-group input{width:100%;padding:11px 13px;border:1px solid var(--hairline);border-radius:var(--r-sm);font-size:1rem;font-family:inherit;}
+  .form-group input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(120,200,50,.15);}
+  .hint{font-size:0.76rem;color:var(--text-subtle);margin-top:5px;}
+  .msg{padding:10px 13px;border-radius:var(--r-sm);font-size:0.86rem;margin-bottom:var(--s-4);}
+  .msg-error{background:#fdecec;color:#b23b3b;border:1px solid #f3c9c9;}
+  .btn{font-family:inherit;font-weight:700;font-size:0.95rem;border:0;border-radius:var(--r-sm);padding:12px 20px;cursor:pointer;transition:transform .06s ease,filter .15s ease;}
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--brand);color:#0e1a06;}
+  .btn-primary:hover{filter:brightness(1.05);}
+  .btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--hairline);}
+  .btn-full{width:100%;}
+  .btn:disabled{opacity:.55;cursor:default;}
+
+  /* app */
+  header.top{background:var(--ink);color:#fff;padding:var(--s-4) 0;}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);}
+  header.top .eyebrow{color:var(--brand);}
+  header.top .who{font-size:0.82rem;color:rgba(255,255,255,.72);}
+  header.top button{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:7px 12px;font-size:0.8rem;font-weight:600;cursor:pointer;}
+
+  main{padding:var(--s-6) 0 var(--s-7);}
+  .hero h1{font-size:2.1rem;line-height:1.1;margin-bottom:var(--s-3);}
+  .hero .lede{font-size:1.05rem;color:var(--text-muted);margin-bottom:var(--s-5);}
+
+  .confbar{display:flex;gap:11px;align-items:flex-start;background:#f0f7ea;border:1px solid #d8ecc8;border-radius:var(--r-md);padding:13px 15px;margin-bottom:var(--s-6);font-size:0.88rem;color:#3c5a26;}
+  .confbar svg{flex-shrink:0;margin-top:1px;}
+  .confbar b{color:#2c4a1a;}
+
+  .card{background:var(--card);border:1px solid var(--hairline);border-radius:var(--r-lg);padding:var(--s-5) var(--s-5) var(--s-6);margin-bottom:var(--s-5);box-shadow:0 6px 24px rgba(26,35,50,.04);}
+  .card > h2{font-size:1.32rem;margin-bottom:4px;}
+  .card .sub{color:var(--text-muted);font-size:0.9rem;margin-bottom:var(--s-5);}
+
+  .scale-legend{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-subtle);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:var(--s-4);padding:0 2px;}
+  .driver{padding:var(--s-3) 0;border-top:1px solid var(--hairline-soft);}
+  .driver:first-of-type{border-top:0;}
+  .driver .d-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s-3);margin-bottom:8px;}
+  .driver .d-label{font-weight:700;font-size:0.96rem;}
+  .driver .d-hint{font-size:0.76rem;color:var(--text-subtle);text-align:right;}
+  .rating{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;}
+  .rating button{border:1px solid var(--hairline);background:#fff;border-radius:var(--r-sm);padding:11px 0;font-family:inherit;font-weight:700;font-size:0.98rem;color:var(--text-muted);cursor:pointer;transition:all .12s ease;}
+  .rating button:hover{border-color:var(--text-subtle);}
+  .rating button.sel{color:#0e1a06;border-color:transparent;transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,35,50,.12);}
+  .rating button.sel[data-v="1"],.rating button.sel[data-v="2"]{background:var(--rough);color:#fff;}
+  .rating button.sel[data-v="3"]{background:var(--ok);color:#3a2a00;}
+  .rating button.sel[data-v="4"],.rating button.sel[data-v="5"]{background:var(--great);color:#0e1a06;}
+
+  .q{margin-bottom:var(--s-5);}
+  .q:last-child{margin-bottom:0;}
+  .q label{display:block;font-weight:700;font-size:1rem;margin-bottom:7px;}
+  .q .qsub{font-size:0.8rem;color:var(--text-subtle);font-weight:500;}
+  textarea{width:100%;min-height:96px;padding:13px 14px;border:1px solid var(--hairline);border-radius:var(--r-md);font-family:inherit;font-size:0.98rem;line-height:1.5;resize:vertical;}
+  textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(120,200,50,.15);}
+
+  .actions{display:flex;gap:var(--s-3);align-items:center;flex-wrap:wrap;margin-top:var(--s-3);}
+  .actions .note{font-size:0.8rem;color:var(--text-subtle);}
+  .toast{font-size:0.86rem;color:var(--brand-ink);font-weight:600;}
+
+  .state-msg{text-align:center;padding:var(--s-7) var(--s-5);}
+  .state-msg .big{font-size:3rem;line-height:1;margin-bottom:var(--s-4);}
+  .state-msg h2{font-size:1.5rem;margin-bottom:var(--s-3);}
+  .state-msg p{color:var(--text-muted);max-width:440px;margin:0 auto var(--s-5);}
+  .hidden{display:none!important;}
+  .mgr-banner{background:#eaf4fb;border:1px solid #cfe6f6;color:#1c5478;border-radius:var(--r-md);padding:11px 15px;font-size:0.86rem;margin-bottom:var(--s-5);}
+  .mgr-banner a{color:#13639c;font-weight:700;}
+  footer{text-align:center;color:var(--text-subtle);font-size:0.78rem;padding:var(--s-5) 0 var(--s-6);}
+</style>
+</head>
+<body>
+
+<!-- AUTH-GATE SCREENS -->
+<div id="loginScreen" class="signin-wrap" style="display:none;">
+  <div class="signin-card">
+    <div class="logo-row"><span class="dot"></span><span>CT Traditional · Frontline Pulse</span></div>
+    <h2>Frontline Pulse</h2>
+    <p class="subtitle">Sign in with your Trinity Solar username.</p>
+    <div id="loginError" class="msg msg-error" style="display:none;"></div>
+    <div class="form-group">
+      <label for="loginUser">Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+      <div class="hint">Last name + first initial.</div>
+    </div>
+    <div class="form-group">
+      <label for="loginPass">Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password">
+    </div>
+    <button type="button" class="btn btn-primary btn-full" id="loginBtn" onclick="signIn()">Sign in</button>
+  </div>
+</div>
+
+<div id="changePasswordScreen" class="signin-wrap" style="display:none;">
+  <div class="signin-card">
+    <div class="logo-row"><span class="dot"></span><span>CT Traditional · Frontline Pulse</span></div>
+    <h2>Set your password</h2>
+    <p class="subtitle">First time signing in. Pick something only you know.</p>
+    <div id="cpError" class="msg msg-error" style="display:none;"></div>
+    <div class="form-group">
+      <label for="cpNew">New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password">
+      <div class="hint">At least 8 characters.</div>
+    </div>
+    <div class="form-group">
+      <label for="cpConfirm">Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password">
+    </div>
+    <button type="button" class="btn btn-primary btn-full" id="cpBtn" onclick="changePassword()">Update password</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appWrap" style="display:none;">
+  <header class="top">
+    <div class="wrap">
+      <span class="eyebrow">CT Traditional · Frontline Pulse</span>
+      <span class="who">Signed in as <span id="who-name">...</span> · <button onclick="signOut()">Sign out</button></span>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+
+      <!-- LOADING -->
+      <div id="loading" class="state-msg">
+        <div class="big">·</div>
+        <p>Loading your pulse...</p>
+      </div>
+
+      <!-- CLOSED / NONE -->
+      <div id="closedState" class="state-msg hidden">
+        <div class="big">✓</div>
+        <h2>No open pulse right now</h2>
+        <p>There is no Frontline Pulse running at the moment. We will let you know the next time we want your read on how things are going.</p>
+      </div>
+
+      <!-- FORM -->
+      <div id="formState" class="hidden">
+        <div id="mgrBanner" class="mgr-banner hidden">
+          You are a manager, so this is the rep view. Your answers still count.
+          The team rollup lives in the <a href="/traditional-university/manager.html">Manager Portal</a> under Pulse.
+        </div>
+
+        <div class="hero">
+          <span class="eyebrow" id="cycle-eyebrow">June 2026</span>
+          <h1 id="cycle-title">Frontline Pulse</h1>
+          <p class="lede" id="frame-intro">Two minutes, straight to Dan. Honest is more useful than polished.</p>
+        </div>
+
+        <div class="confbar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4a7a2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div><b>This is confidential.</b> Your manager sees the themes across the team, never your name on a quote. Only Dan reads individual responses, and only to act on them.</div>
+        </div>
+
+        <!-- RATINGS -->
+        <div class="card">
+          <h2>How are things going?</h2>
+          <p class="sub">One tap each. There is no right answer, just your honest read.</p>
+          <div class="scale-legend"><span>1 · Rough</span><span>3 · OK</span><span>5 · Great</span></div>
+          <div id="drivers"></div>
+        </div>
+
+        <!-- OPEN QUESTIONS -->
+        <div class="card">
+          <h2>In your words</h2>
+          <p class="sub">This is the part that actually changes things. Be specific where you can.</p>
+          <div class="q">
+            <label id="lab-disengaged">What is making you feel disengaged?</label>
+            <textarea id="ans-disengaged" placeholder=""></textarea>
+          </div>
+          <div class="q">
+            <label id="lab-improve">What is one thing we could do better?</label>
+            <textarea id="ans-improve" placeholder=""></textarea>
+          </div>
+          <div class="q">
+            <label id="lab-working">What is working well that we should protect?</label>
+            <textarea id="ans-working" placeholder=""></textarea>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" id="submitBtn" onclick="submitPulse('submitted')">Send to Dan</button>
+          <button class="btn btn-ghost" id="draftBtn" onclick="submitPulse('draft')">Save for later</button>
+          <span class="note" id="actionNote"></span>
+        </div>
+      </div>
+
+      <!-- THANKS -->
+      <div id="thanksState" class="state-msg hidden">
+        <div class="big">✓</div>
+        <h2>Thank you. We hear you.</h2>
+        <p id="thanksBody">Your read is in. This goes straight into the roadmap, and you will see what changes because of it. You can update your answers any time while this pulse is open.</p>
+        <button class="btn btn-ghost" onclick="backToForm()">Edit my answers</button>
+      </div>
+
+    </div>
+  </main>
+  <footer>Trinity Solar · CT Traditional · Frontline Pulse</footer>
+</div>
+
+<script>
+const supa = window.sb;
+let CYCLE = null, DISC = null, EXISTING = null;
+const RATINGS = {};
+
+const DRIVERS = [
+  {key:'direction', label:'Direction & leadership', hint:'Where CT is headed'},
+  {key:'manager',   label:'My manager & coaching', hint:'Day-to-day support'},
+  {key:'tools',     label:'Tools & systems',       hint:'Help or hindrance'},
+  {key:'leads',     label:'Leads & territory',     hint:'Quality, volume, drive time'},
+  {key:'schedule',  label:'Schedule & workload',   hint:'Hours and balance'},
+  {key:'pay',       label:'Pay & recognition',     hint:'Fair pay, feeling seen'},
+  {key:'growth',    label:'Growth & path',         hint:'Your future here'},
+  {key:'belonging', label:'Belonging',             hint:'Part of the team'},
+];
+
+// DISC tailors the framing, never the topics. Same three questions, different doorway.
+const FRAMES = {
+  D: {
+    intro:"You move fast and call it straight, so do that here. Short and blunt beats polished.",
+    disengaged:{label:"What is slowing you down?", sub:"If you ran CT for a day, what is the first thing you would kill?"},
+    improve:{label:"What one change would have the biggest payoff?", sub:"The single move that would actually move your numbers."},
+    working:{label:"What is working that we should not touch?", sub:"What is pulling its weight right now."},
+  },
+  I: {
+    intro:"You read people and bring the energy. Tell it like you would to the team.",
+    disengaged:{label:"What pulls your energy down?", sub:"What takes the fun or the momentum out of the week?"},
+    improve:{label:"What would make this a better place to be?", sub:"Culture, recognition, the vibe on calls, anything."},
+    working:{label:"When did you last feel genuinely recognized?", sub:"What is working, and who is doing it right?"},
+  },
+  S: {
+    intro:"This is confidential and there is no wrong answer. Take your time.",
+    disengaged:{label:"What would make your week feel less stressful?", sub:"What weighs on you that we could help lift?"},
+    improve:{label:"What would help you feel more supported?", sub:"One thing that would make the job steadier."},
+    working:{label:"What is working well for you right now?", sub:"What feels good and dependable."},
+  },
+  C: {
+    intro:"Specifics help most. Name the exact step that breaks.",
+    disengaged:{label:"Which process or tool wastes the most of your time?", sub:"Give one concrete example and the step that fails."},
+    improve:{label:"What is the highest-value fix, and why?", sub:"Be specific. What changes, and what it would save."},
+    working:{label:"What works well enough to build on?", sub:"The piece that is reliable and worth scaling."},
+  },
+  default: {
+    intro:"Two minutes, straight to Dan. Honest is more useful than polished.",
+    disengaged:{label:"What is making you feel disengaged?", sub:"What pulls your energy or motivation down?"},
+    improve:{label:"What is one thing we could do better?", sub:"The change you would make first."},
+    working:{label:"What is working well that we should protect?", sub:"What is genuinely good right now."},
+  }
+};
+
+window.initApp = async function(profile, session){
+  document.getElementById('who-name').textContent = profile.name || 'you';
+  if (profile.kind === 'manager') document.getElementById('mgrBanner').classList.remove('hidden');
+
+  // Active cycle
+  try {
+    const { data: cyc } = await supa.rpc('get_active_pulse_cycle');
+    CYCLE = Array.isArray(cyc) ? cyc[0] : cyc;
+  } catch(e){ console.warn('cycle load', e); }
+
+  if (!CYCLE){ showState('closedState'); return; }
+
+  // DISC (best effort)
+  try {
+    const { data: d } = await supa.rpc('get_my_disc');
+    const row = Array.isArray(d) ? d[0] : d;
+    DISC = row && row.primary_style ? row.primary_style : null;
+  } catch(e){ console.warn('disc load', e); }
+
+  // Existing response (RLS returns only my own row)
+  try {
+    const { data: ex } = await supa.from('pulse_responses')
+      .select('*').eq('cycle_id', CYCLE.id).maybeSingle();
+    EXISTING = ex || null;
+  } catch(e){ console.warn('existing load', e); }
+
+  buildForm();
+  if (EXISTING && EXISTING.status === 'submitted') { showThanks(); }
+  else { showState('formState'); }
+};
+
+function frame(){ return FRAMES[DISC] || FRAMES.default; }
+
+function buildForm(){
+  const f = frame();
+  document.getElementById('cycle-title').textContent = CYCLE.title.replace(/ — .*/,'') || 'Frontline Pulse';
+  const m = (CYCLE.title.match(/—\s*(.+)$/)); if (m) document.getElementById('cycle-eyebrow').textContent = m[1];
+  document.getElementById('frame-intro').textContent = f.intro;
+
+  // labels + placeholders
+  setQ('disengaged', f.disengaged); setQ('improve', f.improve); setQ('working', f.working);
+
+  // drivers
+  const host = document.getElementById('drivers');
+  host.innerHTML = DRIVERS.map(d => `
+    <div class="driver">
+      <div class="d-head"><span class="d-label">${d.label}</span><span class="d-hint">${d.hint}</span></div>
+      <div class="rating" data-key="${d.key}">
+        ${[1,2,3,4,5].map(v=>`<button type="button" data-v="${v}" onclick="rate('${d.key}',${v},this)">${v}</button>`).join('')}
+      </div>
+    </div>`).join('');
+
+  // prefill
+  if (EXISTING){
+    DRIVERS.forEach(d=>{
+      const v = EXISTING['rate_'+d.key];
+      if (v){ RATINGS[d.key]=v; const btn=host.querySelector(`.rating[data-key="${d.key}"] button[data-v="${v}"]`); if(btn) btn.classList.add('sel'); }
+    });
+    setVal('ans-disengaged', EXISTING.disengaged_text);
+    setVal('ans-improve', EXISTING.improve_text);
+    setVal('ans-working', EXISTING.working_text);
+    document.getElementById('actionNote').textContent = EXISTING.status==='draft' ? 'Draft saved. Not sent yet.' : '';
+  }
+}
+
+function setQ(key, q){
+  document.getElementById('lab-'+key).innerHTML = q.label + ' <span class="qsub">— ' + q.sub + '</span>';
+  document.getElementById('ans-'+key).placeholder = q.sub;
+}
+function setVal(id,v){ if(v!=null) document.getElementById(id).value = v; }
+
+function rate(key, v, btn){
+  RATINGS[key]=v;
+  const row = btn.parentElement;
+  row.querySelectorAll('button').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+async function submitPulse(status){
+  const sb = document.getElementById('submitBtn');
+  const db = document.getElementById('draftBtn');
+  const note = document.getElementById('actionNote');
+  sb.disabled = true; db.disabled = true;
+  note.className = 'note'; note.textContent = status==='submitted' ? 'Sending...' : 'Saving...';
+  try {
+    const { error } = await supa.rpc('submit_pulse_response', {
+      p_cycle: CYCLE.id,
+      p_ratings: RATINGS,
+      p_disengaged: val('ans-disengaged'),
+      p_improve: val('ans-improve'),
+      p_working: val('ans-working'),
+      p_status: status
+    });
+    if (error) throw error;
+    EXISTING = EXISTING || {};
+    EXISTING.status = status;
+    if (status==='submitted'){ showThanks(); }
+    else { note.className='note toast'; note.textContent='Draft saved. Come back any time before this pulse closes.'; }
+  } catch(e){
+    console.error(e);
+    note.className='note'; note.style.color='#b23b3b';
+    note.textContent = 'Could not save: ' + (e.message||'try again');
+  } finally {
+    sb.disabled=false; db.disabled=false;
+  }
+}
+function val(id){ return (document.getElementById(id).value||'').trim() || null; }
+
+function showThanks(){
+  showState('thanksState');
+}
+function backToForm(){ showState('formState'); }
+
+function showState(id){
+  ['loading','closedState','formState','thanksState'].forEach(s=>{
+    document.getElementById(s).classList.toggle('hidden', s!==id);
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>

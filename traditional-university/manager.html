@@ -368,6 +368,9 @@ table.data tbody tr:hover { background: #F5F7F0; }
     <button data-tab="training" onclick="setTab('training')">
       Training Program <span class="count" id="training-count" style="display:none;">0</span>
     </button>
+    <button data-tab="pulse" onclick="setTab('pulse')">
+      Pulse <span class="count" id="pulse-count" style="display:none;">0</span>
+    </button>
     <button data-tab="focus" onclick="setTab('focus')">Focus</button>
     <button data-tab="shadows" onclick="setTab('shadows')">Shadow Logs</button>
     <button data-tab="managers" onclick="setTab('managers')">Managers</button>
@@ -599,6 +602,16 @@ table.data tbody tr:hover { background: #F5F7F0; }
     </div>
 
     <!-- FOCUS -->
+    <!-- PULSE -->
+    <div id="view-pulse" class="view">
+      <h2>Frontline Pulse</h2>
+      <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
+        What the team is telling us about engagement. You see themes and averages, never a name on a quote.
+        Individual responses are read only by Dan.
+      </p>
+      <div id="pulse-body"></div>
+    </div>
+
     <div id="view-focus" class="view">
       <h2>Focus</h2>
       <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
@@ -858,6 +871,7 @@ function setTab(tab) {
   document.getElementById('view-' + tab).classList.add('active');
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'training') renderTraining();
+  if (tab === 'pulse') renderPulse();
   if (tab === 'focus') renderFocus();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -2246,6 +2260,184 @@ function escapeHtml(s) {
   return String(s || '').replace(/[&<>"']/g, m => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[m]));
+}
+
+// ===================== PULSE =====================
+const PULSE_DRIVERS = [
+  ['direction','Direction & leadership'], ['manager','Manager & coaching'],
+  ['tools','Tools & systems'], ['leads','Leads & territory'],
+  ['schedule','Schedule & workload'], ['pay','Pay & recognition'],
+  ['growth','Growth & path'], ['belonging','Belonging']
+];
+const STYLE_LABEL = { D:'Dominance', I:'Influence', S:'Steadiness', C:'Conscientiousness', unknown:'Unknown' };
+
+function _barColor(v) {
+  if (v == null) return 'var(--hairline)';
+  if (v < 2.5) return '#E8674A';
+  if (v < 3.5) return '#F5A623';
+  return '#78C832';
+}
+
+async function renderPulse() {
+  const host = document.getElementById('pulse-body');
+  host.innerHTML = `<div class="empty">Loading the latest pulse...</div>`;
+  let cyc = null;
+  try { const { data } = await supa.rpc('get_active_pulse_cycle'); cyc = Array.isArray(data) ? data[0] : data; }
+  catch (e) { console.warn('pulse cycle', e); }
+  if (!cyc) { host.innerHTML = `<div class="empty">No open pulse running right now.</div>`; return; }
+  state.pulseCycle = cyc;
+
+  let stats = null;
+  try { const { data } = await supa.rpc('get_pulse_rollup_stats', { p_cycle: cyc.id }); stats = data; }
+  catch (e) { host.innerHTML = `<div class="empty">Could not load rollup: ${escapeHtml(e.message)}</div>`; return; }
+
+  const responses = stats.responses || 0;
+  const eligible = stats.eligible || 0;
+  const pct = eligible ? Math.round(responses / eligible * 100) : 0;
+  const avgs = stats.driver_avgs || {};
+  const byStyle = stats.by_style || {};
+
+  const bars = PULSE_DRIVERS.map(([k, label]) => {
+    const v = avgs[k];
+    const w = v != null ? (v / 5 * 100) : 0;
+    return `<div style="margin-bottom:10px;">
+      <div style="display:flex; justify-content:space-between; font-size:0.84rem; margin-bottom:3px;">
+        <span>${label}</span><strong style="color:${_barColor(v)};">${v != null ? v.toFixed(2) : 'no data'}</strong>
+      </div>
+      <div style="height:8px; background:var(--hairline-soft); border-radius:6px; overflow:hidden;">
+        <div style="height:100%; width:${w}%; background:${_barColor(v)};"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const styleChips = Object.keys(byStyle).length
+    ? Object.entries(byStyle).map(([s, n]) => `<span style="display:inline-block; padding:3px 9px; border:1px solid var(--hairline); border-radius:20px; font-size:0.78rem; margin-right:6px;">${STYLE_LABEL[s] || s}: ${n}</span>`).join('')
+    : '<span style="color:var(--text-subtle);">no responses yet</span>';
+
+  const adminRaw = window.IS_ADMIN
+    ? `<div class="panel" style="margin-top:var(--s-5);">
+         <div class="panel-head"><div class="titles"><h3 style="margin:0;">Individual responses (admin)</h3>
+           <p>Only you see this. Read verbatim, then act.</p></div>
+           <button class="btn btn-ghost btn-sm" onclick="loadPulseRaw()">Load responses</button></div>
+         <div id="pulse-raw"></div>
+       </div>`
+    : '';
+
+  host.innerHTML = `
+    <div class="panel">
+      <div class="panel-head">
+        <div class="titles"><h3 style="margin:0;">${escapeHtml(cyc.title)}</h3>
+          <p>${responses} of ${eligible} reps answered (${pct}%).</p></div>
+      </div>
+      <div style="display:grid; grid-template-columns: 1.3fr 1fr; gap: var(--s-5); align-items:start;">
+        <div>
+          <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-subtle); margin-bottom:var(--s-3);">Driver averages (1 rough &middot; 5 great)</div>
+          ${bars}
+        </div>
+        <div>
+          <div style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-subtle); margin-bottom:var(--s-3);">Who answered, by DISC</div>
+          ${styleChips}
+          <div style="margin-top:var(--s-5);">
+            <button class="btn btn-primary" id="pulse-ai-btn" onclick="genPulseRoadmap()" ${responses ? '' : 'disabled'}>Generate AI roadmap</button>
+            <div style="font-size:0.78rem; color:var(--text-subtle); margin-top:6px;">Themes, ranked fixes, and DISC cross-cuts from the open answers.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="pulse-ai"></div>
+    ${adminRaw}`;
+}
+
+async function genPulseRoadmap() {
+  const btn = document.getElementById('pulse-ai-btn');
+  const out = document.getElementById('pulse-ai');
+  if (btn) { btn.disabled = true; btn.textContent = 'Thinking...'; }
+  out.innerHTML = `<div class="empty" style="margin-top:var(--s-5);">Reading the responses and building the roadmap...</div>`;
+  try {
+    const { data, error } = await supa.functions.invoke('pulse-ai', {
+      body: { action: 'consolidate_pulse', cycle_id: state.pulseCycle.id }
+    });
+    if (error) throw error;
+    if (data && data.error) throw new Error(data.error);
+    out.innerHTML = pulseRoadmapHtml(data.rollup);
+  } catch (e) {
+    out.innerHTML = `<div class="empty" style="margin-top:var(--s-5);">Could not generate: ${escapeHtml(e.message || String(e))}</div>`;
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Regenerate AI roadmap'; }
+  }
+}
+
+function pulseRoadmapHtml(r) {
+  if (!r) return `<div class="empty">No roadmap returned.</div>`;
+  const effColor = { quick:'#78C832', medium:'#F5A623', heavy:'#E8674A' };
+  const themes = (r.themes || []).map(t => `
+    <div style="padding:var(--s-3) 0; border-top:1px solid var(--hairline-soft);">
+      <div style="display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;">
+        <strong>${escapeHtml(t.name)}</strong>
+        <span style="font-size:0.74rem; color:var(--text-subtle);">${t.count} ${t.count === 1 ? 'rep' : 'reps'} &middot; ${escapeHtml(t.sentiment || '')}</span>
+        ${(t.styles_most_affected || []).map(s => `<span style="font-size:0.7rem; border:1px solid var(--hairline); border-radius:12px; padding:1px 7px;">${s}</span>`).join(' ')}
+      </div>
+      ${(t.supporting_quotes || []).map(q => `<div style="font-size:0.88rem; color:var(--text-muted); font-style:italic; margin-top:4px;">&ldquo;${escapeHtml(q)}&rdquo;</div>`).join('')}
+    </div>`).join('');
+  const fixes = (r.top_fixes || []).map((f, i) => `
+    <div style="display:flex; gap:12px; padding:var(--s-3) 0; border-top:1px solid var(--hairline-soft);">
+      <div style="font-family:'Fraunces',serif; font-size:1.3rem; color:var(--text-subtle); min-width:24px;">${i + 1}</div>
+      <div>
+        <div style="font-weight:700;">${escapeHtml(f.fix)}
+          <span style="font-size:0.7rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:${effColor[f.effort] || 'var(--text-subtle)'}; margin-left:6px;">${escapeHtml(f.effort || '')}</span>
+        </div>
+        <div style="font-size:0.88rem; color:var(--text-muted); margin-top:2px;">${escapeHtml(f.why_it_matters || '')}</div>
+        ${f.suggested_owner ? `<div style="font-size:0.78rem; color:var(--text-subtle); margin-top:2px;">Owner: ${escapeHtml(f.suggested_owner)}</div>` : ''}
+      </div>
+    </div>`).join('');
+  const lowest = (r.lowest_drivers || []).map(d => `<span style="display:inline-block; padding:3px 10px; background:#fdece7; color:#b2452a; border-radius:20px; font-size:0.78rem; margin-right:6px;">${escapeHtml(d)}</span>`).join('');
+  const bright = (r.bright_spots || []).map(b => `<li>${escapeHtml(b)}</li>`).join('');
+
+  return `
+    <div class="panel" style="margin-top:var(--s-5);">
+      <h3 style="margin:0 0 var(--s-3);">The roadmap</h3>
+      <p style="font-size:1.02rem; line-height:1.55;">${escapeHtml(r.headline || '')}</p>
+      ${lowest ? `<div style="margin:var(--s-3) 0;"><span style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-subtle); margin-right:8px;">Lowest drivers</span>${lowest}</div>` : ''}
+      ${r.watch_list ? `<div style="margin-top:var(--s-3); padding:11px 14px; background:#fdf6e9; border:1px solid #f0e0bf; border-radius:var(--r-sm); font-size:0.9rem;"><strong>Watch list:</strong> ${escapeHtml(r.watch_list)}</div>` : ''}
+
+      <h4 style="margin:var(--s-5) 0 0;">Top fixes, ranked</h4>
+      ${fixes || '<div class="empty">No fixes surfaced.</div>'}
+
+      <h4 style="margin:var(--s-5) 0 var(--s-2);">Themes</h4>
+      ${themes || '<div class="empty">No themes surfaced.</div>'}
+
+      ${bright ? `<h4 style="margin:var(--s-5) 0 var(--s-2);">Protect these</h4><ul style="margin:0; padding-left:18px; color:var(--text-muted);">${bright}</ul>` : ''}
+      ${r.by_style_note ? `<div style="margin-top:var(--s-4); font-size:0.88rem; color:var(--text-muted);"><strong>By DISC style:</strong> ${escapeHtml(r.by_style_note)}</div>` : ''}
+    </div>`;
+}
+
+async function loadPulseRaw() {
+  const out = document.getElementById('pulse-raw');
+  out.innerHTML = `<div class="empty">Loading...</div>`;
+  try {
+    const { data, error } = await supa.rpc('get_pulse_responses_admin', { p_cycle: state.pulseCycle.id });
+    if (error) throw error;
+    const rows = data || [];
+    if (!rows.length) { out.innerHTML = `<div class="empty">No responses yet.</div>`; return; }
+    out.innerHTML = rows.map(r => {
+      const rt = r.ratings || {};
+      const ratingLine = PULSE_DRIVERS.map(([k, l]) => `${l.split(' ')[0]} ${rt[k] ?? '-'}`).join(' &middot; ');
+      const block = (label, txt) => txt ? `<div style="margin-top:6px;"><span style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-subtle);">${label}</span><br>${escapeHtml(txt)}</div>` : '';
+      return `<div style="padding:var(--s-4); border:1px solid var(--hairline); border-radius:var(--r-sm); margin-bottom:var(--s-3);">
+        <div style="display:flex; gap:10px; align-items:baseline;">
+          <strong>${escapeHtml(r.name || 'Unknown')}</strong>
+          ${r.disc_style ? `<span style="font-size:0.7rem; border:1px solid var(--hairline); border-radius:12px; padding:1px 8px;">${STYLE_LABEL[r.disc_style] || r.disc_style}</span>` : ''}
+          ${r.status === 'draft' ? `<span style="font-size:0.7rem; color:var(--text-subtle);">DRAFT</span>` : ''}
+        </div>
+        <div style="font-size:0.78rem; color:var(--text-subtle); margin-top:4px;">${ratingLine}</div>
+        ${block('What is pulling energy down', r.disengaged_text)}
+        ${block('Do better', r.improve_text)}
+        ${block('Working well', r.working_text)}
+      </div>`;
+    }).join('');
+  } catch (e) {
+    out.innerHTML = `<div class="empty">Could not load: ${escapeHtml(e.message || String(e))}</div>`;
+  }
 }
 
 // ===================== BOOT =====================
