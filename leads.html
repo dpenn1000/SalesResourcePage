@@ -164,6 +164,20 @@
   .rep-mini span:last-child{font-weight:600;color:var(--ink)}
   .rep-ov-total{font-size:11px;font-weight:500;color:var(--muted)}
   .rep-sect{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:9px 0 4px;padding-top:7px;border-top:1px dashed var(--border)}
+  .gb-banner{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:#14213A;color:#fff;border-radius:12px;padding:14px 20px;margin-bottom:14px}
+  .gb-banner .big{font-size:28px;font-weight:800;line-height:1}
+  .gb-stat{display:flex;flex-direction:column;gap:3px}
+  .gb-stat .lab{font-size:11px;color:#9fb1c4;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+  .gb-check{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px}
+  .gb-tier{margin:18px 0 8px;font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px}
+  .gb-dot{width:11px;height:11px;border-radius:50%;flex:none}
+  .gb-row{display:grid;grid-template-columns:78px 1fr 150px 70px;gap:12px;align-items:center;padding:9px 12px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;background:#fff;font-size:13px}
+  .gb-age{font-weight:800;text-align:center;border-radius:7px;padding:5px 4px;line-height:1.1}
+  .gb-warm{background:rgba(90,165,34,.15);color:#3f7a16}
+  .gb-slip{background:rgba(217,154,43,.20);color:#9a6a0f}
+  .gb-cold{background:rgba(192,57,43,.14);color:#a02020}
+  .gb-note{color:var(--muted);font-size:12px;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  @media(max-width:680px){.gb-row{grid-template-columns:64px 1fr;}.gb-row>*:nth-child(3),.gb-row>*:nth-child(4){grid-column:2}}
   .qd-overlay{position:fixed;inset:0;background:rgba(15,32,56,.45);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px}
   .qd-box{background:var(--surface);border-radius:12px;width:100%;max-width:660px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.25)}
   .qd-head{background:#1A2332;color:#fff;padding:15px 20px;display:flex;align-items:center;justify-content:space-between}
@@ -234,6 +248,7 @@
     <button class="tab" data-tab="qc" onclick="setTab('qc')">QC Review</button>
     <button class="tab" data-tab="flags" onclick="setTab('flags')">Flags<span id="flagsTabCount"></span></button>
     <button class="tab" data-tab="pipeline" onclick="setTab('pipeline')">Pipeline<span id="plCount"></span></button>
+    <button class="tab" data-tab="gobacks" onclick="setTab('gobacks')">Go-Backs<span id="gbCount"></span></button>
     <button class="tab" data-tab="community" onclick="setTab('community')">Community<span id="commCount"></span></button>
     <button class="tab" data-tab="load" onclick="setTab('load')">Load</button>
   </div>
@@ -362,6 +377,10 @@
       </div>
       <div class="sub" style="margin:2px 0 10px">The worked pipeline by rep: scheduled appts, go-backs, ran, and no-sale leads that have already sat. The pre-sit recycle pool (deleted / no-show / cancel) lives in the Leads tab and Quick Dispatch. Direct / self-gen leads are excluded. Open a rep to work the buckets, isolate stale leads, and reassign (a whole bucket, the first N, or a hand-picked chunk).</div>
       <div id="plBody"><div class="empty">Loading pipeline...</div></div>
+    </div>
+
+    <div id="tab-gobacks" class="tabpanel" style="display:none">
+      <div id="gbBody"><div class="empty">Loading go-backs...</div></div>
     </div>
 
     <div id="tab-community" class="tabpanel" style="display:none">
@@ -566,7 +585,7 @@ async function initApp(){
     for(const r of Object.keys(repCount).sort((a,b)=>repCount[b]-repCount[a]))rp.appendChild(new Option(`${r} (${repCount[r]})`,r));
     const la=document.getElementById('li_assign');for(const n of people)la.appendChild(new Option(n,n));
     const dr=document.getElementById('dispatchRep');for(const n of people)dr.appendChild(new Option(n,n));
-    renderKpis();renderTeamChart();renderDashDetail();render();updatePlCount();
+    renderKpis();renderTeamChart();renderDashDetail();render();updatePlCount();updateGbCount();
   }catch(err){
     document.getElementById('tableWrap').innerHTML='<div class="empty">Load failed: '+esc(err.message||err)+'</div>';
   }
@@ -907,7 +926,63 @@ function setTab(t){
   if(t==='qc')renderQc();
   if(t==='flags'){if(!flagsLoaded)loadFlags();else renderFlags();}
   if(t==='pipeline')renderPipeline();
+  if(t==='gobacks')renderGobacks();
   if(t==='community')loadCommunity();
+}
+
+/* ── Go-Backs board ───────────────────────────────────────────────────────
+   Every active go-back (lifecycle 'goback'), ranked by urgency. Days since the
+   sit that set it maps to our own close-rate decay: ~12% in the first week,
+   8.5% at 1-2 weeks, 5.7% at 2-4 weeks, ~0% past a month. 86% never close, so
+   this board exists to make sure they get RUN while they're still warm. */
+function gbDays(g){return daysSince(g.primary.last_appt_date);}
+function gbList(){return props.filter(g=>(g.primary.lifecycle_state||'')==='goback' && !g.anySold);}
+function gbTier(g){const d=gbDays(g);return d==null?'slip':(d<=7?'warm':(d<=14?'slip':'cold'));}
+function gbNote(g){const a=g.primary.appointments;if(Array.isArray(a)&&a.length){const last=a[a.length-1];return (last&&last.notes)||'';}return '';}
+function updateGbCount(list){
+  list=list||gbList();
+  const atRisk=list.filter(g=>{const d=gbDays(g);return d==null||d>7;}).length;
+  const el=document.getElementById('gbCount');
+  if(el)el.innerHTML=atRisk?` <span class="badge b-review" style="margin-left:5px">${atRisk}</span>`:'';
+}
+function renderGobacks(){
+  const list=gbList();
+  updateGbCount(list);
+  const body=document.getElementById('gbBody');if(!body)return;
+  if(!list.length){body.innerHTML='<div class="empty">No active go-backs right now.</div>';return;}
+  const warm=[],slip=[],cold=[];
+  for(const g of list){const t=gbTier(g);(t==='warm'?warm:t==='slip'?slip:cold).push(g);}
+  const sortOld=(a,b)=>(gbDays(b)==null?1e9:gbDays(b))-(gbDays(a)==null?1e9:gbDays(a));
+  warm.sort(sortOld);slip.sort(sortOld);cold.sort(sortOld);
+  let h=`<div class="gb-banner">
+    <div class="gb-stat"><span class="big" style="color:#7ec63f">${list.length}</span><span class="lab">Active go-backs</span></div>
+    <div class="gb-stat"><span class="big" style="color:#e0a92b">${slip.length+cold.length}</span><span class="lab">Slipping or cold</span></div>
+    <div class="gb-stat" style="margin-left:auto;max-width:430px"><span class="lab">The math</span><span style="font-size:12.5px;font-weight:600;line-height:1.4">86% of go-backs never close. Closing odds halve the moment you leave the sit, then bleed every week. Run them inside 7 days.</span></div>
+  </div>`;
+  h+=`<div class="gb-check"><b>Hard follow-up plan for every go-back</b><ul style="margin:6px 0 0;padding-left:18px">
+    <li><b>Run it in the first week.</b> Warm beats convenient.</li>
+    <li><b>Confirm 24 hours out</b> by phone, not text.</li>
+    <li><b>Both deciders locked</b> for the time. One-leggers cancel ~80%.</li>
+    <li><b>Go back to SIGN, not to decide.</b> Coach the present homeowner on exactly what to say.</li>
+    <li><b>Set the agenda:</b> what gets resolved and what they are signing.</li>
+  </ul></div>`;
+  const row=g=>{
+    const d=gbDays(g),t=gbTier(g);
+    const cls=t==='warm'?'gb-warm':t==='slip'?'gb-slip':'gb-cold';
+    const rep=g.primary.assigned_to||g.primary.original_rep||'--';
+    const sf=g.primary.dl_sf_id?`<a class="sflink" target="_blank" rel="noopener" href="${SF.replace('{}',esc(g.primary.dl_sf_id))}">SF &nearr;</a>`:'';
+    return `<div class="gb-row">
+      <div class="gb-age ${cls}">${d==null?'?':d+'d'}<div style="font-weight:600;font-size:9.5px">since sit</div></div>
+      <div><b>${esc(g.primary.homeowner_name||'--')}</b>${g.property.town?' <span class="sub">&middot; '+esc(g.property.town)+'</span>':''}<div class="gb-note">${esc(gbNote(g)||'(no note)')}</div></div>
+      <div>${esc(rep)}</div>
+      <div style="text-align:right">${sf}</div>
+    </div>`;
+  };
+  const section=(label,color,arr,sub)=>arr.length?`<div class="gb-tier"><span class="gb-dot" style="background:${color}"></span>${label} (${arr.length}) <span class="sub" style="font-weight:500">&middot; ${sub}</span></div>${arr.map(row).join('')}`:'';
+  h+=section('Warm','#5aa522',warm,'0-7 days. Highest close odds. Run now.')
+    +section('Slipping','#d99a2b',slip,'8-14 days. Cooling. Chase today.')
+    +section('Cold','#c0392b',cold,'15+ days. Last chance, or close it out.');
+  body.innerHTML=h;
 }
 
 /* ── Community (Stewardship) leads: own bucket, QC / Pipeline / Feedback lanes ── */
