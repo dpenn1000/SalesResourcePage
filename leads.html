@@ -706,8 +706,11 @@ function renderDashDetail(){
     r.total++;
   }
   /* logged QC call outcomes (call-list activity, scoped) */
-  const outc={},byFrust={},byHState={};
-  for(const c of sc){const o=c.outcome||'Other';outc[o]=(outc[o]||0)+1;if(c.frustration_source)byFrust[c.frustration_source]=(byFrust[c.frustration_source]||0)+1;if(c.homeowner_state)byHState[c.homeowner_state]=(byHState[c.homeowner_state]||0)+1;}
+  const outc={},byFrust={},byHState={},byCaller={};
+  for(const c of sc){const o=c.outcome||'Other';outc[o]=(outc[o]||0)+1;if(c.frustration_source)byFrust[c.frustration_source]=(byFrust[c.frustration_source]||0)+1;if(c.homeowner_state)byHState[c.homeowner_state]=(byHState[c.homeowner_state]||0)+1;
+    /* per-CALLER call tally for the scoped "By rep (calls in scope)" card -- counts
+       actual calls (by who logged them), so per-rep bars sum to total calls. */
+    const cr=c.logged_by;if(cr){const rr=byCaller[cr]||(byCaller[cr]={appt:0,interest:0,reached:0,attempted:0,total:0});if(o==='Appointment Set')rr.appt++;else if(o==='Has Interest')rr.interest++;else if(o==='Reached')rr.reached++;else rr.attempted++;rr.total++;}}
   const totCalls=sc.length,connected=(outc['Reached']||0)+(outc['Has Interest']||0)+(outc['Appointment Set']||0),connRate=totCalls?Math.round(connected/totCalls*100):0;
   /* one cohesive palette: green = good/go, steel = in-progress, slate = inert/neutral, amber = attention */
   const G={green:'linear-gradient(90deg,#5aa522,#7ec63f)',dgreen:'linear-gradient(90deg,#3f7a16,#5aa522)',steel:'linear-gradient(90deg,#3f6f96,#5a93bd)',slate:'linear-gradient(90deg,#6f7d8c,#95a3b1)',amber:'linear-gradient(90deg,#b8770f,#d99a2b)'};
@@ -732,9 +735,11 @@ function renderDashDetail(){
   const RSEG_ACTIVE=[['appt','#3f7a16','Appt set'],['interest','#5a93bd','Has interest'],['reached','#7ec63f','Reached'],['attempted','#8694a3','Attempted']];
   const repCard=()=>{
     const scoped=dashScopeActive();
+    // Scoped: count CALLS by who placed them (sums to total calls in scope).
+    // Unscoped: the rep's assigned book, split by best outcome per lead.
     const RSEG=scoped?RSEG_ACTIVE:RSEG_FULL;
-    const totalFor=r=>scoped?(r.appt+r.interest+r.reached+r.attempted):r.total;
-    const ent=Object.entries(byRepOut).map(([rep,r])=>[rep,r,totalFor(r)]).filter(([,,t])=>!scoped||t>0).sort((a,b)=>b[2]-a[2]).slice(0,10);
+    const src=scoped?byCaller:byRepOut;   // byCaller.total = calls; byRepOut.total = assigned leads
+    const ent=Object.entries(src).map(([rep,r])=>[rep,r,r.total]).filter(([,,t])=>!scoped||t>0).sort((a,b)=>b[2]-a[2]).slice(0,10);
     const max=Math.max(1,...ent.map(([,,t])=>t));
     const rows=ent.map(([rep,r,t])=>{
       const segs=RSEG.map(([k,col,lab])=>r[k]?`<span style="width:${r[k]/max*100}%;background:${col}" title="${esc(lab)}: ${r[k]}"></span>`:'').join('');
@@ -742,7 +747,7 @@ function renderDashDetail(){
     }).join('');
     const leg=RSEG.map(([k,col,lab])=>`<span class="dleg"><i style="background:${col}"></i>${esc(lab)}</span>`).join('');
     const title=scoped?'By rep (calls in scope)':'By rep (assigned + outcomes)';
-    const tip=scoped?"Each rep's call activity within the selected scope. Bar = total calls in scope; segments = outcome mix.":"Each rep's assigned leads, split by best call outcome. Bar length = leads assigned.";
+    const tip=scoped?"Calls each rep placed within the selected scope (by who logged them). Bar = number of calls; segments = call-outcome mix. Bars sum to total calls in scope.":"Each rep's assigned leads, split by best call outcome. Bar length = leads assigned.";
     return `<div class="dash-card" title="${esc(tip)}"><div class="dash-card-title">${esc(title)}</div>${rows||'<div class="sub">No rep activity in scope</div>'}<div style="margin-top:8px">${leg}</div></div>`;
   };
   document.getElementById('dashdetail').innerHTML='<div class="dash-grid">'
