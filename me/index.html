@@ -1779,7 +1779,9 @@ function renderMePerf(d){
   const _win = d.data_window || {};
   const _fmtW = (s) => { try { return new Date(String(s) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch (e) { return String(s); } };
   const _headScope = (_win.from && _win.to) ? (_fmtW(_win.from) + ' to ' + _fmtW(_win.to)) : 'latest synced data';
-  const scopeCaption = '<div class="metrics-scope"><b>Contracts, kW, PPA:</b> latest Performance Dashboard data (' + esc(_headScope) + '). <b>Sales Club:</b> this quarter to date.</div>';
+  const _clubW = d.sales_club || {};
+  const _clubScope = _clubW.quarter_label ? (esc(_clubW.quarter_label) + (_clubW.is_final ? ' (final)' : ' to date')) : 'this quarter to date';
+  const scopeCaption = '<div class="metrics-scope"><b>Contracts, kW, PPA:</b> latest Performance Dashboard data (' + esc(_headScope) + '). <b>Sales Club:</b> ' + _clubScope + '.</div>';
   $('metricsPill').textContent = (d.percentile_contracts != null ? 'top ' + Math.max(1, 100 - d.percentile_contracts) + '%' : 'live');
   $('metricsPill').className = 'section-pill green';
   $('metricsPill').style.background = '';
@@ -1938,14 +1940,28 @@ function renderSalesClub(d, cfg){
   const standingCode = (currentCode !== 'none') ? currentCode : projCode;
   const standingName = (CLUB_TIERS.find(t => t.code === standingCode) || {}).name;
 
+  // When the current quarter is too early to be meaningful, the launcher reports
+  // the just-completed quarter's FINAL standing (is_final) instead of a live
+  // run-rate. Speak about it as a finished result, not a pace.
+  const isFinal = !!club.is_final;
+  const qLabel  = club.quarter_label || '';
+
   // ── Header ──
   const pill = $('salesClubPill');
-  if (currentCode !== 'none'){ pill.textContent = standingName; pill.className = 'sc-pill in'; }
+  if (isFinal){
+    if (currentCode !== 'none'){ pill.textContent = standingName; pill.className = 'sc-pill in'; }
+    else { pill.textContent = 'no club'; pill.className = 'sc-pill'; }
+  }
+  else if (currentCode !== 'none'){ pill.textContent = standingName; pill.className = 'sc-pill in'; }
   else if (projCode !== 'none'){ pill.textContent = 'on pace: ' + standingName; pill.className = 'sc-pill pace'; }
   else { pill.textContent = 'not yet'; pill.className = 'sc-pill'; }
 
   let headline;
-  if (currentCode !== 'none') headline = 'You are in <b>' + esc(standingName) + '</b> this quarter.';
+  if (isFinal){
+    if (currentCode !== 'none') headline = 'You finished <b>' + esc(qLabel) + '</b> in <b>' + esc(standingName) + '</b>.';
+    else headline = 'You did not reach a club in <b>' + esc(qLabel) + '</b>. New quarter, fresh start.';
+  }
+  else if (currentCode !== 'none') headline = 'You are in <b>' + esc(standingName) + '</b> this quarter.';
   else if (projCode !== 'none') headline = 'On your current pace you are tracking to <b>' + esc(standingName) + '</b>.';
   else headline = 'Build toward your first club this quarter.';
 
@@ -1968,7 +1984,12 @@ function renderSalesClub(d, cfg){
   const active   = club.active   != null ? club.active   : 0;
   const installs = club.installs != null ? club.installs : 0;
   let pacingBanner;
-  if (projCode !== 'none'){
+  if (isFinal){
+    const finalName = (currentCode !== 'none') ? standingName : 'No club';
+    pacingBanner = '<div class="sc-pacing-banner"><span class="sc-pacing-lbl">' + esc(qLabel) + ' final</span>' +
+      '<span class="sc-pacing-tier">' + esc(finalName) + '</span>' +
+      '<span class="sc-pacing-note">completed quarter</span></div>';
+  } else if (projCode !== 'none'){
     const projName = (CLUB_TIERS.find(function(t){ return t.code === projCode; }) || {}).name || club.projected_tier;
     pacingBanner = '<div class="sc-pacing-banner"><span class="sc-pacing-lbl">Pacing for</span>' +
       '<span class="sc-pacing-tier">' + esc(projName) + '</span>' +
@@ -1990,7 +2011,7 @@ function renderSalesClub(d, cfg){
     const needA = Math.max(0, (band(ntier.actMin)  || 0) - active);
     const needI = Math.max(0, (band(ntier.instMin) || 0) - installs);
     standing += '<div class="sc-need">To reach <b>' + esc(ntier.name) + '</b>, you still need ' +
-      '<b>' + needA + '</b> more active and <b>' + needI + '</b> more installs this quarter.</div>';
+      '<b>' + needA + '</b> more active and <b>' + needI + '</b> more installs in a quarter.</div>';
   } else {
     standing += '<div class="sc-need">You are at the top tier. Hold Royalty and keep the standard high.</div>';
   }
