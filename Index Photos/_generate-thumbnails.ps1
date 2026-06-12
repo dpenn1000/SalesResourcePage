@@ -86,7 +86,7 @@ $titleSvg$rule
 
 $cards = @(
  @('university','university','UNIVERSITY','Traditional','University','The curriculum that builds closers',''),
- @('new-hire','university','UNIVERSITY','New Hire','Process','Your first days, step by step',''),
+ @('new-hire','university','UNIVERSITY','New Hire','Resource','Your first days, step by step',''),
  @('solar-objections','solar','SOLAR','Solar','Objections','Study / Drill / Quiz',''),
  @('kill-the-bill','solar','SOLAR','Kill','the Bill','Wipe out the electric bill',''),
  @('one-touch-close','solar','SOLAR','One-Touch','Close','Presentation to prescription',''),
