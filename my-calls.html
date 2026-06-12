@@ -359,17 +359,20 @@ async function setupViewAs(){
   bar.style.display = 'flex';
   document.getElementById('userLabel').textContent = '· manager view';
   document.getElementById('list').innerHTML = '<div class="empty">Pick your own name or a rep above to view a call list.</div>';
-  const { data, error } = await sb.from('people').select('name').eq('status','active').eq('role','rep').order('name');
-  if (error) { document.getElementById('list').innerHTML = '<div class="empty">Could not load reps: ' + esc(error.message) + '</div>'; return; }
-  // A manager can dispatch leads to themselves, so list their own name first --
-  // selecting it loads leads where assigned_to = the manager (RLS mgr_select
-  // already grants read on every lead). Reps follow in their own group.
+  // Load both reps AND managers -- a manager can dispatch leads to themselves or
+  // a fellow manager, so both need to be selectable here (RLS lets a manager read
+  // same-state / national people). The role filter, not RLS, was hiding managers.
+  const { data, error } = await sb.from('people').select('name,role').eq('status','active').in('role',['rep','manager']).order('name');
+  if (error) { document.getElementById('list').innerHTML = '<div class="empty">Could not load the roster: ' + esc(error.message) + '</div>'; return; }
+  const reps = (data||[]).filter(p => p.role === 'rep');
+  const mgrs = (data||[]).filter(p => p.role === 'manager' && p.name !== ME);   // self shown as "My own leads"
+  const optList = arr => arr.map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('');
+  // Own name first, then a Managers group, then Reps.
   sel.innerHTML = '<option value="">Select...</option>' +
     (ME ? `<option value="${esc(ME)}">My own leads (${esc(ME)})</option>` : '') +
-    '<optgroup label="Reps">' +
-    (data||[]).map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('') +
-    '</optgroup>';
-  // Optional deep link: /my-calls.html?as=Name preselects that rep (or the manager).
+    (mgrs.length ? '<optgroup label="Managers">' + optList(mgrs) + '</optgroup>' : '') +
+    '<optgroup label="Reps">' + optList(reps) + '</optgroup>';
+  // Optional deep link: /my-calls.html?as=Name preselects that rep or manager.
   const want = new URLSearchParams(location.search).get('as');
   if (want && (want === ME || (data||[]).some(r => r.name === want))) { sel.value = want; onViewAs(); }
 }
