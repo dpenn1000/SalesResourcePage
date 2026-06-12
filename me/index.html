@@ -422,16 +422,42 @@
     position: relative; background: rgba(255,255,255,0.035);
     border: 1px solid var(--sc-line); border-radius: 11px; padding: 14px 15px;
   }
+  /* The earned-club card: deep metallic gold (less yellow), pulsing glow,
+     a sheen sweep and twinkling sparkles. */
   .sc-card.here {
-    background: linear-gradient(165deg, rgba(212,175,55,0.20) 0%, rgba(212,175,55,0.06) 100%);
-    border-color: var(--gold);
-    box-shadow: 0 0 0 1px var(--gold), 0 0 22px rgba(212,175,55,0.45), 0 6px 18px rgba(212,175,55,0.18);
-    animation: scGlowHere 2.6s ease-in-out infinite;
+    background:
+      radial-gradient(120% 85% at 0% 0%, rgba(176,124,18,0.36), transparent 52%),
+      linear-gradient(165deg, rgba(176,124,18,0.30) 0%, rgba(140,96,20,0.13) 58%, rgba(92,62,12,0.05) 100%);
+    border-color: #c2901a;
+    box-shadow: 0 0 0 1px #b2820f, 0 0 22px rgba(176,124,18,0.50), 0 6px 18px rgba(92,62,12,0.34);
+    animation: scGlowHere 2.8s ease-in-out infinite;
   }
   @keyframes scGlowHere {
-    0%,100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.80), 0 0 16px rgba(212,175,55,0.38), 0 6px 18px rgba(212,175,55,0.16); }
-    50%     { box-shadow: 0 0 0 1px var(--gold-lt), 0 0 30px rgba(212,175,55,0.70), 0 6px 20px rgba(212,175,55,0.22); }
+    0%,100% { box-shadow: 0 0 0 1px rgba(160,116,14,0.85), 0 0 16px rgba(176,124,18,0.42), 0 6px 18px rgba(92,62,12,0.18); }
+    50%     { box-shadow: 0 0 0 1px #d9a528, 0 0 32px rgba(200,150,40,0.74), 0 6px 22px rgba(130,90,16,0.26); }
   }
+  .sc-card.here::before {
+    content: ''; position: absolute; inset: 0; border-radius: 11px; pointer-events: none; z-index: 1;
+    background: linear-gradient(115deg, transparent 40%, rgba(255,236,180,0.10) 47%, rgba(255,246,214,0.24) 50%, rgba(255,236,180,0.10) 53%, transparent 60%);
+    background-size: 230% 230%; background-position: 165% 0;
+    animation: scSheen 4.2s ease-in-out infinite;
+  }
+  @keyframes scSheen { 0% { background-position: 165% 0; } 55%,100% { background-position: -65% 0; } }
+  .sc-card.here::after {
+    content: ''; position: absolute; inset: 0; border-radius: 11px; pointer-events: none; z-index: 2;
+    background-image:
+      radial-gradient(circle, rgba(255,248,222,0.95) 0%, rgba(255,248,222,0) 60%),
+      radial-gradient(circle, rgba(255,234,176,0.90) 0%, rgba(255,234,176,0) 60%),
+      radial-gradient(circle, rgba(255,250,230,0.95) 0%, rgba(255,250,230,0) 60%),
+      radial-gradient(circle, rgba(255,228,165,0.85) 0%, rgba(255,228,165,0) 60%),
+      radial-gradient(circle, rgba(255,246,214,0.90) 0%, rgba(255,246,214,0) 60%),
+      radial-gradient(circle, rgba(255,238,190,0.80) 0%, rgba(255,238,190,0) 60%);
+    background-repeat: no-repeat;
+    background-size: 3px 3px, 2px 2px, 2.5px 2.5px, 2px 2px, 3px 3px, 1.5px 1.5px;
+    background-position: 14% 26%, 68% 16%, 43% 60%, 84% 70%, 26% 82%, 56% 38%;
+    animation: scSparkle 2.6s ease-in-out infinite;
+  }
+  @keyframes scSparkle { 0%,100% { opacity: 0.18; } 25% { opacity: 0.95; } 50% { opacity: 0.35; } 75% { opacity: 1; } }
   .sc-here {
     position: absolute; top: -9px; right: 12px;
     font-size: 9px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
@@ -440,7 +466,7 @@
   .sc-card-name {
     font-size: 16px; font-weight: 800; letter-spacing: 0.01em; color: #fff; margin-bottom: 11px;
   }
-  .sc-card.here .sc-card-name { color: var(--gold-lt); }
+  .sc-card.here .sc-card-name { color: #ecc35a; position: relative; z-index: 3; }
   .sc-card.pacing {
     border-color: var(--gold);
     box-shadow: 0 0 0 1px var(--gold), 0 0 16px rgba(212,175,55,0.40);
@@ -450,7 +476,7 @@
     0%,100% { box-shadow: 0 0 0 1px rgba(212,175,55,0.7), 0 0 12px rgba(212,175,55,0.30); }
     50%     { box-shadow: 0 0 0 1px var(--gold-lt), 0 0 24px rgba(212,175,55,0.62); }
   }
-  @media (prefers-reduced-motion: reduce){ .sc-card.pacing, .sc-card.here { animation: none; } }
+  @media (prefers-reduced-motion: reduce){ .sc-card.pacing, .sc-card.here, .sc-card.here::before, .sc-card.here::after { animation: none; } }
   .sc-card.pacing .sc-card-name { color: var(--gold-lt); }
   .sc-pacebadge {
     position: absolute; top: -9px; right: 12px;
