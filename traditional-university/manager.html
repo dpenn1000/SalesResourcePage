@@ -1750,18 +1750,33 @@ function renderTraining() {
 function renderTrainingRecs() {
   const el = document.getElementById('training-recs');
   if (!el) return;
-  const recs = (state.trainingRecs || []).slice()
+  const recs = (state.trainingRecs || []);
+  if (!recs.length) { el.innerHTML = `<div class="empty">No open recommendations. The weekly parser will surface new ones.</div>`; return; }
+  if (!state.recsView) state.recsView = 'group';
+  const tbtn = (v, label) => `<button class="btn btn-sm ${state.recsView === v ? 'btn-primary' : 'btn-ghost'}" onclick="setRecsView('${v}')">${label}</button>`;
+  const toggle = `<div style="display:flex; gap:8px; margin-bottom: var(--s-3); align-items:center;">
+      <span style="font-size:0.72rem; color: var(--text-subtle); text-transform:uppercase; letter-spacing:0.06em; margin-right:4px;">View</span>
+      ${tbtn('group', 'By training')}${tbtn('priority', 'By priority')}</div>`;
+  el.innerHTML = toggle + (state.recsView === 'group' ? recsGroupedHtml(recs) : recsListHtml(recs));
+}
+
+function setRecsView(v) { state.recsView = v; renderTrainingRecs(); }
+
+function _priColor(p) {
+  return p === 'high' ? 'var(--accent-rose, #d9534f)'
+       : p === 'medium' ? 'var(--accent-amber, #c98a00)' : 'var(--text-subtle)';
+}
+
+function recsListHtml(recs) {
+  const sorted = recs.slice()
     .sort((a, b) => (a.scope === b.scope ? 0 : a.scope === 'cohort' ? -1 : 1)
                   || (PRI_RANK[a.priority] - PRI_RANK[b.priority]));
-  if (!recs.length) { el.innerHTML = `<div class="empty">No open recommendations. The weekly parser will surface new ones.</div>`; return; }
-
-  el.innerHTML = recs.map(r => {
+  return sorted.map(r => {
     const res = r.resource_id ? _resourceById(r.resource_id) : null;
     const target = res ? `<a href="${escapeHtml(res.url)}" target="_blank" rel="noopener">${escapeHtml(res.name)}</a>`
                        : escapeHtml(r.topic_tag || r.signal_type);
     const who = r.scope === 'cohort' ? 'Team-wide' : escapeHtml(_personName(r.person_id));
-    const priColor = r.priority === 'high' ? 'var(--accent-rose, #d9534f)'
-                   : r.priority === 'medium' ? 'var(--accent-amber, #c98a00)' : 'var(--text-subtle)';
+    const priColor = _priColor(r.priority);
     const metricLine = _recMetric(r);
     const evText = _recEvidence(r);
     const metric = metricLine ? `<div style="margin-top:4px; font-size:0.875rem; color: var(--ink);">${metricLine}</div>` : '';
@@ -1786,6 +1801,110 @@ function renderTrainingRecs() {
         </div>
       </div>`;
   }).join('');
+}
+
+// "By training" view: bucket per-rep recommendations by the training that is
+// indicated, so a manager can see which reps need the same subject and bring a
+// group in together (one click pre-fills the log form with that group).
+function recsGroupedHtml(recs) {
+  const cohortRecs = recs.filter(r => r.scope === 'cohort');
+  const repRecs = recs.filter(r => r.scope !== 'cohort');
+  const map = new Map();
+  repRecs.forEach(r => {
+    const key = r.resource_id ? ('res:' + r.resource_id)
+              : r.cert_id ? ('cert:' + r.cert_id)
+              : ('topic:' + (r.topic_tag || r.signal_type));
+    if (!map.has(key)) {
+      const res = r.resource_id ? _resourceById(r.resource_id) : null;
+      const cert = (!res && r.cert_id) ? (state.certs || []).find(c => c.id === r.cert_id) : null;
+      map.set(key, {
+        name: res ? res.name : cert ? cert.name : (r.topic_tag || r.signal_type),
+        url: res ? res.url : null,
+        resource_id: r.resource_id || null,
+        signal: r.signal_type,
+        members: []
+      });
+    }
+    map.get(key).members.push({ recId: r.id, person_id: r.person_id, priority: r.priority });
+  });
+  const buckets = [...map.values()].sort((a, b) =>
+    (b.members.length - a.members.length) ||
+    (PRI_RANK[_bucketTopPri(a)] - PRI_RANK[_bucketTopPri(b)]));
+  window.__tbuckets = buckets;
+
+  if (!buckets.length && !cohortRecs.length) return `<div class="empty">No open recommendations.</div>`;
+
+  let html = '';
+  if (buckets.length) {
+    html += buckets.map((b, i) => {
+      const top = _bucketTopPri(b);
+      const title = b.url
+        ? `<a href="${escapeHtml(b.url)}" target="_blank" rel="noopener">${escapeHtml(b.name)}</a>`
+        : escapeHtml(b.name);
+      const n = b.members.length;
+      const chips = b.members.slice()
+        .sort((m, p) => PRI_RANK[m.priority] - PRI_RANK[p.priority])
+        .map(m => `<span style="display:inline-flex; align-items:center; gap:5px; font-size:0.8125rem; padding:3px 9px; border:1px solid var(--hairline); border-radius:999px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:${_priColor(m.priority)};"></span>${escapeHtml(_personName(m.person_id))}</span>`).join(' ');
+      const groupBtn = n > 1
+        ? `<button class="btn btn-primary btn-sm" onclick="prefillGroupSession(${i})">Bring group in</button>`
+        : `<button class="btn btn-ghost btn-sm" onclick="prefillGroupSession(${i})">Log session</button>`;
+      return `
+        <div style="padding: var(--s-3); border:1px solid var(--hairline); border-left:3px solid ${_priColor(top)}; border-radius: var(--r-sm); margin-bottom: var(--s-3);">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap: var(--s-3); flex-wrap:wrap;">
+            <div style="flex:1; min-width:240px;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:1rem; font-weight:700;">${title}</span>
+                <span style="font-size:0.72rem; font-weight:700; color: var(--text-subtle); background: var(--surface-2, #f1f3ef); padding:2px 8px; border-radius:999px;">${n} rep${n === 1 ? '' : 's'}</span>
+              </div>
+              <div style="font-size:0.72rem; color: var(--text-subtle); text-transform:uppercase; letter-spacing:0.06em; margin-top:3px;">${escapeHtml(b.signal || '')}</div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">${chips}</div>
+            </div>
+            <div style="display:flex; gap:6px; flex-shrink:0; align-items:center;">
+              ${groupBtn}
+              <button class="btn btn-ghost btn-sm" onclick="approveBucket(${i})">Approve all (${n})</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+  if (cohortRecs.length) {
+    html += `<div style="font-size:0.72rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; color: var(--text-subtle); margin: 16px 0 8px;">Team-wide signals</div>`;
+    html += recsListHtml(cohortRecs);
+  }
+  return html;
+}
+
+function _bucketTopPri(b) {
+  return b.members.reduce((best, m) => PRI_RANK[m.priority] < PRI_RANK[best] ? m.priority : best, b.members[0].priority);
+}
+
+// Pre-fill the log-a-session form with this training + everyone who needs it,
+// then scroll the manager down to confirm date/format and save.
+function prefillGroupSession(i) {
+  const b = (window.__tbuckets || [])[i];
+  if (!b) return;
+  if (b.resource_id) { const sel = document.getElementById('ts-resource'); if (sel) sel.value = b.resource_id; }
+  const t = document.getElementById('ts-title'); if (t) t.value = 'Group session: ' + b.name;
+  const d = document.getElementById('ts-date'); if (d && !d.value) d.value = new Date().toISOString().slice(0, 10);
+  const ids = b.members.map(m => m.person_id);
+  document.querySelectorAll('#ts-attendees .ts-att').forEach(c => { c.checked = ids.includes(c.value); });
+  const anchor = document.getElementById('ts-title');
+  if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function approveBucket(i) {
+  const b = (window.__tbuckets || [])[i];
+  if (!b) return;
+  const n = b.members.length;
+  if (!confirm(`Approve all ${n} recommendation${n === 1 ? '' : 's'} for "${b.name}"? This acts on each rep's recommendation.`)) return;
+  for (const m of b.members) {
+    const { error } = await supa.rpc('act_on_training_recommendation', { p_rec_id: m.recId, p_action: 'approve' });
+    if (error) { alert(error.message); break; }
+  }
+  await loadAll();
+  renderTraining();
+  renderAssignments();
 }
 
 function populateLogForm() {
