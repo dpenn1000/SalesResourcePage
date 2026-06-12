@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="/auth-gate.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="/lead-geo.js"></script>
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{--green:#78C832;--accent:#29A9E1;--ink:#1A2332;--muted:#6b7a8d;--border:#DFE2DA;--bg:#EFF1EC;--surface:#fff;--radius:10px;--shadow:0 1px 4px rgba(0,0,0,.07);--red:#D63030;--amber:#C88C00}
@@ -1552,11 +1553,7 @@ async function bulkDispatch(){
    "who's closest" read, not true drive time, but it needs no backend and matches
    the county-level resolution of the rep data. Pick a county in Quick Dispatch to
    sort the rep list nearest-first; "All counties" keeps the original behavior. */
-const CT_COUNTY_LL={
-  'Fairfield':[41.23,-73.37],'Hartford':[41.81,-72.73],'Litchfield':[41.79,-73.24],
-  'Middlesex':[41.43,-72.53],'New Haven':[41.35,-72.90],'New London':[41.47,-72.10],
-  'Tolland':[41.86,-72.34],'Windham':[41.83,-71.99]
-};
+const CT_COUNTY_LL=window.CT_COUNTY_LL;   // CT county centroids (shared /lead-geo.js)
 function _haversineMi(a,b){
   const R=3959,toRad=d=>d*Math.PI/180;
   const dLat=toRad(b[0]-a[0]),dLng=toRad(b[1]-a[1]);
@@ -1828,11 +1825,13 @@ function satActivity(g){
   if(Array.isArray(ap)){for(const a of ap){if(a&&a.date){const t=new Date(a.date).getTime(); if(!isNaN(t)&&t>sitT)return true;}}}
   return false;
 }
-// Never dispatchable: out-of-state (positive match on a real non-CT state code, or
-// the parser's non_ct flag) and DQ (manager-disqualified or a disqualified outcome).
-// Mirrors my-calls.html isOutOfState/isDqLead so the guard is consistent.
-const OOS_STATES=new Set(['AL','AK','AZ','AR','CA','CO','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC']);
-function isOos(g){const p=g.property||{};const s=((p.state||'')+'').trim().toUpperCase();return OOS_STATES.has(s)||((p.quality_flags||[]).includes('non_ct'));}
+// Never dispatchable: out of territory (the lead's state -- county-authoritative,
+// see /lead-geo.js -- isn't one we serve) and DQ (manager-disqualified or a
+// disqualified outcome). Uses the same leadState() as the rep call list, so a CT
+// lead with a polluted state field stays dispatchable and a genuine out-of-region
+// lead (or a location-stripped ghost) never reaches the call team.
+const SERVED_STATES=new Set(['CT']);   // org territory today; grows as we expand
+function isOos(g){const st=window.leadState(g.property);return !st || !SERVED_STATES.has(st);}
 function isDq(g){const pr=g.primary||{};if(pr.status==='dq')return true;if(/disqualif/i.test(pr.last_outcome||''))return true;return (g.dls||[]).some(d=>(d.appointments||[]).some(a=>/disqualif/i.test((a&&a.outcome)||'')));}
 function notDispatchable(g){return isOos(g)||isDq(g);}
 function leadCategory(g){
@@ -1910,7 +1909,7 @@ function render(){
     const dup=g.dls.length>1?` <span class="badge b-dup">${g.dls.length} leads</span>`:'';
     const sold=g.anySold?' <span class="badge b-sold">SOLD</span>':'';
     const dnc=g.dnc?' <span class="badge b-dnc">DNC</span>':'';
-    const ooState=(g.property.quality_flags||[]).includes('non_ct')?' <span class="badge b-ooState">non-CT</span>':'';
+    const _gst=window.leadState(g.property);const ooState=(_gst&&!SERVED_STATES.has(_gst))?` <span class="badge b-ooState">${esc(_gst)}</span>`:'';   // show the actual out-of-territory state (county-authoritative)
     const sfUrl=sfHref(p);const link=sfUrl?`<a class="sflink" href="${sfUrl}" target="_blank" rel="noopener">${p.dl_sf_id?'Open DL':'Open Opp'} &nearr;</a>`:'<span class="sub">no link</span>';
     const repOpts=['<option value="">Unassigned</option>'].concat(people.map(n=>`<option ${n===p.assigned_to?'selected':''}>${esc(n)}</option>`)).join('');
     const cat=leadCategory(g);const dsince=daysSince(p.last_appt_date);
