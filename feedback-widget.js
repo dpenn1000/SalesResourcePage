@@ -570,6 +570,13 @@
     }
 
     fab.addEventListener('click', open);
+    // Let any page open the feedback form via a link (#feedback) or
+    // programmatically (window.openFeedback()), not just the corner button.
+    window.openFeedback = open;
+    if ((location.hash || '').toLowerCase() === '#feedback') setTimeout(open, 60);
+    window.addEventListener('hashchange', () => {
+      if ((location.hash || '').toLowerCase() === '#feedback') open();
+    });
     overlay.addEventListener('click', e => {
       if (e.target === overlay) close();
       if (e.target.closest('[data-fbw-close]')) close();

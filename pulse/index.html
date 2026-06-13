@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="/auth-gate.js"></script>
+<script src="/feedback-widget.js" defer></script>
 <style>
   :root{
     --brand:#78C832; --brand-ink:#5a9e22; --blue:#29A9E1; --ink:#1A2332;
@@ -212,6 +213,17 @@
           </div>
         </div>
 
+        <!-- CT RESOURCE PAGE -->
+        <div class="card">
+          <h2>The CT Resource Page</h2>
+          <p class="sub">The site you are on right now: university, call guides, training, and tools. What is good, what is missing, what would you change?</p>
+          <div class="q">
+            <label for="ans-resource">Ideas, changes, likes, dislikes<span class="qsub">Anything about ct-resource-page.com. A page you lean on, something confusing, a tool you wish existed.</span></label>
+            <textarea id="ans-resource" placeholder="What would make the site more useful to you?"></textarea>
+          </div>
+          <p class="sub" style="margin:0;">Spot a specific bug or have a quick idea any time? <a href="#feedback" onclick="if(window.openFeedback){window.openFeedback();return false;}" style="color:var(--brand-ink);font-weight:700;">Use the feedback button</a>, it also sits in the corner of every page.</p>
+        </div>
+
         <div class="actions">
           <button class="btn btn-primary" id="submitBtn" onclick="submitPulse('submitted')">Send to Dan</button>
           <button class="btn btn-ghost" id="draftBtn" onclick="submitPulse('draft')">Save for later</button>
@@ -346,6 +358,7 @@ function buildForm(){
     setVal('ans-disengaged', EXISTING.disengaged_text);
     setVal('ans-improve', EXISTING.improve_text);
     setVal('ans-working', EXISTING.working_text);
+    setVal('ans-resource', EXISTING.resource_page_text);
     document.getElementById('actionNote').textContent = EXISTING.status==='draft' ? 'Draft saved. Not sent yet.' : '';
   }
 }
@@ -376,6 +389,7 @@ async function submitPulse(status){
       p_disengaged: val('ans-disengaged'),
       p_improve: val('ans-improve'),
       p_working: val('ans-working'),
+      p_resource_page: val('ans-resource'),
       p_status: status
     });
     if (error) throw error;
