@@ -223,6 +223,14 @@
     'sign_in', 'sign_out', 'page_view', 'download', 'external_link', 'session_end'
   ]);
 
+  // The browser's IANA timezone (e.g. "America/New_York", "America/Phoenix").
+  // Stamped onto every event so the Dev Console heatmap can show when each user
+  // works in THEIR local time. Server falls back to Eastern when absent.
+  function _clientTz() {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || null; }
+    catch (e) { return null; }
+  }
+
   async function trackEvent(eventType, metadata) {
     try {
       if (!VALID_EVENTS.has(eventType)) {
@@ -235,7 +243,7 @@
         auth_user_id: session.user.id,
         event_type: eventType,
         page_url: window.location.pathname + window.location.search,
-        metadata: metadata || {},
+        metadata: Object.assign({ tz: _clientTz() }, metadata || {}),
         user_agent: UA_TRUNCATED
       };
       // Don't await -- fire and forget. Errors logged but ignored.
@@ -283,7 +291,7 @@
         auth_user_id: session.user.id,
         event_type: 'session_end',
         page_url: window.location.pathname,
-        metadata: {},
+        metadata: { tz: _clientTz() },
         user_agent: UA_TRUNCATED
       });
       fetch(SUPABASE_URL + '/rest/v1/user_activity', {
