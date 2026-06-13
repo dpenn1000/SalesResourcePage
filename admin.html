@@ -3065,6 +3065,32 @@ function relativeTime(iso) {
   return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
 
+// Resolve an attachment's storage path: new rows store a.path; legacy rows
+// store a full public URL with the path under /feedback-attachments/.
+function fbAttPath(a) {
+  if (!a) return '';
+  if (a.path) return a.path;
+  if (a.url) {
+    const parts = a.url.split('/feedback-attachments/');
+    if (parts.length > 1) return decodeURIComponent(parts[1].split('?')[0]);
+  }
+  return '';
+}
+// Mint short-lived signed URLs for each rendered attachment (bucket is private).
+async function hydrateFeedbackAttachments(container) {
+  for (const el of container.querySelectorAll('[data-fbpath]')) {
+    const path = el.getAttribute('data-fbpath');
+    if (!path) continue;
+    try {
+      const { data, error } = await sb.storage.from('feedback-attachments').createSignedUrl(path, 300);
+      if (error || !data || !data.signedUrl) continue;
+      el.href = data.signedUrl;
+      const img = el.querySelector('img');
+      if (img) img.src = data.signedUrl;
+    } catch (e) { /* leave placeholder */ }
+  }
+}
+
 function showFeedbackDetail(id) {
   const r = FEEDBACK.find(x => x.id === id);
   if (!r) return;
@@ -3079,12 +3105,15 @@ function showFeedbackDetail(id) {
   const sc = di.screen || {};
   const cn = di.connection || {};
 
-  // attachments
+  // attachments -- served from a PRIVATE bucket via short-lived signed URLs,
+  // hydrated after render. data-fbpath carries the storage path (new rows store
+  // a.path; legacy rows embed it inside a.url under /feedback-attachments/).
   const atts = (r.attachments || []).map(a => {
     const isImg = (a.type || '').startsWith('image/');
+    const p = fbAttPath(a);
     return isImg
-      ? `<a href="${escapeAttr(a.url)}" target="_blank" rel="noopener" style="display:inline-block;margin:4px;"><img src="${escapeAttr(a.url)}" alt="${escapeAttr(a.name)}" style="max-width:240px;max-height:160px;border:1px solid #DFE2DA;border-radius:6px;display:block;"></a>`
-      : `<a href="${escapeAttr(a.url)}" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;font-size:13px;">📎 ${escapeHtml(a.name)} (${(a.size/1024).toFixed(0)} KB)</a>`;
+      ? `<a data-fbpath="${escapeAttr(p)}" target="_blank" rel="noopener" style="display:inline-block;margin:4px;"><img alt="${escapeAttr(a.name)}" style="max-width:240px;max-height:160px;border:1px solid #DFE2DA;border-radius:6px;display:block;background:#EFF1EC;min-width:120px;min-height:60px;"></a>`
+      : `<a data-fbpath="${escapeAttr(p)}" target="_blank" rel="noopener" style="display:inline-block;margin:4px 8px 4px 0;font-size:13px;">📎 ${escapeHtml(a.name)} (${(a.size/1024).toFixed(0)} KB)</a>`;
   }).join('');
 
   body.innerHTML = `
@@ -3178,6 +3207,7 @@ function showFeedbackDetail(id) {
       <button class="btn-delete" onclick="deleteFeedback('${r.id}')" style="background:#fbe1e1;color:#843636;">Delete</button>
     </div>
   `;
+  hydrateFeedbackAttachments(body);
 }
 
 function closeFeedbackModal() {

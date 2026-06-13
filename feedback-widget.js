@@ -339,9 +339,11 @@
       const t = await res.text().catch(() => res.statusText);
       throw new Error('Upload failed: ' + t.slice(0, 200));
     }
+    // Store the storage PATH, not a public URL. The bucket is private; the
+    // admin viewer mints short-lived signed URLs from this path at view time.
     return {
       name: file.name,
-      url: SUPABASE_URL + '/storage/v1/object/public/' + STORAGE_BUCKET + '/' + path,
+      path: path,
       size: file.size,
       type: file.type || 'application/octet-stream',
     };
