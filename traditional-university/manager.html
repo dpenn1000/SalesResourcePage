@@ -793,6 +793,7 @@ window.initApp = async function (profile, session) {
   }
 
   state.manager = mgr;
+  window.IS_ADMIN = !!mgr.is_admin;  // gates the Pulse individual-responses panel
   document.getElementById('header-name').textContent = mgr.name;
 
   await loadAll();
@@ -2491,6 +2492,7 @@ async function loadPulseRaw() {
           ${r.disc_style ? `<span style="font-size:0.7rem; border:1px solid var(--hairline); border-radius:12px; padding:1px 8px;">${STYLE_LABEL[r.disc_style] || r.disc_style}</span>` : ''}
           ${r.share_identity ? `<span style="font-size:0.66rem; font-weight:800; letter-spacing:0.04em; color:#2c7a12; background:#eaf6e0; border-radius:12px; padding:2px 8px;">NAME OK TO SHARE</span>` : `<span style="font-size:0.66rem; font-weight:700; letter-spacing:0.04em; color:var(--text-subtle); border:1px solid var(--hairline); border-radius:12px; padding:2px 8px;">CONFIDENTIAL</span>`}
           ${r.status === 'draft' ? `<span style="font-size:0.7rem; color:var(--text-subtle);">DRAFT</span>` : ''}
+          ${r.updated_at ? `<span style="font-size:0.7rem; color:var(--text-subtle); margin-left:auto;">${new Date(r.updated_at).toLocaleDateString()}</span>` : ''}
         </div>
         <div style="font-size:0.78rem; color:var(--text-subtle); margin-top:4px;">${ratingLine}</div>
         ${block('What is pulling energy down', r.disengaged_text)}
