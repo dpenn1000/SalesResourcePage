@@ -389,6 +389,7 @@ table.data tbody tr:hover { background: #F5F7F0; }
       </p>
       <div id="dash-kpis" class="kpi-grid"></div>
       <div id="dash-table-wrap"></div>
+      <div id="dash-outstanding" style="margin-top: var(--s-6);"></div>
     </div>
 
     <!-- QUEUE -->
@@ -960,6 +961,67 @@ function renderDashboard() {
           </tr>`).join('')}
       </tbody>
     </table>`;
+  renderOutstanding();
+}
+
+// ===================== OUTSTANDING ASSIGNMENTS (nudge reps) =====================
+// Lists every not-yet-completed assignment with how long it has been outstanding,
+// a one-click "Copy reminder" (ready-to-send message + direct link), and Open.
+function renderOutstanding() {
+  const el = document.getElementById('dash-outstanding');
+  if (!el) return;
+  const repById = {}; (state.reps || []).forEach(r => repById[r.id] = r);
+  const certById = {}; (state.certs || []).forEach(c => certById[c.id] = c);
+  const now = Date.now();
+  const items = (state.assignments || [])
+    .filter(a => repById[a.rep_id] && !['approved', 'completed'].includes(a.status))
+    .map(a => {
+      const rep = repById[a.rep_id], cert = certById[a.cert_id] || {};
+      const days = a.assigned_at ? Math.floor((now - new Date(a.assigned_at).getTime()) / 86400000) : null;
+      return { repName: rep.name || '', certName: cert.name || cert.slug || 'a course', slug: cert.slug || '', days };
+    })
+    .sort((x, y) => (y.days || 0) - (x.days || 0));
+  window.__outstanding = items;
+
+  if (!items.length) {
+    el.innerHTML = `<div class="panel"><div class="panel-head"><div class="titles"><h3>Outstanding assignments</h3><p>Nobody has an open assignment right now.</p></div></div></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="panel">
+    <div class="panel-head"><div class="titles">
+      <h3>Outstanding assignments (${items.length})</h3>
+      <p>Not yet completed, most overdue first. Copy a ready-to-send nudge, or open the course to check it.</p>
+    </div></div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      ${items.map((it, i) => {
+        const dur = it.days === null ? 'recently' : it.days === 0 ? 'today' : it.days === 1 ? '1 day ago' : it.days + ' days ago';
+        const col = (it.days != null && it.days >= 14) ? 'var(--accent-rose, #d9534f)' : (it.days != null && it.days >= 7) ? 'var(--accent-amber, #c98a00)' : 'var(--text-subtle)';
+        const link = it.slug ? `${location.origin}/traditional-university/?cert=${it.slug}` : `${location.origin}/traditional-university/`;
+        return `<div style="display:flex; justify-content:space-between; align-items:center; gap: var(--s-3); padding:10px 14px; border:1px solid var(--hairline); border-radius: var(--r-sm); flex-wrap:wrap;">
+          <div style="min-width:220px;"><strong>${escapeHtml(it.repName)}</strong> &middot; ${escapeHtml(it.certName)}
+            <span style="color:${col}; font-size:0.8125rem; font-weight:600;"> &middot; assigned ${dur}</span></div>
+          <div style="display:flex; gap:6px; flex-shrink:0;">
+            <button class="btn btn-primary btn-sm" onclick="copyNudge(${i}, this)">Copy reminder</button>
+            <a class="btn btn-ghost btn-sm" href="${link}" target="_blank" rel="noopener">Open</a>
+          </div></div>`;
+      }).join('')}
+    </div></div>`;
+}
+
+async function copyNudge(i, btn) {
+  const it = (window.__outstanding || [])[i];
+  if (!it) return;
+  const first = (it.repName || '').trim().split(/\s+/)[0] || 'there';
+  const dur = it.days === null ? 'recently' : it.days === 0 ? 'today' : it.days === 1 ? '1 day ago' : it.days + ' days ago';
+  const link = it.slug ? `${location.origin}/traditional-university/?cert=${it.slug}` : `${location.origin}/traditional-university/`;
+  const msg = `Hi ${first}, quick nudge from the Sales University. You still have "${it.certName}" to finish, and it was assigned ${dur}.\n\nComplete it here: ${link}\n\nReply if you hit any snags. Thanks!`;
+  try {
+    await navigator.clipboard.writeText(msg);
+    const t = btn.textContent; btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = t; }, 1500);
+  } catch (e) {
+    window.prompt('Copy this reminder:', msg);
+  }
 }
 
 // ===================== QUEUE =====================
