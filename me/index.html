@@ -605,10 +605,7 @@
       <span class="logo-trad">Traditional</span>
     </a>
     <span class="header-title">My Page</span>
-    <div class="header-actions">
-      <a class="header-admin" id="meAdminLink" href="/admin.html" style="display:none">Admin</a>
-      <a class="header-back" href="/?stay=1">Back to Resources</a>
-    </div>
+    <!-- Admin / Resources live in the consistent top-right quick-nav (site-nav.js) -->
   </div>
 </header>
 
@@ -983,9 +980,37 @@ async function renderRepPicker(currentSlug){
     const reps = (data || []).filter(function(r){ return r.spd_slug; });
     if (!reps.length) return;
     host.style.display = 'flex';
-    let opts = '<option value="">My own page</option>';
+
+    // Group the list by team (sales_office) and role so the picker is scannable.
+    // "CT- North" / "CT- Central" normalize to "CT North" / "CT Central".
+    const normTeam = function(s){ return String(s || '').replace(/CT-\s*/i, 'CT ').replace(/\s+/g, ' ').trim(); };
+    const tierRank = { adm: 0, dm: 1, regional: 2, vp: 3 };
+    const isMgr = function(r){ return r.role === 'manager' || !!r.tier; };
+    const teamOrder = function(t){ const o = { 'CT North': 0, 'CT Central': 1 }; return (t in o) ? o[t] : 5; };
+
+    const groups = {};   // key -> { label, order, items: [] }
+    const add = function(key, label, order, r){ (groups[key] = groups[key] || { label: label, order: order, items: [] }).items.push(r); };
     reps.forEach(function(r){
-      opts += '<option value="'+esc(r.spd_slug)+'"'+(r.spd_slug===currentSlug?' selected':'')+'>'+esc(r.name)+'</option>';
+      const team = normTeam(r.sales_office);
+      if (isMgr(r) && !team)      add('zz-leadership', 'Leadership', 9000, r);                                    // Regional / VP, no team
+      else if (isMgr(r))          add(team + '|mgr', team + ' · Management', teamOrder(team) * 10 + 0, r);
+      else if (team)              add(team + '|rep', team + ' · Reps', teamOrder(team) * 10 + 1, r);
+      else                        add('zz-unassigned', 'Unassigned', 9500, r);
+    });
+
+    let opts = '<option value="">My own page</option>';
+    Object.values(groups).sort(function(a, b){ return a.order - b.order; }).forEach(function(g){
+      g.items.sort(function(a, b){
+        const ra = (a.tier && tierRank[a.tier] != null) ? tierRank[a.tier] : 99;
+        const rb = (b.tier && tierRank[b.tier] != null) ? tierRank[b.tier] : 99;
+        if (ra !== rb) return ra - rb;
+        return String(a.name).localeCompare(String(b.name));
+      });
+      opts += '<optgroup label="' + esc(g.label) + '">';
+      g.items.forEach(function(r){
+        opts += '<option value="' + esc(r.spd_slug) + '"' + (r.spd_slug === currentSlug ? ' selected' : '') + '>' + esc(r.name) + '</option>';
+      });
+      opts += '</optgroup>';
     });
     host.innerHTML = '<span class="rp-label">View a rep</span>'
       + '<select class="rp-select" onchange="onRepPick(this.value)" aria-label="View one of your reps">'+opts+'</select>'
