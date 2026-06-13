@@ -64,6 +64,12 @@
     white-space: nowrap;
   }
   .header-back:hover { color: #fff; border-color: rgba(255,255,255,0.32); }
+  .header-admin {
+    font-size: 12px; color: var(--green); text-decoration: none;
+    padding: 7px 12px; border: 1px solid rgba(120,200,50,0.45); border-radius: 7px;
+    white-space: nowrap; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .header-admin:hover { color: #fff; background: rgba(120,200,50,0.18); border-color: var(--green); }
 
   main {
     max-width: 880px; margin: 0 auto;
@@ -177,9 +183,11 @@
   .tm-marker { position: absolute; top: -2px; width: 2px; height: 20px; transform: translateX(-1px); z-index: 2; }
   .tm-marker.tm-floor { background: var(--red); }
   .tm-marker.tm-goal  { background: var(--text); transform: translateX(-2px); }
+  .tm-marker.tm-stretch { background: var(--green); transform: translateX(-2px); }
   .tm-marks { position: relative; height: 14px; margin-top: 3px; font-size: 10px; font-weight: 700; color: var(--text2); }
   .tm-mark-floor, .tm-mark-goal { position: absolute; top: 0; white-space: nowrap; transform: translateX(-50%); }
   .tm-mark-goal { left: 100%; transform: translateX(-100%); }
+  .tm-mark-stretch { color: var(--green-dk); }
   .tm-legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 12px; }
   .tm-leg-item { font-size: 11px; font-weight: 600; color: var(--text2); display: inline-flex; align-items: center; gap: 5px; }
   .tm-leg-item b { color: var(--text); font-weight: 800; }
@@ -583,6 +591,7 @@
       <span class="logo-trad">Traditional</span>
     </a>
     <span class="header-title">My Page</span>
+    <a class="header-admin" id="meAdminLink" href="/admin.html" style="display:none">Admin</a>
     <a class="header-back" href="/?stay=1">Back to Resources</a>
   </div>
 </header>
@@ -837,6 +846,8 @@ async function initApp(profile, session) {
   if (viewSlug && ownSlug && viewSlug === ownSlug) viewSlug = '';
 
   const canViewOthers = !!(window.IS_MANAGER || window.IS_ADMIN);
+  // Managers/admins get a quick jump back to the Admin hub from their profile.
+  if (canViewOthers) { const al = $('meAdminLink'); if (al) al.style.display = ''; }
   IS_VIEW_AS = !!viewSlug && canViewOthers;
 
   const me = IS_VIEW_AS ? await loadPersonBySlug(viewSlug, profile) : self;
@@ -1829,12 +1840,25 @@ function thisMonthCard(tm, cfg){
   // and a stall that projects below standard flags early, while there is time to act.
   const statusCls = _proj < pip ? 'red' : (_proj < goal ? 'amber' : 'green');
 
-  const pctOf = (n) => goal > 0 ? Math.min(100, (n / goal) * 100) : 0;
+  // When the rep is pacing PAST goal, extend the bar's max to a stretch goal so
+  // the pace has room to show instead of pinning at the goal (the right edge).
+  // At or below goal, the bar tops out at goal exactly as before.
+  let barMax = goal, stretch = null;
+  if (_proj > goal) {
+    const step = goal >= 10 ? 5 : Math.max(1, Math.round(goal / 4));
+    stretch = Math.ceil((_proj + 1) / step) * step;  // next round number past pace
+    if (stretch <= goal) stretch = goal + step;
+    barMax = stretch;
+  }
+  const stretched = stretch != null;
+
+  const pctOf = (n) => barMax > 0 ? Math.min(100, (n / barMax) * 100) : 0;
   const wSolar = pctOf(solar);
   const wRoof  = Math.min(100 - wSolar, pctOf(roof));
   const wBatt  = Math.min(100 - wSolar - wRoof, pctOf(battery));
-  const floorPct = goal > 0 ? Math.min(100, (floor / goal) * 100) : 0;
-  const pipPct   = goal > 0 ? Math.min(100, (pip / goal) * 100) : 0;
+  const floorPct = pctOf(floor);
+  const pipPct   = pctOf(pip);
+  const goalPct  = barMax > 0 ? Math.min(100, (goal / barMax) * 100) : 100;
   const paceW = pctOf(_proj);
 
   const seg = (w, color) => w > 0
@@ -1847,7 +1871,8 @@ function thisMonthCard(tm, cfg){
   if (_proj < floor)     statusMsg = 'Pacing to ' + _proj + ', below the ' + floor + ' monthly minimum. Dismissal risk. Act now.';
   else if (_proj < pip)  statusMsg = 'Pacing to ' + _proj + '. ' + (pip - _proj) + ' more on pace to clear the ' + pip + ' company standard (PIP territory).';
   else if (_proj < goal) statusMsg = 'Pacing to ' + _proj + '. ' + (goal - _proj) + ' more on pace to hit your ' + goal + ' goal.';
-  else                   statusMsg = 'Pacing to ' + _proj + ', at or above your ' + goal + ' goal. Keep stacking.';
+  else if (_proj > goal) statusMsg = 'Pacing to ' + _proj + ', ' + (_proj - goal) + ' past your ' + goal + ' goal. Reaching for ' + stretch + '. Keep stacking.';
+  else                   statusMsg = 'Pacing to ' + _proj + ', at your ' + goal + ' goal. Keep stacking.';
 
   const goalEdit = IS_VIEW_AS ? '' : ' <span class="tm-goal-edit" onclick="setMonthlyGoal()" title="Set your goal for this month">edit</span>';
 
@@ -1866,12 +1891,16 @@ function thisMonthCard(tm, cfg){
         seg(wSolar, 'var(--green)') + seg(wRoof, 'var(--amber)') + seg(wBatt, 'var(--blue)') +
         '<span class="tm-marker tm-floor" style="left:' + floorPct + '%"></span>' +
         (showPip ? '<span class="tm-marker tm-floor" style="left:' + pipPct + '%"></span>' : '') +
-        '<span class="tm-marker tm-goal" style="left:100%"></span>' +
+        '<span class="tm-marker tm-goal" style="left:' + goalPct + '%"></span>' +
+        (stretched ? '<span class="tm-marker tm-stretch" style="left:100%"></span>' : '') +
       '</div>' +
       '<div class="tm-marks">' +
         '<span class="tm-mark-floor" style="left:' + floorPct + '%">Floor ' + floor + '</span>' +
         (showPip ? '<span class="tm-mark-floor" style="left:' + pipPct + '%">Std ' + pip + '</span>' : '') +
-        '<span class="tm-mark-goal">Goal ' + goal + '</span>' +
+        (stretched
+          ? '<span class="tm-mark-floor" style="left:' + goalPct + '%">Goal ' + goal + '</span>' +
+            '<span class="tm-mark-goal tm-mark-stretch">Stretch ' + stretch + '</span>'
+          : '<span class="tm-mark-goal">Goal ' + goal + '</span>') +
       '</div>' +
       '<div class="tm-legend">' +
         legendItem('var(--green)', 'Solar', solar) +
