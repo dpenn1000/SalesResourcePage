@@ -545,6 +545,16 @@
   .ti-when { font-size:12px; color:var(--text2); font-weight:600; white-space:nowrap; }
   .ti-cta { margin-left:auto; flex-shrink:0; font-size:12px; font-weight:700; color:var(--blue); background:none; border:1px solid var(--border); border-radius:7px; padding:4px 11px; cursor:pointer; text-decoration:none; white-space:nowrap; font-family:inherit; }
   .ti-cta:hover { border-color:var(--blue); }
+  /* richer go-back lead lines: status + latest note under the name */
+  .ti-item.gb-item { align-items:flex-start; }
+  .gb-sub { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:4px; }
+  .gb-status { font-size:10px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; padding:1px 7px; border-radius:10px; white-space:nowrap; background:var(--amber-bg); color:#9a6b00; border:1px solid #e7c98a; }
+  .gb-status.run { background:var(--green-bg); color:var(--green-dk); border-color:#b6e08a; }
+  .gb-status.cold { background:var(--red-bg); color:#a13c1d; border-color:#eab3a0; }
+  .gb-meta { font-size:11px; font-weight:700; color:var(--text2); white-space:nowrap; }
+  .gb-note { font-size:12px; color:var(--text2); line-height:1.4; margin-top:3px;
+    overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+  .gb-note.gb-note-empty { font-style:italic; opacity:.65; }
   .ti-soon { opacity:.6; }
   .ti-more { font-size:12px; color:var(--text3); padding:6px 0 0 18px; }
   /* Customer-touch modal + toast */
@@ -1096,6 +1106,28 @@ function gbExcluded(l){
   if((l.appointments||[]).some(a=>/disqualif/i.test((a&&a.outcome)||''))) return true;
   return false;
 }
+// The most recent appointment in the lead's history (its notes carry the latest
+// context + the verbal go-back date -- there is no structured next-GB date field).
+function gbLatestAppt(l){
+  const a=(l.appointments||[]).filter(Boolean);
+  if(!a.length) return null;
+  let best=a[a.length-1];
+  for(const x of a){ if(x.date && (!best.date || x.date>=best.date)) best=x; }
+  return best;
+}
+function gbCleanNote(s){
+  if(!s) return '';
+  return String(s).replace(/<br\s*\/?>/gi,' ').replace(/&nbsp;/gi,' ').replace(/\s+/g,' ').trim();
+}
+// Short status from the last outcome: did they schedule a go-back, run one, etc.
+function gbStatus(l, appt){
+  const oc=((l.last_outcome||(appt&&appt.outcome)||'')).toLowerCase();
+  if(/go ?back scheduled/.test(oc)) return { label:'Go-back scheduled', cls:'' };
+  if(/no sale/.test(oc))            return { label:'Sat, no sale',     cls:'cold' };
+  if(/run/.test(oc))                return { label:'Go-back run',      cls:'run' };
+  if(l.last_outcome)                return { label:l.last_outcome,     cls:'' };
+  return null;
+}
 async function loadGobacks(me){
   const sec=$('gobacksSection'); if(!sec||!me||!me.name) return;
   let rows=[];
@@ -1117,8 +1149,18 @@ async function loadGobacks(me){
   const top=rows.slice(0,3).map(l=>{
     const d=gbDaysSince(l.last_appt_date);
     const town=(l.properties&&l.properties.town)?(' &middot; '+esc(l.properties.town)):'';
-    return '<div class="ti-item"><span class="ti-dot" style="background:'+(d==null||d>7?'var(--red)':'var(--amber)')+'"></span>'+
-      '<span class="ti-text"><b>'+esc(l.homeowner_name||'--')+'</b>'+town+'</span>'+
+    const appt=gbLatestAppt(l);
+    const st=gbStatus(l, appt);
+    const gbRuns=(l.appointments||[]).filter(a=>a&&/go ?back/i.test(a.category||'')).length;
+    const note=gbCleanNote(appt&&appt.notes);
+    const chip=st?'<span class="gb-status '+st.cls+'">'+esc(st.label)+'</span>':'';
+    const meta=gbRuns>0?'<span class="gb-meta">back '+gbRuns+'×</span>':'';
+    const sub=(chip||meta)?'<div class="gb-sub">'+chip+meta+'</div>':'';
+    const noteHtml=note
+      ? '<div class="gb-note" title="'+esc(note)+'">'+esc(note)+'</div>'
+      : '<div class="gb-note gb-note-empty">No note logged on the last visit</div>';
+    return '<div class="ti-item gb-item"><span class="ti-dot" style="background:'+(d==null||d>7?'var(--red)':'var(--amber)')+';margin-top:5px"></span>'+
+      '<span class="ti-text"><b>'+esc(l.homeowner_name||'--')+'</b>'+town+sub+noteHtml+'</span>'+
       '<span class="ti-when">'+(d==null?'?':d+'d')+'</span></div>';
   }).join('');
   const link = IS_VIEW_AS
