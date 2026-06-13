@@ -44,6 +44,9 @@ strong{font-weight:700;color:var(--ink)}
 .site-header{position:sticky;top:0;z-index:200}
 .page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
 .page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
+/* leave room at the top-right for the floating site nav (site-nav.js) so the
+   Presenter Mode button never sits under it */
+@media(min-width:561px){.page-header .wrap{padding-right:272px}}
 .brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
 .brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
 .brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}

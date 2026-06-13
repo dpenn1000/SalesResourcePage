@@ -366,6 +366,16 @@
       window.AUTH_SESSION = session;
       showOnly('appWrap');
 
+      // Consistent site-wide quick-nav (My Page / Admin / Resources), injected
+      // once here so it lands on every authenticated page with roles known.
+      if (!window.__ct_nav_injected) {
+        window.__ct_nav_injected = true;
+        var navJs = document.createElement('script');
+        navJs.src = '/site-nav.js';
+        navJs.defer = true;
+        (document.body || document.head || document.documentElement).appendChild(navJs);
+      }
+
       // Track sign_in ONLY for a genuine credential sign-in (flagged by
       // signIn()). SIGNED_IN also fires on session-restore on every page load,
       // which otherwise logged a sign_in per navigation and flooded
