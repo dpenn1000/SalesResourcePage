@@ -64,12 +64,16 @@
     white-space: nowrap;
   }
   .header-back:hover { color: #fff; border-color: rgba(255,255,255,0.32); }
+  /* groups the right-side header buttons (Admin sits next to Back) */
+  .header-actions { display: flex; align-items: center; gap: 8px; }
+  /* Admin pill: matches the Admin button on the resource page header */
   .header-admin {
-    font-size: 12px; color: var(--green); text-decoration: none;
-    padding: 7px 12px; border: 1px solid rgba(120,200,50,0.45); border-radius: 7px;
-    white-space: nowrap; font-weight: 700; letter-spacing: 0.5px;
+    font-size: 12px; color: rgba(255,255,255,0.55); text-decoration: none;
+    padding: 7px 14px; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12); border-radius: 7px;
+    white-space: nowrap; font-weight: 600;
   }
-  .header-admin:hover { color: #fff; background: rgba(120,200,50,0.18); border-color: var(--green); }
+  .header-admin:hover { background: rgba(255,255,255,0.14); color: rgba(255,255,255,0.85); }
 
   main {
     max-width: 880px; margin: 0 auto;
@@ -601,8 +605,10 @@
       <span class="logo-trad">Traditional</span>
     </a>
     <span class="header-title">My Page</span>
-    <a class="header-admin" id="meAdminLink" href="/admin.html" style="display:none">Admin</a>
-    <a class="header-back" href="/?stay=1">Back to Resources</a>
+    <div class="header-actions">
+      <a class="header-admin" id="meAdminLink" href="/admin.html" style="display:none">Admin</a>
+      <a class="header-back" href="/?stay=1">Back to Resources</a>
+    </div>
   </div>
 </header>
 
@@ -845,6 +851,10 @@ const fmtNum   = (v) => v == null ? '--' : Number(v).toLocaleString();
 let IS_VIEW_AS = false;
 
 async function initApp(profile, session) {
+  // Manager/admin Admin button: reveal up front, before any await, so it is
+  // perpetual for a manager -- on your own page AND when viewing another rep
+  // (this runs on every load, including the /me/?rep=<slug> reloads).
+  if (window.IS_MANAGER || window.IS_ADMIN) { const al = $('meAdminLink'); if (al) al.style.display = ''; }
   const qs = new URLSearchParams(location.search);
   let viewSlug = (qs.get('rep') || '').trim();
 
@@ -856,8 +866,6 @@ async function initApp(profile, session) {
   if (viewSlug && ownSlug && viewSlug === ownSlug) viewSlug = '';
 
   const canViewOthers = !!(window.IS_MANAGER || window.IS_ADMIN);
-  // Managers/admins get a quick jump back to the Admin hub from their profile.
-  if (canViewOthers) { const al = $('meAdminLink'); if (al) al.style.display = ''; }
   IS_VIEW_AS = !!viewSlug && canViewOthers;
 
   const me = IS_VIEW_AS ? await loadPersonBySlug(viewSlug, profile) : self;
