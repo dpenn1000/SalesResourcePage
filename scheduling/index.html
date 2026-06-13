@@ -753,11 +753,20 @@ async function loadRebalanceData(){
       off+=1000;
     }
   }catch(e){}
+  // Forecast-first (recency-weighted, anticipates the weekday curve); fall back
+  // to the flat day-of-week average if no forecast is published yet.
   try{
-    const {data}=await sb.from('sched_demand_dow').select('shift,dow,avg_appts')
-      .eq('region',S.period.region||'CT').eq('scope','state');
-    (data||[]).forEach(r=>{ (S.dow[r.shift]=S.dow[r.shift]||{})[r.dow]=Number(r.avg_appts); });
+    const {data}=await sb.from('sched_demand_forecast').select('shift,dow,expected')
+      .eq('region',S.period.region||'CT').eq('scope','state').gte('dow',0);
+    (data||[]).forEach(r=>{ (S.dow[r.shift]=S.dow[r.shift]||{})[r.dow]=Number(r.expected); });
   }catch(e){}
+  if(!Object.keys(S.dow).length){
+    try{
+      const {data}=await sb.from('sched_demand_dow').select('shift,dow,avg_appts')
+        .eq('region',S.period.region||'CT').eq('scope','state');
+      (data||[]).forEach(r=>{ (S.dow[r.shift]=S.dow[r.shift]||{})[r.dow]=Number(r.avg_appts); });
+    }catch(e){}
+  }
 }
 function renderRebalance(){
   const SH=['S1','S2','S3'], DOWL=['Mon','Tue','Wed','Thu','Fri','Sat'];
