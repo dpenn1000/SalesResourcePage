@@ -84,7 +84,7 @@
   .q{margin-bottom:var(--s-5);}
   .q:last-child{margin-bottom:0;}
   .q label{display:block;font-weight:700;font-size:1rem;margin-bottom:7px;}
-  .q .qsub{font-size:0.8rem;color:var(--text-subtle);font-weight:500;}
+  .q .qsub{display:block;margin-top:4px;font-size:0.82rem;color:var(--text-subtle);font-weight:500;line-height:1.4;}
   textarea{width:100%;min-height:96px;padding:13px 14px;border:1px solid var(--hairline);border-radius:var(--r-md);font-family:inherit;font-size:0.98rem;line-height:1.5;resize:vertical;}
   textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(120,200,50,.15);}
 
@@ -197,7 +197,7 @@
         <!-- OPEN QUESTIONS -->
         <div class="card">
           <h2>In your words</h2>
-          <p class="sub">This is the part that actually changes things. Be specific where you can.</p>
+          <p class="sub">Tell it straight. The more specific you are, the more we can fix.</p>
           <div class="q">
             <label id="lab-disengaged">What is making you feel disengaged?</label>
             <textarea id="ans-disengaged" placeholder=""></textarea>
@@ -351,7 +351,7 @@ function buildForm(){
 }
 
 function setQ(key, q){
-  document.getElementById('lab-'+key).innerHTML = q.label + ' <span class="qsub">— ' + q.sub + '</span>';
+  document.getElementById('lab-'+key).innerHTML = q.label + '<span class="qsub">' + q.sub + '</span>';
   document.getElementById('ans-'+key).placeholder = q.sub;
 }
 function setVal(id,v){ if(v!=null) document.getElementById(id).value = v; }
