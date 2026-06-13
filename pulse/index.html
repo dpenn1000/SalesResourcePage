@@ -233,7 +233,9 @@
 </div>
 
 <script>
-const supa = window.sb;
+// Assigned inside initApp -- auth-gate.js sets window.sb asynchronously (after
+// the SDK loads), so capturing it at parse time here would freeze it to undefined.
+let supa = null;
 let CYCLE = null, DISC = null, EXISTING = null;
 const RATINGS = {};
 
@@ -283,6 +285,7 @@ const FRAMES = {
 };
 
 window.initApp = async function(profile, session){
+  supa = window.sb;
   document.getElementById('who-name').textContent = profile.name || 'you';
   if (profile.kind === 'manager') document.getElementById('mgrBanner').classList.remove('hidden');
 
