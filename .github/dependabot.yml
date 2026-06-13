@@ -1,0 +1,11 @@
+version: 2
+# Dependabot keeps the security workflow's own actions current. This repo is a
+# static site with no package.json today; if a Node toolchain is added later,
+# add an "npm" ecosystem block pointed at its directory.
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
