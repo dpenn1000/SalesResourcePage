@@ -43,7 +43,14 @@
         'box-shadow:0 4px 16px rgba(41,169,225,.40);}' +
       '@media print{#ct-nav{display:none;}}' +
       '@media (max-width:560px){#ct-nav{top:8px;right:8px;gap:6px;}' +
-        '#ct-nav a,#ct-nav span{padding:7px 11px;}}' +
+        '#ct-nav a,#ct-nav span{padding:7px 11px;}' +
+        // On mobile there isn't room to reserve a right-hand gutter, so the
+        // cluster would sit on top of the header's own controls. Reserve a
+        // TOP strip instead -- push the header's content below the fixed
+        // cluster. Sized to the measured cluster height.
+        '.page-header .wrap,.hdr-inner,.hdr:not(:has(.hdr-inner)),' +
+        'header:has(> .header-right),.header-inner{' +
+        'padding-top:calc(var(--ct-nav-h,40px) + 14px) !important;}}' +
       // Reserve top-right room in the known page headers so the cluster never
       // sits over their controls. Sized to the measured cluster width.
       '@media (min-width:561px){' +
@@ -80,9 +87,11 @@
     });
     document.body.appendChild(nav);
 
-    // Publish the actual cluster width so the header gutter matches it exactly.
+    // Publish the actual cluster width + height so the header gutter (right on
+    // desktop, top on mobile) matches the cluster exactly.
     function measure() {
       document.documentElement.style.setProperty('--ct-nav-w', nav.offsetWidth + 'px');
+      document.documentElement.style.setProperty('--ct-nav-h', nav.offsetHeight + 'px');
     }
     measure();
     window.addEventListener('resize', measure);

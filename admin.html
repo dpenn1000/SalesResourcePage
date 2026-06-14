@@ -361,6 +361,11 @@
     @media (max-width: 640px) {
       .form-grid { grid-template-columns: 1fr; }
       .form-full { grid-column: auto; }
+      /* Tab strip would overflow the viewport with 6 tabs -- let it scroll. */
+      .page-tabs-inner { padding: 0 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .page-tab { padding: 12px 14px; white-space: nowrap; }
+      .admin-inner { padding: 20px 14px 48px; }
+      .panel-header h2 { font-size: 16px; }
     }
   </style>
 
@@ -480,6 +485,25 @@
   #tabUsers .btn-cancel { font-family:inherit; font-size:0.85rem; font-weight:600; color:var(--muted); background:none; border:none; cursor:pointer; padding:9px 4px; }
   #tabUsers .btn-cancel:hover { color:var(--ink); }
   #tabUsers .acct-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
+  /* Mobile -- the People surface had no responsive rules, so on a phone the
+     roster grid, toolbar, detail header/tabs, and the call-work chart all
+     ran past the viewport. Single column, full-width controls, and a
+     horizontally scrollable detail-tab strip. */
+  @media (max-width: 640px) {
+    #tabUsers .toolbar { gap:8px; }
+    #tabUsers .toolbar input, #tabUsers .toolbar select { width:100%; flex:1 1 100%; min-width:0; }
+    #tabUsers .rep-grid { grid-template-columns:1fr; gap:12px; }
+    #tabUsers .rep-card { padding:14px 15px; }
+    #tabUsers .detail-top { flex-direction:column; gap:8px; }
+    #tabUsers .detail-top h2 { font-size:1.25rem; }
+    #tabUsers .detail-tabs { flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    #tabUsers .dtab { white-space:nowrap; padding:10px 12px; }
+    #tabUsers .d-card { padding:6px 14px; }
+    #tabUsers .edit-input { max-width:none; width:100%; }
+    #tabUsers .cw-stats { grid-template-columns:repeat(2,1fr); }
+    #tabUsers .cw-legend { flex-wrap:wrap; gap:8px; }
+  }
   </style>
 </head>
 <body>
@@ -3720,17 +3744,38 @@ async function deleteFeedback(id) {
       'Username: ' + username,
       'Temporary password: ' + password,
       '',
-      "You'll be asked to set your own password the first time you sign in.",
-      "Please keep this private, and don't send it back over email."
+      "You'll be asked to set your own password the first time you sign in."
     ].join('\n');
   }
 
-  // Best-effort clipboard write; flips the button label to "Copied!" on success.
+  // Clipboard write; flips the button label to "Copied!" on success. The
+  // async Clipboard API silently rejects in some contexts (document not
+  // focused, permissions policy), so fall back to a hidden-textarea
+  // execCommand('copy') -- which works on a wider range of browsers/contexts.
   function copyInvite(username, password, btn) {
     const text = buildInviteMessage(username, password);
     const flip = () => { if (btn) { const o = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = o; }, 2200); } };
-    try { return navigator.clipboard.writeText(text).then(flip, function(){}); }
-    catch (e) { return Promise.resolve(); }
+    const fallback = () => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) flip();
+        return ok;
+      } catch (e) { return false; }
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).then(flip, fallback);
+      }
+    } catch (e) { /* fall through to execCommand */ }
+    fallback();
+    return Promise.resolve();
   }
 
   // Copy keyed to whatever password is currently in the reset field (accurate to
@@ -3872,6 +3917,10 @@ async function deleteFeedback(id) {
           </div>
         </div>
         <div>
+          <label class="edit-label" for="apStart">Start date</label>
+          <input id="apStart" class="edit-input" type="date" style="max-width:none">
+        </div>
+        <div>
           <label class="edit-label" for="apMgr">Reports to</label>
           <select id="apMgr" class="edit-input">${mgrOpts}</select>
         </div>
@@ -3899,13 +3948,14 @@ async function deleteFeedback(id) {
     const parent_id = ((document.getElementById('apMgr') || {}).value || '') || null;
     const is_admin = kind === 'manager' && !!((document.getElementById('apAdmin') || {}).checked);
     const is_national = kind === 'manager' && !!((document.getElementById('apNat') || {}).checked);
+    const cohort_start_date = ((document.getElementById('apStart') || {}).value || '') || null;
     if (!name) { setModalError('Enter a full name.'); return; }
     if (!/^[a-z0-9_-]+$/.test(username)) { setModalError('Username: lowercase letters, digits, hyphens, underscores only.'); return; }
     const btn = document.getElementById('modalConfirmBtn');
     setModalLoading(btn, true, 'Create');
     const result = await callManageUsers({
       action: 'create', kind, name, username, is_admin, password: 'Trinity1',
-      states: [state], is_national, parent_id,
+      states: [state], is_national, parent_id, cohort_start_date,
     });
     if (result && result.error) {
       setModalLoading(btn, false, 'Create');
