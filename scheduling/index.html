@@ -566,6 +566,9 @@ function ratioHue(r){
 function ratioColor(r){ return `hsl(${ratioHue(r)},64%,34%)`; }
 function ratioTint(r){ return `hsl(${ratioHue(r)},72%,93%)`; }
 function ratioLabel(r){ if(r<0.9) return 'needed'; if(r<=1.1) return 'well covered'; return 'saturated'; }
+// VIPER rank pill (5=best..1=worst, Skedulo native scale); blank when unknown
+function rankBadge(n){ if(!n) return ''; const col={5:'#5EBA28',4:'#78C832',3:'#c98a16',2:'#d9772b',1:'#c0392b'}[n]||'#6b7280';
+  return ` <span title="VIPER rank (5=best)" style="display:inline-block;background:${col};color:#fff;font-size:9.5px;font-weight:800;border-radius:4px;padding:1px 5px;vertical-align:1px">VIPER ${n}</span>`; }
 // status map: { S1:{ratio,reps,target}, ... } from the summary RPC payload
 function shiftStatusFromSummary(data){
   if(!data||!data.shifts) return null;
@@ -799,6 +802,13 @@ async function loadRebalanceData(){
       (data||[]).forEach(r=>{ (S.dow[r.shift]=S.dow[r.shift]||{})[r.dow]=Number(r.avg_appts); });
     }catch(e){}
   }
+  // VIPER rank per rep (manager-gated view; reps read nothing), keyed by spd_slug -> person id
+  S.rank={};
+  try{
+    const {data}=await sb.from('current_rep_rank').select('spd_slug,rank');
+    const bySlug={}; (data||[]).forEach(r=>{ if(r.rank!=null) bySlug[r.spd_slug]=Number(r.rank); });
+    (S.reps||[]).forEach(rp=>{ if(rp.spd_slug && bySlug[rp.spd_slug]!=null) S.rank[rp.id]=bySlug[rp.spd_slug]; });
+  }catch(e){}
 }
 // Shared signal computation for the Rebalance cockpit and the DM Action Center:
 // ranked redeploys, exception flags, and the per-shift rate/supply the grid reads.
@@ -819,13 +829,17 @@ function computeSignals(){
   for(const pid in S.repCells){ let mx=null,ms=null; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v!=null&&(mx==null||v>mx)){mx=v;ms=s;} } if(mx!=null&&mx>1.1) repOver[pid]={ratio:mx,shift:ms}; }
   const targets=(S.townSat||[]).filter(t=>t.ratio!=null&&t.ratio<0.9&&t.demand>=5)
     .sort((a,b)=>((1-b.ratio)*b.demand)-((1-a.ratio)*a.demand));
+  const rankOf=pid=>(S.rank&&S.rank[pid])||0;  // VIPER 5=best..1; 0=unknown sorts last
   const used={}, moves=[];
   for(const t of targets){
     let best=null;
-    for(const pid in repOver){ if(used[pid]) continue; const dm=(S.reach[pid]||{})[t.town]; if(dm==null||dm>radius[pid]) continue; if(best==null||dm<best.dm) best={pid,dm}; }
+    for(const pid in repOver){ if(used[pid]) continue; const dm=(S.reach[pid]||{})[t.town]; if(dm==null||dm>radius[pid]) continue;
+      const rk=rankOf(pid);
+      // Dan's rule: feed the highest VIPER rank reachable to this town first, then nearest (traffic-real) drive
+      if(best==null || rk>best.rk || (rk===best.rk && dm<best.dm)) best={pid,dm,rk}; }
     if(!best) continue; used[best.pid]=1;
     const rp=S.reach[best.pid]||{}; let home='?',hm=1e9; for(const tn in rp){ if(rp[tn]<hm){hm=rp[tn];home=tn;} }
-    moves.push({pid:best.pid,rep:nameOf(best.pid),home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',toTown:t.town,toShift:t.shift,appts:t.demand,drive:Math.round(best.dm)+'m'});
+    moves.push({pid:best.pid,rep:nameOf(best.pid),rank:best.rk,home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',toTown:t.town,toShift:t.shift,appts:t.demand,drive:Math.round(best.dm)+'m'});
     if(moves.length>=12) break;
   }
   const thin=(S.townSat||[]).filter(t=>t.ratio!=null&&t.demand>=5&&t.ratio<0.25).sort((a,b)=>a.ratio-b.ratio);
@@ -849,7 +863,7 @@ function renderRebalance(){
   let ml=`<div class="card"><div class="weekhd">Top redeploys</div>
     <div class="muted" style="font-size:12px;margin-bottom:8px">Each row sends an over-stacked rep where coverage is short, nearest first. The drive is from their home base. Send it to the rep as an offer; they approve or decline on their own page.</div>
     <table class="cov"><thead><tr><th>Move this rep</th><th>Home base</th><th>Over on</th><th>Send to</th><th>Appts</th><th>Drive</th><th></th></tr></thead><tbody>
-    ${moves.length?moves.map(m=>`<tr><td class="county">${esc(m.rep)}</td><td>${esc(m.home)}</td><td>${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td><td><button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="sendOffer('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join(''):'<tr><td colspan="7" class="muted">No high-value redeploys found. Coverage is balanced, or the saturation build has not run for this period.</td></tr>'}
+    ${moves.length?moves.map(m=>`<tr><td class="county">${esc(m.rep)}${rankBadge(m.rank)}</td><td>${esc(m.home)}</td><td>${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td><td><button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="sendOffer('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join(''):'<tr><td colspan="7" class="muted">No high-value redeploys found. Coverage is balanced, or the saturation build has not run for this period.</td></tr>'}
     </tbody></table></div>`;
 
   // ---- exception checklist (thin/shortDays/allWeek come from computeSignals) ----
@@ -963,7 +977,7 @@ function renderActionCenter(){
     <div class="muted" style="font-size:12px;margin-bottom:8px">Over-stacked reps sent where coverage is short, nearest first. Send it as an offer; the rep accepts or declines on their own page.</div>`;
   if(top.length){
     h+=`<table class="cov"><thead><tr><th>Move</th><th>From</th><th>To</th><th>Appts</th><th>Drive</th><th></th></tr></thead><tbody>`+
-      top.map(m=>`<tr><td class="county">${esc(m.rep)}</td><td>${esc(m.home)} &middot; ${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td>
+      top.map(m=>`<tr><td class="county">${esc(m.rep)}${rankBadge(m.rank)}</td><td>${esc(m.home)} &middot; ${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td>
         <td><button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="acSend('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join('')+
       `</tbody></table>${moves.length>5?`<div class="muted" style="font-size:12px;margin-top:6px">${moves.length-5} more in <a href="#" onclick="switchTab('rebalance');return false">Rebalance &rarr;</a></div>`:''}`;
   } else {
