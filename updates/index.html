@@ -677,6 +677,25 @@ function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+// bulletin-attachments is a PRIVATE bucket. Stored attachment URLs are
+// public-form path carriers; after each render we swap any /bulletin-attachments/
+// src or href for a fresh short-lived signed URL (covers card images, detail
+// images, and file download links; back-compatible with legacy full-URL rows).
+async function hydrateBulletinAttachments(container) {
+  if (!container || typeof sb === 'undefined' || !sb) return;
+  const els = container.querySelectorAll('[src*="/bulletin-attachments/"],[href*="/bulletin-attachments/"]');
+  for (const el of els) {
+    const attr = el.hasAttribute('src') ? 'src' : 'href';
+    const parts = (el.getAttribute(attr) || '').split('/bulletin-attachments/');
+    if (parts.length < 2) continue;
+    const path = decodeURIComponent(parts[1].split('?')[0]);
+    try {
+      const { data } = await sb.storage.from('bulletin-attachments').createSignedUrl(path, 3600);
+      if (data && data.signedUrl) el.setAttribute(attr, data.signedUrl);
+    } catch (e) {}
+  }
+}
+
 function renderHtml(html) {
   if (!html) return '';
   return DOMPurify.sanitize(html, { ADD_ATTR: ['target', 'rel'] });
@@ -766,6 +785,7 @@ function renderFeed() {
   }
 
   root.innerHTML = html;
+  hydrateBulletinAttachments(root);
 
   root.querySelectorAll('.bulletin-card').forEach(el => {
     el.addEventListener('click', () => {
@@ -899,6 +919,7 @@ function renderDetail(slug) {
 
   html += `</article>`;
   root.innerHTML = html;
+  hydrateBulletinAttachments(root);
 
   // mark this seen
   try {

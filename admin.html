@@ -2636,11 +2636,14 @@ async function quillImageHandler() {
     if (file.size > 25 * 1024 * 1024) { toast('Image too large (max 25MB)'); return; }
     toast('Uploading image...');
     const path = Date.now() + '_' + (file.name || 'image').replace(/[^a-zA-Z0-9._-]/g, '_');
-    const { error } = await sb.storage.from('bulletin-attachments').upload(path, file, {
+    // Inline editor images go to the PUBLIC resource-images bucket (low-sensitivity
+    // announcement graphics, stable non-expiring URL) so body_html never carries a
+    // private/expiring URL. File attachments still use the private bucket below.
+    const { error } = await sb.storage.from('resource-images').upload(path, file, {
       cacheControl: '3600', upsert: false, contentType: file.type || 'image/png'
     });
     if (error) { toast('Upload error: ' + error.message); return; }
-    const { data } = sb.storage.from('bulletin-attachments').getPublicUrl(path);
+    const { data } = sb.storage.from('resource-images').getPublicUrl(path);
     const range = quill.getSelection(true) || { index: quill.getLength() };
     quill.insertEmbed(range.index, 'image', data.publicUrl, 'user');
     quill.setSelection(range.index + 1);
@@ -2871,10 +2874,30 @@ function renderAttachList() {
         <span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(245,166,35,0.12);color:#C8851A;border-radius:4px;font-weight:700;font-size:10px;">${escapeHtml(ext)}</span>
         <span style="flex:1;font-weight:600;color:var(--ink);">${escapeHtml(a.name)}</span>
         <span style="color:var(--text2);">${sz}</span>
-        <a href="${escapeHtml(a.url)}" target="_blank" rel="noopener" style="font-size:11px;color:var(--blue);">View</a>
+        <a href="#" onclick="openPendingAttachment(${i});return false;" style="font-size:11px;color:var(--blue);">View</a>
         <button onclick="removeAttachment(${i})" style="background:none;border:none;color:#C84545;cursor:pointer;font-size:14px;">&times;</button>
       </div>`;
   }).join('');
+}
+
+// bulletin-attachments is a PRIVATE bucket: resolve an attachment's storage path
+// (new entries store .path; legacy entries store a public-form .url) and open it
+// through a fresh short-lived signed URL.
+function bulletinAttPath(a) {
+  if (!a) return '';
+  if (a.path) return a.path;
+  if (a.url) { const p = String(a.url).split('/bulletin-attachments/'); if (p.length > 1) return decodeURIComponent(p[1].split('?')[0]); }
+  return '';
+}
+async function openPendingAttachment(i) {
+  const a = pendingAttachments[i]; if (!a) return;
+  const path = bulletinAttPath(a);
+  if (!path) { toast('No file path on attachment'); return; }
+  try {
+    const { data, error } = await sb.storage.from('bulletin-attachments').createSignedUrl(path, 3600);
+    if (error || !data || !data.signedUrl) { toast('Could not open attachment'); return; }
+    window.open(data.signedUrl, '_blank', 'noopener');
+  } catch (e) { toast('Could not open attachment'); }
 }
 
 function escapeHtml(s) {

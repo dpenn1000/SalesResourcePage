@@ -1439,13 +1439,28 @@ function initials(name){
   return (name || '?').split(/\s+/).filter(Boolean).map(w => w[0]).slice(0,2).join('');
 }
 
-function renderAvatar(prof){
+// rep-photos is a PRIVATE bucket. photo_url stores the storage PATH; we mint a
+// fresh short-lived signed URL at render. Back-compatible with legacy rows that
+// stored a full /object/public/rep-photos/<path> URL (we extract the path).
+async function signRepPhoto(val){
+  if (!val) return null;
+  let path = String(val);
+  const parts = path.split('/rep-photos/');
+  if (parts.length > 1) path = decodeURIComponent(parts[1].split('?')[0]);
+  try {
+    const { data, error } = await sb.storage.from('rep-photos').createSignedUrl(path, 3600);
+    if (error || !data || !data.signedUrl) return null;
+    return data.signedUrl;
+  } catch(e){ return null; }
+}
+async function renderAvatar(prof){
   const wrap = $('heroAvatarWrap'); if (!wrap) return;
   wrap.style.display = 'block';
   const editBtn = $('heroAvatarEdit'); if (editBtn) editBtn.style.display = IS_VIEW_AS ? 'none' : '';
   const av = $('heroAvatar');
-  if (prof.photo_url){
-    av.style.backgroundImage = 'url("' + String(prof.photo_url).replace(/"/g,'') + '")';
+  const url = await signRepPhoto(prof.photo_url);
+  if (url){
+    av.style.backgroundImage = 'url("' + url.replace(/"/g,'') + '")';
     av.textContent = '';
   } else {
     av.style.backgroundImage = '';
@@ -1595,8 +1610,8 @@ async function onPhotoPick(){
   const path = uid + '/avatar_' + Date.now() + '.' + ext;
   const up = await sb.storage.from('rep-photos').upload(path, file, { contentType: file.type || 'image/jpeg', upsert: true });
   if (up.error){ alert('Upload failed: ' + up.error.message); this.value = ''; return; }
-  const url = sb.storage.from('rep-photos').getPublicUrl(path).data.publicUrl;
-  const { data, error } = await sb.rpc('update_my_profile', { p_personal: null, p_bio: null, p_photo_url: url });
+  // Private bucket: store the storage PATH; renderAvatar signs it at display time.
+  const { data, error } = await sb.rpc('update_my_profile', { p_personal: null, p_bio: null, p_photo_url: path });
   this.value = '';
   if (error){ alert('Photo saved but profile update failed: ' + error.message); return; }
   if (data){ renderAvatar(data); buildSetupBanner(data, window._meOverview); }
