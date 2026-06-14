@@ -790,23 +790,10 @@ function renderCoverage(){
 // Computed client-side from the saturation tables + reach matrix + day-of-week
 // demand. The engine does the exhaustive scan; the views validate each call.
 async function loadRebalanceData(){
-  S.reach = {}; S.reachRush = {}; S.dow = {};
-  try{
-    // paginate: the reach matrix is ~2,700 rows and the API caps a page at 1000.
-    // drive_min = mid window (day shifts); drive_min_rush = evening (Shift 3),
-    // falling back to mid until the rush build populates it.
-    let off=0;
-    while(true){
-      const {data,error}=await sb.from('sched_reach_matrix').select('person_id,town,drive_min,drive_min_rush,excluded')
-        .order('person_id').order('town').range(off, off+999);
-      if(error || !data || !data.length) break;
-      data.forEach(r=>{ if(r.excluded) return;  // rep opted out of this town's county
-        (S.reach[r.person_id]=S.reach[r.person_id]||{})[r.town]=r.drive_min;
-        (S.reachRush[r.person_id]=S.reachRush[r.person_id]||{})[r.town]=(r.drive_min_rush!=null?r.drive_min_rush:r.drive_min); });
-      if(data.length<1000) break;
-      off+=1000;
-    }
-  }catch(e){}
+  // Reachability now lives server-side in sched_compute_moves, so the cockpit no
+  // longer pulls the ~2,700-row reach matrix. It only needs the day-of-week demand
+  // curve (for the per-day grid) + VIPER rank (for the badge) + the moves RPC.
+  S.dow = {};
   // Forecast-first (recency-weighted, anticipates the weekday curve); fall back
   // to the flat day-of-week average if no forecast is published yet.
   try{
@@ -828,12 +815,23 @@ async function loadRebalanceData(){
     const bySlug={}; (data||[]).forEach(r=>{ if(r.rank!=null) bySlug[r.spd_slug]=Number(r.rank); });
     (S.reps||[]).forEach(rp=>{ if(rp.spd_slug && bySlug[rp.spd_slug]!=null) S.rank[rp.id]=bySlug[rp.spd_slug]; });
   }catch(e){}
+  // Redeploy moves come from the ONE engine -- the sched_compute_moves RPC, the
+  // same source the command center and CC dashboard call. No client-side greedy.
+  S.moves=[];
+  try{
+    const {data}=await sb.rpc('sched_compute_moves',{p_period_id:S.period.id, p_limit:12});
+    S.moves=(data||[]).map(m=>({
+      pid:m.person_id, rep:m.rep_name, slug:m.spd_slug, rank:Number(m.viper_rank)||0,
+      home:m.home_town, over:'Shift '+String(m.over_shift)[1],
+      to:m.to_town+' (Shift '+String(m.to_shift)[1]+')',
+      toTown:m.to_town, toShift:m.to_shift, appts:m.appts, drive:Math.round(m.drive_min)+'m'
+    }));
+  }catch(e){ S.moves=[]; }
 }
 // Shared signal computation for the Rebalance cockpit and the DM Action Center:
 // ranked redeploys, exception flags, and the per-shift rate/supply the grid reads.
 function computeSignals(){
   const SH=['S1','S2','S3'];
-  const radius={}; S.reps.forEach(r=>radius[r.id]=r.radius_min||90);
   const nameOf=pid=>(S.peopleById[pid]&&S.peopleById[pid].name)||pid;
   const supplyAt=(iso,s)=>{ let n=0; for(const pid in S.allEntries){ const c=S.allEntries[pid][iso]; if(c&&SHIFT_COVERS[s].includes(c)) n++; } return n; };
   // rate per shift so an average weekday lands near 1.0
@@ -843,31 +841,15 @@ function computeSignals(){
   const rate={}; SH.forEach(s=>rate[s]=tot[s][1]>0?tot[s][0]/tot[s][1]:0);
   const cellAt=(iso,s,d)=>{ const sup=supplyAt(iso,s), t=((S.dow[s]||{})[d]||0)*rate[s];
     return {ratio:t>0?sup/t:null, gap:sup-t, sup, t}; };
-  // ranked redeploys: an over-stacked rep -> a reachable short town, nearest first
-  const repOver={};
-  for(const pid in S.repCells){ let mx=null,ms=null; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v!=null&&(mx==null||v>mx)){mx=v;ms=s;} } if(mx!=null&&mx>1.1) repOver[pid]={ratio:mx,shift:ms}; }
-  const targets=(S.townSat||[]).filter(t=>t.ratio!=null&&t.ratio<0.9&&t.demand>=5)
-    .sort((a,b)=>((1-b.ratio)*b.demand)-((1-a.ratio)*a.demand));
-  const rankOf=pid=>(S.rank&&S.rank[pid])||0;  // VIPER 5=best..1; 0=unknown sorts last
-  const slugOf=pid=>{ const r=(S.reps||[]).find(x=>x.id===pid); return (r&&r.spd_slug)||null; };
-  const used={}, moves=[];
-  for(const t of targets){
-    let best=null;
-    const reachFor=(t.shift==='S3'?S.reachRush:S.reach)||{};  // evening uses rush-window drive
-    for(const pid in repOver){ if(used[pid]) continue; const dm=(reachFor[pid]||{})[t.town]; if(dm==null||dm>radius[pid]) continue;
-      const rk=rankOf(pid);
-      // Dan's rule: feed the highest VIPER rank reachable to this town first, then nearest (traffic-real) drive
-      if(best==null || rk>best.rk || (rk===best.rk && dm<best.dm)) best={pid,dm,rk}; }
-    if(!best) continue; used[best.pid]=1;
-    const rp=S.reach[best.pid]||{}; let home='?',hm=1e9; for(const tn in rp){ if(rp[tn]<hm){hm=rp[tn];home=tn;} }
-    moves.push({pid:best.pid,rep:nameOf(best.pid),slug:slugOf(best.pid),rank:best.rk,home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',toTown:t.town,toShift:t.shift,appts:t.demand,drive:Math.round(best.dm)+'m'});
-    if(moves.length>=12) break;
-  }
+  // Redeploys come from the ONE engine (sched_compute_moves RPC), loaded into
+  // S.moves by loadRebalanceData -- no client-side greedy. Exceptions below are
+  // pure read-side rollups of the same precomputed saturation, so they stay here.
+  const moves = S.moves || [];
   const thin=(S.townSat||[]).filter(t=>t.ratio!=null&&t.demand>=5&&t.ratio<0.25).sort((a,b)=>a.ratio-b.ratio);
   const shortDays=[]; for(let w=0;w<S.period.num_weeks;w++) for(let d=0;d<6;d++){ const iso=dayDate(S.period,w,d); for(const s of SH){ const c=cellAt(iso,s,d); if(c.gap<=-3) shortDays.push({iso,s,gap:Math.round(c.gap)}); } }
   shortDays.sort((a,b)=>a.gap-b.gap);
   const allWeek=[]; for(const pid in S.repCells){ let allover=true; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v==null||v<=1.1){allover=false;break;} } if(allover) allWeek.push(nameOf(pid)); }
-  return {SH,radius,nameOf,supplyAt,rate,cellAt,moves,thin,shortDays,allWeek};
+  return {SH,nameOf,supplyAt,rate,cellAt,moves,thin,shortDays,allWeek};
 }
 // Cross-origin drill into the launcher visual tools. The cockpit is on GitHub
 // Pages and can't include the launcher's drill.js, so it builds launcher URLs
