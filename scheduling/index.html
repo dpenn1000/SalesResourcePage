@@ -220,7 +220,7 @@ window.initApp = async function(profile, session){
   const inRoster = S.me && S.me.sales_office; // only roster reps fill a grid
   if(window.IS_MANAGER){
     buildTabs(inRoster);
-    if(inRoster){ S.tab='mine'; } else { S.tab='tracker'; }
+    S.tab='actions';   // lead with the few that matter for the team
     await switchTab(S.tab);
   } else {
     S.tab='mine';
@@ -260,7 +260,7 @@ function buildTabs(inRoster){
   const bar=document.getElementById('tabBar'); bar.style.display='flex';
   const tabs=[];
   if(inRoster) tabs.push(['mine','My Schedule']);
-  tabs.push(['tracker','Ready to Submit'],['coverage','Coverage'],['rebalance','Rebalance'],['changes','Change Requests'],['combined','Combined Grid'],['repview','Rep View'],['export','Export & Period']);
+  tabs.push(['actions','Action Center'],['tracker','Ready to Submit'],['coverage','Coverage'],['rebalance','Rebalance'],['changes','Change Requests'],['combined','Combined Grid'],['repview','Rep View'],['export','Export & Period']);
   bar.innerHTML = tabs.map(([k,l])=>`<button class="tab ${k===S.tab?'active':''}" data-tab="${k}">${l}</button>`).join('');
   bar.querySelectorAll('.tab').forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
 }
@@ -269,6 +269,7 @@ async function switchTab(tab){
   document.querySelectorAll('#tabBar .tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===tab));
   const v=document.getElementById('view'); v.innerHTML='<div class="empty">Loading...</div>';
   if(tab==='mine'){ await loadMine(); renderMine(); }
+  else if(tab==='actions'){ await loadManagerData(); await loadRebalanceData(); await loadActionCenter(); renderActionCenter(); }
   else if(tab==='tracker'){ await loadManagerData(); renderTracker(); }
   else if(tab==='coverage'){ await loadManagerData(); renderCoverage(); }
   else if(tab==='rebalance'){ await loadManagerData(); await loadRebalanceData(); renderRebalance(); }
@@ -432,16 +433,27 @@ function renderMine(){
       <span class="muted">${esc(S.me.sf_name||S.me.name)} &middot; ${esc(S.me.sales_office)}</span></div>
       <button class="btn btn-ghost" id="copyBtn" ${locked?'disabled':''}>Copy last period</button>
     </div></div>`;
-  // Offers pushed from your manager (manager-hub routing). Your call to accept or decline.
+  // Pushed from your manager (manager-hub routing). Offers are your call; wins are yours to feel.
   window.repAct=async(id,action)=>{
     try{ await sb.rpc('action_act',{p_id:id,p_action:action});
-      toast(action==='approved'?'Accepted, thanks':'Declined'); await loadMine(); renderMine(); }
+      toast(action==='approved'?'Accepted, thanks':action==='done'?'Nice work':'Declined'); await loadMine(); renderMine(); }
     catch(e){ toast('Failed: '+(e.message||e)); }
   };
-  if((S.myActions||[]).length){
-    html+=`<div class="card"><div class="weekhd">Your offers (${S.myActions.length})</div>
+  const wins=(S.myActions||[]).filter(a=>a.kind==='win');
+  const offers=(S.myActions||[]).filter(a=>a.kind!=='win');
+  if(wins.length){
+    html+=`<div class="card" style="border-left:4px solid var(--green,#78C832)"><div class="weekhd">Nice work</div>`+
+      wins.map(a=>`<div style="border-top:1px solid var(--border);padding:9px 0">
+        <div style="font-weight:600">${esc(a.title)}</div>
+        ${a.detail?`<div class="muted" style="font-size:12.5px;margin:3px 0">${esc(a.detail)}</div>`:''}
+        <div class="row" style="gap:8px;margin-top:6px">
+          <button class="btn btn-ghost" style="padding:4px 13px;font-size:12px" onclick="repAct('${a.id}','done')">Got it</button>
+        </div></div>`).join('')+`</div>`;
+  }
+  if(offers.length){
+    html+=`<div class="card"><div class="weekhd">Your offers (${offers.length})</div>
       <div class="muted" style="font-size:12px;margin-bottom:8px">Coverage your manager is offering you. Your call.</div>`+
-      S.myActions.map(a=>`<div style="border-top:1px solid var(--border);padding:9px 0">
+      offers.map(a=>`<div style="border-top:1px solid var(--border);padding:9px 0">
         <div style="font-weight:600">${esc(a.title)}</div>
         ${a.detail?`<div class="muted" style="font-size:12.5px;margin:3px 0">${esc(a.detail)}</div>`:''}
         <div class="row" style="gap:8px;margin-top:6px">
@@ -788,8 +800,10 @@ async function loadRebalanceData(){
     }catch(e){}
   }
 }
-function renderRebalance(){
-  const SH=['S1','S2','S3'], DOWL=['Mon','Tue','Wed','Thu','Fri','Sat'];
+// Shared signal computation for the Rebalance cockpit and the DM Action Center:
+// ranked redeploys, exception flags, and the per-shift rate/supply the grid reads.
+function computeSignals(){
+  const SH=['S1','S2','S3'];
   const radius={}; S.reps.forEach(r=>radius[r.id]=r.radius_min||90);
   const nameOf=pid=>(S.peopleById[pid]&&S.peopleById[pid].name)||pid;
   const supplyAt=(iso,s)=>{ let n=0; for(const pid in S.allEntries){ const c=S.allEntries[pid][iso]; if(c&&SHIFT_COVERS[s].includes(c)) n++; } return n; };
@@ -800,8 +814,7 @@ function renderRebalance(){
   const rate={}; SH.forEach(s=>rate[s]=tot[s][1]>0?tot[s][0]/tot[s][1]:0);
   const cellAt=(iso,s,d)=>{ const sup=supplyAt(iso,s), t=((S.dow[s]||{})[d]||0)*rate[s];
     return {ratio:t>0?sup/t:null, gap:sup-t, sup, t}; };
-
-  // ---- ranked redeploys ----
+  // ranked redeploys: an over-stacked rep -> a reachable short town, nearest first
   const repOver={};
   for(const pid in S.repCells){ let mx=null,ms=null; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v!=null&&(mx==null||v>mx)){mx=v;ms=s;} } if(mx!=null&&mx>1.1) repOver[pid]={ratio:mx,shift:ms}; }
   const targets=(S.townSat||[]).filter(t=>t.ratio!=null&&t.ratio<0.9&&t.demand>=5)
@@ -815,26 +828,31 @@ function renderRebalance(){
     moves.push({pid:best.pid,rep:nameOf(best.pid),home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',toTown:t.town,toShift:t.shift,appts:t.demand,drive:Math.round(best.dm)+'m'});
     if(moves.length>=12) break;
   }
-  // Manager forwards a redeploy to a rep as an offer the rep approves (manager-hub routing).
-  window.sendOffer=async(pid,town,sh)=>{
-    const sn=(SHIFT_META[sh]?SHIFT_META[sh].name:sh);
-    try{ await sb.rpc('action_create',{p_target:pid,p_kind:'redeploy',p_title:'Coverage offer: '+town,
-        p_detail:'Your area is well covered; '+town+' is short on '+sn+'. Can you take coverage there?',
-        p_priority:1,p_source:'cockpit',p_period_id:S.period.id});
-      toast('Offer sent to '+((S.peopleById[pid]||{}).name||'rep'));
-    }catch(e){ toast('Failed: '+(e.message||e)); }
-  };
+  const thin=(S.townSat||[]).filter(t=>t.ratio!=null&&t.demand>=5&&t.ratio<0.25).sort((a,b)=>a.ratio-b.ratio);
+  const shortDays=[]; for(let w=0;w<S.period.num_weeks;w++) for(let d=0;d<6;d++){ const iso=dayDate(S.period,w,d); for(const s of SH){ const c=cellAt(iso,s,d); if(c.gap<=-3) shortDays.push({iso,s,gap:Math.round(c.gap)}); } }
+  shortDays.sort((a,b)=>a.gap-b.gap);
+  const allWeek=[]; for(const pid in S.repCells){ let allover=true; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v==null||v<=1.1){allover=false;break;} } if(allover) allWeek.push(nameOf(pid)); }
+  return {SH,radius,nameOf,supplyAt,rate,cellAt,moves,thin,shortDays,allWeek};
+}
+// Manager forwards a redeploy to a rep as an offer the rep approves (manager-hub routing).
+window.sendOffer=async(pid,town,sh)=>{
+  const sn=(SHIFT_META[sh]?SHIFT_META[sh].name:sh);
+  try{ await sb.rpc('action_create',{p_target:pid,p_kind:'redeploy',p_title:'Coverage offer: '+town,
+      p_detail:'Your area is well covered; '+town+' is short on '+sn+'. Can you take coverage there?',
+      p_priority:1,p_source:'cockpit',p_period_id:S.period.id});
+    toast('Offer sent to '+((S.peopleById[pid]||{}).name||'rep'));
+  }catch(e){ toast('Failed: '+(e.message||e)); }
+};
+function renderRebalance(){
+  const DOWL=['Mon','Tue','Wed','Thu','Fri','Sat'];
+  const {SH,supplyAt,rate,moves,thin,shortDays,allWeek}=computeSignals();
   let ml=`<div class="card"><div class="weekhd">Top redeploys</div>
     <div class="muted" style="font-size:12px;margin-bottom:8px">Each row sends an over-stacked rep where coverage is short, nearest first. The drive is from their home base. Send it to the rep as an offer; they approve or decline on their own page.</div>
     <table class="cov"><thead><tr><th>Move this rep</th><th>Home base</th><th>Over on</th><th>Send to</th><th>Appts</th><th>Drive</th><th></th></tr></thead><tbody>
     ${moves.length?moves.map(m=>`<tr><td class="county">${esc(m.rep)}</td><td>${esc(m.home)}</td><td>${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td><td><button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="sendOffer('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join(''):'<tr><td colspan="7" class="muted">No high-value redeploys found. Coverage is balanced, or the saturation build has not run for this period.</td></tr>'}
     </tbody></table></div>`;
 
-  // ---- exception checklist ----
-  const thin=(S.townSat||[]).filter(t=>t.ratio!=null&&t.demand>=5&&t.ratio<0.25).sort((a,b)=>a.ratio-b.ratio);
-  const shortDays=[]; for(let w=0;w<S.period.num_weeks;w++) for(let d=0;d<6;d++){ const iso=dayDate(S.period,w,d); for(const s of SH){ const c=cellAt(iso,s,d); if(c.gap<=-3) shortDays.push({iso,s,gap:Math.round(c.gap)}); } }
-  shortDays.sort((a,b)=>a.gap-b.gap);
-  const allWeek=[]; for(const pid in S.repCells){ let allover=true; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v==null||v<=1.1){allover=false;break;} } if(allover) allWeek.push(nameOf(pid)); }
+  // ---- exception checklist (thin/shortDays/allWeek come from computeSignals) ----
   const line=(n,label,extra)=>`<div style="margin-top:6px;display:flex;gap:8px"><b style="color:${n?'#c52':'#2a8'};min-width:28px">${n}</b><div>${label}${n&&extra?': <span class="muted">'+extra+'</span>':''}</div></div>`;
   const ex=`<div class="card"><div class="weekhd">Exception checklist</div>
     <div class="muted" style="font-size:12px;margin-bottom:4px">Hard flags to clear to zero. Nothing here hides in the grid.</div>
@@ -889,6 +907,117 @@ function renderRebalance(){
    }catch(e){ const h=document.getElementById('wfcal'); if(h) h.innerHTML='<div class="muted">Calendar unavailable.</div>'; }
   }
   drawCal();
+}
+
+// ===================== MANAGER: ACTION CENTER =====================
+// The pushed few for the team (signal-over-noise, manager-hub routing): this week's
+// moves, wins to recognize, and the offers already in flight. One surface; act here.
+async function loadActionCenter(){
+  S.teamActions=[];
+  try{
+    const {data}=await sb.from('action_items').select('*')
+      .in('status',['open','approved','declined'])
+      .order('priority').order('created_at',{ascending:false});
+    S.teamActions=data||[];
+  }catch(e){}
+}
+function updateActionsBadge(){
+  const wins=(S.teamActions||[]).filter(a=>a.kind==='win'&&a.status==='open').length;
+  const dec=(S.teamActions||[]).filter(a=>a.status==='declined'&&a.kind!=='win').length;
+  const n=wins+dec;
+  const btn=document.querySelector('#tabBar .tab[data-tab="actions"]');
+  if(btn) btn.innerHTML='Action Center'+(n?` <span class="tabbadge">${n}</span>`:'');
+}
+function renderActionCenter(){
+  const nameOf=pid=>(S.peopleById[pid]&&S.peopleById[pid].name)||'rep';
+  const {moves,thin,shortDays,allWeek}=computeSignals();
+  const team=S.teamActions||[];
+  const wins=team.filter(a=>a.kind==='win'&&a.status==='open');
+  const offers=team.filter(a=>a.kind!=='win'&&['open','declined'].includes(a.status))
+                   .sort((a,b)=>(a.status==='declined'?0:1)-(b.status==='declined'?0:1));
+
+  // act on an action item, then refresh the center
+  window.acAct=async(id,action)=>{
+    try{ await sb.rpc('action_act',{p_id:id,p_action:action}); toast('Done'); await loadActionCenter(); renderActionCenter(); }
+    catch(e){ toast('Failed: '+(e.message||e)); }
+  };
+  // refresh after sending an offer from a move row
+  window.acSend=async(pid,town,sh)=>{ await window.sendOffer(pid,town,sh); await loadActionCenter(); renderActionCenter(); };
+  // DM recognizes a rep directly (manual win -> rep sees it, you can mark it done after the call)
+  window.dmRecognize=async()=>{
+    const pid=document.getElementById('acRepPick').value;
+    const msg=(document.getElementById('acWinMsg').value||'').trim();
+    if(!pid){ toast('Pick a rep'); return; }
+    try{ await sb.rpc('action_create',{p_target:pid,p_kind:'win',p_title:'Recognition',
+        p_detail:msg||'Recognized by your manager.',p_priority:2,p_source:'manual_win',p_period_id:S.period.id});
+      toast('Sent to '+nameOf(pid)); await loadActionCenter(); renderActionCenter();
+    }catch(e){ toast('Failed: '+(e.message||e)); }
+  };
+
+  let h=`<div class="card"><div class="weekhd" style="border:0;margin:0;padding:0">Action Center</div>
+    <div class="muted" style="margin-top:4px;font-size:13px">The few that matter for your team this week. Clear these and the calendar runs itself. Everything else is in the other tabs when you want the detail.</div></div>`;
+
+  // ---- this week's moves (top 5) ----
+  const top=moves.slice(0,5);
+  h+=`<div class="card"><div class="weekhd">This week's moves</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Over-stacked reps sent where coverage is short, nearest first. Send it as an offer; the rep accepts or declines on their own page.</div>`;
+  if(top.length){
+    h+=`<table class="cov"><thead><tr><th>Move</th><th>From</th><th>To</th><th>Appts</th><th>Drive</th><th></th></tr></thead><tbody>`+
+      top.map(m=>`<tr><td class="county">${esc(m.rep)}</td><td>${esc(m.home)} &middot; ${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td>
+        <td><button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="acSend('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join('')+
+      `</tbody></table>${moves.length>5?`<div class="muted" style="font-size:12px;margin-top:6px">${moves.length-5} more in <a href="#" onclick="switchTab('rebalance');return false">Rebalance &rarr;</a></div>`:''}`;
+  } else {
+    h+=`<div class="muted">Coverage is balanced. No high-value redeploys this week, or the saturation build has not run for this period.</div>`;
+  }
+  h+=`</div>`;
+
+  // ---- wins to recognize ----
+  h+=`<div class="card" style="border-left:4px solid var(--green,#78C832)"><div class="weekhd">Wins to recognize${wins.length?` (${wins.length})`:''}</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Push wins as hard as problems. A short call lands harder than a dashboard.</div>`;
+  if(wins.length){
+    h+=wins.map(a=>`<div style="border-top:1px solid var(--border);padding:9px 0">
+      <div style="font-weight:600">${esc(nameOf(a.target_person_id))} &middot; ${esc(a.title)}</div>
+      ${a.detail?`<div class="muted" style="font-size:12.5px;margin:3px 0">${esc(a.detail)}</div>`:''}
+      <div class="row" style="gap:8px;margin-top:6px">
+        <button class="btn btn-primary" style="padding:4px 13px;font-size:12px" onclick="acAct('${a.id}','done')">Called &amp; recognized</button>
+        <button class="btn btn-ghost" style="padding:4px 13px;font-size:12px" onclick="acAct('${a.id}','dismissed')">Dismiss</button>
+      </div></div>`).join('');
+  } else {
+    h+=`<div class="muted" style="font-size:13px">Nothing queued. When a rep accepts a coverage offer it lands here automatically.</div>`;
+  }
+  const repOpts=(S.reps||[]).filter(r=>r.sales_office).map(r=>`<option value="${r.id}">${esc(r.sf_name||r.name)}</option>`).join('');
+  h+=`<div style="border-top:1px solid var(--border);margin-top:8px;padding-top:10px">
+    <div class="row" style="gap:8px;flex-wrap:wrap;align-items:center">
+      <select id="acRepPick" style="padding:7px;border:1px solid var(--border);border-radius:8px;font-family:'Manrope';font-size:13px;min-width:180px"><option value="">Recognize a rep...</option>${repOpts}</select>
+      <input id="acWinMsg" placeholder="What they did well (optional)" style="flex:1;min-width:200px;padding:7px;border:1px solid var(--border);border-radius:8px;font-family:'Manrope';font-size:13px">
+      <button class="btn btn-ghost" style="padding:6px 13px;font-size:12px" onclick="dmRecognize()">Send recognition</button>
+    </div></div></div>`;
+
+  // ---- offers in flight ----
+  if(offers.length){
+    h+=`<div class="card"><div class="weekhd">Offers in flight</div>
+      <div class="muted" style="font-size:12px;margin-bottom:8px">Coverage offers you sent. Declined ones may need a different rep, find the next nearest in Rebalance.</div>`+
+      offers.map(a=>{ const st=a.status==='declined'?'<span style="color:#c52;font-weight:600">declined</span>':'<span class="muted">waiting</span>';
+        return `<div style="border-top:1px solid var(--border);padding:8px 0;display:flex;justify-content:space-between;gap:10px;align-items:center">
+          <div><div style="font-weight:600;font-size:13px">${esc(nameOf(a.target_person_id))} &middot; ${esc(a.title)}</div>
+          <div class="muted" style="font-size:12px">${st}</div></div>
+          ${a.status==='declined'?`<button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="acAct('${a.id}','dismissed')">Clear</button>`:''}
+        </div>`; }).join('')+`</div>`;
+  }
+
+  // ---- exceptions (compact; full grid in Rebalance) ----
+  const exParts=[];
+  if(thin.length) exParts.push(`${thin.length} town-shift${thin.length>1?'s':''} with demand and almost no reachable coverage`);
+  if(shortDays.length) exParts.push(`${shortDays.length} day-shift${shortDays.length>1?'s':''} short by 3+ reps`);
+  if(allWeek.length) exParts.push(`${allWeek.length} rep${allWeek.length>1?'s':''} saturated all week`);
+  h+=`<div class="card"><div class="weekhd">Exceptions</div>`+
+    (exParts.length
+      ? `<div class="muted" style="font-size:13px">${exParts.join(' &middot; ')}. <a href="#" onclick="switchTab('rebalance');return false">Work them in Rebalance &rarr;</a></div>`
+      : `<div class="muted" style="font-size:13px;color:#2a8">No hard flags. Nothing hiding in the grid.</div>`)+
+    `</div>`;
+
+  document.getElementById('view').innerHTML=h;
+  updateActionsBadge();
 }
 
 // ===================== MANAGER: REP VIEW (preview) =====================
