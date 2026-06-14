@@ -292,6 +292,9 @@ async function loadMine(){
   S.mySub=s.data;
   S.myRequests=cr.data||[];
   S.myReqItems={}; (ci.data||[]).forEach(it=>{ (S.myReqItems[it.request_id]=S.myReqItems[it.request_id]||[]).push(it); });
+  S.myActions=[];
+  try{ const {data}=await sb.from('action_items').select('*').eq('target_person_id',S.me.id)
+    .in('status',['open']).order('priority').order('created_at'); S.myActions=data||[]; }catch(e3){}
   S.shiftStatus=null;
   try{ const {data}=await sb.rpc('sched_coverage_summary',{p_period_id:S.period.id}); S.shiftStatus=shiftStatusFromSummary(data); }catch(e2){}
   await loadSaturation();
@@ -429,6 +432,23 @@ function renderMine(){
       <span class="muted">${esc(S.me.sf_name||S.me.name)} &middot; ${esc(S.me.sales_office)}</span></div>
       <button class="btn btn-ghost" id="copyBtn" ${locked?'disabled':''}>Copy last period</button>
     </div></div>`;
+  // Offers pushed from your manager (manager-hub routing). Your call to accept or decline.
+  window.repAct=async(id,action)=>{
+    try{ await sb.rpc('action_act',{p_id:id,p_action:action});
+      toast(action==='approved'?'Accepted, thanks':'Declined'); await loadMine(); renderMine(); }
+    catch(e){ toast('Failed: '+(e.message||e)); }
+  };
+  if((S.myActions||[]).length){
+    html+=`<div class="card"><div class="weekhd">Your offers (${S.myActions.length})</div>
+      <div class="muted" style="font-size:12px;margin-bottom:8px">Coverage your manager is offering you. Your call.</div>`+
+      S.myActions.map(a=>`<div style="border-top:1px solid var(--border);padding:9px 0">
+        <div style="font-weight:600">${esc(a.title)}</div>
+        ${a.detail?`<div class="muted" style="font-size:12.5px;margin:3px 0">${esc(a.detail)}</div>`:''}
+        <div class="row" style="gap:8px;margin-top:6px">
+          <button class="btn btn-primary" style="padding:4px 13px;font-size:12px" onclick="repAct('${a.id}','approved')">Accept</button>
+          <button class="btn btn-ghost" style="padding:4px 13px;font-size:12px" onclick="repAct('${a.id}','declined')">Decline</button>
+        </div></div>`).join('')+`</div>`;
+  }
   if(status==='changes_requested' && S.mySub && S.mySub.note){
     html+=`<div class="card"><div class="note"><b>Changes requested:</b> ${esc(S.mySub.note)}</div></div>`;
   }
@@ -792,13 +812,22 @@ function renderRebalance(){
     for(const pid in repOver){ if(used[pid]) continue; const dm=(S.reach[pid]||{})[t.town]; if(dm==null||dm>radius[pid]) continue; if(best==null||dm<best.dm) best={pid,dm}; }
     if(!best) continue; used[best.pid]=1;
     const rp=S.reach[best.pid]||{}; let home='?',hm=1e9; for(const tn in rp){ if(rp[tn]<hm){hm=rp[tn];home=tn;} }
-    moves.push({rep:nameOf(best.pid),home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',appts:t.demand,drive:Math.round(best.dm)+'m'});
+    moves.push({pid:best.pid,rep:nameOf(best.pid),home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',toTown:t.town,toShift:t.shift,appts:t.demand,drive:Math.round(best.dm)+'m'});
     if(moves.length>=12) break;
   }
+  // Manager forwards a redeploy to a rep as an offer the rep approves (manager-hub routing).
+  window.sendOffer=async(pid,town,sh)=>{
+    const sn=(SHIFT_META[sh]?SHIFT_META[sh].name:sh);
+    try{ await sb.rpc('action_create',{p_target:pid,p_kind:'redeploy',p_title:'Coverage offer: '+town,
+        p_detail:'Your area is well covered; '+town+' is short on '+sn+'. Can you take coverage there?',
+        p_priority:1,p_source:'cockpit',p_period_id:S.period.id});
+      toast('Offer sent to '+((S.peopleById[pid]||{}).name||'rep'));
+    }catch(e){ toast('Failed: '+(e.message||e)); }
+  };
   let ml=`<div class="card"><div class="weekhd">Top redeploys</div>
-    <div class="muted" style="font-size:12px;margin-bottom:8px">Each row sends an over-stacked rep where coverage is short, nearest first. The drive is from their home base. One-click send-to-rep is the next step; for now it is the worklist.</div>
-    <table class="cov"><thead><tr><th>Move this rep</th><th>Home base</th><th>Over on</th><th>Send to</th><th>Appts</th><th>Drive</th></tr></thead><tbody>
-    ${moves.length?moves.map(m=>`<tr><td class="county">${esc(m.rep)}</td><td>${esc(m.home)}</td><td>${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td></tr>`).join(''):'<tr><td colspan="6" class="muted">No high-value redeploys found. Coverage is balanced, or the saturation build has not run for this period.</td></tr>'}
+    <div class="muted" style="font-size:12px;margin-bottom:8px">Each row sends an over-stacked rep where coverage is short, nearest first. The drive is from their home base. Send it to the rep as an offer; they approve or decline on their own page.</div>
+    <table class="cov"><thead><tr><th>Move this rep</th><th>Home base</th><th>Over on</th><th>Send to</th><th>Appts</th><th>Drive</th><th></th></tr></thead><tbody>
+    ${moves.length?moves.map(m=>`<tr><td class="county">${esc(m.rep)}</td><td>${esc(m.home)}</td><td>${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td><td><button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="sendOffer('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join(''):'<tr><td colspan="7" class="muted">No high-value redeploys found. Coverage is balanced, or the saturation build has not run for this period.</td></tr>'}
     </tbody></table></div>`;
 
   // ---- exception checklist ----
