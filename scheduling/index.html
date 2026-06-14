@@ -849,6 +849,7 @@ function computeSignals(){
   const targets=(S.townSat||[]).filter(t=>t.ratio!=null&&t.ratio<0.9&&t.demand>=5)
     .sort((a,b)=>((1-b.ratio)*b.demand)-((1-a.ratio)*a.demand));
   const rankOf=pid=>(S.rank&&S.rank[pid])||0;  // VIPER 5=best..1; 0=unknown sorts last
+  const slugOf=pid=>{ const r=(S.reps||[]).find(x=>x.id===pid); return (r&&r.spd_slug)||null; };
   const used={}, moves=[];
   for(const t of targets){
     let best=null;
@@ -859,7 +860,7 @@ function computeSignals(){
       if(best==null || rk>best.rk || (rk===best.rk && dm<best.dm)) best={pid,dm,rk}; }
     if(!best) continue; used[best.pid]=1;
     const rp=S.reach[best.pid]||{}; let home='?',hm=1e9; for(const tn in rp){ if(rp[tn]<hm){hm=rp[tn];home=tn;} }
-    moves.push({pid:best.pid,rep:nameOf(best.pid),rank:best.rk,home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',toTown:t.town,toShift:t.shift,appts:t.demand,drive:Math.round(best.dm)+'m'});
+    moves.push({pid:best.pid,rep:nameOf(best.pid),slug:slugOf(best.pid),rank:best.rk,home,over:'Shift '+repOver[best.pid].shift[1],to:t.town+' (Shift '+t.shift[1]+')',toTown:t.town,toShift:t.shift,appts:t.demand,drive:Math.round(best.dm)+'m'});
     if(moves.length>=12) break;
   }
   const thin=(S.townSat||[]).filter(t=>t.ratio!=null&&t.demand>=5&&t.ratio<0.25).sort((a,b)=>a.ratio-b.ratio);
@@ -867,6 +868,16 @@ function computeSignals(){
   shortDays.sort((a,b)=>a.gap-b.gap);
   const allWeek=[]; for(const pid in S.repCells){ let allover=true; for(const s of SH){ const v=(S.repCells[pid][s]||{}).ratio; if(v==null||v<=1.1){allover=false;break;} } if(allover) allWeek.push(nameOf(pid)); }
   return {SH,radius,nameOf,supplyAt,rate,cellAt,moves,thin,shortDays,allWeek};
+}
+// Cross-origin drill into the launcher visual tools. The cockpit is on GitHub
+// Pages and can't include the launcher's drill.js, so it builds launcher URLs
+// with this tiny inline builder that follows the SAME documented grammar
+// (?rep/?office/?team/?county/?date/?shift). One contract, two origins.
+const TOOLS_BASE='https://tools.ct-resource-page.com';
+function drillURL(tool, focus){
+  const p=new URLSearchParams();
+  Object.keys(focus||{}).forEach(k=>{ if(focus[k]!=null && focus[k]!=='') p.set(k,focus[k]); });
+  const s=p.toString(); return TOOLS_BASE+'/'+tool+(s?'?'+s:'');
 }
 // Manager forwards a redeploy to a rep as an offer the rep approves (manager-hub routing).
 window.sendOffer=async(pid,town,sh)=>{
@@ -883,7 +894,7 @@ function renderRebalance(){
   let ml=`<div class="card"><div class="weekhd">Top redeploys</div>
     <div class="muted" style="font-size:12px;margin-bottom:8px">Each row sends an over-stacked rep where coverage is short, nearest first. The drive is from their home base. Send it to the rep as an offer; they approve or decline on their own page.</div>
     <table class="cov"><thead><tr><th>Move this rep</th><th>Home base</th><th>Over on</th><th>Send to</th><th>Appts</th><th>Drive</th><th></th></tr></thead><tbody>
-    ${moves.length?moves.map(m=>`<tr><td class="county">${esc(m.rep)}${rankBadge(m.rank)}</td><td>${esc(m.home)}</td><td>${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td><td><button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="sendOffer('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join(''):'<tr><td colspan="7" class="muted">No high-value redeploys found. Coverage is balanced, or the saturation build has not run for this period.</td></tr>'}
+    ${moves.length?moves.map(m=>`<tr><td class="county">${esc(m.rep)}${rankBadge(m.rank)}</td><td>${esc(m.home)}</td><td>${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td><td>${m.slug?`<a href="${drillURL('drive-time',{rep:m.slug})}" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:3px 9px;font-size:11px;text-decoration:none;margin-right:4px" title="See this rep on the drive map">map</a>`:''}<button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="sendOffer('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join(''):'<tr><td colspan="7" class="muted">No high-value redeploys found. Coverage is balanced, or the saturation build has not run for this period.</td></tr>'}
     </tbody></table></div>`;
 
   // ---- exception checklist (thin/shortDays/allWeek come from computeSignals) ----
@@ -989,7 +1000,11 @@ function renderActionCenter(){
   };
 
   let h=`<div class="card"><div class="weekhd" style="border:0;margin:0;padding:0">Action Center</div>
-    <div class="muted" style="margin-top:4px;font-size:13px">The few that matter for your team this week. Clear these and the calendar runs itself. Everything else is in the other tabs when you want the detail.</div></div>`;
+    <div class="muted" style="margin-top:4px;font-size:13px">The few that matter for your team this week. Clear these and the calendar runs itself. Everything else is in the other tabs when you want the detail.</div>
+    <div style="margin-top:9px;display:flex;gap:8px;flex-wrap:wrap">
+      <a href="${drillURL('coverage-map',{})}" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:4px 11px;font-size:12px;text-decoration:none">Coverage map &rarr;</a>
+      <a href="${drillURL('drive-time',{})}" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:4px 11px;font-size:12px;text-decoration:none">Drive map &rarr;</a>
+    </div></div>`;
 
   // ---- this week's moves (top 5) ----
   const top=moves.slice(0,5);
@@ -998,7 +1013,7 @@ function renderActionCenter(){
   if(top.length){
     h+=`<table class="cov"><thead><tr><th>Move</th><th>From</th><th>To</th><th>Appts</th><th>Drive</th><th></th></tr></thead><tbody>`+
       top.map(m=>`<tr><td class="county">${esc(m.rep)}${rankBadge(m.rank)}</td><td>${esc(m.home)} &middot; ${m.over}</td><td>${esc(m.to)}</td><td class="mono">${m.appts}</td><td class="mono">${m.drive}</td>
-        <td><button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="acSend('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join('')+
+        <td>${m.slug?`<a href="${drillURL('drive-time',{rep:m.slug})}" target="_blank" rel="noopener" class="btn btn-ghost" style="padding:3px 9px;font-size:11px;text-decoration:none;margin-right:4px" title="See this rep on the drive map">map</a>`:''}<button class="btn btn-ghost" style="padding:3px 9px;font-size:11px" onclick="acSend('${m.pid}','${esc(m.toTown)}','${m.toShift}')">Send to rep</button></td></tr>`).join('')+
       `</tbody></table>${moves.length>5?`<div class="muted" style="font-size:12px;margin-top:6px">${moves.length-5} more in <a href="#" onclick="switchTab('rebalance');return false">Rebalance &rarr;</a></div>`:''}`;
   } else {
     h+=`<div class="muted">Coverage is balanced. No high-value redeploys this week, or the saturation build has not run for this period.</div>`;
