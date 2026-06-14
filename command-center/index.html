@@ -1,5 +1,9 @@
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Smarter Coverage — Command Center</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
 <style>
 *{box-sizing:border-box;margin:0} body{font-family:'Segoe UI',system-ui,sans-serif;background:#eaeee4;color:#1A2332;padding:0 0 40px}
 .hd{background:linear-gradient(105deg,#16202e,#22344a);color:#fff;padding:26px 34px}
@@ -28,6 +32,23 @@
 .fcb{width:90px;text-align:center} .fcbar{width:90px;border-radius:8px 8px 0 0} .fcn{font-size:20px;font-weight:800;margin-bottom:4px}
 @media(max-width:980px){.kpis{grid-template-columns:repeat(3,1fr)}.grid,.two{grid-template-columns:1fr}}
 </style></head><body>
+<div id="loginScreen" style="display:none"><div class="auth-card">
+  <h2>Sign In</h2><p>Internal use only. Sign in with your CT Tools username and password.</p>
+  <div id="loginError" class="auth-error" style="display:none"></div>
+  <form onsubmit="event.preventDefault();signIn()">
+    <label>Username</label><input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+    <label>Password</label><input type="password" id="loginPass" autocomplete="current-password" required>
+    <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+  </form></div></div>
+<div id="changePasswordScreen" style="display:none"><div class="auth-card">
+  <h2>Set a new password</h2><p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+  <div id="cpError" class="auth-error" style="display:none"></div>
+  <form onsubmit="event.preventDefault();changePassword()">
+    <label>New password</label><input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+    <label>Confirm new password</label><input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+    <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+  </form></div></div>
+<div id="appWrap" style="display:none">
 <div class="hd"><div class="wrap"><h1>Smarter Coverage — Command Center</h1>
 <p>Lead generation, coverage, and dispatch on one screen. Real CT data, 2026-04-10 to 2026-06-14.</p>
 <span class="tag">● LIVE MODEL · illustrative on actuals</span></div></div>
@@ -52,4 +73,13 @@
   <div class="card"><h2>Biggest coverage gaps</h2><div class="sub">High-demand towns where evening coverage is thinnest, the redeploys to make first.</div><div class="row"><div class="rl">Canaan</div><div class="track"><i style="width:64%;background:#2cbe44"></i></div><div class="rv">5 appts</div></div><div class="row"><div class="rl">Stamford</div><div class="track"><i style="width:62%;background:#2cbe44"></i></div><div class="rv">16 appts</div></div><div class="row"><div class="rl">Norwalk</div><div class="track"><i style="width:44%;background:#2cbe2d"></i></div><div class="rv">5 appts</div></div><div class="row"><div class="rl">Danbury</div><div class="track"><i style="width:41%;background:#36be2c"></i></div><div class="rv">11 appts</div></div><div class="row"><div class="rl">Fairfield</div><div class="track"><i style="width:26%;background:#6cbe2c"></i></div><div class="rv">7 appts</div></div><div class="row"><div class="rl">Torrington</div><div class="track"><i style="width:21%;background:#7cbe2c"></i></div><div class="rv">10 appts</div></div><div class="row"><div class="rl">Bridgeport</div><div class="track"><i style="width:17%;background:#8dbe2c"></i></div><div class="rv">26 appts</div></div><div class="row"><div class="rl">Stratford</div><div class="track"><i style="width:15%;background:#92be2c"></i></div><div class="rv">15 appts</div></div></div>
 </div>
 <div class="card" style="text-align:center;color:#6b7280;font-size:12px">Modeled in Connecticut. Built to scale to every market. · A living coverage system, not a calendar.</div>
-</div></body></html>
+</div></div><!-- /#appWrap -->
+<script>
+// auth-gate.js calls this after sign-in + role check. Managers/admins only.
+async function initApp(profile, session){
+  if(!(window.IS_MANAGER || window.IS_ADMIN)){
+    document.getElementById('appWrap').innerHTML='<div style="max-width:600px;margin:90px auto;text-align:center;font-family:Segoe UI,system-ui,sans-serif;color:#1A2332"><h2>Managers only</h2><p style="color:#6b7280">This dashboard is limited to CT managers and admins.</p></div>';
+  }
+}
+</script>
+</body></html>
