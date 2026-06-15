@@ -77,6 +77,12 @@ main{padding:24px 0 60px}
 .note{font-size:.8rem;color:var(--muted);background:var(--warm);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:10px 12px;margin-bottom:14px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:var(--r-md);font-size:.88rem;font-weight:600;z-index:600;opacity:0;transition:opacity .2s;pointer-events:none}
 .toast.show{opacity:1}
+.filterbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}
+.filterbar input,.filterbar select{font-family:inherit;font-size:.88rem;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--white);color:var(--text)}
+.filterbar input[type=search]{flex:1;min-width:170px}
+.filterbar .fcount{font-size:.82rem;color:var(--muted);font-weight:700;white-space:nowrap}
+.filterbar .btn-clear{background:none;border:none;color:var(--blue-dk);font-weight:600;font-size:.82rem;cursor:pointer;padding:6px 4px}
+.filterbar .btn-clear:hover{text-decoration:underline}
 footer{padding:30px 0;text-align:center;color:var(--subtle);font-size:.82rem}
 </style>
 <meta name="robots" content="noindex, nofollow">
@@ -146,6 +152,14 @@ footer{padding:30px 0;text-align:center;color:var(--subtle);font-size:.82rem}
 
 <main>
   <div class="wrap">
+    <div id="filterBar" class="filterbar">
+      <input id="fSearch" type="search" placeholder="Search event or town&hellip;" oninput="render()" autocomplete="off">
+      <select id="fType" onchange="render()"><option value="">All types</option></select>
+      <select id="fCounty" onchange="render()"><option value="">All areas</option></select>
+      <select id="fMonth" onchange="render()"><option value="">Any month</option></select>
+      <button class="btn-clear" onclick="clearFilters()">Clear</button>
+      <span class="fcount" id="fCount"></span>
+    </div>
     <div id="upcomingView"><div class="empty">Loading events&hellip;</div></div>
     <div id="mineView" style="display:none"></div>
   </div>
@@ -203,8 +217,35 @@ async function loadAll(){
     sb.from('event_staffing').select('*')
   ]);
   EVENTS=ev.data||[];SHIFTS=sh.data||[];STAFF=st.data||[];
+  populateFilters();
   render();
 }
+
+function monthKey(d){return d?d.slice(0,7):'';}
+function monthLabel(k){const p=k.split('-');return new Date(+p[0],+p[1]-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});}
+function bookableUpcoming(){const today=todayStr();return EVENTS.filter(e=>(!e.date_end||e.date_end>=today||!e.date_start)&&['approved','booked','active'].includes(e.status));}
+function populateFilters(){
+  const base=bookableUpcoming();
+  const types=[...new Set(base.map(e=>e.event_type))].sort();
+  const counties=[...new Set(base.map(e=>e.county).filter(Boolean))].sort();
+  const months=[...new Set(base.map(e=>monthKey(e.date_start)).filter(Boolean))].sort();
+  const fT=document.getElementById('fType'),fC=document.getElementById('fCounty'),fM=document.getElementById('fMonth');
+  fT.innerHTML='<option value="">All types</option>'+types.map(t=>`<option value="${t}">${esc(t.replace('_',' '))}</option>`).join('');
+  fC.innerHTML='<option value="">All areas</option>'+counties.map(c=>`<option value="${esc(c)}">${esc(c)} County</option>`).join('');
+  fM.innerHTML='<option value="">Any month</option>'+months.map(m=>`<option value="${m}">${esc(monthLabel(m))}</option>`).join('');
+}
+function filterEvents(list){
+  const q=(document.getElementById('fSearch').value||'').toLowerCase().trim();
+  const t=document.getElementById('fType').value, c=document.getElementById('fCounty').value, m=document.getElementById('fMonth').value;
+  return list.filter(e=>{
+    if(t&&e.event_type!==t)return false;
+    if(c&&e.county!==c)return false;
+    if(m&&monthKey(e.date_start)!==m)return false;
+    if(q){const hay=((e.name||'')+' '+(e.town||'')+' '+(e.county||'')).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+}
+function clearFilters(){['fSearch','fType','fCounty','fMonth'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});render();}
 
 function myShiftIds(){return new Set(STAFF.filter(s=>s.status==='signed_up'||s.status==='confirmed').map(s=>s.event_shift_id));}
 
@@ -245,12 +286,15 @@ function eventCard(ev,opts={}){
 }
 
 function render(){
-  const today=todayStr();
   if(curTab==='upcoming'){
-    const list=EVENTS.filter(e=>!e.date_end||e.date_end>=today||(!e.date_start)).filter(e=>['approved','booked','active'].includes(e.status));
-    document.getElementById('upcomingView').innerHTML = list.length
-      ? list.map(e=>eventCard(e)).join('')
-      : `<div class="empty">No upcoming events posted yet.</div>`;
+    const base=bookableUpcoming();
+    const list=filterEvents(base);
+    document.getElementById('fCount').textContent = base.length ? (list.length+' of '+base.length) : '';
+    document.getElementById('upcomingView').innerHTML = !base.length
+      ? `<div class="empty">No upcoming events posted yet.</div>`
+      : (list.length
+          ? list.map(e=>eventCard(e)).join('')
+          : `<div class="empty">No events match your filters. <button class="btn btn-sm" onclick="clearFilters()">Clear filters</button></div>`);
   }else{
     const mineIds=myShiftIds();
     const myEventIds=new Set(SHIFTS.filter(s=>mineIds.has(s.id)).map(s=>s.event_id));
@@ -266,6 +310,7 @@ function setTab(t){
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
   document.getElementById('upcomingView').style.display = t==='upcoming'?'':'none';
   document.getElementById('mineView').style.display = t==='mine'?'':'none';
+  document.getElementById('filterBar').style.display = t==='upcoming'?'flex':'none';
   render();
 }
 
