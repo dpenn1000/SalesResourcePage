@@ -1239,6 +1239,13 @@
       #tabEvents .ev-shift{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:13px;color:var(--text2);flex-wrap:wrap;}
       #tabEvents .ev-stat{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--bg);color:var(--text2);}
       #tabEvents .ev-num{font-weight:700;color:var(--text);}
+      #tabEvents .ev-info{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--text2);text-transform:uppercase;letter-spacing:.03em}
+      #tabEvents .ev-info.complete{background:#E8F3DA;color:#3F6B16}
+      #tabEvents .ev-info.partial{background:#FDEBCF;color:#9A6310}
+      #tabEvents .ev-info.unverified{background:#FBE3E3;color:#9B2C2C}
+      #tabEvents .ev-info.warn{background:#FDEBCF;color:#9A6310}
+      #tabEvents .evchk{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer}
+      #tabEvents .evchk input{width:auto;margin:0}
     </style>
     <div class="panel-header">
       <h2>Events</h2>
@@ -2696,14 +2703,18 @@ function renderEvents(){
           <div style="font-size:12px;color:var(--text2);margin-top:2px;">${evEsc(meta)} · ${evEsc(ev.event_type)} · ${evEsc(dates)}${ev.attendance_est?(' · ~'+Number(ev.attendance_est).toLocaleString()+' ppl'):''}</div></div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <select class="evin" style="width:auto;margin:0;padding:6px 8px;" onchange="setEvStatus('${ev.id}',this.value)">${opts}</select>
+          <button class="btn-row btn-edit" onclick="toggleEvDetail('${ev.id}')">Details</button>
           <button class="btn-row btn-edit" onclick="showRoi('${ev.id}')">ROI</button>
           <button class="btn-row btn-del" onclick="softDeleteEvent('${ev.id}',&quot;${evEsc(ev.name).replace(/"/g,'')}&quot;)">Delete</button>
         </div>
       </div>
-      <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap;">
+      <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <span class="ev-stat"><span class="ev-num">${shifts.length}</span> shifts</span>
         <span class="ev-stat"><span class="ev-num">${staff}</span> staffed</span>
         <span class="ev-stat"><span class="ev-num">${leads}</span> leads</span>
+        <span class="ev-info ${evEsc(ev.info_status||'none')}">info: ${evEsc(ev.info_status||'none')}</span>
+        ${ev.application_deadline?('<span class="ev-info warn">apply by '+evFmtDate(ev.application_deadline)+'</span>'):''}
+        ${ev.vendor_fee_note?('<span class="ev-stat">fee: '+evEsc(ev.vendor_fee_note)+'</span>'):''}
       </div>
       <div id="roi_${ev.id}" style="display:none;font-size:12px;color:var(--text2);background:var(--bg);border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
       ${shiftRows}
@@ -2716,8 +2727,61 @@ function renderEvents(){
         </span>
         <button class="btn-row btn-edit" onclick="addShift('${ev.id}')">+ Add shift</button>
       </div>
+      ${evDetailPanel(ev)}
     </div>`;
   }).join('');
+}
+
+function evDetailPanel(ev){
+  const v=s=>evEsc(s==null?'':s); const id=ev.id;
+  const infoOpts=['none','partial','complete','unverified'].map(s=>'<option'+(s===(ev.info_status||'none')?' selected':'')+'>'+s+'</option>').join('');
+  return `<div id="det_${id}" style="display:none;border-top:1px dashed var(--border);margin-top:8px;padding-top:12px;">
+    <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;">Vendor &amp; booking detail</div>
+    <div class="form-grid">
+      <div><label class="evlbl">Contact name</label><input id="d_vname_${id}" class="evin" value="${v(ev.vendor_contact_name)}"></div>
+      <div><label class="evlbl">Contact email</label><input id="d_vemail_${id}" class="evin" value="${v(ev.vendor_email)}"></div>
+      <div><label class="evlbl">Contact phone</label><input id="d_vphone_${id}" class="evin" value="${v(ev.vendor_phone)}"></div>
+      <div><label class="evlbl">Application URL</label><input id="d_appurl_${id}" class="evin" value="${v(ev.application_url||ev.booking_url)}"></div>
+      <div><label class="evlbl">Application deadline</label><input id="d_deadline_${id}" type="date" class="evin" value="${v(ev.application_deadline)}"></div>
+      <div><label class="evlbl">Lead time note</label><input id="d_lead_${id}" class="evin" value="${v(ev.lead_time_note)}"></div>
+      <div><label class="evlbl">Booth fee (researched pricing)</label><input id="d_fee_${id}" class="evin" value="${v(ev.vendor_fee_note)}"></div>
+      <div><label class="evlbl">Booth size</label><input id="d_size_${id}" class="evin" value="${v(ev.booth_size)}"></div>
+      <div><label class="evlbl">Our committed cost ($)</label><input id="d_cost_${id}" type="number" step="0.01" class="evin" value="${ev.booth_cost==null?'':ev.booth_cost}"></div>
+      <div><label class="evlbl">Info status</label><select id="d_info_${id}" class="evin">${infoOpts}</select></div>
+    </div>
+    <div style="display:flex;gap:18px;flex-wrap:wrap;margin:2px 0 12px;">
+      <label class="evchk"><input type="checkbox" id="d_elec_${id}" ${ev.electricity?'checked':''}> Electricity available</label>
+      <label class="evchk"><input type="checkbox" id="d_coi_${id}" ${ev.coi_required?'checked':''}> COI / insurance required</label>
+      <label class="evchk"><input type="checkbox" id="d_paid_${id}" ${ev.fee_paid?'checked':''}> Fee paid</label>
+    </div>
+    <div class="form-grid">
+      <div><label class="evlbl">Applied on</label><input id="d_applied_${id}" type="date" class="evin" value="${v(ev.applied_on)}"></div>
+      <div><label class="evlbl">Confirmed on</label><input id="d_confirmed_${id}" type="date" class="evin" value="${v(ev.confirmed_on)}"></div>
+    </div>
+    <label class="evlbl">Contractor needs-to-know (setup/teardown times, tent &amp; canopy rules, parking, power, COI specifics)</label>
+    <textarea id="d_vnotes_${id}" class="evin" rows="2">${v(ev.vendor_notes)}</textarea>
+    <label class="evlbl">Internal notes (who owns it, follow-ups, assignment)</label>
+    <textarea id="d_inotes_${id}" class="evin" rows="2">${v(ev.internal_notes)}</textarea>
+    <div class="form-actions"><button class="btn-save" onclick="saveEvDetail('${id}')">Save detail</button>
+      <button class="btn-cancel" onclick="toggleEvDetail('${id}')">Close</button></div>
+  </div>`;
+}
+function toggleEvDetail(id){const d=document.getElementById('det_'+id);if(d)d.style.display=d.style.display==='none'?'block':'none';}
+async function saveEvDetail(id){
+  const val=k=>{const e=document.getElementById('d_'+k+'_'+id);return e?e.value.trim():'';};
+  const chk=k=>{const e=document.getElementById('d_'+k+'_'+id);return !!(e&&e.checked);};
+  const payload={
+    vendor_contact_name:val('vname')||null, vendor_email:val('vemail')||null, vendor_phone:val('vphone')||null,
+    application_url:val('appurl')||null, application_deadline:val('deadline')||null, lead_time_note:val('lead')||null,
+    vendor_fee_note:val('fee')||null, booth_size:val('size')||null,
+    booth_cost:val('cost')===''?null:Number(val('cost')),
+    info_status:val('info')||'none', electricity:chk('elec'), coi_required:chk('coi'), fee_paid:chk('paid'),
+    applied_on:val('applied')||null, confirmed_on:val('confirmed')||null,
+    vendor_notes:val('vnotes')||null, internal_notes:val('inotes')||null
+  };
+  const {error}=await sb.from('events').update(payload).eq('id',id);
+  if(error){alert('Could not save detail: '+error.message);return;}
+  loadEvents();
 }
 
 async function createEvent(){
