@@ -157,6 +157,7 @@ footer{padding:30px 0;text-align:center;color:var(--subtle);font-size:.82rem}
       <select id="fType" onchange="render()"><option value="">All types</option></select>
       <select id="fCounty" onchange="render()"><option value="">All areas</option></select>
       <select id="fMonth" onchange="render()"><option value="">Any month</option></select>
+      <select id="fSort" onchange="render()"><option value="soon">Soonest</option><option value="near">Near me</option></select>
       <button class="btn-clear" onclick="clearFilters()">Clear</button>
       <span class="fcount" id="fCount"></span>
     </div>
@@ -201,7 +202,12 @@ footer{padding:30px 0;text-align:center;color:var(--subtle);font-size:.82rem}
 
 <script>
 const sb = window.sb;
-let EVENTS=[], SHIFTS=[], STAFF=[], curTab='upcoming', leadEventId=null;
+let EVENTS=[], SHIFTS=[], STAFF=[], curTab='upcoming', leadEventId=null, MY_COUNTY=null;
+const CLUSTERS={
+  central:{label:'Central CT',counties:['Hartford','Tolland']},
+  southeast:{label:'Southeast CT',counties:['New London','Windham']},
+  southwest:{label:'Southwest & Coastal',counties:['Fairfield','New Haven','Litchfield','Middlesex']}
+};
 
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -217,6 +223,12 @@ async function loadAll(){
     sb.from('event_staffing').select('*')
   ]);
   EVENTS=ev.data||[];SHIFTS=sh.data||[];STAFF=st.data||[];
+  if(MY_COUNTY===null){
+    try{
+      const uid=window.AUTH_SESSION&&window.AUTH_SESSION.user&&window.AUTH_SESSION.user.id;
+      if(uid){const {data}=await sb.from('people').select('base_county').eq('auth_user_id',uid).maybeSingle();MY_COUNTY=(data&&data.base_county)||'';}
+    }catch(_){MY_COUNTY='';}
+  }
   populateFilters();
   render();
 }
@@ -231,21 +243,50 @@ function populateFilters(){
   const months=[...new Set(base.map(e=>monthKey(e.date_start)).filter(Boolean))].sort();
   const fT=document.getElementById('fType'),fC=document.getElementById('fCounty'),fM=document.getElementById('fMonth');
   fT.innerHTML='<option value="">All types</option>'+types.map(t=>`<option value="${t}">${esc(t.replace('_',' '))}</option>`).join('');
-  fC.innerHTML='<option value="">All areas</option>'+counties.map(c=>`<option value="${esc(c)}">${esc(c)} County</option>`).join('');
+  // Area select grouped by the three rep clusters: each cluster gets an
+  // "All <cluster>" rollup plus its individual counties (only those present).
+  let area='<option value="">All areas</option>';
+  for(const [key,cl] of Object.entries(CLUSTERS)){
+    const inCl=counties.filter(c=>cl.counties.includes(c));
+    if(!inCl.length) continue;
+    area+=`<optgroup label="${esc(cl.label)}">`+`<option value="c:${key}">All ${esc(cl.label)}</option>`
+       +inCl.map(c=>`<option value="${esc(c)}">${esc(c)} County</option>`).join('')+'</optgroup>';
+  }
+  // any county not mapped to a cluster (shouldn't happen for CT) lands in Other
+  const other=counties.filter(c=>!Object.values(CLUSTERS).some(cl=>cl.counties.includes(c)));
+  if(other.length) area+='<optgroup label="Other">'+other.map(c=>`<option value="${esc(c)}">${esc(c)} County</option>`).join('')+'</optgroup>';
+  fC.innerHTML=area;
   fM.innerHTML='<option value="">Any month</option>'+months.map(m=>`<option value="${m}">${esc(monthLabel(m))}</option>`).join('');
+  // hide the "Near me" sort if we don't know the rep's home county
+  const near=document.querySelector('#fSort option[value="near"]');
+  if(near) near.style.display = MY_COUNTY ? '' : 'none';
 }
 function filterEvents(list){
   const q=(document.getElementById('fSearch').value||'').toLowerCase().trim();
   const t=document.getElementById('fType').value, c=document.getElementById('fCounty').value, m=document.getElementById('fMonth').value;
   return list.filter(e=>{
     if(t&&e.event_type!==t)return false;
-    if(c&&e.county!==c)return false;
+    if(c){
+      if(c.slice(0,2)==='c:'){const cl=CLUSTERS[c.slice(2)];if(!cl||!cl.counties.includes(e.county))return false;}
+      else if(e.county!==c)return false;
+    }
     if(m&&monthKey(e.date_start)!==m)return false;
     if(q){const hay=((e.name||'')+' '+(e.town||'')+' '+(e.county||'')).toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
 }
-function clearFilters(){['fSearch','fType','fCounty','fMonth'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});render();}
+function sortEvents(list){
+  const mode=(document.getElementById('fSort')||{}).value;
+  const byDate=(a,b)=>((a.date_start||'9999')<(b.date_start||'9999')?-1:(a.date_start===b.date_start?0:1));
+  if(mode==='near'&&MY_COUNTY){
+    return list.slice().sort((a,b)=>{
+      const am=a.county===MY_COUNTY?0:1,bm=b.county===MY_COUNTY?0:1;
+      return am!==bm?am-bm:byDate(a,b);
+    });
+  }
+  return list.slice().sort(byDate);
+}
+function clearFilters(){['fSearch','fType','fCounty','fMonth'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const s=document.getElementById('fSort');if(s)s.value='soon';render();}
 
 function myShiftIds(){return new Set(STAFF.filter(s=>s.status==='signed_up'||s.status==='confirmed').map(s=>s.event_shift_id));}
 
@@ -288,7 +329,7 @@ function eventCard(ev,opts={}){
 function render(){
   if(curTab==='upcoming'){
     const base=bookableUpcoming();
-    const list=filterEvents(base);
+    const list=sortEvents(filterEvents(base));
     document.getElementById('fCount').textContent = base.length ? (list.length+' of '+base.length) : '';
     document.getElementById('upcomingView').innerHTML = !base.length
       ? `<div class="empty">No upcoming events posted yet.</div>`
