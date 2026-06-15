@@ -668,6 +668,15 @@
     <div class="section-body" id="schedBody"></div>
   </div>
 
+  <!-- TODAY: live daily activity pulled from the launcher Rep Activity feed -->
+  <div class="section" id="todaySection" style="display:none">
+    <div class="section-head">
+      <div class="section-title">Today</div>
+      <div class="section-pill" id="todayPill">--</div>
+    </div>
+    <div class="section-body" id="todayBody"></div>
+  </div>
+
   <!-- KEY METRICS + STACK-UP -->
   <div class="section">
     <div class="section-head">
@@ -880,6 +889,7 @@ async function initApp(profile, session) {
   // ── Fire all section loaders in parallel ──
   Promise.allSettled([
     loadAndRenderMySchedule(me),
+    loadAndRenderTodayActivity(me),
     loadAndRenderMetrics(me),
     loadAndRenderAddressables(me),
     loadGobacks(me),
@@ -965,6 +975,69 @@ async function loadAndRenderMySchedule(me){
     sec.style.display='block'; if(pill) pill.textContent='error';
     body.innerHTML = '<div class="empty">Could not load your schedule right now.</div>';
   }
+}
+
+// ── Today: live daily activity from the launcher Rep Activity feed ──
+// Self -> /api/me/activity (own slug, CT today). Manager view-as -> the existing
+// manager /api/activity/day?rep=&date=. Same payload either way. Silent if the
+// launcher is unreachable, so the rest of the profile still loads.
+function _actHHMM(m){ if(m==null) return ''; let h=Math.floor(m/60), mm=m%60; const ap=h>=12?'p':'a'; h=h%12||12; return h+':'+String(mm).padStart(2,'0')+ap; }
+function _actBadge(oc){ const s=(oc||'').toLowerCase();
+  if(s.includes('signed')) return 'green'; if(s.includes('no show')) return 'red';
+  if(s.includes('cancel')) return 'amber'; if(s.includes('sit')) return 'blue'; return ''; }
+async function loadAndRenderTodayActivity(me){
+  const sec=$('todaySection'); if(!sec||!me) return;
+  const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
+  if(!token){ sec.style.display='none'; return; }
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const url = IS_VIEW_AS
+      ? (LAUNCHER_BASE+'/api/activity/day?rep='+encodeURIComponent(me.spd_slug)+'&date='+today)
+      : (LAUNCHER_BASE+'/api/me/activity');
+    const res=await fetch(url,{headers:{Authorization:'Bearer '+token},mode:'cors'});
+    if(!res.ok){ sec.style.display='none'; return; }
+    const d=await res.json();
+    if(!d||d.error){ sec.style.display='none'; return; }
+    renderTodayActivity(d);
+  }catch(e){ sec.style.display='none'; }
+}
+function renderTodayActivity(d){
+  const sec=$('todaySection'), body=$('todayBody'), pill=$('todayPill');
+  sec.style.display='block';
+  const c=d.counts||{}, shift=d.shift||{};
+  pill.textContent=(d.weekday?d.weekday.slice(0,3):'')+' '+(d.date?d.date.slice(5):'');
+  const chip=(val,lab,col)=>'<span style="display:inline-flex;align-items:baseline;gap:4px;background:'+(col||'var(--bg)')+';border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:13px;font-weight:700;color:var(--text)">'+val+' <span style="font-size:11px;font-weight:600;color:var(--text2)">'+lab+'</span></span>';
+  let chips='<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px">';
+  chips+=chip(c.appts||0,'appts');
+  chips+=chip(c.sits||0,'sits',(c.sits?'var(--green-bg)':null));
+  chips+=chip(c.calls||0,'calls');
+  if(c.drive_min) chips+=chip(Math.round(c.drive_min),'drive min');
+  if((d.deletions||[]).length) chips+=chip(d.deletions.length,'pulled','var(--amber-bg)');
+  chips+='</div>';
+  const badge=(oc)=>{ const map={green:'var(--green-bg);color:var(--green-dk)',red:'var(--red-bg);color:var(--red)',amber:'var(--amber-bg);color:#9a6a00',blue:'var(--blue-bg);color:#1c6f96','':'var(--bg);color:var(--text2)'}; return 'background:'+map[_actBadge(oc)]; };
+  let rows='';
+  (d.appointments||[]).forEach(a=>{
+    rows+='<div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid var(--border)">'
+      +'<span style="flex:none;width:48px;font-size:12px;font-weight:700;color:var(--text2)">'+(_actHHMM(a.sched_min)||'--')+'</span>'
+      +'<span style="flex:1;min-width:0;font-size:13px"><b>'+esc(a.customer||'Appointment')+'</b>'+(a.town?'<span style="color:var(--text2)">  '+esc(a.town)+'</span>':'')+'</span>'
+      +(a.drive_min?'<span style="flex:none;font-size:11px;color:var(--text3)">'+Math.round(a.drive_min)+'m</span>':'')
+      +'<span style="flex:none;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px;'+badge(a.outcome)+'">'+esc(a.outcome||'scheduled')+'</span>'
+      +'</div>';
+  });
+  if(!rows) rows='<div class="empty">No appointments on the board today'+(shift.off?' (you are off).':' yet.')+'</div>';
+  let extra='';
+  const cc=(d.company_calls||[]);
+  if(cc.length){
+    extra+='<div style="margin-top:10px;font-size:12px;color:var(--text2);display:flex;flex-wrap:wrap;gap:12px">'+cc.map(x=>{
+      const dot=x.status==='attended'?'var(--green)':(x.status==='absent'?'var(--red)':'var(--text3)');
+      return '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+dot+';margin-right:5px;vertical-align:1px"></span>'+esc(x.label||'Company call')+'</span>';
+    }).join('')+'</div>';
+  }
+  if(d.last_location&&d.last_location.town){
+    extra+='<div style="margin-top:8px;font-size:12px;color:var(--text3)">Last seen near '+esc(d.last_location.town)+(d.last_location.min!=null?(' at '+_actHHMM(d.last_location.min)):'')+'</div>';
+  }
+  const shiftLabel=shift.off?'Off today':('On '+esc(shift.code||'shift'));
+  body.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--text)">'+shiftLabel+'</div>'+chips+'<div>'+rows+'</div>'+extra;
 }
 
 // Manager/admin rep picker: view any rep's full profile. RLS limits the list
