@@ -568,6 +568,7 @@
       <button class="page-tab"        onclick="switchTab('updates')">Updates</button>
       <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
       <button class="page-tab"        onclick="switchTab('users')">People</button>
+      <button class="page-tab"        onclick="switchTab('events')">Events</button>
       <button class="page-tab" id="commissionTabBtn" style="display:none" onclick="switchTab('commission')">Commission</button>
     </div>
   </div>
@@ -1229,6 +1230,70 @@
     </div>
   </div>
 
+  <!-- ── Events tab ─────────────────────────────── -->
+  <div id="tabEvents" class="admin-inner" style="display:none">
+    <style>
+      #tabEvents .evlbl{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;}
+      #tabEvents .evin{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;margin-bottom:14px;background:var(--card);color:var(--text);}
+      #tabEvents .ev-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;}
+      #tabEvents .ev-shift{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:13px;color:var(--text2);flex-wrap:wrap;}
+      #tabEvents .ev-stat{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:999px;background:var(--bg);color:var(--text2);}
+      #tabEvents .ev-num{font-weight:700;color:var(--text);}
+    </style>
+    <div class="panel-header">
+      <h2>Events</h2>
+      <button class="btn-add" onclick="toggleEvForm()">+ New event</button>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin:-6px 0 16px;line-height:1.6;">
+      Field-marketing events: fairs, expos, car shows, town festivals. Reps see <strong>approved / booked / active</strong> events on <a href="/events/" target="_blank" rel="noopener" style="color:var(--accent,#29A9E1);font-weight:600;">the Events page</a>, sign up for shifts, and capture leads at the table. Captured leads route to the rep's pipeline tagged to the event and roll up into ROI here. Seeded with the CT summer-2026 research list (status <em>prospect</em> &mdash; vet, then set Approved/Booked).
+    </p>
+
+    <div id="evForm" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px;">
+      <div class="form-grid">
+        <div><label class="evlbl">Name</label><input id="ev_name" class="evin" placeholder="Hebron Harvest Fair"></div>
+        <div><label class="evlbl">Type</label>
+          <select id="ev_type" class="evin">
+            <option value="fair">Fair</option><option value="festival">Festival</option>
+            <option value="car_show">Car show</option><option value="farmers_market">Farmers market</option>
+            <option value="expo">Expo</option><option value="town_event">Town event</option>
+            <option value="community">Community</option><option value="other">Other</option>
+          </select>
+        </div>
+        <div><label class="evlbl">Town</label><input id="ev_town" class="evin"></div>
+        <div><label class="evlbl">County</label><input id="ev_county" class="evin" placeholder="Hartford"></div>
+        <div><label class="evlbl">Status</label>
+          <select id="ev_status" class="evin">
+            <option value="prospect">Prospect</option><option value="approved">Approved</option>
+            <option value="booked">Booked</option><option value="active">Active</option>
+            <option value="done">Done</option><option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div><label class="evlbl">Attendance (est.)</label><input id="ev_att" class="evin" type="number"></div>
+        <div><label class="evlbl">Start date</label><input id="ev_start" class="evin" type="date"></div>
+        <div><label class="evlbl">End date</label><input id="ev_end" class="evin" type="date"></div>
+        <div><label class="evlbl">Booth cost ($)</label><input id="ev_cost" class="evin" type="number" step="0.01"></div>
+        <div><label class="evlbl">Vendor contact</label><input id="ev_vendor" class="evin"></div>
+        <div class="form-full"><label class="evlbl">Booking URL</label><input id="ev_url" class="evin"></div>
+        <div class="form-full"><label class="evlbl">Notes</label><textarea id="ev_notes" class="evin" rows="2"></textarea></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" onclick="createEvent()">Create event</button>
+        <button class="btn-cancel" onclick="toggleEvForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div id="evStatusMsg" style="background:#f4f6f1;border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text2);margin-bottom:18px;">Loading events&hellip;</div>
+    <div id="evList"></div>
+
+    <div style="margin-top:34px;border-top:1px solid var(--border);padding-top:24px;">
+      <div class="panel-header" style="margin-bottom:10px;">
+        <h2 style="font-size:17px;">Event Kits</h2>
+        <button class="btn-add" onclick="addKit()">+ Add kit</button>
+      </div>
+      <div id="kitList" style="font-size:13px;color:var(--text2);">Loading kits&hellip;</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- ── Bulk Upload Modal ──────────────────────── -->
@@ -1383,7 +1448,7 @@ window.initApp = function (profile, session) {
   initCommissionGate();
   // Honor ?tab=<name> deep-links (e.g. admin.html?tab=users from the Tools
   // card or a Rep Console redirect). Falls back to the Tools tab.
-  const TABS = ['resources', 'updates', 'feedback', 'tools', 'users', 'gridedge', 'commission'];
+  const TABS = ['resources', 'updates', 'feedback', 'tools', 'users', 'events', 'gridedge', 'commission'];
   const wantTab = new URLSearchParams(location.search).get('tab');
   switchTab(TABS.includes(wantTab) ? wantTab : 'tools');
 };
@@ -2486,15 +2551,20 @@ document.getElementById('bulkModal').addEventListener('click', e => {
 });
 
 function switchTab(tab) {
-  const order = ['tools', 'resources', 'updates', 'feedback', 'users'];
-  document.querySelectorAll('.page-tab').forEach((t, i) =>
-    t.classList.toggle('active', order[i] === tab));
+  // Highlight by the tab name inside each button's onclick -- robust to button
+  // count/order (the old index-based map silently mis-highlighted later tabs).
+  document.querySelectorAll('.page-tab').forEach(t => {
+    const m = (t.getAttribute('onclick') || '').match(/switchTab\('([^']+)'\)/);
+    t.classList.toggle('active', !!m && m[1] === tab);
+  });
   document.getElementById('tabResources').style.display = tab === 'resources' ? 'block' : 'none';
   document.getElementById('tabUpdates').style.display   = tab === 'updates'   ? 'block' : 'none';
   document.getElementById('tabFeedback').style.display  = tab === 'feedback'  ? 'block' : 'none';
   document.getElementById('tabTools').style.display     = tab === 'tools'     ? 'block' : 'none';
   document.getElementById('tabUsers').style.display     = tab === 'users'     ? 'block' : 'none';
   document.getElementById('tabGridEdge').style.display  = tab === 'gridedge'  ? 'block' : 'none';
+  const tabEv = document.getElementById('tabEvents');
+  if (tabEv) tabEv.style.display = tab === 'events' ? 'block' : 'none';
   const tabComm = document.getElementById('tabCommission');
   if (tabComm) tabComm.style.display = tab === 'commission' ? 'block' : 'none';
   if (tab === 'tools') loadFreshness();
@@ -2502,7 +2572,126 @@ function switchTab(tab) {
   if (tab === 'updates') loadUpdates();
   if (tab === 'feedback') loadFeedback();
   if (tab === 'gridedge') loadGridEdgeStatus();
+  if (tab === 'events') loadEvents();
   if (tab === 'commission') { loadCommission(); loadCommissionStates(); }
+}
+
+// ── Events (manager create/manage; reps self-serve on /events/) ──────────
+let EV_EVENTS = [], EV_SHIFTS = [], EV_STAFF = {}, EV_LEADS = {};
+function evEsc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function evVal(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function evNum(id){const v=evVal(id);return v===''?null:Number(v);}
+function evFmtDate(d){if(!d)return'';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function evFmtTime(ts){if(!ts)return'';return new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+function toggleEvForm(){const f=document.getElementById('evForm');f.style.display=f.style.display==='none'?'block':'none';}
+
+async function loadEvents(){
+  const msg=document.getElementById('evStatusMsg');
+  const [ev,sh,stf,lds,kits]=await Promise.all([
+    sb.from('events').select('*').eq('is_deleted',false).order('date_start',{ascending:true,nullsFirst:false}),
+    sb.from('event_shifts').select('*').order('work_date',{ascending:true}),
+    sb.from('event_staffing').select('event_shift_id,status'),
+    sb.from('community_leads').select('source_event_id').eq('source','event'),
+    sb.from('event_kits').select('*').order('name')
+  ]);
+  if(ev.error){msg.textContent='Could not load events: '+ev.error.message;return;}
+  EV_EVENTS=ev.data||[];EV_SHIFTS=sh.data||[];
+  const shiftEvent={};EV_SHIFTS.forEach(s=>shiftEvent[s.id]=s.event_id);
+  EV_STAFF={};(stf.data||[]).forEach(r=>{if(['signed_up','confirmed','attended'].includes(r.status)){const eid=shiftEvent[r.event_shift_id];if(eid)EV_STAFF[eid]=(EV_STAFF[eid]||0)+1;}});
+  EV_LEADS={};(lds.data||[]).forEach(r=>{if(r.source_event_id)EV_LEADS[r.source_event_id]=(EV_LEADS[r.source_event_id]||0)+1;});
+  msg.style.display='none';
+  renderEvents();renderKits(kits.data||[]);
+}
+
+function renderEvents(){
+  const el=document.getElementById('evList');
+  if(!EV_EVENTS.length){el.innerHTML='<p style="color:var(--text2);font-size:13px;">No events yet. Click <strong>+ New event</strong> to add one.</p>';return;}
+  const statuses=['prospect','approved','booked','active','done','cancelled'];
+  el.innerHTML=EV_EVENTS.map(ev=>{
+    const shifts=EV_SHIFTS.filter(s=>s.event_id===ev.id);
+    const staff=EV_STAFF[ev.id]||0, leads=EV_LEADS[ev.id]||0;
+    const opts=statuses.map(s=>`<option value="${s}"${s===ev.status?' selected':''}>${s}</option>`).join('');
+    const meta=[ev.town,ev.county&&ev.county+' County'].filter(Boolean).join(', ');
+    const dates=ev.date_start?(evFmtDate(ev.date_start)+(ev.date_end&&ev.date_end!==ev.date_start?(' – '+evFmtDate(ev.date_end)):'')):'Date TBD';
+    const shiftRows=shifts.map(s=>{
+      const t=evFmtTime(s.starts_at), te=evFmtTime(s.ends_at);
+      return `<div class="ev-shift"><span>${evFmtDate(s.work_date)}${t?(' · '+t+(te?'–'+te:'')):''} · target ${s.staffing_target}</span><button class="btn-row btn-del" onclick="delShift('${s.id}')">Remove</button></div>`;
+    }).join('');
+    return `<div class="ev-card">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+        <div><div style="font-size:15px;font-weight:700;color:var(--text);">${evEsc(ev.name)}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${evEsc(meta)} · ${evEsc(ev.event_type)} · ${evEsc(dates)}${ev.attendance_est?(' · ~'+Number(ev.attendance_est).toLocaleString()+' ppl'):''}</div></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select class="evin" style="width:auto;margin:0;padding:6px 8px;" onchange="setEvStatus('${ev.id}',this.value)">${opts}</select>
+          <button class="btn-row btn-edit" onclick="showRoi('${ev.id}')">ROI</button>
+          <button class="btn-row btn-del" onclick="softDeleteEvent('${ev.id}',&quot;${evEsc(ev.name).replace(/"/g,'')}&quot;)">Delete</button>
+        </div>
+      </div>
+      <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="ev-stat"><span class="ev-num">${shifts.length}</span> shifts</span>
+        <span class="ev-stat"><span class="ev-num">${staff}</span> staffed</span>
+        <span class="ev-stat"><span class="ev-num">${leads}</span> leads</span>
+      </div>
+      <div id="roi_${ev.id}" style="display:none;font-size:12px;color:var(--text2);background:var(--bg);border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
+      ${shiftRows}
+      <div class="ev-shift" style="border-top:1px dashed var(--border);">
+        <span style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+          <input type="date" id="sd_${ev.id}" class="evin" style="width:auto;margin:0;padding:5px 7px;">
+          <input type="time" id="st_${ev.id}" class="evin" style="width:auto;margin:0;padding:5px 7px;" title="start time">
+          <input type="time" id="se_${ev.id}" class="evin" style="width:auto;margin:0;padding:5px 7px;" title="end time">
+          <input type="number" id="sn_${ev.id}" class="evin" style="width:62px;margin:0;padding:5px 7px;" value="1" min="1" title="staffing target">
+        </span>
+        <button class="btn-row btn-edit" onclick="addShift('${ev.id}')">+ Add shift</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function createEvent(){
+  const name=evVal('ev_name');
+  if(!name){alert('Event name is required.');return;}
+  const payload={name,event_type:evVal('ev_type'),town:evVal('ev_town')||null,county:evVal('ev_county')||null,
+    status:evVal('ev_status'),date_start:evVal('ev_start')||null,date_end:evVal('ev_end')||null,
+    attendance_est:evNum('ev_att'),booth_cost:evNum('ev_cost'),vendor_contact:evVal('ev_vendor')||null,
+    booking_url:evVal('ev_url')||null,notes:evVal('ev_notes')||null};
+  const {error}=await sb.from('events').insert(payload);
+  if(error){alert('Could not create event: '+error.message);return;}
+  ['ev_name','ev_town','ev_county','ev_att','ev_start','ev_end','ev_cost','ev_vendor','ev_url','ev_notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  toggleEvForm();loadEvents();
+}
+async function setEvStatus(id,v){const {error}=await sb.from('events').update({status:v}).eq('id',id);if(error)alert('Status update failed: '+error.message);}
+async function softDeleteEvent(id,name){if(!confirm('Delete "'+name+'"? It will be hidden from reps (soft delete).'))return;const {error}=await sb.from('events').update({is_deleted:true}).eq('id',id);if(error){alert(error.message);return;}loadEvents();}
+async function addShift(eventId){
+  const d=evVal('sd_'+eventId);if(!d){alert('Pick a shift date.');return;}
+  const st=evVal('st_'+eventId), se=evVal('se_'+eventId);
+  const starts=st?new Date(d+'T'+st).toISOString():null;
+  const ends=se?new Date(d+'T'+se).toISOString():null;
+  const target=parseInt(evVal('sn_'+eventId)||'1',10)||1;
+  const {error}=await sb.from('event_shifts').insert({event_id:eventId,work_date:d,starts_at:starts,ends_at:ends,staffing_target:target});
+  if(error){alert('Could not add shift: '+error.message);return;}
+  loadEvents();
+}
+async function delShift(id){if(!confirm('Remove this shift?'))return;const {error}=await sb.from('event_shifts').delete().eq('id',id);if(error){alert(error.message);return;}loadEvents();}
+async function showRoi(id){
+  const box=document.getElementById('roi_'+id);
+  if(box.style.display==='block'){box.style.display='none';return;}
+  box.style.display='block';box.textContent='Loading ROI…';
+  const {data,error}=await sb.rpc('event_roi',{p_event_id:id});
+  if(error){box.textContent='ROI error: '+error.message;return;}
+  const r=data||{};
+  box.innerHTML=`Leads <b>${r.leads??0}</b> &middot; Appts set <b>${r.appts_set??0}</b> &middot; Sold <b>${r.sold??0}</b> &middot; Staff <b>${r.staff??0}</b> &middot; Booth $${r.booth_cost??0} &middot; Expenses $${r.expenses??0} &middot; <b>Total $${r.total_cost??0}</b> &middot; Cost/lead ${r.cost_per_lead!=null?('$'+r.cost_per_lead):'—'}`;
+}
+function renderKits(kits){
+  const el=document.getElementById('kitList');
+  if(!kits.length){el.innerHTML='No kits yet.';return;}
+  el.innerHTML='<div class="table-wrap">'+kits.map(k=>`<div style="display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);"><span><b style="color:var(--text);">${evEsc(k.name)}</b> <span class="ev-stat">${evEsc(k.status)}</span>${k.home_location?(' &middot; '+evEsc(k.home_location)):''}</span></div>`).join('')+'</div>';
+}
+async function addKit(){
+  const name=prompt('Kit name (e.g. CT Event Kit B):');if(!name||!name.trim())return;
+  const loc=prompt('Home location (office):');
+  const {error}=await sb.from('event_kits').insert({name:name.trim(),home_location:(loc&&loc.trim())||null});
+  if(error){alert(error.message);return;}
+  loadEvents();
 }
 
 // ── Grid Edge map data ─────────────────────────

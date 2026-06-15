@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events &middot; CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<style>
+:root{
+  --green:#78C832;--green-dk:#5FA520;--blue:#29A9E1;--blue-dk:#1E8BBC;--gold:#F5A623;
+  --pink:#C4457A;--teal:#0E9B8A;--orange:#E8863A;--ink:#0F2038;--ink-soft:#1A2942;
+  --text:#1A1F2E;--muted:#5B6576;--subtle:#8B94A3;--surface:#F7F8F4;--warm:#FAFBF7;
+  --white:#FFF;--line:#DFE2DA;--line-soft:#E8EBE3;--warn:#E9A648;--red:#C84545;
+  --r-sm:4px;--r-md:8px;--r-lg:14px;--shadow-sm:0 1px 2px rgba(15,32,56,.06);--shadow-md:0 4px 14px rgba(15,32,56,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Manrope',-apple-system,'Segoe UI',sans-serif;font-size:16px;line-height:1.6;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif;font-weight:500;letter-spacing:-.01em;color:var(--ink)}
+h1{font-size:clamp(1.8rem,3.5vw,2.6rem);font-variation-settings:"opsz" 144;line-height:1.1;font-weight:400}
+h2{font-size:1.4rem;font-weight:500;line-height:1.2;margin-bottom:6px}
+h3{font-size:1.1rem;font-weight:600;line-height:1.3}
+a{color:var(--blue-dk);text-decoration:none}
+.wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+.site-header{position:sticky;top:0;z-index:200}
+.page-header{background:var(--ink);color:#fff;padding:14px 0;border-bottom:3px solid var(--gold)}
+.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .logo{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:#fff}
+.brand .divider{width:1px;height:26px;background:rgba(255,255,255,.2)}
+.brand .team{font-family:'Fraunces',serif;font-size:.95rem;color:rgba(255,255,255,.7)}
+.hero{background:linear-gradient(135deg,var(--ink) 0%,var(--ink-soft) 100%);color:#fff;padding:26px 0 30px}
+.hero h1{color:#fff}.hero p{color:rgba(255,255,255,.78);max-width:640px;margin-top:6px;font-size:.98rem}
+.tabs{background:var(--white);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:150}
+.tabs .wrap{display:flex;gap:4px}
+.tabs button{background:none;border:none;padding:14px 18px;font-family:inherit;font-size:.92rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
+.tabs button.active{color:var(--ink);border-bottom-color:var(--green)}
+main{padding:24px 0 60px}
+.event-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);margin-bottom:16px;overflow:hidden}
+.event-card .head{padding:16px 18px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.event-card .meta{font-size:.86rem;color:var(--muted);margin-top:4px}
+.badge{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:999px;background:var(--line-soft);color:var(--ink-soft)}
+.badge.fair{background:#E8F3DA;color:#3F6B16}.badge.festival{background:#FDEBCF;color:#9A6310}
+.badge.car_show{background:#D9EFFA;color:#176187}.badge.farmers_market{background:#E0F2EE;color:#0B6155}
+.badge.community{background:#F6DCE8;color:#8C2F58}
+.statuspill{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:999px;background:#EEF1EA;color:var(--muted)}
+.statuspill.booked,.statuspill.active{background:#E8F3DA;color:#3F6B16}
+.event-card .body{padding:14px 18px}
+.shift-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+.shift-row:last-child{border-bottom:none}
+.shift-when{font-size:.9rem;font-weight:600;color:var(--ink)}
+.shift-sub{font-size:.8rem;color:var(--muted)}
+.btn{font-family:inherit;font-weight:600;font-size:.85rem;padding:8px 14px;border-radius:var(--r-md);border:1px solid var(--line);background:var(--white);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--subtle)}
+.btn-primary{background:var(--green);border-color:var(--green-dk);color:#173000}
+.btn-primary:hover{background:var(--green-dk);color:#fff}
+.btn-blue{background:var(--blue);border-color:var(--blue-dk);color:#04293a}
+.btn-blue:hover{background:var(--blue-dk);color:#fff}
+.btn-ghost{background:none;border-color:transparent;color:var(--red)}
+.btn-sm{padding:6px 10px;font-size:.8rem}
+.you{font-size:.78rem;font-weight:700;color:var(--green-dk);background:#E8F3DA;padding:3px 9px;border-radius:999px}
+.empty{text-align:center;color:var(--muted);padding:40px 0}
+.cardgrid-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(15,32,56,.55);display:none;align-items:center;justify-content:center;z-index:500;padding:18px}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:var(--r-lg);max-width:480px;width:100%;max-height:90vh;overflow:auto;box-shadow:var(--shadow-md)}
+.modal .mhead{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.modal .mbody{padding:18px 20px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--ink-soft);margin-bottom:4px}
+.field input,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:.92rem}
+.field .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.note{font-size:.8rem;color:var(--muted);background:var(--warm);border:1px solid var(--line-soft);border-radius:var(--r-md);padding:10px 12px;margin-bottom:14px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:var(--r-md);font-size:.88rem;font-weight:600;z-index:600;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+footer{padding:30px 0;text-align:center;color:var(--subtle);font-size:.82rem}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="/auth-gate.js"></script>
+<script src="/site-nav.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer">
+        <div class="logo">Trinity Solar</div>
+        <div class="divider"></div>
+        <div class="team">CT Traditional</div>
+      </a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>Events</h1>
+    <p>Where we meet homeowners face to face. Sign up for a shift, work the table, and set the appointment before they leave. Every lead you capture here is yours.</p>
+  </div>
+</section>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="active" data-tab="upcoming" onclick="setTab('upcoming')">Upcoming</button>
+    <button data-tab="mine" onclick="setTab('mine')">My Events</button>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+    <div id="upcomingView"><div class="empty">Loading events&hellip;</div></div>
+    <div id="mineView" style="display:none"></div>
+  </div>
+</main>
+
+<footer>CT Traditional &middot; Events &middot; <a href="https://ct-resource-page.com/">Back to Resources</a></footer>
+
+<!-- lead capture modal -->
+<div class="modal-bg" id="leadModal">
+  <div class="modal">
+    <div class="mhead">
+      <h3 id="leadModalTitle">Capture a lead</h3>
+      <button class="btn btn-sm btn-ghost" onclick="closeLead()">Close</button>
+    </div>
+    <div class="mbody">
+      <div class="note">Set the appointment <strong>at the table</strong>: named day and time, decision-makers confirmed, yes on the spot. Have them text you so your number is saved. This lead routes straight to your pipeline.</div>
+      <form onsubmit="event.preventDefault();submitLead()">
+        <div class="field row2">
+          <div><label>First name</label><input id="lf" required></div>
+          <div><label>Last name</label><input id="ll"></div>
+        </div>
+        <div class="field row2">
+          <div><label>Phone</label><input id="lp" inputmode="tel"></div>
+          <div><label>Email</label><input id="le" inputmode="email"></div>
+        </div>
+        <div class="field"><label>Street</label><input id="lstreet"></div>
+        <div class="field row2">
+          <div><label>Town</label><input id="ltown"></div>
+          <div><label>Appointment date</label><input id="ldate" type="date"></div>
+        </div>
+        <div class="field"><label>Notes (the motive, who you met, the time set)</label><textarea id="lnotes" rows="3"></textarea></div>
+        <button type="submit" class="btn btn-primary" id="leadBtn" style="width:100%">Save lead</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const sb = window.sb;
+let EVENTS=[], SHIFTS=[], STAFF=[], curTab='upcoming', leadEventId=null;
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function fmtDate(d){if(!d)return'';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function fmtRange(a,b){if(!a)return'Date TBD';if(!b||b===a)return fmtDate(a);return fmtDate(a)+' – '+fmtDate(b)+', '+new Date(b+'T00:00:00').getFullYear();}
+function fmtTime(ts){if(!ts)return null;return new Date(ts).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});}
+function todayStr(){return new Date().toISOString().slice(0,10);}
+
+async function loadAll(){
+  const [ev,sh,st]=await Promise.all([
+    sb.from('events').select('*').eq('is_deleted',false).order('date_start',{ascending:true,nullsFirst:false}),
+    sb.from('event_shifts').select('*').order('starts_at',{ascending:true,nullsFirst:true}),
+    sb.from('event_staffing').select('*')
+  ]);
+  EVENTS=ev.data||[];SHIFTS=sh.data||[];STAFF=st.data||[];
+  render();
+}
+
+function myShiftIds(){return new Set(STAFF.filter(s=>s.status==='signed_up'||s.status==='confirmed').map(s=>s.event_shift_id));}
+
+function eventCard(ev,opts={}){
+  const shifts=SHIFTS.filter(s=>s.event_id===ev.id);
+  const mine=myShiftIds();
+  let shiftHtml = shifts.length ? shifts.map(s=>{
+    const t=fmtTime(s.starts_at), te=fmtTime(s.ends_at);
+    const when = fmtDate(s.work_date)+(t?(' · '+t+(te?('–'+te):'')):'');
+    const signed=mine.has(s.id);
+    const filled=STAFF.filter(x=>x.event_shift_id===s.id&&(x.status==='signed_up'||x.status==='confirmed')).length;
+    return `<div class="shift-row">
+      <div><div class="shift-when">${esc(when)}</div><div class="shift-sub">${filled}/${s.staffing_target} staffed${s.notes?' · '+esc(s.notes):''}</div></div>
+      <div>${signed
+        ? `<span class="you">You’re on</span> <button class="btn btn-sm btn-ghost" onclick="signup('${s.id}','cancel')">Cancel</button>`
+        : `<button class="btn btn-sm btn-primary" onclick="signup('${s.id}','signup')">Sign up</button>`}</div>
+    </div>`;
+  }).join('') : `<div class="shift-sub" style="padding:6px 0">No shifts posted yet. Check back or ask your manager.</div>`;
+
+  return `<div class="event-card">
+    <div class="head">
+      <div>
+        <h3>${esc(ev.name)}</h3>
+        <div class="meta">${esc([ev.town,ev.county&&ev.county+' County'].filter(Boolean).join(', '))} &middot; ${esc(fmtRange(ev.date_start,ev.date_end))}${ev.attendance_est?(' &middot; ~'+Number(ev.attendance_est).toLocaleString()+' expected'):''}</div>
+      </div>
+      <div style="text-align:right">
+        <span class="badge ${esc(ev.event_type)}">${esc(ev.event_type.replace('_',' '))}</span>
+        <div style="margin-top:6px"><span class="statuspill ${esc(ev.status)}">${esc(ev.status)}</span></div>
+      </div>
+    </div>
+    <div class="body">
+      ${shiftHtml}
+      <div class="cardgrid-actions">
+        <button class="btn btn-blue btn-sm" onclick="openLead('${ev.id}','${esc(ev.name).replace(/'/g,"")}')">+ Capture a lead</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const today=todayStr();
+  if(curTab==='upcoming'){
+    const list=EVENTS.filter(e=>!e.date_end||e.date_end>=today||(!e.date_start)).filter(e=>['approved','booked','active'].includes(e.status));
+    document.getElementById('upcomingView').innerHTML = list.length
+      ? list.map(e=>eventCard(e)).join('')
+      : `<div class="empty">No upcoming events posted yet.</div>`;
+  }else{
+    const mineIds=myShiftIds();
+    const myEventIds=new Set(SHIFTS.filter(s=>mineIds.has(s.id)).map(s=>s.event_id));
+    const list=EVENTS.filter(e=>myEventIds.has(e.id));
+    document.getElementById('mineView').innerHTML = list.length
+      ? list.map(e=>eventCard(e)).join('')
+      : `<div class="empty">You haven’t signed up for any events yet. Check <strong>Upcoming</strong>.</div>`;
+  }
+}
+
+function setTab(t){
+  curTab=t;
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  document.getElementById('upcomingView').style.display = t==='upcoming'?'':'none';
+  document.getElementById('mineView').style.display = t==='mine'?'':'none';
+  render();
+}
+
+async function signup(shiftId,action){
+  const {error}=await sb.rpc('event_signup',{p_shift_id:shiftId,p_action:action});
+  if(error){toast(error.message||'Could not update');return;}
+  toast(action==='signup'?'You’re signed up':'Removed');
+  await loadAll();
+}
+
+function openLead(eventId,name){leadEventId=eventId;document.getElementById('leadModalTitle').textContent='Capture a lead — '+name;document.getElementById('leadModal').classList.add('open');}
+function closeLead(){document.getElementById('leadModal').classList.remove('open');['lf','ll','lp','le','lstreet','ltown','ldate','lnotes'].forEach(id=>document.getElementById(id).value='');}
+async function submitLead(){
+  const btn=document.getElementById('leadBtn');btn.disabled=true;
+  const payload={first_name:lf.value,last_name:ll.value,phone:lp.value,email:le.value,street:lstreet.value,town:ltown.value,date_first_appt:ldate.value,notes:lnotes.value};
+  const {error}=await sb.rpc('event_capture_lead',{p_event_id:leadEventId,p_payload:payload});
+  btn.disabled=false;
+  if(error){toast(error.message||'Could not save');return;}
+  toast('Lead saved to your pipeline');closeLead();
+}
+
+function initApp(profile,session){loadAll();}
+</script>
+
+</div><!-- /#appWrap -->
+</body>
+</html>

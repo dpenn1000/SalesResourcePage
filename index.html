@@ -772,6 +772,15 @@
     <span style="color:#1E8BBC;font-weight:700;font-size:12px;">Open &rarr;</span>
   </a>
 
+  <a id="eventsBridge" href="/events/" style="display:flex;align-items:center;gap:12px;padding:11px 18px;margin:0 auto 16px;max-width:1200px;background:linear-gradient(135deg,rgba(41,169,225,0.10),rgba(120,200,50,0.06));border:1px solid rgba(41,169,225,0.30);border-radius:8px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s,background 0.15s;"
+     onmouseover="this.style.borderColor='#1E8BBC';"
+     onmouseout="this.style.borderColor='rgba(41,169,225,0.30)';">
+    <span style="font-size:18px;line-height:1;">&#127914;</span>
+    <span style="font-weight:700;color:#1A2332;">Events</span>
+    <span id="eventsBridgeLatest" style="color:#5B6576;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Sign up for an event and work the table</span>
+    <span style="color:#1E8BBC;font-weight:700;font-size:12px;">Open &rarr;</span>
+  </a>
+
   <div id="trainingBanner" style="display:none" class="training-banner">
     <div class="training-banner-header">
       <div class="week-badge">Current Homework</div>
@@ -1421,6 +1430,28 @@ async function loadUpdatesBridge() {
   }
 }
 loadUpdatesBridge();
+
+// ── Events bridge: next bookable event ──
+async function loadEventsBridge() {
+  try {
+    const { data, error } = await sb
+      .from('events')
+      .select('name,town,date_start,date_end,status')
+      .eq('is_deleted', false)
+      .in('status', ['approved', 'booked', 'active'])
+      .order('date_start', { ascending: true, nullsFirst: false })
+      .limit(20);
+    if (error || !data || !data.length) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const upcoming = data.filter(e => !e.date_end || e.date_end >= today);
+    if (!upcoming.length) return;
+    const e = upcoming[0];
+    const d = e.date_start ? new Date(e.date_start + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+    document.getElementById('eventsBridgeLatest').textContent =
+      '· Next: ' + e.name + (e.town ? ' (' + e.town + ')' : '') + (d ? ' — ' + d : '');
+  } catch (e) { /* events table may not exist yet */ }
+}
+loadEventsBridge();
 </script>
 
 <script src="/feedback-widget.js" defer></script>

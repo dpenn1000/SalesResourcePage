@@ -1005,7 +1005,7 @@ async function loadCommunity(){
   const wrap=document.getElementById('commWrap');
   wrap.innerHTML='<div class="loading">Loading community leads...</div>';
   const [{data:leads,error:e1},{data:notes},{data:ppl}]=await Promise.all([
-    sb.from('community_leads').select('id,sf_lead_id,full_name,phone,email,town,state,stewardship_account,lead_owner,lead_status,bucket,call_status,feedback_reason,assigned_to,assignee_id,follow_up_date,dnc,sold,salesperson_notes'),
+    sb.from('community_leads').select('id,sf_lead_id,full_name,phone,email,town,state,stewardship_account,lead_owner,lead_status,bucket,call_status,feedback_reason,assigned_to,assignee_id,follow_up_date,dnc,sold,salesperson_notes').eq('source','community'),
     sb.from('community_lead_notes').select('community_lead_id,note,author,noted_at,kind').order('noted_at',{ascending:false}),
     sb.from('people').select('name,id').eq('status','active'),
   ]);
