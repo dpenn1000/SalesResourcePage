@@ -1430,28 +1430,101 @@ window.IS_ADMIN = false;
 
 // auth-gate.js owns the auth state machine (profile lookup, must-change-password
 // gate, screen switching, window.IS_ADMIN) and calls window.initApp once authed.
+// Set true the moment init has revealed a tab pane. The watchdog (below)
+// reads this to decide whether the post-login app actually rendered.
+window.__adminAppReady = false;
 window.initApp = function (profile, session) {
   sb = window.sb;  // refresh the client ref now that auth-gate has created it
-  document.getElementById('userLabel').textContent =
-    profile.name || (session.user && session.user.email) || '';
-  // Admin-only surfaces: the Admin / Maintenance tool row and the Grid Edge
-  // data tab. Both stay hidden for non-admin managers, who get the manager
-  // launchpad (Internal Tools + CT Tools) but not the server-write tools.
-  if (window.IS_ADMIN) {
-    const adminSec = document.getElementById('adminToolsSection');
-    if (adminSec) adminSec.style.display = '';
-  }
-  loadResources();
-  // Commission settings tab: visible to admins and VPs. The gate is the
-  // server-side is_admin_or_vp() (same rule the write policy enforces); this
-  // client check only decides whether to show the tab button.
-  initCommissionGate();
-  // Honor ?tab=<name> deep-links (e.g. admin.html?tab=users from the Tools
-  // card or a Rep Console redirect). Falls back to the Tools tab.
+  // Hardened so a hiccup can never strand the page on a bare "Loading..." with
+  // no Tools cards (intermittent admin-login hang). auth-gate reveals appWrap
+  // then calls us; the tab content only appears once switchTab() runs. So we
+  // pick the tab in a `finally` -- the panes reveal even if a data load throws
+  // -- swallow per-widget errors, and flag readiness for the watchdog.
   const TABS = ['resources', 'updates', 'feedback', 'tools', 'users', 'events', 'gridedge', 'commission'];
   const wantTab = new URLSearchParams(location.search).get('tab');
-  switchTab(TABS.includes(wantTab) ? wantTab : 'tools');
+  try {
+    try {
+      const ul = document.getElementById('userLabel');
+      if (ul) ul.textContent = profile.name || (session && session.user && session.user.email) || '';
+    } catch (e) {}
+    // Admin-only surfaces: the Admin / Maintenance tool row and the Grid Edge
+    // data tab. Both stay hidden for non-admin managers, who get the manager
+    // launchpad (Internal Tools + CT Tools) but not the server-write tools.
+    if (window.IS_ADMIN) {
+      const adminSec = document.getElementById('adminToolsSection');
+      if (adminSec) adminSec.style.display = '';
+    }
+    // These guard themselves internally, but never let one failing load abort
+    // the whole init (which is what used to leave the page on "Loading...").
+    try { loadResources(); } catch (e) { console.warn('[admin] loadResources failed:', e); }
+    // Commission settings tab: visible to admins and VPs. The gate is the
+    // server-side is_admin_or_vp() (same rule the write policy enforces); this
+    // client check only decides whether to show the tab button.
+    try { initCommissionGate(); } catch (e) { console.warn('[admin] initCommissionGate failed:', e); }
+  } catch (e) {
+    console.warn('[admin] initApp error (recovering):', e);
+  } finally {
+    // Honor ?tab=<name> deep-links (e.g. admin.html?tab=users from the Tools
+    // card or a Rep Console redirect). Falls back to the Tools tab. In a
+    // `finally` so the tab content ALWAYS reveals, even if something above threw.
+    try { switchTab(TABS.includes(wantTab) ? wantTab : 'tools'); }
+    catch (e) { console.warn('[admin] switchTab failed:', e); }
+    window.__adminAppReady = true;
+    try { sessionStorage.removeItem('admin_watchdog_reloaded'); } catch (e) {}
+  }
 };
+
+// ── Post-login watchdog ──────────────────────────────────────────────
+// Symptom (intermittent, admin login only): the page reveals appWrap but the
+// tab content never renders -- a bare "Loading..." with no Tools cards -- until
+// a manual refresh, which always fixes it instantly. Root cause is a first-load
+// timing race in the post-auth init (SDK/session warm-up). auth-gate reveals
+// appWrap then calls initApp; if init never completed, nothing recovers on its
+// own. This watchdog guarantees recovery: a few seconds after load, if there's
+// a live session but the app never finished initializing, it re-runs initApp
+// and -- only as a last resort, once per load -- does a single reload.
+(function adminWatchdog() {
+  function appLooksReady() {
+    if (window.__adminAppReady) return true;
+    const app = document.getElementById('appWrap');
+    if (!app || getComputedStyle(app).display === 'none') return false;
+    const tools = document.getElementById('tabTools');
+    return !!(tools && getComputedStyle(tools).display !== 'none');
+  }
+  async function check() {
+    if (appLooksReady()) return;
+    // A legitimate password-change screen is not a hang -- leave it alone.
+    const cpw = document.getElementById('changePasswordScreen');
+    if (cpw && getComputedStyle(cpw).display !== 'none') return;
+    // Only a HELD session with no app means we're stuck. No session => the
+    // login screen is correct; do nothing.
+    let session = window.AUTH_SESSION;
+    try {
+      if (!session && window.sb && window.sb.auth) {
+        const res = await window.sb.auth.getSession();
+        session = res && res.data && res.data.session;
+      }
+    } catch (e) {}
+    if (!session) return;
+    if (appLooksReady()) return;  // resolved while we were checking
+    // Recovery 1: re-run init from the profile/session we already hold.
+    if (typeof window.initApp === 'function' && window.AUTH_PROFILE) {
+      try { window.initApp(window.AUTH_PROFILE, session); } catch (e) {}
+      if (appLooksReady()) return;
+    }
+    // Recovery 2 (last resort, once per load): a single hard reload, guarded by
+    // sessionStorage so a persistent failure can never loop.
+    let already = false;
+    try { already = sessionStorage.getItem('admin_watchdog_reloaded') === '1'; } catch (e) {}
+    if (!already) {
+      try { sessionStorage.setItem('admin_watchdog_reloaded', '1'); } catch (e) {}
+      setTimeout(function () { if (!appLooksReady()) location.reload(); }, 1500);
+    }
+  }
+  function start() { setTimeout(check, 4000); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
 
 // ── Commission settings (admin or VP) ─────────────
 // Single source of truth lives in public.commission_settings. Read for any
