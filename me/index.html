@@ -1198,7 +1198,7 @@ async function buildSetupBanner(prof, overview){
   if (!prof.photo_url) items.push({ label: 'Add a photo', onclick: "document.getElementById('photoInput').click()" });
   if (!p.family && !p.hobbies && !p.self_reflection) items.push({ label: 'Family & goals', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
   if (!p.address) items.push({ label: 'Confirm your address', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
-  if (overview && !overview.disc) items.push({ label: 'Take your DISC', href: '/traditional-university/disc-assessment.html' });
+  if (overview && !overview.disc) items.push({ label: 'Take your DISC', href: '/university/disc-assessment.html' });
   if (!items.length){ banner.style.display = 'none'; return; }
   banner.style.display = 'flex';
   banner.innerHTML =
@@ -1469,7 +1469,7 @@ async function buildActionCenter(prof, overview, coaching, dealsInfo){
 
   // Profile completeness
   if (overview && !overview.disc) items.push({ pri:'med', text:'Take your DISC assessment',
-    cta:{ label:'Know Your Style', href:'/traditional-university/disc-assessment.html' } });
+    cta:{ label:'Know Your Style', href:'/university/disc-assessment.html' } });
   if (prof && !prof.photo_url) items.push({ pri:'low', text:'Add a profile photo',
     onclick: "document.getElementById('photoInput').click()" });
   const pers = (prof && prof.personal) || {};
@@ -1578,7 +1578,7 @@ function renderDisc(disc, style){
     $('discPill').className = 'section-pill ' + (style ? 'amber' : '');
     const cta = '<div class="empty" style="margin-top:' + (style ? '4px' : '0') + '">' +
       (style ? 'This read is inferred from your recent appointments. ' : 'You haven\'t taken your DISC assessment yet.<br>') +
-      '<a href="/traditional-university/disc-assessment.html" style="color:var(--blue);font-weight:700;text-decoration:none">Know Your Style &rarr;</a></div>';
+      '<a href="/university/disc-assessment.html" style="color:var(--blue);font-weight:700;text-decoration:none">Know Your Style &rarr;</a></div>';
     $('discBody').innerHTML = blurb + cta;
     return;
   }
@@ -1596,7 +1596,8 @@ function renderDisc(disc, style){
     '<div style="font-size:12px;color:var(--text2);margin-bottom:12px">Primary <b data-disc="' + esc(disc.primary_style) + '">' +
     esc(DISC_NAME[disc.primary_style] || disc.primary_style) + '</b>' +
     (disc.secondary_style ? ', secondary <b data-disc="' + esc(disc.secondary_style) + '">' + esc(DISC_NAME[disc.secondary_style] || disc.secondary_style) + '</b>' : '') +
-    ' &middot; taken ' + fmtDate(disc.taken_at) + '<span style="color:var(--text3)"> &middot; tap a letter to learn it</span></div>' + rows;
+    ' &middot; taken ' + fmtDate(disc.taken_at) + '<span style="color:var(--text3)"> &middot; tap a letter to learn it</span></div>' + rows +
+    '<div style="margin-top:12px"><a href="/university/disc-assessment.html" style="color:var(--blue);font-weight:700;text-decoration:none;font-size:13px">Retake your DISC &rarr;</a><span style="color:var(--text3);font-size:12px"> &middot; a fresh result is saved, your history is kept</span></div>';
 }
 
 function renderPersonal(prof){
