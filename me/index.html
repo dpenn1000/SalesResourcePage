@@ -985,15 +985,22 @@ function _actHHMM(m){ if(m==null) return ''; let h=Math.floor(m/60), mm=m%60; co
 function _actBadge(oc){ const s=(oc||'').toLowerCase();
   if(s.includes('signed')) return 'green'; if(s.includes('no show')) return 'red';
   if(s.includes('cancel')) return 'amber'; if(s.includes('sit')) return 'blue'; return ''; }
-// LOCAL calendar date (CT for our users) + N-day offset. NOT toISOString, which
-// is UTC and rolls to tomorrow after ~8pm Eastern.
-function _localISODate(off){ const n=new Date(); if(off) n.setDate(n.getDate()+off);
-  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
+// US-Eastern calendar date (+ N-day offset), computed explicitly so it is correct
+// no matter the device timezone. toISOString is UTC and rolls to tomorrow after
+// ~8pm Eastern, which is what made the card show the wrong day.
+function _easternISODate(off){
+  const now=new Date(), y=now.getUTCFullYear();
+  const nthSun=(m,n)=>{ const d=new Date(Date.UTC(y,m,1)); return 1+((7-d.getUTCDay())%7)+7*(n-1); };
+  const t=now.getTime();
+  const dstOn = t>=Date.UTC(y,2,nthSun(2,2),7) && t<Date.UTC(y,10,nthSun(10,1),6);
+  const e=new Date(t+(dstOn?-4:-5)*3600000+(off?off*86400000:0));
+  return e.getUTCFullYear()+'-'+String(e.getUTCMonth()+1).padStart(2,'0')+'-'+String(e.getUTCDate()).padStart(2,'0');
+}
 async function _fetchActivity(me, dateStr){
   const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token; if(!token) return null;
   // self: let the launcher pick CT "today" when no date; view-as needs an explicit date
   const url = IS_VIEW_AS
-    ? (LAUNCHER_BASE+'/api/activity/day?rep='+encodeURIComponent(me.spd_slug)+'&date='+(dateStr||_localISODate()))
+    ? (LAUNCHER_BASE+'/api/activity/day?rep='+encodeURIComponent(me.spd_slug)+'&date='+(dateStr||_easternISODate()))
     : (LAUNCHER_BASE+'/api/me/activity'+(dateStr?('?date='+dateStr):''));
   try{ const res=await fetch(url,{headers:{Authorization:'Bearer '+token},mode:'cors'});
     if(!res.ok) return null; const d=await res.json(); return (d&&!d.error)?d:null;
@@ -1007,7 +1014,7 @@ async function loadAndRenderTodayActivity(me){
   // On an off/empty day, fall back to the most recent day with appointments so the
   // card is useful (weekends, mornings before dispatch). Up to 5 days back.
   if((d.shift&&d.shift.off) && !((d.appointments||[]).length)){
-    for(let i=1;i<=5;i++){ const pd=await _fetchActivity(me, _localISODate(-i));
+    for(let i=1;i<=5;i++){ const pd=await _fetchActivity(me, _easternISODate(-i));
       if(pd && (pd.appointments||[]).length){ d=pd; isToday=false; break; } }
   }
   renderTodayActivity(d, isToday);
