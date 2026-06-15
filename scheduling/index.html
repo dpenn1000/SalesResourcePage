@@ -51,6 +51,12 @@
   .day .dlabel{font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; margin-bottom:5px;}
   .day select{width:100%; padding:6px 4px; border:1px solid var(--border); border-radius:6px; font-family:'Manrope'; font-size:13px; background:#fff; color:var(--ink);}
   .day select:disabled{background:#f4f5f2; color:var(--muted);}
+  .satz{display:flex; gap:3px; margin:0 0 6px;}
+  .satz .z{flex:1; border-radius:5px; padding:3px 1px 4px; text-align:center; border:1px solid transparent; line-height:1.1; cursor:default;}
+  .satz .z .zn{font-size:10px; font-weight:800; letter-spacing:.02em;}
+  .satz .z .zp{font-size:8.5px; font-weight:700; opacity:.92; margin-top:1px;}
+  .satz .z.zoff{opacity:.32;}
+  .satz .z.zna{background:#eef1ea; color:#9aa39a; border-color:#e2e6dd;}
   .day.off{background:#fafbf9;}
   .day.rate-help{border-left:4px solid var(--green); background:#f1f9e9;}
   .day.rate-sat{border-left:4px solid var(--amber); background:#fff7e8;}
@@ -314,6 +320,7 @@ function repWeekCardsHTML(entries, disabled, shiftStatus, cellPid){
   // chips/dropdowns use the statewide shiftStatus (team gauge, kept); the grid
   // CELLS color by this rep's local-area saturation when available.
   const cellStatus = repCellMap(cellPid) || shiftStatus;
+  S.myCellStatus = cellStatus;   // referenced by the live select handler to redraw zones
   let html='';
   if(shiftStatus){
     const chip=(s)=>{ const r=(shiftStatus[s]||{}).ratio; if(r==null) return '';
@@ -331,9 +338,10 @@ function repWeekCardsHTML(entries, disabled, shiftStatus, cellPid){
       const off = cur==='Off All-Day';
       const sunday = (d===DPW-1);  // Sunday: collected, not part of coverage
       let style='';
-      if(!sunday && !off){ const r=codeRatio(cur, cellStatus); if(r!=null) style=`style="border-left:4px solid ${ratioColor(r)};background:${ratioTint(r)}" title="${cellTitle(cur, r, cellPid)}"`; }
+      if(!sunday && !off){ const r=codeRatio(cur, cellStatus); if(r!=null) style=`style="border-left:4px solid ${ratioColor(r)}" title="${cellTitle(cur, r, cellPid)}"`; }
+      const zones = (!sunday && cellStatus) ? `<div class="satz">${satZonesInner(cur, cellStatus)}</div>` : '';
       html+=`<div class="day ${off?'off':''} ${sunday?'sunday':''}" ${style}><div class="dlabel">${DOWS[d].slice(0,3)} ${fmtMD(iso)}</div>
-        <select data-date="${iso}" ${disabled?'disabled':''}>${shiftOptions(cur, sunday?null:shiftStatus)}</select></div>`;
+        ${zones}<select data-date="${iso}" ${disabled?'disabled':''}>${shiftOptions(cur, sunday?null:shiftStatus)}</select></div>`;
     }
     html+=`</div></div>`;
   }
@@ -488,7 +496,8 @@ function renderMine(){
       day.classList.toggle('off', off);
       const [yy,mm,dd]=iso.split('-').map(Number); const isSun=new Date(yy,mm-1,dd).getDay()===0;
       day.style.borderLeft=''; day.style.background='';
-      if(!isSun && !off){ const r=codeRatio(code, S.shiftStatus); if(r!=null){ day.style.borderLeft='4px solid '+ratioColor(r); day.style.background=ratioTint(r); } }
+      if(!isSun && !off){ const r=codeRatio(code, S.shiftStatus); if(r!=null){ day.style.borderLeft='4px solid '+ratioColor(r); } }
+      const sz=day.querySelector('.satz'); if(sz && !isSun) sz.innerHTML=satZonesInner(code, S.myCellStatus);
       try{
         await sb.rpc('sched_save_entries',{p_period_id:S.period.id, p_entries:[{work_date:iso, shift_code:code}]});
         S.myEntries[iso]=code; toast('Saved');
@@ -583,6 +592,22 @@ function codeRatio(code, statusMap){
   const sh=SHIFT_OF_CODE[code]||[]; if(!sh.length) return null;
   let sum=0, n=0; sh.forEach(s=>{ const r=statusMap[s]&&statusMap[s].ratio; if(r!=null){ sum+=r; n++; } });
   return n ? sum/n : null;
+}
+// Per-shift saturation zones for one day card: three segments (S1/S2/S3), each
+// colored by its own coverage ratio. Shifts the chosen code covers show solid;
+// the rest fade back, so an open green shift the rep is skipping still reads.
+function satZonesInner(code, statusMap){
+  if(!statusMap) return '';
+  const on=SHIFT_OF_CODE[code]||[];
+  return ['S1','S2','S3'].map(s=>{
+    const st=statusMap[s], r=st&&st.ratio, active=on.includes(s);
+    const nm=SHIFT_META[s].name.replace('Shift ','S');
+    if(r==null) return `<div class="z zna" title="${SHIFT_META[s].name}: no demand baseline"><div class="zn">${nm}</div><div class="zp">--</div></div>`;
+    const col=ratioColor(r);
+    return `<div class="z${active?'':' zoff'}" style="background:${ratioTint(r)};color:${col};border-color:${col}55"
+      title="${SHIFT_META[s].name} ${SHIFT_META[s].time} &middot; ${ratioLabel(r)} &middot; ${Math.round(r*100)}% of target${active?' &middot; you are on this shift':' &middot; not on your day'}">
+      <div class="zn">${nm}</div><div class="zp">${Math.round(r*100)}%</div></div>`;
+  }).join('');
 }
 // Territory + Radius P3: per-rep geographic saturation. S.repCells[pid][shift] =
 // {ratio, worst_town, worst_ratio} from sched_rep_cell_saturation -- a rep's grid
