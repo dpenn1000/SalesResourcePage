@@ -1051,6 +1051,15 @@ function renderTodayActivity(d, isToday){
       return '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+dot+';margin-right:5px;vertical-align:1px"></span>'+esc(x.label||'Company call')+'</span>';
     }).join('')+'</div>';
   }
+  const evs=(d.event_shifts||[]), kitm=(d.kit_moves||[]);
+  if(evs.length||kitm.length){
+    const parts=evs.map(function(e){
+      const mk=e.status==='attended'?'✓ ':(e.status==='confirmed'?'● ':'');
+      return '<span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#29A9E1;margin-right:5px;vertical-align:1px"></span>'+mk+esc(e.title||'Event')+(e.town?(' '+esc(e.town)):'')+(e.start?(' '+esc(e.start)):'')+'</span>';
+    });
+    kitm.forEach(function(k){ parts.push('<span>'+(k.movement==='pickup'?'📦↑':'📦↓')+' '+esc(k.kit||'kit')+'</span>'); });
+    extra+='<div style="margin-top:10px;font-size:12px;color:var(--text2);display:flex;flex-wrap:wrap;gap:12px">'+parts.join('')+'</div>';
+  }
   if(d.last_location&&d.last_location.town){
     extra+='<div style="margin-top:8px;font-size:12px;color:var(--text3)">Last seen near '+esc(d.last_location.town)+(d.last_location.min!=null?(' at '+_actHHMM(d.last_location.min)):'')+'</div>';
   }
