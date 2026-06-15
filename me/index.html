@@ -985,27 +985,38 @@ function _actHHMM(m){ if(m==null) return ''; let h=Math.floor(m/60), mm=m%60; co
 function _actBadge(oc){ const s=(oc||'').toLowerCase();
   if(s.includes('signed')) return 'green'; if(s.includes('no show')) return 'red';
   if(s.includes('cancel')) return 'amber'; if(s.includes('sit')) return 'blue'; return ''; }
+// LOCAL calendar date (CT for our users) + N-day offset. NOT toISOString, which
+// is UTC and rolls to tomorrow after ~8pm Eastern.
+function _localISODate(off){ const n=new Date(); if(off) n.setDate(n.getDate()+off);
+  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0'); }
+async function _fetchActivity(me, dateStr){
+  const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token; if(!token) return null;
+  // self: let the launcher pick CT "today" when no date; view-as needs an explicit date
+  const url = IS_VIEW_AS
+    ? (LAUNCHER_BASE+'/api/activity/day?rep='+encodeURIComponent(me.spd_slug)+'&date='+(dateStr||_localISODate()))
+    : (LAUNCHER_BASE+'/api/me/activity'+(dateStr?('?date='+dateStr):''));
+  try{ const res=await fetch(url,{headers:{Authorization:'Bearer '+token},mode:'cors'});
+    if(!res.ok) return null; const d=await res.json(); return (d&&!d.error)?d:null;
+  }catch(e){ return null; }
+}
 async function loadAndRenderTodayActivity(me){
   const sec=$('todaySection'); if(!sec||!me) return;
-  const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
-  if(!token){ sec.style.display='none'; return; }
-  try{
-    const today=new Date().toISOString().slice(0,10);
-    const url = IS_VIEW_AS
-      ? (LAUNCHER_BASE+'/api/activity/day?rep='+encodeURIComponent(me.spd_slug)+'&date='+today)
-      : (LAUNCHER_BASE+'/api/me/activity');
-    const res=await fetch(url,{headers:{Authorization:'Bearer '+token},mode:'cors'});
-    if(!res.ok){ sec.style.display='none'; return; }
-    const d=await res.json();
-    if(!d||d.error){ sec.style.display='none'; return; }
-    renderTodayActivity(d);
-  }catch(e){ sec.style.display='none'; }
+  let d=await _fetchActivity(me, null);   // today
+  if(!d){ sec.style.display='none'; return; }
+  let isToday=true;
+  // On an off/empty day, fall back to the most recent day with appointments so the
+  // card is useful (weekends, mornings before dispatch). Up to 5 days back.
+  if((d.shift&&d.shift.off) && !((d.appointments||[]).length)){
+    for(let i=1;i<=5;i++){ const pd=await _fetchActivity(me, _localISODate(-i));
+      if(pd && (pd.appointments||[]).length){ d=pd; isToday=false; break; } }
+  }
+  renderTodayActivity(d, isToday);
 }
-function renderTodayActivity(d){
+function renderTodayActivity(d, isToday){
   const sec=$('todaySection'), body=$('todayBody'), pill=$('todayPill');
   sec.style.display='block';
   const c=d.counts||{}, shift=d.shift||{};
-  pill.textContent=(d.weekday?d.weekday.slice(0,3):'')+' '+(d.date?d.date.slice(5):'');
+  pill.textContent = isToday ? ((d.weekday?d.weekday.slice(0,3):'')+' '+(d.date?d.date.slice(5):'')) : 'latest';
   const chip=(val,lab,col)=>'<span style="display:inline-flex;align-items:baseline;gap:4px;background:'+(col||'var(--bg)')+';border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:13px;font-weight:700;color:var(--text)">'+val+' <span style="font-size:11px;font-weight:600;color:var(--text2)">'+lab+'</span></span>';
   let chips='<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px">';
   chips+=chip(c.appts||0,'appts');
@@ -1036,8 +1047,11 @@ function renderTodayActivity(d){
   if(d.last_location&&d.last_location.town){
     extra+='<div style="margin-top:8px;font-size:12px;color:var(--text3)">Last seen near '+esc(d.last_location.town)+(d.last_location.min!=null?(' at '+_actHHMM(d.last_location.min)):'')+'</div>';
   }
-  const shiftLabel=shift.off?'Off today':('On '+esc(shift.code||'shift'));
-  body.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--text)">'+shiftLabel+'</div>'+chips+'<div>'+rows+'</div>'+extra;
+  const md = d.date ? (function(p){return (+p[1])+'/'+(+p[2]);})(d.date.split('-')) : '';
+  const header = isToday
+    ? (shift.off ? 'Off today' : ('On '+esc(shift.code||'shift')))
+    : (esc(d.weekday||'')+' '+md+' <span style="font-weight:600;color:var(--text3)">&middot; most recent day with activity</span>');
+  body.innerHTML='<div style="font-size:13px;font-weight:700;color:var(--text)">'+header+'</div>'+chips+'<div>'+rows+'</div>'+extra;
 }
 
 // Manager/admin rep picker: view any rep's full profile. RLS limits the list
