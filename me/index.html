@@ -809,13 +809,16 @@
   .gb-no{color:var(--muted,#8a93a3)}
   .gb-na{color:var(--muted,#c3c9d2)}
   .sched-note{margin-top:10px;font-size:12px;color:var(--muted,#5b6472)}
-  .sched-legend{margin-top:12px;border-top:1px solid var(--line,#e2e6ec);padding-top:10px}
-  .sched-legend .sl-title{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted,#5b6472);font-weight:700;margin-bottom:6px}
-  .sched-legend .sl-title span{font-weight:500;text-transform:none;letter-spacing:0}
-  .sched-legend .sl-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;padding:4px 0;border-bottom:1px dashed var(--line,#eef1f5)}
-  .sched-legend .sl-row:last-child{border-bottom:none}
-  .sched-legend .sl-row b{color:var(--text,#1a2332);font-weight:700;flex:none}
-  .sched-legend .sl-row span{color:var(--muted,#5b6472);text-align:right}
+  .sched-grid td.cell-on[title]{cursor:help}
+  .sched-times{position:relative;cursor:help;font-weight:600;color:var(--text2,#3a4658);border-bottom:1px dotted var(--muted,#8a93a3);outline:none}
+  .sched-times-pop{display:none;position:absolute;right:0;bottom:calc(100% + 8px);z-index:30;width:240px;background:var(--card,#fff);border:1px solid var(--line,#e2e6ec);border-radius:10px;box-shadow:0 8px 24px rgba(16,24,40,.16);padding:10px 12px;cursor:default}
+  .sched-times:hover .sched-times-pop,.sched-times:focus .sched-times-pop,.sched-times:focus-within .sched-times-pop{display:block}
+  .sched-times-pop .sl-title{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted,#5b6472);font-weight:700;margin-bottom:6px}
+  .sched-times-pop .sl-title span{font-weight:500;text-transform:none;letter-spacing:0}
+  .sched-times-pop .sl-row{display:flex;justify-content:space-between;gap:12px;font-size:12px;padding:4px 0;border-bottom:1px dashed var(--line,#eef1f5)}
+  .sched-times-pop .sl-row:last-child{border-bottom:none}
+  .sched-times-pop .sl-row b{color:var(--text,#1a2332);font-weight:700;flex:none}
+  .sched-times-pop .sl-row span{color:var(--muted,#5b6472);text-align:right}
 </style>
 <script src="https://unpkg.com/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
@@ -914,7 +917,9 @@ async function initApp(profile, session) {
 // go-back eligibility. Works for self and manager view-as.
 function _schedAddDays(iso, n){ const d=new Date(iso+'T12:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
 function _schedMD(iso){ const p=iso.split('-'); return (+p[1])+'/'+(+p[2]); }
-// Shift windows (Mon-Fri / Saturday), shown as a legend under the schedule grid.
+// Shift windows (Mon-Fri / Saturday). Surfaced on HOVER only: a per-cell tooltip
+// on each scheduled shift, plus a "Shift times" popup in the note line for the
+// full reference. shift_code in the data is "All-Day" / "Shift 1" / "Shift 1&2".
 const SHIFT_TIMES = [
   ['All Day',   '10 AM - 8 PM', '9 AM - 4 PM'],
   ['Shift 1',   '10 AM - 2 PM', '9 AM - 1 PM'],
@@ -924,13 +929,22 @@ const SHIFT_TIMES = [
   ['Shift 2&3', '1 PM - 8 PM',  '1 PM - 4 PM'],
   ['Shift 1&3', '10 AM - 8 PM', '9 AM - 1 PM']
 ];
-function schedLegendHtml(){
-  return '<div class="sched-legend"><div class="sl-title">Shift times <span>(Mon-Fri &middot; Sat)</span></div>'
-    + SHIFT_TIMES.map(function(s){
-        return '<div class="sl-row"><b>' + esc(s[0]) + '</b><span>' + esc(s[1])
-          + (s[2] === 'none' ? ' &middot; Sat none' : ' &middot; Sat ' + esc(s[2])) + '</span></div>';
-      }).join('')
-    + '</div>';
+const SHIFT_CODE_LABEL = { 'All-Day': 'All Day' };   // map raw code -> SHIFT_TIMES label
+function _shiftSat(s){ return s[2] === 'none' ? 'Sat none' : 'Sat ' + s[2]; }
+// Native-title tooltip for one schedule cell, e.g. "Shift 1 · 10 AM - 2 PM · Sat 9 AM - 1 PM".
+function shiftCellTitle(code){
+  if (!code) return '';
+  const label = SHIFT_CODE_LABEL[code] || code;
+  const s = SHIFT_TIMES.find(function(t){ return t[0] === label; });
+  return s ? (s[0] + ' · ' + s[1] + ' · ' + _shiftSat(s)) : '';
+}
+// Hover/focus popup with the full shift-time reference, dropped into the note line.
+function schedTimesHover(){
+  const rows = SHIFT_TIMES.map(function(s){
+    return '<div class="sl-row"><b>' + esc(s[0]) + '</b><span>' + esc(s[1]) + ' &middot; ' + esc(_shiftSat(s)) + '</span></div>';
+  }).join('');
+  return '<span class="sched-times" tabindex="0">Shift times'
+    + '<span class="sched-times-pop"><div class="sl-title">Shift times <span>(Mon-Fri &middot; Sat)</span></div>' + rows + '</span></span>';
 }
 async function loadAndRenderMySchedule(me){
   const sec = $('schedSection'); if (!sec || !me || !me.id) return;
@@ -980,7 +994,8 @@ async function loadAndRenderMySchedule(me){
       for (let d=0; d<7; d++){
         const iso = _schedAddDays(per.start_date, w*7+d);
         const code = byDate[iso];
-        html += '<td class="'+(off(code)?'cell-off':'cell-on')+'">'+esc(short(code))+'</td>';
+        const tip = off(code) ? '' : shiftCellTitle(code);
+        html += '<td class="'+(off(code)?'cell-off':'cell-on')+'"'+(tip?' title="'+esc(tip)+'"':'')+'>'+esc(short(code))+'</td>';
       }
       const g = gbByWeek[wkIso];
       const hrs = g ? (g.available_hours||0) : '';
@@ -993,9 +1008,9 @@ async function loadAndRenderMySchedule(me){
     html += '</tbody></table></div>';
     html += '<div class="sched-note">Go-Back eligible at 35+ submitted hours'
       + (gb && gb.some(g=>g.is_override) ? ' (* manager exception)' : '') + '. '
-      + (per.status==='open' ? '<a href="/scheduling/">Edit in Scheduling &rarr;</a>' : 'This period is locked.')
+      + (per.status==='open' ? '<a href="/scheduling/">Edit in Scheduling &rarr;</a> ' : 'This period is locked. ')
+      + '&middot; ' + schedTimesHover()
       + '</div>';
-    html += schedLegendHtml();
     body.innerHTML = html;
   } catch (e){
     sec.style.display='block'; if(pill) pill.textContent='error';
