@@ -569,6 +569,7 @@
       <button class="page-tab"        onclick="switchTab('feedback')">Feedback <span id="feedbackBadge" class="page-tab-badge" style="display:none"></span></button>
       <button class="page-tab"        onclick="switchTab('users')">People</button>
       <button class="page-tab"        onclick="switchTab('events')">Events</button>
+      <button class="page-tab"        onclick="switchTab('partners')">Partners</button>
       <button class="page-tab" id="commissionTabBtn" style="display:none" onclick="switchTab('commission')">Commission</button>
     </div>
   </div>
@@ -1301,6 +1302,73 @@
     </div>
   </div>
 
+  <!-- ── Partners tab (Community partner-org prospects) ─────────── -->
+  <div id="tabPartners" class="admin-inner" style="display:none">
+    <style>
+      #tabPartners .palbl{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;}
+      #tabPartners .pain{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;margin-bottom:14px;background:var(--card);color:var(--text);}
+      #tabPartners .pa-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;}
+      #tabPartners .pa-pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--text2);text-transform:uppercase;letter-spacing:.03em;}
+      #tabPartners .pa-pill.central{background:#E8F3DA;color:#3F6B16;}
+      #tabPartners .pa-pill.southeast{background:#D9EFFA;color:#176187;}
+      #tabPartners .pa-pill.southwest{background:#F6DCE8;color:#8C2F58;}
+      #tabPartners .pa-filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+      #tabPartners .pa-filters select,#tabPartners .pa-filters input{padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;background:var(--card);color:var(--text);}
+      #tabPartners .pa-filters input{flex:1;min-width:160px;}
+      #tabPartners .pa-count{font-size:12px;font-weight:700;color:var(--text2);white-space:nowrap;}
+    </style>
+    <div class="panel-header">
+      <h2>Community Partners</h2>
+      <button class="btn-add" onclick="togglePaForm()">+ Add organization</button>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin:-6px 0 16px;line-height:1.6;">
+      Candidate partner organizations for Lori's <a href="/sales-fundamentals/community-partners/community-outreach.html" target="_blank" rel="noopener" style="color:var(--accent,#29A9E1);font-weight:600;">Community Outreach</a> program, sourced by area and assigned to rep working-group clusters (Central / Southeast / Southwest). Work a prospect to <em>contacted</em>, then <em>meeting set</em>, then <em>partner</em>. When an org signs on, its members become Community leads in the Stewardship pipeline.
+    </p>
+
+    <div id="paForm" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px;">
+      <div class="form-grid">
+        <div><label class="palbl">Organization name</label><input id="pa_name" class="pain"></div>
+        <div><label class="palbl">Type</label>
+          <select id="pa_type" class="pain">
+            <option value="faith">Faith-based</option><option value="youth_sports">Youth sports</option>
+            <option value="scouting">Scouting</option><option value="school_pta">School / PTA</option>
+            <option value="nonprofit">Nonprofit</option><option value="environmental">Environmental</option>
+            <option value="animal_rescue">Animal rescue</option><option value="charity_walk">Charity walk / run</option>
+            <option value="festival">Festival</option><option value="first_responder">First responder</option>
+            <option value="civic">Civic club</option><option value="veterans">Veterans</option>
+            <option value="senior">Senior</option><option value="hoa">HOA</option><option value="other">Other</option>
+          </select>
+        </div>
+        <div><label class="palbl">Town</label><input id="pa_town" class="pain"></div>
+        <div><label class="palbl">County</label><input id="pa_county" class="pain"></div>
+        <div><label class="palbl">Cluster</label>
+          <select id="pa_cluster" class="pain"><option value="">(auto by county)</option><option value="central">Central</option><option value="southeast">Southeast</option><option value="southwest">Southwest</option></select>
+        </div>
+        <div><label class="palbl">Website</label><input id="pa_website" class="pain"></div>
+        <div><label class="palbl">Contact name</label><input id="pa_cname" class="pain"></div>
+        <div><label class="palbl">Contact email</label><input id="pa_cemail" class="pain"></div>
+        <div><label class="palbl">Contact phone</label><input id="pa_cphone" class="pain"></div>
+        <div><label class="palbl">Members (est.)</label><input id="pa_members" class="pain" type="number"></div>
+        <div class="form-full"><label class="palbl">Notes</label><textarea id="pa_notes" class="pain" rows="2"></textarea></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-save" onclick="createPartner()">Add organization</button>
+        <button class="btn-cancel" onclick="togglePaForm()">Cancel</button>
+      </div>
+    </div>
+
+    <div class="pa-filters">
+      <select id="pa_fCluster" onchange="renderPartners()"><option value="">All clusters</option><option value="central">Central</option><option value="southeast">Southeast</option><option value="southwest">Southwest</option></select>
+      <select id="pa_fType" onchange="renderPartners()"><option value="">All types</option></select>
+      <select id="pa_fStatus" onchange="renderPartners()"><option value="">All statuses</option><option value="prospect">Prospect</option><option value="contacted">Contacted</option><option value="meeting_set">Meeting set</option><option value="partner">Partner</option><option value="declined">Declined</option><option value="inactive">Inactive</option></select>
+      <input id="pa_fSearch" type="search" placeholder="Search name, town&hellip;" oninput="renderPartners()" autocomplete="off">
+      <span class="pa-count" id="pa_count"></span>
+    </div>
+
+    <div id="paStatusMsg" style="background:#f4f6f1;border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--text2);margin-bottom:18px;">Loading partners&hellip;</div>
+    <div id="paList"></div>
+  </div>
+
 </div>
 
 <!-- ── Bulk Upload Modal ──────────────────────── -->
@@ -1447,7 +1515,7 @@ window.initApp = function (profile, session) {
   // then calls us; the tab content only appears once switchTab() runs. So we
   // pick the tab in a `finally` -- the panes reveal even if a data load throws
   // -- swallow per-widget errors, and flag readiness for the watchdog.
-  const TABS = ['resources', 'updates', 'feedback', 'tools', 'users', 'events', 'gridedge', 'commission'];
+  const TABS = ['resources', 'updates', 'feedback', 'tools', 'users', 'events', 'partners', 'gridedge', 'commission'];
   const wantTab = new URLSearchParams(location.search).get('tab');
   try {
     try {
@@ -2645,6 +2713,8 @@ function switchTab(tab) {
   document.getElementById('tabGridEdge').style.display  = tab === 'gridedge'  ? 'block' : 'none';
   const tabEv = document.getElementById('tabEvents');
   if (tabEv) tabEv.style.display = tab === 'events' ? 'block' : 'none';
+  const tabPa = document.getElementById('tabPartners');
+  if (tabPa) tabPa.style.display = tab === 'partners' ? 'block' : 'none';
   const tabComm = document.getElementById('tabCommission');
   if (tabComm) tabComm.style.display = tab === 'commission' ? 'block' : 'none';
   if (tab === 'tools') loadFreshness();
@@ -2653,6 +2723,7 @@ function switchTab(tab) {
   if (tab === 'feedback') loadFeedback();
   if (tab === 'gridedge') loadGridEdgeStatus();
   if (tab === 'events') loadEvents();
+  if (tab === 'partners') loadPartners();
   if (tab === 'commission') { loadCommission(); loadCommissionStates(); }
 }
 
@@ -2829,6 +2900,99 @@ async function addKit(){
   const {error}=await sb.from('event_kits').insert({name:name.trim(),home_location:(loc&&loc.trim())||null});
   if(error){alert(error.message);return;}
   loadEvents();
+}
+
+// ── Community Partners (org prospects assigned to rep clusters) ───────────
+let PARTNERS=[];
+const PA_CLUSTER_BY_COUNTY={Hartford:'central',Tolland:'central',
+  'New London':'southeast',Windham:'southeast',
+  Fairfield:'southwest','New Haven':'southwest',Litchfield:'southwest',Middlesex:'southwest'};
+const PA_TYPE_LABEL={faith:'Faith-based',youth_sports:'Youth sports',scouting:'Scouting',school_pta:'School / PTA',
+  nonprofit:'Nonprofit',environmental:'Environmental',animal_rescue:'Animal rescue',charity_walk:'Charity walk / run',
+  festival:'Festival',first_responder:'First responder',civic:'Civic club',veterans:'Veterans',senior:'Senior',hoa:'HOA',other:'Other'};
+function paEsc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function paVal(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function togglePaForm(){const f=document.getElementById('paForm');f.style.display=f.style.display==='none'?'block':'none';}
+function paClusterFor(county){return PA_CLUSTER_BY_COUNTY[county]||'other';}
+
+async function loadPartners(){
+  const msg=document.getElementById('paStatusMsg');
+  const {data,error}=await sb.from('community_partners').select('*').eq('is_deleted',false).order('cluster').order('name');
+  if(error){msg.textContent='Could not load partners: '+error.message;return;}
+  PARTNERS=data||[];
+  const fT=document.getElementById('pa_fType');
+  const types=[...new Set(PARTNERS.map(p=>p.org_type))].sort();
+  fT.innerHTML='<option value="">All types</option>'+types.map(t=>`<option value="${t}">${paEsc(PA_TYPE_LABEL[t]||t)}</option>`).join('');
+  msg.style.display='none';
+  renderPartners();
+}
+
+function renderPartners(){
+  const el=document.getElementById('paList');
+  const fc=document.getElementById('pa_fCluster').value, ft=document.getElementById('pa_fType').value,
+        fs=document.getElementById('pa_fStatus').value, fq=(document.getElementById('pa_fSearch').value||'').toLowerCase().trim();
+  let list=PARTNERS.filter(p=>{
+    if(fc&&p.cluster!==fc)return false;
+    if(ft&&p.org_type!==ft)return false;
+    if(fs&&p.status!==fs)return false;
+    if(fq){const hay=((p.name||'')+' '+(p.town||'')+' '+(p.county||'')).toLowerCase();if(!hay.includes(fq))return false;}
+    return true;
+  });
+  document.getElementById('pa_count').textContent=list.length+' of '+PARTNERS.length;
+  if(!PARTNERS.length){el.innerHTML='<p style="color:var(--text2);font-size:13px;">No partner organizations yet. Click <strong>+ Add organization</strong> or run the research sweep.</p>';return;}
+  if(!list.length){el.innerHTML='<p style="color:var(--text2);font-size:13px;">No organizations match your filters.</p>';return;}
+  const statuses=['prospect','contacted','meeting_set','partner','declined','inactive'];
+  const clusters=['central','southeast','southwest','other'];
+  el.innerHTML=list.map(p=>{
+    const sOpts=statuses.map(s=>`<option value="${s}"${s===p.status?' selected':''}>${s.replace('_',' ')}</option>`).join('');
+    const cOpts=clusters.map(c=>`<option value="${c}"${c===p.cluster?' selected':''}>${c}</option>`).join('');
+    const meta=[p.town,p.county&&p.county+' County'].filter(Boolean).join(', ');
+    const contact=[p.contact_name,p.contact_phone,p.contact_email].filter(Boolean).join(' · ');
+    return `<div class="pa-card">
+      <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);">${paEsc(p.name)}${p.website?` <a href="${p.website.startsWith('http')?'':'https://'}${paEsc(p.website)}" target="_blank" rel="noopener" style="font-weight:500;font-size:12px;color:var(--accent,#29A9E1);">site &nearr;</a>`:''}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${paEsc(PA_TYPE_LABEL[p.org_type]||p.org_type)} &middot; ${paEsc(meta||'location TBD')}${p.members_est?(' &middot; ~'+Number(p.members_est).toLocaleString()+' members'):''}</div>
+          ${contact?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${paEsc(contact)}</div>`:''}
+          ${p.notes?`<div style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5;">${paEsc(p.notes)}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+          <span class="pa-pill ${paEsc(p.cluster||'other')}">${paEsc(p.cluster||'unassigned')}</span>
+          <select class="pain" style="width:auto;margin:0;padding:6px 8px;" title="Assign cluster" onchange="setPartnerField('${p.id}','cluster',this.value)">${cOpts}</select>
+          <select class="pain" style="width:auto;margin:0;padding:6px 8px;" title="Status" onchange="setPartnerField('${p.id}','status',this.value)">${sOpts}</select>
+          <button class="btn-row btn-del" onclick="delPartner('${p.id}',&quot;${paEsc(p.name).replace(/"/g,'')}&quot;)">Delete</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function createPartner(){
+  const name=paVal('pa_name');
+  if(!name){alert('Organization name is required.');return;}
+  const county=paVal('pa_county')||null;
+  const cluster=paVal('pa_cluster')||(county?paClusterFor(county):'other');
+  const payload={name,org_type:paVal('pa_type'),town:paVal('pa_town')||null,county,cluster,
+    website:paVal('pa_website')||null,contact_name:paVal('pa_cname')||null,contact_email:paVal('pa_cemail')||null,
+    contact_phone:paVal('pa_cphone')||null,members_est:paVal('pa_members')===''?null:Number(paVal('pa_members')),
+    notes:paVal('pa_notes')||null,source:'manual'};
+  const {error}=await sb.from('community_partners').insert(payload);
+  if(error){alert('Could not add: '+error.message);return;}
+  ['pa_name','pa_town','pa_county','pa_website','pa_cname','pa_cemail','pa_cphone','pa_members','pa_notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  togglePaForm();loadPartners();
+}
+async function setPartnerField(id,field,value){
+  const patch={};patch[field]=value;
+  const {error}=await sb.from('community_partners').update(patch).eq('id',id);
+  if(error){alert('Update failed: '+error.message);return;}
+  const p=PARTNERS.find(x=>x.id===id);if(p)p[field]=value;
+  if(field==='cluster')renderPartners();
+}
+async function delPartner(id,name){
+  if(!confirm('Remove "'+name+'"? It will be hidden (soft delete).'))return;
+  const {error}=await sb.from('community_partners').update({is_deleted:true}).eq('id',id);
+  if(error){alert(error.message);return;}
+  loadPartners();
 }
 
 // ── Grid Edge map data ─────────────────────────
