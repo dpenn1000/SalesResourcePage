@@ -154,7 +154,7 @@ async function loadAll(){
     sb.from('community_partners').select('*').eq('is_deleted',false).order('name'),
     sb.from('community_partner_calls').select('id,partner_id,person_id,method,outcome,notes,follow_up_date,contacted_at').order('contacted_at',{ascending:false})
   ]);
-  PARTNERS=p.data||[]; CALLS={};
+  PARTNERS=(p.data||[]).filter(x=>!x.dnc); CALLS={};
   (c.data||[]).forEach(r=>{(CALLS[r.partner_id]=CALLS[r.partner_id]||[]).push(r);});
   try{ const ppl=await sb.from('people').select('id,name'); (ppl.data||[]).forEach(x=>NAMES[x.id]=x.name); }catch(e){}
   render();

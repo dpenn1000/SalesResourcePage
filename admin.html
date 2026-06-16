@@ -3010,12 +3010,14 @@ function renderPartners(){
     const wgOpts='<option value="">no team</option>'+WGROUPS.map(g=>`<option value="${g.id}"${g.id===p.working_group_id?' selected':''}>${paEsc(g.name)}</option>`).join('');
     const meta=[p.town,p.county&&p.county+' County'].filter(Boolean).join(', ');
     const contact=[p.contact_name,p.contact_phone,p.contact_email].filter(Boolean).join(' · ');
-    return `<div class="pa-card">
+    const owner=p.assigned_to?((REPS.find(r=>r.id===p.assigned_to)||{}).name||'rep'):null;
+    return `<div class="pa-card"${p.dnc?' style="opacity:.7;"':''}>
       <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;">
         <div>
-          <div style="font-size:14px;font-weight:700;color:var(--text);">${paEsc(p.name)}${p.website?` <a href="${p.website.startsWith('http')?'':'https://'}${paEsc(p.website)}" target="_blank" rel="noopener" style="font-weight:500;font-size:12px;color:var(--accent,#29A9E1);">site &nearr;</a>`:''}</div>
-          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${paEsc(PA_TYPE_LABEL[p.org_type]||p.org_type)} &middot; ${paEsc(meta||'location TBD')}${p.members_est?(' &middot; ~'+Number(p.members_est).toLocaleString()+' members'):''}</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);">${paEsc(p.name)}${p.dnc?' <span class="pa-pill" style="background:#FBE3E3;color:#9B2C2C;">Do not contact</span>':''}${p.website?` <a href="${p.website.startsWith('http')?'':'https://'}${paEsc(p.website)}" target="_blank" rel="noopener" style="font-weight:500;font-size:12px;color:var(--accent,#29A9E1);">site &nearr;</a>`:''}</div>
+          <div style="font-size:12px;color:var(--text2);margin-top:2px;">${paEsc(PA_TYPE_LABEL[p.org_type]||p.org_type)} &middot; ${paEsc(meta||'location TBD')}${p.members_est?(' &middot; ~'+Number(p.members_est).toLocaleString()+' members'):''}${owner?(' &middot; Owner: <b style="color:var(--text);">'+paEsc(owner)+'</b>'):''}</div>
           ${contact?`<div style="font-size:12px;color:var(--text2);margin-top:3px;">${paEsc(contact)}</div>`:''}
+          ${p.decision_maker?`<div style="font-size:12px;color:var(--text2);margin-top:3px;"><b>Decision-maker:</b> ${paEsc(p.decision_maker)}</div>`:''}
           ${p.notes?`<div style="font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5;">${paEsc(p.notes)}</div>`:''}
         </div>
         <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
@@ -3023,11 +3025,50 @@ function renderPartners(){
           <select class="pain" style="width:auto;margin:0;padding:6px 8px;" title="Assign cluster" onchange="setPartnerField('${p.id}','cluster',this.value)">${cOpts}</select>
           <select class="pain" style="width:auto;margin:0;padding:6px 8px;" title="Status" onchange="setPartnerField('${p.id}','status',this.value)">${sOpts}</select>
           <select class="pain" style="width:auto;margin:0;padding:6px 8px;" title="Dispatch to team" onchange="setPartnerField('${p.id}','working_group_id',this.value)">${wgOpts}</select>
+          <button class="btn-row btn-edit" onclick="togglePaDetail('${p.id}')">Edit</button>
           <button class="btn-row btn-del" onclick="delPartner('${p.id}',&quot;${paEsc(p.name).replace(/"/g,'')}&quot;)">Delete</button>
         </div>
       </div>
+      ${paDetailPanel(p)}
     </div>`;
   }).join('');
+}
+function paRepOpts(sel){return '<option value="">Unassigned</option>'+REPS.map(r=>`<option value="${r.id}"${r.id===sel?' selected':''}>${paEsc(r.name)}</option>`).join('');}
+function paTypeOpts(sel){return Object.keys(PA_TYPE_LABEL).map(t=>`<option value="${t}"${t===sel?' selected':''}>${paEsc(PA_TYPE_LABEL[t])}</option>`).join('');}
+function paDetailPanel(p){
+  const v=s=>paEsc(s==null?'':s); const id=p.id;
+  return `<div id="det_${id}" style="display:none;border-top:1px dashed var(--border);margin-top:10px;padding-top:12px;">
+    <div class="form-grid">
+      <div><label class="palbl">Name</label><input id="d_name_${id}" class="pain" value="${v(p.name)}"></div>
+      <div><label class="palbl">Type</label><select id="d_type_${id}" class="pain">${paTypeOpts(p.org_type)}</select></div>
+      <div><label class="palbl">Owner (rep)</label><select id="d_owner_${id}" class="pain">${paRepOpts(p.assigned_to)}</select></div>
+      <div><label class="palbl">Town</label><input id="d_town_${id}" class="pain" value="${v(p.town)}"></div>
+      <div><label class="palbl">County</label><input id="d_county_${id}" class="pain" value="${v(p.county)}"></div>
+      <div><label class="palbl">Website</label><input id="d_web_${id}" class="pain" value="${v(p.website)}"></div>
+      <div><label class="palbl">Contact name</label><input id="d_cn_${id}" class="pain" value="${v(p.contact_name)}"></div>
+      <div><label class="palbl">Contact phone</label><input id="d_cp_${id}" class="pain" value="${v(p.contact_phone)}"></div>
+      <div><label class="palbl">Contact email</label><input id="d_ce_${id}" class="pain" value="${v(p.contact_email)}"></div>
+      <div><label class="palbl">Decision-maker</label><input id="d_dm_${id}" class="pain" value="${v(p.decision_maker)}"></div>
+      <div><label class="palbl">Members (est.)</label><input id="d_mem_${id}" class="pain" type="number" value="${p.members_est==null?'':p.members_est}"></div>
+    </div>
+    <label class="palbl">Notes</label><textarea id="d_notes_${id}" class="pain" rows="3">${v(p.notes)}</textarea>
+    <label style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:#9B2C2C;margin:2px 0 10px;cursor:pointer;"><input type="checkbox" id="d_dnc_${id}" ${p.dnc?'checked':''} style="width:auto;margin:0;"> Do Not Contact</label>
+    <input id="d_dncr_${id}" class="pain" placeholder="DNC reason (optional)" value="${v(p.dnc_reason)}">
+    <div class="form-actions"><button class="btn-save" onclick="savePaDetail('${id}')">Save</button><button class="btn-cancel" onclick="togglePaDetail('${id}')">Close</button></div>
+  </div>`;
+}
+function togglePaDetail(id){const d=document.getElementById('det_'+id);if(d)d.style.display=d.style.display==='none'?'block':'none';}
+async function savePaDetail(id){
+  const val=k=>{const e=document.getElementById('d_'+k+'_'+id);return e?e.value.trim():'';};
+  const chk=k=>{const e=document.getElementById('d_'+k+'_'+id);return !!(e&&e.checked);};
+  const name=val('name'); if(!name){alert('Name is required.');return;}
+  const payload={name,org_type:val('type'),town:val('town')||null,county:val('county')||null,
+    website:val('web')||null,contact_name:val('cn')||null,contact_phone:val('cp')||null,contact_email:val('ce')||null,
+    decision_maker:val('dm')||null,members_est:val('mem')===''?null:Number(val('mem')),notes:val('notes')||null,
+    assigned_to:val('owner')||null,dnc:chk('dnc'),dnc_reason:val('dncr')||null};
+  const {error}=await sb.from('community_partners').update(payload).eq('id',id);
+  if(error){alert('Could not save: '+error.message);return;}
+  loadPartners();
 }
 
 async function createPartner(){

@@ -187,7 +187,7 @@ async function loadBoard(){
       sb.from('groups').select('id,name').eq('category','community').eq('active',true),
       sb.from('group_members').select('group_id,person_id')
     ]);
-    partners=p.data||[]; teams=g.data||[]; members=m.data||[];
+    partners=(p.data||[]).filter(x=>!x.dnc); teams=g.data||[]; members=m.data||[];
   }catch(e){ document.getElementById('teamBoard').innerHTML='<div class="empty">Could not load standings.</div>'; return; }
 
   const is=(s)=>partners.filter(p=>p.status===s).length;
