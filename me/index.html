@@ -677,15 +677,6 @@
     <div class="section-body" id="todayBody"></div>
   </div>
 
-  <!-- COMMUNITY OUTREACH: the rep's partner-org call list + live standings -->
-  <div class="section" id="communitySection" style="display:none">
-    <div class="section-head">
-      <div class="section-title">Community Outreach</div>
-      <div class="section-pill" id="communityPill">--</div>
-    </div>
-    <div class="section-body" id="communityBody"></div>
-  </div>
-
   <!-- KEY METRICS + STACK-UP -->
   <div class="section">
     <div class="section-head">
@@ -706,6 +697,16 @@
     <div class="section-body" id="addrBody">
       <div class="loading">Loading action items...</div>
     </div>
+  </div>
+
+  <!-- COMMUNITY OUTREACH: only shown when the rep actually has community work
+       assigned (own orgs or a working group). Sits below Top Action Items. -->
+  <div class="section" id="communitySection" style="display:none">
+    <div class="section-head">
+      <div class="section-title">Community Outreach</div>
+      <div class="section-pill" id="communityPill">--</div>
+    </div>
+    <div class="section-body" id="communityBody"></div>
   </div>
 
   <!-- WORK THESE NOW: compact pre-sale go-back card. A launcher into the My Calls
@@ -934,6 +935,9 @@ async function loadAndRenderCommunity(me){
     ]);
     const teams = new Set((gm.data || []).map(x => x.group_id));
     const mine = (pp.data || []).filter(p => p.assigned_to === me.id || (p.working_group_id && teams.has(p.working_group_id)));
+    // Only surface the card when the rep actually has community work assigned
+    // (their own orgs or a working group). No empty "join the effort" state.
+    if (!mine.length){ sec.style.display = 'none'; return; }
     const today = new Date().toISOString().slice(0, 10);
     const due = mine.filter(p => p.next_follow_up && p.next_follow_up <= today).length;
     const never = mine.filter(p => !p.last_contacted_at).length;
