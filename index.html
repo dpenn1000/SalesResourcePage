@@ -789,6 +789,16 @@
     <div id="trainingBannerGrid" class="training-banner-grid"></div>
   </div>
 
+  <!-- Curated quick-start. Shown only on the default landing (All, no search). -->
+  <div id="startHere" style="display:none">
+    <div class="section-head">
+      <div class="section-pip" style="background:#1A2332"></div>
+      <div class="section-label">Start here</div>
+      <div class="section-count" id="startHereCount"></div>
+    </div>
+    <div class="cards" id="startHereGrid"></div>
+  </div>
+
   <div class="filter-bar" id="filterBar" style="display:none">
     <span class="filter-label">Type:</span>
     <div class="type-chips" id="typeChips"></div>
@@ -838,6 +848,18 @@ const SUBCAT_ORDER = {
   'Control Your Business': ['Communities', 'Call List'],
   'Tools & Reference': ['Start Here', 'Systems', 'Reference Library'],
 };
+
+// Curated "Start here" quick-start cards, by exact resource name. Shown only on
+// the default landing surface (All category, no search). Edit this list to re-pin.
+// Names not found (or RLS-hidden for the viewer) are skipped silently.
+const START_HERE = [
+  'New Hire Resource',
+  'Traditional University',
+  'Know Your Style -- DISC Assessment',
+  'Commission Calculator',
+  'Your Call List',
+  'Video Library',
+];
 const TYPE_EMOJI = {
   'Calculator': '&#129518;', 'Map Tool': '&#128506;', 'Reference Portal': '&#128279;',
   'Reference Doc': '&#128196;', 'Form': '&#128203;', 'Document': '&#128209;',
@@ -1195,9 +1217,24 @@ function linkAttrs(url) {
   } catch { return ' target="_blank" rel="noopener"'; }
 }
 
+// Curated quick-start strip on the default landing only.
+function renderStartHere() {
+  const wrap = document.getElementById('startHere');
+  if (!wrap) return;
+  if (searchQ || activeCat !== 'All') { wrap.style.display = 'none'; return; }
+  const picks = START_HERE.map(n => all.find(r => r.name === n)).filter(Boolean);
+  if (!picks.length) { wrap.style.display = 'none'; return; }
+  document.getElementById('startHereGrid').innerHTML =
+    picks.map((r, i) => cardHtml(r, i, true)).join('');
+  const c = document.getElementById('startHereCount');
+  if (c) c.textContent = picks.length;
+  wrap.style.display = '';
+}
+
 function render() {
   currentTerms = searchQ ? searchQ.split(/\s+/).filter(Boolean) : [];
   renderRecents();
+  renderStartHere();
 
   // Category + type chips still scope the pool; search ranks within that scope.
   const scope = all.filter(r => {
