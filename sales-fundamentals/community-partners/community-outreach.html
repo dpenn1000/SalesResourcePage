@@ -9,10 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/training-system.css">
 <style>
-/* Page-specific: a closing pullquote. Built on shared tokens, no inline styles.
-   All standard components (hero/module/training-card/compare-grid/card-grid/
-   step-grid/checklist/list-cols/metric-callout/script-example/callout/
-   recall-check/manager-prompt/key-takeaways) come from training-system.css. */
+/* Homage to Lori's original deck: re-theme this one page to her navy + green
+   palette (no orange), entirely through shared tokens so every component inherits
+   it. Her colors, sampled from the PPTX: navy #002C4F / deep #002060, green
+   #98C93C. No inline styles. */
+:root{
+  --ink:#002C4F; --ink-deep:#002060; --ink-soft:#0E2841;
+  --green:#98C93C; --amber:#6FA82E;
+}
+/* Page-specific closing pullquote (border uses her green via --green). */
 .pullquote{font-family:var(--serif);font-style:italic;font-size:1.4rem;line-height:1.4;color:var(--ink);border-left:3px solid var(--green);padding:var(--space-2) var(--space-4);margin:var(--space-3) 0 0;max-width:74ch}
 .pullquote .attr{display:block;font-family:var(--sans);font-style:normal;font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:var(--space-2)}
 body.presenter .pullquote{font-size:1.8rem}
@@ -107,20 +112,20 @@ body.presenter .pullquote{font-size:1.8rem}
       <div class="training-card training-card--green">
         <h3>What it does for you</h3>
         <ul>
-          <li><strong>Meets homeowners</strong> outside traditional sales channels.</li>
-          <li><strong>Builds credibility</strong> through an organization they trust.</li>
-          <li><strong>Generates referrals</strong> from community leaders.</li>
-          <li><strong>Creates repeat opportunities</strong> through events and partnerships.</li>
-          <li><strong>Sets you apart</strong> from other solar companies.</li>
+          <li>✅ <strong>Meets homeowners</strong> outside traditional sales channels.</li>
+          <li>✅ <strong>Builds credibility</strong> through an organization they trust.</li>
+          <li>✅ <strong>Generates referrals</strong> from community leaders.</li>
+          <li>✅ <strong>Creates repeat opportunities</strong> through events and partnerships.</li>
+          <li>✅ <strong>Sets you apart</strong> from other solar companies.</li>
         </ul>
       </div>
       <div class="training-card training-card--ink">
         <h3>What it does for the organization</h3>
         <ul>
-          <li><strong>Fundraising</strong> with no cost to run.</li>
-          <li><strong>Environmental impact</strong> their members care about.</li>
-          <li><strong>A real member benefit,</strong> not another ask.</li>
-          <li><strong>No cost, no obligation,</strong> ever.</li>
+          <li>✅ <strong>Fundraising</strong> with no cost to run.</li>
+          <li>✅ <strong>Environmental impact</strong> their members care about.</li>
+          <li>✅ <strong>A real member benefit,</strong> not another ask.</li>
+          <li>✅ <strong>No cost, no obligation,</strong> ever.</li>
         </ul>
       </div>
     </div>
@@ -167,17 +172,17 @@ body.presenter .pullquote{font-size:1.8rem}
     <p class="intro">Potential partners are everywhere people gather around a shared cause. Start with the groups you already touch, then work outward across your town.</p>
 
     <ul class="list-cols">
-      <li><strong>Charity walks and runs</strong></li>
-      <li><strong>Youth sports organizations</strong></li>
-      <li><strong>Scouting programs</strong></li>
-      <li><strong>Schools and PTAs</strong></li>
-      <li><strong>Environmental groups</strong></li>
-      <li><strong>First responder organizations</strong></li>
-      <li><strong>Community festivals</strong></li>
-      <li><strong>Homeowner associations</strong></li>
-      <li><strong>Faith-based organizations</strong></li>
-      <li><strong>Animal rescue organizations</strong></li>
-      <li><strong>Local nonprofits</strong></li>
+      <li>🏃 <strong>Charity walks and runs</strong></li>
+      <li>⚾ <strong>Youth sports organizations</strong></li>
+      <li>🏕️ <strong>Scouting programs</strong></li>
+      <li>🎓 <strong>Schools and PTAs</strong></li>
+      <li>🌎 <strong>Environmental groups</strong></li>
+      <li>🚓 <strong>First responder organizations</strong></li>
+      <li>🎭 <strong>Community festivals</strong></li>
+      <li>🏠 <strong>Homeowner associations</strong></li>
+      <li>🙏 <strong>Faith-based organizations</strong></li>
+      <li>🐾 <strong>Animal rescue organizations</strong></li>
+      <li>💙 <strong>Local nonprofits</strong></li>
     </ul>
 
     <details class="recall-check">
@@ -216,26 +221,26 @@ body.presenter .pullquote{font-size:1.8rem}
     <p class="intro">This is what you bring to the table. The organization raises money, gets marketing help, and keeps full control, all at no cost. You bring the program, they bring the people.</p>
 
     <div class="card-grid">
-      <div class="metric-callout"><span class="figure">$100</span><span class="caption">Contribution for every qualified consultation</span></div>
-      <div class="metric-callout"><span class="figure">$1,000</span><span class="caption">Contribution for every installation</span></div>
-      <div class="metric-callout"><span class="figure">Roofing</span><span class="caption">Roofing opportunities available too</span></div>
+      <div class="metric-callout"><span class="figure">$100</span><span class="caption">💰 Contribution for every qualified consultation</span></div>
+      <div class="metric-callout"><span class="figure">$1,000</span><span class="caption">💰 Contribution for every installation</span></div>
+      <div class="metric-callout"><span class="figure">🏠</span><span class="caption">Roofing opportunities available too</span></div>
     </div>
 
     <div class="card-grid">
       <div class="training-card">
-        <h3>Marketing support</h3>
+        <h3>📣 Marketing support</h3>
         <ul>
-          <li><strong>Email templates</strong> ready to send.</li>
-          <li><strong>Social media content</strong> they can post.</li>
-          <li><strong>Event participation</strong> alongside their team.</li>
+          <li>📧 <strong>Email templates</strong> ready to send.</li>
+          <li>📱 <strong>Social media content</strong> they can post.</li>
+          <li>🎪 <strong>Event participation</strong> alongside their team.</li>
         </ul>
       </div>
       <div class="training-card training-card--green">
         <h3>Built to be easy</h3>
         <ul>
-          <li><strong>Custom partner portal</strong> and QR codes.</li>
-          <li><strong>No cost, no obligation</strong> to the organization.</li>
-          <li><strong>They stay in control</strong> of how it runs.</li>
+          <li>🔗 <strong>Custom partner portal</strong> and QR codes.</li>
+          <li>✅ <strong>No cost, no obligation</strong> to the organization.</li>
+          <li>✅ <strong>They stay in control</strong> of how it runs.</li>
         </ul>
       </div>
     </div>
@@ -286,11 +291,11 @@ body.presenter .pullquote{font-size:1.8rem}
     <p class="intro">A single partnership compounds. It helps homeowners, funds a cause, and builds your name in the community all at once. Do it a few times and you have a referral engine that runs itself.</p>
 
     <ul class="list-cols">
-      <li><strong>Helps dozens of homeowners</strong> lower their bills.</li>
-      <li><strong>Supports a local organization</strong> and its cause.</li>
-      <li><strong>Generates referrals</strong> long after the event.</li>
-      <li><strong>Builds your personal brand</strong> in your town.</li>
-      <li><strong>Grows your business</strong> on warm relationships.</li>
+      <li>✓ <strong>Helps dozens of homeowners</strong> lower their bills.</li>
+      <li>✓ <strong>Supports a local organization</strong> and its cause.</li>
+      <li>✓ <strong>Generates referrals</strong> long after the event.</li>
+      <li>✓ <strong>Builds your personal brand</strong> in your town.</li>
+      <li>✓ <strong>Grows your business</strong> on warm relationships.</li>
     </ul>
 
     <div class="pullquote">"Don't wait for opportunities to come to you. Find them in your community."</div>
