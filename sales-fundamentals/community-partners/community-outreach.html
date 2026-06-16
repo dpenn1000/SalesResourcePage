@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Outreach: Build Business Through Partnerships · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/training-system.css">
+<style>
+/* Page-specific: a closing pullquote. Built on shared tokens, no inline styles.
+   All standard components (hero/module/training-card/compare-grid/card-grid/
+   step-grid/checklist/list-cols/metric-callout/script-example/callout/
+   recall-check/manager-prompt/key-takeaways) come from training-system.css. */
+.pullquote{font-family:var(--serif);font-style:italic;font-size:1.4rem;line-height:1.4;color:var(--ink);border-left:3px solid var(--green);padding:var(--space-2) var(--space-4);margin:var(--space-3) 0 0;max-width:74ch}
+.pullquote .attr{display:block;font-family:var(--sans);font-style:normal;font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:var(--space-2)}
+body.presenter .pullquote{font-size:1.8rem}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<script src="/training-system.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer">
+        <span class="logo">Trinity Solar</span>
+        <span class="team">CT Traditional · Communities Division</span>
+      </a>
+      <button id="presentBtn" class="present-toggle">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#why"><span class="num">1</span> Why It Works</a>
+      <a href="#ambassador"><span class="num">2</span> Become an Ambassador</a>
+      <a href="#where"><span class="num">3</span> Where to Look</a>
+      <a href="#questions"><span class="num">4</span> Questions to Ask</a>
+      <a href="#support"><span class="num">5</span> How We Support Them</a>
+      <a href="#accountability"><span class="num">6</span> Accountability</a>
+      <a href="#impact"><span class="num">7</span> The Impact</a>
+    </div>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Communities Division · Community Outreach</span>
+    <h1>Build Business Through the People You <em>Already Know</em></h1>
+    <p class="lede">
+      Create opportunities in your own backyard. Build relationships that generate long-term referrals.
+      <strong>Support local organizations while you help homeowners,</strong> and become the trusted solar resource in your community.
+      Grow your pipeline and strengthen your community at the same time.
+    </p>
+  </div>
+</section>
+
+<main class="training-page">
+
+<!-- 1: WHY IT WORKS -->
+<section class="module" id="why">
+  <div class="wrap">
+    <span class="eyebrow">Part 1 · The Case</span>
+    <h2>Outreach works because it serves both sides</h2>
+    <p class="intro">The best leads come from people and organizations who already trust each other. You meet homeowners through a group they care about, and the group raises money by making the introduction. Everybody wins, and you stand apart from every other solar rep working cold.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--green">
+        <h3>What it does for you</h3>
+        <ul>
+          <li><strong>Meets homeowners</strong> outside traditional sales channels.</li>
+          <li><strong>Builds credibility</strong> through an organization they trust.</li>
+          <li><strong>Generates referrals</strong> from community leaders.</li>
+          <li><strong>Creates repeat opportunities</strong> through events and partnerships.</li>
+          <li><strong>Sets you apart</strong> from other solar companies.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--ink">
+        <h3>What it does for the organization</h3>
+        <ul>
+          <li><strong>Fundraising</strong> with no cost to run.</li>
+          <li><strong>Environmental impact</strong> their members care about.</li>
+          <li><strong>A real member benefit,</strong> not another ask.</li>
+          <li><strong>No cost, no obligation,</strong> ever.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pullquote">"The best leads often come from the people and organizations you already know."</div>
+
+    <div class="manager-prompt">Ask the room: which organization are you already connected to that you have never thought of as a business opportunity?</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Why does a community lead beat a cold one?</summary>
+      <p class="answer">The homeowner already trusts the organization that introduced you, so you start with credibility instead of resistance. And the organization is motivated to send people your way, because they get paid when a consultation happens.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 2: BECOME AN AMBASSADOR -->
+<section class="module" id="ambassador">
+  <div class="wrap">
+    <span class="eyebrow">Part 2 · Your Assignment</span>
+    <h2>Become a Community Ambassador</h2>
+    <p class="intro">Over the next two weeks, turn your own network into a partnership pipeline. You are not selling anything yet. You are scouting the groups, events, and people who can open doors.</p>
+
+    <ol class="step-grid">
+      <li class="step"><strong>Research local events.</strong> Walks, runs, festivals, and fundraisers already on the calendar near you.</li>
+      <li class="step"><strong>Identify the organizations</strong> being supported, and who benefits from them.</li>
+      <li class="step"><strong>Look for aligned groups</strong> whose mission fits ours: community, family, environment.</li>
+      <li class="step"><strong>Find the decision-makers,</strong> the community leaders who can say yes to a partnership.</li>
+      <li class="step"><strong>Bring opportunities</strong> to our next meeting, ready to discuss.</li>
+    </ol>
+
+    <div class="callout callout--compliance">
+      <strong>The goal:</strong> schedule a meeting with Lori to turn your list into real partnerships. Lori Scala · 203-895-8968 · Lori.Scala@Trinity-Solar.com. Bring names, not just categories.
+    </div>
+
+    <div class="manager-prompt">Ask the room: name one event in the next 30 days and the organization behind it. That is your first conversation.</div>
+  </div>
+</section>
+
+<!-- 3: WHERE TO LOOK -->
+<section class="module" id="where">
+  <div class="wrap">
+    <span class="eyebrow">Part 3 · The Hunting Ground</span>
+    <h2>Where to look for partners</h2>
+    <p class="intro">Potential partners are everywhere people gather around a shared cause. Start with the groups you already touch, then work outward across your town.</p>
+
+    <ul class="list-cols">
+      <li><strong>Charity walks and runs</strong></li>
+      <li><strong>Youth sports organizations</strong></li>
+      <li><strong>Scouting programs</strong></li>
+      <li><strong>Schools and PTAs</strong></li>
+      <li><strong>Environmental groups</strong></li>
+      <li><strong>First responder organizations</strong></li>
+      <li><strong>Community festivals</strong></li>
+      <li><strong>Homeowner associations</strong></li>
+      <li><strong>Faith-based organizations</strong></li>
+      <li><strong>Animal rescue organizations</strong></li>
+      <li><strong>Local nonprofits</strong></li>
+    </ul>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> Where is the easiest first partnership?</summary>
+      <p class="answer">A group you already belong to or have a personal connection with. Warm beats cold every time, so start with the people who already know you.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 4: QUESTIONS TO ASK -->
+<section class="module" id="questions">
+  <div class="wrap">
+    <span class="eyebrow">Part 4 · Do the Homework</span>
+    <h2>Questions to answer before we meet</h2>
+    <p class="intro">A good partnership conversation starts with knowing the organization. Have these answers ready and you will look like a professional, not a solicitor.</p>
+
+    <ul class="checklist">
+      <li><strong>What organization benefits,</strong> and what is its cause?</li>
+      <li><strong>How many members or supporters</strong> do they have?</li>
+      <li><strong>What events do they host</strong> through the year?</li>
+      <li><strong>Who makes partnership decisions?</strong></li>
+      <li><strong>Do they have newsletters, social media, or a website?</strong></li>
+      <li><strong>Do they actively fundraise?</strong></li>
+      <li><strong>Have they partnered with businesses before?</strong></li>
+    </ul>
+
+    <div class="manager-prompt">Ask the room: pick one organization and answer all seven questions out loud. What is still unknown?</div>
+  </div>
+</section>
+
+<!-- 5: HOW WE SUPPORT THEM -->
+<section class="module" id="support">
+  <div class="wrap">
+    <span class="eyebrow">Part 5 · The Offer</span>
+    <h2>How the Trinity Community Outreach Program supports them</h2>
+    <p class="intro">This is what you bring to the table. The organization raises money, gets marketing help, and keeps full control, all at no cost. You bring the program, they bring the people.</p>
+
+    <div class="card-grid">
+      <div class="metric-callout"><span class="figure">$100</span><span class="caption">Contribution for every qualified consultation</span></div>
+      <div class="metric-callout"><span class="figure">$1,000</span><span class="caption">Contribution for every installation</span></div>
+      <div class="metric-callout"><span class="figure">Roofing</span><span class="caption">Roofing opportunities available too</span></div>
+    </div>
+
+    <div class="card-grid">
+      <div class="training-card">
+        <h3>Marketing support</h3>
+        <ul>
+          <li><strong>Email templates</strong> ready to send.</li>
+          <li><strong>Social media content</strong> they can post.</li>
+          <li><strong>Event participation</strong> alongside their team.</li>
+        </ul>
+      </div>
+      <div class="training-card training-card--green">
+        <h3>Built to be easy</h3>
+        <ul>
+          <li><strong>Custom partner portal</strong> and QR codes.</li>
+          <li><strong>No cost, no obligation</strong> to the organization.</li>
+          <li><strong>They stay in control</strong> of how it runs.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pullquote">Together we create community impact, energy education, and fundraising.</div>
+
+    <details class="recall-check">
+      <summary><span class="label">Recall</span> What does the organization risk?</summary>
+      <p class="answer">Nothing. There is no cost and no obligation. They raise money when a consultation happens and again when a homeowner installs, and they keep control the whole way.</p>
+    </details>
+  </div>
+</section>
+
+<!-- 6: ACCOUNTABILITY -->
+<section class="module" id="accountability">
+  <div class="wrap">
+    <span class="eyebrow">Part 6 · How We Grow It</span>
+    <h2>Accountability and growth</h2>
+    <p class="intro">This is a team effort, run on a rhythm. Every other week we get together to keep the momentum and learn from each other.</p>
+
+    <div class="compare-grid">
+      <div class="training-card training-card--ink">
+        <h3>Every other week we meet to</h3>
+        <ul>
+          <li><strong>Share opportunities</strong> you have found.</li>
+          <li><strong>Discuss outreach progress.</strong></li>
+          <li><strong>Develop partnership strategies</strong> together.</li>
+          <li><strong>Celebrate wins.</strong></li>
+          <li><strong>Learn from each other.</strong></li>
+        </ul>
+      </div>
+      <div class="training-card training-card--amber">
+        <h3>It starts with one introduction</h3>
+        <p>One organization leads to one event. One event leads to one relationship. One relationship leads to many opportunities. The whole pipeline starts with a single conversation you are already able to have.</p>
+        <blockquote class="script-example"><span class="who">Your challenge</span>"Bring at least one potential partner to our next meeting."</blockquote>
+      </div>
+    </div>
+
+    <div class="manager-prompt">Go around the room: each person names the one partner they are bringing to the next meeting, and the date of their next event.</div>
+  </div>
+</section>
+
+<!-- 7: THE IMPACT -->
+<section class="module" id="impact">
+  <div class="wrap">
+    <span class="eyebrow">Part 7 · The Payoff</span>
+    <h2>Imagine the impact of one partnership</h2>
+    <p class="intro">A single partnership compounds. It helps homeowners, funds a cause, and builds your name in the community all at once. Do it a few times and you have a referral engine that runs itself.</p>
+
+    <ul class="list-cols">
+      <li><strong>Helps dozens of homeowners</strong> lower their bills.</li>
+      <li><strong>Supports a local organization</strong> and its cause.</li>
+      <li><strong>Generates referrals</strong> long after the event.</li>
+      <li><strong>Builds your personal brand</strong> in your town.</li>
+      <li><strong>Grows your business</strong> on warm relationships.</li>
+    </ul>
+
+    <div class="pullquote">"Don't wait for opportunities to come to you. Find them in your community."</div>
+  </div>
+</section>
+
+</main>
+
+<section class="key-takeaways" id="takeaways">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>One-sentence reminders</h2>
+    <ul>
+      <li>The best leads come from people and organizations you already know.</li>
+      <li>Lead with the cause. The organization is the introduction, the homeowner is the lead.</li>
+      <li>Spend two weeks scouting events, organizations, leaders, and decision-makers.</li>
+      <li>Do the homework: know the cause, the size, the events, and who says yes.</li>
+      <li>The offer costs them nothing: $100 per consultation, $1,000 per install, plus roofing.</li>
+      <li>Bring one potential partner to every meeting.</li>
+      <li>One introduction becomes one event, one relationship, and many opportunities.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8593;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8595;</button>
+</div>
+
+<footer class="foot">
+  <div class="wrap">
+    Trinity Solar · CT Traditional · Communities Division<br>
+    Community Outreach playbook, built from Lori Scala's Community Partnerships program. Questions: Lori Scala · 203-895-8968 · Lori.Scala@Trinity-Solar.com.
+  </div>
+</footer>
+
+</div><!-- /#appWrap -->
+
+</body>
+</html>
