@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Outreach Scoreboard · CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --green:#78C832; --green-deep:#5eba28; --blue:#29A9E1; --gold:#F5A623; --ink:#1A2332; --ink-soft:#3A4555; --surface:#EFF1EC; --border:#DFE2DA; --paper:#FFFFFF; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { background:var(--surface); color:var(--ink); font-family:'Manrope',sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased; }
+  body { padding:32px 24px; }
+  .page { max-width:1180px; margin:0 auto; background:var(--paper); border-radius:16px; overflow:hidden; box-shadow:0 1px 2px rgba(26,35,50,0.04),0 12px 40px rgba(26,35,50,0.06); }
+  .display { font-family:'Fraunces',serif; font-weight:600; letter-spacing:-0.01em; }
+  a { color:var(--green-deep); }
+  .header { padding:32px 80px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+  .brand { display:flex; align-items:center; gap:14px; }
+  .brand-mark { width:38px; height:38px; border-radius:10px; background:var(--ink); color:var(--green); display:grid; place-items:center; font-family:'Fraunces',serif; font-weight:700; font-size:22px; }
+  .brand-name { font-weight:700; font-size:15px; letter-spacing:0.02em; }
+  .brand-sub { font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .header-link { font-size:13px; font-weight:700; color:var(--paper); background:var(--green-deep); padding:9px 16px; border-radius:8px; text-decoration:none; }
+  /* Hero dashboard */
+  .hero { padding:56px 80px; background:linear-gradient(135deg,var(--ink) 0%,#243047 100%); color:var(--paper); }
+  .hero-eyebrow { font-size:12px; font-weight:800; letter-spacing:0.16em; text-transform:uppercase; color:var(--green); }
+  .hero-title { font-size:clamp(26px,5vw,44px); line-height:1.08; margin-top:14px; color:var(--paper); max-width:780px; }
+  .hero-sub { font-size:16px; color:rgba(255,255,255,0.8); margin-top:14px; max-width:680px; }
+  .hero-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:40px; }
+  .hstat { padding:0 26px; border-right:1px solid rgba(255,255,255,0.14); }
+  .hstat:first-child { padding-left:0; }
+  .hstat:last-child { border-right:none; }
+  .hstat-num { font-family:'Fraunces',serif; font-weight:600; font-size:46px; line-height:1; color:var(--paper); }
+  .hstat-num .g { color:var(--green); }
+  .hstat-label { font-size:12.5px; color:rgba(255,255,255,0.7); margin-top:10px; line-height:1.4; }
+  /* Sections */
+  .section { padding:56px 80px; border-bottom:1px solid var(--border); }
+  .section-eyebrow { font-size:12px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:8px; }
+  .section-title { font-size:26px; line-height:1.15; }
+  .section-lead { font-size:15px; color:var(--ink-soft); margin-top:10px; max-width:680px; }
+  /* Leaderboard */
+  .board { margin-top:28px; display:flex; flex-direction:column; gap:10px; }
+  .row { display:grid; grid-template-columns:54px 1fr auto; align-items:center; gap:18px; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px 20px; }
+  .row.top { border-color:var(--green); box-shadow:0 2px 10px rgba(120,200,50,0.18); }
+  .rank { font-family:'Fraunces',serif; font-weight:700; font-size:24px; color:var(--ink-soft); text-align:center; }
+  .row.top .rank { color:var(--green-deep); }
+  .rname { font-weight:700; font-size:16px; }
+  .rsub { font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .rmetrics { display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+  .chip { text-align:center; min-width:62px; }
+  .chip-num { font-family:'Fraunces',serif; font-weight:600; font-size:22px; line-height:1; }
+  .chip-num.partner { color:var(--green-deep); }
+  .chip-num.meeting { color:var(--blue); }
+  .chip-num.gold { color:var(--gold); }
+  .chip-label { font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin-top:5px; }
+  /* Cluster bars */
+  .bars { margin-top:28px; display:flex; flex-direction:column; gap:16px; }
+  .bar-row { display:grid; grid-template-columns:150px 1fr 120px; align-items:center; gap:16px; }
+  .bar-name { font-weight:700; font-size:14px; }
+  .bar-track { height:18px; background:var(--surface); border:1px solid var(--border); border-radius:999px; overflow:hidden; }
+  .bar-fill { height:100%; background:linear-gradient(90deg,var(--green) 0%,var(--blue) 100%); border-radius:999px; }
+  .bar-val { font-size:13px; color:var(--ink-soft); text-align:right; }
+  .bar-val b { color:var(--ink); font-size:15px; }
+  /* Funnel */
+  .funnel { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:28px; }
+  .fcard { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px 20px; text-align:center; }
+  .fnum { font-family:'Fraunces',serif; font-weight:600; font-size:36px; color:var(--ink); line-height:1; }
+  .flabel { font-size:12.5px; color:var(--ink-soft); margin-top:8px; }
+  .cta { padding:56px 80px; text-align:center; background:linear-gradient(135deg,var(--green) 0%,var(--green-deep) 100%); color:var(--paper); }
+  .cta-title { font-family:'Fraunces',serif; font-weight:600; font-size:30px; }
+  .cta-sub { font-size:16px; margin-top:14px; opacity:0.95; max-width:600px; margin:14px auto 0; }
+  .cta-sub a { color:#fff; font-weight:700; }
+  .cta-action { margin-top:26px; display:inline-block; background:var(--ink); color:var(--paper); padding:15px 30px; border-radius:12px; font-weight:700; font-size:15px; text-decoration:none; }
+  .footer { padding:24px 80px; font-size:12px; color:var(--ink-soft); display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap; }
+  .empty { color:var(--ink-soft); font-size:14px; padding:18px 0; }
+  @media (max-width:900px){ body{padding:16px;} .header,.hero,.section,.cta,.footer{padding-left:34px;padding-right:34px;} .hero-stats,.funnel{grid-template-columns:1fr 1fr;} .hstat{padding:14px 16px;border-right:none;border-bottom:1px solid rgba(255,255,255,0.14);} }
+  @media (max-width:600px){ body{padding:10px;} .header,.hero,.section,.cta,.footer{padding-left:20px;padding-right:20px;} .hero-stats,.funnel{grid-template-columns:1fr;} .row{grid-template-columns:40px 1fr;} .rmetrics{grid-column:1/-1;justify-content:flex-start;margin-top:10px;} .bar-row{grid-template-columns:1fr;gap:6px;} .bar-val{text-align:left;} }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+<div class="page">
+
+  <header class="header">
+    <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer">
+      <div class="brand-mark">T</div>
+      <div>
+        <div class="brand-name">TRINITY SOLAR</div>
+        <div class="brand-sub">Communities Division &middot; Outreach Scoreboard</div>
+      </div>
+    </a>
+    <a class="header-link" href="/sales-fundamentals/community-partners/community-outreach.html">Outreach Playbook &rarr;</a>
+  </header>
+
+  <section class="hero">
+    <div class="hero-eyebrow">The Outreach Standings</div>
+    <h1 class="display hero-title">Every partnership starts with one introduction. Who is building the most?</h1>
+    <p class="hero-sub">Live standings for the Community Outreach effort. Land partners, set meetings, and move your team up the board.</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-num g" id="h-partners">--</div><div class="hstat-label">Active partners</div></div>
+      <div class="hstat"><div class="hstat-num" id="h-meetings">--</div><div class="hstat-label">Meetings set</div></div>
+      <div class="hstat"><div class="hstat-num" id="h-prospects">--</div><div class="hstat-label">Prospects in play</div></div>
+      <div class="hstat"><div class="hstat-num" id="h-orgs">--</div><div class="hstat-label">Organizations on the board</div></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">Team standings</div>
+    <h2 class="display section-title">Working-group leaderboard</h2>
+    <p class="section-lead">Ranked by partners landed, then meetings set. Enroll reps and dispatch organizations to a team in the tracker to climb.</p>
+    <div class="board" id="teamBoard"><div class="empty">Loading standings&hellip;</div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">By territory</div>
+    <h2 class="display section-title">Cluster standings</h2>
+    <p class="section-lead">Organizations in play by rep working-group cluster.</p>
+    <div class="bars" id="clusterBars"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-eyebrow">The pipeline</div>
+    <h2 class="display section-title">From prospect to partner</h2>
+    <div class="funnel" id="funnel"></div>
+  </section>
+
+  <section class="cta">
+    <h2 class="cta-title">Bring one partner to the next meeting.</h2>
+    <p class="cta-sub">Find organizations, get the contact, and book the meeting. Work the board in the <a href="/admin.html?tab=partners">Partners tracker</a> and use the <a href="/community-outreach-call-guide.html">Outreach Call Guide</a>.</p>
+    <a class="cta-action" href="/sales-fundamentals/community-partners/community-outreach.html">Open the Outreach Playbook</a>
+  </section>
+
+  <footer class="footer">
+    <div>Trinity Solar Communities Division &middot; Outreach Scoreboard</div>
+    <div id="foot-updated">Live</div>
+  </footer>
+
+</div>
+</div><!-- /#appWrap -->
+
+<script>
+const sb = window.sb;
+const CLUSTER_LABEL = { central:'Central CT', southeast:'Southeast CT', southwest:'Southwest &amp; Coastal', other:'Other' };
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+async function loadBoard(){
+  let partners=[], teams=[], members=[];
+  try{
+    const [p,g,m]=await Promise.all([
+      sb.from('community_partners').select('id,cluster,status,working_group_id').eq('is_deleted',false),
+      sb.from('groups').select('id,name').eq('category','community').eq('active',true),
+      sb.from('group_members').select('group_id,person_id')
+    ]);
+    partners=p.data||[]; teams=g.data||[]; members=m.data||[];
+  }catch(e){ document.getElementById('teamBoard').innerHTML='<div class="empty">Could not load standings.</div>'; return; }
+
+  const is=(s)=>partners.filter(p=>p.status===s).length;
+  const prospectsInPlay = partners.filter(p=>p.status==='prospect'||p.status==='contacted').length;
+  document.getElementById('h-partners').textContent = is('partner');
+  document.getElementById('h-meetings').textContent = is('meeting_set');
+  document.getElementById('h-prospects').textContent = prospectsInPlay;
+  document.getElementById('h-orgs').textContent = partners.length;
+
+  // team standings
+  const memCount={}; members.forEach(m=>{ memCount[m.group_id]=(memCount[m.group_id]||0)+1; });
+  const byTeam={};
+  teams.forEach(t=>byTeam[t.id]={name:t.name, partner:0, meeting:0, total:0, members:memCount[t.id]||0});
+  partners.forEach(p=>{ const t=p.working_group_id&&byTeam[p.working_group_id]; if(!t)return; t.total++; if(p.status==='partner')t.partner++; if(p.status==='meeting_set')t.meeting++; });
+  const teamRows=Object.values(byTeam).sort((a,b)=> b.partner-a.partner || b.meeting-a.meeting || b.total-a.total);
+  const board=document.getElementById('teamBoard');
+  if(!teamRows.length){
+    board.innerHTML='<div class="empty">No working-group teams yet. Create teams and dispatch organizations to them in the <a href="/admin.html?tab=partners">Partners tracker</a> to start the competition.</div>';
+  } else {
+    const medal=['&#129351;','&#129352;','&#129353;'];
+    board.innerHTML=teamRows.map((t,i)=>`<div class="row${i===0&&t.partner+t.meeting+t.total>0?' top':''}">
+      <div class="rank">${i<3&&t.partner+t.meeting+t.total>0?medal[i]:(i+1)}</div>
+      <div><div class="rname">${esc(t.name)}</div><div class="rsub">${t.members} rep${t.members===1?'':'s'} enrolled &middot; ${t.total} org${t.total===1?'':'s'} assigned</div></div>
+      <div class="rmetrics">
+        <div class="chip"><div class="chip-num partner">${t.partner}</div><div class="chip-label">Partners</div></div>
+        <div class="chip"><div class="chip-num meeting">${t.meeting}</div><div class="chip-label">Meetings</div></div>
+        <div class="chip"><div class="chip-num">${t.total}</div><div class="chip-label">In play</div></div>
+      </div>
+    </div>`).join('');
+  }
+
+  // cluster standings (bars by total orgs, partner count shown)
+  const clusters=['central','southeast','southwest','other'];
+  const cl={}; clusters.forEach(c=>cl[c]={total:0,partner:0});
+  partners.forEach(p=>{ const c=cl[p.cluster||'other']; if(c){c.total++; if(p.status==='partner')c.partner++;} });
+  const maxTotal=Math.max(1,...clusters.map(c=>cl[c].total));
+  document.getElementById('clusterBars').innerHTML=clusters.filter(c=>cl[c].total>0).map(c=>`<div class="bar-row">
+    <div class="bar-name">${CLUSTER_LABEL[c]}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${Math.round(cl[c].total/maxTotal*100)}%"></div></div>
+    <div class="bar-val"><b>${cl[c].total}</b> orgs &middot; ${cl[c].partner} partners</div>
+  </div>`).join('');
+
+  // pipeline funnel
+  const stages=[['prospect','Prospect'],['contacted','Contacted'],['meeting_set','Meeting set'],['partner','Partner']];
+  document.getElementById('funnel').innerHTML=stages.map(([k,lbl])=>`<div class="fcard"><div class="fnum">${is(k)}</div><div class="flabel">${lbl}</div></div>`).join('');
+}
+
+function initApp(profile, session){ loadBoard(); }
+</script>
+</body>
+</html>
