@@ -603,10 +603,11 @@
             <option value="">Select...</option>
             <option>Solar</option><option>Roofing</option>
             <option>Battery</option>
-            <option>Sales Fundamentals</option>
-            <option>University</option>
-            <option>Technology</option>
+            <option>Selling Skills</option>
+            <option>Finance &amp; Pay</option>
             <option>Control Your Business</option>
+            <option>Tools &amp; Reference</option>
+            <option>Management</option>
           </select>
         </div>
         <div>
@@ -734,7 +735,7 @@
       <input type="text" id="filterQ"      placeholder="Filter by name..." oninput="renderTable()">
       <select           id="filterCat"    onchange="renderTable()">
         <option value="">All categories</option>
-        <option>Solar</option><option>Roofing</option><option>Battery</option><option>Sales Fundamentals</option><option>University</option><option>Technology</option><option>Control Your Business</option>
+        <option>Solar</option><option>Roofing</option><option>Battery</option><option>Selling Skills</option><option>Finance &amp; Pay</option><option>Control Your Business</option><option>Tools &amp; Reference</option><option>Management</option>
       </select>
       <select           id="filterStatus" onchange="renderTable()">
         <option value="">All statuses</option>
@@ -2475,7 +2476,7 @@ function downloadTemplate() {
 }
 
 // ── Bulk Upload Modal ─────────────────────────────
-const VALID_CATS  = ['Solar', 'Roofing', 'Battery', 'Training', 'Sales Psychology'];
+const VALID_CATS  = ['Solar', 'Roofing', 'Battery', 'Selling Skills', 'Finance & Pay', 'Control Your Business', 'Tools & Reference', 'Management'];
 const VALID_TYPES = ['Spec Sheet','Calculator','Map Tool','Reference Portal','Reference Doc','Form','Document','Financing','Manufacturer Portal','Training Deck'];
 
 let bulkRows    = [];
