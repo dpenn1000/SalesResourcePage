@@ -72,6 +72,10 @@
   tbody tr.row-complete td:not(.customer) { opacity: .80; }
   tbody tr.row-complete td.customer { color: var(--done-text); }
 
+  /* DEFERRED ROW */
+  tbody tr.row-deferred td:not(.customer) { opacity: .65; }
+  tbody tr.row-deferred td.customer { color: #6a7a8e; }
+
   /* BADGES */
   .badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; white-space: nowrap; }
   .target-solar { background: #ede8c4; color: #6a3c08; border: 1px solid #c8ae50; }
@@ -142,6 +146,8 @@
   .tab-btn.active .tab-count { background: var(--accent); color: #fff; }
   .tab-done-count { background: #b8d8c4; color: var(--done-text); }
   .tab-btn.active .tab-done-count { background: var(--done-bd); color: #fff; }
+  .tab-deferred-count { background: #e8ddc0; color: #6a3c08; }
+  .tab-btn.active .tab-deferred-count { background: #b8923c; color: #fff; }
 </style>
 </head>
 <body>
@@ -192,6 +198,7 @@
 
 <div class="tabs">
   <button class="tab-btn active" id="tab-active" onclick="switchTab('active')">Active <span class="tab-count" id="tab-active-count">--</span></button>
+  <button class="tab-btn" id="tab-deferred" onclick="switchTab('deferred')">Deferred <span class="tab-count tab-deferred-count" id="tab-deferred-count">--</span></button>
   <button class="tab-btn" id="tab-done" onclick="switchTab('done')">Completed <span class="tab-count tab-done-count" id="tab-done-count">--</span></button>
 </div>
 
@@ -302,9 +309,13 @@
       <!-- Editable fields -->
       <div class="modal-section">
         <div class="modal-section-title">Flip Details -- Edit &amp; Save</div>
-        <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:9px 12px;background:#daeee1;border:1px solid #62a87a;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;color:#265538">
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:9px 12px;background:#daeee1;border:1px solid #62a87a;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;color:#265538">
           <input type="checkbox" id="m-resign-complete" style="width:16px;height:16px;cursor:pointer">
           Re-sign Complete (moves this flip to the Completed tab)
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding:9px 12px;background:#f3ecd9;border:1px solid #c8a84e;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600;color:#6a4c08">
+          <input type="checkbox" id="m-deferred" style="width:16px;height:16px;cursor:pointer">
+          Deferred (parks this flip in the Deferred tab, off the active focus list)
         </label>
         <div class="form-grid">
           <div class="form-group">
@@ -485,8 +496,7 @@ function getFiltered() {
   const st = document.getElementById('f-status').value;
   const q = document.getElementById('f-search').value.toLowerCase();
   return allData.filter(r => {
-    if (currentTab === 'active' && isComplete(r)) return false;
-    if (currentTab === 'done' && !isComplete(r)) return false;
+    if (bucket(r) !== currentTab) return false;
     if (rep && r.rep !== rep) return false;
     if (prod && r.product !== prod) return false;
     if (tgt === '__null__' && r.flip_target != null) return false;
@@ -506,16 +516,17 @@ function getFiltered() {
 
 function switchTab(tab) {
   currentTab = tab;
-  document.getElementById('tab-active').classList.toggle('active', tab === 'active');
-  document.getElementById('tab-done').classList.toggle('active', tab === 'done');
+  ['active','deferred','done'].forEach(t =>
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab));
   renderTable();
 }
 
 function updateTabCounts() {
-  const active = allData.filter(r => !isComplete(r)).length;
-  const done = allData.filter(r => isComplete(r)).length;
-  document.getElementById('tab-active-count').textContent = active;
-  document.getElementById('tab-done-count').textContent = done;
+  const c = { active: 0, deferred: 0, done: 0 };
+  allData.forEach(r => c[bucket(r)]++);
+  document.getElementById('tab-active-count').textContent = c.active;
+  document.getElementById('tab-deferred-count').textContent = c.deferred;
+  document.getElementById('tab-done-count').textContent = c.done;
 }
 
 function renderStats() {
@@ -542,6 +553,14 @@ function isComplete(r) {
   return r.resign_complete === true;
 }
 
+// Each flip lives in exactly one bucket / tab. Completed wins over Deferred so
+// a finished re-sign never hides in the Deferred parking lot.
+function bucket(r) {
+  if (r.resign_complete === true) return 'done';
+  if (r.deferred === true) return 'deferred';
+  return 'active';
+}
+
 function renderTable() {
   const rows = getFiltered();
   document.getElementById('row-count').textContent = rows.length + ' rows';
@@ -549,7 +568,8 @@ function renderTable() {
   tbody.innerHTML = '';
   rows.forEach(r => {
     const tr = document.createElement('tr');
-    if (isComplete(r)) tr.classList.add('row-complete');
+    if (bucket(r) === 'done') tr.classList.add('row-complete');
+    else if (bucket(r) === 'deferred') tr.classList.add('row-deferred');
     const nc = parseFloat(r.net_change);
     const ncHtml = r.net_change != null ? `<span class="${nc >= 0 ? 'net-pos' : 'net-neg'}">${fmt$(nc)}</span>` : '--';
     const fpChange = (r.old_fp || r.new_fp)
@@ -668,6 +688,7 @@ function openModal(id) {
   document.getElementById('m-flip-target').value = r.flip_target || '';
   document.getElementById('m-flip-status').value = r.flip_status || '';
   document.getElementById('m-resign-complete').checked = r.resign_complete === true;
+  document.getElementById('m-deferred').checked = r.deferred === true;
   document.getElementById('m-old-fp').value = r.old_fp || '';
   document.getElementById('m-new-fp').value = r.new_fp || '';
   document.getElementById('m-flip-owner').value = r.flip_owner || '';
@@ -719,6 +740,7 @@ async function saveModal() {
     flip_target: document.getElementById('m-flip-target').value || null,
     flip_status: document.getElementById('m-flip-status').value || null,
     resign_complete: document.getElementById('m-resign-complete').checked,
+    deferred: document.getElementById('m-deferred').checked,
     old_fp: document.getElementById('m-old-fp').value || null,
     new_fp: document.getElementById('m-new-fp').value || null,
     flip_owner: document.getElementById('m-flip-owner').value || null,
@@ -791,6 +813,7 @@ async function splitRecord() {
     notes: r.notes,
     sales_notes: r.sales_notes,
     on_report: r.on_report,
+    deferred: r.deferred,
     og_epc: null, new_epc: null, expenses: null, net_change: null,
     og_unit: null, new_unit: null,
   };
