@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Partner Calls | Trinity Solar CT</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--green:#78C832;--green-deep:#5eba28;--accent:#29A9E1;--gold:#F5A623;--ink:#1A2332;--muted:#6b7a8d;--border:#DFE2DA;--bg:#EFF1EC;--surface:#fff;--radius:12px;--shadow:0 1px 4px rgba(0,0,0,.07)}
+  html{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;font-size:16px;line-height:1.6}
+  .page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 32px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .header-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:14px}
+  .logo-mark{width:36px;height:36px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#0b1120;flex-shrink:0;text-decoration:none}
+  .header-text{flex:1;min-width:0}
+  .header-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;line-height:1.2}
+  .header-sub{font-size:13px;color:var(--muted);margin-top:1px}
+  .header-link{font-size:14px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap}
+  .main{max-width:1080px;margin:0 auto;padding:26px 32px 80px}
+  .callhero{background:linear-gradient(135deg,var(--ink) 0%,#243047 100%);color:#fff;border-radius:14px;padding:20px 24px;margin-bottom:18px}
+  .callhero .ch-row{display:flex;gap:26px;flex-wrap:wrap;align-items:center}
+  .callhero .ch-stat .n{font-family:'Fraunces',serif;font-weight:700;font-size:30px;line-height:1}
+  .callhero .ch-stat .n.g{color:var(--green)} .callhero .ch-stat .n.gold{color:var(--gold)}
+  .callhero .ch-stat .l{font-size:11px;color:rgba(255,255,255,.72);margin-top:5px;text-transform:uppercase;letter-spacing:.04em}
+  .callhero .ch-cta{margin-left:auto;font-size:14px;font-weight:700}
+  .callhero .ch-cta a{color:var(--green);font-weight:800;text-decoration:none}
+  .callhero .ch-rank{font-size:13px;color:rgba(255,255,255,.85);margin-top:10px;border-top:1px solid rgba(255,255,255,.12);padding-top:10px}
+  @media(max-width:600px){.callhero .ch-cta{margin-left:0;width:100%;margin-top:10px}}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+  .toolbar select,.toolbar input{padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:var(--surface);color:var(--ink)}
+  .toolbar input[type=search]{flex:1;min-width:180px}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .seg button{padding:9px 14px;border:none;background:var(--surface);font-family:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+  .seg button.on{background:var(--green);color:#0b1120}
+  .count{font-size:13px;font-weight:700;color:var(--muted);margin-left:auto}
+  .org{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;margin-bottom:12px}
+  .org-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start}
+  .org-name{font-weight:700;font-size:16px}
+  .org-meta{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .pill{display:inline-block;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--muted)}
+  .pill.contacted{background:#FDEBCF;color:#9A6310}.pill.meeting_set{background:#D9EFFA;color:#176187}.pill.partner{background:#E8F3DA;color:#3F6B16}.pill.declined,.pill.inactive{background:#FBE3E3;color:#9B2C2C}
+  .contacts{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:13.5px}
+  .contacts a{color:var(--accent);font-weight:600;text-decoration:none}
+  .dm{font-size:13px;color:var(--ink);margin-top:6px}
+  .dm b{color:var(--muted);font-weight:700}
+  .followup{font-size:12.5px;color:#9A6310;font-weight:700;margin-top:6px}
+  .org-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .btn{font-family:inherit;font-weight:700;font-size:13px;padding:8px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-block}
+  .btn-green{background:var(--green);border-color:var(--green-deep);color:#0b1120}
+  .logform{margin-top:12px;border-top:1px dashed var(--border);padding-top:12px;display:none}
+  .logform.open{display:block}
+  .lf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .lf-grid label{font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:3px}
+  .lf-grid select,.lf-grid input,.logform textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:7px;font-size:14px;font-family:inherit;background:var(--surface);color:var(--ink)}
+  .logform textarea{margin-top:10px;resize:vertical}
+  .history{margin-top:12px;border-top:1px dashed var(--border);padding-top:10px;display:none}
+  .history.open{display:block}
+  .call{font-size:13px;padding:8px 0;border-bottom:1px solid var(--border)}
+  .call:last-child{border-bottom:none}
+  .call .when{color:var(--muted);font-size:12px}
+  .empty{color:var(--muted);font-size:14px;padding:30px 0;text-align:center}
+  @media(max-width:720px){.lf-grid{grid-template-columns:1fr}.main{padding:20px 16px 60px}.page-header{padding:14px 16px}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+<header class="page-header">
+  <div class="header-inner">
+    <a href="/?stay=1" class="logo-mark">T</a>
+    <div class="header-text">
+      <div class="header-title">My Partner Calls</div>
+      <div class="header-sub">Trinity Solar CT &middot; Community Outreach</div>
+    </div>
+    <a class="header-link" href="/community-outreach-call-guide.html">Call Guide &rarr;</a>
+  </div>
+</header>
+
+<main class="main">
+  <section class="callhero" id="hero" style="display:none"></section>
+  <div class="toolbar">
+    <div class="seg" id="scopeSeg">
+      <button data-scope="mine" class="on" onclick="setScope('mine')">My orgs</button>
+      <button data-scope="all" onclick="setScope('all')">All in my area</button>
+      <button data-scope="due" onclick="setScope('due')">Follow-ups due</button>
+    </div>
+    <select id="fStatus" onchange="render()">
+      <option value="">All statuses</option>
+      <option value="prospect">Prospect</option><option value="contacted">Contacted</option>
+      <option value="meeting_set">Meeting set</option><option value="partner">Partner</option>
+      <option value="declined">Declined</option><option value="inactive">Inactive</option>
+    </select>
+    <input id="fSearch" type="search" placeholder="Search name, town&hellip;" oninput="render()" autocomplete="off">
+    <span class="count" id="count"></span>
+  </div>
+  <div id="list"><div class="empty">Loading your call list&hellip;</div></div>
+</main>
+</div>
+
+<script>
+const sb = window.sb;
+let MYID=null, MYTEAMS=new Set(), PARTNERS=[], CALLS={}, NAMES={}, scope='mine';
+const TYPE={faith:'Faith-based',youth_sports:'Youth sports',scouting:'Scouting',school_pta:'School / PTA',nonprofit:'Nonprofit',environmental:'Environmental',animal_rescue:'Animal rescue',charity_walk:'Charity walk / run',festival:'Festival',first_responder:'First responder',civic:'Civic club',veterans:'Veterans',senior:'Senior',hoa:'HOA',other:'Other'};
+const CLU={central:'Central',southeast:'Southeast',southwest:'Southwest',other:'Other'};
+function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function today(){return new Date().toISOString().slice(0,10);}
+function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function fmtTS(ts){if(!ts)return'';return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+async function loadAll(){
+  try{
+    const uid=window.AUTH_SESSION&&window.AUTH_SESSION.user&&window.AUTH_SESSION.user.id;
+    if(uid){const me=await sb.from('people').select('id').eq('auth_user_id',uid).maybeSingle(); MYID=me.data&&me.data.id||null;}
+  }catch(e){}
+  try{ if(MYID){const gm=await sb.from('group_members').select('group_id').eq('person_id',MYID); MYTEAMS=new Set((gm.data||[]).map(x=>x.group_id));} }catch(e){}
+  const [p,c]=await Promise.all([
+    sb.from('community_partners').select('*').eq('is_deleted',false).order('name'),
+    sb.from('community_partner_calls').select('id,partner_id,person_id,method,outcome,notes,follow_up_date,contacted_at').order('contacted_at',{ascending:false})
+  ]);
+  PARTNERS=p.data||[]; CALLS={};
+  (c.data||[]).forEach(r=>{(CALLS[r.partner_id]=CALLS[r.partner_id]||[]).push(r);});
+  try{ const ppl=await sb.from('people').select('id,name'); (ppl.data||[]).forEach(x=>NAMES[x.id]=x.name); }catch(e){}
+  render();
+}
+function setScope(s){scope=s;document.querySelectorAll('#scopeSeg button').forEach(b=>b.classList.toggle('on',b.dataset.scope===s));render();}
+function mine(p){ return (MYID&&p.assigned_to===MYID) || (p.working_group_id&&MYTEAMS.has(p.working_group_id)); }
+
+function renderHero(){
+  const el=document.getElementById('hero'); if(!el)return;
+  const my=PARTNERS.filter(mine), td=today();
+  const due=my.filter(p=>p.next_follow_up&&p.next_follow_up<=td).length;
+  const never=my.filter(p=>!p.last_contacted_at).length;
+  const inplay=my.filter(p=>['prospect','contacted','meeting_set'].includes(p.status)).length;
+  const myPartners=my.filter(p=>p.status==='partner').length;
+  const wk=new Date(Date.now()-7*864e5).toISOString();
+  let myCalls=0; Object.values(CALLS).forEach(arr=>arr.forEach(c=>{ if(c.person_id===MYID && c.contacted_at>=wk) myCalls++; }));
+  let beckon='Find an org and make the first call.';
+  if(due) beckon=`${due} follow-up${due===1?'':'s'} due. Start there.`;
+  else if(never) beckon=`${never} never contacted. Make the first call.`;
+  else if(inplay) beckon=`${inplay} in play. Keep the momentum going.`;
+  el.style.display='block';
+  el.innerHTML=`<div class="ch-row">
+    <div class="ch-stat"><div class="n g">${myCalls}</div><div class="l">Your calls, 7 days</div></div>
+    <div class="ch-stat"><div class="n ${due?'gold':''}">${due}</div><div class="l">Follow-ups due</div></div>
+    <div class="ch-stat"><div class="n">${never}</div><div class="l">Never contacted</div></div>
+    <div class="ch-stat"><div class="n g">${myPartners}</div><div class="l">Partners landed</div></div>
+    <div class="ch-cta">${beckon} &nbsp;<a href="/community-scoreboard.html">Scoreboard &rarr;</a></div>
+  </div>${teamRankLine()}`;
+}
+function teamRankLine(){
+  if(!MYTEAMS.size) return '';
+  const byTeam={};
+  PARTNERS.forEach(p=>{ if(!p.working_group_id)return; const t=byTeam[p.working_group_id]=byTeam[p.working_group_id]||{partner:0,meeting:0,total:0}; t.total++; if(p.status==='partner')t.partner++; if(p.status==='meeting_set')t.meeting++; });
+  const ranked=Object.entries(byTeam).sort((a,b)=>b[1].partner-a[1].partner||b[1].meeting-a[1].meeting||b[1].total-a[1].total);
+  let best=null; ranked.forEach(([gid],i)=>{ if(MYTEAMS.has(gid)&&(best===null||i<best))best=i; });
+  if(best===null) return '';
+  return `<div class="ch-rank">Your team ranks <b style="color:var(--green)">#${best+1}</b> of ${ranked.length} working groups. <a href="/community-scoreboard.html" style="color:var(--green);font-weight:700">See standings &rarr;</a></div>`;
+}
+function render(){
+  renderHero();
+  const fs=document.getElementById('fStatus').value, q=(document.getElementById('fSearch').value||'').toLowerCase().trim();
+  let list=PARTNERS.slice();
+  if(scope==='mine') list=list.filter(mine);
+  else if(scope==='due') list=list.filter(p=>p.next_follow_up&&p.next_follow_up<=today());
+  if(fs) list=list.filter(p=>p.status===fs);
+  if(q) list=list.filter(p=>((p.name||'')+' '+(p.town||'')+' '+(p.county||'')).toLowerCase().includes(q));
+  // order: follow-ups due, then never contacted, then by name
+  list.sort((a,b)=>{
+    const ad=a.next_follow_up&&a.next_follow_up<=today()?0:1, bd=b.next_follow_up&&b.next_follow_up<=today()?0:1;
+    if(ad!==bd)return ad-bd;
+    const an=a.last_contacted_at?1:0, bn=b.last_contacted_at?1:0;
+    if(an!==bn)return an-bn;
+    return (a.name||'').localeCompare(b.name||'');
+  });
+  document.getElementById('count').textContent=list.length+' org'+(list.length===1?'':'s');
+  const el=document.getElementById('list');
+  if(!PARTNERS.length){el.innerHTML='<div class="empty">No partner organizations are visible to you yet.</div>';return;}
+  if(!list.length){el.innerHTML='<div class="empty">No organizations match. Try <b>All in my area</b> or clear the filters.</div>';return;}
+  el.innerHTML=list.map(p=>orgCard(p)).join('');
+}
+
+function orgCard(p){
+  const phone=p.contact_phone?`<a href="tel:${esc(p.contact_phone.replace(/[^0-9+]/g,''))}">&#128222; ${esc(p.contact_phone)}</a>`:'';
+  const email=p.contact_email?`<a href="mailto:${esc(p.contact_email)}">&#9993; ${esc(p.contact_email)}</a>`:'';
+  const site=p.website?`<a href="${(p.website.startsWith('http')?'':'https://')+esc(p.website)}" target="_blank" rel="noopener">site &nearr;</a>`:'';
+  const fu=p.next_follow_up?`<div class="followup">Follow up ${fmtD(p.next_follow_up)}${p.next_follow_up<=today()?' (due)':''}</div>`:'';
+  const last=p.last_contacted_at?`<div class="org-meta">Last contact ${fmtTS(p.last_contacted_at)}${p.last_outcome?' &middot; '+esc(p.last_outcome):''}</div>`:'<div class="org-meta">Not contacted yet</div>';
+  const calls=(CALLS[p.id]||[]);
+  const hist=calls.map(c=>`<div class="call"><b>${esc((c.method||'').replace('_',' '))}</b>${c.outcome?' &middot; '+esc(c.outcome):''} <span class="when">&middot; ${fmtTS(c.contacted_at)}${NAMES[c.person_id]?' &middot; '+esc(NAMES[c.person_id]):''}</span>${c.notes?'<br>'+esc(c.notes):''}${c.follow_up_date?'<br><span class="when">follow up '+fmtD(c.follow_up_date)+'</span>':''}</div>`).join('')||'<div class="call">No calls logged yet.</div>';
+  return `<div class="org">
+    <div class="org-top">
+      <div>
+        <div class="org-name">${esc(p.name)}</div>
+        <div class="org-meta">${esc(TYPE[p.org_type]||p.org_type)} &middot; ${esc([p.town,CLU[p.cluster]&&CLU[p.cluster]+' cluster'].filter(Boolean).join(' &middot; '))}</div>
+        ${last}
+      </div>
+      <span class="pill ${esc(p.status)}">${esc((p.status||'').replace('_',' '))}</span>
+    </div>
+    <div class="contacts">${[phone,email,site].filter(Boolean).join('')||'<span style="color:var(--muted)">No contact on file</span>'}</div>
+    ${p.decision_maker?`<div class="dm"><b>Decision-maker:</b> ${esc(p.decision_maker)}</div>`:''}
+    ${fu}
+    <div class="org-actions">
+      <button class="btn btn-green" onclick="toggleLog('${p.id}')">Log a call</button>
+      <button class="btn" onclick="toggleHist('${p.id}')">History (${calls.length})</button>
+    </div>
+    <div class="logform" id="lf_${p.id}">
+      <div class="lf-grid">
+        <div><label>Method</label><select id="m_${p.id}"><option value="phone">Phone</option><option value="voicemail">Voicemail</option><option value="email">Email</option><option value="text">Text</option><option value="in_person">In person</option><option value="social">Social</option><option value="other">Other</option></select></div>
+        <div><label>Outcome</label><select id="o_${p.id}"><option value="">Select&hellip;</option><option>Reached decision-maker</option><option>Left voicemail</option><option>No answer</option><option>Spoke to gatekeeper</option><option>Emailed info</option><option>Meeting set</option><option>Interested, follow up</option><option>Not interested</option><option>Wrong contact</option><option>Call back later</option></select></div>
+        <div><label>Follow-up date</label><input type="date" id="f_${p.id}"></div>
+      </div>
+      <div class="lf-grid" style="margin-top:10px">
+        <div><label>Move status to</label><select id="s_${p.id}"><option value="">No change (auto)</option><option value="contacted">Contacted</option><option value="meeting_set">Meeting set</option><option value="partner">Partner</option><option value="declined">Declined</option><option value="inactive">Inactive</option></select></div>
+      </div>
+      <textarea id="n_${p.id}" rows="2" placeholder="Notes: who you reached, what they cared about, next step"></textarea>
+      <div class="org-actions"><button class="btn btn-green" onclick="logCall('${p.id}')">Save call</button><button class="btn" onclick="toggleLog('${p.id}')">Cancel</button></div>
+    </div>
+    <div class="history" id="hist_${p.id}">${hist}</div>
+  </div>`;
+}
+function toggleLog(id){document.getElementById('lf_'+id).classList.toggle('open');}
+function toggleHist(id){document.getElementById('hist_'+id).classList.toggle('open');}
+async function logCall(id){
+  const v=x=>{const e=document.getElementById(x+'_'+id);return e?e.value:'';};
+  const {error}=await sb.rpc('log_partner_call',{p_partner:id,p_method:v('m')||'phone',p_outcome:v('o')||null,p_notes:v('n')||null,p_follow_up:v('f')||null,p_new_status:v('s')||null});
+  if(error){alert('Could not save: '+error.message);return;}
+  await loadAll();
+}
+function initApp(profile, session){ loadAll(); }
+</script>
+</body>
+</html>

@@ -677,6 +677,15 @@
     <div class="section-body" id="todayBody"></div>
   </div>
 
+  <!-- COMMUNITY OUTREACH: the rep's partner-org call list + live standings -->
+  <div class="section" id="communitySection" style="display:none">
+    <div class="section-head">
+      <div class="section-title">Community Outreach</div>
+      <div class="section-pill" id="communityPill">--</div>
+    </div>
+    <div class="section-body" id="communityBody"></div>
+  </div>
+
   <!-- KEY METRICS + STACK-UP -->
   <div class="section">
     <div class="section-head">
@@ -905,11 +914,47 @@ async function initApp(profile, session) {
     loadGobacks(me),
     loadAndRenderNotes(me),
     loadAndRenderUniversity(me),
-    loadAndRenderCallActivity(me)
+    loadAndRenderCallActivity(me),
+    loadAndRenderCommunity(me)
   ]);
 
   // Profile extras work for self AND manager view-as (read-only) now.
   loadProfileExtras(me);
+}
+
+// ── Community Outreach: the rep's partner-org call list + standings nudge ──
+// Reads community_partners (RLS: active user, in-state) + the rep's team
+// memberships; surfaces follow-ups due and links into the call workspace.
+async function loadAndRenderCommunity(me){
+  const sec = $('communitySection'); if (!sec || !me || !me.id) return;
+  try {
+    const [pp, gm] = await Promise.all([
+      sb.from('community_partners').select('id,status,assigned_to,working_group_id,next_follow_up,last_contacted_at').eq('is_deleted', false),
+      sb.from('group_members').select('group_id').eq('person_id', me.id)
+    ]);
+    const teams = new Set((gm.data || []).map(x => x.group_id));
+    const mine = (pp.data || []).filter(p => p.assigned_to === me.id || (p.working_group_id && teams.has(p.working_group_id)));
+    const today = new Date().toISOString().slice(0, 10);
+    const due = mine.filter(p => p.next_follow_up && p.next_follow_up <= today).length;
+    const never = mine.filter(p => !p.last_contacted_at).length;
+    const partners = mine.filter(p => p.status === 'partner').length;
+    const pill = $('communityPill'); if (pill) pill.textContent = due ? (due + ' due') : (mine.length ? mine.length + ' orgs' : 'Outreach');
+    const nudge = due ? ('<b>' + due + '</b> follow-up' + (due === 1 ? '' : 's') + ' due')
+      : (never ? ('<b>' + never + '</b> never contacted') : (mine.length ? 'Keep the momentum going' : 'Join the community outreach effort'));
+    const stat = mine.length ? (' &middot; ' + partners + ' partner' + (partners === 1 ? '' : 's') + ' landed &middot; ' + mine.length + ' org' + (mine.length === 1 ? '' : 's') + ' on your list') : '';
+    const btn = (href, label, primary) => '<a href="' + href + '" style="' + (primary
+      ? 'background:#5eba28;color:#0b1120;font-weight:700;'
+      : 'border:1px solid #DFE2DA;color:#1A2332;font-weight:600;') + 'padding:9px 14px;border-radius:8px;text-decoration:none;font-size:13px;display:inline-block">' + label + '</a>';
+    $('communityBody').innerHTML =
+      '<div style="font-size:14px;margin-bottom:12px;color:#3A4555">' + nudge + stat + '</div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+        btn('/my-partner-calls.html', 'Work My Partner Calls &rarr;', true) +
+        btn('/community-scoreboard.html', 'Scoreboard') +
+        btn('/community-outreach-call-guide.html', 'Call Guide') +
+        btn('/sales-fundamentals/community-partners/community-outreach.html', 'Playbook') +
+      '</div>';
+    sec.style.display = '';
+  } catch (e) { /* community tables optional */ }
 }
 
 // ── My Schedule: the signed-in rep's own availability for the current period ──
