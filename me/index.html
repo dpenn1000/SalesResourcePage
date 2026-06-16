@@ -1389,8 +1389,11 @@ async function loadGobacks(me){
       '<span class="ti-text"><b>'+esc(l.homeowner_name||'--')+'</b>'+town+sub+noteHtml+'</span>'+
       '<span class="ti-when">'+(d==null?'?':d+'d')+'</span></div>';
   }).join('');
+  // My Calls preselects the viewed rep by NAME (?as=Name matches the viewAs
+  // dropdown), NOT spd_slug -- sending the slug left a manager on the unfocused
+  // "pick a rep" screen.
   const link = IS_VIEW_AS
-    ? '/my-calls.html?as='+encodeURIComponent(me.spd_slug||'')+'&view=gobacks'
+    ? '/my-calls.html?as='+encodeURIComponent(me.name||'')+'&view=gobacks'
     : '/my-calls.html?view=gobacks';
   const tiles='<div style="display:flex;gap:8px;flex-wrap:wrap">'+
     [['Warm',warm,'#5aa522','0-7d'],['Slipping',slip,'#d99a2b','8-14d'],['Cold',cold,'#c0392b','15+d']].map(([lab,n,c,sub])=>
@@ -1445,8 +1448,11 @@ async function loadDeals(prof){
     ? '<div class="addr p-medium" style="margin-top:12px"><div class="addr-title">' + needTouch + ' signed deal' + (needTouch>1?'s':'') + ' need a customer touch</div>' +
       '<div class="addr-body">Each contracted-to-complete deal has a Constant Contact message ready to send at its current stage.</div></div>'
     : '<div class="empty success" style="margin-top:12px">All current-stage touches are sent. Nice.</div>';
+  const dealsLink = IS_VIEW_AS
+    ? '/my-calls.html?as=' + encodeURIComponent(prof.name || '') + '&view=deals'
+    : '/my-calls.html?view=deals';
   $('dealsBody').innerHTML = lead + '<div style="display:flex;gap:8px;flex-wrap:wrap">' + tiles + '</div>' + note +
-    '<a class="linkbtn" style="display:inline-block;margin-top:12px;color:var(--blue);font-weight:700;text-decoration:none" href="/my-calls.html?view=deals">Open My Calls to send touches &rarr;</a>';
+    '<a class="linkbtn" style="display:inline-block;margin-top:12px;color:var(--blue);font-weight:700;text-decoration:none" href="' + dealsLink + '">Open My Calls to send touches &rarr;</a>';
   return { total: deals.length, needTouch: needTouch };
 }
 
