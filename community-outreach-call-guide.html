@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Outreach Call Guide | Trinity Solar CT</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--green:#78C832;--green-deep:#5eba28;--accent:#29A9E1;--ink:#1A2332;--muted:#6b7a8d;--border:#DFE2DA;--bg:#EFF1EC;--surface:#fff;--radius:12px;--shadow:0 1px 4px rgba(0,0,0,.07)}
+  html{background:var(--bg);color:var(--ink);font-family:'Manrope',sans-serif;font-size:16px;line-height:1.7}
+  .page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 32px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:14px}
+  .logo-mark{width:36px;height:36px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:#0b1120;flex-shrink:0}
+  .header-text{flex:1;min-width:0}
+  .header-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;line-height:1.2}
+  .header-sub{font-size:13px;color:var(--muted);margin-top:1px}
+  .header-link{font-size:14px;font-weight:600;color:var(--accent);text-decoration:none;white-space:nowrap;flex-shrink:0}
+  .header-link:hover{opacity:.8}
+  .main{max-width:1100px;margin:0 auto;padding:36px 32px 80px}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green-deep);margin-bottom:10px}
+  h1.title{font-family:'Fraunces',serif;font-size:clamp(26px,5vw,40px);line-height:1.1;max-width:780px}
+  .lede{font-size:18px;color:var(--muted);max-width:740px;margin-top:18px}
+  .proof{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:26px}
+  .proof-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px}
+  .proof-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--green-deep);line-height:1}
+  .proof-label{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.4}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px 26px;margin-top:22px}
+  .card h2{font-family:'Fraunces',serif;font-size:21px;margin-bottom:6px}
+  .card h3{font-size:15px;font-weight:700;margin:16px 0 4px}
+  .card p{margin:8px 0}
+  .card ul{margin:8px 0 8px 20px}
+  .card li{margin:6px 0}
+  .script{background:#f6f9f1;border:1px solid #d8e8c4;border-left:4px solid var(--green);border-radius:8px;padding:14px 18px;margin:12px 0;font-size:15.5px}
+  .script .who{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:4px}
+  b.g{color:#3a7010}
+  .note{font-size:14px;color:var(--muted);margin-top:6px}
+  @media(max-width:720px){.proof{grid-template-columns:1fr 1fr}.main{padding:24px 18px 60px}.page-header{padding:14px 18px}}
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+<header class="page-header">
+  <div class="header-inner">
+    <a href="/?stay=1" class="logo-mark" style="text-decoration:none;color:inherit;cursor:pointer">T</a>
+    <div class="header-text">
+      <div class="header-title">Community Outreach Call Guide</div>
+      <div class="header-sub">Trinity Solar CT &middot; Calling organizations into partnership</div>
+    </div>
+    <a class="header-link" href="/admin.html?tab=partners">Open the Partners Tracker &rarr;</a>
+  </div>
+</header>
+
+<main class="main">
+  <div class="eyebrow">Outreach Playbook</div>
+  <h1 class="title">You are not selling solar. You are handing an organization a no-cost fundraiser.</h1>
+  <p class="lede">This guide is for calling the organization, not the homeowner. The goal of the call is one thing: a short meeting with the person who can say yes to a partnership. Lead with their cause, keep it about them, and the rest takes care of itself.</p>
+
+  <div class="proof">
+    <div class="proof-item"><div class="proof-num">$836,150</div><div class="proof-label">Paid to partner organizations since 2018</div></div>
+    <div class="proof-item"><div class="proof-num">222</div><div class="proof-label">Organizations on the program</div></div>
+    <div class="proof-item"><div class="proof-num">$100</div><div class="proof-label">Per qualified consultation</div></div>
+    <div class="proof-item"><div class="proof-num">$1,000</div><div class="proof-label">Per installation</div></div>
+  </div>
+
+  <div class="card">
+    <h2>What you are offering, in one breath</h2>
+    <p>Trinity partners with a local organization, and the organization earns a donation when one of their people goes solar with us. The member gets a good system from a 30-year installer and saves on their bill. The organization raises money with <b class="g">no event to run, no cost, and no obligation</b>. Checks arrive through the year, after each consultation and each install, not in one lump at the end of a campaign.</p>
+    <p class="note">Know the numbers cold: $100 to the org for every qualified consultation, $1,000 when a member installs, roofing opportunities too, and $836,150 paid to 222 organizations since 2018. That track record is your credibility.</p>
+  </div>
+
+  <div class="card">
+    <h2>Before you dial: do the homework</h2>
+    <p>A warm, prepared call is the difference between a partner and a hang-up. Have these answers in front of you, straight from the <a href="/admin.html?tab=partners" style="color:var(--accent);font-weight:600">Partners tracker</a> and the organization's website.</p>
+    <ul>
+      <li><b>The cause.</b> What the organization does and who it serves. Say it back to them.</li>
+      <li><b>Their size and events.</b> How many members or supporters, and what they host through the year.</li>
+      <li><b>The decision-maker.</b> Who can say yes: executive or development director, league president, scoutmaster, pastor or office manager.</li>
+      <li><b>Do they fundraise.</b> If they already run a gala or a 5K, this is money on top with none of the work.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Getting to the right person</h2>
+    <p>You will often reach a gatekeeper first. That is fine. Be warm, be brief, and ask for the person, not the sale.</p>
+    <div class="script">
+      <div class="who">You, to whoever answers</div>
+      Hi, this is [your name] with Trinity Solar. We run a fundraising program for local organizations like <b class="g">[org]</b>, and I would love to get it in front of whoever handles partnerships or fundraising. Who would that be, and is there a good way to reach them?
+    </div>
+    <p class="note">If they ask what it is about, give the one-breath version above, then go right back to "who is the best person to talk to." You are routing the call, not pitching the gatekeeper.</p>
+  </div>
+
+  <div class="card">
+    <h2>The opening, decision-maker on the line</h2>
+    <div class="script">
+      <div class="who">You</div>
+      Hi [name], this is [your name] with Trinity Solar. I am reaching out because we partner with organizations like <b class="g">[org]</b> on a program that has paid out over $836,000 to local groups, and it costs you nothing to run. When one of your members looks at solar with us, [org] earns a donation. I would love 15 minutes to show you how it works. Do you have a few minutes now, or should I grab a better time?
+    </div>
+    <p>Notice the moves: you named their organization, you led with the cause and the dollars, you made it free, and you asked for a short meeting, not a yes to anything. Lead with what the program does for them, set the bar at a quick look, and let the meeting do the selling.</p>
+  </div>
+
+  <div class="card">
+    <h2>"What's the catch?"</h2>
+    <p>The most common reaction, and a fair one. Use Feel, Felt, Found.</p>
+    <div class="script">
+      <div class="who">You</div>
+      Totally fair, I would ask too. A lot of groups <b>feel</b> like there has to be a catch. Others <b>felt</b> the same until they saw it: there is no cost, no contract, and no obligation, and if nobody in your community ever goes solar, you are not out a thing. What they <b>found</b> is that a few members were already thinking about it, and the donations just started showing up. Want me to walk you through it?
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Other objections, kept simple</h2>
+    <h3>"We don't endorse companies."</h3>
+    <p>You are not asking them to. They are offering members a benefit and earning a donation when a member chooses it. No endorsement, no exclusivity. Frame it as a member perk plus a funding stream.</p>
+    <h3>"Just send me some information."</h3>
+    <p>Agree, then anchor the next step. "Happy to. I will send a one-pager today. So I send the right thing, can I get 15 minutes this week to learn what matters most to [org]?" The email confirms the meeting, it does not replace it.</p>
+    <h3>"We're too small."</h3>
+    <p>No floor. The biggest partners on the program all started with one member and one quote. Even a handful of supporters is found money with no work.</p>
+  </div>
+
+  <div class="card">
+    <h2>The ask: book the meeting, do not close the partnership</h2>
+    <p>The call has one job: a specific, named time with the decision-maker. Do not try to sign them up on the phone.</p>
+    <ul>
+      <li><b>Offer two times.</b> "Does Thursday at 10 work, or is later in the week better?" A choice is easier than an open yes.</li>
+      <li><b>Confirm who will be there.</b> Make sure the person who can decide is in the room.</li>
+      <li><b>Set the expectation.</b> "It is about 15 minutes. I will show you exactly how the donations work and answer anything." </li>
+      <li><b>Loop in Lori.</b> She is the primary contact for partnerships and joins or runs the meeting. Lori Scala, 203-895-8968, Lori.Scala@Trinity-Solar.com.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>After every call, log it</h2>
+    <p>The campaign only works if the record is current. Use the <a href="/admin.html?tab=partners" style="color:var(--accent);font-weight:600">Partners tracker</a> and move the organization along.</p>
+    <ul>
+      <li><b>Update the status.</b> Prospect, contacted, meeting set, partner, declined. The status is what moves it, not a note alone.</li>
+      <li><b>Write what was said.</b> Who you reached, what they cared about, the objection, the next step.</li>
+      <li><b>Capture the contact.</b> Add the decision-maker name, direct phone, and email so the next call is warmer.</li>
+      <li><b>Dispatch and assign.</b> Put the organization on the right working-group team and cluster so the right rep owns the follow-up.</li>
+    </ul>
+    <p class="note">New to the phones? The <a href="/call-list-guide.html" style="color:var(--accent);font-weight:600">phone fundamentals</a> (voice, energy, booking the next step) apply to every call you make. For calling the homeowner members who come through a partner, use the <a href="/community-call-guide.html" style="color:var(--accent);font-weight:600">Community Call Guide</a>.</p>
+  </div>
+</main>
+</div>
+
+<script>
+// Required by /auth-gate.js, called once after sign-in + role check pass.
+function initApp(profile, session){ /* static guide; nothing to init */ }
+</script>
+</body>
+</html>

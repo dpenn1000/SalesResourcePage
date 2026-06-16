@@ -6,28 +6,138 @@
 <title>Community Outreach: Build Business Through Partnerships · CT Traditional</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/training-system.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* Homage to Lori's original deck: re-theme this one page to her navy + green
-   palette (no orange), entirely through shared tokens so every component inherits
-   it. Her colors, sampled from the PPTX: navy #002C4F / deep #002060, green
-   #98C93C. No inline styles. */
-:root{
-  --ink:#002C4F; --ink-deep:#002060; --ink-soft:#0E2841;
-  --green:#98C93C; --amber:#6FA82E;
-}
-/* Page-specific closing pullquote (border uses her green via --green). */
-.pullquote{font-family:var(--serif);font-style:italic;font-size:1.4rem;line-height:1.4;color:var(--ink);border-left:3px solid var(--green);padding:var(--space-2) var(--space-4);margin:var(--space-3) 0 0;max-width:74ch}
-.pullquote .attr{display:block;font-family:var(--sans);font-style:normal;font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:var(--space-2)}
-body.presenter .pullquote{font-size:1.8rem}
+  :root {
+    --green: #78C832;
+    --green-deep: #5eba28;
+    --blue: #29A9E1;
+    --ink: #1A2332;
+    --ink-soft: #3A4555;
+    --surface: #EFF1EC;
+    --border: #DFE2DA;
+    --paper: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--surface); color: var(--ink); font-family: 'Manrope', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body { padding: 32px 24px; }
+  .page { max-width: 1180px; margin: 0 auto; background: var(--paper); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(26,35,50,0.04), 0 12px 40px rgba(26,35,50,0.06); }
+  .display { font-family: 'Fraunces', serif; font-weight: 600; letter-spacing: -0.01em; }
+
+  /* Header */
+  .header { padding: 32px 80px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand-mark { width: 38px; height: 38px; border-radius: 10px; background: var(--ink); color: var(--green); display: grid; place-items: center; font-family: 'Fraunces', serif; font-weight: 700; font-size: 22px; }
+  .brand-name { font-weight: 700; font-size: 15px; letter-spacing: 0.02em; }
+  .brand-sub { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .header-meta { font-size: 12px; color: var(--ink-soft); text-align: right; }
+
+  /* Hero */
+  .hero { padding: 80px 80px 64px; background: linear-gradient(180deg, var(--paper) 0%, #F6F8F2 100%); border-bottom: 1px solid var(--border); }
+  .hero-eyebrow { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green-deep); background: rgba(120, 200, 50, 0.12); padding: 6px 12px; border-radius: 999px; margin-bottom: 22px; }
+  .hero-title { font-size: clamp(28px, 7vw, 56px); line-height: 1.05; max-width: 880px; }
+  .hero-title .accent { color: var(--green-deep); }
+  .hero-sub { font-size: 19px; line-height: 1.5; color: var(--ink-soft); max-width: 720px; margin-top: 22px; }
+
+  /* Stat grid */
+  .stats { padding: 48px 80px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-bottom: 1px solid var(--border); }
+  .stat { padding: 8px 28px; border-right: 1px solid var(--border); }
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child { border-right: none; padding-right: 0; }
+  .stat-num { font-family: 'Fraunces', serif; font-weight: 600; font-size: 44px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; }
+  .stat-label { font-size: 13px; color: var(--ink-soft); margin-top: 10px; line-height: 1.45; }
+
+  /* Section */
+  .section { padding: 72px 80px; border-bottom: 1px solid var(--border); }
+  .section-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 10px; }
+  .section-title { font-size: 32px; line-height: 1.15; max-width: 720px; }
+  .section-lead { font-size: 16px; color: var(--ink-soft); margin-top: 14px; max-width: 680px; }
+
+  /* How it works */
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+  .how-card { background: var(--surface); border-radius: 14px; padding: 36px 32px; position: relative; }
+  .how-num { font-family: 'Fraunces', serif; font-weight: 600; font-size: 36px; color: var(--green-deep); line-height: 1; }
+  .how-title { font-weight: 700; font-size: 17px; margin-top: 16px; }
+  .how-body { font-size: 14.5px; color: var(--ink-soft); margin-top: 10px; line-height: 1.6; }
+  .how-body strong { color: var(--ink); }
+
+  /* Categories */
+  .cats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 40px; }
+  .cat { background: var(--paper); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: left; }
+  .cat-icon { width: 40px; height: 40px; border-radius: 9px; background: rgba(120, 200, 50, 0.15); display: grid; place-items: center; font-size: 20px; margin-bottom: 16px; }
+  .cat-name { font-weight: 700; font-size: 14px; }
+  .cat-desc { font-size: 12.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.55; }
+
+  /* Why it works */
+  .why { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 48px; margin-top: 36px; }
+  .why-item { display: flex; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--border); }
+  .why-check { width: 22px; height: 22px; border-radius: 50%; background: var(--green); color: var(--paper); display: grid; place-items: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .why-text strong { font-size: 15px; font-weight: 700; display: block; margin-bottom: 6px; }
+  .why-text span { font-size: 14px; color: var(--ink-soft); line-height: 1.55; }
+
+  /* Support payouts on dark */
+  .support-block { background: var(--ink); color: var(--paper); padding: 72px 80px; }
+  .support-block .section-eyebrow { color: var(--green); }
+  .support-block .section-title { color: var(--paper); }
+  .pay { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 40px; }
+  .pay-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 32px 30px; }
+  .pay-num { font-family: 'Fraunces', serif; font-weight: 600; font-size: 40px; color: var(--green); line-height: 1; }
+  .pay-title { font-weight: 700; font-size: 16px; margin-top: 14px; }
+  .pay-body { font-size: 13.5px; color: rgba(255,255,255,0.7); margin-top: 8px; line-height: 1.55; }
+  .pay-body strong { color: #fff; }
+
+  /* CTA */
+  .cta { padding: 80px; text-align: center; background: linear-gradient(135deg, var(--green) 0%, var(--green-deep) 100%); color: var(--paper); }
+  .cta-title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 36px; line-height: 1.15; }
+  .cta-sub { font-size: 17px; margin-top: 16px; opacity: 0.95; max-width: 580px; margin-left: auto; margin-right: auto; line-height: 1.55; }
+  .cta-sub a { color: #fff; font-weight: 700; }
+  .cta-action { margin-top: 32px; display: inline-block; background: var(--ink); color: var(--paper); padding: 16px 32px; border-radius: 12px; font-weight: 700; font-size: 15px; letter-spacing: 0.02em; text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .cta-action:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+
+  /* Footer */
+  .footer { padding: 28px 80px; font-size: 12px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 24px; }
+
+  @media print { body { background: white; } .page { max-width: none; } .section, .hero, .support-block, .cta { page-break-inside: avoid; } }
+  @media (max-width: 900px) {
+    body { padding: 16px; }
+    .header, .hero, .section, .stats, .support-block, .cta, .footer { padding-left: 40px; padding-right: 40px; }
+    .hero { padding-top: 56px; padding-bottom: 48px; }
+    .stats { padding-top: 36px; padding-bottom: 36px; }
+    .section, .support-block { padding-top: 56px; padding-bottom: 56px; }
+    .cta { padding-top: 64px; padding-bottom: 64px; }
+    .stats, .how-grid, .why, .pay { grid-template-columns: 1fr 1fr; }
+    .cats { grid-template-columns: 1fr 1fr; }
+    .stat { padding: 16px 20px !important; border-right: 1px solid var(--border) !important; border-bottom: 1px solid var(--border) !important; }
+    .stat:nth-child(2n) { border-right: none !important; }
+    .stat:nth-child(n+3) { border-bottom: none !important; }
+  }
+  @media (max-width: 600px) {
+    body { padding: 10px; }
+    .page { border-radius: 12px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 24px; padding-bottom: 24px; }
+    .header-meta { text-align: left; }
+    .header, .hero, .section, .stats, .support-block, .cta, .footer { padding-left: 22px; padding-right: 22px; }
+    .hero { padding-top: 40px; padding-bottom: 36px; }
+    .hero-eyebrow { margin-bottom: 16px; }
+    .hero-sub { font-size: 16px; margin-top: 18px; }
+    .section, .support-block { padding-top: 44px; padding-bottom: 44px; }
+    .cta { padding: 52px 22px; }
+    .section-title { font-size: 25px; }
+    .cta-title { font-size: 27px; }
+    .stats, .how-grid, .cats, .why, .pay { grid-template-columns: 1fr; }
+    .stat { padding: 16px 0 !important; border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+    .stat:last-child { border-bottom: none !important; }
+    .stat-num { font-size: 36px; }
+    .how-card, .pay-card { padding: 28px 24px; }
+    .why { gap: 0; }
+    .footer { flex-direction: column; gap: 8px; }
+  }
 </style>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/auth-gate.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
 <script src="/auth-gate.js"></script>
 <script src="/site-back.js" defer></script>
-<script src="/training-system.js" defer></script>
 </head>
 <body>
 
@@ -63,280 +173,147 @@ body.presenter .pullquote{font-size:1.8rem}
 
 <div id="appWrap" style="display:none">
 
-<header class="site-header">
-  <div class="page-header">
-    <div class="wrap">
-      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer">
-        <span class="logo">Trinity Solar</span>
-        <span class="team">CT Traditional · Communities Division</span>
-      </a>
-      <button id="presentBtn" class="present-toggle">Presenter Mode</button>
-    </div>
-  </div>
-  <nav class="toc-nav">
-    <div class="wrap">
-      <a href="#why"><span class="num">1</span> Why It Works</a>
-      <a href="#ambassador"><span class="num">2</span> Become an Ambassador</a>
-      <a href="#where"><span class="num">3</span> Where to Look</a>
-      <a href="#questions"><span class="num">4</span> Questions to Ask</a>
-      <a href="#support"><span class="num">5</span> How We Support Them</a>
-      <a href="#accountability"><span class="num">6</span> Accountability</a>
-      <a href="#impact"><span class="num">7</span> The Impact</a>
-    </div>
-  </nav>
-</header>
+<div class="page">
 
-<!-- HERO -->
-<section class="hero" id="top">
-  <div class="wrap">
-    <span class="eyebrow">Communities Division · Community Outreach</span>
-    <h1>Build Business Through the People You <em>Already Know</em></h1>
-    <p class="lede">
-      Create opportunities in your own backyard. Build relationships that generate long-term referrals.
-      <strong>Support local organizations while you help homeowners,</strong> and become the trusted solar resource in your community.
-      Grow your pipeline and strengthen your community at the same time.
-    </p>
-  </div>
-</section>
-
-<main class="training-page">
-
-<!-- 1: WHY IT WORKS -->
-<section class="module" id="why">
-  <div class="wrap">
-    <span class="eyebrow">Part 1 · The Case</span>
-    <h2>Outreach works because it serves both sides</h2>
-    <p class="intro">The best leads come from people and organizations who already trust each other. You meet homeowners through a group they care about, and the group raises money by making the introduction. Everybody wins, and you stand apart from every other solar rep working cold.</p>
-
-    <div class="compare-grid">
-      <div class="training-card training-card--green">
-        <h3>What it does for you</h3>
-        <ul>
-          <li>✅ <strong>Meets homeowners</strong> outside traditional sales channels.</li>
-          <li>✅ <strong>Builds credibility</strong> through an organization they trust.</li>
-          <li>✅ <strong>Generates referrals</strong> from community leaders.</li>
-          <li>✅ <strong>Creates repeat opportunities</strong> through events and partnerships.</li>
-          <li>✅ <strong>Sets you apart</strong> from other solar companies.</li>
-        </ul>
+  <header class="header">
+    <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer">
+      <div class="brand-mark">T</div>
+      <div>
+        <div class="brand-name">TRINITY SOLAR</div>
+        <div class="brand-sub">Communities Division &middot; Rep Outreach</div>
       </div>
-      <div class="training-card training-card--ink">
-        <h3>What it does for the organization</h3>
-        <ul>
-          <li>✅ <strong>Fundraising</strong> with no cost to run.</li>
-          <li>✅ <strong>Environmental impact</strong> their members care about.</li>
-          <li>✅ <strong>A real member benefit,</strong> not another ask.</li>
-          <li>✅ <strong>No cost, no obligation,</strong> ever.</li>
-        </ul>
-      </div>
+    </a>
+    <div class="header-meta">
+      Build the partnership pipeline<br>
+      Lori Scala &middot; Communities
     </div>
+  </header>
 
-    <div class="pullquote">"The best leads often come from the people and organizations you already know."</div>
+  <section class="hero">
+    <span class="hero-eyebrow">Grow your pipeline, strengthen your community</span>
+    <h1 class="display hero-title">Build business through the people<br><span class="accent">you already know.</span></h1>
+    <p class="hero-sub">Create opportunities in your own backyard. Build relationships that generate long-term referrals, support local organizations while you help homeowners, and become the trusted solar resource in your community. The best leads come from people and organizations you already know.</p>
+  </section>
 
-    <div class="manager-prompt">Ask the room: which organization are you already connected to that you have never thought of as a business opportunity?</div>
-
-    <details class="recall-check">
-      <summary><span class="label">Recall</span> Why does a community lead beat a cold one?</summary>
-      <p class="answer">The homeowner already trusts the organization that introduced you, so you start with credibility instead of resistance. And the organization is motivated to send people your way, because they get paid when a consultation happens.</p>
-    </details>
-  </div>
-</section>
-
-<!-- 2: BECOME AN AMBASSADOR -->
-<section class="module" id="ambassador">
-  <div class="wrap">
-    <span class="eyebrow">Part 2 · Your Assignment</span>
-    <h2>Become a Community Ambassador</h2>
-    <p class="intro">Over the next two weeks, turn your own network into a partnership pipeline. You are not selling anything yet. You are scouting the groups, events, and people who can open doors.</p>
-
-    <ol class="step-grid">
-      <li class="step"><strong>Research local events.</strong> Walks, runs, festivals, and fundraisers already on the calendar near you.</li>
-      <li class="step"><strong>Identify the organizations</strong> being supported, and who benefits from them.</li>
-      <li class="step"><strong>Look for aligned groups</strong> whose mission fits ours: community, family, environment.</li>
-      <li class="step"><strong>Find the decision-makers,</strong> the community leaders who can say yes to a partnership.</li>
-      <li class="step"><strong>Bring opportunities</strong> to our next meeting, ready to discuss.</li>
-    </ol>
-
-    <div class="callout callout--compliance">
-      <strong>The goal:</strong> schedule a meeting with Lori to turn your list into real partnerships. Lori Scala · 203-895-8968 · Lori.Scala@Trinity-Solar.com. Bring names, not just categories.
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-num">$836,150</div>
+      <div class="stat-label">Paid to partner organizations since 2018</div>
     </div>
-
-    <div class="callout">
-      <strong>Open the workspace:</strong> the <a href="/admin.html?tab=partners">Community Partners tracker</a> already holds organizations by area (Central, Southeast, Southwest) plus Lori's existing connections as active partners. There you build working-group teams, enroll reps, dispatch organizations to a team, and move a prospect from contacted to partner.
+    <div class="stat">
+      <div class="stat-num">222</div>
+      <div class="stat-label">Organizations on the Communities program</div>
     </div>
-
-    <div class="manager-prompt">Ask the room: name one event in the next 30 days and the organization behind it. That is your first conversation.</div>
-  </div>
-</section>
-
-<!-- 3: WHERE TO LOOK -->
-<section class="module" id="where">
-  <div class="wrap">
-    <span class="eyebrow">Part 3 · The Hunting Ground</span>
-    <h2>Where to look for partners</h2>
-    <p class="intro">Potential partners are everywhere people gather around a shared cause. Start with the groups you already touch, then work outward across your town.</p>
-
-    <ul class="list-cols">
-      <li>🏃 <strong>Charity walks and runs</strong></li>
-      <li>⚾ <strong>Youth sports organizations</strong></li>
-      <li>🏕️ <strong>Scouting programs</strong></li>
-      <li>🎓 <strong>Schools and PTAs</strong></li>
-      <li>🌎 <strong>Environmental groups</strong></li>
-      <li>🚓 <strong>First responder organizations</strong></li>
-      <li>🎭 <strong>Community festivals</strong></li>
-      <li>🏠 <strong>Homeowner associations</strong></li>
-      <li>🙏 <strong>Faith-based organizations</strong></li>
-      <li>🐾 <strong>Animal rescue organizations</strong></li>
-      <li>💙 <strong>Local nonprofits</strong></li>
-    </ul>
-
-    <details class="recall-check">
-      <summary><span class="label">Recall</span> Where is the easiest first partnership?</summary>
-      <p class="answer">A group you already belong to or have a personal connection with. Warm beats cold every time, so start with the people who already know you.</p>
-    </details>
-  </div>
-</section>
-
-<!-- 4: QUESTIONS TO ASK -->
-<section class="module" id="questions">
-  <div class="wrap">
-    <span class="eyebrow">Part 4 · Do the Homework</span>
-    <h2>Questions to answer before we meet</h2>
-    <p class="intro">A good partnership conversation starts with knowing the organization. Have these answers ready and you will look like a professional, not a solicitor.</p>
-
-    <ul class="checklist">
-      <li><strong>What organization benefits,</strong> and what is its cause?</li>
-      <li><strong>How many members or supporters</strong> do they have?</li>
-      <li><strong>What events do they host</strong> through the year?</li>
-      <li><strong>Who makes partnership decisions?</strong></li>
-      <li><strong>Do they have newsletters, social media, or a website?</strong></li>
-      <li><strong>Do they actively fundraise?</strong></li>
-      <li><strong>Have they partnered with businesses before?</strong></li>
-    </ul>
-
-    <div class="manager-prompt">Ask the room: pick one organization and answer all seven questions out loud. What is still unknown?</div>
-  </div>
-</section>
-
-<!-- 5: HOW WE SUPPORT THEM -->
-<section class="module" id="support">
-  <div class="wrap">
-    <span class="eyebrow">Part 5 · The Offer</span>
-    <h2>How the Trinity Community Outreach Program supports them</h2>
-    <p class="intro">This is what you bring to the table. The organization raises money, gets marketing help, and keeps full control, all at no cost. You bring the program, they bring the people.</p>
-
-    <div class="card-grid">
-      <div class="metric-callout"><span class="figure">$100</span><span class="caption">💰 Contribution for every qualified consultation</span></div>
-      <div class="metric-callout"><span class="figure">$1,000</span><span class="caption">💰 Contribution for every installation</span></div>
-      <div class="metric-callout"><span class="figure">🏠</span><span class="caption">Roofing opportunities available too</span></div>
+    <div class="stat">
+      <div class="stat-num">$100</div>
+      <div class="stat-label">To the organization for every qualified consultation</div>
     </div>
-
-    <div class="card-grid">
-      <div class="training-card">
-        <h3>📣 Marketing support</h3>
-        <ul>
-          <li>📧 <strong>Email templates</strong> ready to send.</li>
-          <li>📱 <strong>Social media content</strong> they can post.</li>
-          <li>🎪 <strong>Event participation</strong> alongside their team.</li>
-        </ul>
-      </div>
-      <div class="training-card training-card--green">
-        <h3>Built to be easy</h3>
-        <ul>
-          <li>🔗 <strong>Custom partner portal</strong> and QR codes.</li>
-          <li>✅ <strong>No cost, no obligation</strong> to the organization.</li>
-          <li>✅ <strong>They stay in control</strong> of how it runs.</li>
-        </ul>
-      </div>
+    <div class="stat">
+      <div class="stat-num">$1,000</div>
+      <div class="stat-label">To the organization for every installation</div>
     </div>
+  </section>
 
-    <div class="pullquote">Together we create community impact, energy education, and fundraising.</div>
-
-    <details class="recall-check">
-      <summary><span class="label">Recall</span> What does the organization risk?</summary>
-      <p class="answer">Nothing. There is no cost and no obligation. They raise money when a consultation happens and again when a homeowner installs, and they keep control the whole way.</p>
-    </details>
-  </div>
-</section>
-
-<!-- 6: ACCOUNTABILITY -->
-<section class="module" id="accountability">
-  <div class="wrap">
-    <span class="eyebrow">Part 6 · How We Grow It</span>
-    <h2>Accountability and growth</h2>
-    <p class="intro">This is a team effort, run on a rhythm. Every other week we get together to keep the momentum and learn from each other.</p>
-
-    <div class="compare-grid">
-      <div class="training-card training-card--ink">
-        <h3>Every other week we meet to</h3>
-        <ul>
-          <li><strong>Share opportunities</strong> you have found.</li>
-          <li><strong>Discuss outreach progress.</strong></li>
-          <li><strong>Develop partnership strategies</strong> together.</li>
-          <li><strong>Celebrate wins.</strong></li>
-          <li><strong>Learn from each other.</strong></li>
-        </ul>
-      </div>
-      <div class="training-card training-card--amber">
-        <h3>It starts with one introduction</h3>
-        <p>One organization leads to one event. One event leads to one relationship. One relationship leads to many opportunities. The whole pipeline starts with a single conversation you are already able to have.</p>
-        <blockquote class="script-example"><span class="who">Your challenge</span>"Bring at least one potential partner to our next meeting."</blockquote>
-      </div>
+  <section class="section">
+    <div class="section-eyebrow">Why it works</div>
+    <h2 class="display section-title">Outreach works because it serves both sides.</h2>
+    <p class="section-lead">You meet homeowners through a group they already trust, and the group raises money by making the introduction. You stand apart from every solar rep working cold.</p>
+    <div class="why">
+      <div class="why-item"><div class="why-check">&check;</div><div class="why-text"><strong>Meet homeowners off the beaten path.</strong><span>Outside traditional sales channels, through an organization that vouches for you.</span></div></div>
+      <div class="why-item"><div class="why-check">&check;</div><div class="why-text"><strong>Borrow built-in credibility.</strong><span>The trust the organization has earned transfers to you the moment you are introduced.</span></div></div>
+      <div class="why-item"><div class="why-check">&check;</div><div class="why-text"><strong>Generate referrals that compound.</strong><span>Community leaders send people your way, and one partnership keeps paying.</span></div></div>
+      <div class="why-item"><div class="why-check">&check;</div><div class="why-text"><strong>Create repeat opportunities.</strong><span>Events and partnerships come back around season after season.</span></div></div>
+      <div class="why-item"><div class="why-check">&check;</div><div class="why-text"><strong>Fund a cause at no cost to them.</strong><span>The organization raises money with no event to run and no obligation.</span></div></div>
+      <div class="why-item"><div class="why-check">&check;</div><div class="why-text"><strong>Set yourself apart.</strong><span>You become the trusted solar resource in your town, not another knock.</span></div></div>
     </div>
+  </section>
 
-    <div class="manager-prompt">Go around the room: each person names the one partner they are bringing to the next meeting, and the date of their next event.</div>
-  </div>
-</section>
+  <section class="section">
+    <div class="section-eyebrow">Your assignment</div>
+    <h2 class="display section-title">Become a Community Ambassador.</h2>
+    <p class="section-lead">Over the next two weeks, turn your own network into a partnership pipeline. You are not selling yet. You are scouting the groups, events, and people who open doors.</p>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-num">1</div><div class="how-title">Research local events.</div><div class="how-body">Walks, runs, festivals, and fundraisers already on the calendar near you.</div></div>
+      <div class="how-card"><div class="how-num">2</div><div class="how-title">Identify the organizations.</div><div class="how-body">Who is being supported, and who benefits from them.</div></div>
+      <div class="how-card"><div class="how-num">3</div><div class="how-title">Look for aligned groups.</div><div class="how-body">Missions that fit ours: community, family, environment.</div></div>
+      <div class="how-card"><div class="how-num">4</div><div class="how-title">Find the decision-makers.</div><div class="how-body">The community leaders who can say yes to a partnership.</div></div>
+      <div class="how-card"><div class="how-num">5</div><div class="how-title">Bring opportunities.</div><div class="how-body">Walk into the next meeting with names, ready to discuss.</div></div>
+    </div>
+    <p class="section-lead" style="margin-top:28px;"><strong>The goal:</strong> meet with Lori to turn your list into real partnerships. Before you dial, read the <a href="/community-outreach-call-guide.html" style="color:var(--green-deep);font-weight:700;">Outreach &amp; Relationship-Building Call Guide</a>.</p>
+  </section>
 
-<!-- 7: THE IMPACT -->
-<section class="module" id="impact">
-  <div class="wrap">
-    <span class="eyebrow">Part 7 · The Payoff</span>
-    <h2>Imagine the impact of one partnership</h2>
-    <p class="intro">A single partnership compounds. It helps homeowners, funds a cause, and builds your name in the community all at once. Do it a few times and you have a referral engine that runs itself.</p>
+  <section class="section">
+    <div class="section-eyebrow">Where to look</div>
+    <h2 class="display section-title">Partners are everywhere people gather around a cause.</h2>
+    <p class="section-lead">Start with the groups you already touch, then work outward across your town.</p>
+    <div class="cats">
+      <div class="cat"><div class="cat-icon">&#127939;</div><div class="cat-name">Charity walks &amp; runs</div><div class="cat-desc">5Ks and fundraisers with built-in crowds.</div></div>
+      <div class="cat"><div class="cat-icon">&#9918;</div><div class="cat-name">Youth sports</div><div class="cat-desc">Little league, soccer, football and cheer, hockey.</div></div>
+      <div class="cat"><div class="cat-icon">&#127957;</div><div class="cat-name">Scouting programs</div><div class="cat-desc">BSA councils, Girl Scouts, packs and troops.</div></div>
+      <div class="cat"><div class="cat-icon">&#127891;</div><div class="cat-name">Schools &amp; PTAs</div><div class="cat-desc">Booster clubs and parent associations.</div></div>
+      <div class="cat"><div class="cat-icon">&#127758;</div><div class="cat-name">Environmental groups</div><div class="cat-desc">Land trusts and green-town initiatives.</div></div>
+      <div class="cat"><div class="cat-icon">&#128658;</div><div class="cat-name">First responders</div><div class="cat-desc">Fire departments, PBA chapters, auxiliaries.</div></div>
+      <div class="cat"><div class="cat-icon">&#127917;</div><div class="cat-name">Community festivals</div><div class="cat-desc">Town fairs and seasonal celebrations.</div></div>
+      <div class="cat"><div class="cat-icon">&#127968;</div><div class="cat-name">Homeowner associations</div><div class="cat-desc">Neighborhoods of the exact buyer we serve.</div></div>
+      <div class="cat"><div class="cat-icon">&#128591;</div><div class="cat-name">Faith-based</div><div class="cat-desc">Churches, parishes, synagogues, mosques.</div></div>
+      <div class="cat"><div class="cat-icon">&#128062;</div><div class="cat-name">Animal rescues</div><div class="cat-desc">Shelters and rescue nonprofits with loyal donors.</div></div>
+      <div class="cat"><div class="cat-icon">&#128153;</div><div class="cat-name">Local nonprofits</div><div class="cat-desc">Community centers, service clubs, civic groups.</div></div>
+    </div>
+  </section>
 
-    <ul class="list-cols">
-      <li>✓ <strong>Helps dozens of homeowners</strong> lower their bills.</li>
-      <li>✓ <strong>Supports a local organization</strong> and its cause.</li>
-      <li>✓ <strong>Generates referrals</strong> long after the event.</li>
-      <li>✓ <strong>Builds your personal brand</strong> in your town.</li>
-      <li>✓ <strong>Grows your business</strong> on warm relationships.</li>
-    </ul>
+  <section class="support-block">
+    <div class="section-eyebrow">The offer you carry</div>
+    <h2 class="display section-title">How the program supports them.</h2>
+    <div class="pay">
+      <div class="pay-card"><div class="pay-num">$100</div><div class="pay-title">Per qualified consultation</div><div class="pay-body">Paid to the organization every time a member does a free, no-obligation consultation. <strong>$1,000 more</strong> when they install, plus roofing opportunities.</div></div>
+      <div class="pay-card"><div class="pay-num">Marketing</div><div class="pay-title">Done for them</div><div class="pay-body">Email templates, social media content, and event participation. We bring the materials, they bring the people.</div></div>
+      <div class="pay-card"><div class="pay-num">Portal</div><div class="pay-title">Custom partner page &amp; QR</div><div class="pay-body">A custom partner portal and QR codes. No cost, no obligation, and they stay in control of how it runs.</div></div>
+    </div>
+  </section>
 
-    <div class="pullquote">"Don't wait for opportunities to come to you. Find them in your community."</div>
-  </div>
-</section>
+  <section class="section">
+    <div class="section-eyebrow">Do the homework</div>
+    <h2 class="display section-title">Questions to answer before we meet.</h2>
+    <p class="section-lead">Know the organization and you look like a professional, not a solicitor.</p>
+    <div class="why">
+      <div class="why-item"><div class="why-check">?</div><div class="why-text"><strong>What organization benefits, and what is its cause?</strong></div></div>
+      <div class="why-item"><div class="why-check">?</div><div class="why-text"><strong>How many members or supporters do they have?</strong></div></div>
+      <div class="why-item"><div class="why-check">?</div><div class="why-text"><strong>What events do they host through the year?</strong></div></div>
+      <div class="why-item"><div class="why-check">?</div><div class="why-text"><strong>Who makes partnership decisions?</strong></div></div>
+      <div class="why-item"><div class="why-check">?</div><div class="why-text"><strong>Do they have newsletters, social media, or a website?</strong></div></div>
+      <div class="why-item"><div class="why-check">?</div><div class="why-text"><strong>Do they actively fundraise, and have they partnered with businesses before?</strong></div></div>
+    </div>
+  </section>
 
-</main>
+  <section class="section">
+    <div class="section-eyebrow">How we grow it</div>
+    <h2 class="display section-title">One introduction is where it all starts.</h2>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-num">&#128197;</div><div class="how-title">We meet every other week.</div><div class="how-body">Share opportunities, discuss progress, build strategies, and celebrate wins together.</div></div>
+      <div class="how-card"><div class="how-num">&#127919;</div><div class="how-title">The challenge.</div><div class="how-body">Bring at least <strong>one</strong> potential partner to the next meeting. Every time.</div></div>
+      <div class="how-card"><div class="how-num">&#128640;</div><div class="how-title">It compounds.</div><div class="how-body">One organization leads to one event, one relationship, and many opportunities.</div></div>
+    </div>
+  </section>
 
-<section class="key-takeaways" id="takeaways">
-  <div class="wrap">
-    <span class="eyebrow">The Field Manual</span>
-    <h2>One-sentence reminders</h2>
-    <ul>
-      <li>The best leads come from people and organizations you already know.</li>
-      <li>Lead with the cause. The organization is the introduction, the homeowner is the lead.</li>
-      <li>Spend two weeks scouting events, organizations, leaders, and decision-makers.</li>
-      <li>Do the homework: know the cause, the size, the events, and who says yes.</li>
-      <li>The offer costs them nothing: $100 per consultation, $1,000 per install, plus roofing.</li>
-      <li>Bring one potential partner to every meeting.</li>
-      <li>One introduction becomes one event, one relationship, and many opportunities.</li>
-    </ul>
-  </div>
-</section>
+  <section class="cta">
+    <h2 class="cta-title">Run it from one place.</h2>
+    <p class="cta-sub">The <strong>Community Partners tracker</strong> holds every organization by area, your working-group teams, and your existing connections as active partners. Build teams, enroll reps, dispatch organizations, and move a prospect from contacted to partner. Pair it with the <a href="/community-outreach-call-guide.html">Outreach Call Guide</a>.</p>
+    <a class="cta-action" href="/admin.html?tab=partners">Open the Community Partners Tracker</a>
+  </section>
 
-<div class="deck-nav">
-  <button id="prevBtn" aria-label="Previous slide">&#8593;</button>
-  <button id="nextBtn" aria-label="Next slide">&#8595;</button>
+  <footer class="footer">
+    <div>Trinity Solar Communities Division &nbsp;&middot;&nbsp; Built from Lori Scala's Community Outreach program</div>
+    <div>Lori Scala &middot; 203-895-8968 &middot; Lori.Scala@Trinity-Solar.com</div>
+  </footer>
+
 </div>
 
-<footer class="foot">
-  <div class="wrap">
-    Trinity Solar · CT Traditional · Communities Division<br>
-    Community Outreach playbook, built from Lori Scala's Community Partnerships program. Questions: Lori Scala · 203-895-8968 · Lori.Scala@Trinity-Solar.com.
-  </div>
-</footer>
-
 </div><!-- /#appWrap -->
+
+<script>
+// Required by /auth-gate.js -- called once after sign-in + role check pass.
+function initApp(profile, session) { /* static page; nothing to init */ }
+</script>
 
 </body>
 </html>

@@ -136,6 +136,7 @@ $cards = @(
  @('community-program-overview','control','CONTROL YOUR BUSINESS','Communities','Program','$836,150 raised since 2018',''),
  @('community-event-playbook','control','CONTROL YOUR BUSINESS','Event','Playbook','Set up / Capture / Sit / Close',''),
  @('community-outreach','control','CONTROL YOUR BUSINESS','Community','Outreach','Build business through partners',''),
+ @('community-outreach-call-guide','control','CONTROL YOUR BUSINESS','Outreach','Call Guide','Calling organizations into partnership',''),
  @('commission-dashboard','control','CONTROL YOUR BUSINESS','Commission','Dashboard','Track every paycheck',''),
  @('appointment-transfer','ticket','MANAGEMENT / TICKET','Appointment','Transfer','Move an appointment / Helpdesk',''),
  @('setup-skedulo-resource','ticket','MANAGEMENT / TICKET','Set Up a New','Skedulo Resource','New rep onboarding / Helpdesk',''),
