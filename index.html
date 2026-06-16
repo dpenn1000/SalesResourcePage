@@ -753,33 +753,37 @@
     <div class="me-greeting-stats" id="meGreetingStats"></div>
   </div>
 
-  <a id="updatesBridge" href="/updates/" style="display:none;align-items:center;gap:12px;padding:11px 18px;margin:0 auto 16px;max-width:1200px;background:linear-gradient(135deg,rgba(245,166,35,0.10),rgba(120,200,50,0.06));border:1px solid rgba(245,166,35,0.28);border-radius:8px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s,background 0.15s;"
-     onmouseover="this.style.borderColor='#C8851A';"
-     onmouseout="this.style.borderColor='rgba(245,166,35,0.28)';">
-    <span style="font-size:18px;line-height:1;">&#128226;</span>
-    <span id="bridgeBadge" style="display:none;background:#C8851A;color:#fff;font-weight:800;font-size:10px;padding:2px 8px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase;">0 new</span>
-    <span style="font-weight:700;color:#1A2332;">Updates</span>
-    <span id="bridgeLatest" style="color:#5B6576;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-    <span style="color:#1E8BBC;font-weight:700;font-size:12px;">View all &rarr;</span>
-  </a>
+  <!-- Action pills: a row of equal-width pills. Each one shows ONLY when there is
+       something to act on (unread updates, an open schedule due, a bookable event).
+       The row itself stays hidden until at least one pill turns on. -->
+  <div id="bridgeRow" style="display:none;flex-wrap:wrap;gap:10px;max-width:1200px;margin:0 auto 16px;">
 
-  <a id="schedulingBridge" href="/scheduling/" style="display:flex;align-items:center;gap:12px;padding:11px 18px;margin:0 auto 16px;max-width:1200px;background:linear-gradient(135deg,rgba(120,200,50,0.10),rgba(41,169,225,0.06));border:1px solid rgba(120,200,50,0.30);border-radius:8px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s,background 0.15s;"
-     onmouseover="this.style.borderColor='#5EBA28';"
-     onmouseout="this.style.borderColor='rgba(120,200,50,0.30)';">
-    <span style="font-size:18px;line-height:1;">&#128197;</span>
-    <span style="font-weight:700;color:#1A2332;">Scheduling</span>
-    <span style="color:#5B6576;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Submit your availability for the next schedule</span>
-    <span style="color:#1E8BBC;font-weight:700;font-size:12px;">Open &rarr;</span>
-  </a>
+    <a id="updatesBridge" href="/updates/" style="display:none;flex:1 1 240px;align-items:center;gap:9px;padding:9px 15px;background:linear-gradient(135deg,rgba(245,166,35,0.12),rgba(120,200,50,0.06));border:1px solid rgba(245,166,35,0.32);border-radius:999px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s;"
+       onmouseover="this.style.borderColor='#C8851A';" onmouseout="this.style.borderColor='rgba(245,166,35,0.32)';">
+      <span style="font-size:16px;line-height:1;">&#128226;</span>
+      <span id="bridgeBadge" style="display:none;background:#C8851A;color:#fff;font-weight:800;font-size:10px;padding:2px 8px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase;">0 new</span>
+      <span style="font-weight:700;">Updates</span>
+      <span id="bridgeLatest" style="color:#5B6576;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+      <span style="color:#C8851A;font-weight:800;">&rarr;</span>
+    </a>
 
-  <a id="eventsBridge" href="/events/" style="display:flex;align-items:center;gap:12px;padding:11px 18px;margin:0 auto 16px;max-width:1200px;background:linear-gradient(135deg,rgba(41,169,225,0.10),rgba(120,200,50,0.06));border:1px solid rgba(41,169,225,0.30);border-radius:8px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s,background 0.15s;"
-     onmouseover="this.style.borderColor='#1E8BBC';"
-     onmouseout="this.style.borderColor='rgba(41,169,225,0.30)';">
-    <span style="font-size:18px;line-height:1;">&#127914;</span>
-    <span style="font-weight:700;color:#1A2332;">Events</span>
-    <span id="eventsBridgeLatest" style="color:#5B6576;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Sign up for an event and work the table</span>
-    <span style="color:#1E8BBC;font-weight:700;font-size:12px;">Open &rarr;</span>
-  </a>
+    <a id="schedulingBridge" href="/scheduling/" style="display:none;flex:1 1 240px;align-items:center;gap:9px;padding:9px 15px;background:linear-gradient(135deg,rgba(120,200,50,0.12),rgba(41,169,225,0.06));border:1px solid rgba(120,200,50,0.34);border-radius:999px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s;"
+       onmouseover="this.style.borderColor='#5EBA28';" onmouseout="this.style.borderColor='rgba(120,200,50,0.34)';">
+      <span style="font-size:16px;line-height:1;">&#128197;</span>
+      <span style="font-weight:700;">Schedule due</span>
+      <span id="schedulingBridgeLatest" style="color:#5B6576;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+      <span style="color:#1E8BBC;font-weight:800;">&rarr;</span>
+    </a>
+
+    <a id="eventsBridge" href="/events/" style="display:none;flex:1 1 240px;align-items:center;gap:9px;padding:9px 15px;background:linear-gradient(135deg,rgba(41,169,225,0.12),rgba(120,200,50,0.06));border:1px solid rgba(41,169,225,0.34);border-radius:999px;color:#1A2332;text-decoration:none;font-size:13px;transition:border-color 0.15s;"
+       onmouseover="this.style.borderColor='#1E8BBC';" onmouseout="this.style.borderColor='rgba(41,169,225,0.34)';">
+      <span style="font-size:16px;line-height:1;">&#127914;</span>
+      <span style="font-weight:700;">Events</span>
+      <span id="eventsBridgeLatest" style="color:#5B6576;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+      <span style="color:#1E8BBC;font-weight:800;">&rarr;</span>
+    </a>
+
+  </div>
 
   <div id="trainingBanner" style="display:none" class="training-banner">
     <div class="training-banner-header">
@@ -1458,14 +1462,13 @@ async function loadUpdatesBridge() {
     const latest = live[0];
     const lastSeen = +(localStorage.getItem('ctrp_lastSeenUpdatesAt') || 0);
     const unread = live.filter(b => +new Date(effective(b)) > lastSeen).length;
-    const bridge = document.getElementById('updatesBridge');
     document.getElementById('bridgeLatest').textContent = '· ' + latest.title;
     if (unread > 0) {
       const badge = document.getElementById('bridgeBadge');
       badge.textContent = unread + ' new';
       badge.style.display = '';
     }
-    bridge.style.display = 'flex';
+    showBridgePill('updatesBridge');
   } catch (e) {
     // Silently no-op if bulletins table doesn't exist yet
   }
@@ -1490,9 +1493,51 @@ async function loadEventsBridge() {
     const d = e.date_start ? new Date(e.date_start + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
     document.getElementById('eventsBridgeLatest').textContent =
       '· Next: ' + e.name + (e.town ? ' (' + e.town + ')' : '') + (d ? ' — ' + d : '');
+    showBridgePill('eventsBridge');
   } catch (e) { /* events table may not exist yet */ }
 }
 loadEventsBridge();
+
+// ── Pills only appear when there is something to act on. ──
+function showBridgePill(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = 'flex';
+  const row = document.getElementById('bridgeRow');
+  if (row) row.style.display = 'flex';
+}
+
+// ── Scheduling bridge: only when an OPEN period still needs this person's availability. ──
+async function loadSchedulingBridge() {
+  try {
+    const { data: periods } = await sb.from('sched_periods')
+      .select('id,label,start_date').eq('status', 'open')
+      .order('start_date', { ascending: true });
+    if (!periods || !periods.length) return;   // nothing open => nothing due
+    let myId = null;
+    const session = window.AUTH_SESSION;
+    if (session && session.user) {
+      const { data: me } = await sb.from('people').select('id')
+        .eq('auth_user_id', session.user.id).maybeSingle();
+      myId = me && me.id;
+    }
+    for (const p of periods) {
+      let done = false;
+      if (myId) {
+        const { data: sub } = await sb.from('sched_submissions')
+          .select('status').eq('period_id', p.id).eq('person_id', myId).maybeSingle();
+        done = sub && ['submitted', 'approved'].includes(sub.status);
+      }
+      if (!done) {
+        const txt = document.getElementById('schedulingBridgeLatest');
+        if (txt) txt.textContent = '· ' + (p.label || 'Availability') + ' is open';
+        showBridgePill('schedulingBridge');
+        return;
+      }
+    }
+  } catch (e) { /* sched tables may not exist yet */ }
+}
+loadSchedulingBridge();
 </script>
 
 <script src="/feedback-widget.js" defer></script>
