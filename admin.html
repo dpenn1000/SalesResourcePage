@@ -1325,6 +1325,18 @@
       Candidate partner organizations for Lori's <a href="/sales-fundamentals/community-partners/community-outreach.html" target="_blank" rel="noopener" style="color:var(--accent,#29A9E1);font-weight:600;">Community Outreach</a> program, sourced by area and assigned to rep working-group clusters (Central / Southeast / Southwest). Work a prospect to <em>contacted</em>, then <em>meeting set</em>, then <em>partner</em>. When an org signs on, its members become Community leads in the Stewardship pipeline.
     </p>
 
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;margin-bottom:20px;">
+      <div class="panel-header" style="margin-bottom:8px;">
+        <h2 style="font-size:16px;">Working Groups (Teams)</h2>
+        <span style="display:flex;gap:6px;flex-wrap:wrap;">
+          <input id="wg_name" class="pain" style="width:auto;margin:0;min-width:220px;" placeholder="New team name (e.g. Fairfield Faith & Civic)">
+          <button class="btn-add" onclick="createTeam()">Create team</button>
+        </span>
+      </div>
+      <p style="color:var(--text2);font-size:12px;margin:0 0 6px;line-height:1.55;">Name a team, enroll reps, then dispatch organizations to it from the list below. Teams are shared working groups (reusable across the platform).</p>
+      <div id="wgList" style="font-size:13px;color:var(--text2);">Loading teams&hellip;</div>
+    </div>
+
     <div id="paForm" style="display:none;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:20px;">
       <div class="form-grid">
         <div><label class="palbl">Organization name</label><input id="pa_name" class="pain"></div>
@@ -2903,7 +2915,7 @@ async function addKit(){
 }
 
 // ── Community Partners (org prospects assigned to rep clusters) ───────────
-let PARTNERS=[];
+let PARTNERS=[], WGROUPS=[], WGMEMBERS={}, REPS=[];
 const PA_CLUSTER_BY_COUNTY={Hartford:'central',Tolland:'central',
   'New London':'southeast',Windham:'southeast',
   Fairfield:'southwest','New Haven':'southwest',Litchfield:'southwest',Middlesex:'southwest'};
@@ -2923,8 +2935,57 @@ async function loadPartners(){
   const fT=document.getElementById('pa_fType');
   const types=[...new Set(PARTNERS.map(p=>p.org_type))].sort();
   fT.innerHTML='<option value="">All types</option>'+types.map(t=>`<option value="${t}">${paEsc(PA_TYPE_LABEL[t]||t)}</option>`).join('');
+  // working-group teams (community), their members, and the active-rep roster
+  try{
+    const g=await sb.from('groups').select('id,name').eq('category','community').eq('active',true).order('name');
+    WGROUPS=g.data||[];
+    const ids=WGROUPS.map(x=>x.id);
+    const [gm,ppl]=await Promise.all([
+      ids.length?sb.from('group_members').select('group_id,person_id').in('group_id',ids):Promise.resolve({data:[]}),
+      sb.from('people').select('id,name,role,sales_office').eq('status','active').order('name')
+    ]);
+    WGMEMBERS={};(gm.data||[]).forEach(m=>{(WGMEMBERS[m.group_id]=WGMEMBERS[m.group_id]||[]).push(m.person_id);});
+    REPS=ppl.data||[];
+  }catch(e){ /* teams best-effort */ }
+  renderWGroups();
   msg.style.display='none';
   renderPartners();
+}
+function repName(id){const r=REPS.find(x=>x.id===id);return r?r.name:'rep';}
+function renderWGroups(){
+  const el=document.getElementById('wgList'); if(!el)return;
+  if(!WGROUPS.length){el.innerHTML='No teams yet. Name one above, then enroll reps and dispatch organizations to it.';return;}
+  el.innerHTML=WGROUPS.map(g=>{
+    const mem=WGMEMBERS[g.id]||[];
+    const chips=mem.length?mem.map(pid=>`<span class="pa-pill" style="background:var(--bg);text-transform:none;">${paEsc(repName(pid))} <a onclick="removeMember('${g.id}','${pid}')" style="cursor:pointer;color:#C0392B;font-weight:800;">&times;</a></span>`).join(' '):'<span style="color:var(--text2);">No reps enrolled yet.</span>';
+    const opts='<option value="">+ enroll rep&hellip;</option>'+REPS.filter(r=>!mem.includes(r.id)).map(r=>`<option value="${r.id}">${paEsc(r.name)}</option>`).join('');
+    return `<div style="padding:10px 0;border-top:1px solid var(--border);">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;">
+        <strong style="color:var(--text);">${paEsc(g.name)} <span style="font-weight:500;color:var(--text2);">(${mem.length})</span></strong>
+        <select class="pain" style="width:auto;margin:0;padding:6px 8px;" onchange="enrollRep('${g.id}',this.value);this.value='';">${opts}</select>
+      </div>
+      <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;">${chips}</div>
+    </div>`;
+  }).join('');
+}
+async function createTeam(){
+  const name=paVal('wg_name'); if(!name){alert('Team name is required.');return;}
+  const uid=window.AUTH_SESSION&&window.AUTH_SESSION.user&&window.AUTH_SESSION.user.id;
+  const {error}=await sb.from('groups').insert({name,kind:'static',category:'community',active:true,created_by_auth_id:uid||null});
+  if(error){alert('Could not create team: '+error.message);return;}
+  document.getElementById('wg_name').value=''; loadPartners();
+}
+async function enrollRep(groupId,personId){
+  if(!personId)return;
+  const uid=window.AUTH_SESSION&&window.AUTH_SESSION.user&&window.AUTH_SESSION.user.id;
+  const {error}=await sb.from('group_members').insert({group_id:groupId,person_id:personId,added_by_auth_id:uid||null});
+  if(error){alert('Could not enroll: '+error.message);return;}
+  loadPartners();
+}
+async function removeMember(groupId,personId){
+  const {error}=await sb.from('group_members').delete().eq('group_id',groupId).eq('person_id',personId);
+  if(error){alert(error.message);return;}
+  loadPartners();
 }
 
 function renderPartners(){
@@ -2946,6 +3007,7 @@ function renderPartners(){
   el.innerHTML=list.map(p=>{
     const sOpts=statuses.map(s=>`<option value="${s}"${s===p.status?' selected':''}>${s.replace('_',' ')}</option>`).join('');
     const cOpts=clusters.map(c=>`<option value="${c}"${c===p.cluster?' selected':''}>${c}</option>`).join('');
+    const wgOpts='<option value="">no team</option>'+WGROUPS.map(g=>`<option value="${g.id}"${g.id===p.working_group_id?' selected':''}>${paEsc(g.name)}</option>`).join('');
     const meta=[p.town,p.county&&p.county+' County'].filter(Boolean).join(', ');
     const contact=[p.contact_name,p.contact_phone,p.contact_email].filter(Boolean).join(' · ');
     return `<div class="pa-card">
@@ -2960,6 +3022,7 @@ function renderPartners(){
           <span class="pa-pill ${paEsc(p.cluster||'other')}">${paEsc(p.cluster||'unassigned')}</span>
           <select class="pain" style="width:auto;margin:0;padding:6px 8px;" title="Assign cluster" onchange="setPartnerField('${p.id}','cluster',this.value)">${cOpts}</select>
           <select class="pain" style="width:auto;margin:0;padding:6px 8px;" title="Status" onchange="setPartnerField('${p.id}','status',this.value)">${sOpts}</select>
+          <select class="pain" style="width:auto;margin:0;padding:6px 8px;" title="Dispatch to team" onchange="setPartnerField('${p.id}','working_group_id',this.value)">${wgOpts}</select>
           <button class="btn-row btn-del" onclick="delPartner('${p.id}',&quot;${paEsc(p.name).replace(/"/g,'')}&quot;)">Delete</button>
         </div>
       </div>
@@ -2982,10 +3045,10 @@ async function createPartner(){
   togglePaForm();loadPartners();
 }
 async function setPartnerField(id,field,value){
-  const patch={};patch[field]=value;
-  const {error}=await sb.from('community_partners').update(patch).eq('id',id);
+  const val=(value===''?null:value);
+  const {error}=await sb.from('community_partners').update({[field]:val}).eq('id',id);
   if(error){alert('Update failed: '+error.message);return;}
-  const p=PARTNERS.find(x=>x.id===id);if(p)p[field]=value;
+  const p=PARTNERS.find(x=>x.id===id);if(p)p[field]=val;
   if(field==='cluster')renderPartners();
 }
 async function delPartner(id,name){
