@@ -63,7 +63,10 @@
       { label: 'My Page',   href: '/me/',         match: function (p) { return p === '/me/'; } }
     ];
     if (isManager) items.push(
-      { label: 'Admin',     href: '/admin.html',  match: function (p) { return /admin\.html$/.test(p); } }
+      { label: 'Admin',     href: '/admin.html',  match: function (p) { return /admin\.html$/.test(p); } },
+      // Mobile lives on the launcher (different host), so it's an absolute URL
+      // and never the "active" page here. Manager-gated, matching /mobile itself.
+      { label: 'Mobile',    href: 'https://tools.ct-resource-page.com/mobile', match: function () { return false; } }
     );
     items.push(
       { label: 'Resources', href: '/?stay=1',     match: function (p) { return p === '/'; } }
