@@ -584,6 +584,10 @@
   .su-chip::before { content:'+ '; color:#4A8A14; }
   .su-chip:hover { border-color:var(--green); }
   .su-dismiss { background:none; border:none; font-size:22px; line-height:1; color:var(--text2); cursor:pointer; }
+  #welcomeBanner { background:linear-gradient(135deg, rgba(120,200,50,0.18), rgba(41,169,225,0.12)); border:1px solid var(--green); border-radius:11px; padding:14px 16px; margin-bottom:16px; display:flex; align-items:flex-start; gap:12px; box-shadow:var(--shadow); }
+  .wb-title { font-weight:800; font-size:16px; color:var(--text); margin-bottom:3px; }
+  .wb-sub { font-size:13px; color:var(--text2); }
+  #welcomeBanner .su-chip::before { content:none; }
   /* Address autocomplete */
   .addr-suggest { display:none; position:absolute; left:0; right:0; top:100%; z-index:50; background:var(--card); border:1px solid var(--border); border-top:none; border-radius:0 0 8px 8px; box-shadow:0 8px 20px rgba(0,0,0,.12); max-height:240px; overflow:auto; }
   .addr-opt { padding:9px 12px; font-size:13px; cursor:pointer; border-top:1px solid var(--border); color:var(--text); }
@@ -617,6 +621,7 @@
   </div>
 
   <!-- New-rep setup nudge (self only; dismissible) -->
+  <div id="welcomeBanner" style="display:none"></div>
   <div id="setupBanner" style="display:none"></div>
 
   <!-- Rep picker (managers/admins): view any rep's full profile -->
@@ -1279,7 +1284,43 @@ async function loadProfileExtras(me){
     const dealsInfo = await loadDeals(prof);
     buildActionCenter(prof, overview, coaching, dealsInfo);
     buildSetupBanner(prof, overview);
+    buildWelcomeBanner(me);
   }
+}
+
+// ── New-hire welcome: a warm first-days banner with the new-hire resources.
+// Shows only in the rep's first ~month (by cohort start), dismissible. The
+// home base + Foundations + DISC links double as their day-one runway.
+async function buildWelcomeBanner(me){
+  if (IS_VIEW_AS) return;
+  const el = $('welcomeBanner'); if (!el || !me) return;
+  const cs = me.cohort_start_date ? Date.parse(me.cohort_start_date) : NaN;
+  if (isNaN(cs)) return;
+  const days = Math.floor((Date.now() - cs) / 86400000);
+  if (days < -7 || days > 30) return;   // genuine new hire only
+  let dismissed = false;
+  try {
+    const { data } = await sb.from('rep_action_dismissals').select('item_key').eq('item_key','welcome_banner').limit(1);
+    dismissed = !!(data && data.length);
+  } catch (e) {}
+  if (dismissed){ el.style.display = 'none'; return; }
+  const first = (me.name || '').trim().split(/\s+/)[0] || 'there';
+  el.style.display = 'flex';
+  el.innerHTML =
+    '<div style="flex:1">' +
+      '<div class="wb-title">Welcome to Trinity, ' + esc(first) + '! &#127881;</div>' +
+      '<div class="wb-sub">Here’s where to start &mdash; ct-resource-page.com is your home base.</div>' +
+      '<div class="su-chips" style="margin-top:9px">' +
+        '<a class="su-chip" href="/new-hire-resource/">New-hire resources</a>' +
+        '<a class="su-chip" href="/traditional-university/">Start Foundations</a>' +
+        '<a class="su-chip" href="/university/disc-assessment.html">Take your DISC</a>' +
+      '</div>' +
+    '</div>' +
+    '<button class="su-dismiss" type="button" onclick="dismissWelcome()" title="Dismiss">&times;</button>';
+}
+async function dismissWelcome(){
+  const b = $('welcomeBanner'); if (b) b.style.display = 'none';
+  try { await sb.rpc('dismiss_action_item', { p_key: 'welcome_banner' }); } catch (e) {}
 }
 
 // ── New-rep setup nudge: a dismissible checklist of profile-setup items ──

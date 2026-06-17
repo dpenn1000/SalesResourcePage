@@ -408,35 +408,14 @@ table.data tbody tr:hover { background: #F5F7F0; }
         Your team, their progress, and their cohort status.
       </p>
 
-      <div class="panel">
+      <div class="panel" style="border-left: 3px solid var(--accent-blue, #29A9E1);">
         <div class="panel-head">
           <div class="titles">
-            <h3>Add a rep</h3>
-            <p>Creates a rep record. Rep signs in with their email to activate.</p>
+            <h3>Adding or editing a rep?</h3>
+            <p>Accounts live in one place now: <strong>Admin &rarr; People</strong>. Create reps, set cohort and reporting, reset passwords, and activate or deactivate there. This page is for training: progress, certs, and shadows.</p>
           </div>
         </div>
-        <form onsubmit="addRep(event)">
-          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: var(--s-3); align-items: end;">
-            <div class="form-group" style="margin:0;">
-              <label>Name</label>
-              <input type="text" id="rep-name" required placeholder="Full name">
-            </div>
-            <div class="form-group" style="margin:0;">
-              <label>Nickname <span style="color: var(--accent-rose);">*</span></label>
-              <input type="text" id="rep-nickname" required pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen." placeholder="e.g., janer">
-            </div>
-            <div class="form-group" style="margin:0;">
-              <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
-              <input type="email" id="rep-email" placeholder="optional">
-            </div>
-            <div class="form-group" style="margin:0;">
-              <label>Cohort start</label>
-              <input type="date" id="rep-cohort">
-            </div>
-            <button type="submit" class="btn btn-primary">Add rep</button>
-          </div>
-          <div id="add-rep-msg" style="margin-top: var(--s-3);"></div>
-        </form>
+        <a class="btn btn-primary" href="/admin.html?tab=users" style="text-decoration:none;">Open Admin &rarr; People</a>
       </div>
 
       <div id="reps-table-wrap"></div>
@@ -471,39 +450,17 @@ table.data tbody tr:hover { background: #F5F7F0; }
     <div id="view-managers" class="view">
       <h2>Managers</h2>
       <p style="color: var(--text-muted); margin-bottom: var(--s-5);">
-        Add, edit, or remove managers. Any manager here can manage the list.
+        Your team's managers, for reference. Account changes happen in Admin &rarr; People.
       </p>
 
-      <div class="panel">
+      <div class="panel" style="border-left: 3px solid var(--accent-blue, #29A9E1);">
         <div class="panel-head">
           <div class="titles">
-            <h3>Add a manager</h3>
-            <p>They'll sign in at this portal with the email you set.</p>
+            <h3>Adding or editing a manager?</h3>
+            <p>Manager accounts, admin rights, and reporting all live in <strong>Admin &rarr; People</strong>.</p>
           </div>
         </div>
-        <form onsubmit="addManager(event)">
-          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr auto auto; gap: var(--s-3); align-items: end;">
-            <div class="form-group" style="margin:0;">
-              <label>Name</label>
-              <input type="text" id="mgr-name" required>
-            </div>
-            <div class="form-group" style="margin:0;">
-              <label>Nickname <span style="color: var(--accent-rose);">*</span></label>
-              <input type="text" id="mgr-nickname" required pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen." placeholder="e.g., dpenn">
-            </div>
-            <div class="form-group" style="margin:0;">
-              <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
-              <input type="email" id="mgr-email" placeholder="optional">
-            </div>
-            <div class="form-group" style="margin:0;">
-              <label style="display:flex; align-items:center; gap:6px; padding-bottom: 6px;">
-                <input type="checkbox" id="mgr-admin" style="width:auto;"> Admin
-              </label>
-            </div>
-            <button type="submit" class="btn btn-primary">Add manager</button>
-          </div>
-          <div id="add-mgr-msg" style="margin-top: var(--s-3);"></div>
-        </form>
+        <a class="btn btn-primary" href="/admin.html?tab=users" style="text-decoration:none;">Open Admin &rarr; People</a>
       </div>
 
       <div id="managers-table-wrap"></div>
@@ -1345,41 +1302,14 @@ function renderHelp() {
 }
 
 // ===================== REPS =====================
-// Stage E: user CRUD retired. Canonical surface is admin.html -> Users.
-function _ucRetired(){ alert('User management has moved to Admin → Users. You will be redirected there.'); window.location.href = '/admin.html'; }
-
-async function addRep(e) {
-  if (e && e.preventDefault) e.preventDefault();
-  _ucRetired(); return;
-  // legacy body retained dead-code-style for git history; unreachable.
-  const name = document.getElementById('rep-name').value.trim();
-  const nickname = document.getElementById('rep-nickname').value.trim().toLowerCase();
-  const email = document.getElementById('rep-email').value.trim().toLowerCase() || null;
-  const cohort = document.getElementById('rep-cohort').value || null;
-  const msg = document.getElementById('add-rep-msg');
-  if (!validNick(nickname)) {
-    msg.innerHTML = `<div class="msg msg-error">Nickname must be 3-30 chars. Letters, numbers, underscore, hyphen only.</div>`;
-    return;
-  }
-  const { error } = await supa.from('reps').insert({
-    name, nickname, email, cohort_start_date: cohort, manager_id: state.manager.id
-  });
-  if (error) {
-    const clean = /duplicate key/i.test(error.message) ? 'That nickname is already taken. Pick another.' : error.message;
-    msg.innerHTML = `<div class="msg msg-error">${clean}</div>`;
-    return;
-  }
-  const portalUrl = `${window.location.origin}${window.location.pathname.replace(/manager\.html$/, '')}`;
-  msg.innerHTML = `<div class="msg msg-success">Rep added. Send them to <strong>${portalUrl}</strong> and have them create an account with nickname <strong>${escapeHtml(nickname)}</strong>.</div>`;
-  e.target.reset();
-  await loadAll();
-  renderReps();
-  renderAssignments();
-}
+// Rep accounts are managed in admin.html -> People (create / edit / delete /
+// password / cohort / reporting). This page is training-only: progress, certs,
+// shadows. The add/edit/delete-rep CRUD was removed 2026-06-16; the roster below
+// links each row to Admin -> People via "Account ->".
 
 function renderReps() {
   const wrap = document.getElementById('reps-table-wrap');
-  if (!state.reps.length) { wrap.innerHTML = `<div class="empty">No reps yet. Add one above.</div>`; return; }
+  if (!state.reps.length) { wrap.innerHTML = `<div class="empty">No reps yet. Add reps in <a href="/admin.html?tab=users">Admin &rarr; People</a>.</div>`; return; }
 
   const s1Certs = state.certs.filter(c => c.stage === 1);
   const s2Certs = state.certs.filter(c => c.stage === 2);
@@ -1417,102 +1347,12 @@ function renderReps() {
               </td>
               <td data-label="Linked">${rep.auth_user_id ? '<span class="status-badge status-approved">Yes</span>' : '<span class="status-badge status-not-started">No</span>'}</td>
               <td data-label="Actions">
-                <button class="btn btn-ghost btn-sm" onclick="editRep('${rep.id}')">Edit</button>
+                <a class="btn btn-ghost btn-sm" href="/admin.html?tab=users${rep.nickname ? '&rep=' + encodeURIComponent(rep.nickname) : ''}" style="text-decoration:none;" title="Manage this account in Admin &rarr; People">Account &rarr;</a>
               </td>
             </tr>`;
         }).join('')}
       </tbody>
     </table>`;
-}
-
-// ===================== REP EDIT / DELETE =====================
-function editRep(id) {
-  const rep = state.reps.find(r => r.id === id);
-  if (!rep) return;
-  const linkedWarning = rep.auth_user_id
-    ? `<div class="msg msg-info" style="margin-bottom: var(--s-3);">This rep has already signed in. Changing their nickname will break their sign-in until they create a new account with the new nickname.</div>`
-    : '';
-  const body = `
-    <div class="modal-head">
-      <div>
-        <h3>Edit rep</h3>
-        <div class="meta">${escapeHtml(rep.name)}</div>
-      </div>
-      <button class="close" onclick="closeModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      ${linkedWarning}
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" id="edit-rep-name" value="${escapeHtml(rep.name)}">
-      </div>
-      <div class="form-group">
-        <label>Nickname</label>
-        <input type="text" id="edit-rep-nickname" value="${escapeHtml(rep.nickname || '')}" pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen.">
-        <div class="hint">Changing this will also change how they sign in.</div>
-      </div>
-      <div class="form-group">
-        <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
-        <input type="email" id="edit-rep-email" value="${escapeHtml(rep.email || '')}">
-      </div>
-      <div class="form-group">
-        <label>Cohort start date</label>
-        <input type="date" id="edit-rep-cohort" value="${rep.cohort_start_date || ''}">
-      </div>
-      <div class="form-group">
-        <label>Status</label>
-        <select id="edit-rep-status">
-          <option value="active" ${rep.status === 'active' ? 'selected' : ''}>Active</option>
-          <option value="paused" ${rep.status === 'paused' ? 'selected' : ''}>Paused</option>
-          <option value="completed" ${rep.status === 'completed' ? 'selected' : ''}>Completed</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-danger" onclick="deleteRep('${rep.id}')">Delete rep</button>
-      <div style="flex: 1;"></div>
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveRep('${rep.id}')">Save</button>
-    </div>
-  `;
-  openModal(body);
-}
-
-async function saveRep(id) {
-  _ucRetired(); return;
-  const name = document.getElementById('edit-rep-name').value.trim();
-  const nickname = document.getElementById('edit-rep-nickname').value.trim().toLowerCase();
-  const email = document.getElementById('edit-rep-email').value.trim().toLowerCase() || null;
-  const cohort = document.getElementById('edit-rep-cohort').value || null;
-  const status = document.getElementById('edit-rep-status').value;
-  if (!name) { alert('Name is required.'); return; }
-  if (nickname && !validNick(nickname)) { alert('Nickname must be 3-30 chars. Letters, numbers, underscore, hyphen.'); return; }
-  const { error } = await supa.from('reps').update({
-    name, nickname: nickname || null, email, cohort_start_date: cohort, status
-  }).eq('id', id);
-  if (error) {
-    const clean = /duplicate key/i.test(error.message) ? 'That nickname is already taken.' : error.message;
-    alert(clean);
-    return;
-  }
-  closeModal();
-  await loadAll();
-  renderReps();
-  renderQueue();
-  renderAssignments();
-}
-
-async function deleteRep(id) {
-  _ucRetired(); return;
-  const rep = state.reps.find(r => r.id === id);
-  if (!confirm(`Permanently delete ${rep?.name}? This removes ALL of their training history: quiz attempts, shadow logs, uploads, and help messages. This cannot be undone.`)) return;
-  const { error } = await supa.from('reps').delete().eq('id', id);
-  if (error) { alert(error.message); return; }
-  closeModal();
-  await loadAll();
-  renderReps();
-  renderQueue();
-  renderAssignments();
 }
 
 // ===================== MANAGERS =====================
@@ -1540,7 +1380,7 @@ function renderManagers() {
               <td data-label="Role">${m.is_admin ? '<span class="status-badge status-approved">Admin</span>' : '<span class="status-badge status-not-started">Manager</span>'}</td>
               <td data-label="Linked">${m.auth_user_id ? '<span class="status-badge status-approved">Yes</span>' : '<span class="status-badge status-not-started">No</span>'}</td>
               <td data-label="Actions">
-                <button class="btn btn-ghost btn-sm" onclick="editManager('${m.id}')">Edit</button>
+                <a class="btn btn-ghost btn-sm" href="/admin.html?tab=users${m.nickname ? '&rep=' + encodeURIComponent(m.nickname) : ''}" style="text-decoration:none;" title="Manage this account in Admin &rarr; People">Account &rarr;</a>
               </td>
             </tr>`;
         }).join('')}
@@ -1548,125 +1388,10 @@ function renderManagers() {
     </table>`;
 }
 
-async function addManager(e) {
-  if (e && e.preventDefault) e.preventDefault();
-  _ucRetired(); return;
-  const name = document.getElementById('mgr-name').value.trim();
-  const nickname = document.getElementById('mgr-nickname').value.trim().toLowerCase();
-  const email = document.getElementById('mgr-email').value.trim().toLowerCase() || null;
-  const isAdmin = document.getElementById('mgr-admin').checked;
-  const msg = document.getElementById('add-mgr-msg');
-  msg.innerHTML = '';
-  if (!validNick(nickname)) {
-    msg.innerHTML = `<div class="msg msg-error">Nickname must be 3-30 chars. Letters, numbers, underscore, hyphen only.</div>`;
-    return;
-  }
-  const { error } = await supa.from('managers').insert({
-    name, nickname, email, is_admin: isAdmin
-  });
-  if (error) {
-    const clean = /duplicate key/i.test(error.message) ? 'That nickname is already taken.' : error.message;
-    msg.innerHTML = `<div class="msg msg-error">${clean}</div>`;
-    return;
-  }
-  msg.innerHTML = `<div class="msg msg-success">Manager added. They sign in with nickname <strong>${escapeHtml(nickname)}</strong> and a password they pick.</div>`;
-  e.target.reset();
-  await loadAll();
-  renderManagers();
-}
-
-function editManager(id) {
-  const mgr = state.managers.find(m => m.id === id);
-  if (!mgr) return;
-  const isSelf = mgr.id === state.manager.id;
-  const linkedWarning = mgr.auth_user_id
-    ? `<div class="msg msg-info" style="margin-bottom: var(--s-3);">This manager has already signed in. Changing their nickname will break their sign-in until they create a new account with the new nickname.</div>`
-    : '';
-  const body = `
-    <div class="modal-head">
-      <div>
-        <h3>Edit manager</h3>
-        <div class="meta">${escapeHtml(mgr.name)}${isSelf ? ' (you)' : ''}</div>
-      </div>
-      <button class="close" onclick="closeModal()">&times;</button>
-    </div>
-    <div class="modal-body">
-      ${linkedWarning}
-      <div class="form-group">
-        <label>Name</label>
-        <input type="text" id="edit-mgr-name" value="${escapeHtml(mgr.name)}">
-      </div>
-      <div class="form-group">
-        <label>Nickname</label>
-        <input type="text" id="edit-mgr-nickname" value="${escapeHtml(mgr.nickname || '')}" pattern="[-a-zA-Z0-9_]{3,30}" title="3-30 chars. Letters, numbers, underscore, hyphen.">
-      </div>
-      <div class="form-group">
-        <label>Email <span style="color: var(--text-subtle); font-weight: 400;">(optional)</span></label>
-        <input type="email" id="edit-mgr-email" value="${escapeHtml(mgr.email || '')}">
-      </div>
-      <div class="form-group">
-        <label style="display:flex; align-items:center; gap:8px;">
-          <input type="checkbox" id="edit-mgr-admin" ${mgr.is_admin ? 'checked' : ''} style="width:auto;">
-          <span>Admin role</span>
-        </label>
-        <div class="hint">Admin is informational only in this build. All managers have the same permissions.</div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      ${isSelf
-        ? '<div style="flex:1; font-size: 0.8125rem; color: var(--text-muted);">You can\'t remove yourself.</div>'
-        : `<button class="btn btn-danger" onclick="deleteManager('${mgr.id}')">Remove manager</button><div style="flex:1;"></div>`}
-      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveManager('${mgr.id}')">Save</button>
-    </div>
-  `;
-  openModal(body);
-}
-
-async function saveManager(id) {
-  _ucRetired(); return;
-  const name = document.getElementById('edit-mgr-name').value.trim();
-  const nickname = document.getElementById('edit-mgr-nickname').value.trim().toLowerCase();
-  const email = document.getElementById('edit-mgr-email').value.trim().toLowerCase() || null;
-  const isAdmin = document.getElementById('edit-mgr-admin').checked;
-  if (!name) { alert('Name is required.'); return; }
-  if (nickname && !validNick(nickname)) { alert('Nickname must be 3-30 chars. Letters, numbers, underscore, hyphen.'); return; }
-  const { error } = await supa.from('managers').update({
-    name, nickname: nickname || null, email, is_admin: isAdmin
-  }).eq('id', id);
-  if (error) {
-    const clean = /duplicate key/i.test(error.message) ? 'That nickname is already taken.' : error.message;
-    alert(clean);
-    return;
-  }
-  closeModal();
-  await loadAll();
-  renderManagers();
-  if (id === state.manager.id) {
-    state.manager.name = name;
-    state.manager.nickname = nickname || null;
-    state.manager.email = email;
-    state.manager.is_admin = isAdmin;
-    document.getElementById('header-name').textContent = name;
-  }
-}
-
-async function deleteManager(id) {
-  _ucRetired(); return;
-  if (id === state.manager.id) { alert("You can't remove yourself."); return; }
-  const mgr = state.managers.find(m => m.id === id);
-  if (!confirm(`Remove ${mgr?.name} as a manager? They'll lose access to this portal.`)) return;
-  const { error } = await supa.from('managers').delete().eq('id', id);
-  if (error) { alert(error.message); return; }
-  closeModal();
-  await loadAll();
-  renderManagers();
-}
-
 // ===================== ASSIGNMENTS =====================
 function renderAssignments() {
   const body = document.getElementById('assignments-body');
-  if (!state.reps.length) { body.innerHTML = `<div class="empty">Add a rep first.</div>`; return; }
+  if (!state.reps.length) { body.innerHTML = `<div class="empty">No reps yet. Add reps in <a href="/admin.html?tab=users">Admin &rarr; People</a> first.</div>`; return; }
 
   // Recertify a whole cert across the active roster. Recert-capable certs are
   // those with a recert interval (course/quiz certs you want reps to refresh).
