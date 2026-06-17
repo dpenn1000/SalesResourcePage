@@ -353,6 +353,24 @@
     padding: 10px 18px; border-radius: 8px; cursor: pointer;
   }
   .pf-save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .pf-edit {
+    background: var(--card,#fff); color: var(--text); border: 1px solid var(--border);
+    font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 8px; cursor: pointer;
+  }
+  .pf-edit:hover { border-color: var(--green); color: var(--green-dark, #3d8b1f); }
+  /* Profile edit drawer */
+  .pf-drawer { position: fixed; inset: 0; z-index: 1000; display: none; }
+  .pf-drawer.open { display: block; }
+  .pf-drawer-backdrop { position: absolute; inset: 0; background: rgba(10,18,30,0.45); }
+  .pf-drawer-panel {
+    position: absolute; top: 0; right: 0; height: 100%; width: min(480px, 92vw);
+    background: var(--card,#fff); box-shadow: -8px 0 30px rgba(0,0,0,0.2);
+    display: flex; flex-direction: column; overflow: hidden; animation: pfslide 0.18s ease;
+  }
+  @keyframes pfslide { from { transform: translateX(24px); opacity: 0.5; } to { transform: none; opacity: 1; } }
+  .pf-drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--line,#e2e6ec); }
+  .pf-drawer-close { background: none; border: none; font-size: 26px; line-height: 1; cursor: pointer; color: var(--text2,#6b7280); }
+  .pf-drawer-body { padding: 16px 18px; overflow: auto; }
   /* DISC hover/tap card */
   [data-disc] { cursor: help; }
   .disc-tip {
@@ -810,6 +828,18 @@
 </div>
 
 <input type="file" id="photoInput" accept="image/*" style="display:none">
+
+<!-- PROFILE EDIT DRAWER (slide-in; deep-link with /me/?edit=1) -->
+<div id="profileDrawer" class="pf-drawer" aria-hidden="true">
+  <div class="pf-drawer-backdrop" onclick="closeProfileDrawer()"></div>
+  <div class="pf-drawer-panel" role="dialog" aria-label="Edit profile" aria-modal="true">
+    <div class="pf-drawer-head">
+      <div class="section-title">Edit your profile</div>
+      <button class="pf-drawer-close" type="button" onclick="closeProfileDrawer()" aria-label="Close">&times;</button>
+    </div>
+    <div class="pf-drawer-body" id="profileDrawerBody"></div>
+  </div>
+</div>
 
 <style>
   .sched-grid{width:100%;border-collapse:collapse;font-size:13px}
@@ -1271,7 +1301,8 @@ async function loadProfileExtras(me){
     overview = idd ? { university: idd.university, activity: idd.activity } : {};
     discData = (disc360 && disc360.data && disc360.data[0]) || null;
   }
-  if (prof){ renderAvatar(prof); renderPersonal(prof); }
+  if (prof){ if (!IS_VIEW_AS) window._meProf = prof; renderAvatar(prof); renderPersonal(prof);
+    if (!IS_VIEW_AS && new URLSearchParams(location.search).get('edit')) openProfileDrawer(); }
   renderDisc(discData);                       // bars now (no wait on the launcher)
   const coaching = await loadCoaching(me);
   // The selling-style blurb lives in the coaching artifact; layer it onto the
@@ -1336,9 +1367,9 @@ async function buildSetupBanner(prof, overview){
   const p = prof.personal || {};
   const items = [];
   if (!prof.photo_url) items.push({ label: 'Add a photo', onclick: "document.getElementById('photoInput').click()" });
-  if (!prof.phone) items.push({ label: 'Add your phone', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
-  if (!p.family && !p.hobbies && !p.self_reflection) items.push({ label: 'Family & goals', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
-  if (!p.address) items.push({ label: 'Confirm your address', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
+  if (!prof.phone) items.push({ label: 'Add your phone', onclick: "openProfileDrawer()" });
+  if (!p.family && !p.hobbies && !p.self_reflection) items.push({ label: 'Family & goals', onclick: "openProfileDrawer()" });
+  if (!p.address) items.push({ label: 'Confirm your address', onclick: "openProfileDrawer()" });
   if (overview && !overview.disc) items.push({ label: 'Take your DISC', href: '/university/disc-assessment.html' });
   if (!items.length){ banner.style.display = 'none'; return; }
   banner.style.display = 'flex';
@@ -1622,7 +1653,7 @@ async function buildActionCenter(prof, overview, coaching, dealsInfo){
   const pers = (prof && prof.personal) || {};
   if (!pers.family && !pers.hobbies && !pers.favorites && !pers.self_reflection)
     items.push({ pri:'low', text:'Tell your team about yourself',
-      onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
+      onclick: "openProfileDrawer()" });
 
   const PRI = { high:'var(--red)', med:'var(--amber)', low:'var(--blue)' };
   $('acPill').textContent = items.length ? items.length + ' to do' : 'clear';
@@ -1747,21 +1778,36 @@ function renderDisc(disc, style){
     '<div style="margin-top:12px"><a href="/university/disc-assessment.html" style="color:var(--blue);font-weight:700;text-decoration:none;font-size:13px">Retake your DISC &rarr;</a><span style="color:var(--text3);font-size:12px"> &middot; a fresh result is saved, your history is kept</span></div>';
 }
 
+// Read-only summary of the personal info, shown on the page for both the rep
+// and managers viewing-as. Editing happens in a drawer (openProfileDrawer).
+function personalSummaryHtml(prof){
+  const p = prof.personal || {};
+  const row = function(label, val){ return val ? '<div class="pf-field"><label>'+label+'</label><div style="font-size:14px;color:var(--text);white-space:pre-wrap">'+esc(val)+'</div></div>' : ''; };
+  return row('Headline', prof.bio) + row('Mobile phone', prof.phone) + row('Family', p.family)
+    + row('Hobbies &amp; interests', p.hobbies) + row('Important dates', p.dates)
+    + row('Favorites', p.favorites) + row('Home address', p.address)
+    + row('What ' + (IS_VIEW_AS ? 'they are' : 'I am') + ' working on', p.self_reflection);
+}
+
 function renderPersonal(prof){
   const sec = $('personalSection'); if (!sec) return;
   sec.style.display = 'block';
-  const p = prof.personal || {};
-  const v = function(k){ return esc(p[k] || ''); };
+  const summary = personalSummaryHtml(prof);
   if (IS_VIEW_AS){
-    // Read-only view of the rep's personal info (managers can't edit it here).
-    const row = function(label, val){ return val ? '<div class="pf-field"><label>'+label+'</label><div style="font-size:14px;color:var(--text);white-space:pre-wrap">'+esc(val)+'</div></div>' : ''; };
-    const html = row('Headline', prof.bio) + row('Mobile phone', prof.phone) + row('Family', p.family) + row('Hobbies &amp; interests', p.hobbies)
-      + row('Important dates', p.dates) + row('Favorites', p.favorites) + row('Home address', p.address) + row('What they are working on', p.self_reflection);
-    $('personalBody').innerHTML = html || '<div class="empty">This rep hasn\'t filled in personal info yet.</div>';
+    $('personalBody').innerHTML = summary || '<div class="empty">This rep hasn\'t filled in personal info yet.</div>';
     return;
   }
   $('personalBody').innerHTML =
-    '<div class="pf-field"><label>Headline</label><input id="pf_bio" maxlength="120" value="' + esc(prof.bio || '') + '" placeholder="e.g. CT North closer, golf on weekends"></div>' +
+    '<div style="display:flex;justify-content:flex-end;margin-bottom:12px">'
+    + '<button class="pf-edit" id="pf_edit" type="button" onclick="openProfileDrawer()">&#9998; Edit profile</button></div>'
+    + (summary || '<div class="empty" style="margin-bottom:4px">Add your info so your team knows you and can reach you. Tap <strong>Edit profile</strong>.</div>');
+}
+
+// The editable form, rendered into the slide-in drawer (not inline on the page).
+function profileFormHtml(prof){
+  const p = prof.personal || {};
+  const v = function(k){ return esc(p[k] || ''); };
+  return '<div class="pf-field"><label>Headline</label><input id="pf_bio" maxlength="120" value="' + esc(prof.bio || '') + '" placeholder="e.g. CT North closer, golf on weekends"></div>' +
     '<div class="pf-field"><label>Mobile phone</label><input id="pf_phone" type="tel" value="' + esc(prof.phone || '') + '" placeholder="(860) 555-0123"><div class="hint">So your manager can reach you directly.</div></div>' +
     '<div class="pf-field"><label>Family</label><textarea id="pf_family" placeholder="Spouse, kids, who is at home">' + v('family') + '</textarea></div>' +
     '<div class="pf-field"><label>Hobbies &amp; interests</label><textarea id="pf_hobbies" placeholder="What you do outside work">' + v('hobbies') + '</textarea></div>' +
@@ -1770,6 +1816,19 @@ function renderPersonal(prof){
     '<div class="pf-field" style="position:relative"><label>Home address</label><input id="pf_address" autocomplete="off" value="' + v('address') + '" placeholder="Start typing your address" oninput="onAddressInput(this.value)"><div id="addr-suggest" class="addr-suggest"></div>' + (p.home_town ? '<div class="hint">Home town on file: ' + esc(p.home_town) + '. Pick your full street address.</div>' : '') + '</div>' +
     '<div class="pf-field"><label>What I am working on <span class="disc-soon">feeds my coaching</span></label><textarea id="pf_reflection" placeholder="Your own read on where you want to grow">' + v('self_reflection') + '</textarea><div class="hint">Used to tailor your focus &amp; action plan.</div></div>' +
     '<button class="pf-save" id="pf_save" type="button" onclick="savePersonal()">Save my info</button>';
+}
+
+function openProfileDrawer(){
+  if (IS_VIEW_AS) return;
+  const prof = window._meProf; if (!prof) return;
+  const b = $('profileDrawerBody'); if (b) b.innerHTML = profileFormHtml(prof);
+  const d = $('profileDrawer'); if (d){ d.classList.add('open'); d.setAttribute('aria-hidden','false'); }
+  document.body.style.overflow = 'hidden';
+  const f = $('pf_bio'); if (f) f.focus();
+}
+function closeProfileDrawer(){
+  const d = $('profileDrawer'); if (d){ d.classList.remove('open'); d.setAttribute('aria-hidden','true'); }
+  document.body.style.overflow = '';
 }
 
 async function savePersonal(){
@@ -1794,7 +1853,8 @@ async function savePersonal(){
   const { data, error } = await sb.rpc('update_my_profile', { p_personal: personal, p_bio: bio, p_photo_url: null, p_phone: phone });
   btn.disabled = false; btn.textContent = 'Save my info';
   if (error){ alert('Save failed: ' + error.message); return; }
-  if (data){ window._meProf = data; renderAvatar(data); buildSetupBanner(data, window._meOverview); }
+  if (data){ window._meProf = data; renderAvatar(data); renderPersonal(data); buildSetupBanner(data, window._meOverview); }
+  closeProfileDrawer();
 }
 
 // ── Address autocomplete (OpenStreetMap / Photon, free, no key) ──
