@@ -1336,6 +1336,7 @@ async function buildSetupBanner(prof, overview){
   const p = prof.personal || {};
   const items = [];
   if (!prof.photo_url) items.push({ label: 'Add a photo', onclick: "document.getElementById('photoInput').click()" });
+  if (!prof.phone) items.push({ label: 'Add your phone', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
   if (!p.family && !p.hobbies && !p.self_reflection) items.push({ label: 'Family & goals', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
   if (!p.address) items.push({ label: 'Confirm your address', onclick: "document.getElementById('personalSection').scrollIntoView({behavior:'smooth'})" });
   if (overview && !overview.disc) items.push({ label: 'Take your DISC', href: '/university/disc-assessment.html' });
@@ -1754,13 +1755,14 @@ function renderPersonal(prof){
   if (IS_VIEW_AS){
     // Read-only view of the rep's personal info (managers can't edit it here).
     const row = function(label, val){ return val ? '<div class="pf-field"><label>'+label+'</label><div style="font-size:14px;color:var(--text);white-space:pre-wrap">'+esc(val)+'</div></div>' : ''; };
-    const html = row('Headline', prof.bio) + row('Family', p.family) + row('Hobbies &amp; interests', p.hobbies)
+    const html = row('Headline', prof.bio) + row('Mobile phone', prof.phone) + row('Family', p.family) + row('Hobbies &amp; interests', p.hobbies)
       + row('Important dates', p.dates) + row('Favorites', p.favorites) + row('Home address', p.address) + row('What they are working on', p.self_reflection);
     $('personalBody').innerHTML = html || '<div class="empty">This rep hasn\'t filled in personal info yet.</div>';
     return;
   }
   $('personalBody').innerHTML =
     '<div class="pf-field"><label>Headline</label><input id="pf_bio" maxlength="120" value="' + esc(prof.bio || '') + '" placeholder="e.g. CT North closer, golf on weekends"></div>' +
+    '<div class="pf-field"><label>Mobile phone</label><input id="pf_phone" type="tel" value="' + esc(prof.phone || '') + '" placeholder="(860) 555-0123"><div class="hint">So your manager can reach you directly.</div></div>' +
     '<div class="pf-field"><label>Family</label><textarea id="pf_family" placeholder="Spouse, kids, who is at home">' + v('family') + '</textarea></div>' +
     '<div class="pf-field"><label>Hobbies &amp; interests</label><textarea id="pf_hobbies" placeholder="What you do outside work">' + v('hobbies') + '</textarea></div>' +
     '<div class="pf-field"><label>Important dates</label><input id="pf_dates" value="' + v('dates') + '" placeholder="Birthday, anniversary, milestones"></div>' +
@@ -1788,7 +1790,8 @@ async function savePersonal(){
     personal.address_lat = _addrPick.lat; personal.address_lon = _addrPick.lon;
   }
   const bio = $('pf_bio').value.trim();
-  const { data, error } = await sb.rpc('update_my_profile', { p_personal: personal, p_bio: bio, p_photo_url: null });
+  const phone = (($('pf_phone')||{}).value || '').trim();
+  const { data, error } = await sb.rpc('update_my_profile', { p_personal: personal, p_bio: bio, p_photo_url: null, p_phone: phone });
   btn.disabled = false; btn.textContent = 'Save my info';
   if (error){ alert('Save failed: ' + error.message); return; }
   if (data){ window._meProf = data; renderAvatar(data); buildSetupBanner(data, window._meOverview); }
