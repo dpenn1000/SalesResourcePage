@@ -309,6 +309,17 @@
     .tool-card.theme-mobile .tool-name  { color: #0d0d0d; }
     .tool-card.theme-mobile .tool-arrow { color: #6b6b6b; }
 
+    /* APEX executive card (VP+ only) -- thumbnail banner mirroring the APEX page. */
+    .apex-card { display:block; max-width:560px; border-radius:14px; overflow:hidden;
+      border:1px solid #22314c; background:#0b1120; text-decoration:none;
+      transition:transform .12s, box-shadow .12s, border-color .12s; }
+    .apex-card:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(0,0,0,0.4); border-color:#5eba28; }
+    .apex-card-img { display:block; width:100%; aspect-ratio:1200/675; object-fit:cover; }
+    .apex-card-body { padding:12px 16px; }
+    .apex-card-name { font-size:16px; font-weight:800; color:#e8edf5; letter-spacing:.3px; }
+    .apex-card-arrow { color:#5eba28; font-size:14px; }
+    .apex-card-sub { font-size:12px; color:#8a96ad; margin-top:2px; }
+
     /* === CT Tools per-purpose accents (used with theme-dark / theme-mobile)
        Brighter than Internal palettes because they ride on a dark background
        and need to retain saturation. */
@@ -975,6 +986,24 @@
       <h2>Internal Tools</h2>
     </div>
     <p style="color:var(--text2);font-size:13px;margin:-6px 0 18px;">Quick links to admin and rep-facing pages that aren't surfaced from the main resource grid.</p>
+
+    <!-- APEX (executive, VP+ only). Hidden by default; revealed in initApp() only when
+         is_apex_viewer() returns true (sales-line tier=vp or admin). Ops / non-sales never
+         see it, and the /apex route itself enforces the same rule server-side. -->
+    <div id="apexExecSection" style="display:none;margin-bottom:26px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <h3 style="font-size:14px;font-weight:700;margin:0;">Executive</h3>
+        <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#5eba28;border:1px solid rgba(94,186,40,0.4);border-radius:4px;padding:2px 6px;">VP+ only</span>
+      </div>
+      <a class="apex-card" href="https://tools.ct-resource-page.com/apex" target="_blank" rel="noopener">
+        <img class="apex-card-img" src="https://ct-resource-page.com/Index%20Photos/apex-thumbnail.svg" alt="APEX Executive Efficiency Engine" loading="lazy">
+        <div class="apex-card-body">
+          <div class="apex-card-name">APEX <span class="apex-card-arrow">&#8599;</span></div>
+          <div class="apex-card-sub">Executive Efficiency Engine -- NY/LI profitability, cuts, EBITDA, and scenarios</div>
+        </div>
+      </a>
+    </div>
+
     <div class="tools-grid">
       <a class="tool-card cat-leads" href="/leads.html">
         <div class="tool-icon">&#127960;</div>
@@ -1549,6 +1578,7 @@ window.initApp = function (profile, session) {
     // server-side is_admin_or_vp() (same rule the write policy enforces); this
     // client check only decides whether to show the tab button.
     try { initCommissionGate(); } catch (e) { console.warn('[admin] initCommissionGate failed:', e); }
+    try { initApexGate(); } catch (e) { console.warn('[admin] initApexGate failed:', e); }
   } catch (e) {
     console.warn('[admin] initApp error (recovering):', e);
   } finally {
@@ -1638,6 +1668,16 @@ async function initCommissionGate() {
   }
   const btn = document.getElementById('commissionTabBtn');
   if (btn) btn.style.display = window.COMM_CAN_EDIT ? '' : 'none';
+}
+
+// APEX is the executive NY/LI profitability tool. The card is revealed only for
+// sales-line VP+ (server-side is_apex_viewer(); the /apex route enforces the same rule).
+async function initApexGate() {
+  let ok = false;
+  try { const { data, error } = await sb.rpc('is_apex_viewer'); ok = !error && data === true; }
+  catch (e) { ok = false; }
+  const sec = document.getElementById('apexExecSection');
+  if (sec) sec.style.display = ok ? '' : 'none';
 }
 
 async function loadCommission() {
