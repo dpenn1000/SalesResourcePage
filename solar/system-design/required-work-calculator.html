@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Required Work Calculator &middot; CT Traditional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/training-system.css">
+<style>
+/* Required Work Calculator -- scope-only on the rep-facing page. Built on the
+   shared training-system tokens. Install COGS are NEVER shipped here; the cost
+   panel is rendered from a VP+-gated Edge Function (required-work-cogs). */
+
+.calc-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--space-4);align-items:start}
+@media(max-width:920px){ .calc-wrap{grid-template-columns:1fr} }
+
+.calc-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow);padding:var(--space-4)}
+.calc-card h3{margin:0 0 var(--space-2)}
+.calc-sub{font-size:.82rem;color:var(--muted);margin:0 0 var(--space-3)}
+
+.fld{margin-bottom:var(--space-3)}
+.fld>label{display:block;font-size:.74rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.fld input,.fld select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:var(--r-sm);font-family:inherit;font-size:.95rem;color:var(--ink);background:var(--surface)}
+.fld .hint{font-size:.74rem;color:var(--muted);margin-top:4px}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+
+.toggle-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--space-2)}
+.tg{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 11px;font-size:.86rem;font-weight:600;color:var(--ink);cursor:pointer}
+.tg input{width:auto;accent-color:var(--green)}
+
+/* electrical work-item rows: label + quantity stepper */
+.wi-row{display:grid;grid-template-columns:1fr 84px;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.wi-row:first-of-type{border-top:none}
+.wi-row .wi-name{font-size:.9rem;color:var(--ink)}
+.wi-row .wi-name small{display:block;color:var(--muted);font-size:.72rem;font-weight:600}
+.wi-row input[type=number]{width:100%;text-align:center;padding:7px}
+.wi-row.binary .wi-q{display:flex;justify-content:flex-end}
+.wi-row.binary input[type=checkbox]{width:20px;height:20px;accent-color:var(--green)}
+
+/* results */
+.res-empty{color:var(--muted);font-size:.9rem;padding:var(--space-3) 0}
+.scope-list{list-style:none;margin:0;padding:0}
+.scope-list li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--line);font-size:.92rem}
+.scope-list li:first-child{border-top:none}
+.scope-list li .q{font-weight:800;color:var(--deep-blue);font-variant-numeric:tabular-nums}
+.scope-group{margin-top:var(--space-3)}
+.scope-group h4{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 4px}
+
+.outage{display:inline-flex;align-items:baseline;gap:6px;background:rgba(232,64,64,.08);border:1px solid rgba(232,64,64,.28);border-radius:999px;padding:3px 12px;font-size:.82rem;font-weight:700;color:var(--red);white-space:nowrap}
+.outage .clk{font-size:.78rem}
+.outage--none{background:rgba(95,165,32,.1);border-color:rgba(95,165,32,.3);color:var(--green)}
+
+.outage-hero{display:flex;align-items:center;gap:var(--space-3);background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--red);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-bottom:var(--space-3)}
+.outage-hero.none{border-left-color:var(--green)}
+.outage-hero .big{font-family:var(--serif);font-size:2.1rem;line-height:1;color:var(--ink)}
+.outage-hero .lbl{font-size:.74rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.outage-hero .say{font-size:.86rem;color:var(--muted);margin-top:3px;line-height:1.4}
+
+/* VP+ cost panel -- only rendered when the gated EF authorizes the caller */
+.cogs{margin-top:var(--space-4);border:1px solid var(--amber);border-radius:var(--r-md);overflow:hidden;display:none}
+.cogs-head{display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(245,166,35,.1);padding:10px var(--space-4);border-bottom:1px solid var(--amber)}
+.cogs-head h3{margin:0;font-size:1rem}
+.cogs-lock{font-size:.66rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#946000;background:rgba(245,166,35,.18);border:1px solid var(--amber);border-radius:var(--r-sm);padding:2px 8px}
+.cogs-body{padding:var(--space-3) var(--space-4)}
+.cogs-list{list-style:none;margin:0;padding:0}
+.cogs-list li{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line);font-size:.9rem;font-variant-numeric:tabular-nums}
+.cogs-list li:first-child{border-top:none}
+.cogs-total{display:flex;justify-content:space-between;margin-top:8px;padding-top:10px;border-top:2px solid var(--ink);font-weight:800;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.cogs-pw{font-size:.8rem;color:var(--muted);text-align:right;margin-top:4px}
+
+.calc-note{font-size:.78rem;color:var(--muted);margin-top:var(--space-3);line-height:1.5}
+.btn-reset{background:none;border:1px solid var(--line);color:var(--muted);font-family:inherit;font-size:.78rem;font-weight:700;border-radius:var(--r-sm);padding:6px 12px;cursor:pointer}
+.btn-reset:hover{border-color:var(--muted);color:var(--ink)}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+<script src="/training-system.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>CT Resource Page</h2>
+    <p>Internal use only. Sign in with your CT Tools username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/solar/system-design/electrical-upgrades.html" class="back-link">&larr; Electrical Reviews &amp; Upgrades</a>
+      <span class="eyebrow">System &amp; Codes &middot; Field Tool</span>
+      <h1>Required Work <em>Calculator</em></h1>
+      <p class="lede">Scope the electrical, trenching, roofing, and structural work a project needs, and the power-outage window to set with the customer. Built to pair with the Electrical Reviews &amp; Upgrades training.</p>
+    </div>
+  </div>
+</header>
+
+<main class="doc">
+
+<section class="module">
+  <div class="wrap">
+    <div class="calc-wrap">
+
+      <!-- ============ INPUTS ============ -->
+      <div>
+        <div class="calc-card">
+          <h3>Location &amp; system</h3>
+          <div class="fld-row">
+            <div class="fld">
+              <label>Install territory</label>
+              <select id="i_territory">
+                <option>Connecticut</option><option>MA- Holyoke</option><option>MA- Wareham</option>
+                <option>Maryland</option><option>New Jersey</option><option>NY- Lower Hudson</option>
+                <option>NY- NYC/LI</option><option>NY- Upstate</option><option>PA-NE</option>
+                <option>PA-S</option><option>PA-SE</option><option>Rhode Island</option><option>California</option>
+              </select>
+            </div>
+            <div class="fld">
+              <label>System size (kWDC)</label>
+              <input type="number" id="i_kw" min="0" step="0.1" value="0">
+            </div>
+          </div>
+          <div class="fld-row">
+            <div class="fld">
+              <label>Type of installation</label>
+              <select id="i_install"><option>Roof Mount</option><option>Ground Mount</option></select>
+            </div>
+            <div class="fld">
+              <label>Property type</label>
+              <select id="i_prop"><option>Single Family Home</option><option>Multi Family Home</option><option>Modular / Mobile Home</option></select>
+            </div>
+          </div>
+          <div class="fld">
+            <label>Who performs the work (cost basis)</label>
+            <select id="i_crew">
+              <option value="">Market default</option>
+              <option>Trinity "In-House" Crew's</option>
+              <option>Subcontractor Crews</option>
+            </select>
+            <div class="hint">Affects cost only. Leave on market default unless overriding.</div>
+          </div>
+        </div>
+
+        <div class="calc-card" style="margin-top:var(--space-3)">
+          <h3>Electrical work</h3>
+          <p class="calc-sub">Enter quantities for the work the project needs.</p>
+          <div id="elecItems"></div>
+        </div>
+
+        <div class="calc-card" style="margin-top:var(--space-3)">
+          <h3>Trenching</h3>
+          <label class="tg" style="margin-bottom:var(--space-3)"><input type="checkbox" id="i_trench_on"> Trenching involved</label>
+          <div id="trenchFields" style="display:none">
+            <div class="fld-row">
+              <div class="fld">
+                <label>Trench distance (ft)</label>
+                <input type="number" id="i_trench_ft" min="0" step="1" value="0">
+              </div>
+              <div class="fld">
+                <label>Wire material</label>
+                <select id="i_wire"><option value="">Least expensive (auto)</option><option>Copper</option><option>Aluminum</option></select>
+              </div>
+            </div>
+            <div class="fld">
+              <label>Trench size (kWDC trenched)</label>
+              <input type="number" id="i_trench_kw" min="0" step="0.1" placeholder="defaults to system size">
+              <div class="hint">Only if the trench carries a different system size than the whole job.</div>
+            </div>
+            <div class="scope-group"><h4>Surface repair</h4>
+              <div class="wi-row binary"><div class="wi-name">Repair &mdash; Grass <small>distance below</small></div><div class="wi-q"><input type="checkbox" data-rep="grass"></div></div>
+              <div class="wi-row"><div class="wi-name">Grass repair distance (ft)</div><input type="number" data-repft="grass" min="0" step="1" value="0"></div>
+              <div class="wi-row binary"><div class="wi-name">Cut only &mdash; Asphalt / Concrete</div><div class="wi-q"><input type="checkbox" data-rep="cutonly"></div></div>
+              <div class="wi-row"><div class="wi-name">Cut-only distance (ft)</div><input type="number" data-repft="cutonly" min="0" step="1" value="0"></div>
+              <div class="wi-row binary"><div class="wi-name">Cut &amp; Repair &mdash; Asphalt</div><div class="wi-q"><input type="checkbox" data-rep="asphalt"></div></div>
+              <div class="wi-row"><div class="wi-name">Asphalt repair distance (ft)</div><input type="number" data-repft="asphalt" min="0" step="1" value="0"></div>
+              <div class="wi-row binary"><div class="wi-name">Cut &amp; Repair &mdash; Concrete</div><div class="wi-q"><input type="checkbox" data-rep="concrete"></div></div>
+              <div class="wi-row"><div class="wi-name">Concrete repair distance (ft)</div><input type="number" data-repft="concrete" min="0" step="1" value="0"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-card" style="margin-top:var(--space-3)">
+          <h3>Roofing &amp; structural</h3>
+          <div class="fld">
+            <label>Roof sq. footage (Eagleview)</label>
+            <input type="number" id="i_roofsf" min="0" step="1" value="0">
+          </div>
+          <div class="fld-row">
+            <div class="fld">
+              <label>Roof work required</label>
+              <select id="i_roofwork">
+                <option>None</option><option>New Roof - Layover</option>
+                <option>New Roof - Tear Off and ReRoof</option><option>Tear Off, New Plywood, and ReRoof</option>
+                <option>Silver-coat Roof</option>
+              </select>
+            </div>
+            <div class="fld">
+              <label>Structural work required</label>
+              <select id="i_structwork">
+                <option>None</option><option>Structural Upgrade with Access</option><option>Structural Upgrade w/Sheetrock</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-reset" type="button" onclick="resetCalc()" style="margin-top:var(--space-3)">Reset</button>
+      </div>
+
+      <!-- ============ RESULTS ============ -->
+      <div>
+        <div class="calc-card" style="position:sticky;top:var(--space-3)">
+          <h3>Project scope</h3>
+          <p class="calc-sub">What this project needs, and the day to set with the customer.</p>
+          <div id="results"><div class="res-empty">Enter the work above to see the scope.</div></div>
+
+          <!-- VP+ only: rendered from the gated Edge Function -->
+          <div class="cogs" id="cogsPanel">
+            <div class="cogs-head"><h3>Install cost (COGS)</h3><span class="cogs-lock">VP+ only</span></div>
+            <div class="cogs-body" id="cogsBody"></div>
+          </div>
+
+          <p class="calc-note">Outage windows mirror the Electrical Reviews &amp; Upgrades training. This tool scopes work and timing for the customer conversation; it is not a customer quote. Install costs are visible to VP and admin roles only.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer"><div class="wrap"><p>Trinity Solar &middot; CT Traditional &middot; Internal field tool. Source pricing is proprietary and confidential.</p></div></footer>
+
+</div><!-- /appWrap -->
+
+<script>
+const $ = (id)=>document.getElementById(id);
+const esc = (s)=> (s==null?'':String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+
+// Electrical work items -> scope label + customer outage category.
+// Outage categories (from the training): none, minor, tapbox (~2h), service
+// (up to 4h), panel (4-5h), full (7-8h). The customer feels the LONGEST one.
+const ELEC = [
+  {id:'service_upgrade', name:'Entire Service Upgrade (100/200A)', sub:'Meter, riser & panel', outage:'full'},
+  {id:'main_panel',      name:'Main Service Panel Replacement',    sub:'Panel only',          outage:'panel'},
+  {id:'sub_panel',       name:'Sub Panel Replacement',             sub:'',                    outage:'minor'},
+  {id:'relocate_battery',name:'Relocate Battery',                  sub:'',                    outage:'minor'},
+  {id:'service_disc',    name:'Service Disconnect Enclosure',      sub:'200A max',            outage:'service'},
+  {id:'riser',           name:'Riser Only Replacement',            sub:'',                    outage:'service'},
+  {id:'meter_pan',       name:'Meter Pan Only Replacement',        sub:'',                    outage:'service'},
+  {id:'overhead_feeder', name:'Overhead Feeder',                   sub:'per 50 ft',           outage:'service'},
+  {id:'sec_feeder',      name:'Feeder Meter→Panel (SEC)',     sub:'',                    outage:'service'},
+  {id:'tap_box',         name:'Tap Box',                           sub:'',                    outage:'tapbox'},
+  {id:'panel_maint',     name:'Panel Maintenance / Cleanup',       sub:'',                    outage:'none'},
+  {id:'fire_rating',     name:'Fire Rating Upgrade',               sub:'',                    outage:'none'}
+];
+const OUTAGE = {
+  none:   {rank:0, label:'No outage',  say:'No power interruption for this work.'},
+  minor:  {rank:1, label:'Brief',      say:'Power off only briefly, if at all.'},
+  tapbox: {rank:2, label:'~2 hr',      say:'Plan for the power to be off about 2 hours.'},
+  service:{rank:3, label:'up to 4 hr', say:'Plan for the power to be off up to about 4 hours.'},
+  panel:  {rank:4, label:'4-5 hr',     say:'Plan for the power to be off about 4 to 5 hours.'},
+  full:   {rank:5, label:'7-8 hr',     say:'Plan for the power to be off most of the day, about 7 to 8 hours.'}
+};
+
+// Build the electrical item rows
+(function(){
+  const host = $('elecItems');
+  host.innerHTML = ELEC.map(it=>{
+    const binary = (it.id==='fire_rating');
+    const q = binary
+      ? '<div class="wi-q"><input type="checkbox" data-elec="'+it.id+'"></div>'
+      : '<input type="number" data-elec="'+it.id+'" min="0" max="10" step="1" value="0">';
+    return '<div class="wi-row'+(binary?' binary':'')+'"><div class="wi-name">'+esc(it.name)+
+      (it.sub?'<small>'+esc(it.sub)+'</small>':'')+'</div>'+q+'</div>';
+  }).join('');
+})();
+
+function gatherInputs(){
+  const elec = {};
+  ELEC.forEach(it=>{
+    const el = document.querySelector('[data-elec="'+it.id+'"]');
+    elec[it.id] = el.type==='checkbox' ? (el.checked?1:0) : Math.max(0, Math.min(10, parseInt(el.value||'0',10)||0));
+  });
+  const reps = {};
+  ['grass','cutonly','asphalt','concrete'].forEach(k=>{
+    const on = document.querySelector('[data-rep="'+k+'"]').checked;
+    const ft = parseInt((document.querySelector('[data-repft="'+k+'"]')||{}).value||'0',10)||0;
+    reps[k] = {on, ft};
+  });
+  return {
+    territory: $('i_territory').value,
+    kw: parseFloat($('i_kw').value||'0')||0,
+    install: $('i_install').value,
+    property: $('i_prop').value,
+    crew: $('i_crew').value,
+    elec,
+    trench: {
+      on: $('i_trench_on').checked,
+      ft: parseInt($('i_trench_ft').value||'0',10)||0,
+      wire: $('i_wire').value,
+      kw: parseFloat($('i_trench_kw').value||'')||null,
+      reps
+    },
+    roof_sf: parseInt($('i_roofsf').value||'0',10)||0,
+    roof_work: $('i_roofwork').value,
+    struct_work: $('i_structwork').value
+  };
+}
+
+function renderScope(inp){
+  const out = [];
+  // Electrical
+  const elecRows = ELEC.filter(it=>inp.elec[it.id]>0);
+  let maxOut = 'none';
+  elecRows.forEach(it=>{ if(OUTAGE[it.outage].rank>OUTAGE[maxOut].rank) maxOut=it.outage; });
+  const o = OUTAGE[maxOut];
+  if(elecRows.length){
+    out.push('<div class="outage-hero'+(maxOut==='none'||maxOut==='minor'?' none':'')+'">'+
+      '<div><div class="lbl">Customer outage</div><div class="big">'+esc(o.label)+'</div></div>'+
+      '<div class="say">"'+esc(o.say)+'"</div></div>');
+    out.push('<div class="scope-group"><h4>Electrical work</h4><ul class="scope-list">'+
+      elecRows.map(it=>'<li><span>'+esc(it.name)+'</span><span class="q">'+(inp.elec[it.id])+(it.id==='fire_rating'?'':'×')+'</span></li>').join('')+'</ul></div>');
+  }
+  // Trench
+  if(inp.trench.on && (inp.trench.ft>0 || Object.values(inp.trench.reps).some(r=>r.on))){
+    const reps=[]; const RN={grass:'Grass',cutonly:'Cut only (asphalt/concrete)',asphalt:'Cut & repair asphalt',concrete:'Cut & repair concrete'};
+    Object.keys(inp.trench.reps).forEach(k=>{ const r=inp.trench.reps[k]; if(r.on) reps.push('<li><span>'+RN[k]+'</span><span class="q">'+r.ft+' ft</span></li>'); });
+    out.push('<div class="scope-group"><h4>Trenching</h4><ul class="scope-list">'+
+      '<li><span>Trench distance</span><span class="q">'+inp.trench.ft+' ft</span></li>'+
+      '<li><span>Wire material</span><span class="q">'+esc(inp.trench.wire||'Least expensive')+'</span></li>'+
+      reps.join('')+'</ul></div>');
+  }
+  // Roof / structural
+  const rs=[];
+  if(inp.roof_work && inp.roof_work!=='None') rs.push('<li><span>'+esc(inp.roof_work)+'</span><span class="q">'+(inp.roof_sf||'?')+' sf</span></li>');
+  if(inp.struct_work && inp.struct_work!=='None') rs.push('<li><span>'+esc(inp.struct_work)+'</span><span class="q">'+(inp.roof_sf||'?')+' sf</span></li>');
+  if(rs.length) out.push('<div class="scope-group"><h4>Roofing &amp; structural</h4><ul class="scope-list">'+rs.join('')+'</ul></div>');
+
+  $('results').innerHTML = out.length ? out.join('') : '<div class="res-empty">Enter the work above to see the scope.</div>';
+}
+
+// ---- VP+ COGS: ask the gated Edge Function. Reps get an empty/403 and never
+// see dollars; the panel simply stays hidden. The cost tables live only on the
+// server, never in this page. ----
+let _cogsTimer=null, _lastSig='';
+async function refreshCogs(inp){
+  const panel=$('cogsPanel');
+  const sig=JSON.stringify(inp);
+  if(sig===_lastSig) return; _lastSig=sig;
+  try{
+    if(!window.sb || !window.sb.functions){ panel.style.display='none'; return; }
+    const { data, error } = await window.sb.functions.invoke('required-work-cogs', { body: inp });
+    if(error || !data || !data.authorized){ panel.style.display='none'; return; }
+    const b=data.breakdown||[];
+    $('cogsBody').innerHTML =
+      '<ul class="cogs-list">'+b.map(r=>'<li><span>'+esc(r.label)+'</span><span>$'+Math.round(r.cost).toLocaleString()+'</span></li>').join('')+'</ul>'+
+      '<div class="cogs-total"><span>Total install cost</span><span>$'+Math.round(data.total||0).toLocaleString()+'</span></div>'+
+      (data.per_watt!=null?'<div class="cogs-pw">$'+Number(data.per_watt).toFixed(3)+' / watt</div>':'');
+    panel.style.display='block';
+  }catch(e){ panel.style.display='none'; }
+}
+
+function recompute(){
+  const inp = gatherInputs();
+  renderScope(inp);
+  clearTimeout(_cogsTimer);
+  _cogsTimer=setTimeout(()=>refreshCogs(inp), 350);
+}
+
+function resetCalc(){
+  document.querySelectorAll('input[type=number]').forEach(e=>e.value=e.id==='i_kw'?'0':'0');
+  document.querySelectorAll('input[type=checkbox]').forEach(e=>e.checked=false);
+  document.querySelectorAll('select').forEach(e=>e.selectedIndex=0);
+  $('trenchFields').style.display='none';
+  recompute();
+}
+
+document.addEventListener('input', e=>{
+  if(e.target.id==='i_trench_on'){ $('trenchFields').style.display=e.target.checked?'block':'none'; }
+  recompute();
+});
+document.addEventListener('change', recompute);
+
+// auth-gate.js calls initApp(profile, session) after sign-in.
+function initApp(profile, session){ recompute(); }
+</script>
+</body>
+</html>
