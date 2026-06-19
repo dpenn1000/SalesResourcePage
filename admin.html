@@ -996,10 +996,10 @@
         <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#5eba28;border:1px solid rgba(94,186,40,0.4);border-radius:4px;padding:2px 6px;">VP+ only</span>
       </div>
       <a class="apex-card" href="https://tools.ct-resource-page.com/apex" target="_blank" rel="noopener">
-        <img class="apex-card-img" src="https://ct-resource-page.com/Index%20Photos/apex-thumbnail.svg" alt="APEX Executive Efficiency Engine" loading="lazy">
+        <img class="apex-card-img" src="https://ct-resource-page.com/Index%20Photos/apex-thumbnail.svg" alt="APEX Multi-State Analysis Engine" loading="lazy">
         <div class="apex-card-body">
           <div class="apex-card-name">APEX <span class="apex-card-arrow">&#8599;</span></div>
-          <div class="apex-card-sub">Executive Efficiency Engine -- NY/LI profitability, cuts, EBITDA, and scenarios</div>
+          <div class="apex-card-sub">Multi-State Analysis Engine: profitability, cuts, EBITDA, and scenarios</div>
         </div>
       </a>
     </div>
@@ -1670,8 +1670,8 @@ async function initCommissionGate() {
   if (btn) btn.style.display = window.COMM_CAN_EDIT ? '' : 'none';
 }
 
-// APEX is the executive NY/LI profitability tool. The card is revealed only for
-// sales-line VP+ (server-side is_apex_viewer(); the /apex route enforces the same rule).
+// APEX is the executive multi-state profitability tool. The card is revealed only for
+// the sales-line Executive tier (server-side is_apex_viewer(); the /apex route enforces the same rule).
 async function initApexGate() {
   let ok = false;
   try { const { data, error } = await sb.rpc('is_apex_viewer'); ok = !error && data === true; }
