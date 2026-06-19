@@ -115,7 +115,7 @@ svg = f'''<svg viewBox="0 0 {W} {H}" xmlns="http://www.w3.org/2000/svg" font-fam
   <rect width="{W}" height="{H}" fill="url(#heroDark)"/>
 
   <!-- hero: green->blue APEX wordmark + silver-shimmer motto (mirrors /apex) -->
-  <text x="{XR}" y="250" text-anchor="end" fill="{GREEN}" font-size="24" font-weight="800" letter-spacing="5">EXECUTIVE EFFICIENCY ENGINE</text>
+  <text x="{XR}" y="250" text-anchor="end" fill="{GREEN}" font-size="24" font-weight="800" letter-spacing="5">MULTI-STATE ANALYSIS ENGINE</text>
   <rect x="{XR-150}" y="266" width="150" height="4" rx="2" fill="url(#apexLogo)"/>
   <text x="{XR+6}" y="404" text-anchor="end" fill="url(#apexLogo)" font-size="172" font-weight="800" letter-spacing="8">APEX</text>
   <text x="{XR}" y="476" text-anchor="end" fill="url(#apexSilver)" font-size="42" font-weight="600" letter-spacing="6" font-family="'DM Mono','Courier New',monospace">BUILT TO WIN</text>
