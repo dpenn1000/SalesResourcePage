@@ -179,8 +179,16 @@
     if (!window.hcaptcha || __hcaptchaWidgetId !== null) return;
     var box = document.getElementById('ctCaptcha');
     if (!box || box.childElementCount > 0) return;
-    try { __hcaptchaWidgetId = window.hcaptcha.render('ctCaptcha', { sitekey: HCAPTCHA_SITEKEY }); }
-    catch (e) { console.warn('[auth-gate] hcaptcha render failed:', e); }
+    try {
+      __hcaptchaWidgetId = window.hcaptcha.render('ctCaptcha', {
+        sitekey: HCAPTCHA_SITEKEY,
+        // Capture the token the moment the challenge passes -- more reliable
+        // than reading getResponse() at submit time.
+        callback: function (token) { window.__ctCaptchaToken = token || ''; },
+        'expired-callback': function () { window.__ctCaptchaToken = ''; },
+        'error-callback': function () { window.__ctCaptchaToken = ''; }
+      });
+    } catch (e) { console.warn('[auth-gate] hcaptcha render failed:', e); }
   }
   window.__ctHcaptchaOnload = _renderCaptcha;
 
@@ -208,10 +216,12 @@
   }
 
   function getCaptchaToken() {
+    if (window.__ctCaptchaToken) return window.__ctCaptchaToken;
     try { return (window.hcaptcha && __hcaptchaWidgetId !== null) ? (window.hcaptcha.getResponse(__hcaptchaWidgetId) || '') : ''; }
     catch (e) { return ''; }
   }
   function resetCaptcha() {
+    window.__ctCaptchaToken = '';
     try { if (window.hcaptcha && __hcaptchaWidgetId !== null) window.hcaptcha.reset(__hcaptchaWidgetId); }
     catch (e) {}
   }
@@ -524,7 +534,10 @@
       const lo = (error.message || '').toLowerCase();
       let msg;
       if (lo.includes('captcha')) {
-        msg = 'Please complete the "I am human" check, then press Sign In.';
+        // Surface the raw Supabase captcha error so config problems (wrong
+        // provider, mismatched secret, hostname not allowed) are visible
+        // instead of hidden behind a generic "complete the check" message.
+        msg = 'Captcha: ' + (error.message || 'request rejected');
       } else if (/invalid login credentials/i.test(error.message || '')) {
         msg = 'That username and password did not match. Your username is your first initial + last name (no spaces, no email) -- e.g. Jane Smith is jsmith. Starter password is Trinity1.';
       } else {
