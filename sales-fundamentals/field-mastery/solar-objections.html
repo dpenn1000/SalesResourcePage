@@ -1674,6 +1674,20 @@ const OBJECTIONS = [
     technique: "Short Answer, Long Answer, with the engineering point.",
     standardResponse: "No. A solar array adds roughly 3 pounds per square foot, which is well within what your roof is built to carry, and we run a structural assessment before anything goes up. If an engineer ever flagged a concern, we would address it before installation, not after.",
     repFailure: "Hand-waving 'it's fine' without the load number or the structural-assessment point."
+  },
+  {
+    id: "OBJ-P05", section: "P", sectionName: "Performance", title: "Will Solar Interfere With My Ham Radio / Radio Reception?",
+    product: "Solar", difficulty: "Hard",
+    surface: ["I'm a ham operator, won't this wipe out my radio?", "I heard SolarEdge kills AM/shortwave reception.", "Will the optimizers cause interference on the HF bands?"],
+    rootCause: "A licensed amateur-radio operator, shortwave listener, or AM hobbyist has heard, often from a forum or club, that SolarEdge systems raise the radio noise floor. The concern is real and documented, so denying it instantly destroys trust with a technical buyer. The move is acknowledge, qualify how exposed they actually are, then route to the known fix.",
+    disc: { D: "Wants a straight yes/no and the fix, give the levers fast.", I: "Reassured by your confidence and track record more than the physics.", S: "Worried about hassle, emphasize it's handled and proven.", C: "Will engage on the mechanism, walk optimizers, harmonics, ferrites, grounding." },
+    technique: "Acknowledge honestly, qualify exposure, then route to mitigation. Never deny it; never promise zero interference.",
+    ctContext: "Most homeowners have no HF gear and a short confident answer settles it. The depth only matters for an actual licensed operator running HF from the house.",
+    standardResponse: "You're right that some SolarEdge installs have caused interference, it's a real, documented thing, mostly on AM and the HF bands, and only while the panels are making power. Two things put a radio operator at ease: you can shut the system off any time for a contest or an evening net and it goes quiet within seconds, and a standard no-battery system is basically silent at night on its own. And if it ever does interfere, there's a proven fix path, newer optimizers, ferrite chokes, twisted wiring and grounding, that resolves the large majority of cases without removing anything. If you're an active HF operator, I'll flag it on your file so the install team builds the suppression in from the start.",
+    note: "Never guarantee zero interference. Promise the process, not perfection. For a serious HF operator, set honest expectations that some mitigation/tuning may be needed.",
+    resourceLink: "../../solar/system-design/solaredge-ham-radio.html",
+    resourceLinkLabel: "SolarEdge & Ham Radio (RFI) — full technical brief",
+    repFailure: "Denying or hand-waving the concern to a technical buyer, or over-promising 'no interference, guaranteed,' instead of acknowledging it and routing to the documented mitigation playbook."
   }
 ];
 
@@ -2320,6 +2334,10 @@ function renderObjectionDetail(o) {
   if (o.note) {
     html += '<h5>Note</h5>';
     html += `<p style="font-size: 0.875rem; color: var(--text-muted);">${escapeHtml(o.note)}</p>`;
+  }
+  if (o.resourceLink) {
+    html += '<h5>Full resource</h5>';
+    html += `<p><a href="${o.resourceLink}" style="font-weight:700;">${escapeHtml(o.resourceLinkLabel || 'Open the full brief')} &rarr;</a></p>`;
   }
   return html;
 }
