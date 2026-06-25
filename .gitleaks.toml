@@ -1,0 +1,16 @@
+# gitleaks config for the public ct-resource-page.com repo.
+# Extends the default ruleset and allowlists known-public, non-secret values
+# that otherwise trip the generic-api-key heuristic (a UUID assigned to a
+# variable whose name contains "KEY"). The hCaptcha *sitekey* is shipped in
+# client HTML by design and is not a secret. The hCaptcha *secret* lives only
+# in the Supabase dashboard, never in this repo.
+title = "SalesResourcePage gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Public hCaptcha sitekey -- intentionally in client code, not a secret"
+regexes = [
+  '''601ce9bc-e8ac-44ba-831a-1d8aa806517e''',
+]

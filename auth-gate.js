@@ -155,6 +155,8 @@
         el.style.display = 'none';
       }
     }
+    if (screenId === 'loginScreen') { try { mountCaptcha(); } catch (e) {} }
+    if (screenId === 'changePasswordScreen') { try { mountPwHint(); } catch (e) {} }
   }
 
   function showLoginError(msg) {
@@ -163,6 +165,84 @@
       errEl.textContent = msg;
       errEl.style.display = 'block';
     }
+  }
+
+  // ── hCaptcha (Supabase built-in captcha) ──────────────────────────────
+  // When captcha is enabled in Supabase Auth (Attack Protection), GoTrue
+  // rejects sign-in unless a captchaToken is supplied. We render the hCaptcha
+  // widget into the login card and pass its token to signInWithPassword.
+  // Supabase verifies the token server-side using the SECRET held in the
+  // dashboard; the secret never lives here. Only the public sitekey does.
+  var HCAPTCHA_SITEKEY = '601ce9bc-e8ac-44ba-831a-1d8aa806517e';
+  var __hcaptchaWidgetId = null;
+
+  function _renderCaptcha() {
+    if (!window.hcaptcha || __hcaptchaWidgetId !== null) return;
+    var box = document.getElementById('ctCaptcha');
+    if (!box || box.childElementCount > 0) return;
+    try {
+      __hcaptchaWidgetId = window.hcaptcha.render('ctCaptcha', {
+        sitekey: HCAPTCHA_SITEKEY,
+        // Capture the token the moment the challenge passes -- more reliable
+        // than reading getResponse() at submit time.
+        callback: function (token) { window.__ctCaptchaToken = token || ''; },
+        'expired-callback': function () { window.__ctCaptchaToken = ''; },
+        'error-callback': function () { window.__ctCaptchaToken = ''; }
+      });
+    } catch (e) { console.warn('[auth-gate] hcaptcha render failed:', e); }
+  }
+  window.__ctHcaptchaOnload = _renderCaptcha;
+
+  function mountCaptcha() {
+    var screen = document.getElementById('loginScreen');
+    if (!screen) return;
+    if (!document.getElementById('ctCaptcha')) {
+      var box = document.createElement('div');
+      box.id = 'ctCaptcha';
+      box.style.margin = '0 0 12px';
+      var form = screen.querySelector('form');
+      var anchor = document.getElementById('loginBtn') || (form && form.querySelector('button'));
+      if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(box, anchor);
+      else (form || screen.querySelector('.login-card') || screen).appendChild(box);
+    }
+    if (!document.getElementById('ctHcaptchaScript')) {
+      var s = document.createElement('script');
+      s.id = 'ctHcaptchaScript';
+      s.src = 'https://js.hcaptcha.com/1/api.js?render=explicit&onload=__ctHcaptchaOnload';
+      s.async = true; s.defer = true;
+      document.head.appendChild(s);
+    } else {
+      _renderCaptcha();
+    }
+  }
+
+  function getCaptchaToken() {
+    if (window.__ctCaptchaToken) return window.__ctCaptchaToken;
+    try { return (window.hcaptcha && __hcaptchaWidgetId !== null) ? (window.hcaptcha.getResponse(__hcaptchaWidgetId) || '') : ''; }
+    catch (e) { return ''; }
+  }
+  function resetCaptcha() {
+    window.__ctCaptchaToken = '';
+    try { if (window.hcaptcha && __hcaptchaWidgetId !== null) window.hcaptcha.reset(__hcaptchaWidgetId); }
+    catch (e) {}
+  }
+
+  // ── Change-password hint ──────────────────────────────────────────────
+  // One-time hint on the "set a new password" screen so users know the length
+  // window (8 to 72; 72 is the bcrypt cap) and that breached passwords are
+  // rejected (leaked-password protection is on). Injected here so every gated
+  // page gets it without editing each page's markup.
+  function mountPwHint() {
+    var screen = document.getElementById('changePasswordScreen');
+    if (!screen || document.getElementById('ctPwHint')) return;
+    var field = document.getElementById('cpNew');
+    var hint = document.createElement('p');
+    hint.id = 'ctPwHint';
+    hint.textContent = '8 to 72 characters. Common or breached passwords are rejected, so pick something unique.';
+    hint.style.cssText = 'font-size:13px;line-height:1.5;color:#808a99;margin:0 0 14px;';
+    var target = (field && field.previousElementSibling) || field;
+    if (target && target.parentNode) target.parentNode.insertBefore(hint, target);
+    else (screen.querySelector('.login-card') || screen).appendChild(hint);
   }
 
   async function loadProfile(session, _attempt) {
@@ -453,16 +533,35 @@
     // Flag a genuine credential sign-in so the auth-state handler logs exactly
     // one sign_in (and not the SIGNED_IN that fires on every session-restore).
     window.__ctCredentialSignIn = true;
-    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    // Pass the hCaptcha token when present. If captcha is disabled in Supabase
+    // (or the widget did not load), token is empty and we omit options so the
+    // call behaves exactly as before.
+    const captchaToken = getCaptchaToken();
+    const { error } = await sb.auth.signInWithPassword(
+      captchaToken
+        ? { email, password: pass, options: { captchaToken } }
+        : { email, password: pass }
+    );
     if (btn) { btn.disabled = false; btn.textContent = oldText; }
     if (error) {
       window.__ctCredentialSignIn = false;
+      resetCaptcha();
       // The default Supabase message ("Invalid login credentials") leaves
       // first-timers wondering whether their username or their password is
-      // the problem. Hint at both, and reinforce the username format.
-      const msg = /invalid login credentials/i.test(error.message || '')
-        ? 'That username and password did not match. Your username is your first initial + last name (no spaces, no email) -- e.g. Jane Smith is jsmith. Starter password is Trinity1.'
-        : error.message;
+      // the problem. Hint at both, and reinforce the username format. A captcha
+      // rejection (Attack Protection on, no token) gets its own clear nudge.
+      const lo = (error.message || '').toLowerCase();
+      let msg;
+      if (lo.includes('captcha')) {
+        // Surface the raw Supabase captcha error so config problems (wrong
+        // provider, mismatched secret, hostname not allowed) are visible
+        // instead of hidden behind a generic "complete the check" message.
+        msg = 'Captcha: ' + (error.message || 'request rejected');
+      } else if (/invalid login credentials/i.test(error.message || '')) {
+        msg = 'That username and password did not match. Your username is your first initial + last name (no spaces, no email) -- e.g. Jane Smith is jsmith. Starter password is Trinity1.';
+      } else {
+        msg = error.message;
+      }
       showLoginError(msg);
     }
   };
