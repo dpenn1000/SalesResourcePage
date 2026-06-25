@@ -74,7 +74,7 @@
   .qa-grid{grid-template-columns:1fr}
 }
 
-/* PRINT / PDF — strip chrome, open all detail, keep figures clean. The hero
+/* PRINT / PDF: strip chrome, open all detail, keep figures clean. The hero
    "Download PDF" button calls window.print(); the browser's "Save as PDF"
    destination produces the hand-off file. */
 @media print{
@@ -149,10 +149,10 @@
     <div class="wrap">
       <a href="#why"><span class="num">1</span> Why It Matters</a>
       <a href="#mechanism"><span class="num">2</span> What's Happening</a>
-      <a href="#bands"><span class="num">3</span> Bands &amp; Severity</a>
-      <a href="#law"><span class="num">4</span> The Rules</a>
-      <a href="#shutoff"><span class="num">5</span> Shut It Off / Night Use</a>
-      <a href="#fix"><span class="num">6</span> How It Gets Fixed</a>
+      <a href="#bands"><span class="num">3</span> Bands Impacted</a>
+      <a href="#law"><span class="num">4</span> Regulations</a>
+      <a href="#shutoff"><span class="num">5</span> System Off</a>
+      <a href="#fix"><span class="num">6</span> Mitigation</a>
       <a href="#playbook"><span class="num">7</span> Field Playbook</a>
     </div>
   </nav>
@@ -164,9 +164,9 @@
     <span class="eyebrow">Technical Brief · SolarEdge HD Wave &amp; Amateur Radio</span>
     <h1>Solar <em>&amp; the Ham Radio</em> Objection</h1>
     <p class="lede">
-      A small slice of homeowners run amateur ("ham") radio, shortwave, or AM DX gear, and they've heard
-      SolarEdge systems can raise the radio noise floor. <strong>They're not wrong, and it's not a dealbreaker.</strong>
-      It's a known, well-documented, and largely fixable issue. Know the facts, qualify the concern, and lead with the solution.
+      A small slice of homeowners run amateur ("ham") radio, shortwave, or AM gear, and they've heard
+      SolarEdge can raise the radio noise floor. <strong>They're not wrong, and it's not a dealbreaker.</strong>
+      The issue is documented and fixable. Know the facts, qualify the concern, lead with the fix.
     </p>
     <div class="spec-strip">
       <div class="sp"><div class="num">2&ndash;30&nbsp;MHz</div><div class="label">Bands at Risk</div><div class="sub">HF + AM broadcast</div></div>
@@ -188,13 +188,13 @@
 <!-- 1: WHY IT MATTERS -->
 <section class="module" id="why">
   <div class="wrap">
-    <span class="eyebrow">Part 1 · The Concern</span>
-    <h2>Who actually raises this, and why it matters</h2>
-    <p class="intro">Most homeowners will never think about radio interference. But a licensed amateur-radio operator, a shortwave listener, or a serious AM-radio hobbyist may have heard, often from a forum or a club, that SolarEdge "wipes out the bands." Dismissing it loses their trust instantly. Acknowledging it and showing you understand the fix wins it.</p>
+    <span class="eyebrow">Part 1</span>
+    <h2>Who cares, and how much</h2>
+    <p class="intro">Most homeowners never think about radio interference. But a licensed ham, a shortwave listener, or a serious AM hobbyist may have heard that SolarEdge "wipes out the bands." Deny it and you lose a technical buyer's trust. Acknowledge it, show you know the fix, and you win it.</p>
 
     <div class="pullquote">"You're right that some installs have caused interference. It's a real thing, it's well understood, and there's a known playbook to fix it. Let me walk you through it."<span class="attr">The only honest opening to this objection</span></div>
 
-    <p class="intro">First, qualify how much this person actually cares. The answer changes everything:</p>
+    <p class="intro">First, qualify how much they care:</p>
 
     <div class="who-grid">
       <div class="who low">
@@ -218,7 +218,7 @@
 
     <details class="recall-check">
       <summary><span class="label">Recall</span> What's the first move when a prospect raises radio interference?</summary>
-      <p class="answer">Acknowledge it honestly (it's real and documented), then qualify how exposed they actually are, a casual AM listener and a licensed HF operator need very different conversations.</p>
+      <p class="answer">Acknowledge it honestly: it's real and documented. Then qualify their exposure. A casual AM listener and a licensed HF operator need very different conversations.</p>
     </details>
   </div>
 </section>
@@ -226,9 +226,9 @@
 <!-- 2: MECHANISM -->
 <section class="module" id="mechanism">
   <div class="wrap">
-    <span class="eyebrow">Part 2 · The Physics, Plainly</span>
-    <h2>What's actually happening on the roof</h2>
-    <p class="intro">SolarEdge isn't a plain string inverter. It puts a small <strong>power optimizer</strong> (a high-frequency switching circuit) behind every panel, with the HD Wave inverter on the wall. Those optimizers chop DC power thousands of times a second. Switching circuits radiate radio noise, and the DC wiring tying all the optimizers together on the roof behaves like a big <strong>loop antenna</strong> that broadcasts it.</p>
+    <span class="eyebrow">Part 2</span>
+    <h2>Where the noise comes from</h2>
+    <p class="intro">SolarEdge isn't a plain string inverter. It puts a small <strong>power optimizer</strong> (a high-frequency switching circuit) behind every panel, with the HD Wave inverter on the wall. Those optimizers chop DC power thousands of times a second. Switching circuits radiate radio noise, and the DC wiring linking the optimizers across the roof acts as a big <strong>loop antenna</strong> that broadcasts it.</p>
 
     <figure class="figure">
       <svg viewBox="0 0 720 300" role="img" aria-label="Diagram: rooftop solar panels each with a power optimizer, connected by DC wiring that forms a loop radiating radio-frequency energy toward a ham radio antenna and receiver.">
@@ -269,7 +269,7 @@
         <text x="600" y="240" fill="#fff" font-family="Manrope,sans-serif" font-size="12" font-weight="800" text-anchor="middle">RADIO</text>
         <text x="600" y="285" fill="#27324A" font-family="Manrope,sans-serif" font-size="12" font-weight="700" text-anchor="middle">Ham / shortwave receiver</text>
       </svg>
-      <figcaption>Each panel's optimizer is a small switching supply. The DC homerun wiring connecting them acts as an antenna, radiating broadband noise across the HF and AM bands. Custom illustration — swap for a field photo if preferred.</figcaption>
+      <figcaption>Each panel's optimizer is a small switching supply. The DC homerun wiring linking them acts as an antenna, radiating broadband noise across the HF and AM bands.</figcaption>
     </figure>
 
     <div class="card-grid">
@@ -283,7 +283,7 @@
       </div>
       <div class="training-card training-card--amber">
         <h3>Why "FCC certified" still caused issues</h3>
-        <p>SolarEdge's inverter and optimizers were FCC-certified <em>as individual components</em> on a bench. The criticism from the radio community is that the <strong>whole rooftop system</strong>, all those parts plus the wiring loop, behaves differently in the real world than any single certified part. That gap is where early interference complaints came from.</p>
+        <p>The inverter and the optimizers were FCC-certified <em>as individual parts</em> on a bench. The radio community's point: the <strong>whole rooftop system</strong>, all those parts plus the wiring loop, behaves differently than any single certified component. That gap is where the early complaints came from.</p>
       </div>
     </div>
 
@@ -297,9 +297,9 @@
 <!-- 3: BANDS & SEVERITY -->
 <section class="module" id="bands">
   <div class="wrap">
-    <span class="eyebrow">Part 3 · What Gets Hit</span>
-    <h2>Which bands, and how bad</h2>
-    <p class="intro">The interference is "broadband noise", a raised hiss across a wide range rather than one tone. It buries weak signals by lifting the <strong>noise floor</strong>. The worst impact is on the HF bands where most ham operating happens, plus the AM broadcast band.</p>
+    <span class="eyebrow">Part 3</span>
+    <h2>What bands are impacted</h2>
+    <p class="intro">The interference is broadband noise: a raised hiss across a wide range, not one tone. It buries weak signals by lifting the <strong>noise floor</strong>. The worst of it lands on the HF bands where most ham operating happens, plus AM broadcast.</p>
 
     <figure class="figure">
       <svg viewBox="0 0 720 250" role="img" aria-label="Bar chart comparing radio noise floor before and after a solar system turns on. After, the noise floor rises sharply across the HF bands, burying weak signals.">
@@ -358,9 +358,9 @@
 <!-- 4: THE RULES -->
 <section class="module" id="law">
   <div class="wrap">
-    <span class="eyebrow">Part 4 · The Regulatory Reality</span>
-    <h2>Why the manufacturer has to take this seriously</h2>
-    <p class="intro">This isn't just goodwill. Solar electronics are <strong>FCC Part 15</strong> devices, and amateur radio is a <strong>licensed</strong> service. That combination gives a ham real leverage, and gives the manufacturer a real obligation, which is exactly why SolarEdge built a resolution process.</p>
+    <span class="eyebrow">Part 4</span>
+    <h2>Regulations</h2>
+    <p class="intro">This isn't goodwill. Solar electronics are <strong>FCC Part 15</strong> devices; amateur radio is a <strong>licensed</strong> service. That gives the ham leverage and the manufacturer an obligation, which is why SolarEdge built a resolution process.</p>
 
     <div class="compare-grid">
       <div class="training-card training-card--ink">
@@ -393,16 +393,16 @@
 <!-- 5: SHUT IT OFF / NIGHT USE -->
 <section class="module" id="shutoff">
   <div class="wrap">
-    <span class="eyebrow">Part 5 · The Two Questions Hams Ask</span>
-    <h2>"Can't I just shut it off?" and "What if I only operate at night?"</h2>
-    <p class="intro">These are the two smartest questions a radio operator asks, and the answers are genuinely reassuring. Both work because the optimizers only make noise while the array is producing power. SolarEdge's <strong>SafeDC</strong> feature drops each optimizer to about 1 volt and stops the switching whenever the inverter is off or there's no sun.</p>
+    <span class="eyebrow">Part 5</span>
+    <h2>What happens when the system is off?</h2>
+    <p class="intro">These are the two smartest questions a radio operator asks, and both answers reassure. The optimizers only make noise while the array is producing power. SolarEdge's <strong>SafeDC</strong> feature drops each optimizer to about 1 volt and stops the switching whenever the inverter is off or there's no sun.</p>
 
     <div class="qa-grid">
       <div class="qa">
         <div class="qh">"Can I shut the system down when I want to get on the air?"</div>
         <div class="qb">
           <span class="verdict-chip ok">Yes, it works</span>
-          <p>Turning the inverter off (its ON/OFF/P switch or the AC/DC disconnect) triggers SafeDC: the optimizers drop to ~1V each and stop switching, so the array's RF noise essentially stops. The operator gets a clean band on demand, perfect for a contest weekend or an evening net.</p>
+          <p>Turning the inverter off (its ON/OFF/P switch or the AC/DC disconnect) triggers SafeDC: the optimizers drop to ~1V each and stop switching, so the array's RF noise stops. The operator gets a clean band on demand, for a contest weekend or an evening net.</p>
           <div class="tradeoff"><strong>The trade-off:</strong> while it's off the system produces nothing, so they lose that solar savings for those hours, and monitoring/production pauses. Fine as an occasional move; not ideal as an everyday workaround. It can often be automated on a schedule.</div>
         </div>
       </div>
@@ -410,7 +410,7 @@
         <div class="qh">"I only operate at night, am I fine?"</div>
         <div class="qb">
           <span class="verdict-chip ok">Usually, yes</span>
-          <p>No sun means no production, so the optimizers sit idle at ~1V and the inverter is essentially asleep. A standard grid-tied, <strong>PV-only</strong> array is effectively silent at night, which is a great fit for a night-operating ham.</p>
+          <p>No sun, no production: the optimizers sit idle at ~1V and the inverter sleeps. A standard grid-tied, <strong>PV-only</strong> array is silent at night, a great fit for a night operator.</p>
           <div class="tradeoff"><strong>The one caveat:</strong> if the home has <em>battery storage</em> (SolarEdge Home Hub / StorEdge), the battery can discharge at night, which keeps an inverter switching, so some RFI may persist after dark. Pure PV with no battery is the quiet-at-night case.</div>
         </div>
       </div>
@@ -418,7 +418,7 @@
 
     <div class="training-card training-card--ink">
       <h3>How to say it at the table</h3>
-      <blockquote class="script-example"><span class="who">Say</span>"Here's the good news for a radio operator: the panels only make noise when they're making power. Flip the inverter off and the system goes quiet within seconds, so you can shut it down for a contest or an evening net any time you want. And if you mostly operate after dark, a standard system with no battery is basically silent at night on its own, the sun's down, so there's nothing to make noise."</blockquote>
+      <blockquote class="script-example"><span class="who">Say</span>"Good news for a radio operator: the panels only make noise when they're making power. Flip the inverter off and it goes quiet within seconds, so you can shut down for a contest or a net any time. And if you operate after dark, a no-battery system is silent at night on its own. Sun's down, nothing to make noise."</blockquote>
     </div>
 
     <div class="manager-prompt">Role-play: a licensed ham says "so my only options are lose my savings or only operate at night?" Reframe it, both are easy levers, and mitigation (next section) usually means they don't have to choose at all.</div>
@@ -433,9 +433,9 @@
 <!-- 6: HOW IT GETS FIXED -->
 <section class="module" id="fix">
   <div class="wrap">
-    <span class="eyebrow">Part 6 · The Mitigation Playbook</span>
-    <h2>How interference actually gets resolved</h2>
-    <p class="intro">When an install does cause interference, there's a well-worn fix path, much of it pioneered with the ARRL and the FCC. Most cases resolve without removing the system. You don't need to memorize the engineering; you need to know a real, ordered playbook exists.</p>
+    <span class="eyebrow">Part 6</span>
+    <h2>Mitigation</h2>
+    <p class="intro">When an install does interfere, there's a well-worn fix path, much of it developed with the ARRL and FCC. Most cases resolve without removing the system. You don't need the engineering; you need to know an ordered playbook exists.</p>
 
     <div class="mit-stack">
       <div class="mit"><div class="ord">1</div><div><div class="mt">Confirm the source</div><div class="md2">Often a remote session: the installer shuts the system off remotely and the ham confirms the noise vanishes, proving the array is the cause before any parts ship.</div></div></div>
@@ -468,9 +468,9 @@
 <!-- 7: FIELD PLAYBOOK -->
 <section class="module" id="playbook">
   <div class="wrap">
-    <span class="eyebrow">Part 7 · The Field Playbook</span>
-    <h2>Handling the objection at the table</h2>
-    <p class="intro">You don't need to be an RF engineer. You need to acknowledge honestly, qualify the exposure, and route to the fix. Confidence plus honesty is the whole move here.</p>
+    <span class="eyebrow">Part 7</span>
+    <h2>At the table</h2>
+    <p class="intro">You don't need to be an RF engineer. Acknowledge honestly, qualify the exposure, route to the fix. Confidence plus honesty is the whole move.</p>
 
     <ol class="step-grid">
       <li class="step"><h3>1. Acknowledge, don't dodge</h3><p>"You're right, some SolarEdge installs have caused radio interference. It's real and it's documented." Denial loses a technical prospect instantly.</p></li>
