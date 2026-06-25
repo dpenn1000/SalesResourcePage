@@ -31,6 +31,7 @@ $M = @{
  ticket='<g transform="rotate(-10 980 360)" opacity="0.16"><rect x="812" y="150" width="360" height="350" rx="26" fill="none" stroke="url(#acc)" stroke-width="6"/><line x1="952" y1="160" x2="952" y2="490" stroke="url(#acc)" stroke-width="4" stroke-dasharray="16 13"/><circle cx="952" cy="150" r="22" fill="{BG}"/><circle cx="952" cy="500" r="22" fill="{BG}"/></g><g transform="translate(998,104)"><rect x="0" y="0" width="156" height="66" rx="14" fill="none" stroke="url(#acc)" stroke-width="5"/><line x1="56" y1="7" x2="56" y2="59" stroke="url(#acc)" stroke-width="4" stroke-dasharray="9 7"/><circle cx="118" cy="33" r="9" fill="url(#acc)"/></g>'
  nodes='<g transform="translate(976,98)" stroke="url(#acc)" stroke-width="5" fill="url(#acc)"><line x1="90" y1="22" x2="30" y2="100"/><line x1="90" y1="22" x2="150" y2="100"/><circle cx="90" cy="22" r="16"/><circle cx="30" cy="100" r="16"/><circle cx="150" cy="100" r="16"/></g>'
  circuit='<g transform="translate(976,96)" stroke="url(#acc)" stroke-width="5" fill="none"><path d="M30,42 V72 H90 V102"/><path d="M150,42 V72 H90"/><circle cx="30" cy="30" r="12" fill="url(#acc)"/><circle cx="150" cy="30" r="12" fill="url(#acc)"/><circle cx="90" cy="114" r="12" fill="url(#acc)"/></g>'
+ antenna='<g transform="translate(1000,104)" fill="none" stroke="url(#acc)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"><path d="M70,120 L88,30"/><path d="M106,120 L88,30"/><line x1="76" y1="92" x2="100" y2="92"/><line x1="80" y1="64" x2="96" y2="64"/><circle cx="88" cy="26" r="7" fill="url(#acc)"/><path d="M64,12 A30,30 0 0 0 64,40"/><path d="M50,2 A46,46 0 0 0 50,50"/><path d="M112,12 A30,30 0 0 1 112,40"/><path d="M126,2 A46,46 0 0 1 126,50"/></g>'
  envelope='<g transform="translate(974,108)" fill="none" stroke="url(#acc)" stroke-width="6" stroke-linejoin="round"><rect x="0" y="0" width="172" height="112" rx="12"/><path d="M4,10 L86,66 L168,10"/></g>'
  people='<g transform="translate(975,96)" fill="url(#acc)"><circle cx="110" cy="50" r="18" opacity="0.6"/><path d="M84,128 a28,34 0 0 1 56,0 Z" opacity="0.6"/><circle cx="52" cy="40" r="24"/><path d="M14,128 a40,46 0 0 1 76,0 Z"/></g>'
 }
@@ -95,6 +96,7 @@ $cards = @(
  @('system-design-and-codes','syscodes','SYSTEM & CODES','System Design','& Codes','Design rules, setbacks, the tester','roof'),
  @('electrical-upgrades','syscodes','SYSTEM & CODES','Electrical','Reviews & Upgrades','Equipment, upgrades, and clearances','circuit'),
  @('design-lab','syscodes','SYSTEM & CODES','Design','Lab','Practice the system design','sun'),
+ @('solaredge-ham-radio','syscodes','SYSTEM & CODES','SolarEdge &','Ham Radio','RFI: the facts and the fix','antenna'),
  # Financing portals use their real lender LOGOS (not generated). Do NOT re-add here
  # or a generator run will clobber them. service-finance-portal-thumbnail.svg is a
  # hand-built white logo card; goodleap/sunlight/palmetto point at storage logos.
