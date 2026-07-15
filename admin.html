@@ -1002,6 +1002,12 @@
           <div class="apex-card-sub">Multi-State Analysis Engine: profitability, cuts, EBITDA, and scenarios</div>
         </div>
       </a>
+      <a class="apex-card" href="https://tools.ct-resource-page.com/apex-ny" target="_blank" rel="noopener" style="margin-top:14px;">
+        <div class="apex-card-body">
+          <div class="apex-card-name">APEX-NY <span class="apex-card-arrow">&#8599;</span></div>
+          <div class="apex-card-sub">The original NY profitability build, parked as a reference</div>
+        </div>
+      </a>
     </div>
 
     <div class="tools-grid">
@@ -4126,7 +4132,7 @@ async function deleteFeedback(id) {
   }
 
   // ── Per-person detail ──
-  let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false, PW_OPEN = false;
+  let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false, PW_OPEN = false, PW_GENERATED = '';
   const D_TABS = [['profile','Profile'],['activity','Portal Logins'],['university','University'],['callwork','Call Work'],['feedback','Feedback']];
 
   async function openRep(username) {
@@ -4245,10 +4251,11 @@ async function deleteFeedback(id) {
     const isActive = r.status === 'active';
     const acctInner = PW_OPEN
       ? `<label class="edit-label" for="pwNew">New password</label>
-        <input type="text" id="pwNew" class="edit-input" value="Trinity1">
-        <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0">Sets a new password and forces a change on next sign-in. Share it with them directly.</p>
+        <input type="text" id="pwNew" class="edit-input" value="${PW_GENERATED}">
+        <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0">Randomly generated -- avoids the leaked-password rejection that predictable resets (e.g. "Trinity1") hit. Sets a new password and forces a change on next sign-in. Share it with them directly.</p>
         <div class="edit-actions">
           <button class="btn-save btn-pw-set" onclick="resetRepPassword()">Set password</button>
+          <button class="btn-cancel" onclick="regenPw()">Generate new</button>
           <button class="btn-cancel" onclick="copyInviteFromField(this)">Copy sign-in message</button>
           <button class="btn-cancel" onclick="togglePw()">Cancel</button>
         </div>`
@@ -4363,7 +4370,27 @@ async function deleteFeedback(id) {
     return res.json();
   }
 
-  function togglePw() { PW_OPEN = !PW_OPEN; renderDetailTab(); }
+  function togglePw() { PW_OPEN = !PW_OPEN; if (PW_OPEN) PW_GENERATED = genPassword(); renderDetailTab(); }
+
+  // Random password, not a predictable pattern: Supabase's leaked-password
+  // check (HaveIBeenPwned) silently 422s admin resets that reuse a guessable
+  // string like "Trinity1" across accounts, which used to be the default here.
+  // Excludes visually ambiguous chars (I/l/1, O/0) since these get read aloud
+  // or hand-typed off a screen.
+  function genPassword(len = 14) {
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    const bytes = new Uint32Array(len);
+    crypto.getRandomValues(bytes);
+    let out = '';
+    for (let i = 0; i < len; i++) out += chars[bytes[i] % chars.length];
+    return out;
+  }
+
+  function regenPw() {
+    PW_GENERATED = genPassword();
+    const el = document.getElementById('pwNew');
+    if (el) el.value = PW_GENERATED;
+  }
 
   function acctMsg(msg, isErr) {
     const el = document.getElementById('acctMsg');
@@ -4423,7 +4450,7 @@ async function deleteFeedback(id) {
   // Copy keyed to whatever password is currently in the reset field (accurate to
   // what was just typed/defaulted) for the open rep.
   function copyInviteFromField(btn) {
-    const pw = (document.getElementById('pwNew') || {}).value || 'Trinity1';
+    const pw = (document.getElementById('pwNew') || {}).value || PW_GENERATED;
     copyInvite((D_REP && D_REP.username) || '', pw, btn);
   }
 
@@ -4981,6 +5008,7 @@ async function deleteFeedback(id) {
   window.toggleEdit = toggleEdit;
   window.onEditMgrChange = onEditMgrChange;
   window.togglePw = togglePw;
+  window.regenPw = regenPw;
   window.resetRepPassword = resetRepPassword;
   window.copyInviteFromField = copyInviteFromField;
   window.toggleRepStatus = toggleRepStatus;
