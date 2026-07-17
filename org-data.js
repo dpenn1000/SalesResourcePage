@@ -1,4 +1,4 @@
-/* CT Resource Page -- shared org-chart data layer
+/* Current -- shared org-chart data layer
  *
  *   <script src="/org-data.js"></script>   (after /auth-gate.js)
  *

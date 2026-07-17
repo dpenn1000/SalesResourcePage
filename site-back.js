@@ -1,6 +1,6 @@
 /* site-back.js -- RETIRED 2026-06-13.
  *
- * This used to inject the green bottom-left "back to the CT Resource Page" pill.
+ * This used to inject the green bottom-left "back to the Current" pill.
  * It is now a no-op: navigation moved into the consistent top-right quick-nav
  * (site-nav.js), where "Resources" replaces the old back button.
  *

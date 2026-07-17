@@ -1,4 +1,4 @@
-/* CT Resource Page -- shared org-chart change intake + review UI
+/* Current -- shared org-chart change intake + review UI
  *
  *   <script src="/org-intake.js"></script>   (after /org-data.js)
  *

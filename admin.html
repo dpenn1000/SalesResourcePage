@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CT Traditional | Command Center</title>
+  <title>Current | Command Center</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
   <script src="/auth-gate.js"></script>
 <script src="/site-back.js" defer></script>
@@ -283,7 +283,7 @@
     .tool-card.cat-rep      { --cat-color: #7C3AED; --cat-tint: rgba(124, 58, 237, 0.10); --cat-edge: rgba(124, 58, 237, 0.20); }  /* Rep / University */
     .tool-card.cat-utility  { --cat-color: #0891B2; --cat-tint: rgba(8, 145, 178, 0.10);  --cat-edge: rgba(8, 145, 178, 0.20); }   /* Utility */
 
-    /* === CT Tools dark theme ===============================================
+    /* === Current dark theme ===============================================
        Cards mirror the launcher's navy desktop look (#0b1120 / #131c30) so
        they read instantly as "this opens the desktop app server" --
        distinct from the light Internal Tools cards above. */
@@ -301,7 +301,7 @@
     .tool-card.theme-dark:hover       { box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35); }
 
     /* Mobile PWA mirrors the warm light theme of /mobile so it pops out
-       among the dark CT Tools as "this opens a mobile view." */
+       among the dark Current as "this opens a mobile view." */
     .tool-card.theme-mobile {
       background: linear-gradient(135deg, #f8f6ef 0%, #efece1 100%);
       border-color: #d8d1bd;
@@ -320,7 +320,7 @@
     .apex-card-arrow { color:#5eba28; font-size:14px; }
     .apex-card-sub { font-size:12px; color:#8a96ad; margin-top:2px; }
 
-    /* === CT Tools per-purpose accents (used with theme-dark / theme-mobile)
+    /* === Current per-purpose accents (used with theme-dark / theme-mobile)
        Brighter than Internal palettes because they ride on a dark background
        and need to retain saturation. */
     .tool-card.cat-hub      { --cat-color: #78C832; --cat-tint: rgba(120, 200, 50, 0.18); --cat-edge: rgba(120, 200, 50, 0.30); }  /* Hub / launcher */
@@ -339,7 +339,7 @@
 
     /* Data-freshness badge -- reads the box's parser state cross-origin
        (tools.ct-resource-page.com/api/parse-status) so managers can trust the
-       CT Tools numbers are current. Hidden until a successful read. */
+       Current numbers are current. Hidden until a successful read. */
     .fresh-pill { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; color: var(--text2); background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 4px 11px; vertical-align: middle; }
     .fresh-dot { width: 8px; height: 8px; border-radius: 50%; background: #9aa6b4; flex: none; }
     .fresh-dot.ok  { background: var(--green); }
@@ -533,7 +533,7 @@
         <a href="index.html">&larr; View site</a>
         <div class="menu-div"></div>
         <button onclick="signOut()">Sign out</button>
-        <div class="menu-foot">CT Traditional &middot; Command Center</div>
+        <div class="menu-foot">Current &middot; Command Center</div>
       </div>
     </div>
   </div>
@@ -1077,7 +1077,7 @@
 
     <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px;">
-        <h3 style="font-size:14px;font-weight:700;">CT Tools (Manager Apps)</h3>
+        <h3 style="font-size:14px;font-weight:700;">Current (Manager Apps)</h3>
         <span id="ctDataFreshness" class="fresh-pill" style="display:none"></span>
       </div>
       <p style="color:var(--text2);font-size:12px;margin:0;">Coaching + analytics tools served from the home-office server at <code>tools.ct-resource-page.com</code>. Same Supabase login -- you'll be prompted to sign in once on this subdomain.</p>
@@ -1572,7 +1572,7 @@ window.initApp = function (profile, session) {
     } catch (e) {}
     // Admin-only surfaces: the Admin / Maintenance tool row and the Grid Edge
     // data tab. Both stay hidden for non-admin managers, who get the manager
-    // launchpad (Internal Tools + CT Tools) but not the server-write tools.
+    // launchpad (Internal Tools + Current) but not the server-write tools.
     if (window.IS_ADMIN) {
       const adminSec = document.getElementById('adminToolsSection');
       if (adminSec) adminSec.style.display = '';
@@ -1919,7 +1919,7 @@ document.addEventListener('click', function (e) {
   if (wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
 });
 
-// ── CT Tools data-freshness badge ────────────────
+// ── Current data-freshness badge ────────────────
 // Cross-origin read of the box's parser state using the user's Supabase bearer
 // token (same identity the box validates). The route is manager-gated on the
 // box; for a non-manager, an unreachable box, or a token we can't read, the
@@ -4407,7 +4407,7 @@ async function deleteFeedback(id) {
   // <username>@ct-resource-page.com address does not receive mail.
   function buildInviteMessage(username, password) {
     return [
-      'CT Resource Page access',
+      'Current access',
       '',
       'Sign in here: https://ct-resource-page.com/',
       'Username: ' + username,

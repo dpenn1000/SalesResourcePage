@@ -1,4 +1,4 @@
-/* CT Resource Page -- shared auth gate
+/* Current -- shared auth gate
  *
  * Every page on ct-resource-page.com that touches non-public data
  * includes this file via:
@@ -88,7 +88,7 @@
         '<div style="max-width:440px;text-align:center;color:#e8ecf4;'
         + 'background:#131c2e;border:1px solid #29384f;border-radius:16px;padding:32px 28px;">'
         + '<div style="font-size:13px;font-weight:700;color:#78C832;letter-spacing:.06em;'
-        + 'text-transform:uppercase;margin-bottom:12px;">CT Resource Page</div>'
+        + 'text-transform:uppercase;margin-bottom:12px;">Current</div>'
         + '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">Sign-in is temporarily unavailable</div>'
         + '<div style="font-size:14px;line-height:1.55;color:#a9b6cc;margin-bottom:20px;">'
         + 'We could not load a required component. This is usually a brief network hiccup. '
