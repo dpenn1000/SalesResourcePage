@@ -448,12 +448,19 @@
 
       // Consistent site-wide quick-nav (My Page / Admin / Resources), injected
       // once here so it lands on every authenticated page with roles known.
+      // Existence guard (Phase 6 single-sourcing): this file is now byte-
+      // identical on both stacks, and the launcher does not serve
+      // /site-nav.js -- probe first so the nav only loads where it exists,
+      // instead of 404-ing on every launcher tool.
       if (!window.__ct_nav_injected) {
         window.__ct_nav_injected = true;
-        var navJs = document.createElement('script');
-        navJs.src = '/site-nav.js';
-        navJs.defer = true;
-        (document.body || document.head || document.documentElement).appendChild(navJs);
+        fetch('/site-nav.js', { method: 'HEAD' }).then(function (r) {
+          if (!r.ok) return;
+          var navJs = document.createElement('script');
+          navJs.src = '/site-nav.js';
+          navJs.defer = true;
+          (document.body || document.head || document.documentElement).appendChild(navJs);
+        }).catch(function () {});
       }
 
       // Track sign_in ONLY for a genuine credential sign-in (flagged by
