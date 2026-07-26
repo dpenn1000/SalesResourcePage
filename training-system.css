@@ -1,3 +1,90 @@
+/* >>> BEGIN synced from Apps/Tools/tokens.css -- do not edit by hand >>> */
+/* The canonical platform tokens, for pages built on the shared
+   vocabulary. Regenerate with: python scripts/sync_design_tokens.py --sync
+   Values are the LIGHT (Porcelain) theme: this stack is light-only. */
+:root{
+  --green-2:#0b6349;
+  --green-bright:#12a37a;
+  --purple:#6d43c8;
+  --teal:#0f766e;
+  --accent:#0e7c5a;
+  --black:#000000;
+  --bg:#eae8e3;
+  --surface-2:#f6f5f1;
+  --surface-3:#efede8;
+  --border:rgba(30,28,22,.09);
+  --border-2:rgba(30,28,22,.18);
+  --text-2:#55524b;
+  --text-3:#7b786f;
+  --ok:#0e7c5a;
+  --ok-tint:rgba(14,124,90,.12);
+  --warn:#a97400;
+  --warn-tint:rgba(169,116,0,.12);
+  --bad:#be123c;
+  --bad-tint:rgba(190,18,60,.12);
+  --info:#1a6aa8;
+  --info-tint:rgba(26,106,168,.12);
+  --cat-1:#0e7c5a;
+  --cat-2:#1a6aa8;
+  --cat-3:#a97400;
+  --cat-4:#6d43c8;
+  --cat-5:#0f766e;
+  --cat-6:#be123c;
+  --green-tint:color-mix(in srgb,#0e7c5a 8%,transparent);
+  --green-soft:color-mix(in srgb,#0e7c5a 18%,transparent);
+  --blue-tint:color-mix(in srgb,#1a6aa8 8%,transparent);
+  --blue-soft:color-mix(in srgb,#1a6aa8 18%,transparent);
+  --amber-tint:color-mix(in srgb,#a97400 8%,transparent);
+  --amber-soft:color-mix(in srgb,#a97400 18%,transparent);
+  --red-tint:color-mix(in srgb,#be123c 8%,transparent);
+  --red-soft:color-mix(in srgb,#be123c 18%,transparent);
+  --purple-tint:color-mix(in srgb,#6d43c8 8%,transparent);
+  --purple-soft:color-mix(in srgb,#6d43c8 18%,transparent);
+  --teal-tint:color-mix(in srgb,#0f766e 8%,transparent);
+  --teal-soft:color-mix(in srgb,#0f766e 18%,transparent);
+  --green-ink:color-mix(in srgb,#0e7c5a 88%,#000000);
+  --blue-ink:color-mix(in srgb,#1a6aa8 88%,#000000);
+  --amber-ink:color-mix(in srgb,#a97400 88%,#000000);
+  --red-ink:color-mix(in srgb,#be123c 88%,#000000);
+  --purple-ink:color-mix(in srgb,#6d43c8 88%,#000000);
+  --teal-ink:color-mix(in srgb,#0f766e 88%,#000000);
+  --act-green:#0e7c5a;
+  --act-green-tint:rgba(14,124,90,.12);
+  --act-blue:#1a6aa8;
+  --act-blue-tint:rgba(26,106,168,.12);
+  --fs-micro:10.5px;
+  --fs-xs:11.5px;
+  --fs-sm:13px;
+  --fs-body:14.5px;
+  --fs-h3:15.5px;
+  --fs-kpi:26px;
+  --fs-h2:clamp(20px,2.4vw,23px);
+  --fs-h1:clamp(24px,3.2vw,32px);
+  --fs-display:clamp(40px,6vw,76px);
+  --space-0:6px;
+  --gap:18px;
+  --pad:24px;
+  --sect:48px;
+  --r:13px;
+  --r-xs:6px;
+  --r-pill:999px;
+  --shadow-2:0 3px 6px rgba(17,19,23,.09),0 16px 34px rgba(17,19,23,.13),
+             0 50px 96px rgba(17,19,23,.22);
+  --ring:0 0 0 1px rgba(30,28,22,.18);
+  --glow:rgba(14,124,90,.15);
+  --glow-soft:rgba(14,124,90,.06);
+  --grad-brand:linear-gradient(92deg,#0e7c5a,#1a6aa8);
+  --grad-surface:linear-gradient(180deg,#fefefd,#f8f7f4);
+  --bar-h:159;
+  --bar-s:64%;
+  --bar-l:29%;
+  --bar-ink:#ffffff;
+  --dur-fast:.12s;
+  --dur:.22s;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+/* <<< END synced from Apps/Tools/tokens.css <<< */
+
 /* ============================================================
    TRAINING SYSTEM  --  shared stylesheet for ct-resource-page trainings
    The single source of truth for design tokens + every component class in
