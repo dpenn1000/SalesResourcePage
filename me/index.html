@@ -882,9 +882,21 @@ function fmtDate(s){
   const d = new Date(s); if (isNaN(d)) return '--';
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
+function parseStamp(s){
+  // Stamps from the launcher are `datetime.now().isoformat()` on a VM running UTC, so
+  // they carry NO zone marker -- and `new Date()` reads an offset-less date-time as
+  // BROWSER-LOCAL, understating every age by the viewer's UTC offset (7h in Arizona).
+  // Measured on /mobile 2026-07-31: a file 74 seconds old reported as -0.3 days.
+  // Narrow on purpose: a date-only string is already UTC per spec and shifting it would
+  // move the calendar day, and a SPACE-separated string is CT wall-clock here, not UTC.
+  if (!s) return null;
+  var isIsoDateTime = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(s);
+  var hasZone = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(s);
+  return new Date(isIsoDateTime && !hasZone ? s + 'Z' : s);
+}
 function fmtRel(s){
   if (!s) return 'never';
-  const d = new Date(s); if (isNaN(d)) return 'never';
+  const d = parseStamp(s); if (!d || isNaN(d)) return 'never';
   const days = Math.round((Date.now() - d.getTime()) / 86400000);
   if (days === 0) return 'today';
   if (days === 1) return 'yesterday';
