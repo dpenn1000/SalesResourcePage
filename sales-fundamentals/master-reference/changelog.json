@@ -3,6 +3,11 @@
   "entries": [
     {
       "date": "2026-07-31",
+      "note": "New tool: Energy Community Checker (/sales-fundamentals/finance/energy-community-checker.html). Reps said the federal Baker Tilly map was slow on a phone, so this gives an instant ZIP-level read instead: type a ZIP, get EnFin or LightReach with the reason why. Built from three DOE/EPA layers covering all 11 footprint states: the fossil-fuel-employment county designation (2024 DOE/NETL), coal-closure census tracts (also DOE/NETL, pulled fresh for this tool), and EPA-listed brownfield sites (ACRES). 8,279 ZIPs precomputed and cached in Supabase; 4,042 qualified, 901 near-miss (meets the employment threshold but not the unemployment trigger, can flip in on the annual redetermination), 3,336 not qualified. ZIPs that only partially overlap a qualifying area are flagged to verify the exact address on Baker Tilly before submitting. This is a ZIP-level screen, not a determination; it does not replace the federal map for a borderline address.",
+      "bulletin": "New tool: Energy Community Checker, an instant phone-friendly ZIP lookup for EnFin vs LightReach"
+    },
+    {
+      "date": "2026-07-31",
       "note": "EnFin is live on the By Partner tab (TPO / lease-PPA), pulled from Trinity's EnFin training deck: 620 minimum FICO (lowest of the four TPO partners), soft pull converting to hard at NTP Funding, Q Cell modules only with no exceptions, 90% production guarantee starting Year 2, and full credit/property/contract/utility rules filled in. New partner-selection rule: check every property against the Baker Tilly Energy Community Mapping Tool (https://www.bakertilly.com/energy-community-mapping-tool) before the appointment. In a DOE-designated Energy Community, use EnFin; not in one, use LightReach (Anthony Venditto). EnFin currently leads in NY and MA, and splits CT/NJ territory with LightReach; see Post-Signing Contract > States Available on the By Partner tab for the exact split.",
       "bulletin": "EnFin is live: 620 min FICO, Q Cell modules only, and the new Energy Community rule for choosing EnFin vs LightReach"
     },

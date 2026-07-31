@@ -123,6 +123,7 @@ $cards = @(
  @('lightreach-ppa-practice','finance','FINANCE','LightReach PPA','Practice Copy','Annotated, end to end',''),
  @('lightreach-ppa-walkthrough','finance','FINANCE','Walk the','LightReach PPA','Section by section',''),
  @('enfin-lease-ppa','finance','FINANCE','Selling With','EnFin','Lowest FICO, Q Cell modules only',''),
+ @('energy-community-checker','finance','FINANCE','Energy Community','Checker','Type a ZIP: EnFin or LightReach',''),
  @('cognitive-bias','fieldmastery','FIELD MASTERY','Cognitive','Biases','The psychology of yes',''),
  @('door-resistance','fieldmastery','FIELD MASTERY','Door','Resistance','Turn the door into a sit',''),
  @('know-your-buyer','fieldmastery','FIELD MASTERY','Know Your','Buyer','Sell to every personality',''),

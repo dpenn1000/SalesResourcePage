@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Community Checker | Trinity Solar CT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green:   #78C832;
+    --green-d: #5eba28;
+    --accent:  #29A9E1;
+    --ink:     #1A2332;
+    --muted:   #6b7a8d;
+    --border:  #DFE2DA;
+    --bg:      #EFF1EC;
+    --surface: #ffffff;
+    --amber:   #F5A623;
+    --radius:  12px;
+    --shadow:  0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  html { background: var(--bg); color: var(--ink); font-family: 'Manrope', sans-serif; font-size: 16px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+  body { min-height: 100vh; }
+
+  .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .header-inner { max-width: 620px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  .logo-mark { width: 34px; height: 34px; background: var(--green); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; color: #0b1120; flex-shrink: 0; }
+  .header-text { flex: 1; min-width: 0; }
+  .header-title { font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700; line-height: 1.15; }
+  .header-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .header-link { font-size: 13px; font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; flex-shrink: 0; }
+  .header-link:hover { opacity: 0.8; }
+
+  .main { max-width: 620px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  .page-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green-d); }
+  .page-title { font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; line-height: 1.15; margin: 6px 0 8px; }
+  .page-desc { font-size: 15px; color: var(--muted); max-width: 60ch; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-top: 20px; }
+
+  .zip-row { display: flex; gap: 12px; align-items: flex-end; }
+  .field { flex: 1; }
+  .field label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 5px; }
+  .field input { width: 100%; font-family: 'Manrope', sans-serif; font-size: 24px; font-weight: 700; letter-spacing: 0.02em; padding: 15px 16px; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--ink); }
+  .field input:focus { outline: none; border-color: var(--accent); }
+  .field input::placeholder { color: #b6bfc9; font-weight: 500; }
+
+  .result { margin-top: 18px; border-radius: 12px; padding: 20px; display: none; }
+  .result.show { display: block; }
+  .result-big { font-family: 'Fraunces', serif; font-size: 25px; font-weight: 700; line-height: 1.15; display: flex; align-items: center; gap: 10px; }
+  .result-partner { display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .02em; padding: 4px 11px; border-radius: 999px; margin-top: 8px; }
+  .result-sub { font-size: 14px; margin-top: 10px; line-height: 1.55; }
+  .result-reasons { margin-top: 10px; font-size: 13px; color: var(--muted); }
+  .result-reasons ul { margin: 4px 0 0 18px; }
+  .result-icon { font-size: 26px; line-height: 1; }
+
+  .r-yes { background: rgba(120,200,50,0.12); border: 1.5px solid var(--green); }
+  .r-yes .result-big { color: var(--green-d); }
+  .r-yes .result-partner { background: var(--green); color: #0b1120; }
+
+  .r-partial { background: rgba(245,166,35,0.1); border: 1.5px solid var(--amber); }
+  .r-partial .result-big { color: #b9791a; }
+  .r-partial .result-partner { background: var(--amber); color: #402c00; }
+
+  .r-no { background: #f4f6f1; border: 1.5px solid var(--border); }
+  .r-no .result-big { color: var(--ink); }
+  .r-no .result-partner { background: var(--accent); color: #fff; }
+
+  .r-info { background: #f4f6f1; border: 1.5px solid var(--border); }
+  .r-info .result-big { color: var(--ink); }
+
+  .verify-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; padding: 10px 16px; border-radius: 9px; background: var(--ink); color: #fff; text-decoration: none; }
+  .verify-btn:hover { opacity: .9; }
+
+  .checking { font-size: 13px; color: var(--muted); margin-top: 12px; display: none; }
+  .checking.show { display: block; }
+
+  .rule-card { margin-top: 20px; }
+  .rule-card h2 { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+  .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+  .rule-cell { border-radius: 10px; padding: 14px; font-size: 13px; line-height: 1.5; }
+  .rule-cell.ec { background: rgba(120,200,50,0.1); border: 1px solid rgba(120,200,50,0.3); }
+  .rule-cell.not-ec { background: rgba(41,169,225,0.08); border: 1px solid rgba(41,169,225,0.25); }
+  .rule-cell strong { display: block; font-size: 14px; margin-bottom: 3px; }
+
+  .disclaimer { margin-top: 22px; font-size: 13px; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 16px; }
+  .disclaimer a { color: var(--accent); }
+  .ver { font-size: 12px; color: #9aa6b2; margin-top: 8px; }
+
+  @media (max-width: 500px) {
+    .page-title { font-size: 24px; }
+    .rule-grid { grid-template-columns: 1fr; }
+  }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Current</h2>
+    <p>Internal use only. Sign in with your Current username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="page-header">
+  <div class="header-inner">
+    <a href="/?stay=1" class="logo-mark" style="text-decoration:none;color:inherit;cursor:pointer">T</a>
+    <div class="header-text">
+      <div class="header-title">Energy Community Checker</div>
+      <div class="header-sub">Trinity Solar CT &middot; Finance &amp; Pay</div>
+    </div>
+    <a class="header-link" href="/sales-fundamentals/finance/enfin-lease-ppa.html">Selling With EnFin &rarr;</a>
+  </div>
+</header>
+
+<main class="main">
+
+  <div class="page-eyebrow">Finance / EnFin vs. LightReach</div>
+  <h1 class="page-title">Is this ZIP an Energy Community?</h1>
+  <p class="page-desc">One rule decides the partner: in a DOE-designated Energy Community, use <strong>EnFin</strong>. Not in one, use <strong>LightReach</strong>. Type the ZIP for an instant read, right from the truck.</p>
+
+  <div class="card">
+    <div class="zip-row">
+      <div class="field">
+        <label for="zipIn">ZIP code</label>
+        <input id="zipIn" type="text" inputmode="numeric" maxlength="5" placeholder="06604" autocomplete="off">
+      </div>
+    </div>
+
+    <div id="checking" class="checking">Checking&hellip;</div>
+
+    <div id="result" class="result">
+      <div class="result-big"><span id="resIcon" class="result-icon"></span><span id="resTitle"></span></div>
+      <span id="resPartner" class="result-partner"></span>
+      <div id="resSub" class="result-sub"></div>
+      <div id="resReasons" class="result-reasons"></div>
+      <a id="verifyLink" class="verify-btn" href="https://www.bakertilly.com/energy-community-mapping-tool" target="_blank" rel="noopener">Verify the exact address &rarr;</a>
+    </div>
+  </div>
+
+  <div class="card rule-card">
+    <h2>The rule</h2>
+    <div class="rule-grid">
+      <div class="rule-cell ec"><strong>In a Community</strong>Use EnFin. It captures the Energy Community bonus, the reason it's in the rotation.</div>
+      <div class="rule-cell not-ec"><strong>Not in one</strong>Use LightReach, the default TPO partner everywhere else.</div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    This is a ZIP-level screen built from three DOE/EPA layers: the fossil-fuel-employment county designation, coal-closure census tracts, and EPA-listed brownfield sites. It answers fast, but it isn't a substitute for the address-exact determination. Some ZIPs only partially overlap a qualifying area (flagged above); verify those on the Baker Tilly map before you submit. Status can also change on the annual federal redetermination. Not for substantiating a tax return position, this is directional analysis, not tax advice.
+    <div class="ver">Data vintage: <span id="verVersion">loading&hellip;</span>. Covers CT, DE, FL, MA, MD, NH, NJ, NY, OH, PA, RI. <a href="https://www.bakertilly.com/energy-community-mapping-tool" target="_blank" rel="noopener">Full Baker Tilly map</a> &middot; <a href="/sales-fundamentals/master-reference/">Sales Ops Master Reference</a></div>
+  </div>
+
+</main>
+
+</div><!-- /#appWrap -->
+
+<script>
+function normZip(s) { return (s || '').replace(/[^0-9]/g, '').slice(0, 5); }
+
+const REASON_LABEL = {
+  ffe_msa_county: 'Fossil-fuel-employment county',
+  coal_closure_tract: 'Coal-closure census tract',
+  brownfield_site: 'EPA-listed brownfield site nearby'
+};
+
+let debounceTimer = null;
+
+function show(cls, icon, title, partnerText, sub, reasons) {
+  const result = document.getElementById('result');
+  result.className = 'result show ' + cls;
+  document.getElementById('resIcon').innerHTML = icon;
+  document.getElementById('resTitle').textContent = title;
+  const p = document.getElementById('resPartner');
+  if (partnerText) { p.textContent = partnerText; p.style.display = 'inline-block'; }
+  else { p.style.display = 'none'; }
+  document.getElementById('resSub').innerHTML = sub;
+  const rEl = document.getElementById('resReasons');
+  if (reasons && reasons.length) {
+    rEl.innerHTML = 'Why: <ul>' + reasons.map(r => '<li>' + (REASON_LABEL[r] || r) + '</li>').join('') + '</ul>';
+  } else {
+    rEl.innerHTML = '';
+  }
+  document.getElementById('verifyLink').style.display = 'inline-flex';
+}
+
+function hideResult() {
+  document.getElementById('result').className = 'result';
+}
+
+async function checkZip(zip) {
+  const checking = document.getElementById('checking');
+  checking.classList.add('show');
+  hideResult();
+
+  const { data, error } = await sb
+    .from('energy_community_zips')
+    .select('status,reasons,partial,states,brownfield_sites,counties')
+    .eq('zip', zip)
+    .maybeSingle();
+
+  checking.classList.remove('show');
+
+  if (error) {
+    show('r-info', '!', 'Could not check that ZIP', '', 'Something went wrong loading the data. Refresh and try again, or use the full Baker Tilly map.', []);
+    return;
+  }
+
+  if (!data) {
+    show('r-info', '?', 'ZIP not recognized', '', 'That ZIP isn\'t in Trinity\'s footprint states, or it doesn\'t match a known ZIP. Double-check it, or use the full Baker Tilly map for a direct address check.', []);
+    return;
+  }
+
+  const county = data.counties && data.counties.length ? data.counties.join('; ') : '';
+
+  if (data.status === 'qualified' && !data.partial) {
+    show('r-yes', '&#10003;', 'Energy Community', 'USE ENFIN',
+      (county ? county + '. ' : '') + 'This ZIP sits in a DOE-designated Energy Community. Use EnFin.',
+      data.reasons);
+  } else if (data.status === 'qualified' && data.partial) {
+    show('r-partial', '!', 'Partially in a Community', 'LIKELY ENFIN, VERIFY',
+      (county ? county + '. ' : '') + 'Part of this ZIP is in a DOE-designated Energy Community, part may not be. Confirm the exact address before you submit.',
+      data.reasons);
+  } else if (data.status === 'ffe_only') {
+    show('r-no', '&times;', 'Not currently qualified', 'USE LIGHTREACH',
+      (county ? county + '. ' : '') + 'This county meets the fossil-fuel-employment threshold but not the unemployment trigger, so it isn\'t an Energy Community today. It can flip in on the annual federal redetermination. Use LightReach unless the Baker Tilly map says otherwise.',
+      []);
+  } else {
+    show('r-no', '&times;', 'Not an Energy Community', 'USE LIGHTREACH',
+      'No qualifying designation found for this ZIP. Use LightReach.',
+      []);
+  }
+}
+
+function onZipInput() {
+  const zip = normZip(document.getElementById('zipIn').value);
+  document.getElementById('zipIn').value = zip;
+  clearTimeout(debounceTimer);
+  if (zip.length !== 5) { hideResult(); document.getElementById('checking').classList.remove('show'); return; }
+  debounceTimer = setTimeout(() => checkZip(zip), 150);
+}
+
+async function loadVersion() {
+  const { data } = await sb.from('energy_community_zips').select('dataset_version').limit(1).maybeSingle();
+  document.getElementById('verVersion').textContent = (data && data.dataset_version) || 'unknown';
+}
+
+function initApp(profile, session) {
+  document.getElementById('zipIn').addEventListener('input', onZipInput);
+  loadVersion();
+}
+</script>
+</body>
+</html>
