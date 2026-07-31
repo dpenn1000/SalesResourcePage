@@ -926,10 +926,10 @@ function initStatusBar() {
   const parts = [];
   if (defunct.length) parts.push('<b>No longer offered (reference only):</b> ' + escapeHtml(defunct.join(', ')));
   if (paused.length) parts.push('<b>Paused:</b> ' + escapeHtml(paused.join(', ')));
-  // One compact line. Active partners: LightReach + Cash (solar), SunLight + Service Finance (roof/battery).
+  // One compact line. Active partners: LightReach + EnFin + Cash (solar), SunLight + Service Finance (roof/battery).
   bar.innerHTML = '<div class="alert" style="display:flex;gap:8px;align-items:baseline;">' +
     '<span aria-hidden="true">⚠</span><span>' + parts.join(' &nbsp;&middot;&nbsp; ') +
-    ' &mdash; do not quote. Active: LightReach &amp; Cash (solar), SunLight &amp; Service Finance (roof/battery).</span></div>';
+    ' &mdash; do not quote. Active: LightReach, EnFin &amp; Cash (solar), SunLight &amp; Service Finance (roof/battery).</span></div>';
 }
 boot();
 
@@ -1496,10 +1496,6 @@ function renderEligibility() {
   list.innerHTML = '';
   let partners = partnerListForProduct(STATE.product).slice();
 
-  // Always also show EnFin as coming-soon if it has any data and the product is TPO
-  // (Call Center extras are TPO-level data).
-  if (STATE.product === 'tpo' && !partners.includes('enfin')) partners.push('enfin');
-
   let shown = 0;
   partners.forEach(p => {
     const card = renderEligibilityCard(STATE.product, p);
@@ -1519,7 +1515,6 @@ function renderEligibilityCard(product, partner) {
 
   // For partners not in the chosen product roster, skip silently
   // (e.g. Sunnova for TPO -- not offered).
-  // CASH and EnFin special-cased above.
 
   const checks = [];
   // Verdict gathering
@@ -1547,7 +1542,6 @@ function renderEligibilityCard(product, partner) {
   let verdict = 'pass';
   if (checks.some(c => c.status === 'fail')) verdict = 'fail';
   else if (checks.some(c => c.status === 'warn')) verdict = 'warn';
-  if (partner === 'enfin') verdict = 'info';
 
   const verdictMap = { pass: ['verdict-yes','OK'], warn: ['verdict-warn','Verify'], fail: ['verdict-no','Not eligible'], info: ['verdict-info','Coming soon'] };
   card.classList.add(verdict === 'pass' ? 'verdict-yes' : verdict === 'warn' ? 'verdict-warn' : verdict === 'fail' ? 'verdict-no' : 'verdict-info');
@@ -1626,7 +1620,7 @@ function renderEligibilityCard(product, partner) {
   }
 
   // See rules link
-  if (product !== 'cash' && partner !== 'enfin') {
+  if (product !== 'cash') {
     html += '<button class="see-rules" data-partner="' + partner + '" data-product="' + product + '">See full rules &rarr;</button>';
   }
 

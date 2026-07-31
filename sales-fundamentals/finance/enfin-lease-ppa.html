@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" data-tokens="platform">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selling With EnFin · Current</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/training-system.css">
+<style>
+  .module>.wrap>h2{max-width:32ch}
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/auth-gate.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+<script src="/auth-gate.js"></script>
+<script src="/site-back.js" defer></script>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Current</h2>
+    <p>Internal use only. Sign in with your Current username and password.</p>
+    <div id="loginError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();signIn()">
+      <label>Username</label>
+      <input type="text" id="loginUser" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" required>
+      <label>Password</label>
+      <input type="password" id="loginPass" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn" class="btn-auth">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="changePasswordScreen" style="display:none">
+  <div class="auth-card">
+    <h2>Set a new password</h2>
+    <p>You're using a starter password. Pick a new one before continuing. At least 8 characters.</p>
+    <div id="cpError" class="auth-error" style="display:none"></div>
+    <form onsubmit="event.preventDefault();changePassword()">
+      <label>New password</label>
+      <input type="password" id="cpNew" autocomplete="new-password" minlength="8" required>
+      <label>Confirm new password</label>
+      <input type="password" id="cpConfirm" autocomplete="new-password" minlength="8" required>
+      <button type="submit" id="cpBtn" class="btn-auth">Update Password</button>
+    </form>
+  </div>
+</div>
+
+<div id="appWrap" style="display:none">
+
+<header class="site-header">
+  <div class="page-header">
+    <div class="wrap">
+      <a href="/?stay=1" class="brand" style="text-decoration:none;color:inherit;cursor:pointer"><span class="logo">Trinity Solar</span> <span class="team">· CT Traditional</span></a>
+      <button class="present-toggle" id="presentBtn">Presenter Mode</button>
+    </div>
+  </div>
+  <nav class="toc-nav">
+    <div class="wrap">
+      <a href="#why"><span class="num">1</span> Who Gets EnFin</a>
+      <a href="#credit"><span class="num">2</span> Credit</a>
+      <a href="#property"><span class="num">3</span> Property</a>
+      <a href="#system"><span class="num">4</span> Equipment</a>
+      <a href="#contract"><span class="num">5</span> Contract</a>
+      <a href="#closing"><span class="num">6</span> Closing</a>
+    </div>
+  </nav>
+</header>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <span class="eyebrow">Finance · Deal Complexity · EnFin (Solar Lease/PPA)</span>
+    <h1>Selling With <em>EnFin</em></h1>
+    <p class="lede"><strong>EnFin is Q Cells' financing arm, and it carries the lowest credit bar of Trinity's TPO partners.</strong> One rule decides when to use it: check the property against the Energy Community map before you knock. In a Community, EnFin. Not in one, LightReach.</p>
+  </div>
+</header>
+
+<main class="training-page">
+
+  <!-- 1 -->
+  <section class="module" id="why">
+    <div class="wrap">
+      <h2>Who Gets EnFin</h2>
+      <p class="intro">One rule decides the partner, and it runs before you ever open a proposal: check the property against the Baker Tilly Energy Community Mapping Tool. In a DOE-designated Energy Community, use EnFin. Not in one, use LightReach.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>Check before you knock</h3>
+          <p><strong>Run every address through the map</strong> before the appointment, not during it: <a href="https://www.bakertilly.com/energy-community-mapping-tool" target="_blank" rel="noopener">bakertilly.com/energy-community-mapping-tool</a></p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>In a Community, EnFin</h3>
+          <p><strong>EnFin captures the Energy Community bonus.</strong> That bonus is the reason this partner is in the rotation at all.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Not in one, LightReach</h3>
+          <p><strong>LightReach stays the default</strong> TPO partner everywhere the property doesn't qualify.</p>
+        </div>
+      </div>
+
+      <div class="callout callout--compliance"><strong>Your lane: run the map, pick the partner, sell the deal.</strong> EnFin's underwriting rules are below. If a property doesn't fit EnFin, LightReach is the fallback partner, not a workaround.</div>
+
+      <div class="manager-prompt">Pull up tonight's appointments. Run each address through the Baker Tilly tool live. How many sit in an Energy Community?</div>
+
+      <details class="recall-check">
+        <summary>Which tool tells you if a home qualifies for EnFin, and what do you do if it doesn't?</summary>
+        <p class="answer"><span class="label">Answer</span>The Baker Tilly Energy Community Mapping Tool. If the address isn't in a Community, use LightReach instead.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="module" id="credit">
+    <div class="wrap">
+      <h2>Credit and Approval</h2>
+      <p class="intro">620 minimum FICO, the lowest of Trinity's four TPO partners. The pull starts soft and only turns hard once the deal is real.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>620 FICO, the floor</h3>
+          <p><strong>Lowest minimum of GoodLeap, IGS, LightReach, and EnFin.</strong> If a customer is on the edge everywhere else, check EnFin first.</p>
+        </div>
+        <div class="training-card">
+          <h3>Soft, then hard</h3>
+          <p><strong>Soft pull at credit approval,</strong> converting to a hard pull at NTP Funding (Milestone 1). That's a conversion of the same inquiry, not a new one. Tell the customer up front.</p>
+        </div>
+        <div class="training-card">
+          <h3>One person, one file</h3>
+          <p><strong>If the co-applicant passes credit,</strong> the main customer doesn't have to. Only one person needs to be on title.</p>
+        </div>
+      </div>
+
+      <ol class="step-grid">
+        <li class="step">
+          <h3>Bankruptcy</h3>
+          <p>3-year look back. Clock starts when they emerge, not at the filing date.</p>
+        </li>
+        <li class="step">
+          <h3>Foreclosure</h3>
+          <p>4-year look back.</p>
+        </li>
+        <li class="step">
+          <h3>Freeze unlocks</h3>
+          <p>Experian and TransUnion need to be unfrozen. EnFin doesn't pull Equifax.</p>
+        </li>
+        <li class="step">
+          <h3>ITIN customers</h3>
+          <p>Accepted. Have a green card or proof of permanent residency ready.</p>
+        </li>
+      </ol>
+
+      <div class="callout"><strong>Borderline FICO:</strong> wait about 30 days before rerunning, and create a brand new lead each time. Running it again immediately doesn't help and burns an inquiry for nothing.</div>
+
+      <div class="manager-prompt">A customer's FICO comes back at 615. Walk through what you tell them and what you do next.</div>
+
+      <details class="recall-check">
+        <summary>A customer's FICO comes back at 615. What do you do?</summary>
+        <p class="answer"><span class="label">Answer</span>Wait about 30 days before rerunning, and create a brand new lead each time you rerun. 620 is the floor; rerunning immediately doesn't move the number.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="module" id="property">
+    <div class="wrap">
+      <h2>Property and Ownership</h2>
+      <p class="intro">EnFin covers more property types than most TPO partners, but ownership structure still trips deals. Check both before you build the proposal.</p>
+
+      <div class="compare-grid">
+        <div class="training-card training-card--green">
+          <h3>Approved</h3>
+          <ul>
+            <li><strong>Single family,</strong> vacation homes.</li>
+            <li><strong>Duplex / triplex,</strong> if the customer owns the whole property.</li>
+            <li><strong>Condos,</strong> with HOA approval, a separate meter, and the unit owning its own roof.</li>
+            <li><strong>Manufactured and modular homes,</strong> with a HUD plate and a permanent foundation.</li>
+            <li><strong>Apartments,</strong> up to 4 units.</li>
+          </ul>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>Not approved</h3>
+          <ul>
+            <li><strong>Rental or investment property.</strong></li>
+            <li><strong>Mobile homes.</strong></li>
+            <li><strong>Mixed commercial / residential.</strong></li>
+            <li><strong>Ground mounts,</strong> under any circumstances.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div class="training-card">
+          <h3>Trusts, both kinds</h3>
+          <p><strong>Revocable and irrevocable both work.</strong> List the trustee on the contract, not the trust itself. A Certificate of Trust is required.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>LLCs and corps: no</h3>
+          <p><strong>Not accepted.</strong> EnFin only signs individuals, unlike GoodLeap and LightReach.</p>
+        </div>
+        <div class="training-card training-card--amber">
+          <h3>Power of attorney: no</h3>
+          <p><strong>Not accepted.</strong> A reverse mortgage on the property is fine; a POA arrangement isn't.</p>
+        </div>
+        <div class="training-card">
+          <h3>Multiple owners</h3>
+          <p><strong>Unlimited people can be on title.</strong> If more than one is on the contract, everyone on it has to pass credit, and at least one has to be on title.</p>
+        </div>
+      </div>
+
+      <div class="manager-prompt">The home's in an LLC. Role-play how you'd find that out at the door, and what you'd tell the customer.</div>
+
+      <details class="recall-check">
+        <summary>The home's in an LLC. Can EnFin fund it?</summary>
+        <p class="answer"><span class="label">Answer</span>No. EnFin doesn't accept LLCs or corporations as applicants. Move the deal to a partner that does, or restructure it into personal names.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="module" id="system">
+    <div class="wrap">
+      <h2>Equipment and System Rules</h2>
+      <p class="intro">One rule overrides every other spec sheet: Q Cell modules, no exceptions.</p>
+
+      <div class="callout"><strong>Q Cell modules ONLY, no exceptions.</strong> SolarEdge inverters (2026 DC content rules only), Enphase IQ8 microinverters (specific SKUs), and Unirac or ClickFit racking (2026 DC content rules only) round out the approved list. Tesla, Enphase, and Q Cell batteries already sit on EnFin's Approved Vendor List, but Trinity isn't selling batteries on EnFin yet.</div>
+
+      <div class="card-grid">
+        <div class="training-card">
+          <h3>3.16kW minimum, everywhere</h3>
+          <p><strong>Max size varies by state:</strong> 25kW AC in CT and MA, 25kW DC in NY, 45kW DC in NJ, PA, and MD.</p>
+        </div>
+        <div class="training-card">
+          <h3>5&deg; to 45&deg; tilt</h3>
+          <p><strong>Tilt kits are fine</strong> if the racking is on EnFin's Approved Vendor List.</p>
+        </div>
+        <div class="training-card training-card--ink">
+          <h3>No ground mounts, ever</h3>
+          <p><strong>Not allowed under any circumstances,</strong> full stop.</p>
+        </div>
+      </div>
+
+      <table class="doc-table">
+        <thead>
+          <tr><th>Roof material</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Asphalt / composition shingles</td><td>Approved</td></tr>
+          <tr><td>Metal, corrugated or standing seam</td><td>Approved</td></tr>
+          <tr><td>Flat roof: EPDM, rolled asphalt/comp, Bitmod</td><td>Approved</td></tr>
+          <tr><td>Wood shake / Cal shake, slate tile, metal shingles, copper</td><td>Not approved</td></tr>
+          <tr><td>More than 2 layers of composition shingles</td><td>Not approved</td></tr>
+          <tr><td>Composition shingles below 2/12 pitch</td><td>Not approved</td></tr>
+          <tr><td>Defective / class-action products (Cemwood, certain Monier tiles, Cal &amp; Ardy shake, asbestos-related)</td><td>Not approved</td></tr>
+        </tbody>
+      </table>
+
+      <div class="manager-prompt">A customer wants LG panels. Practice explaining the Q Cell requirement without it sounding like a downgrade.</div>
+
+      <details class="recall-check">
+        <summary>A customer wants LG panels. Can EnFin fund the system?</summary>
+        <p class="answer"><span class="label">Answer</span>No. Q Cell modules only, no exceptions, regardless of the rest of the equipment on the job.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="module" id="contract">
+    <div class="wrap">
+      <h2>Contract and Terms</h2>
+      <p class="intro">Lease in NY, MD, and PA. PPA in CT, NJ, and MA. The guarantee and the true-up schedule are the same everywhere EnFin operates.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--green">
+          <h3>90% production guarantee</h3>
+          <p><strong>Starts Year 2,</strong> checked every year after. Tolerance runs -5% to +10% on the production calculations.</p>
+        </div>
+        <div class="training-card">
+          <h3>True-up every year</h3>
+          <p><strong>Starting Year 2,</strong> then annually. Other partners true up every 2 or 3 years; EnFin checks every year.</p>
+        </div>
+        <div class="training-card">
+          <h3>No cap on contract value</h3>
+          <p><strong>Capped by max system size instead.</strong> The project still has to pass Year 1 savings and max PPW for the state.</p>
+        </div>
+        <div class="training-card">
+          <h3>Buy-out after Year 5</h3>
+          <p><strong>On home sale,</strong> or at the end of the contract term.</p>
+        </div>
+      </div>
+
+      <div class="callout"><strong>English only.</strong> No translators at any point in the process, and no exceptions once the deal is signed.</div>
+
+      <div class="manager-prompt">Walk through the true-up schedule out loud, like you'd explain it at the table.</div>
+
+      <details class="recall-check">
+        <summary>When does the production guarantee start, and what does it cover?</summary>
+        <p class="answer"><span class="label">Answer</span>Year 2, and every year after: 90% of projected production. The production calculation itself carries a -5% to +10% tolerance.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="module" id="closing">
+    <div class="wrap">
+      <h2>Utility, Signing, and Getting Paid</h2>
+      <p class="intro">The utility bill and the validation call are where EnFin deals stall. Both have one specific, avoidable failure mode.</p>
+
+      <div class="card-grid">
+        <div class="training-card training-card--amber">
+          <h3>One late bill kills it</h3>
+          <p><strong>$100 or more past due,</strong> reported to a bureau in the last 12 months, is an automatic decline. Even an unreported past-due balance can flag underwriting.</p>
+        </div>
+        <div class="training-card">
+          <h3>Residential meters only</h3>
+          <p><strong>GLP meters aren't accepted.</strong> Most major utilities work; municipal utilities (Munis) don't.</p>
+        </div>
+        <div class="training-card">
+          <h3>The validation call is customer-only</h3>
+          <p><strong>They get a link after signing.</strong> You can be in the room, but you can't help them answer, verbally or otherwise.</p>
+        </div>
+        <div class="training-card">
+          <h3>First payment: 30 days post-PTO</h3>
+          <p><strong>Timed so the customer</strong> never pays for a system that isn't producing yet.</p>
+        </div>
+      </div>
+
+      <div class="callout"><strong>Payment options:</strong> ACH earns a $10 discount. Checks, debit cards, portal payments, and phone payments all work too. No credit cards.</div>
+
+      <div class="manager-prompt">Role-play the validation-call warning. How do you tell a customer you can't help them answer without it sounding like you're hiding something?</div>
+
+      <details class="recall-check">
+        <summary>What single utility-bill issue causes an automatic decline?</summary>
+        <p class="answer"><span class="label">Answer</span>$100 or more past due on the electric bill, reported to a credit bureau within the last 12 months.</p>
+      </details>
+    </div>
+  </section>
+
+</main>
+
+<section class="key-takeaways" id="recap">
+  <div class="wrap">
+    <span class="eyebrow">The Field Manual</span>
+    <h2>Key Takeaways</h2>
+    <ul>
+      <li>Run the Baker Tilly Energy Community Mapping Tool before every appointment. In a Community, EnFin. Not in one, LightReach.</li>
+      <li>620 minimum FICO, the lowest of the four TPO partners. Soft pull converts to hard at NTP Funding.</li>
+      <li>Q Cell modules only, no exceptions.</li>
+      <li>Lease in NY, MD, PA. PPA in CT, NJ, MA. 90% production guarantee from Year 2, true-up every year.</li>
+      <li>$100 or more past-due on the electric bill, reported in the last 12 months, is an automatic decline.</li>
+      <li>Full attribute-by-attribute detail lives in the Sales Ops Master Reference, By Partner tab.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">Trinity Solar · Current · Sales Resource Center · Deal Complexity series</div>
+</footer>
+
+<div class="deck-nav">
+  <button id="prevBtn" aria-label="Previous slide">&#8249;</button>
+  <button id="nextBtn" aria-label="Next slide">&#8250;</button>
+</div>
+
+</div><!-- /#appWrap -->
+
+<script>
+// Stop the browser from restoring scroll when the auth gate reveals content late.
+if('scrollRestoration' in history)history.scrollRestoration='manual';
+
+// Measure the real sticky-header height into --header-h so slides fill exactly,
+// in every mode and zoom (no magic numbers). Re-measure on resize, font load, and mode toggle.
+const headerEl=document.querySelector('.site-header');
+function setHeaderH(){if(headerEl)document.documentElement.style.setProperty('--header-h',headerEl.offsetHeight+'px')}
+addEventListener('load',setHeaderH);addEventListener('resize',setHeaderH);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(setHeaderH);
+
+// TOC scroll-spy
+const sections=document.querySelectorAll('section[id]'),navLinks=document.querySelectorAll('.toc-nav a');
+function spy(){let cur='';const y=scrollY+200;sections.forEach(s=>{if(y>=s.offsetTop&&y<s.offsetTop+s.offsetHeight)cur=s.id});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur))}
+addEventListener('scroll',spy);addEventListener('load',spy);
+
+// Presenter Mode toggle
+const pBtn=document.getElementById('presentBtn');
+if(pBtn)pBtn.addEventListener('click',()=>{document.body.classList.toggle('presenter');pBtn.textContent=document.body.classList.contains('presenter')?'Exit Presenter':'Presenter Mode';setHeaderH()});
+
+// Deck navigation (prev / next slide)
+const slides=[...document.querySelectorAll('.hero,.module,.key-takeaways')];
+const prevBtn=document.getElementById('prevBtn'),nextBtn=document.getElementById('nextBtn');
+function currentIndex(){const h=document.querySelector('.site-header').offsetHeight+12;let idx=0;slides.forEach((s,i)=>{if(s.offsetTop<=scrollY+h)idx=i});return idx}
+function go(dir){const i=Math.max(0,Math.min(slides.length-1,currentIndex()+dir));slides[i].scrollIntoView({behavior:'smooth'})}
+function syncDeck(){const i=currentIndex();prevBtn.disabled=i<=0;nextBtn.disabled=i>=slides.length-1}
+if(prevBtn&&nextBtn){prevBtn.onclick=()=>go(-1);nextBtn.onclick=()=>go(1);addEventListener('scroll',syncDeck);addEventListener('load',syncDeck)}
+// Arrow keys advance the deck.
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'){go(1)}else if(e.key==='ArrowLeft'||e.key==='PageUp'){go(-1)}});
+
+// Required by auth-gate.js -- runs once the gate opens. Reset scroll so the deck starts at slide 1.
+function initApp(profile,session){setHeaderH();window.scrollTo(0,0);syncDeck()}
+</script>
+
+</body>
+</html>

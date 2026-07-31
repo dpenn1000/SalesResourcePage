@@ -122,6 +122,7 @@ $cards = @(
  @('our-heavy-lifting','finance','FINANCE','Our Heavy','Lifting','What we carry for 25 years',''),
  @('lightreach-ppa-practice','finance','FINANCE','LightReach PPA','Practice Copy','Annotated, end to end',''),
  @('lightreach-ppa-walkthrough','finance','FINANCE','Walk the','LightReach PPA','Section by section',''),
+ @('enfin-lease-ppa','finance','FINANCE','Selling With','EnFin','Lowest FICO, Q Cell modules only',''),
  @('cognitive-bias','fieldmastery','FIELD MASTERY','Cognitive','Biases','The psychology of yes',''),
  @('door-resistance','fieldmastery','FIELD MASTERY','Door','Resistance','Turn the door into a sit',''),
  @('know-your-buyer','fieldmastery','FIELD MASTERY','Know Your','Buyer','Sell to every personality',''),
