@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="/training-system.css">
 <style>
   .module>.wrap>h2{max-width:32ch}
+  /* card-grid and step-grid only define their own internal gap, not spacing from a
+     preceding sibling grid -- stacking the two (Credit and Approval) leaves them touching. */
+  .card-grid + .step-grid, .card-grid + .compare-grid, .step-grid + .card-grid{margin-top:var(--space-3)}
 </style>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/auth-gate.css">
