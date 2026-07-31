@@ -619,6 +619,10 @@ footer.page-foot {
       <input id="search" type="text" placeholder="Search every rule, partner, doc..." aria-label="Search">
       <span class="kbd">/</span>
     </div>
+    <div class="field" title="GoodLeap, IGS, Sunnova -- no longer offered. Applies to By Partner, Pricing, and Full Matrix.">
+      <label>Discontinued partners</label>
+      <button class="state-chip" id="global-hide-disc" data-hide-disc-toggle aria-pressed="true">Hidden</button>
+    </div>
     <div class="tabs" role="tablist" aria-label="Mode">
       <button class="tab" role="tab" data-mode="state"       aria-selected="true">By State</button>
       <button class="tab" role="tab" data-mode="eligibility" aria-selected="false">By Partner</button>
@@ -757,7 +761,7 @@ footer.page-foot {
     <div class="pricing-controls">
       <div class="field"><label for="p-state">State</label><select id="p-state"><option value="">All</option></select></div>
       <div class="field"><label for="p-partner">Partner</label><select id="p-partner"><option value="">All</option></select></div>
-      <div class="field"><label>Discontinued</label><button class="state-chip" id="p-hide-disc" aria-pressed="true">Hidden</button></div>
+      <div class="field"><label>Discontinued</label><button class="state-chip" id="p-hide-disc" data-hide-disc-toggle aria-pressed="true">Hidden</button></div>
       <div class="sub-tabs" role="tablist" aria-label="Pricing sub-mode">
         <button data-pmode="lease_ppa"  role="tab" aria-selected="true">Lease / PPA</button>
         <button data-pmode="loan_solar" role="tab" aria-selected="false">Solar Loan</button>
@@ -901,6 +905,7 @@ async function boot() {
   initFreshness();
   initTabs();
   initSearch();
+  initDiscToggle();
   initState();
   initChecklist();
   initEligibility();
@@ -1495,6 +1500,7 @@ function renderEligibility() {
   const list = document.getElementById('results-list');
   list.innerHTML = '';
   let partners = partnerListForProduct(STATE.product).slice();
+  if (STATE.hideDiscontinued) partners = partners.filter(p => !isDiscontinued(p));
 
   let shown = 0;
   partners.forEach(p => {
@@ -1660,13 +1666,26 @@ function initPricing() {
     });
   });
 
-  const hideBtn = document.getElementById('p-hide-disc');
-  hideBtn.addEventListener('click', () => {
-    STATE.hideDiscontinued = !STATE.hideDiscontinued;
-    hideBtn.setAttribute('aria-pressed', STATE.hideDiscontinued);
-    hideBtn.textContent = STATE.hideDiscontinued ? 'Hidden' : 'Shown';
-    renderPricing();
+}
+
+// One flag (STATE.hideDiscontinued, default true) governs every tab that lists partners --
+// By Partner, Pricing, and Full Matrix. Any button tagged [data-hide-disc-toggle] toggles it
+// and every such button stays in sync, so the Pricing-tab chip and the global topnav switch
+// never disagree.
+function initDiscToggle() {
+  document.querySelectorAll('[data-hide-disc-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => setHideDiscontinued(!STATE.hideDiscontinued));
   });
+}
+function setHideDiscontinued(val) {
+  STATE.hideDiscontinued = val;
+  document.querySelectorAll('[data-hide-disc-toggle]').forEach(btn => {
+    btn.setAttribute('aria-pressed', val);
+    btn.textContent = val ? 'Hidden' : 'Shown';
+  });
+  renderEligibility();
+  renderPricing();
+  renderMatrix();
 }
 
 function isDiscontinued(partnerKey) {
@@ -1810,7 +1829,7 @@ function renderMatrix() {
   anch.innerHTML = categories.map(c =>
     '<a href="#cat-' + slug(c) + '">' + escapeHtml(c) + '</a>').join('');
 
-  const partners = product.partners;
+  const partners = STATE.hideDiscontinued ? product.partners.filter(p => !isDiscontinued(p)) : product.partners;
   const cols = partners.length;
   let html = '';
   categories.forEach(cat => {
