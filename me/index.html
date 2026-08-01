@@ -2428,7 +2428,36 @@ function renderMePerf(d){
     : '';
 
   const monthCard = thisMonthCard(d.this_month, { floor: _commConfig.floor, pip: _commConfig.pip, goal: _monthlyGoal, dataWindow: d.data_window });
-  $('metricsBody').innerHTML = monthCard + scopeCaption + '<div class="metrics-grid">' + tiles.join('') + '</div>' + climbHtml;
+  // ── LIVE FROM THE WAREHOUSE (2026-08-01) ──────────────────────────────────
+  // d.live is the spine-backed block the launcher adds beside the export payload.
+  // Render rules mirror its design: shown only when genuinely available; a matched
+  // count of zero is said out loud (zero-and-visible, never silently empty); any
+  // other state renders nothing, so older launchers leave this page exactly as it
+  // was. The export tiles above keep their own semantics and their own caption.
+  var liveStrip = '';
+  var lv = d.live;
+  if (lv && lv.available === true) {
+    var lp = lv.provenance || {};
+    if ((lp.matched_rows || 0) > 0) {
+      var lm = lv.this_month || {}, ly = lv.ytd || {};
+      var builtTxt = lp.spine_built ? (' &middot; updated ' + esc(_fmtW(lp.spine_built))) : '';
+      liveStrip =
+        '<div class="metrics-scope" style="border-left:3px solid var(--green,#78C832);padding:8px 10px;margin:10px 0;background:rgba(120,200,50,.06)">' +
+          '<b>Live from the warehouse:</b> this month <b>' + fmtNum(lm.contracts || 0) + '</b> contract' + ((lm.contracts||0)===1?'':'s') +
+          ' &middot; <b>' + Number(lm.kw || 0).toFixed(1) + '</b> kW' +
+          ((lm.self_gen||0) > 0 ? ' &middot; ' + lm.self_gen + ' self-gen' : '') +
+          ' &nbsp;|&nbsp; YTD <b>' + fmtNum(ly.contracts || 0) + '</b>' +
+          (lv.last_deal ? ' &middot; last deal ' + esc(_fmtW(lv.last_deal)) : '') +
+          builtTxt +
+        '</div>';
+    } else {
+      liveStrip =
+        '<div class="metrics-scope" style="margin:10px 0;opacity:.75">' +
+          'Live warehouse feed is connected &mdash; no deals matched to your profile yet.' +
+        '</div>';
+    }
+  }
+  $('metricsBody').innerHTML = monthCard + liveStrip + scopeCaption + '<div class="metrics-grid">' + tiles.join('') + '</div>' + climbHtml;
 
   // Dedicated full-width Sales Club section (replaces the old metric tile).
   renderSalesClub(d, _commConfig);
