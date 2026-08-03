@@ -6,6 +6,9 @@
   <title>Current | Command Center</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
   <script src="/auth-gate.js"></script>
+  <!-- Canonical states/offices/departments/positions. Generated from
+       Apps/markets.json + Apps/org.json by scripts/sync_org_config.py. -->
+  <script src="/org-config.js"></script>
 <script src="/site-back.js" defer></script>
   <link rel="stylesheet" href="/auth-gate.css">
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
@@ -4138,13 +4141,17 @@ async function deleteFeedback(id) {
   }
 
   // ── Per-person detail ──
-  let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false, PW_OPEN = false, PW_GENERATED = '';
+  // PW_GENERATED is a candidate the admin has NOT committed yet. PW_LIVE is set
+  // only after the server confirms the password is live -- the sign-in message
+  // can be copied from PW_LIVE and never from PW_GENERATED, so it is impossible
+  // to hand someone a password that was never saved (incident 2026-08-03).
+  let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false, PW_OPEN = false, PW_GENERATED = '', PW_LIVE = '';
   const D_TABS = [['profile','Profile'],['activity','Portal Logins'],['university','University'],['callwork','Call Work'],['feedback','Feedback']];
 
   async function openRep(username) {
     const rep = REPS.find(r => (r.username || '') === username);
     if (!rep) return;
-    D_REP = decorate(rep); D_TAB = 'profile'; D_DATA = null; EDITING = false; PW_OPEN = false;
+    D_REP = decorate(rep); D_TAB = 'profile'; D_DATA = null; EDITING = false; PW_OPEN = false; PW_LIVE = '';
     document.getElementById('console').style.display = 'none';
     document.getElementById('repDetail').style.display = 'block';
     document.getElementById('detailName').textContent = D_REP.name || username;
@@ -4202,7 +4209,7 @@ async function deleteFeedback(id) {
     document.getElementById('detailTabs').innerHTML = D_TABS.map(([id, label]) =>
       `<button class="dtab ${id === D_TAB ? 'active' : ''}" onclick="setDetailTab('${id}')">${label}</button>`).join('');
   }
-  function setDetailTab(t) { D_TAB = t; EDITING = false; PW_OPEN = false; renderTabBar(); renderDetailTab(); }
+  function setDetailTab(t) { D_TAB = t; EDITING = false; PW_OPEN = false; PW_LIVE = ''; renderTabBar(); renderDetailTab(); }
 
   function renderDetailTab() {
     const b = document.getElementById('detailBody');
@@ -4255,14 +4262,27 @@ async function deleteFeedback(id) {
       </div>`;
     }
     const isActive = r.status === 'active';
-    const acctInner = PW_OPEN
+    // Two-step panel. Step 1 offers no way to copy a credential message: the
+    // password in the field is not live yet, and a message copied from it would
+    // hand the person a password that does not work. Copy only exists in step 2,
+    // after the server confirms the reset.
+    const acctInner = PW_LIVE
+      ? `<div style="background:#EFF8E5;border:1px solid #cfe9b8;border-radius:8px;padding:11px 13px;margin-bottom:10px">
+          <div style="font-weight:700;font-size:0.86rem;color:var(--green-dark,#3d8b1f)">&#10003; Password is live for ${escapeHtml(r.name || 'this person')}.</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:3px">They must change it on next sign-in. Send the message below via Slack or text.</div>
+        </div>
+        <pre style="background:#f6f8f4;border:1px solid var(--border,#DFE2DA);border-radius:8px;padding:13px 15px;font-family:'DM Mono',ui-monospace,monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;color:#1A2332;margin:0">${escapeHtml(buildInviteMessage(r.username || '', PW_LIVE))}</pre>
+        <div class="edit-actions">
+          <button class="btn-save" onclick="copyLiveInvite(this)">Copy sign-in message</button>
+          <button class="btn-cancel" onclick="closePwPanel()">Done</button>
+        </div>`
+      : PW_OPEN
       ? `<label class="edit-label" for="pwNew">New password</label>
         <input type="text" id="pwNew" class="edit-input" value="${PW_GENERATED}">
-        <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0">Randomly generated -- avoids the leaked-password rejection that predictable resets (e.g. "Trinity1") hit. Sets a new password and forces a change on next sign-in. Share it with them directly.</p>
+        <p style="font-size:0.78rem;color:var(--muted);margin:6px 0 0">Randomly generated -- avoids the leaked-password rejection that predictable resets (e.g. "Trinity1") hit. <strong>Not saved yet.</strong> Press Set password; the sign-in message to send them appears once it is live.</p>
         <div class="edit-actions">
           <button class="btn-save btn-pw-set" onclick="resetRepPassword()">Set password</button>
           <button class="btn-cancel" onclick="regenPw()">Generate new</button>
-          <button class="btn-cancel" onclick="copyInviteFromField(this)">Copy sign-in message</button>
           <button class="btn-cancel" onclick="togglePw()">Cancel</button>
         </div>`
       : `<div class="acct-actions">
@@ -4376,7 +4396,8 @@ async function deleteFeedback(id) {
     return res.json();
   }
 
-  function togglePw() { PW_OPEN = !PW_OPEN; if (PW_OPEN) PW_GENERATED = genPassword(); renderDetailTab(); }
+  function togglePw() { PW_OPEN = !PW_OPEN; PW_LIVE = ''; if (PW_OPEN) PW_GENERATED = genPassword(); renderDetailTab(); }
+  function closePwPanel() { PW_OPEN = false; PW_LIVE = ''; renderDetailTab(); }
 
   // Random password, not a predictable pattern: Supabase's leaked-password
   // check (HaveIBeenPwned) silently 422s admin resets that reuse a guessable
@@ -4453,11 +4474,12 @@ async function deleteFeedback(id) {
     return Promise.resolve();
   }
 
-  // Copy keyed to whatever password is currently in the reset field (accurate to
-  // what was just typed/defaulted) for the open rep.
-  function copyInviteFromField(btn) {
-    const pw = (document.getElementById('pwNew') || {}).value || PW_GENERATED;
-    copyInvite((D_REP && D_REP.username) || '', pw, btn);
+  // Copy the sign-in message for the CONFIRMED password only. Deliberately reads
+  // PW_LIVE, never the input field: a field value is a candidate, and copying it
+  // before the reset lands is exactly how a dead password gets sent out.
+  function copyLiveInvite(btn) {
+    if (!PW_LIVE) { acctMsg('No password has been set yet.', true); return; }
+    copyInvite((D_REP && D_REP.username) || '', PW_LIVE, btn);
   }
 
   async function resetRepPassword() {
@@ -4465,20 +4487,33 @@ async function deleteFeedback(id) {
     if (pw.length < 8) { acctMsg('Password must be at least 8 characters.', true); return; }
     const btn = document.querySelector('#repDetail .btn-pw-set');
     if (btn) { btn.disabled = true; btn.textContent = 'Setting...'; }
-    const result = await callManageUsers({ action: 'set_password', auth_user_id: D_REP.auth_user_id, password: pw });
-    if (result && result.error) {
-      acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
+    if (!D_REP.auth_user_id) {
+      acctMsg('This person has no auth account linked, so the password cannot be set. Delete and re-create them.', true);
+      if (btn) { btn.disabled = false; btn.textContent = 'Set password'; }
+      return;
+    }
+    let result;
+    try {
+      result = await callManageUsers({ action: 'set_password', auth_user_id: D_REP.auth_user_id, password: pw });
+    } catch (e) {
+      acctMsg('Could not reach the server, so the password was NOT changed: ' + (e.message || e), true);
+      if (btn) { btn.disabled = false; btn.textContent = 'Set password'; }
+      return;
+    }
+    // Treat anything that is not an explicit ok as a failure. A silent success
+    // here is what let a never-saved password get sent out (incident 2026-08-03).
+    if (!result || result.error || result.ok !== true) {
+      const detail = (result && result.error) || 'the server did not confirm the change';
+      acctMsg(/admin|authoriz|403/i.test(detail) ? 'Admins only. Password NOT changed.' : 'Password NOT changed: ' + detail, true);
       if (btn) { btn.disabled = false; btn.textContent = 'Set password'; }
       return;
     }
     const idx = REPS.findIndex(x => x.id === D_REP.id);
     if (idx >= 0) { REPS[idx].must_change_password = true; D_REP = decorate(REPS[idx]); }
-    const uname = (D_REP && D_REP.username) || '';
-    PW_OPEN = false;
+    // Confirmed live -- only now does a copyable sign-in message exist.
+    PW_LIVE = pw;
     renderDetailTab();
-    // Best-effort auto-copy the sign-in message so it is ready to paste.
-    copyInvite(uname, pw);
-    acctMsg('Password set and sign-in message copied to clipboard. Paste it to ' + (D_REP.name || 'them') + ' via Slack or text. They must change it on next sign-in.', false);
+    copyInvite((D_REP && D_REP.username) || '', pw);
   }
 
   // Re-run the new-hire onboarding seed for an existing rep: assigns Foundations
@@ -4567,28 +4602,94 @@ async function deleteFeedback(id) {
     render();
   }
 
+  // ── Canonical org config (/org-config.js) ─────────────────────────────────
+  // Generated from Apps/markets.json + Apps/org.json. If the file fails to load
+  // we fall back to a CT-only shape so the form still opens -- degraded, and it
+  // says so, rather than silently offering the wrong offices (which is what the
+  // old hand-typed list did: picking NY still handed you CT offices).
+  const ORG_FALLBACK = {
+    default_state: 'CT',
+    states: { CT: { label: 'Connecticut', offices: ['CT- North', 'CT- Central'], divisions: ['Traditional', 'Direct'] } },
+    departments: [{ key: 'sales', label: 'Sales', is_sales: true }],
+    positions: [
+      { key: 'rep', label: 'Sales Representative', departments: ['sales'], role: 'rep', tier: null,
+        is_national: false, needs_rep_key: true, needs_office: true, seeds_onboarding: true,
+        allow_admin: false, sees: 'Their own numbers only.' },
+      { key: 'manager', label: 'Manager', departments: ['sales'], role: 'manager', tier: null,
+        is_national: false, needs_rep_key: true, needs_office: true, seeds_onboarding: false,
+        allow_admin: true, sees: 'Set their tier after creating them.' },
+    ],
+  };
+  function ORG() {
+    const c = window.ORG_CONFIG;
+    return (c && c.states && c.positions && c.departments) ? c : ORG_FALLBACK;
+  }
+  function orgLoaded() { return ORG() !== ORG_FALLBACK; }
+  function positionsFor(deptKey) {
+    return ORG().positions.filter(p => (p.departments || []).indexOf(deptKey) >= 0);
+  }
+  function positionByKey(k) { return ORG().positions.find(p => p.key === k) || null; }
+
+  // Username convention, stated on the sign-in error screen: first initial +
+  // last name, lowercase, letters only. Compound surnames take the first part
+  // ("Jhonatan Rodriguez-Perez" -> "jrodriguez"), matching the roster.
+  function deriveUsername(fullName) {
+    const parts = String(fullName || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (parts.length < 2) return (parts[0] || '').replace(/[^a-z0-9]/g, '');
+    const init = parts[0].replace(/[^a-z0-9]/g, '').charAt(0);
+    const last = parts[parts.length - 1].split('-')[0].replace(/[^a-z0-9]/g, '');
+    return init + last;
+  }
+
   // ── Add person (roster action). Creates via manage-users action:'create'. ──
   // Clean in-UI Add Person flow (replaces the old prompt()/confirm() system
   // dialogs). Routes through the shared modal core (openModal) with edit-well
   // styling to match the Reset Password design, and ends in a copy-paste invite
   // card built from the shared buildInviteMessage().
+  //
+  // Rebuilt 2026-08-03. What changed and why:
+  //   - Department + Position replace the Role/Tier/Admin/National controls.
+  //     Those four could be set to combinations that contradict each other --
+  //     a "Regional" scoped to one state with National ticked silently sees
+  //     every state, which is exactly how one manager got mis-scoped. Position
+  //     derives role + tier + the national default, and the form states in
+  //     plain words what the person will actually see.
+  //   - Departments exist at all, so Sales Ops / Call Center / Install /
+  //     Finance / IT / Legal / HR get accounts without pretending they sell.
+  //   - State is multi-select, because people.states is an array.
+  //   - Sales office is a closed list cascaded off the chosen states, not free
+  //     text. get_my_reps() scopes an ADM by string equality on sales_office,
+  //     so a typo there silently empties their roster with no error anywhere.
   async function addPerson() {
     if (!window.IS_ADMIN) { alert('Admins only.'); return; }
+    const cfg = ORG();
     const mgrs = (REPS || []).filter(p => (p.role || '') === 'manager')
       .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     const mgrOpts = ['<option value="">-- none --</option>'].concat(
       mgrs.map(m => `<option value="${m.id}">${escapeHtml(m.name || m.username || m.id)}</option>`)
     ).join('');
-    // Known states + any already present on the roster.
-    const seen = new Set(['CT', 'NY', 'NJ']);
-    (REPS || []).forEach(p => (p.states || []).forEach(s => s && seen.add(String(s).toUpperCase())));
-    const stateOpts = Array.from(seen).sort().map(s => `<option value="${s}">${s}</option>`).join('');
-    // Known sales offices, seeded from the roster + the two CT offices.
-    const offices = new Set(['CT- North', 'CT- Central']);
-    (REPS || []).forEach(p => { if (p.sales_office) offices.add(String(p.sales_office)); });
-    const officeOpts = Array.from(offices).sort().map(o => `<option value="${escapeHtml(o)}">`).join('');
+
+    // States: canonical list, plus anything already on the roster so an
+    // existing person's state is never unpickable.
+    const stateKeys = new Set(Object.keys(cfg.states));
+    (REPS || []).forEach(p => (p.states || []).forEach(s => s && stateKeys.add(String(s).toUpperCase())));
+    const dflt = cfg.default_state;
+    const stateBoxes = Array.from(stateKeys).sort().map(s => {
+      const label = (cfg.states[s] && cfg.states[s].label) || s;
+      return `<label style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;margin:0 14px 6px 0;white-space:nowrap">
+        <input type="checkbox" class="apStateBox" value="${escapeHtml(s)}"${s === dflt ? ' checked' : ''} style="width:auto"> ${escapeHtml(s)}
+        <span style="color:var(--muted,#6B7280)">${escapeHtml(label)}</span></label>`;
+    }).join('');
+
+    const deptOpts = cfg.departments.map(d =>
+      `<option value="${escapeHtml(d.key)}">${escapeHtml(d.label)}</option>`).join('');
+
+    const warn = orgLoaded() ? '' : `<div style="font-size:0.78rem;color:#8a6d1f;background:#FDF6E3;border:1px solid #EBD9A6;border-radius:8px;padding:9px 12px;line-height:1.5">
+      /org-config.js did not load, so only Connecticut and Sales are offered. Fix that before adding anyone outside CT.</div>`;
+
     const body = `
       <div style="display:flex;flex-direction:column;gap:13px">
+        ${warn}
         <div>
           <label class="edit-label" for="apName">Full name</label>
           <input id="apName" class="edit-input" type="text" placeholder="Jane Smith" autocomplete="off">
@@ -4596,39 +4697,33 @@ async function deleteFeedback(id) {
         <div>
           <label class="edit-label" for="apUser">Username</label>
           <input id="apUser" class="edit-input" type="text" placeholder="jsmith" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">
-          <div style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px">Lowercase. Becomes &lt;username&gt;@ct-resource-page.com. No email is sent.</div>
+          <div id="apUserMsg" style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px">Auto-filled as first initial + last name. Becomes &lt;username&gt;@ct-resource-page.com. No email is sent.</div>
         </div>
         <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:120px">
-            <label class="edit-label" for="apKind">Role</label>
-            <select id="apKind" class="edit-input"><option value="rep">Rep</option><option value="manager">Manager</option></select>
+          <div style="flex:1;min-width:150px">
+            <label class="edit-label" for="apDept">Department</label>
+            <select id="apDept" class="edit-input">${deptOpts}</select>
           </div>
-          <div style="flex:1;min-width:120px">
-            <label class="edit-label" for="apDivision">Division</label>
-            <select id="apDivision" class="edit-input"><option value="Traditional">Traditional</option><option value="Direct">Direct</option></select>
+          <div style="flex:1;min-width:150px">
+            <label class="edit-label" for="apPos">Position</label>
+            <select id="apPos" class="edit-input"></select>
           </div>
         </div>
+        <div id="apSeesBox" style="font-size:0.79rem;line-height:1.5;background:#EFF1EC;border:1px solid var(--border,#DFE2DA);border-radius:8px;padding:9px 12px"></div>
+        <div>
+          <label class="edit-label">State${'' /* multi: people.states is an array */}<span style="font-weight:400;color:var(--muted,#6B7280)"> (tick every state they cover)</span></label>
+          <div id="apStates" style="padding-top:3px">${stateBoxes}</div>
+        </div>
         <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:120px">
-            <label class="edit-label" for="apState">State</label>
-            <select id="apState" class="edit-input">${stateOpts}</select>
-          </div>
-          <div style="flex:1;min-width:120px">
+          <div id="apOfficeRow" style="flex:1;min-width:150px">
             <label class="edit-label" for="apOffice">Sales office</label>
-            <input id="apOffice" class="edit-input" list="apOfficeList" placeholder="CT- Central" autocapitalize="none" autocomplete="off">
-            <datalist id="apOfficeList">${officeOpts}</datalist>
+            <select id="apOffice" class="edit-input"></select>
+            <div id="apOfficeMsg" style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px"></div>
           </div>
-        </div>
-        <div id="apTierRow" style="display:none">
-          <label class="edit-label" for="apTier">Manager tier <span style="font-weight:400;color:var(--muted,#6B7280)">(sets who they can see)</span></label>
-          <select id="apTier" class="edit-input">
-            <option value="">-- pick a tier --</option>
-            <option value="adm">ADM (own sales office)</option>
-            <option value="dm">DM (whole state)</option>
-            <option value="regional">Regional (whole state)</option>
-            <option value="vp">VP (everyone)</option>
-            <option value="executive">Executive (everyone + APEX)</option>
-          </select>
+          <div id="apDivisionRow" style="flex:1;min-width:150px">
+            <label class="edit-label" for="apDivision">Division</label>
+            <select id="apDivision" class="edit-input"></select>
+          </div>
         </div>
         <div>
           <label class="edit-label" for="apStart">Start date</label>
@@ -4638,45 +4733,163 @@ async function deleteFeedback(id) {
           <label class="edit-label" for="apMgr">Reports to</label>
           <select id="apMgr" class="edit-input">${mgrOpts}</select>
         </div>
-        <div>
+        <div id="apSlugRow">
           <label class="edit-label" for="apSlug">Rep key <span style="font-weight:400;color:var(--muted,#6B7280)">(canonical id &mdash; links performance, university &amp; schedule)</span></label>
           <input id="apSlug" class="edit-input" type="text" placeholder="lastname_f" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">
-          <div id="apSlugMsg" style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px">Auto-filled from the name (lastname_firstinitial). Required so the rep shows in pickers + Rep 360.</div>
+          <div id="apSlugMsg" style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px">Auto-filled from the name (lastname_firstinitial). Required so they show in pickers + Rep 360.</div>
         </div>
         <label id="apAdminRow" style="display:none;align-items:center;gap:8px;font-size:0.82rem;color:var(--text,#1A2332)">
-          <input id="apAdmin" type="checkbox" style="width:auto"> Grant admin (manage users, edit content, see all)
+          <input id="apAdmin" type="checkbox" style="width:auto"> Grant admin (manage users, edit content, and see every person in every state)
         </label>
         <label id="apNatRow" style="display:none;align-items:center;gap:8px;font-size:0.82rem;color:var(--text,#1A2332)">
-          <input id="apNat" type="checkbox" style="width:auto"> National (sees all states)
+          <input id="apNat" type="checkbox" style="width:auto"> National (overrides the states above &mdash; they see every state)
         </label>
       </div>`;
     openModal('Add person', body, 'Create', 'background:var(--green,#5eba28);color:#fff', submitAddPerson);
-    const kindEl = document.getElementById('apKind');
+
     const nameEl = document.getElementById('apName');
+    const userEl = document.getElementById('apUser');
     const slugEl = document.getElementById('apSlug');
-    let slugEdited = false;
+    const deptEl = document.getElementById('apDept');
+    const posEl = document.getElementById('apPos');
+    let slugEdited = false, userEdited = false;
+
+    function pickedStates() {
+      return Array.from(document.querySelectorAll('.apStateBox')).filter(b => b.checked).map(b => b.value);
+    }
+
     function checkSlug() {
-      const v = (slugEl.value || '').trim().toLowerCase();
       const msg = document.getElementById('apSlugMsg');
+      const v = (slugEl.value || '').trim().toLowerCase();
       if (!msg) return;
-      if (!v) { msg.textContent = 'Required so the rep shows in pickers + Rep 360.'; msg.style.color = 'var(--muted,#6B7280)'; return; }
+      if (!v) { msg.textContent = 'Required so they show in pickers + Rep 360.'; msg.style.color = 'var(--muted,#6B7280)'; return; }
       if ((REPS || []).some(p => (p.spd_slug || '') === v)) {
         msg.textContent = 'That rep key is already taken. Pick another.'; msg.style.color = '#C94F5A';
       } else {
         msg.textContent = 'Rep key: ' + v; msg.style.color = 'var(--green-dark,#3d8b1f)';
       }
     }
+
+    function checkUser() {
+      const msg = document.getElementById('apUserMsg');
+      const v = (userEl.value || '').trim().toLowerCase();
+      if (!msg) return;
+      if (v && (REPS || []).some(p => (p.username || '').toLowerCase() === v)) {
+        msg.textContent = 'That username is already taken. Pick another.'; msg.style.color = '#C94F5A';
+      } else {
+        msg.textContent = 'Signs in as ' + (v || '<username>') + '. No email is sent.';
+        msg.style.color = 'var(--muted,#6B7280)';
+      }
+    }
+
+    // Rebuild everything downstream of Department + Position + States.
+    function syncPosition() {
+      const dept = deptEl.value;
+      const list = positionsFor(dept);
+      const keep = posEl.value;
+      posEl.innerHTML = list.map(p =>
+        `<option value="${escapeHtml(p.key)}">${escapeHtml(p.label)}</option>`).join('');
+      if (list.some(p => p.key === keep)) posEl.value = keep;
+      syncFields();
+    }
+
+    function syncFields() {
+      const pos = positionByKey(posEl.value) || {};
+      const states = pickedStates();
+      const cfgNow = ORG();
+
+      // Offices for the chosen states only -- this is the bug being fixed:
+      // picking NY used to still offer CT offices.
+      const offices = [];
+      states.forEach(s => ((cfgNow.states[s] || {}).offices || []).forEach(o => {
+        if (offices.indexOf(o) < 0) offices.push(o);
+      }));
+      // Fail-safe: an office someone is ALREADY assigned to must stay pickable
+      // even if org-config.js has fallen behind. Closing the list fixed the
+      // typo problem, but a closed list that has drifted from reality would
+      // make a real office impossible to choose. Keyed off the person's own
+      // states rather than parsing the office string, so it stays correct if
+      // the naming convention ever changes.
+      (REPS || []).forEach(p => {
+        if (!p.sales_office || offices.indexOf(p.sales_office) >= 0) return;
+        if ((p.states || []).some(s => states.indexOf(String(s).toUpperCase()) >= 0)) {
+          offices.push(p.sales_office);
+        }
+      });
+      const offEl = document.getElementById('apOffice');
+      const offKeep = offEl.value;
+      offEl.innerHTML = ['<option value="">-- none --</option>']
+        .concat(offices.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`)).join('');
+      if (offices.indexOf(offKeep) >= 0) offEl.value = offKeep;
+      const offMsg = document.getElementById('apOfficeMsg');
+      if (offMsg) {
+        offMsg.textContent = !states.length ? 'Pick a state first.'
+          : !offices.length ? 'No offices configured for ' + states.join(', ') + ' yet.'
+          : pos.needs_office ? 'Must be exact -- an ADM with a mismatched office sees nobody.'
+          : 'Optional for this position.';
+      }
+      document.getElementById('apOfficeRow').style.display = (pos.needs_office || offices.length) ? 'block' : 'none';
+
+      // Divisions likewise follow the chosen states, and only apply to sales.
+      const divs = [];
+      states.forEach(s => ((cfgNow.states[s] || {}).divisions || []).forEach(d => {
+        if (divs.indexOf(d) < 0) divs.push(d);
+      }));
+      const isSales = (cfgNow.departments.find(d => d.key === deptEl.value) || {}).is_sales === true;
+      const divEl = document.getElementById('apDivision');
+      const divKeep = divEl.value;
+      divEl.innerHTML = ['<option value="">-- none --</option>']
+        .concat(divs.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`)).join('');
+      divEl.value = divs.indexOf(divKeep) >= 0 ? divKeep : (divs[0] || '');
+      document.getElementById('apDivisionRow').style.display = isSales ? 'block' : 'none';
+
+      document.getElementById('apSlugRow').style.display = pos.needs_rep_key ? 'block' : 'none';
+
+      const adminRow = document.getElementById('apAdminRow');
+      const natRow = document.getElementById('apNatRow');
+      adminRow.style.display = pos.allow_admin ? 'flex' : 'none';
+      if (!pos.allow_admin) document.getElementById('apAdmin').checked = false;
+      // National is only a choice for positions that are not already national.
+      natRow.style.display = (pos.role === 'manager' && !pos.is_national) ? 'flex' : 'none';
+      if (pos.is_national) document.getElementById('apNat').checked = true;
+      else if (pos.role !== 'manager') document.getElementById('apNat').checked = false;
+
+      renderSees();
+    }
+
+    // The whole point of the Position control: say what this actually grants,
+    // in the order the server resolves it (admin > national > tier > states).
+    function renderSees() {
+      const box = document.getElementById('apSeesBox');
+      const pos = positionByKey(posEl.value);
+      if (!box || !pos) return;
+      const states = pickedStates();
+      const isAdmin = document.getElementById('apAdmin').checked;
+      const isNat = document.getElementById('apNat').checked || pos.is_national === true;
+      let line;
+      if (isAdmin) line = 'Everyone, in every state, and can manage users and content. Admin overrides the states ticked above.';
+      else if (isNat) line = 'Everyone, in every state. National overrides the states ticked above.';
+      else line = pos.sees.replace('their state(s)', states.length ? states.join(' + ') : 'their state(s)');
+      const extras = [];
+      if (pos.seeds_onboarding) extras.push('Gets the Foundations + DISC certs and starter tasks.');
+      if (!pos.needs_rep_key) extras.push('No rep key, so never appears in a sales roster.');
+      box.innerHTML = `<strong>They will see:</strong> ${escapeHtml(line)}`
+        + (extras.length ? `<div style="margin-top:4px;color:var(--muted,#6B7280)">${escapeHtml(extras.join(' '))}</div>` : '');
+    }
+
     if (nameEl) nameEl.addEventListener('input', () => {
       if (!slugEdited) slugEl.value = deriveSlug(nameEl.value);
-      checkSlug();
+      if (!userEdited) userEl.value = deriveUsername(nameEl.value);
+      checkSlug(); checkUser();
     });
     if (slugEl) slugEl.addEventListener('input', () => { slugEdited = true; checkSlug(); });
-    if (kindEl) kindEl.addEventListener('change', () => {
-      const isMgr = kindEl.value === 'manager';
-      document.getElementById('apAdminRow').style.display = isMgr ? 'flex' : 'none';
-      document.getElementById('apNatRow').style.display = isMgr ? 'flex' : 'none';
-      document.getElementById('apTierRow').style.display = isMgr ? 'block' : 'none';
-    });
+    if (userEl) userEl.addEventListener('input', () => { userEdited = true; checkUser(); });
+    if (deptEl) deptEl.addEventListener('change', syncPosition);
+    if (posEl) posEl.addEventListener('change', syncFields);
+    document.getElementById('apStates').addEventListener('change', syncFields);
+    document.getElementById('apAdmin').addEventListener('change', renderSees);
+    document.getElementById('apNat').addEventListener('change', renderSees);
+    syncPosition();
   }
 
   // Canonical rep key from a full name: lastname_firstinitial (compound
@@ -4694,43 +4907,65 @@ async function deleteFeedback(id) {
   async function submitAddPerson() {
     const name = ((document.getElementById('apName') || {}).value || '').trim();
     const username = ((document.getElementById('apUser') || {}).value || '').trim().toLowerCase();
-    const kind = ((document.getElementById('apKind') || {}).value === 'manager') ? 'manager' : 'rep';
-    const state = ((document.getElementById('apState') || {}).value || 'CT');
+    const department = ((document.getElementById('apDept') || {}).value || '') || null;
+    const pos = positionByKey(((document.getElementById('apPos') || {}).value || ''));
+    if (!pos) { setModalError('Pick a position.'); return; }
+    // role and tier are DERIVED from the position, never asked for separately.
+    const kind = pos.role === 'manager' ? 'manager' : 'rep';
+    const tier = (kind === 'manager' && pos.tier) ? pos.tier : null;
+    const states = Array.from(document.querySelectorAll('.apStateBox')).filter(b => b.checked).map(b => b.value);
     const division = ((document.getElementById('apDivision') || {}).value || '') || null;
     const sales_office = ((document.getElementById('apOffice') || {}).value || '').trim() || null;
-    const tier = kind === 'manager' ? (((document.getElementById('apTier') || {}).value || '') || null) : null;
     const parent_id = ((document.getElementById('apMgr') || {}).value || '') || null;
-    const is_admin = kind === 'manager' && !!((document.getElementById('apAdmin') || {}).checked);
-    const is_national = kind === 'manager' && !!((document.getElementById('apNat') || {}).checked);
+    const is_admin = kind === 'manager' && !!pos.allow_admin && !!((document.getElementById('apAdmin') || {}).checked);
+    const is_national = kind === 'manager' && (pos.is_national === true || !!((document.getElementById('apNat') || {}).checked));
     const cohort_start_date = ((document.getElementById('apStart') || {}).value || '') || null;
-    const spd_slug = ((document.getElementById('apSlug') || {}).value || '').trim().toLowerCase() || null;
+    // Only for positions that need one. The field keeps its auto-filled value
+    // while hidden, and sending it anyway would hand a Sales Ops hire a rep key
+    // -- which is precisely what puts someone into get_my_reps() and the rep
+    // pickers. The rep key is what makes a person a rep to the rest of the
+    // platform, so a non-sales account must not carry one.
+    const spd_slug = pos.needs_rep_key
+      ? (((document.getElementById('apSlug') || {}).value || '').trim().toLowerCase() || null)
+      : null;
     if (!name) { setModalError('Enter a full name.'); return; }
     if (!/^[a-z0-9_-]+$/.test(username)) { setModalError('Username: lowercase letters, digits, hyphens, underscores only.'); return; }
+    if ((REPS || []).some(p => (p.username || '').toLowerCase() === username)) { setModalError('That username is already taken. Pick another.'); return; }
+    if (!states.length) { setModalError('Tick at least one state.'); return; }
     if (spd_slug && !/^[a-z0-9_]+$/.test(spd_slug)) { setModalError('Rep key: lowercase letters, digits, and underscores only.'); return; }
     if (spd_slug && (REPS || []).some(p => (p.spd_slug || '') === spd_slug)) { setModalError('That rep key is already taken. Pick another.'); return; }
-    if (kind === 'rep' && !spd_slug) { setModalError('Reps need a rep key (auto-filled from the name) so they appear in pickers + Rep 360.'); return; }
+    if (pos.needs_rep_key && !spd_slug) { setModalError('A ' + pos.label + ' needs a rep key (auto-filled from the name) so they appear in pickers + Rep 360.'); return; }
+    // An ADM is scoped by exact string match on sales_office. Without one they
+    // sign in to an empty roster and nothing explains why, so block it here.
+    if (pos.needs_office && !sales_office) { setModalError('A ' + pos.label + ' needs a sales office -- their roster is scoped by it, and without one they see nobody.'); return; }
     const btn = document.getElementById('modalConfirmBtn');
     setModalLoading(btn, true, 'Create');
+    // Per-person random starter password. A shared literal ("Trinity1") is
+    // guessable across the whole roster, and Supabase's leaked-password check
+    // rejects it on any later reset -- so the account gets stuck on it.
+    const password = genPassword();
     const result = await callManageUsers({
-      action: 'create', kind, name, username, is_admin, password: 'Trinity1',
-      states: [state], is_national, parent_id, cohort_start_date,
-      division, sales_office, tier, spd_slug,
+      action: 'create', kind, name, username, is_admin, password,
+      states, is_national, parent_id, cohort_start_date,
+      division, sales_office, tier, spd_slug, department,
     });
-    if (result && result.error) {
+    if (!result || result.error || result.ok !== true) {
       setModalLoading(btn, false, 'Create');
-      setModalError(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error);
+      const detail = (result && result.error) || 'the server did not confirm the account was created';
+      setModalError(/admin|authoriz|403/i.test(detail) ? 'Admins only.' : detail);
       return;
     }
-    // New reps get the full onboarding seed: Foundations + DISC certs and the
-    // manager-tracked preliminary tasks. Idempotent + skips completed certs.
+    // Onboarding is a SALES seed (Foundations + DISC certs, starter tasks), so
+    // it follows the position, not the role -- a Sales Ops hire should not be
+    // handed sales certs. Idempotent + skips completed certs.
     let onboard = null;
-    if (kind === 'rep' && result && result.id) {
+    if (pos.seeds_onboarding && result.id) {
       try { const { data } = await supa.rpc('seed_new_hire', { p_person_id: result.id }); onboard = data; } catch (e) {}
     }
     await fetchData();
     populateMgrFilter();
     render();
-    showInviteCard(name, username, 'Trinity1', onboard);
+    showInviteCard(name, username, password, onboard);
   }
 
   function showInviteCard(name, username, password, onboard) {
@@ -5016,7 +5251,8 @@ async function deleteFeedback(id) {
   window.togglePw = togglePw;
   window.regenPw = regenPw;
   window.resetRepPassword = resetRepPassword;
-  window.copyInviteFromField = copyInviteFromField;
+  window.copyLiveInvite = copyLiveInvite;
+  window.closePwPanel = closePwPanel;
   window.toggleRepStatus = toggleRepStatus;
   window.runOnboarding = runOnboarding;
   window.togglePersonRole = togglePersonRole;

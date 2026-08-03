@@ -605,7 +605,9 @@
         // instead of hidden behind a generic "complete the check" message.
         msg = 'Captcha: ' + (error.message || 'request rejected');
       } else if (/invalid login credentials/i.test(error.message || '')) {
-        msg = 'That username and password did not match. Your username is your first initial + last name (no spaces, no email) -- e.g. Jane Smith is jsmith. Starter password is Trinity1.';
+        // Do not name a starter password here: they are per-person and random
+        // now, so a literal in this message would be wrong for every new account.
+        msg = 'That username and password did not match. Your username is your first initial + last name (no spaces, no email) -- e.g. Jane Smith is jsmith. If you have not signed in before, use the temporary password your manager sent you.';
       } else {
         msg = error.message;
       }
