@@ -4017,7 +4017,7 @@ async function deleteFeedback(id) {
     // parent_id -> manager_id on each row to keep downstream code unchanged.
     const [peopleRes, mgrsRes, actRes] = await Promise.all([
       supa.from('people')
-        .select('id, auth_user_id, name, username, email, status, role, parent_id, cohort_start_date, must_change_password, spd_slug, is_admin')
+        .select('id, auth_user_id, name, username, email, status, role, parent_id, cohort_start_date, must_change_password, spd_slug, is_admin, department, title, sub_department, states, sales_office')
         .in('role', ['rep', 'manager'])
         .order('name'),
       supa.from('people').select('id, name').eq('role', 'manager'),
@@ -4228,6 +4228,8 @@ async function deleteFeedback(id) {
       ${dRow('Name', escapeHtml(r.name || '--'))}
       ${dRow('Username', escapeHtml(r.username || '--'))}
       ${dRow('Email', escapeHtml(r.email || '--'))}
+      ${dRow('Title', escapeHtml(r.title || '--'))}
+      ${dRow('Department', escapeHtml(r.sub_department || deptLabel(r.department) || '--'))}
       ${dRow('Role', escapeHtml(roleLine))}
       ${dRow('Status', escapeHtml(r.status || '--'))}
       ${dRow('Manager', escapeHtml(r.manager || '--'))}
@@ -4629,6 +4631,13 @@ async function deleteFeedback(id) {
     return ORG().positions.filter(p => (p.departments || []).indexOf(deptKey) >= 0);
   }
   function positionByKey(k) { return ORG().positions.find(p => p.key === k) || null; }
+  // Human label for a department key. Falls back to the raw key so a value that
+  // predates the picklist still shows something rather than blank.
+  function deptLabel(key) {
+    if (!key) return '';
+    const d = ORG().departments.find(x => x.key === key);
+    return d ? d.label : key;
+  }
 
   // Username convention, stated on the sign-in error screen: first initial +
   // last name, lowercase, letters only. Compound surnames take the first part
@@ -4710,6 +4719,17 @@ async function deleteFeedback(id) {
           </div>
         </div>
         <div id="apSeesBox" style="font-size:0.79rem;line-height:1.5;background:#EFF1EC;border:1px solid var(--border,#DFE2DA);border-radius:8px;padding:9px 12px"></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:150px">
+            <label class="edit-label" for="apTitle">Job title <span style="font-weight:400;color:var(--muted,#6B7280)">(optional)</span></label>
+            <input id="apTitle" class="edit-input" type="text" placeholder="Director - Data Management" autocomplete="off">
+          </div>
+          <div style="flex:1;min-width:150px">
+            <label class="edit-label" for="apSubDept">Sub-department <span style="font-weight:400;color:var(--muted,#6B7280)">(optional)</span></label>
+            <input id="apSubDept" class="edit-input" type="text" placeholder="BT - Data" autocomplete="off">
+          </div>
+        </div>
+        <div style="font-size:0.74rem;color:var(--muted,#6B7280);margin:-6px 0 0">As the HR directory words them. Labels only &mdash; neither affects what the person can see.</div>
         <div>
           <label class="edit-label">State${'' /* multi: people.states is an array */}<span style="font-weight:400;color:var(--muted,#6B7280)"> (tick every state they cover)</span></label>
           <div id="apStates" style="padding-top:3px">${stateBoxes}</div>
@@ -4908,6 +4928,8 @@ async function deleteFeedback(id) {
     const name = ((document.getElementById('apName') || {}).value || '').trim();
     const username = ((document.getElementById('apUser') || {}).value || '').trim().toLowerCase();
     const department = ((document.getElementById('apDept') || {}).value || '') || null;
+    const title = ((document.getElementById('apTitle') || {}).value || '').trim() || null;
+    const sub_department = ((document.getElementById('apSubDept') || {}).value || '').trim() || null;
     const pos = positionByKey(((document.getElementById('apPos') || {}).value || ''));
     if (!pos) { setModalError('Pick a position.'); return; }
     // role and tier are DERIVED from the position, never asked for separately.
@@ -4947,7 +4969,7 @@ async function deleteFeedback(id) {
     const result = await callManageUsers({
       action: 'create', kind, name, username, is_admin, password,
       states, is_national, parent_id, cohort_start_date,
-      division, sales_office, tier, spd_slug, department,
+      division, sales_office, tier, spd_slug, department, title, sub_department,
     });
     if (!result || result.error || result.ok !== true) {
       setModalLoading(btn, false, 'Create');
