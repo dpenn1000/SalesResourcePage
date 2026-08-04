@@ -108,8 +108,8 @@ window.ORG_CONFIG = {
       "label": "Marketing"
     },
     {
-      "key": "it",
-      "label": "IT / Data"
+      "key": "bt",
+      "label": "BT (Business Technology)"
     },
     {
       "key": "legal",
@@ -200,7 +200,8 @@ window.ORG_CONFIG = {
       "key": "exec",
       "label": "Executive",
       "departments": [
-        "sales"
+        "sales",
+        "bt"
       ],
       "role": "manager",
       "tier": "executive",
@@ -220,7 +221,7 @@ window.ORG_CONFIG = {
         "installation",
         "finance",
         "marketing",
-        "it",
+        "bt",
         "legal",
         "hr"
       ],
@@ -242,7 +243,7 @@ window.ORG_CONFIG = {
         "installation",
         "finance",
         "marketing",
-        "it",
+        "bt",
         "legal",
         "hr"
       ],
@@ -264,7 +265,7 @@ window.ORG_CONFIG = {
         "installation",
         "finance",
         "marketing",
-        "it",
+        "bt",
         "legal",
         "hr"
       ],
