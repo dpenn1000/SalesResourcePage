@@ -388,6 +388,68 @@
     } catch {}
   });
 
+  // ── Reconnect notice + profile retry ─────────────────────────────────
+  // Shown when we hold a live session but get_user_profile() is failing. No
+  // per-page markup required (this file gates 89 pages), so the notice injects
+  // itself and removes itself.
+  var __reconnectTries = 0;
+  var __reconnectTimer = null;
+  // Backoff in ms. loadProfile() already retries 3x internally (~1.2s), so this
+  // is the OUTER schedule; together they cover roughly half a minute before we
+  // concede and ask the user to sign in again.
+  var RECONNECT_BACKOFF = [2000, 4000, 8000, 12000];
+
+  function showReconnectNotice() {
+    var el = document.getElementById('ctReconnect');
+    if (el) return;
+    el = document.createElement('div');
+    el.id = 'ctReconnect';
+    el.setAttribute('role', 'status');
+    el.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;' +
+      'align-items:center;justify-content:center;background:#0b1120;color:#e8edf5;' +
+      'font:600 15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;text-align:center;padding:24px';
+    el.innerHTML = '<div><div style="font-size:22px;margin-bottom:10px">Reconnecting</div>' +
+      '<div style="font-weight:400;opacity:.75;max-width:34ch">You are still signed in. ' +
+      'We could not reach the server just now and are retrying.</div></div>';
+    (document.body || document.documentElement).appendChild(el);
+  }
+
+  function clearReconnectNotice() {
+    __reconnectTries = 0;
+    if (__reconnectTimer) { clearTimeout(__reconnectTimer); __reconnectTimer = null; }
+    var el = document.getElementById('ctReconnect');
+    if (el && el.parentNode) el.parentNode.removeChild(el);
+  }
+
+  function scheduleProfileRetry(session, event) {
+    if (__reconnectTimer) return;   // one retry chain at a time
+    if (__reconnectTries >= RECONNECT_BACKOFF.length) {
+      // Genuinely given up. NOW the login screen is the honest answer -- but say
+      // why, so it does not read as "your password stopped working".
+      clearReconnectNotice();
+      showOnly('loginScreen');
+      showLoginError("We couldn't reach the server. Check your connection and sign in again.");
+      return;
+    }
+    showReconnectNotice();
+    var wait = RECONNECT_BACKOFF[__reconnectTries++];
+    __reconnectTimer = setTimeout(async function () {
+      __reconnectTimer = null;
+      // Re-resolve the session first: the SDK's background auto-refresh may have
+      // replaced the token while we were waiting.
+      var live = session;
+      try {
+        var res = await sb.auth.getSession();
+        live = (res && res.data && res.data.session) || null;
+      } catch (e) {}
+      if (!live) { clearReconnectNotice(); showOnly('loginScreen'); return; }
+      var p = await loadProfile(live);
+      if (p && p._transientError) { scheduleProfileRetry(live, event); return; }
+      clearReconnectNotice();
+      await applyProfile(p, live, event);
+    }, wait);
+  }
+
   // ── Auth state machine ───────────────────────────────────────────────
 
   sb.auth.onAuthStateChange((event, session) => {
@@ -407,15 +469,31 @@
       const profile = await loadProfile(session);
       if (profile && profile._transientError) {
         // A transient profile-load failure on a session we still hold. Do NOT
-        // sign out -- leave the user where they are; the next auth event
-        // (focus/refresh/navigation) retries. Only reveal the login screen if no
-        // app screen is up yet (so a cold load that can't reach Supabase still
-        // shows something actionable rather than a blank page).
+        // sign out -- leave the user where they are.
+        //
+        // And do NOT show the login screen. We are holding a LIVE session: this
+        // user is authenticated, and only the profile lookup failed. Presenting
+        // a login form here was both wrong and actively misleading -- it is the
+        // whole reason the gate looked bypassable ("I get an auth screen, I hit
+        // refresh, and I'm in"). Nothing was being bypassed; the refresh simply
+        // retried a lookup that had failed. Reported by Dan 2026-08-05.
+        //
+        // Keep the session, tell the user we're reconnecting, and retry on a
+        // backoff. Only fall back to the login screen once we have genuinely
+        // given up, and say why when we do.
         var appEl = document.getElementById('appWrap');
         var appUp = appEl && getComputedStyle(appEl).display !== 'none';
-        if (!appStarted && !appUp) showOnly('loginScreen');
+        if (!appStarted && !appUp) scheduleProfileRetry(session, event);
         return;
       }
+      clearReconnectNotice();
+      await applyProfile(profile, session, event);
+    }, 0);
+  });
+
+  // Resolve a loaded profile into a screen. Extracted from the state machine so
+  // the reconnect retry above can re-enter it without duplicating the rules.
+  async function applyProfile(profile, session, event) {
       if (profile && profile._sessionError) {
         // Genuinely dead session (expired/revoked, e.g. a password reset). Clear
         // it so the next sign-in is clean, and tell the user the truth.
@@ -480,8 +558,7 @@
           window.initApp(profile, session);
         }
       }
-    }, 0);
-  });
+  }
 
   // ── Bootstrap: no-session safety net ─────────────────────────────────
   // The UI above is driven entirely by onAuthStateChange. For a logged-out
