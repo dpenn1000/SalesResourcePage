@@ -176,6 +176,28 @@
   var HCAPTCHA_SITEKEY = '601ce9bc-e8ac-44ba-831a-1d8aa806517e';
   var __hcaptchaWidgetId = null;
 
+  // Script-load resilience. The api.js injection used to be one-shot with no
+  // onerror handler: a single failed or hung load (field Wi-Fi, a DNS blip --
+  // often the same hiccup that surfaced the login screen in the first place)
+  // left the dangling <script id="ctHcaptchaScript"> in place, so every later
+  // mountCaptcha() took the "already injected" branch and called _renderCaptcha()
+  // while window.hcaptcha was still undefined. The form then sat captcha-less
+  // until a full reload while Attack Protection rejected each sign-in -- the
+  // "auth window with no CAPTCHA that fails" Dan hit on tools./admin.
+  //
+  // Ported from the launcher copy (Tools/Launcher/auth-gate.js), where this was
+  // fixed 2026-07-29. The two files are separate copies that drift; this one
+  // serves ct-resource-page.com/admin.html, which is where the redirect lands.
+  var HCAPTCHA_MAX_LOAD_TRIES = 4;
+  var HCAPTCHA_LOAD_TIMEOUT_MS = 10000;
+  var __hcaptchaLoadTries = 0;
+  var __hcaptchaRetryTimer = null;
+
+  function _loginScreenUp() {
+    var scr = document.getElementById('loginScreen');
+    return !!scr && getComputedStyle(scr).display !== 'none';
+  }
+
   function _renderCaptcha() {
     if (!window.hcaptcha || __hcaptchaWidgetId !== null) return;
     var box = document.getElementById('ctCaptcha');
@@ -193,6 +215,37 @@
   }
   window.__ctHcaptchaOnload = _renderCaptcha;
 
+  function _scheduleCaptchaRetry() {
+    if (__hcaptchaRetryTimer) return;
+    __hcaptchaRetryTimer = setTimeout(function () {
+      __hcaptchaRetryTimer = null;
+      // Only while the login screen is actually up: a user who signed in during
+      // the backoff must not have work interrupted by a retry they cannot see.
+      if (_loginScreenUp()) _injectCaptchaScript();
+    }, 1500 * Math.max(1, __hcaptchaLoadTries));
+  }
+
+  function _injectCaptchaScript() {
+    if (window.hcaptcha) { _renderCaptcha(); return; }
+    if (document.getElementById('ctHcaptchaScript')) return; // load in flight
+    if (__hcaptchaLoadTries >= HCAPTCHA_MAX_LOAD_TRIES) return;
+    __hcaptchaLoadTries++;
+    var s = document.createElement('script');
+    s.id = 'ctHcaptchaScript';
+    s.src = 'https://js.hcaptcha.com/1/api.js?render=explicit&onload=__ctHcaptchaOnload';
+    s.async = true; s.defer = true;
+    // A hung fetch fires neither onload nor onerror -- without this watchdog
+    // the dangling tag blocks re-injection forever, which is the whole bug.
+    var to = setTimeout(function () {
+      if (window.hcaptcha) return;
+      s.remove();
+      _scheduleCaptchaRetry();
+    }, HCAPTCHA_LOAD_TIMEOUT_MS);
+    s.onload = function () { clearTimeout(to); _renderCaptcha(); };
+    s.onerror = function () { clearTimeout(to); s.remove(); _scheduleCaptchaRetry(); };
+    document.head.appendChild(s);
+  }
+
   function mountCaptcha() {
     var screen = document.getElementById('loginScreen');
     if (!screen) return;
@@ -205,15 +258,7 @@
       if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(box, anchor);
       else (form || screen.querySelector('.login-card') || screen).appendChild(box);
     }
-    if (!document.getElementById('ctHcaptchaScript')) {
-      var s = document.createElement('script');
-      s.id = 'ctHcaptchaScript';
-      s.src = 'https://js.hcaptcha.com/1/api.js?render=explicit&onload=__ctHcaptchaOnload';
-      s.async = true; s.defer = true;
-      document.head.appendChild(s);
-    } else {
-      _renderCaptcha();
-    }
+    _injectCaptchaScript();
   }
 
   function getCaptchaToken() {
