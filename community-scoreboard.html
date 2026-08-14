@@ -183,7 +183,7 @@ async function loadBoard(){
   let partners=[], teams=[], members=[];
   try{
     const [p,g,m]=await Promise.all([
-      sb.from('community_partners').select('id,cluster,status,working_group_id').eq('is_deleted',false),
+      sb.from('community_partners').select('id,cluster,status,working_group_id,dnc').eq('is_deleted',false),
       sb.from('groups').select('id,name').eq('category','community').eq('active',true),
       sb.from('group_members').select('group_id,person_id')
     ]);
