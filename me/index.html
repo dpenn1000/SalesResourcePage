@@ -2229,10 +2229,25 @@ function thisMonthCard(tm, cfg){
   const _dim = new Date(_now.getFullYear(), _now.getMonth() + 1, 0).getDate();
   const _proj = tm.pace != null ? tm.pace : (_now.getDate() > 0 ? Math.round(total / _now.getDate() * _dim) : total);
 
+  // Month-start guard: the daily Performance Dashboard feed reflects the PRIOR
+  // day's close, so on the first days of a new month it carries essentially no
+  // current-month data (e.g. on the 2nd it only has the 1st). Pace extrapolated
+  // from ~0 days would flag "Dismissal risk" for every rep at each month rollover.
+  // While the feed covers 2 or fewer days of this month AND the rep has no sales
+  // yet, show a calm "getting started" state instead. It lifts automatically once
+  // the feed catches up or the rep records a first sale. cfg.dataWindow.to is the
+  // feed's newest date (YYYY-MM-DD).
+  const _curYM = _now.getFullYear() + '-' + String(_now.getMonth() + 1).padStart(2, '0');
+  const _wto = cfg && cfg.dataWindow && cfg.dataWindow.to;
+  const _feedDay = (typeof _wto === 'string' && _wto.slice(0, 7) === _curYM)
+    ? (parseInt(_wto.slice(8, 10), 10) || 0)   // days of THIS month the feed covers
+    : 0;                                        // feed's newest data predates this month
+  const justStarting = total === 0 && _feedDay <= 2;
+
   // Card color + the PIP / dismissal verdict track the projected month-end PACE,
   // not the current total: a slow start that is still pacing to goal reads green,
   // and a stall that projects below standard flags early, while there is time to act.
-  const statusCls = _proj < pip ? 'red' : (_proj < goal ? 'amber' : 'green');
+  let statusCls = _proj < pip ? 'red' : (_proj < goal ? 'amber' : 'green');
 
   // When the rep is pacing PAST goal, extend the bar's max to a stretch goal so
   // the pace has room to show instead of pinning at the goal (the right edge).
@@ -2267,6 +2282,12 @@ function thisMonthCard(tm, cfg){
   else if (_proj < goal) statusMsg = 'Pacing to ' + _proj + '. ' + (goal - _proj) + ' more on pace to hit your ' + goal + ' goal.';
   else if (_proj > goal) statusMsg = 'Pacing to ' + _proj + ', ' + (_proj - goal) + ' past your ' + goal + ' goal. Reaching for ' + stretch + '. Keep stacking.';
   else                   statusMsg = 'Pacing to ' + _proj + ', at your ' + goal + ' goal. Keep stacking.';
+
+  // At the month boundary, drop the red pace verdict for a calm neutral message.
+  if (justStarting) {
+    statusCls = '';
+    statusMsg = 'This month is just getting started. Sales sync each morning after the prior day closes, so your pace fills in over the first few days.';
+  }
 
   const goalEdit = IS_VIEW_AS ? '' : ' <span class="tm-goal-edit" onclick="setMonthlyGoal()" title="Set your goal for this month">edit</span>';
 
@@ -2394,7 +2415,7 @@ function renderMePerf(d){
     ? '<div class="addr p-low" style="margin-top:16px"><div class="addr-title">How to climb</div><div class="addr-body">' + bits.join(' ') + '</div></div>'
     : '';
 
-  const monthCard = thisMonthCard(d.this_month, { floor: _commConfig.floor, pip: _commConfig.pip, goal: _monthlyGoal });
+  const monthCard = thisMonthCard(d.this_month, { floor: _commConfig.floor, pip: _commConfig.pip, goal: _monthlyGoal, dataWindow: d.data_window });
   $('metricsBody').innerHTML = monthCard + scopeCaption + '<div class="metrics-grid">' + tiles.join('') + '</div>' + climbHtml;
 
   // Dedicated full-width Sales Club section (replaces the old metric tile).
