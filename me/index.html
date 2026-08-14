@@ -2329,9 +2329,6 @@ function thisMonthCard(tm, cfg){
 
 function renderMePerf(d){
   const r = d.rep || {}, ranks = d.ranks || {}, ta = d.team_avg || {}, club = d.sales_club || {}, climb = d.to_climb || {};
-  // Expose the rep's live club tier so the install-commission estimate (Top
-  // Action Items) can apply the correct club adder.
-  window._meClubTier = clubTierCode(club.current_tier);
   const rankTxt = (x) => x ? rankHtml(x.rank, x.of) : '';
   const _win = d.data_window || {};
   const _fmtW = (s) => { try { return new Date(String(s) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch (e) { return String(s); } };
@@ -2423,42 +2420,11 @@ function renderMePerf(d){
 }
 
 // ============================================================================
-// SALES CLUB (full-width, black-gold) -- three tiers, the rep's standing, and
-// the per-job uplift to the next club. Everything is driven by the editable
-// commission config (cfg.values); nothing here is hard-coded.
+// SALES CLUB (full-width, black-gold) -- three tiers and the rep's standing.
+// Club band thresholds are driven by the editable commission config
+// (cfg.values); nothing here is hard-coded. Per-job commission figures are
+// NOT computed here -- see the OnePay link-out in renderSalesClub below.
 // ============================================================================
-
-// Per-job commission, replicating the calculator's math from config values.
-// tier is one of 'none' | 'hf' | 'pres' | 'royalty'; saleType 'company' | 'selfgen'.
-function jobCommission(systemKw, ppw, basePpw, saleType, tier, cfg){
-  const v = (cfg && cfg.values) || {};
-  const num = (k, d) => { const n = Number(v[k]); return isFinite(n) ? n : d; };
-  const base_pay_selfgen = num('base_pay_selfgen', 0.02);
-  const base_pay_company = num('base_pay_company', 0.04);
-  const lead_fee_noclub  = num('lead_fee_noclub', 475);
-  const lead_fee_club    = num('lead_fee_club', 375);
-  const above_base_noclub= num('above_base_noclub', 0.25);
-  const above_base_club  = num('above_base_club', 0.33);
-  const club_adder_hf    = num('club_adder_hf', 0.005);
-  const club_adder_pres  = num('club_adder_pres', 0.0075);
-  const club_adder_royalty = num('club_adder_royalty', 0.01);
-  const min_commission   = num('min_commission', 750);
-
-  const baseEpc      = systemKw * 1000 * basePpw;
-  const systemEpc    = systemKw * 1000 * ppw;
-  const aboveBaseEpc = systemEpc - baseEpc;
-  const clubValue    = systemKw * 1000 * Math.min(ppw, basePpw);
-
-  // Self-gen earns base pay PLUS the self-gen adder (4% + 2% = 6%), and pays no
-  // lead fee -- so a self-gen deal always out-earns a company lead.
-  const basePayout = baseEpc * (saleType === 'selfgen' ? (base_pay_company + base_pay_selfgen) : base_pay_company);
-  const leadFee = (saleType === 'selfgen') ? 0 : (tier === 'none' ? lead_fee_noclub : lead_fee_club);
-  const aboveBaseAdder = Math.max(0, aboveBaseEpc * (tier === 'none' ? above_base_noclub : above_base_club));
-  const clubAdder = clubValue * (tier === 'hf' ? club_adder_hf : tier === 'pres' ? club_adder_pres : tier === 'royalty' ? club_adder_royalty : 0);
-
-  if (ppw < basePpw) return min_commission;
-  return basePayout - leadFee + aboveBaseAdder + clubAdder;
-}
 
 // Map a tier label to the short code the card uses. Accepts both the launcher's
 // short keys (RC / PC / HF from store_query._CLUB_TIERS) and full names (Royalty
@@ -2578,36 +2544,17 @@ function renderSalesClub(d, cfg){
     standing += '<div class="sc-need">You are at the top tier. Hold Royalty and keep the standard high.</div>';
   }
 
-  // ── Per-job "next club" uplift ──
-  const nextCode = CLUB_NEXT[standingCode] || null;
-  let uplift = '';
-  if (standingCode === 'royalty' || !nextCode){
-    uplift = '<div class="sc-uplift top">' +
-      '<div class="sc-uplift-h">Top tier</div>' +
-      '<div class="sc-uplift-b">Royalty is the highest club, so the per-job club bonus is already maxed out. ' +
-      '<a class="sc-link" href="/sales-fundamentals/commission/calculator.html">Model your own deal</a> to see your number.</div>' +
-      '</div>';
-  } else {
-    // Representative deal: lean on the rep's own averages where present.
-    const r = d.rep || {};
-    const repPpw = (r.avg_ppw != null && isFinite(Number(r.avg_ppw))) ? Number(r.avg_ppw) : null;
-    const repKw  = (r.avg_kw != null && isFinite(Number(r.avg_kw))) ? Number(r.avg_kw)
-                 : (r.kw != null && r.contracts ? Number(r.kw) / Number(r.contracts) : null);
-    const systemKw = (repKw && repKw > 0.5 && repKw < 100) ? repKw : 8.2;   // rep's avg system size (kw/contracts), else 8.2 kW typical
-    const basePpw  = band('base_ppw_default') != null ? band('base_ppw_default') : 3.0;
-    const ppw      = repPpw || basePpw;            // at/above base so the club adder is visible
-    const cur  = jobCommission(systemKw, ppw, basePpw, 'company', standingCode, cfg);
-    const next = jobCommission(systemKw, ppw, basePpw, 'company', nextCode, cfg);
-    const gain = next - cur;
-    const nextName = (CLUB_TIERS.find(t => t.code === nextCode) || {}).name || 'the next club';
-    if (gain > 0){
-      uplift = '<div class="sc-uplift">' +
-        '<div class="sc-uplift-h">At ' + esc(nextName) + ', about ' + fmtMoney(gain) + ' more per job</div>' +
-        '<div class="sc-uplift-b">Estimate on a typical deal (' + systemKw.toFixed(1) + ' kW at $' + ppw.toFixed(2) + '/W). ' +
-        '<a class="sc-link" href="/sales-fundamentals/commission/calculator.html">Model your own deal</a>.</div>' +
-        '</div>';
-    }
-  }
+  // ── Official commission detail lives in OnePay, not here ──
+  // (Previously this estimated a per-job "uplift" for climbing to the next
+  // club by reimplementing the calculator's math locally -- a rep-facing pay
+  // number with drift risk against the real engine. Retired in favor of a
+  // direct link to Trinity OnePay, the payroll system of record, so this page
+  // never has to maintain parity with it.)
+  const uplift = '<div class="sc-uplift">' +
+    '<div class="sc-uplift-h">See your official commission</div>' +
+    '<div class="sc-uplift-b">Per-job payout, including club adders, is calculated in Trinity OnePay, the official payroll system. ' +
+    '<a class="sc-link" href="https://onepay.trinity-solar.com/" target="_blank" rel="noopener noreferrer">Open OnePay</a> for your numbers.</div>' +
+    '</div>';
 
   $('salesClubBody').innerHTML =
     '<div class="sc-headline">' + headline + '</div>' +
@@ -2627,25 +2574,6 @@ function tiCleanCust(s){
 }
 function tiDaysUntil(d){ const t=Date.parse(d); return isNaN(t)?999:Math.ceil((t-Date.now())/86400000); }
 
-// Estimated per-install commission for a SOLAR deal, reusing the page's own
-// commission engine (jobCommission) and the editable config. Returns a number
-// or null when the inputs aren't present (kW + contract amount), so roof/battery
-// installs simply show no figure -- matching Dan's "commission amount if
-// available." It is an ESTIMATE: implied PPW = amount / (kW * 1000), sale type
-// read from the lead source, club adder from the rep's live standing.
-function estInstallComm(amount, kw, leadSource){
-  const a = Number(amount), k = Number(kw);
-  if (!isFinite(a) || !isFinite(k) || a <= 0 || k <= 0) return null;
-  const cfg = _commConfig; if (!cfg) return null;
-  const v = cfg.values || {};
-  const basePpw = (v.base_ppw_default != null && isFinite(Number(v.base_ppw_default))) ? Number(v.base_ppw_default) : 3.0;
-  const ppw = a / (k * 1000);
-  const saleType = /self.?gen|referral|repeat customer|word of mouth/i.test(String(leadSource || '')) ? 'selfgen' : 'company';
-  const tier = window._meClubTier || 'none';
-  const c = jobCommission(k, ppw, basePpw, saleType, tier, cfg);
-  return (isFinite(c) && c > 0) ? c : null;
-}
-
 // Top Action Items: the rep's operational to-do hub. Aggregates upcoming
 // installations, Constant Contact touches due, manager action items, and
 // placeholders for reports not wired up yet (Missing Docs, Rep Responsible).
@@ -2654,7 +2582,7 @@ async function loadAndRenderAddressables(me){
   window._meCtx = me;
   const today = new Date().toISOString().slice(0, 10);
   const [dpRes, tcRes, addrRes, disRes] = await Promise.all([
-    me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,ahj_township,product_category,lead_source,amount,system_kw,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
+    me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,ahj_township,product_category,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
     me.name ? sb.from('deal_touches').select('dl_number,touch_key') : Promise.resolve({ data: [] }),
     me.id   ? sb.from('rep_addressables').select('id,title,body,priority,due_date,created_at').eq('rep_id', me.id).eq('status', 'open') : Promise.resolve({ data: [] }),
     me.id   ? sb.from('rep_action_dismissals').select('item_key').eq('rep_id', me.id) : Promise.resolve({ data: [] })
@@ -2671,12 +2599,9 @@ async function loadAndRenderAddressables(me){
   deals.forEach(d => {
     const cust = tiCleanCust(d.customer_name);
     const town = (d.ahj_township || '').replace(/\s+/g, ' ').trim();
-    // Commission only on the Solar product row (the engine is solar PPW/kW based,
-    // and `amount` is that row's solar contract value); roof/battery show no figure.
-    const comm = estInstallComm(d.amount, d.system_kw, d.lead_source);
     [['Solar', d.install_start_date], ['Battery', d.battery_install_date], ['Roof', d.roofing_install_date]].forEach(p => {
       const dt = p[1] ? String(p[1]).slice(0, 10) : null;
-      if (dt && dt >= today) installs.push({ cust: cust, type: p[0], date: dt, town: town, comm: p[0] === 'Solar' ? comm : null, key: 'install:' + d.dl_number + ':' + p[0] });
+      if (dt && dt >= today) installs.push({ cust: cust, type: p[0], date: dt, town: town, key: 'install:' + d.dl_number + ':' + p[0] });
     });
   });
   installs = installs.filter(i => !dismissed.has(i.key));
@@ -2689,7 +2614,6 @@ async function loadAndRenderAddressables(me){
         (IS_VIEW_AS ? '' : '<button class="ti-cta" style="margin-left:8px" onclick="dismissActionItem(\'' + esc(i.key) + '\')">Done</button>');
       const meta = [];
       if (i.town) meta.push(esc(i.town));
-      if (i.comm != null) meta.push('~' + fmtMoney(i.comm) + ' est. commission');
       const sub = meta.length ? '<div class="ti-sub">' + meta.join(' &middot; ') + '</div>' : '';
       return item(soon ? 'var(--red)' : 'var(--blue)', '<b>' + esc(i.cust) + '</b> ' + esc(i.type) + ' install' + sub, right);
     }).join('');
