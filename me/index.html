@@ -2769,7 +2769,7 @@ async function loadAndRenderAddressables(me){
   installs.sort((a, b) => a.date.localeCompare(b.date));
   if (installs.length){
     count += installs.length;
-    const rows = installs.slice(0, 6).map(i => {
+    const rows = installs.map(i => {
       const soon = tiDaysUntil(i.date) <= 7; if (soon) urgent = true;
       const right = '<span class="ti-when">' + fmtDate(i.date) + '</span>' +
         (IS_VIEW_AS ? '' : '<button class="ti-cta" style="margin-left:8px" onclick="dismissActionItem(\'' + esc(i.key) + '\')">Done</button>');
@@ -2778,8 +2778,8 @@ async function loadAndRenderAddressables(me){
       if (i.comm != null) meta.push('~' + fmtMoney(i.comm) + ' est. commission');
       const sub = meta.length ? '<div class="ti-sub">' + meta.join(' &middot; ') + '</div>' : '';
       return item(soon ? 'var(--red)' : 'var(--blue)', '<b>' + esc(i.cust) + '</b> ' + esc(i.type) + ' install' + sub, right);
-    }).join('');
-    group('Installations (' + installs.length + ')', rows + (installs.length > 6 ? '<div class="ti-more">+ ' + (installs.length - 6) + ' more</div>' : ''));
+    });
+    group('Installations (' + installs.length + ')', withOverflow(rows, 6, 'inst'));
   }
 
   // 2. Constant Contact touches due -- copy/send right here, full list in a modal.
