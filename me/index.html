@@ -711,7 +711,7 @@
     </div>
   </div>
 
-  <!-- TOP ACTION ITEMS (installs, customer touches, manager items, + placeholders) -->
+  <!-- TOP ACTION ITEMS (installs, customer touches, manager items, missing docs, rep responsible) -->
   <div class="section">
     <div class="section-head">
       <div class="section-title">Top Action Items</div>
@@ -2688,29 +2688,36 @@ function estInstallComm(amount, kw, leadSource){
 }
 
 // Top Action Items: the rep's operational to-do hub. Aggregates upcoming
-// installations, Constant Contact touches due, manager action items, and
-// placeholders for reports not wired up yet (Missing Docs, Rep Responsible).
+// installations, Constant Contact touches due, manager action items, Missing
+// Docs (action_item, via the launcher) and Rep Responsible (Project Track,
+// via the launcher) -- the last two live since 2026-08-17.
 // Action-center blocks off the perf payload: /api/me/perf (own) or
 // /api/rep/perf?slug= (view-as) carries `missing_docs` (server/perf.py) and
 // `rep_responsible` (analytics_store me_perf), both added 2026-08-17 in the
 // same "added beside the payload" shape as the live spine strip. ONE second
 // hit to that endpoint for both, independent of loadMePerfLive's own call,
 // so this loader stays self-contained the way every Promise.allSettled lane
-// in initApp already is. Returns {} on any failure; the groups just omit.
+// in initApp already is.
+//
+// "Unreachable" and "empty" are different facts and must not collapse: an
+// empty block ({available:true, count:0}) means the rep genuinely has nothing
+// blocking; a failed fetch means we DON'T KNOW, and the card must say so
+// rather than read "all clear" over data that was dropped. `unreachable:true`
+// is that signal; the caller renders one quiet line for it.
 async function _fetchActionBlocks(me){
   try {
     const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
-    if (!token) return {};
+    if (!token) return { unreachable: true };
     const url = IS_VIEW_AS
       ? (LAUNCHER_BASE + '/api/rep/perf?slug=' + encodeURIComponent(me.spd_slug))
       : (LAUNCHER_BASE + '/api/me/perf');
     const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
-    if (!res.ok) return {};
+    if (!res.ok) return { unreachable: true };
     const d = await res.json();
-    if (!d) return {};
+    if (!d) return { unreachable: true };
     return { missing_docs: d.missing_docs || null, rep_responsible: d.rep_responsible || null };
   } catch (e) {
-    return {};
+    return { unreachable: true };
   }
 }
 
@@ -2729,6 +2736,7 @@ async function loadAndRenderAddressables(me){
   const dismissed = new Set((disRes.data || []).map(r => r.item_key));
   const missingDocs = (blocks || {}).missing_docs || null;
   const repResp = (blocks || {}).rep_responsible || null;
+  const blocksUnreachable = !!(blocks && blocks.unreachable);
 
   let html = '', count = 0, urgent = false;
   const group = (title, inner) => { if (inner) html += '<div class="ti-group"><div class="ti-head">' + esc(title) + '</div>' + inner + '</div>'; };
@@ -2842,8 +2850,16 @@ async function loadAndRenderAddressables(me){
     group(head, rows + (rr.length > 6 ? '<div class="ti-more">+ ' + (rr.length - 6) + ' more</div>' : ''));
   }
 
-  $('addrPill').textContent = count > 0 ? count + ' to do' : 'all clear';
-  $('addrPill').className = 'section-pill ' + (urgent ? 'red' : (count > 0 ? 'amber' : 'green'));
+  // 6. If the launcher could not be reached, the two groups above are UNKNOWN,
+  // not empty -- say so in one quiet line rather than letting the pill read
+  // "all clear" over data that was dropped. Same shape the Coaching card uses
+  // for the same failure.
+  if (blocksUnreachable){
+    group('Deal blockers', '<div class="ti-item ti-soon"><span class="ti-dot" style="background:var(--text3)"></span><span class="ti-text">Missing Docs and Rep Responsible could not be loaded right now (tools server unreachable). Try again in a minute.</span></div>');
+  }
+
+  $('addrPill').textContent = count > 0 ? count + ' to do' : (blocksUnreachable ? 'partial' : 'all clear');
+  $('addrPill').className = 'section-pill ' + (urgent ? 'red' : (count > 0 || blocksUnreachable ? 'amber' : 'green'));
   body.innerHTML = html;
 
   if (!IS_VIEW_AS){
