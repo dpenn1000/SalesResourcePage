@@ -2234,10 +2234,22 @@ function thisMonthCard(tm, cfg){
   // feed's newest date (YYYY-MM-DD).
   const _curYM = _now.getFullYear() + '-' + String(_now.getMonth() + 1).padStart(2, '0');
   const _wto = cfg && cfg.dataWindow && cfg.dataWindow.to;
-  const _feedDay = (typeof _wto === 'string' && _wto.slice(0, 7) === _curYM)
-    ? (parseInt(_wto.slice(8, 10), 10) || 0)   // days of THIS month the feed covers
-    : 0;                                        // feed's newest data predates this month
-  const justStarting = total === 0 && _feedDay <= 2;
+  const _feedReachesThisMonth = (typeof _wto === 'string' && _wto.slice(0, 7) === _curYM);
+  const _feedDay = _feedReachesThisMonth ? (parseInt(_wto.slice(8, 10), 10) || 0) : 0;
+
+  // STALE IS NOT EARLY (fixed 2026-08-18). This used to collapse both cases into
+  // _feedDay = 0 and then test `_feedDay <= 2`, so a feed that had not reached
+  // this month AT ALL scored the same as a feed covering day 1 or 2 of it -- and
+  // produced the most reassuring sentence on the page. On 2026-08-18, with the
+  // feed frozen at Jul 7, a rep opening this page was told "This month is just
+  // getting started" on the 18th of the following month. Six weeks of silence
+  // rendered as a calm start.
+  //
+  // The two states now separate, because they mean opposite things: one says
+  // "too early to judge you", the other says "this number is not current and you
+  // should not act on it".
+  const feedIsStale = !_feedReachesThisMonth;
+  const justStarting = total === 0 && _feedReachesThisMonth && _feedDay <= 2;
 
   // Card color + the PIP / dismissal verdict track the projected month-end PACE,
   // not the current total: a slow start that is still pacing to goal reads green,
@@ -2267,6 +2279,15 @@ function thisMonthCard(tm, cfg){
 
   const seg = (w, color) => w > 0
     ? '<span class="tm-seg" style="width:' + w + '%;background:' + color + '"></span>' : '';
+  // "2026-07-07" -> "Jul 7". A raw ISO date in a rep-facing sentence reads like a
+  // system error; the point here is to be understood, not to be precise.
+  function fmtFeedDate(iso) {
+    if (typeof iso !== 'string' || iso.length < 10) return 'some time ago';
+    const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const m = parseInt(iso.slice(5, 7), 10), d = parseInt(iso.slice(8, 10), 10);
+    return (MON[m - 1] || iso.slice(5, 7)) + ' ' + d;
+  }
+
   const legendItem = (color, label, n) =>
     '<span class="tm-leg-item"><span class="tm-dot" style="background:' + color + '"></span>' +
     esc(label) + ' <b>' + n + '</b></span>';
@@ -2282,6 +2303,16 @@ function thisMonthCard(tm, cfg){
   if (justStarting) {
     statusCls = '';
     statusMsg = 'This month is just getting started. Sales sync each morning after the prior day closes, so your pace fills in over the first few days.';
+  }
+
+  // A stale feed gets neither the calm message nor a pace verdict. Every number
+  // in this card is derived from a feed that stopped, so a verdict on them would
+  // be a verdict on nothing. Say the date and say it plainly.
+  if (feedIsStale) {
+    statusCls = 'amber';
+    statusMsg = 'This is not current. The sales feed last updated ' + fmtFeedDate(_wto) +
+                ', so nothing below reflects what you have done since. Pace and goal are '
+                + 'paused until the feed catches up.';
   }
 
   const goalEdit = IS_VIEW_AS ? '' : ' <span class="tm-goal-edit" onclick="setMonthlyGoal()" title="Set your goal for this month">edit</span>';
