@@ -2049,11 +2049,10 @@ async function loadMetricsSnapshot(me){
     (data.ppa_gap != null ? (data.ppa_gap >= 0 ? '+' : '') + '$' + data.ppa_gap.toFixed(3) + ' vs target' : ''),
     ppaCardColor(data.ppa_gap)));
 
-  if (data.balance != null) {
-    tiles.push(metric('Book', bookReveal(data.balance, data.draw_rate),
-      data.comm_status ? data.comm_status + ' status' : '',
-      bookCardColor(data.balance)));
-  }
+  // Book -> OnePay, exclusively (same as the live path; see renderMePerf).
+  tiles.push(metric('Book',
+    '<a class="book-link" href="https://onepay.trinity-solar.com" target="_blank" rel="noopener" style="font-size:15px;text-decoration:none;color:var(--blue,#29A9E1);font-weight:800">Open OnePay &rarr;</a>',
+    'commissions & book, live in OnePay', ''));
 
   if (data.track_assessment) {
     tiles.push(metric('Project Track', data.track_assessment, 'A-track vs holds',
@@ -2075,25 +2074,9 @@ function rankHtml(rank, of){
   return '<div class="metric-rank">#' + rank + ' of ' + of +
     '<span class="metric-hbar"><span class="metric-hbar-fill" style="width:' + fill + '%;background:' + color + '"></span></span></div>';
 }
-function bookReveal(balance, draw){
-  var attrs = ' data-bal="' + esc(fmtMoney(balance)) + '"';
-  if (draw && draw > 0){
-    attrs += ' data-draw="' + esc(fmtMoney(draw)) + ' / wk draw"';
-    if (balance != null && balance > 0){ var w = Math.floor(balance / draw); attrs += ' data-weeks="' + w + ' wk' + (w === 1 ? '' : 's') + ' to empty"'; }
-  }
-  return '<button type="button" class="book-toggle"' + attrs + ' aria-label="Show book detail">&bull;&bull;&bull;&bull; tap</button>';
-}
-document.addEventListener('click', function(e){
-  var b = e.target.closest && e.target.closest('.book-toggle'); if (!b) return;
-  e.preventDefault();
-  if (b.dataset.shown === '1'){ b.innerHTML = '&bull;&bull;&bull;&bull; tap'; b.dataset.shown = '0'; }
-  else {
-    var html = '<span class="book-bal">' + (b.dataset.bal || '') + '</span>';
-    if (b.dataset.draw)  html += '<span class="book-line">' + b.dataset.draw + '</span>';
-    if (b.dataset.weeks) html += '<span class="book-line">' + b.dataset.weeks + '</span>';
-    b.innerHTML = html; b.dataset.shown = '1';
-  }
-});
+// bookReveal() and its tap-to-show handler retired 2026-08-17: the Book tile
+// is a link to OnePay now and shows no local balance -- see the tile in
+// renderMePerf / loadMetricsSnapshot for why.
 function metric(label, value, sub, cls){
   return '<div class="metric ' + (cls || '') + '">' +
     '<div class="metric-label">' + esc(label) + '</div>' +
@@ -2403,9 +2386,13 @@ function renderMePerf(d){
       ta.self_gen_pct != null ? 'team avg ' + Math.round(ta.self_gen_pct) + '%' : 'self-generated share',
       teamColor(sgPct, ta.self_gen_pct)));
   }
-  if (r.balance != null) {
-    tiles.push(metric('Book', bookReveal(r.balance, r.draw_rate), r.comm_status ? r.comm_status + ' status' : '', commColor(r.comm_status)));
-  }
+  // Book -> OnePay, exclusively (Dan, 2026-08-17). OnePay is the system of
+  // record for commissions and the book; this tile used to tap-open a balance
+  // derived from the export's book entries -- a stale, rival number. Now it is
+  // a door, always shown, no local figure. Honour the One* apps, don't rival them.
+  tiles.push(metric('Book',
+    '<a class="book-link" href="https://onepay.trinity-solar.com" target="_blank" rel="noopener" style="font-size:15px;text-decoration:none;color:var(--blue,#29A9E1);font-weight:800">Open OnePay &rarr;</a>',
+    'commissions & book, live in OnePay', ''));
   // ── Go-Back conversion (appointment/lead layer; only when there's recent volume) ──
   const gb = d.go_back;
   if (gb && gb.run > 0) {
