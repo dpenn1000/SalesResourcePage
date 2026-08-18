@@ -2741,6 +2741,16 @@ async function loadAndRenderAddressables(me){
   let html = '', count = 0, urgent = false;
   const group = (title, inner) => { if (inner) html += '<div class="ti-group"><div class="ti-head">' + esc(title) + '</div>' + inner + '</div>'; };
   const item = (color, text, extra) => '<div class="ti-item"><span class="ti-dot" style="background:' + color + '"></span><span class="ti-text">' + text + '</span>' + (extra || '') + '</div>';
+  // Overflow that actually expands: first `limit` rows visible, the rest in a
+  // hidden block behind a real button (the CC-touches group opens a modal;
+  // these are simpler and just unfold in place). `key` scopes the toggle id.
+  const withOverflow = (rowsArr, limit, key) => {
+    if (rowsArr.length <= limit) return rowsArr.join('');
+    const id = 'tiov-' + key;
+    return rowsArr.slice(0, limit).join('')
+      + '<div id="' + id + '" style="display:none">' + rowsArr.slice(limit).join('') + '</div>'
+      + '<div class="ti-more"><button class="ti-cta" type="button" onclick="toggleTiOverflow(\'' + id + '\', this, ' + (rowsArr.length - limit) + ')">Show ' + (rowsArr.length - limit) + ' more &darr;</button></div>';
+  };
 
   // 1. Installations (upcoming, not yet closed out)
   let installs = [];
@@ -2807,7 +2817,7 @@ async function loadAndRenderAddressables(me){
   if (missingDocs && missingDocs.available && missingDocs.items && missingDocs.items.length){
     const mdItems = missingDocs.items;
     count += mdItems.length;
-    const rows = mdItems.slice(0, 6).map(it => {
+    const rows = mdItems.map(it => {
       if (it.preventing_collections) urgent = true;
       const cust = it.customer ? tiCleanCust(it.customer) : null;
       const meta = [];
@@ -2818,9 +2828,8 @@ async function loadAndRenderAddressables(me){
       const badge = it.preventing_collections
         ? '<span class="ti-when" style="color:var(--red)">Blocking collections</span>' : '';
       return item(it.preventing_collections ? 'var(--red)' : 'var(--amber)', label + sub, badge);
-    }).join('');
-    group('Missing Docs (' + mdItems.length + ')',
-      rows + (mdItems.length > 6 ? '<div class="ti-more">+ ' + (mdItems.length - 6) + ' more</div>' : ''));
+    });
+    group('Missing Docs (' + mdItems.length + ')', withOverflow(rows, 6, 'md'));
   }
 
   // 5. Rep Responsible -- Project Track deals ON HOLD where the rep is the
@@ -2833,7 +2842,7 @@ async function loadAndRenderAddressables(me){
   if (repResp && repResp.available && repResp.on_hold_rep_caused && repResp.on_hold_rep_caused.length){
     const rr = repResp.on_hold_rep_caused;
     count += rr.length;
-    const rows = rr.slice(0, 6).map(it => {
+    const rows = rr.map(it => {
       const isC = it.track === 'C';
       if (isC) urgent = true;
       const days = it.business_days != null ? it.business_days + ' business day' + (it.business_days === 1 ? '' : 's') : null;
@@ -2845,9 +2854,9 @@ async function loadAndRenderAddressables(me){
       const label = '<b>' + esc(it.deal || 'Deal') + '</b> ' +
         '<span class="ti-when" style="color:' + (isC ? 'var(--red)' : 'var(--amber)') + '">Track ' + esc(it.track || '?') + (isC ? ' &middot; stopped' : '') + '</span>';
       return item(isC ? 'var(--red)' : 'var(--amber)', label + reason + sub, '');
-    }).join('');
+    });
     const head = 'Rep Responsible (' + rr.length + (repResp.track_c_count ? ', ' + repResp.track_c_count + ' on Track C' : '') + ')';
-    group(head, rows + (rr.length > 6 ? '<div class="ti-more">+ ' + (rr.length - 6) + ' more</div>' : ''));
+    group(head, withOverflow(rows, 6, 'rr'));
   }
 
   // 6. If the launcher could not be reached, the two groups above are UNKNOWN,
@@ -2866,6 +2875,14 @@ async function loadAndRenderAddressables(me){
     body.querySelectorAll('[data-resolve]').forEach(btn => btn.addEventListener('click', () => resolveAddressable(btn.dataset.resolve, me)));
   }
 }
+// Unfold / refold an overflow block built by withOverflow() above.
+function toggleTiOverflow(id, btn, n){
+  const el = document.getElementById(id); if (!el) return;
+  const open = el.style.display !== 'none';
+  el.style.display = open ? 'none' : '';
+  btn.innerHTML = open ? ('Show ' + n + ' more &darr;') : 'Show fewer &uarr;';
+}
+
 // ── Customer-touch actions (Constant Contact) in Top Action Items ──
 let TOUCH_DEALS = [];
 let _meToastT = null;
