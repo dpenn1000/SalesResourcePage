@@ -104,6 +104,40 @@
     else document.addEventListener('DOMContentLoaded', build);
   }
 
+  // ── Access denied UI ────────────────────────────────────
+  // Shown when a page declares window.REQUIRE_ROLE and the signed-in person
+  // does not meet it. Self-injected exactly like showSdkFatalError so no page
+  // needs its own markup. Never leaves a blank screen and always offers a way
+  // out, so a rep who follows a stale link is informed, not stranded.
+  function showAccessDenied(required, profile) {
+    if (document.getElementById('authGateDenied')) return;
+    var build = function () {
+      var o = document.createElement('div');
+      o.id = 'authGateDenied';
+      o.setAttribute('role', 'alert');
+      o.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;'
+        + 'align-items:center;justify-content:center;background:#0b1120;'
+        + 'font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px;';
+      var who = (profile && profile.name) ? String(profile.name) : '';
+      o.innerHTML =
+        '<div style="max-width:440px;text-align:center;color:#e8ecf4;'
+        + 'background:#131c2e;border:1px solid #29384f;border-radius:16px;padding:32px 28px;">'
+        + '<div style="font-size:13px;font-weight:700;color:#78C832;letter-spacing:.06em;'
+        + 'text-transform:uppercase;margin-bottom:12px;">Current</div>'
+        + '<div style="font-size:18px;font-weight:700;margin-bottom:8px;">This page is not available to you</div>'
+        + '<div style="font-size:14px;line-height:1.55;color:#a9b6cc;margin-bottom:20px;">'
+        + (who ? ('Signed in as ' + who.replace(/[<>&]/g, '') + '. ') : '')
+        + 'This tool is limited to ' + (required === 'admin' ? 'administrators' : 'managers') + '. '
+        + 'If you think you should have access, ask your manager.</div>'
+        + '<a href="/me/" style="display:inline-block;background:#78C832;color:#0b1120;'
+        + 'text-decoration:none;border-radius:10px;padding:11px 22px;font-size:14px;'
+        + 'font-weight:700;">Go to My Page</a></div>';
+      document.body.appendChild(o);
+    };
+    if (document.body) build();
+    else document.addEventListener('DOMContentLoaded', build);
+  }
+
   // ── Resilient SDK bootstrap ──────────────────────────────────────────
   // Happy path: the page already loaded supabase-js (its own <script> tag),
   // so done(true) fires synchronously and the gate starts with identical
@@ -567,6 +601,30 @@
       window.AUTH_IS_NATIONAL = !!profile.is_national; // true => sees all states (VP/admin)
       window.AUTH_PROFILE = profile;
       window.AUTH_SESSION = session;
+
+      // Per-page role requirement. A page opts in by setting
+      // window.REQUIRE_ROLE = 'manager' | 'admin' BEFORE this script loads.
+      // Absent => no requirement, which keeps every existing page unchanged.
+      // This is the ONLY place the check lives: hiding a nav item or a <div>
+      // is cosmetic, and until this landed a rep could open admin.html and get
+      // the full shell. Note this stops the SURFACE being served, it is not the
+      // security boundary -- RLS and the SECURITY DEFINER RPCs are.
+      var required = window.REQUIRE_ROLE || null;
+      if (required) {
+        var isMgr = profile.kind === 'manager';
+        var ok = (required === 'admin') ? !!profile.is_admin
+               : (required === 'manager') ? (isMgr || !!profile.is_admin)
+               : true;
+        if (!ok) {
+          showOnly('');            // reveal nothing
+          showAccessDenied(required, profile);
+          try {
+            trackEvent('access_denied', { required: required, kind: profile.kind });
+          } catch (e) {}
+          return;                  // never call initApp for a denied page
+        }
+      }
+
       showOnly('appWrap');
 
       // Consistent site-wide quick-nav (My Page / Admin / Resources), injected

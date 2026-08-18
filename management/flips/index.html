@@ -7,7 +7,12 @@
 <title>Flips Tracker</title>
 <link rel="stylesheet" href="/auth-gate.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
-<script src="/auth-gate.js"></script>
+<!-- Manager+ only. The old comment here claimed auth-gate.js ran a role
+       check after sign-in; it did not. This page reads and WRITES flips
+       (insert/update/delete) with no client guard, so the declaration is
+       the surface gate and RLS remains the real boundary. -->
+  <script>window.REQUIRE_ROLE = 'manager';</script>
+  <script src="/auth-gate.js"></script>
 <script src="/site-back.js" defer></script>
 <style>
   :root {

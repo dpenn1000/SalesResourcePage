@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Current | Command Center</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
+  <!-- Manager+ only. auth-gate.js enforces this centrally: it refuses to
+       call initApp and shows a denial screen for anyone below the bar.
+       Admin-only surfaces INSIDE the page stay gated on window.IS_ADMIN. -->
+  <script>window.REQUIRE_ROLE = 'manager';</script>
   <script src="/auth-gate.js"></script>
   <!-- Canonical states/offices/departments/positions. Generated from
        Apps/markets.json + Apps/org.json by scripts/sync_org_config.py. -->
