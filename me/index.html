@@ -2389,52 +2389,115 @@ function renderMePerf(d){
   const _headScope = (_win.from && _win.to) ? ('all deals ' + _fmtW(_win.from, _crossYear) + ' to ' + _fmtW(_win.to, _crossYear)) : 'latest synced data';
   const _clubW = d.sales_club || {};
   const _clubScope = _clubW.quarter_label ? (esc(_clubW.quarter_label) + (_clubW.is_final ? ' (final)' : ' to date')) : 'this quarter to date';
-  const scopeCaption = '<div class="metrics-scope"><b>Contracts, kW, PPA:</b> latest Performance Dashboard data (' + esc(_headScope) + '). <b>Sales Club:</b> ' + _clubScope + '.</div>';
+  // The caption is the only place the two windows are stated together, so it
+  // is built from what the payload ACTUALLY carried rather than from what this
+  // page hoped for -- a caption that names a source the tiles did not use is
+  // how "as of Jul 7" sat under live-looking numbers for six weeks.
+  const _mmWin = (d.me_month && d.me_month.window) || null;
+  const _volScope = _mmWin
+    ? ('this month (' + _fmtW(_mmWin.from, false) + ' to ' + _fmtW(_mmWin.to, false) + ', live)')
+    : ('latest Performance Dashboard data (' + esc(_headScope) + ')');
+  const _rateScope = (d.appt_rates && d.appt_rates.available)
+    ? 'rolling 90 days, live from the appointment grain'
+    : 'Performance Dashboard funnel';
+  const scopeCaption = '<div class="metrics-scope">'
+    + '<b>Contracts, kW, PPA, Self-Gen:</b> ' + _volScope + '. '
+    + '<b>Close, Sit, Go-Back:</b> ' + _rateScope + '. '
+    + '<b>Sales Club:</b> ' + _clubScope + '.</div>';
   $('metricsPill').textContent = (d.percentile_contracts != null ? 'top ' + Math.max(1, 100 - d.percentile_contracts) + '%' : 'live');
   $('metricsPill').className = 'section-pill green';
   $('metricsPill').style.background = '';
   $('metricsPill').style.color = '';
   // Freshness guard: if the data window's end is more than 3 days old, flag it
   // amber with the as-of date so staleness is visible instead of silently trusted.
-  if (_win.to) {
-    var _ageDays = Math.floor((Date.now() - new Date(String(_win.to) + 'T00:00:00').getTime()) / 86400000);
+  // Judge freshness on the window the TILES used, not on the export's span --
+  // once the volume tiles are live, the export's staleness is no longer their
+  // staleness and flagging it would be the mirror of the old lie.
+  var _freshTo = _mmWin ? _mmWin.to : _win.to;
+  if (_freshTo) {
+    var _ageDays = Math.floor((Date.now() - new Date(String(_freshTo) + 'T00:00:00').getTime()) / 86400000);
     if (_ageDays > 3) {
-      $('metricsPill').textContent = 'as of ' + _fmtW(_win.to);
+      $('metricsPill').textContent = 'as of ' + _fmtW(_freshTo);
       $('metricsPill').className = 'section-pill';
       $('metricsPill').style.background = 'var(--amber, #F5A623)';
       $('metricsPill').style.color = '#1A2332';
     }
   }
 
+  // ── THE REWIRED BLOCKS (2026-08-18) ───────────────────────────────────────
+  // Each is preferred when live and falls back to the store payload otherwise,
+  // so this page keeps working on a launcher that has not restarted yet.
+  //
+  // TWO WINDOWS ON ONE GRID, and they are labelled per tile because they are
+  // genuinely different questions (Dan's calls, 2026-08-18):
+  //   this month   Contracts / kW / Avg PPA / Self-Gen   (spine)
+  //   last 90 days Close / Sit / Go-Back                 (appointment grain)
+  // A month of appointments is a handful for most reps, which is why the rate
+  // tiles run on 90 days and carry their SAMPLE instead of a peer rank.
+  const mm  = (d.me_month    && d.me_month.available)    ? d.me_month    : null;
+  const ar  = (d.appt_rates  && d.appt_rates.available)  ? d.appt_rates  : null;
+  const R   = mm ? (mm.rep || {}) : r;
+  const RK  = mm ? (mm.ranks || {}) : ranks;
+  const TA  = mm ? (mm.team_avg || {}) : ta;
+  // The store calls it `ppa`, the spine calls it `avg_ppa`. One name each side,
+  // reconciled here rather than in four places below.
+  const rkPpa = mm ? RK.avg_ppa : ranks.ppa;
+  const WIN_MONTH = mm ? ' \u00b7 this month' : '';
+  const WIN_90    = ' \u00b7 last 90 days';
+  const withWin = (txt, tag) => (txt ? txt + tag : tag.replace(/^ \u00b7 /, ''));
+
   const tiles = [];
-  tiles.push(metric('Contracts', fmtNum(r.contracts) + rankTxt(ranks.contracts),
-    ta.contracts != null ? 'team avg ' + Number(ta.contracts).toFixed(1) : '', teamColor(r.contracts, ta.contracts)));
-  tiles.push(metric('kW Sold', (r.kw != null ? Number(r.kw).toFixed(1) : '--') + rankTxt(ranks.kw),
-    ta.kw != null ? 'team avg ' + Number(ta.kw).toFixed(1) : '', teamColor(r.kw, ta.kw)));
-  tiles.push(metric('Avg PPA', (r.avg_ppa != null ? '$' + Number(r.avg_ppa).toFixed(4) : '--') + rankTxt(ranks.ppa),
-    ta.avg_ppa != null ? 'team ' + Number(ta.avg_ppa).toFixed(4) : '', teamColor(r.avg_ppa, ta.avg_ppa)));
+  tiles.push(metric('Contracts', fmtNum(R.contracts) + rankTxt(RK.contracts),
+    withWin(TA.contracts != null ? 'team avg ' + Number(TA.contracts).toFixed(1) : '', WIN_MONTH),
+    teamColor(R.contracts, TA.contracts)));
+  tiles.push(metric('kW Sold', (R.kw != null ? Number(R.kw).toFixed(1) : '--') + rankTxt(RK.kw),
+    withWin(TA.kw != null ? 'team avg ' + Number(TA.kw).toFixed(1) : '', WIN_MONTH),
+    teamColor(R.kw, TA.kw)));
+  // AVG PPA: a rate under the state floor is a COMPLIANCE line, not a coaching
+  // nudge (Dan, 2026-08-18). The page used to frame it only as "under team
+  // average", which is the same number saying much less.
+  const _floor = mm && mm.ppa_floor ? mm.ppa_floor : null;
+  const _below = !!(_floor && _floor.below_floor);
+  tiles.push(metric('Avg PPA',
+    (R.avg_ppa != null ? '$' + Number(R.avg_ppa).toFixed(4) : '--') + rankTxt(rkPpa),
+    _below
+      ? 'below the $' + Number(_floor.floor).toFixed(2) + ' floor' + WIN_MONTH
+      : withWin(TA.avg_ppa != null ? 'team ' + Number(TA.avg_ppa).toFixed(4) : '', WIN_MONTH),
+    _below ? 'red' : teamColor(R.avg_ppa, TA.avg_ppa)));
   // close_rate / sit_rate are stored as whole-number percents (e.g. 52.9), the
   // same form the Performance Dashboard shows. Render rank + team comparison only
   // when present, so the tiles degrade to a bare value before the launcher restart
   // (ranks.close_rate / team_avg.sit_rate absent on older payloads).
-  if (r.close_rate != null) {
-    tiles.push(metric('Close Rate', Number(r.close_rate).toFixed(1) + '%' + rankTxt(ranks.close_rate),
-      ta.close_rate != null ? 'team avg ' + Number(ta.close_rate).toFixed(1) + '%' : '', teamColor(r.close_rate, ta.close_rate)));
-  }
-  if (r.sit_rate != null) {
-    tiles.push(metric('Sit Rate', Number(r.sit_rate).toFixed(1) + '%' + rankTxt(ranks.sit_rate),
-      ta.sit_rate != null ? 'team avg ' + Number(ta.sit_rate).toFixed(1) + '% (PowerBI funnel)' : 'PowerBI sit rate', teamColor(r.sit_rate, ta.sit_rate)));
+  if (ar) {
+    // NO RANK on these two, deliberately. Ranking a rep on a handful of
+    // appointments is noise wearing a number, and the sample IS the context --
+    // "1 of 4 sat" tells a rep more than "#18 of 26" ever did.
+    tiles.push(metric('Close Rate',
+      (ar.close_rate != null ? Number(ar.close_rate).toFixed(1) + '%' : '--'),
+      (ar.sat ? ar.signed + ' of ' + ar.sat + ' sat' : 'no sits yet') + WIN_90, ''));
+    tiles.push(metric('Sit Rate',
+      (ar.sit_rate != null ? Number(ar.sit_rate).toFixed(1) + '%' : '--'),
+      (ar.ran ? ar.sat + ' of ' + ar.ran + ' ran' : 'no appointments yet') + WIN_90, ''));
+  } else {
+    if (r.close_rate != null) {
+      tiles.push(metric('Close Rate', Number(r.close_rate).toFixed(1) + '%' + rankTxt(ranks.close_rate),
+        ta.close_rate != null ? 'team avg ' + Number(ta.close_rate).toFixed(1) + '%' : '', teamColor(r.close_rate, ta.close_rate)));
+    }
+    if (r.sit_rate != null) {
+      tiles.push(metric('Sit Rate', Number(r.sit_rate).toFixed(1) + '%' + rankTxt(ranks.sit_rate),
+        ta.sit_rate != null ? 'team avg ' + Number(ta.sit_rate).toFixed(1) + '% (PowerBI funnel)' : 'PowerBI sit rate', teamColor(r.sit_rate, ta.sit_rate)));
+    }
   }
   // Self-Gen %: share of your deals you generated yourself. The value computes
   // client-side now (self_gen / contracts); rank + team comparison arrive with
   // the launcher restart. Higher is better -- self-gen carries the pay adder and
   // is the lead-economics signal leadership rewards.
-  var sgPct = (r.self_gen_pct != null) ? r.self_gen_pct
-            : (r.contracts ? Math.round(100 * (r.self_gen || 0) / r.contracts) : null);
+  var sgPct = (R.self_gen_pct != null) ? R.self_gen_pct
+            : (R.contracts ? Math.round(100 * (R.self_gen || 0) / R.contracts) : null);
   if (sgPct != null) {
-    tiles.push(metric('Self-Gen %', sgPct + '%' + rankTxt(ranks.self_gen_pct),
-      ta.self_gen_pct != null ? 'team avg ' + Math.round(ta.self_gen_pct) + '%' : 'self-generated share',
-      teamColor(sgPct, ta.self_gen_pct)));
+    tiles.push(metric('Self-Gen %', sgPct + '%' + rankTxt(RK.self_gen_pct),
+      withWin(TA.self_gen_pct != null ? 'team avg ' + Math.round(TA.self_gen_pct) + '%' : '', WIN_MONTH),
+      teamColor(sgPct, TA.self_gen_pct)));
   }
   // Book -> OnePay, exclusively (Dan, 2026-08-17). OnePay is the system of
   // record for commissions and the book; this tile used to tap-open a balance
@@ -2447,7 +2510,7 @@ function renderMePerf(d){
     + '</a>',
     'commissions & book, live in OnePay', ''));
   // ── Go-Back conversion (appointment/lead layer; only when there's recent volume) ──
-  const gb = d.go_back;
+  const gb = (d.go_back_live && d.go_back_live.available) ? d.go_back_live : d.go_back;
   if (gb && gb.run > 0) {
     const headline = (gb.rate != null ? gb.rate + '%' : '--');
     const days = gb.window_days || 90;
