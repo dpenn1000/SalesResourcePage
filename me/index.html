@@ -2690,25 +2690,27 @@ function estInstallComm(amount, kw, leadSource){
 // Top Action Items: the rep's operational to-do hub. Aggregates upcoming
 // installations, Constant Contact touches due, manager action items, and
 // placeholders for reports not wired up yet (Missing Docs, Rep Responsible).
-// Missing Docs card data: /api/me/perf (own) or /api/rep/perf?slug= (view-as)
-// already carries a `missing_docs` block (server/perf.py, added 2026-08-17,
-// same "added beside the payload" shape as the live spine strip) -- a second
-// hit to that endpoint, independent of loadMePerfLive's own call, so this
-// loader stays self-contained the way every Promise.allSettled lane in
-// initApp already is. Returns null on any failure; the group just omits.
-async function _fetchMissingDocs(me){
+// Action-center blocks off the perf payload: /api/me/perf (own) or
+// /api/rep/perf?slug= (view-as) carries `missing_docs` (server/perf.py) and
+// `rep_responsible` (analytics_store me_perf), both added 2026-08-17 in the
+// same "added beside the payload" shape as the live spine strip. ONE second
+// hit to that endpoint for both, independent of loadMePerfLive's own call,
+// so this loader stays self-contained the way every Promise.allSettled lane
+// in initApp already is. Returns {} on any failure; the groups just omit.
+async function _fetchActionBlocks(me){
   try {
     const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
-    if (!token) return null;
+    if (!token) return {};
     const url = IS_VIEW_AS
       ? (LAUNCHER_BASE + '/api/rep/perf?slug=' + encodeURIComponent(me.spd_slug))
       : (LAUNCHER_BASE + '/api/me/perf');
     const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
-    if (!res.ok) return null;
+    if (!res.ok) return {};
     const d = await res.json();
-    return (d && d.missing_docs) || null;
+    if (!d) return {};
+    return { missing_docs: d.missing_docs || null, rep_responsible: d.rep_responsible || null };
   } catch (e) {
-    return null;
+    return {};
   }
 }
 
@@ -2716,15 +2718,17 @@ async function loadAndRenderAddressables(me){
   const body = $('addrBody');
   window._meCtx = me;
   const today = new Date().toISOString().slice(0, 10);
-  const [dpRes, tcRes, addrRes, disRes, missingDocs] = await Promise.all([
+  const [dpRes, tcRes, addrRes, disRes, blocks] = await Promise.all([
     me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,ahj_township,product_category,lead_source,amount,system_kw,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
     me.name ? sb.from('deal_touches').select('dl_number,touch_key') : Promise.resolve({ data: [] }),
     me.id   ? sb.from('rep_addressables').select('id,title,body,priority,due_date,created_at').eq('rep_id', me.id).eq('status', 'open') : Promise.resolve({ data: [] }),
     me.id   ? sb.from('rep_action_dismissals').select('item_key').eq('rep_id', me.id) : Promise.resolve({ data: [] }),
-    _fetchMissingDocs(me)
+    _fetchActionBlocks(me)
   ]);
   const deals = dpRes.data || [], touches = tcRes.data || [], addr = addrRes.data || [];
   const dismissed = new Set((disRes.data || []).map(r => r.item_key));
+  const missingDocs = (blocks || {}).missing_docs || null;
+  const repResp = (blocks || {}).rep_responsible || null;
 
   let html = '', count = 0, urgent = false;
   const group = (title, inner) => { if (inner) html += '<div class="ti-group"><div class="ti-head">' + esc(title) + '</div>' + inner + '</div>'; };
@@ -2811,8 +2815,32 @@ async function loadAndRenderAddressables(me){
       rows + (mdItems.length > 6 ? '<div class="ti-more">+ ' + (mdItems.length - 6) + ' more</div>' : ''));
   }
 
-  // 5. Rep Responsible -- not wired up yet.
-  group('Rep Responsible', '<div class="ti-item ti-soon"><span class="ti-dot" style="background:var(--text3)"></span><span class="ti-text">Coming soon. No report wired up yet.</span></div>');
+  // 5. Rep Responsible -- Project Track deals ON HOLD where the rep is the
+  // responsible party. Track C = STOPPED pending an electrical/structural
+  // review (red); Track B = slowed, build keeps moving (amber). Sorted server-
+  // side: C first, then longest-sitting. The reason text is the export's own
+  // "Rep Responsible / Under Rep Control" field, verbatim -- that's the
+  // actionable part ("Missing All Photos; Site Capture Not Used"), so it is
+  // shown, not summarized. Same silent-omit-when-empty convention as above.
+  if (repResp && repResp.available && repResp.on_hold_rep_caused && repResp.on_hold_rep_caused.length){
+    const rr = repResp.on_hold_rep_caused;
+    count += rr.length;
+    const rows = rr.slice(0, 6).map(it => {
+      const isC = it.track === 'C';
+      if (isC) urgent = true;
+      const days = it.business_days != null ? it.business_days + ' business day' + (it.business_days === 1 ? '' : 's') : null;
+      const meta = [];
+      if (days) meta.push(days);
+      if (it.ops_responsible) meta.push('Ops: ' + esc(it.ops_responsible));
+      const reason = it.reason ? '<div class="ti-sub">' + esc(it.reason) + '</div>' : '';
+      const sub = meta.length ? '<div class="ti-sub">' + meta.join(' &middot; ') + '</div>' : '';
+      const label = '<b>' + esc(it.deal || 'Deal') + '</b> ' +
+        '<span class="ti-when" style="color:' + (isC ? 'var(--red)' : 'var(--amber)') + '">Track ' + esc(it.track || '?') + (isC ? ' &middot; stopped' : '') + '</span>';
+      return item(isC ? 'var(--red)' : 'var(--amber)', label + reason + sub, '');
+    }).join('');
+    const head = 'Rep Responsible (' + rr.length + (repResp.track_c_count ? ', ' + repResp.track_c_count + ' on Track C' : '') + ')';
+    group(head, rows + (rr.length > 6 ? '<div class="ti-more">+ ' + (rr.length - 6) + ' more</div>' : ''));
+  }
 
   $('addrPill').textContent = count > 0 ? count + ' to do' : 'all clear';
   $('addrPill').className = 'section-pill ' + (urgent ? 'red' : (count > 0 ? 'amber' : 'green'));
