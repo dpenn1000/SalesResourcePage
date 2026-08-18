@@ -149,6 +149,22 @@
   .metric.amber { background: var(--amber-bg); border-color: var(--amber); }
   .metric.red   { background: var(--red-bg);   border-color: var(--red); }
   .metric-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); }
+  /* Book tile -> the OnePay wordmark. OnePay is the system of record for
+     commissions and the book; this tile is a DOOR, never a rival number
+     (Dan, 2026-08-17, and the One* apps rule: align and credit, do not rival).
+     The logo replaces the text link because a brand mark is recognised faster
+     than a label a rep has to read.
+
+     THE IMAGE IS ALLOWED TO BE MISSING. `.onepay-logo + .book-fallback` hides
+     the text only while the image is present; onerror REMOVES the image, the
+     sibling selector stops matching, and the original "Open OnePay" link text
+     appears in its place. So a 404 on the asset costs the logo, never the door
+     -- which matters because this file deploys to GitHub Pages independently of
+     whether the PNG landed. */
+  .book-link { display: inline-flex; align-items: center; text-decoration: none; }
+  .onepay-logo { height: 30px; width: auto; max-width: 100%; display: block; }
+  .onepay-logo + .book-fallback { display: none; }
+  .book-fallback { font-size: 15px; font-weight: 800; color: var(--blue, #29A9E1); }
   .metric-value { font-size: 22px; font-weight: 800; color: var(--text); margin-top: 2px; letter-spacing: -0.01em; line-height: 1.1; }
   .metric-sub   { font-size: 11px; color: var(--text2); margin-top: 3px; font-weight: 500; }
   .metric-sub.up   { color: var(--green-dk); }
@@ -2051,7 +2067,10 @@ async function loadMetricsSnapshot(me){
 
   // Book -> OnePay, exclusively (same as the live path; see renderMePerf).
   tiles.push(metric('Book',
-    '<a class="book-link" href="https://onepay.trinity-solar.com" target="_blank" rel="noopener" style="font-size:15px;text-decoration:none;color:var(--blue,#29A9E1);font-weight:800">Open OnePay &rarr;</a>',
+    '<a class="book-link" href="https://onepay.trinity-solar.com" target="_blank" rel="noopener" aria-label="Open OnePay">'
+    + '<img class="onepay-logo" src="/forms/onepay-logo.png" alt="OnePay" onerror="this.remove()">'
+    + '<span class="book-fallback">Open OnePay &rarr;</span>'
+    + '</a>',
     'commissions & book, live in OnePay', ''));
 
   if (data.track_assessment) {
@@ -2422,7 +2441,10 @@ function renderMePerf(d){
   // derived from the export's book entries -- a stale, rival number. Now it is
   // a door, always shown, no local figure. Honour the One* apps, don't rival them.
   tiles.push(metric('Book',
-    '<a class="book-link" href="https://onepay.trinity-solar.com" target="_blank" rel="noopener" style="font-size:15px;text-decoration:none;color:var(--blue,#29A9E1);font-weight:800">Open OnePay &rarr;</a>',
+    '<a class="book-link" href="https://onepay.trinity-solar.com" target="_blank" rel="noopener" aria-label="Open OnePay">'
+    + '<img class="onepay-logo" src="/forms/onepay-logo.png" alt="OnePay" onerror="this.remove()">'
+    + '<span class="book-fallback">Open OnePay &rarr;</span>'
+    + '</a>',
     'commissions & book, live in OnePay', ''));
   // ── Go-Back conversion (appointment/lead layer; only when there's recent volume) ──
   const gb = d.go_back;
