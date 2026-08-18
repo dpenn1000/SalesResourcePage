@@ -2346,8 +2346,14 @@ function renderMePerf(d){
   window._meClubTier = clubTierCode(club.current_tier);
   const rankTxt = (x) => x ? rankHtml(x.rank, x.of) : '';
   const _win = d.data_window || {};
-  const _fmtW = (s) => { try { return new Date(String(s) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); } catch (e) { return String(s); } };
-  const _headScope = (_win.from && _win.to) ? (_fmtW(_win.from) + ' to ' + _fmtW(_win.to)) : 'latest synced data';
+  // The window is the export's WHOLE span (career-to-date for most reps), which
+  // routinely crosses a year boundary -- "Aug 8 to Jul 7" without years read
+  // as backwards on the live page (Dan, 2026-08-17). Show the year when the two
+  // ends differ, and name it for what it is.
+  const _yr = (s) => { try { return new Date(String(s) + 'T00:00:00').getFullYear(); } catch (e) { return null; } };
+  const _fmtW = (s, withYear) => { try { return new Date(String(s) + 'T00:00:00').toLocaleDateString('en-US', withYear ? { month: 'short', day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric' }); } catch (e) { return String(s); } };
+  const _crossYear = _win.from && _win.to && _yr(_win.from) !== _yr(_win.to);
+  const _headScope = (_win.from && _win.to) ? ('all deals ' + _fmtW(_win.from, _crossYear) + ' to ' + _fmtW(_win.to, _crossYear)) : 'latest synced data';
   const _clubW = d.sales_club || {};
   const _clubScope = _clubW.quarter_label ? (esc(_clubW.quarter_label) + (_clubW.is_final ? ' (final)' : ' to date')) : 'this quarter to date';
   const scopeCaption = '<div class="metrics-scope"><b>Contracts, kW, PPA:</b> latest Performance Dashboard data (' + esc(_headScope) + '). <b>Sales Club:</b> ' + _clubScope + '.</div>';
