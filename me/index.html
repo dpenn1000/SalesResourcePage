@@ -2690,15 +2690,38 @@ function estInstallComm(amount, kw, leadSource){
 // Top Action Items: the rep's operational to-do hub. Aggregates upcoming
 // installations, Constant Contact touches due, manager action items, and
 // placeholders for reports not wired up yet (Missing Docs, Rep Responsible).
+// Missing Docs card data: /api/me/perf (own) or /api/rep/perf?slug= (view-as)
+// already carries a `missing_docs` block (server/perf.py, added 2026-08-17,
+// same "added beside the payload" shape as the live spine strip) -- a second
+// hit to that endpoint, independent of loadMePerfLive's own call, so this
+// loader stays self-contained the way every Promise.allSettled lane in
+// initApp already is. Returns null on any failure; the group just omits.
+async function _fetchMissingDocs(me){
+  try {
+    const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
+    if (!token) return null;
+    const url = IS_VIEW_AS
+      ? (LAUNCHER_BASE + '/api/rep/perf?slug=' + encodeURIComponent(me.spd_slug))
+      : (LAUNCHER_BASE + '/api/me/perf');
+    const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
+    if (!res.ok) return null;
+    const d = await res.json();
+    return (d && d.missing_docs) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function loadAndRenderAddressables(me){
   const body = $('addrBody');
   window._meCtx = me;
   const today = new Date().toISOString().slice(0, 10);
-  const [dpRes, tcRes, addrRes, disRes] = await Promise.all([
+  const [dpRes, tcRes, addrRes, disRes, missingDocs] = await Promise.all([
     me.name ? sb.from('deal_progress').select('dl_number,stage_num,customer_name,ahj_township,product_category,lead_source,amount,system_kw,install_start_date,battery_install_date,roofing_install_date').eq('salesperson', me.name) : Promise.resolve({ data: [] }),
     me.name ? sb.from('deal_touches').select('dl_number,touch_key') : Promise.resolve({ data: [] }),
     me.id   ? sb.from('rep_addressables').select('id,title,body,priority,due_date,created_at').eq('rep_id', me.id).eq('status', 'open') : Promise.resolve({ data: [] }),
-    me.id   ? sb.from('rep_action_dismissals').select('item_key').eq('rep_id', me.id) : Promise.resolve({ data: [] })
+    me.id   ? sb.from('rep_action_dismissals').select('item_key').eq('rep_id', me.id) : Promise.resolve({ data: [] }),
+    _fetchMissingDocs(me)
   ]);
   const deals = dpRes.data || [], touches = tcRes.data || [], addr = addrRes.data || [];
   const dismissed = new Set((disRes.data || []).map(r => r.item_key));
@@ -2763,8 +2786,32 @@ async function loadAndRenderAddressables(me){
     group('From Your Manager', rows);
   }
 
-  // 4-5. Reports not wired up yet -- placeholders so the structure is visible.
-  group('Missing Docs', '<div class="ti-item ti-soon"><span class="ti-dot" style="background:var(--text3)"></span><span class="ti-text">Coming soon. No report wired up yet.</span></div>');
+  // 4. Missing Docs -- open action_item rows carrying a real Missing_Document__c
+  // category (No Bill, Missing Signature, ACH, Front of Home, ...), server-sorted
+  // collections-blocking first. Silently omitted (not "coming soon") when
+  // unavailable or empty -- same convention as Installations/CC-touches above,
+  // and this genuinely IS wired now, just may have nothing to show for this rep
+  // yet (no confirmed sf_contact identity, or truly zero open items).
+  if (missingDocs && missingDocs.available && missingDocs.items && missingDocs.items.length){
+    const mdItems = missingDocs.items;
+    count += mdItems.length;
+    const rows = mdItems.slice(0, 6).map(it => {
+      if (it.preventing_collections) urgent = true;
+      const cust = it.customer ? tiCleanCust(it.customer) : null;
+      const meta = [];
+      if (it.days_outstanding != null) meta.push(it.days_outstanding + 'd outstanding');
+      if (it.status) meta.push(esc(it.status));
+      const sub = meta.length ? '<div class="ti-sub">' + meta.join(' &middot; ') + '</div>' : '';
+      const label = (cust ? '<b>' + esc(cust) + '</b> ' : '') + esc(it.category || 'Missing item');
+      const badge = it.preventing_collections
+        ? '<span class="ti-when" style="color:var(--red)">Blocking collections</span>' : '';
+      return item(it.preventing_collections ? 'var(--red)' : 'var(--amber)', label + sub, badge);
+    }).join('');
+    group('Missing Docs (' + mdItems.length + ')',
+      rows + (mdItems.length > 6 ? '<div class="ti-more">+ ' + (mdItems.length - 6) + ' more</div>' : ''));
+  }
+
+  // 5. Rep Responsible -- not wired up yet.
   group('Rep Responsible', '<div class="ti-item ti-soon"><span class="ti-dot" style="background:var(--text3)"></span><span class="ti-text">Coming soon. No report wired up yet.</span></div>');
 
   $('addrPill').textContent = count > 0 ? count + ' to do' : 'all clear';
