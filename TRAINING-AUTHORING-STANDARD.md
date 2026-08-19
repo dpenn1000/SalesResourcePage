@@ -36,29 +36,29 @@ Four research findings drive every rule below. Know the why so you can make good
 
 ---
 
-## 3. Pillar 1 — Content and design semantics
+## 3. Pillar 1: Content and design semantics
 
 - **No walls of text.** Chunk into steps, lists, or comparison grids. A paragraph over ~3 sentences is a smell.
 - **Bold the first 2 to 4 words of every bullet.** That's the left stem of the F-pattern. Make those words carry the meaning, not filler.
 - **Front-load headings and sentences.** Lead with the noun that matters. "Quitclaim deeds transfer..." beats "There is a type of deed that...".
 - **Use semantic anchors, not generic divs,** so the meaning is in the markup:
-  - `<aside class="objection-handling">` — a customer pushback and the counter-strategy.
-  - `<blockquote class="script-example">` — exact words to say, verbatim.
-  - `<div class="metric-callout">` — a number, ratio, or win-rate worth isolating.
+  - `<aside class="objection-handling">`: a customer pushback and the counter-strategy.
+  - `<blockquote class="script-example">`: exact words to say, verbatim.
+  - `<div class="metric-callout">`: a number, ratio, or win-rate worth isolating.
 
 ---
 
-## 4. Pillar 2 — Structure and maintenance (theme-agnostic)
+## 4. Pillar 2: Structure and maintenance (theme-agnostic)
 
 - **Flat markup.** No deep wrapper nesting. A section holds its components directly. If you have a div wrapping a div wrapping a div, collapse it.
 - **Zero inline styles.** Never `style="..."`. Every visual decision lives in a class. This is non-negotiable; it's what makes theming and Presenter Mode possible.
 - **Structural component classes only.** Name by *what it is*, not what it looks like: `training-card`, `step-grid`, `recall-check`. Never `blue-box` or `mt-24`.
-- **Target architecture: one shared stylesheet.** The end state is a single `/training-system.css` holding design tokens + all component classes, linked by every page. Pages become pure semantic HTML. *(Interim: pages may carry an embedded `<style>` block until the shared sheet is extracted, but the class names must already match this standard so extraction is a lift-and-shift.)*
+- **One shared stylesheet, linked not inlined.** `/training-system.css` holds the design tokens and every component class. A page links it and is otherwise pure semantic HTML; its own `<style>` block holds only rules that exist nowhere else. *(The old "interim: pages may carry an embedded `<style>` block" allowance is closed. The reference page carried its own copy and quietly fell behind the sheet extracted from it, missing a layout fix for months.)*
 - **Tokens, not literals.** Color, spacing, and radius come from CSS custom properties (`--ink`, `--space-3`). A theme change edits tokens, nothing else.
 
 ---
 
-## 5. Pillar 3 — Spacing and layout (the slide model)
+## 5. Pillar 3: Spacing and layout (the slide model)
 
 Every module is a **slide.** Think PowerPoint: one objective, filling the screen, readable across a room. This serves the meeting use case *and* makes the page a faster reference, because the answer is one nav-click away and already framed on screen.
 
@@ -73,7 +73,7 @@ Every module is a **slide.** Think PowerPoint: one objective, filling the screen
 
 ---
 
-## 6. Pillar 4 — Retention and modes (one source, four jobs)
+## 6. Pillar 4: Retention and modes (one source, four jobs)
 
 The same page serves four settings: **in-home lookup, solo study, manager-led meeting (wide screen), and mobile.** Content is authored once; *mode* is a presentation concern, never duplicated content. The page is a **slide deck** (Section 5); Reading mode and Presenter mode are two render states of that one deck.
 
@@ -141,7 +141,7 @@ Modifiers use a suffix: `callout--compliance`, `training-card--warn`. Never a se
 ## 9. Required page skeleton
 
 ```
-<head> … design tokens + components (interim: embedded <style>; target: <link> shared sheet) …
+<head> … <link rel="stylesheet" href="/training-system.css">  (tokens + components) …
         auth-gate.css + supabase + auth-gate.js + site-back.js, meta robots noindex
 <body>
   loginScreen / changePasswordScreen / appWrap   (auth gate, unchanged)
@@ -155,8 +155,33 @@ Modifiers use a suffix: `callout--compliance`, `training-card--warn`. Never a se
   initApp(profile, session)   (required no-op for auth-gate)
 ```
 
-- **No em dashes anywhere.** Use `--` or restructure. (Per Voice_General.)
+- **No em dashes anywhere, and no `--` either.** Rewrite with a comma, colon, period, or
+  parentheses. The older "substitute `--`" rule is retired: it traded one tic for another.
+  (This file was itself stripped of 7 em dashes on 2026-07-27; all seven wanted a colon.)
 - **One `<h1>` per page.** Modules use `<h2>`, sub-points `<h3>`.
+
+**Link the shared sheet, never inline it.** A page's own `<style>` block holds only rules
+that exist nowhere else. The embedded-copy pattern is retired: `titlework.html` carried its
+own copy of the whole system and quietly fell behind the sheet it was extracted from, missing
+the site-nav clearance fix for months. If you need a component, add it to
+`training-system.css` so every page gets it.
+
+**When you rebuild a page, converge its tokens.** Add `data-tokens="platform"` to the `<html>`
+tag and declare nothing:
+
+```html
+<html lang="en" data-tokens="platform">
+```
+
+That swaps the 13 tokens still holding pre-platform values (`--green`, `--blue`, `--amber`,
+`--red`, `--surface`, `--text`, `--space-1` to `--space-4`, `--r-sm`, `--shadow`) for the
+platform standard. Full rationale in the CONVERGENCE OPT-IN block at the top of
+`training-system.css`.
+
+This is **not** a drop-in. The spacing steps roughly double, so a converged page runs about
+14% taller (measured range 3% to 25%). Do it on a page you are already rebuilding and check
+the layout, never on one you are just passing through. Never converge by redeclaring those
+tokens in the page: that recreates the per-page palette this standard exists to prevent.
 
 ---
 

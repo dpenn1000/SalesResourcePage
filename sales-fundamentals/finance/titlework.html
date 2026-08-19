@@ -7,167 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,400..600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- The shared training stylesheet. This page previously carried its own inline
+     copy of it (94 of 98 rules byte-identical), which is how the reference page
+     came to lag the sheet it was extracted from. Linking it means fixes land
+     here automatically: it picks up .page-header .wrap{padding-right:272px},
+     the clearance for the injected site-nav pills, which the inline copy predated. -->
+<link rel="stylesheet" href="/training-system.css">
 <style>
-/* ============================================================
-   DESIGN TOKENS  (theme swap = edit here only)
-   Class names match TRAINING-AUTHORING-STANDARD.md (slide model).
-   ============================================================ */
-:root {
-  --green:#5FA520; --blue:#1E8BBC; --amber:#DC9B3C; --deep-blue:#1E508C;
-  --red:#E84040; --ink:#0F2038; --ink-deep:#08142A; --ink-soft:#1A2942;
-  --text:#1A1F2E; --muted:#5B6576; --surface:#F7F8F4; --warm:#FAFBF7;
-  --white:#FFFFFF; --line:#DFE2DA; --line-soft:#E8EBE3;
-  --space-1:6px; --space-2:10px; --space-3:16px; --space-4:22px; --space-5:32px;
-  --r-sm:4px; --r-md:8px; --r-lg:12px;
-  --shadow:0 1px 2px rgba(15,32,56,.06);
-  --serif:'Fraunces',Georgia,serif; --sans:'Manrope',-apple-system,'Segoe UI',sans-serif;
-  --maxw:1320px; --header-h:86px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-snap-type:y proximity}
-section[id]{scroll-snap-align:start;scroll-margin-top:var(--header-h)}
-body{font-family:var(--sans);font-size:18px;line-height:1.45;color:var(--text);background:var(--surface);-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-.01em;color:var(--ink);line-height:1.1}
-h1{font-size:clamp(2.2rem,4.5vw,3.4rem);font-weight:400}
-h2{font-size:clamp(1.7rem,2.8vw,2.5rem);margin-bottom:var(--space-2)}
-h3{font-size:1.2rem;font-weight:600;margin-bottom:var(--space-1)}
-p{margin-bottom:var(--space-2)}
-ul,ol{padding-left:20px;margin-bottom:var(--space-2)}
-li{margin-bottom:var(--space-1)}
-strong{font-weight:700;color:var(--ink)}
-.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:var(--space-2)}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--space-5);width:100%}
-
-/* HEADER + TOC */
-.site-header{position:sticky;top:0;z-index:200}
-.page-header{background:var(--ink);color:#fff;padding:12px 0;border-bottom:3px solid var(--amber)}
-.page-header .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif)}
-.brand .logo{font-size:1.05rem;font-weight:600;color:#fff}
-.brand .team{font-size:.9rem;color:rgba(255,255,255,.7)}
-.present-toggle{font-family:var(--sans);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;cursor:pointer}
-.present-toggle:hover{background:var(--amber);border-color:var(--amber)}
-.toc-nav{background:var(--warm);border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
-.toc-nav::-webkit-scrollbar{display:none}
-.toc-nav .wrap{display:flex;gap:0}
-.toc-nav a{font-size:.82rem;font-weight:600;color:var(--muted);text-decoration:none;padding:11px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:6px}
-.toc-nav a .num{font-size:.64rem;font-weight:800;background:var(--line);color:var(--muted);border-radius:999px;padding:1px 6px}
-.toc-nav a:hover,.toc-nav a.active{color:var(--ink);border-bottom-color:var(--amber)}
-
-/* HERO (slide) */
-.hero{background:linear-gradient(135deg,var(--ink-deep),var(--ink));color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start;scroll-margin-top:var(--header-h)}
-.hero h1{color:#fff;max-width:20ch;margin-bottom:var(--space-3)}
-.hero h1 em{font-style:italic;color:var(--amber)}
-.hero .lede{font-size:1.3rem;line-height:1.5;color:rgba(255,255,255,.85);max-width:60ch}
-.hero .lede strong{color:#fff}
-
-/* MODULE = SLIDE */
-.training-page{display:block}
-.module{min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;padding:var(--space-4) 0;border-bottom:1px solid var(--line)}
-.module:nth-child(even){background:var(--warm)}
-.module>.wrap>h2{max-width:32ch}
-.module .intro{color:var(--muted);font-size:1.15rem;max-width:80ch;margin-bottom:var(--space-4)}
-
-/* GRIDS (fill width) */
-.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--space-3)}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
-.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);list-style:none;padding:0}
-.list-cols{columns:3;column-gap:var(--space-5)}
-.list-cols li{break-inside:avoid}
-
-/* TRAINING CARD */
-.training-card{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
-.training-card--amber{border-left-color:var(--amber)}
-.training-card--green{border-left-color:var(--green)}
-.training-card--ink{border-left-color:var(--ink)}
-.training-card ul{margin-bottom:0}
-.training-card li{font-size:1rem}
-
-/* STEP */
-.step{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--deep-blue);border-radius:var(--r-md);padding:var(--space-3);box-shadow:var(--shadow)}
-.step .src{display:inline-block;font-family:var(--sans);font-size:.82rem;font-weight:700;background:rgba(30,80,140,.08);color:var(--deep-blue);padding:2px 8px;border-radius:var(--r-sm);margin-top:var(--space-2)}
-
-/* SCRIPT EXAMPLE */
-.script-example{background:rgba(30,80,140,.05);border-left:3px solid var(--deep-blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:var(--space-2) var(--space-3);font-style:italic;color:var(--ink-soft);margin:var(--space-2) 0 0}
-.script-example .who{display:block;font-style:normal;font-weight:800;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-
-/* OBJECTION HANDLING */
-.objection-handling{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);box-shadow:var(--shadow)}
-.objection-handling .objection{font-style:italic;color:var(--ink-soft);margin-bottom:var(--space-1)}
-
-/* DOC TABLE */
-.doc-table{width:100%;border-collapse:collapse;font-size:1rem;background:var(--white);box-shadow:var(--shadow);border-radius:var(--r-md);overflow:hidden}
-.doc-table th{background:var(--ink);color:#fff;text-align:left;padding:10px 16px;font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.doc-table td{padding:11px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
-.doc-table td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
-.doc-table tr:last-child td{border-bottom:none}
-.doc-table tr:nth-child(even) td{background:rgba(30,80,140,.02)}
-
-/* CHECKLIST */
-.checklist{list-style:none;padding:var(--space-3) var(--space-4);background:var(--white);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--r-md);box-shadow:var(--shadow);margin-bottom:0}
-.checklist li{position:relative;padding-left:26px;font-size:1rem}
-.checklist li::before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
-
-/* CALLOUT */
-.callout{border:1px solid rgba(220,155,60,.3);background:rgba(220,155,60,.08);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);font-size:1rem;margin-top:var(--space-3)}
-.callout strong{color:var(--amber)}
-.callout--compliance{border-color:rgba(30,80,140,.3);background:rgba(30,80,140,.06)}
-.callout--compliance strong{color:var(--deep-blue)}
-
-/* RECALL CHECK */
-.recall-check{background:var(--white);border:1px solid var(--line);border-left:3px solid var(--amber);border-radius:var(--r-md);padding:var(--space-2) var(--space-3);margin-top:var(--space-3);box-shadow:var(--shadow)}
-.recall-check summary{cursor:pointer;font-weight:700;color:var(--ink);list-style:none;font-size:1rem}
-.recall-check summary::-webkit-details-marker{display:none}
-.recall-check summary::before{content:"\25B6";font-size:.7rem;color:var(--amber);margin-right:8px}
-.recall-check[open] summary::before{content:"\25BC"}
-.recall-check .answer{margin-top:var(--space-2);color:var(--text);font-size:1rem}
-.recall-check .label{font-size:.64rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-right:6px}
-
-/* MANAGER PROMPT (Presenter only) */
-.manager-prompt{display:none}
-
-/* KEY TAKEAWAYS (slide) */
-.key-takeaways{background:var(--ink-deep);color:#fff;min-height:calc(100vh - var(--header-h));display:flex;flex-direction:column;justify-content:center;scroll-snap-align:start}
-.key-takeaways .eyebrow{color:var(--amber)}
-.key-takeaways h2{color:#fff;margin-bottom:var(--space-4)}
-.key-takeaways ul{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2)}
-.key-takeaways li{background:rgba(255,255,255,.04);border-left:3px solid var(--amber);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 20px;font-family:var(--serif);font-style:italic;font-size:1.15rem;color:rgba(255,255,255,.92)}
-.checklist-head{margin-top:var(--space-4)}
-
-.foot{padding:var(--space-4) 0;text-align:center;font-size:.85rem;color:var(--muted);background:var(--warm)}
-
-/* DECK NAV (prev / next slide) */
-.deck-nav{position:fixed;right:16px;bottom:16px;z-index:300;display:flex;gap:8px}
-.deck-nav button{width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--white);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;box-shadow:0 4px 14px rgba(11,17,32,.18);display:flex;align-items:center;justify-content:center}
-.deck-nav button:hover{background:var(--amber);border-color:var(--amber);color:#fff}
-.deck-nav button:disabled{opacity:.35;cursor:default}
-body.presenter .deck-nav button{width:60px;height:60px;font-size:28px}
-@media print{.deck-nav{display:none}}
-
-/* ============================================================
-   PRESENTER MODE  (manager-led wide screen)
-   ============================================================ */
-body.presenter{font-size:22px}
-body.presenter .toc-nav,body.presenter .recall-check{display:none}
-body.presenter #site-back-btn{display:none}
-body.presenter h1{font-size:4rem}
-body.presenter h2{font-size:3rem}
-body.presenter .module .intro{font-size:1.4rem}
-body.presenter .manager-prompt{display:block;background:rgba(220,155,60,.12);border:1px dashed var(--amber);border-radius:var(--r-md);padding:var(--space-3) var(--space-4);margin-top:var(--space-3);font-size:1.2rem;color:var(--ink)}
-body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font-family:var(--sans);font-size:.7rem;font-weight:800;letter-spacing:.12em;color:var(--amber);margin-bottom:6px}
-
-/* ============================================================
-   MOBILE  (close-up; relax the deck to normal scroll)
-   ============================================================ */
-@media(max-width:820px){
-  html{scroll-snap-type:none}
-  body{font-size:16px}
-  .hero,.module,.key-takeaways{min-height:auto;display:block;padding:var(--space-5) 0}
-  .compare-grid{grid-template-columns:1fr}
-  .list-cols{columns:1}
-  .key-takeaways ul{grid-template-columns:1fr}
-  .doc-table td:first-child{white-space:normal}
-}
+  /* The one rule genuinely local to this page: the title column is held to a
+     readable measure. Everything else comes from the shared sheet. */
+  .module>.wrap>h2{max-width:32ch}
 </style>
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/auth-gate.css">
@@ -232,7 +81,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
   <div class="wrap">
     <span class="eyebrow">Finance · Deal Complexity · LightReach (Solar)</span>
     <h1>Understanding <em>Title Work</em></h1>
-    <p class="lede"><strong>The agreement needs one person on title who passes credit.</strong> Not every owner, just one who qualifies. Confirm who's on title from your phone before you knock, and get the signer right so the deal funds clean.</p>
+    <p class="lede"><strong>The agreement needs one person on title who passes credit.</strong> Not every owner, just one who qualifies. Confirm who's on title from your phone before you knock, and don't leave the home without the documents that prove your signer can sign. A missing one doesn't slow the deal down. It stops it.</p>
   </div>
 </header>
 
@@ -356,7 +205,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
   <section class="module" id="llc">
     <div class="wrap">
       <h2>When the Home Is Held in an LLC</h2>
-      <p class="intro">The owner on title is a company, not a person. The deed alone isn't enough. You need proof of who can sign for the company, and it isn't at the town.</p>
+      <p class="intro">The owner on title is a company, not a person. The deed alone isn't enough. You need proof of who can sign for the company, it isn't at the town, and the build can't start until you have it.</p>
 
       <div class="compare-grid">
         <div class="training-card">
@@ -372,9 +221,9 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
           <ul>
             <li><strong>The deed</strong> showing the LLC owns the home.</li>
             <li><strong>Formation documents</strong> (Articles of Organization, operating agreement) showing who's authorized.</li>
-            <li><strong>From the homeowner,</strong> not the clerk. Ask early.</li>
+            <li><strong>From the homeowner,</strong> not the clerk. Ask before the appointment, and leave with it that night.</li>
           </ul>
-          <blockquote class="script-example"><span class="who">Rep · asking for the docs</span>"Looks like the home's in an LLC, totally common. I'll need a copy of the formation paperwork so the right person signs. Can you dig that out before we meet?"</blockquote>
+          <blockquote class="script-example"><span class="who">Rep · asking for the docs</span>"Looks like the home's in an LLC, common with family and rental property. Before we sit down I'll need the formation paperwork that names who's authorized to sign. Can you have it out on the table? It's the piece that decides how fast we can start."</blockquote>
         </div>
       </div>
 
@@ -382,7 +231,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
 
       <details class="recall-check">
         <summary>The home is in an LLC. Who signs, and what do you need?</summary>
-        <p class="answer"><span class="label">Answer</span>An authorized member (usually the managing member) signs, plus the LLC's formation documents proving that authority. Get those from the homeowner.</p>
+        <p class="answer"><span class="label">Answer</span>An authorized member (usually the managing member) signs, plus the LLC's formation documents proving that authority. Get those from the homeowner, the same night. Without them the signer isn't validated and the job can't get NTP.</p>
       </details>
     </div>
   </section>
@@ -391,7 +240,7 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
   <section class="module" id="trust">
     <div class="wrap">
       <h2>When the Home Is Held in a Trust</h2>
-      <p class="intro">Common with estate planning. Same idea as an LLC: the Trust owns the home, and you need its paperwork to know who signs.</p>
+      <p class="intro">Common with estate planning. The Trust owns the home, and the Certificate of Trust is what proves who can sign for it. No certificate, no validated signer, no Notice to Proceed. The job stops.</p>
 
       <div class="compare-grid">
         <div class="training-card">
@@ -399,25 +248,29 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
           <ul>
             <li><strong>The deed names a trust,</strong> often the "Smith Family Trust."</li>
             <li><strong>The trustee signs.</strong> Often the homeowner in front of you, but confirm it.</li>
-            <li><strong>Trust documents aren't recorded</strong> at the town. Get them from the homeowner.</li>
+            <li><strong>Trust documents aren't recorded</strong> at the town. Only the homeowner can hand them to you.</li>
           </ul>
         </div>
         <div class="training-card training-card--amber">
           <h3>What you collect</h3>
           <ul>
             <li><strong>List the trustee</strong> on the agreement, not the trust itself.</li>
-            <li><strong>Get a Certificate of Trust</strong> (the specific document LightReach needs).</li>
+            <li><strong>Get the Certificate of Trust before you leave.</strong> It is the specific document LightReach needs, and the agreement can't be validated without it.</li>
             <li><strong>Bonus with LightReach:</strong> someone other than the trustee can be the credit-passer.</li>
           </ul>
-          <blockquote class="script-example"><span class="who">Rep · asking for the docs</span>"I see the home's in a family trust, smart planning. To set the signer up right, I'll need a copy of the Certificate of Trust at some point. No rush tonight."</blockquote>
+          <blockquote class="script-example"><span class="who">Rep · asking for the docs</span>"I see the home's in a family trust, smart planning. One thing I need before I head out: a copy of the Certificate of Trust. It's the page that shows you're the trustee who can sign, and your install can't be scheduled without it. Where do you keep the trust folder?"</blockquote>
+          <blockquote class="script-example"><span class="who">Rep · when it isn't in the house</span>"That's normal, nobody keeps it in the kitchen drawer. Your estate attorney has it and can email a copy in about five minutes. Text them now, I'll finish the design while we wait, and we walk out of here tonight with nothing hanging over your start date."</blockquote>
         </div>
       </div>
 
+      <div class="callout"><strong>Why it can't wait:</strong> the Certificate of Trust is how the signer gets validated. Without it the job doesn't get NTP, so nothing gets ordered and nothing gets scheduled. It lands on Track C and sits, typically 4 to 6 days, and that clock doesn't start until you finally chase the document down. Five minutes at the table, or an install date next month.</div>
+
       <div class="manager-prompt">A widow tells you the home is in her late husband's trust. What's your next move?</div>
+      <div class="manager-prompt">Role-play the ask with no apology in it. The trustee isn't being audited, they're being guided by someone who has done this a hundred times.</div>
 
       <details class="recall-check">
         <summary>Who signs for a Trust, and how is that different from an LLC?</summary>
-        <p class="answer"><span class="label">Answer</span>The named trustee signs, and you need a Certificate of Trust (list the trustee, not the trust). An LLC needs an authorized member plus formation papers. Both come from the homeowner, not the town.</p>
+        <p class="answer"><span class="label">Answer</span>The named trustee signs, and you need a Certificate of Trust (list the trustee, not the trust). An LLC needs an authorized member plus formation papers. Both come from the homeowner, not the town, and both come home with you the same night. Leave without one and the job can't get NTP.</p>
       </details>
     </div>
   </section>
@@ -437,8 +290,8 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
           <tr><td>Owner passed away</td><td>Depends on the estate. Title team determines the signer.</td><td>Don't assume the surviving spouse can sign alone.</td></tr>
           <tr><td>Recent divorce</td><td>Whoever the deed says owns it now. Look for a recent Quitclaim.</td><td>The deed may not be updated yet.</td></tr>
           <tr><td>Condo or HOA</td><td>Signed HOA Confirmation of Ownership and Access form.</td><td>The association controls access and approvals.</td></tr>
-          <tr><td>Held in LLC</td><td>Authorized member + formation documents.</td><td>Signing authority isn't public record.</td></tr>
-          <tr><td>Held in Trust</td><td>Trustee + Certificate of Trust (list the trustee, not the trust).</td><td>The signer must be the named trustee.</td></tr>
+          <tr><td>Held in LLC</td><td>Authorized member + formation documents.</td><td>Signing authority isn't public record, and the build waits on it.</td></tr>
+          <tr><td>Held in Trust</td><td>Trustee + Certificate of Trust (list the trustee, not the trust).</td><td>No certificate, no validated signer, no NTP.</td></tr>
           <tr><td>Reverse mortgage</td><td>Not eligible with LightReach.</td><td>Catch it early, it's a hard stop for solar.</td></tr>
           <tr><td>Power of Attorney</td><td>Not accepted by LightReach.</td><td>Flag it before you build the deal around it.</td></tr>
         </tbody>
@@ -448,12 +301,22 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
       <ul class="checklist list-cols">
         <li>Looked up the property; noted every name on title.</li>
         <li>Confirmed owner is a person or an entity.</li>
-        <li>If an entity, asked for the formation or trust documents.</li>
+        <li>If an entity, asked for the formation or trust documents so they are on the table when you arrive.</li>
         <li>Confirmed at least one title-holder will run credit (add an immediate-family co-applicant if you need more strength).</li>
         <li>Checked for recent changes: Quitclaim, divorce, passing, sale.</li>
         <li>Condo/HOA? Confirmation form ready.</li>
         <li>Flagged anything unusual to the title team.</li>
       </ul>
+
+      <h3 class="checklist-head">Before you leave the home</h3>
+      <ul class="checklist list-cols">
+        <li>The signer on the agreement is the name that holds authority on title.</li>
+        <li>Entity-held? The Certificate of Trust or formation documents are in your hand or already in your inbox.</li>
+        <li>Condo or HOA? Confirmation of Ownership and Access form signed.</li>
+        <li>Anything you could not resolve goes to the title team tonight, with the homeowner still reachable.</li>
+      </ul>
+
+      <div class="callout callout--compliance"><strong>Validate at the table.</strong> Every document you walk out without is one you chase by phone against a homeowner who has already moved on to the rest of their week. You are in their living room once. Ask while you are in it.</div>
 
       <div class="manager-prompt">Walk the checklist against tonight's appointments as a team. Any entity-held homes? Any missing signers?</div>
 
@@ -474,7 +337,8 @@ body.presenter .manager-prompt::before{content:"ASK THE ROOM";display:block;font
       <li>One title-holder who runs credit can carry the agreement. You don't need every owner.</li>
       <li>Need more credit strength? Add an immediate-family co-applicant. With LightReach they don't need to live in the home, but the title-holder still runs credit.</li>
       <li>Confirm ownership yourself: Vision Appraisal, Town Clerk, My Tax Bill, GIS.</li>
-      <li>LLC or Trust means extra documents, and they come from the homeowner.</li>
+      <li>LLC or Trust means extra documents, they come from the homeowner, and they come home with you that night.</li>
+      <li>No Certificate of Trust means no validated signer, no NTP, and a Track C hold that sits 4 to 6 days.</li>
       <li>Trust = trustee signs. LLC = authorized member signs. Confirm who.</li>
       <li>You gather and flag. The title team rules on hard cases.</li>
     </ul>
