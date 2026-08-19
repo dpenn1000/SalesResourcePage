@@ -2393,7 +2393,26 @@ function renderMePerf(d){
   // is built from what the payload ACTUALLY carried rather than from what this
   // page hoped for -- a caption that names a source the tiles did not use is
   // how "as of Jul 7" sat under live-looking numbers for six weeks.
-  const _mmWin = (d.me_month && d.me_month.window) || null;
+  // AVAILABLE, not merely PRESENT. This read `d.me_month && d.me_month.window`,
+  // and me_perf_spine's failure payload carries a window too -- so on 2026-08-18
+  // a rep saw "this month (Aug 1 to Aug 18, live)" captioning the frozen Jul 7
+  // export, and the freshness pill computed an age of 0 days off that same
+  // window and SUPPRESSED the amber stale flag. The tiles themselves fell back
+  // correctly; only the labels lied, which is the worse half.
+  //
+  // Same gate as `mm` above, deliberately: one condition decides both what the
+  // tiles read and what the caption claims they read. Two conditions is how
+  // they disagreed in the first place.
+  const _mmWin = mm ? mm.window : null;
+  if (d.me_month && !d.me_month.available && d.me_month.reason) {
+    console.warn('[me] Key Metrics fell back to the export:', d.me_month.reason);
+  }
+  if (d.appt_rates && !d.appt_rates.available && d.appt_rates.reason) {
+    console.warn('[me] Close/Sit fell back to the export:', d.appt_rates.reason);
+  }
+  if (d.go_back_live && !d.go_back_live.available && d.go_back_live.reason) {
+    console.warn('[me] Go-Back fell back to the export:', d.go_back_live.reason);
+  }
   const _volScope = _mmWin
     ? ('this month (' + _fmtW(_mmWin.from, false) + ' to ' + _fmtW(_mmWin.to, false) + ', live)')
     : ('latest Performance Dashboard data (' + esc(_headScope) + ')');
