@@ -967,6 +967,7 @@
           <option value="status">Sort: Status</option>
         </select>
         <button class="btn-add" onclick="addPerson()">+ Add person</button>
+        <button class="btn-add" onclick="openBulkWizard()" style="background:#29A9E1">Bulk add</button>
       </div>
       <div class="count" id="count"></div>
       <div class="rep-grid" id="repGrid"></div>
@@ -5284,7 +5285,309 @@ async function deleteFeedback(id) {
   window.togglePersonRole = togglePersonRole;
   window.toggleAdminFlag = toggleAdminFlag;
   window.deletePerson = deletePerson;
+  // ── Bulk provisioning wizard ──────────────────────
+  // Source -> review -> dry run -> commit -> credential sheet.
+  //
+  // Self-contained: injects its own overlay and styles rather than going
+  // through the shared modal core, which is a fixed title/body/one-button
+  // shape and cannot hold an editable review grid.
+  //
+  // The safety rule is that nothing is written until a dry run has been shown
+  // and the admin has looked at it. The Edge Function defaults dry_run to true
+  // and this UI never sends dry_run:false from the first screen.
+
+  const BULK_SOURCES = [
+    {
+      key: 'existing',
+      title: 'Give logins to people already in the roster',
+      body: 'For people who exist here but have never been able to sign in. This is the one to use for the 2026-08-17 MA Traditional, CT Direct and PA Direct load.',
+    },
+    {
+      key: 'csv',
+      title: 'Paste or upload a list',
+      body: 'One person per line: name, then optional username, division, office, state. Creates the person and the login together.',
+    },
+    {
+      key: 'lake',
+      title: 'Propose from platform data',
+      body: 'Reads the employee snapshot in the warehouse and proposes everyone who looks like a rep but has no account. Needs the VM-side proposal job, which is not built yet.',
+      disabled: true,
+    },
+  ];
+
+  let BW = null;   // wizard state
+
+  function bulkStyles() {
+    if (document.getElementById('bulkWizStyle')) return;
+    const s = document.createElement('style');
+    s.id = 'bulkWizStyle';
+    s.textContent = `
+      #bulkWiz{position:fixed;inset:0;z-index:9000;background:rgba(6,11,20,.72);
+        display:flex;align-items:center;justify-content:center;padding:24px;}
+      #bulkWizCard{background:#fff;border-radius:14px;width:min(1040px,100%);
+        max-height:88vh;display:flex;flex-direction:column;overflow:hidden;
+        box-shadow:0 24px 60px rgba(0,0,0,.3);}
+      #bulkWizCard header{padding:18px 22px;border-bottom:1px solid #e6e9e2;
+        display:flex;align-items:center;gap:12px;}
+      #bulkWizCard header h3{margin:0;font-size:16px;font-weight:800;flex:1;}
+      #bulkWizBody{padding:18px 22px;overflow:auto;flex:1;}
+      #bulkWizCard footer{padding:14px 22px;border-top:1px solid #e6e9e2;
+        display:flex;align-items:center;gap:10px;justify-content:flex-end;}
+      .bw-src{display:block;border:1.5px solid #dfe2da;border-radius:10px;
+        padding:14px 16px;margin-bottom:10px;cursor:pointer;}
+      .bw-src:hover{border-color:#78C832;}
+      .bw-src.sel{border-color:#78C832;background:#f5fbef;}
+      .bw-src.off{opacity:.5;cursor:not-allowed;}
+      .bw-src b{display:block;font-size:14px;margin-bottom:3px;}
+      .bw-src span{font-size:12.5px;color:#5a6472;line-height:1.5;}
+      .bw-tbl{width:100%;border-collapse:collapse;font-size:12.5px;}
+      .bw-tbl th{position:sticky;top:0;background:#f4f6f1;text-align:left;
+        padding:7px 8px;font-weight:700;border-bottom:1px solid #dfe2da;}
+      .bw-tbl td{padding:5px 8px;border-bottom:1px solid #eef0ea;}
+      .bw-tbl input[type=text]{width:100%;border:1px solid #dfe2da;border-radius:5px;
+        padding:4px 6px;font:inherit;}
+      .bw-tbl tr.off{opacity:.4;}
+      .bw-warn{color:#b06a00;font-size:11.5px;}
+      .bw-err{color:#c92020;font-size:11.5px;}
+      .bw-note{background:#fff7e6;border:1px solid #f0d9a8;border-radius:8px;
+        padding:10px 12px;font-size:12.5px;margin-bottom:14px;line-height:1.55;}
+      .bw-btn{padding:9px 18px;border:none;border-radius:7px;font-size:13px;
+        font-weight:700;cursor:pointer;}
+      .bw-btn.go{background:#78C832;color:#0b1120;}
+      .bw-btn.ghost{background:#eef0ea;color:#39414d;}
+      .bw-btn:disabled{opacity:.5;cursor:not-allowed;}
+    `;
+    document.head.appendChild(s);
+  }
+
+  function bulkShell() {
+    bulkStyles();
+    let o = document.getElementById('bulkWiz');
+    if (o) return o;
+    o = document.createElement('div');
+    o.id = 'bulkWiz';
+    o.innerHTML =
+      '<div id="bulkWizCard">' +
+        '<header><h3 id="bulkWizTitle">Bulk add</h3>' +
+        '<button class="bw-btn ghost" id="bulkWizX">Close</button></header>' +
+        '<div id="bulkWizBody"></div>' +
+        '<footer><span id="bulkWizMsg" style="flex:1;font-size:12.5px;color:#5a6472"></span>' +
+        '<button class="bw-btn ghost" id="bulkWizBack">Back</button>' +
+        '<button class="bw-btn go" id="bulkWizNext">Continue</button></footer>' +
+      '</div>';
+    document.body.appendChild(o);
+    document.getElementById('bulkWizX').onclick = closeBulkWizard;
+    o.addEventListener('click', (e) => { if (e.target === o) closeBulkWizard(); });
+    return o;
+  }
+
+  function closeBulkWizard() {
+    const o = document.getElementById('bulkWiz');
+    if (o) o.remove();
+    BW = null;
+  }
+
+  function bwMsg(t) { const el = document.getElementById('bulkWizMsg'); if (el) el.textContent = t || ''; }
+
+  function openBulkWizard() {
+    if (!window.IS_ADMIN) { alert('Admins only.'); return; }
+    BW = { step: 'source', source: 'existing', rows: [], results: null };
+    bulkShell();
+    renderBulkStep();
+  }
+
+  function renderBulkStep() {
+    const body = document.getElementById('bulkWizBody');
+    const next = document.getElementById('bulkWizNext');
+    const back = document.getElementById('bulkWizBack');
+    back.style.display = BW.step === 'source' ? 'none' : '';
+    bwMsg('');
+
+    if (BW.step === 'source') {
+      document.getElementById('bulkWizTitle').textContent = 'Bulk add: pick a source';
+      body.innerHTML = BULK_SOURCES.map((s) =>
+        '<label class="bw-src' + (s.disabled ? ' off' : (BW.source === s.key ? ' sel' : '')) + '" data-k="' + s.key + '">' +
+        '<b>' + s.title + '</b><span>' + s.body + '</span></label>').join('') +
+        '<div id="bwCsvWrap" style="display:none;margin-top:6px">' +
+        '<textarea id="bwCsv" rows="7" style="width:100%;font-family:ui-monospace,monospace;font-size:12px;' +
+        'border:1px solid #dfe2da;border-radius:8px;padding:9px" ' +
+        'placeholder="Jane Smith\nJohn Doe, jdoe\nAna Cruz, , Direct, PA- South, PA"></textarea>' +
+        '<div style="font-size:12px;color:#5a6472;margin-top:5px">' +
+        'Columns: name, username, division, office, state. Only the name is required.</div></div>';
+      body.querySelectorAll('.bw-src').forEach((el) => {
+        el.onclick = () => {
+          const k = el.getAttribute('data-k');
+          const src = BULK_SOURCES.find((s) => s.key === k);
+          if (src && src.disabled) { bwMsg('That source needs the VM-side proposal job, which is not built yet.'); return; }
+          BW.source = k;
+          renderBulkStep();
+        };
+      });
+      document.getElementById('bwCsvWrap').style.display = BW.source === 'csv' ? '' : 'none';
+      next.textContent = 'Continue';
+      next.disabled = false;
+      next.onclick = loadBulkRows;
+      return;
+    }
+
+    if (BW.step === 'review') {
+      document.getElementById('bulkWizTitle').textContent = 'Bulk add: review ' + BW.rows.length + ' people';
+      const anyIssue = BW.rows.some((r) => r.warn || r.err);
+      body.innerHTML =
+        '<div class="bw-note"><b>Nothing has been written yet.</b> ' +
+        'Check the usernames below and edit any that read wrong. A name like ' +
+        '"Jennifer Gonzalez Tejada" becomes jtejada, because the rule takes the last word, ' +
+        'and a Spanish compound surname usually wants the first one instead. ' +
+        (anyIssue ? 'Rows needing a look are flagged.' : '') + '</div>' +
+        '<table class="bw-tbl"><thead><tr><th style="width:34px"></th><th>Name</th>' +
+        '<th style="width:210px">Username</th><th>Sign-in address</th><th style="width:190px">Notes</th></tr></thead><tbody>' +
+        BW.rows.map((r, i) =>
+          '<tr class="' + (r.on ? '' : 'off') + '" data-i="' + i + '">' +
+          '<td><input type="checkbox" ' + (r.on ? 'checked' : '') + ' data-role="on"></td>' +
+          '<td>' + escapeHtml(r.name) + '</td>' +
+          '<td><input type="text" value="' + escapeHtml(r.username || '') + '" data-role="u"></td>' +
+          '<td style="color:#5a6472">' + escapeHtml((r.username || '') + '@ct-resource-page.com') + '</td>' +
+          '<td>' + (r.err ? '<span class="bw-err">' + escapeHtml(r.err) + '</span>'
+                          : r.warn ? '<span class="bw-warn">' + escapeHtml(r.warn) + '</span>' : '') + '</td>' +
+          '</tr>').join('') +
+        '</tbody></table>';
+      body.querySelectorAll('tr[data-i]').forEach((tr) => {
+        const i = +tr.getAttribute('data-i');
+        tr.querySelector('[data-role=on]').onchange = (e) => {
+          BW.rows[i].on = e.target.checked; tr.classList.toggle('off', !e.target.checked);
+        };
+        tr.querySelector('[data-role=u]').oninput = (e) => {
+          BW.rows[i].username = e.target.value.trim().toLowerCase();
+          tr.children[3].textContent = BW.rows[i].username + '@ct-resource-page.com';
+        };
+      });
+      const n = BW.rows.filter((r) => r.on).length;
+      next.textContent = 'Create ' + n + ' account' + (n === 1 ? '' : 's');
+      next.disabled = !n;
+      next.onclick = commitBulk;
+      back.onclick = () => { BW.step = 'source'; renderBulkStep(); };
+      return;
+    }
+
+    if (BW.step === 'done') {
+      const made = BW.results.filter((r) => r.status === 'created');
+      document.getElementById('bulkWizTitle').textContent = 'Bulk add: done';
+      body.innerHTML =
+        '<div class="bw-note"><b>Each password below is shown once and cannot be recovered.</b> ' +
+        'The credential sheet has already downloaded. If you lost it, every account has to be reset one at a time.</div>' +
+        '<table class="bw-tbl"><thead><tr><th>Name</th><th>Username</th><th>Status</th><th>Note</th></tr></thead><tbody>' +
+        BW.results.map((r) =>
+          '<tr><td>' + escapeHtml(r.name || '') + '</td><td>' + escapeHtml(r.username || '') + '</td>' +
+          '<td>' + escapeHtml(r.status) + '</td>' +
+          '<td>' + (r.reason ? '<span class="bw-err">' + escapeHtml(r.reason) + '</span>' : '') + '</td></tr>').join('') +
+        '</tbody></table>';
+      next.textContent = 'Download the sheet again';
+      next.disabled = !made.length;
+      next.onclick = () => downloadCredentials(made);
+      back.textContent = 'Close';
+      back.onclick = () => { closeBulkWizard(); fetchData(); };
+      return;
+    }
+  }
+
+
+  // Step 1 -> 2. Always a dry run: the server derives the usernames and reports
+  // collisions, and we show that before anything is created.
+  async function loadBulkRows() {
+    const next = document.getElementById('bulkWizNext');
+    next.disabled = true; bwMsg('Checking...');
+    try {
+      let payload;
+      if (BW.source === 'existing') {
+        const { data, error } = await supa.from('people')
+          .select('id,name').is('auth_user_id', null).order('name');
+        if (error) throw new Error(error.message);
+        if (!data.length) { bwMsg('Everyone in the roster already has a login.'); next.disabled = false; return; }
+        payload = { action: 'bulk_create', mode: 'existing', dry_run: true, rows: data };
+      } else {
+        const parsed = parseBulkCsv(document.getElementById('bwCsv').value);
+        if (!parsed.length) { bwMsg('Nothing to read in that list.'); next.disabled = false; return; }
+        payload = { action: 'bulk_create', mode: 'new', dry_run: true, rows: parsed };
+      }
+      const r = await callManageUsers(payload);
+      if (r.error) throw new Error(r.error);
+      BW.mode = payload.mode;
+      BW.rows = r.results.map((x) => ({
+        id: x.id, name: x.name, username: x.username, on: x.status !== 'error',
+        err: x.status === 'error' ? x.reason : '',
+        warn: x.status === 'skipped' ? x.reason
+            : /\d$/.test(x.username || '') ? 'numbered to avoid a clash, worth renaming' : '',
+        src: x,
+      }));
+      BW.step = 'review';
+      renderBulkStep();
+    } catch (e) {
+      bwMsg('Could not check that list: ' + e.message);
+      next.disabled = false;
+    }
+  }
+
+  // "name, username, division, office, state" -- only the name is required.
+  function parseBulkCsv(text) {
+    return String(text || '').split(/\r?\n/).map((line) => {
+      const c = line.split(',').map((x) => x.trim());
+      if (!c[0]) return null;
+      const row = { name: c[0], kind: 'rep' };
+      if (c[1]) row.username = c[1].toLowerCase();
+      if (c[2]) row.division = c[2];
+      if (c[3]) row.sales_office = c[3];
+      if (c[4]) row.states = [c[4].toUpperCase()];
+      return row;
+    }).filter(Boolean);
+  }
+
+  async function commitBulk() {
+    const next = document.getElementById('bulkWizNext');
+    const chosen = BW.rows.filter((r) => r.on);
+    if (!chosen.length) return;
+    if (!confirm('Create ' + chosen.length + ' account' + (chosen.length === 1 ? '' : 's') +
+                 '?\n\nEach password is shown once. The credential sheet downloads straight away.')) return;
+    next.disabled = true; bwMsg('Creating ' + chosen.length + '...');
+    try {
+      const rows = chosen.map((r) => (BW.mode === 'existing')
+        ? { id: r.id, name: r.name, username: r.username }
+        : Object.assign({}, r.src, { name: r.name, username: r.username }));
+      const r = await callManageUsers({ action: 'bulk_create', mode: BW.mode, dry_run: false, rows });
+      if (r.error) throw new Error(r.error);
+      BW.results = r.results;
+      const made = r.results.filter((x) => x.status === 'created');
+      if (made.length) downloadCredentials(made);   // before anything can close the tab
+      // Onboarding is seeded from here, with the admin's own JWT, because
+      // seed_new_hire gates on is_manager() and the service-role key inside the
+      // Edge Function cannot satisfy it. Seeding only after the login exists is
+      // also the fix for the 2026-08-17 ordering bug, where 332 onboarding tasks
+      // were assigned to people who had no way to sign in and act on them.
+      let seeded = 0;
+      for (const m of made) {
+        try { await supa.rpc('seed_new_hire', { p_person_id: m.id }); seeded++; } catch (e) { /* reported below */ }
+      }
+      BW.step = 'done';
+      renderBulkStep();
+      bwMsg('Created ' + made.length + ', onboarding seeded for ' + seeded + '.');
+    } catch (e) {
+      bwMsg('Failed: ' + e.message);
+      next.disabled = false;
+    }
+  }
+
+  function downloadCredentials(made) {
+    const esc = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const csv = 'name,username,sign_in_address,password\n' +
+      made.map((m) => [m.name, m.username, m.email, m.password].map(esc).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'trinity-logins-' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+
   window.addPerson = addPerson;
+  window.openBulkWizard = openBulkWizard;
 })();
 </script>
 
