@@ -9,7 +9,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2.107.0"></script>
-<script src="/auth-gate.js"></script>
+<!-- Manager+ only. Its own gate already returns before signDoc() can mint a
+       signed URL, and the bucket is is_manager() RLS. This adds the central
+       check so the surface is refused before any of that is reached. -->
+  <script>window.REQUIRE_ROLE = 'manager';</script>
+  <script src="/auth-gate.js"></script>
 <script src="/site-back.js" defer></script>
 <link rel="stylesheet" href="/auth-gate.css">
 <style>

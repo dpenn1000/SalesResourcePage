@@ -174,7 +174,13 @@ ul.kids.collapsed{display:none}
 <meta name="robots" content="noindex, nofollow">
 <link rel="stylesheet" href="/auth-gate.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.107.0"></script>
-<script src="/auth-gate.js"></script>
+<!-- Manager+ only. The page already returns early for non-managers; this
+       moves the decision to the one central place and gives the same denial
+       screen as every other gated tool. Backstop is org_chart RLS
+       (is_manager() AND is_active_user()), which is what actually protects
+       the hierarchy. -->
+  <script>window.REQUIRE_ROLE = 'manager';</script>
+  <script src="/auth-gate.js"></script>
 <script src="/org-data.js"></script>
 <script src="/org-intake.js"></script>
 <script src="/site-back.js" defer></script>
