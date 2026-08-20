@@ -2080,8 +2080,25 @@ async function loadMetricsSnapshot(me){
     $('metricsPill').textContent = 'pending';
     return;
   }
-  $('metricsPill').textContent = fmtDate(data.snapshot_date);
-  $('metricsPill').className = 'section-pill green';
+  // THIS PATH IS A FALLBACK AND MUST LOOK LIKE ONE (2026-08-19).
+  //
+  // rep_perf_snapshots is written by the Performance parser, which reads the
+  // Excel book that froze 2026-07-07 and has since been retired by the purge.
+  // This branch only runs when the LIVE launcher payload could not be had at
+  // all. Until today it then stamped the snapshot date in a GREEN pill --
+  // and on 2026-08-19, with /api/me/perf down for every rep, the page rendered
+  // six-week-old numbers under a confident green "Aug 16, 2026" while the only
+  // honest thing on the screen was Deal Blockers saying it couldn't reach the
+  // tools server. Reps had no way to tell.
+  //
+  // The numbers still render -- a stale real number beats an unmarked absence
+  // (DATA-SEMANTICS.md) -- but nothing here may read as current. Same lesson
+  // the caption logic below already carries; this pill was the piece that
+  // never got it.
+  var _snapAge = null;
+  try { _snapAge = Math.floor((Date.now() - new Date(String(data.snapshot_date) + 'T00:00:00').getTime()) / 86400000); } catch (e) { _snapAge = null; }
+  $('metricsPill').textContent = 'stale · ' + fmtDate(data.snapshot_date);
+  $('metricsPill').className = 'section-pill ' + ((_snapAge == null || _snapAge > 2) ? 'red' : 'amber');
 
   // Headline metric cards
   const tiles = [];
@@ -2113,8 +2130,23 @@ async function loadMetricsSnapshot(me){
       trackColor(data.track_assessment)));
   }
 
+  // The banner, not just the pill. A coloured pill is easy to read past; the
+  // number is the thing a rep acts on, so the caveat sits directly above it and
+  // says what is wrong and what it means -- never a bare "error".
+  var _staleNote =
+    '<div class="metric red" style="grid-column:1/-1;text-align:left">' +
+      '<div class="metric-label">Not live</div>' +
+      '<div class="metric-value" style="font-size:15px;line-height:1.45">' +
+        'These are your last saved numbers' +
+        (data.snapshot_date ? ' from ' + esc(fmtDate(data.snapshot_date)) : '') +
+        (_snapAge != null && _snapAge > 2 ? ' (' + _snapAge + ' days old)' : '') + '. ' +
+        'The live feed could not be reached, so nothing here reflects today.' +
+      '</div>' +
+      '<div class="metric-sub">Your manager can check the tools server. Deals you signed since then are not counted above.</div>' +
+    '</div>';
+
   body.innerHTML =
-    '<div class="metrics-grid">' + tiles.join('') + '</div>' +
+    '<div class="metrics-grid">' + _staleNote + tiles.join('') + '</div>' +
     renderStackUp(data);
 }
 
@@ -2227,30 +2259,67 @@ async function setMonthlyGoal(){
   if (error){ meToast('Could not save goal: ' + error.message); return; }
   _monthlyGoal = num;
   meToast('Goal set to ' + num);
-  if (window._mePerfCtx) loadMePerfLive(window._mePerfCtx);
+  // force: the goal just changed, so the cached perf document is stale.
+  if (window._mePerfCtx) loadMePerfLive(window._mePerfCtx, true);
 }
 
-async function loadMePerfLive(me){
+// ONE PERF REQUEST PER PAGE LOAD, SHARED (2026-08-19).
+//
+// /me/ called /api/me/perf TWICE per load from two unrelated functions --
+// loadMePerfLive for the tiles and _fetchActionBlocks for Missing Docs / Rep
+// Responsible. That was already flagged as a trap in MYPAGE-REWIRE-HANDOFF.md,
+// and it got more expensive when server/perf.py was rewired: the endpoint now
+// runs six lake blocks (spine cohort, appointment grain twice, action_item,
+// project_track, spine_me), so two calls meant TWELVE block evaluations, in
+// series with each other, for one page.
+//
+// The two callers want different keys off the SAME document, so they share one
+// in-flight promise. `force` re-fetches, for the goal-change refresh path.
+let _perfReq = null, _perfReqUrl = null;
+function _perfFetch(me, force){
+  const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
+  if (!token) return Promise.resolve({ error: 'not signed in' });
+  const url = IS_VIEW_AS
+    ? (LAUNCHER_BASE + '/api/rep/perf?slug=' + encodeURIComponent(me.spd_slug))
+    : (LAUNCHER_BASE + '/api/me/perf');
+  if (!force && _perfReq && _perfReqUrl === url) return _perfReq;
+  _perfReqUrl = url;
+  _perfReq = fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' })
+    .then(res => res.ok
+      ? res.json().then(d => (d ? { d } : { error: 'empty response' }))
+      : { error: 'tools server returned ' + res.status })
+    .catch(e => ({ error: 'tools server unreachable' }));
+  return _perfReq;
+}
+
+async function loadMePerfLive(me, force){
+  window._mePerfCtx = me;
+  // The two config reads are NOT in the critical path. Both swallow their own
+  // errors and fall back to defaults, but they used to sit in a Promise.all
+  // beside the fetch, which coupled the live render to two unrelated Supabase
+  // round trips for no reason. Awaited together with the fetch, not gating it.
+  const [got] = await Promise.all([
+    _perfFetch(me, force),
+    getCommConfig().catch(() => null),
+    loadMonthlyGoal(me).catch(() => null)
+  ]);
+  if (got.error) { window._mePerfBail = got.error; return false; }
+  const d = got.d;
+  if (d.error) { window._mePerfBail = d.error; return false; }
+  if (!d.rep)  { window._mePerfBail = 'no rep on the payload'; return false; }
+  // A THROW IN renderMePerf IS NOT A FETCH FAILURE, and conflating them is how
+  // this page spent 2026-08-18 to 08-19 silently serving the frozen snapshot: a
+  // temporal-dead-zone ReferenceError on `mm` threw on EVERY render, the catch
+  // returned false, and false means "fall back". Same fallback, but the reason
+  // is recorded and logged now instead of vanishing.
   try {
-    window._mePerfCtx = me;
-    const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
-    if (!token) return false;
-    const url = IS_VIEW_AS
-      ? (LAUNCHER_BASE + '/api/rep/perf?slug=' + encodeURIComponent(me.spd_slug))
-      : (LAUNCHER_BASE + '/api/me/perf');
-    const [res] = await Promise.all([
-      fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' }),
-      getCommConfig(),
-      loadMonthlyGoal(me)
-    ]);
-    if (!res.ok) return false;
-    const d = await res.json();
-    if (!d || d.error || !d.rep) return false;
     renderMePerf(d);
-    return true;
   } catch (e) {
+    window._mePerfBail = 'render failed: ' + (e && e.message ? e.message : e);
+    console.error('[me] renderMePerf threw; falling back to the snapshot:', e);
     return false;
   }
+  return true;
 }
 
 function commColor(s){ return s === 'healthy' ? 'green' : s === 'watch' ? 'amber' : s === 'critical' ? 'red' : ''; }
@@ -2409,6 +2478,27 @@ function thisMonthCard(tm, cfg){
 
 function renderMePerf(d){
   const r = d.rep || {}, ranks = d.ranks || {}, ta = d.team_avg || {}, club = d.sales_club || {}, climb = d.to_climb || {};
+
+  // ── THE LIVE GATES, DECLARED FIRST (moved here 2026-08-19) ────────────────
+  // `mm` and `ar` decide both what the tiles read and what the captions claim
+  // they read. They used to be declared ~50 lines BELOW their first use, at the
+  // tile-building block, while `const _mmWin = mm ? ...` in the caption logic
+  // read them up here. `const` is hoisted into the temporal dead zone rather
+  // than to undefined, so that read did not quietly yield null -- it threw
+  // ReferenceError: Cannot access 'mm' before initialization, UNCONDITIONALLY,
+  // on every call, for every rep.
+  //
+  // loadMePerfLive wraps renderMePerf in a try/catch that returns false, and
+  // false means "fall back to loadMetricsSnapshot" -- the frozen Supabase
+  // rep_perf_snapshots mirror. So the live Key Metrics path never rendered once
+  // after ee5839a landed on 2026-08-18: every rep, every load, silently served
+  // the stale export while the tiles, the ranks, the "this month" captions, the
+  // Live-from-the-warehouse strip and Sales Club all sat behind a throw.
+  //
+  // The comment on _mmWin below says "same gate as `mm` above", which is what
+  // the author intended and what is finally true now. Nothing else moved.
+  const mm  = (d.me_month   && d.me_month.available)   ? d.me_month   : null;
+  const ar  = (d.appt_rates && d.appt_rates.available) ? d.appt_rates : null;
   // Expose the rep's live club tier so the install-commission estimate (Top
   // Action Items) can apply the correct club adder.
   window._meClubTier = clubTierCode(club.current_tier);
@@ -2488,8 +2578,9 @@ function renderMePerf(d){
   //   last 90 days Close / Sit / Go-Back                 (appointment grain)
   // A month of appointments is a handful for most reps, which is why the rate
   // tiles run on 90 days and carry their SAMPLE instead of a peer rank.
-  const mm  = (d.me_month    && d.me_month.available)    ? d.me_month    : null;
-  const ar  = (d.appt_rates  && d.appt_rates.available)  ? d.appt_rates  : null;
+  // `mm` and `ar` are declared at the top of this function now -- see the note
+  // there. Declaring them here is what put them in the temporal dead zone for
+  // the caption logic above and threw on every render.
   const R   = mm ? (mm.rep || {}) : r;
   const RK  = mm ? (mm.ranks || {}) : ranks;
   const TA  = mm ? (mm.team_avg || {}) : ta;
@@ -2686,8 +2777,26 @@ function renderSalesClub(d, cfg){
   const sec = $('salesClub');
   if (!sec) return;
   const club = d && d.sales_club;
-  // Hide gracefully when there is no Sales Club payload at all.
-  if (!club){ sec.style.display = 'none'; return; }
+  // ABSENT IS NOT THE SAME AS ZERO, AND IT IS NOT THE SAME AS "NO SECTION"
+  // (2026-08-19). This used to hide the whole section whenever the payload
+  // lacked `sales_club`, which was safe only while a missing club block meant
+  // the entire request had failed and the page had louder problems. It no
+  // longer does: /api/me/perf now serves the lake blocks even when the retired
+  // Excel store that still feeds Sales Club is gone, so this branch is exactly
+  // the case where the rest of the page looks healthy and a rep's club standing
+  // quietly disappears. Standing is money; its absence gets said out loud.
+  if (!club){
+    var _why = (d && d._store && d._store.status && d._store.status !== 'ok');
+    sec.style.display = '';
+    $('salesClubPill').textContent = 'unavailable';
+    $('salesClubPill').className = 'sc-pill';
+    $('salesClubBody').innerHTML =
+      '<div class="empty">Your club standing can&rsquo;t be calculated right now'
+      + (_why ? ', because the feed behind it is being rebuilt' : '')
+      + '. This is a reporting gap, not a change to your standing &mdash; nothing you have earned is affected. '
+      + 'Check back shortly, or ask your manager if it persists.</div>';
+    return;
+  }
   sec.style.display = '';
 
   const v = (cfg && cfg.values) || {};
@@ -2868,20 +2977,13 @@ function estInstallComm(amount, kw, leadSource){
 // rather than read "all clear" over data that was dropped. `unreachable:true`
 // is that signal; the caller renders one quiet line for it.
 async function _fetchActionBlocks(me){
-  try {
-    const token = window.AUTH_SESSION && window.AUTH_SESSION.access_token;
-    if (!token) return { unreachable: true };
-    const url = IS_VIEW_AS
-      ? (LAUNCHER_BASE + '/api/rep/perf?slug=' + encodeURIComponent(me.spd_slug))
-      : (LAUNCHER_BASE + '/api/me/perf');
-    const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token }, mode: 'cors' });
-    if (!res.ok) return { unreachable: true };
-    const d = await res.json();
-    if (!d) return { unreachable: true };
-    return { missing_docs: d.missing_docs || null, rep_responsible: d.rep_responsible || null };
-  } catch (e) {
-    return { unreachable: true };
-  }
+  // Shares the one in-flight request with loadMePerfLive -- see _perfFetch.
+  // Whichever of the two runs first pays for it; the other gets the same
+  // document. This used to be a second, independent round trip.
+  const got = await _perfFetch(me);
+  if (got.error || !got.d) return { unreachable: true, reason: got.error || 'empty' };
+  const d = got.d;
+  return { missing_docs: d.missing_docs || null, rep_responsible: d.rep_responsible || null };
 }
 
 async function loadAndRenderAddressables(me){
