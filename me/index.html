@@ -2983,7 +2983,13 @@ async function _fetchActionBlocks(me){
   const got = await _perfFetch(me);
   if (got.error || !got.d) return { unreachable: true, reason: got.error || 'empty' };
   const d = got.d;
-  return { missing_docs: d.missing_docs || null, rep_responsible: d.rep_responsible || null };
+  return {
+    missing_docs: d.missing_docs || null,
+    rep_responsible: d.rep_responsible || null,
+    // stuck_work has been served on BOTH perf routes since 2026-08-18 and was
+    // read by nothing -- built, tested, and invisible. Wired 2026-08-19.
+    stuck_work: d.stuck_work || null
+  };
 }
 
 async function loadAndRenderAddressables(me){
@@ -3001,6 +3007,7 @@ async function loadAndRenderAddressables(me){
   const dismissed = new Set((disRes.data || []).map(r => r.item_key));
   const missingDocs = (blocks || {}).missing_docs || null;
   const repResp = (blocks || {}).rep_responsible || null;
+  const stuckWork = (blocks || {}).stuck_work || null;
   const blocksUnreachable = !!(blocks && blocks.unreachable);
 
   let html = '', count = 0, urgent = false;
@@ -3124,7 +3131,59 @@ async function loadAndRenderAddressables(me){
     group(head, withOverflow(rows, 6, 'rr'));
   }
 
-  // 6. If the launcher could not be reached, the two groups above are UNKNOWN,
+  // 6. Stuck Work -- deals that stopped moving, and WHY. Served on both perf
+  // routes since 2026-08-18 and read by nothing until now: built, tested, and
+  // invisible on the page.
+  //
+  // Missing Docs says what the rep OWES. Rep Responsible says which stalls are
+  // the rep's doing. This says which deals are stuck for ANY reason, carrying
+  // the reason text and whether the rep can personally unstick it --
+  // `operations_responsible__c` turned out to be a semicolon-delimited REASON
+  // list rather than a person, so the text existed all along and was never read.
+  //
+  // DEDUPED AGAINST REP RESPONSIBLE, deliberately. Both key on Track C, so they
+  // overlap heavily, and the same deal appearing in two groups reads as two
+  // problems and inflates the "N to do" pill. Rep Responsible wins the row when
+  // both would claim it -- it is the more actionable framing, because it tells
+  // the rep the stall is theirs to clear. Keyed on dl_number, the DL# both
+  // blocks carry (never a Salesforce record id -- see the house rule).
+  if (stuckWork && stuckWork.available && stuckWork.items && stuckWork.items.length){
+    const already = new Set(
+      ((repResp && repResp.on_hold_rep_caused) || [])
+        .map(r => r.dl_number || r.deal).filter(Boolean));
+    const sw = stuckWork.items.filter(it => !already.has(it.dl_number || it.customer));
+    if (sw.length){
+      count += sw.length;
+      const rows = sw.map(it => {
+        const canFix = !!it.rep_actionable;
+        if (canFix) urgent = true;
+        const cust = it.customer ? tiCleanCust(it.customer) : (it.dl_number || 'Deal');
+        const meta = [];
+        if (it.business_days_in_track != null) {
+          meta.push(it.business_days_in_track + ' business day' +
+                    (it.business_days_in_track === 1 ? '' : 's') + ' stuck');
+        }
+        if (it.responsible_party) meta.push(esc(it.responsible_party));
+        // reasons is a LIST (the semicolon-delimited field, parsed). Show it
+        // verbatim -- "Structural Issue Found" is the actionable part, and
+        // summarising it would throw away the only thing that makes the row a
+        // to-do rather than a worry.
+        const reasons = (it.reasons && it.reasons.length)
+          ? '<div class="ti-sub">' + esc(it.reasons.join(' &middot; ')) + '</div>' : '';
+        const sub = meta.length ? '<div class="ti-sub">' + meta.join(' &middot; ') + '</div>' : '';
+        const badge = '<span class="ti-when" style="color:' +
+          (canFix ? 'var(--amber)' : 'var(--text3)') + '">' +
+          (canFix ? 'You can unstick this' : 'Waiting on someone else') + '</span>';
+        return item(canFix ? 'var(--amber)' : 'var(--text3)',
+                    '<b>' + esc(cust) + '</b>' + reasons + sub, badge);
+      });
+      group('Stuck Work (' + sw.length +
+            (stuckWork.rep_actionable ? ', ' + stuckWork.rep_actionable + ' you can move' : '') + ')',
+            withOverflow(rows, 6, 'sw'));
+    }
+  }
+
+  // 7. If the launcher could not be reached, the groups above are UNKNOWN,
   // not empty -- say so in one quiet line rather than letting the pill read
   // "all clear" over data that was dropped. Same shape the Coaching card uses
   // for the same failure.
