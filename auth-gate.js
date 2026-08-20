@@ -644,6 +644,25 @@
         }).catch(function () {});
       }
 
+      // First-login setup completion nudge/gate (reps only). Same probe-then-
+      // inject pattern as site-nav.js just above, and for the same reason:
+      // this file is shared across both stacks and not every host serves
+      // /onboarding-gate.js. Gated on IS_REP here (rather than inside the
+      // script itself) because the backend RPC always returns 'clear' for
+      // managers anyway -- no point fetching it for them.
+      if (!window.__ct_onboarding_injected) {
+        window.__ct_onboarding_injected = true;
+        if (window.IS_REP) {
+          fetch('/onboarding-gate.js', { method: 'HEAD' }).then(function (r) {
+            if (!r.ok) return;
+            var gateJs = document.createElement('script');
+            gateJs.src = '/onboarding-gate.js';
+            gateJs.defer = true;
+            (document.body || document.head || document.documentElement).appendChild(gateJs);
+          }).catch(function () {});
+        }
+      }
+
       // Track sign_in ONLY for a genuine credential sign-in (flagged by
       // signIn()). SIGNED_IN also fires on session-restore on every page load,
       // which otherwise logged a sign_in per navigation and flooded

@@ -39,6 +39,8 @@
       --ink: #1A2332; --muted: #6b7a8d; --subtle: #9aa6b4;
       --surface: #ffffff; --green-dark: #5FA520; --hairline: #E5E8E0;
       --shadow: 0 1px 3px rgba(15,32,56,0.07);
+      /* People drawer (Add/Edit person) -- one place to change its size/speed. */
+      --drawer-w: min(680px, 92vw); --drawer-transition: 220ms ease;
     }
 
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -504,6 +506,58 @@
   #tabUsers .btn-cancel:hover { color:var(--ink); }
   #tabUsers .acct-actions { display:flex; gap:10px; flex-wrap:wrap; }
 
+  /* ── People table (replaces the card grid) ── */
+  #tabUsers .pd-table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius); background:var(--surface); box-shadow:var(--shadow); }
+  #tabUsers .pd-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+  #tabUsers .pd-table th { text-align:left; padding:10px 12px; font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--subtle); border-bottom:1px solid var(--border); background:var(--bg); white-space:nowrap; }
+  #tabUsers .pd-table td { padding:10px 12px; border-bottom:1px solid var(--hairline); vertical-align:middle; }
+  #tabUsers .pd-table tr:last-child td { border-bottom:none; }
+  #tabUsers .pd-table tr:hover td { background:#FAFBF7; }
+  #tabUsers .pd-table .nm { font-weight:700; color:var(--ink); }
+  #tabUsers .pd-table .un { font-size:0.76rem; color:var(--subtle); font-family:'DM Mono',monospace; }
+  #tabUsers .pd-clickable { cursor:pointer; }
+  #tabUsers .pd-rowactions { display:flex; align-items:center; gap:6px; }
+  #tabUsers .pd-kebab-wrap { position:relative; }
+  #tabUsers .pd-kebab-btn { background:none; border:1px solid var(--border); border-radius:6px; width:28px; height:28px; font-size:16px; line-height:1; cursor:pointer; color:var(--muted); }
+  #tabUsers .pd-kebab-btn:hover { border-color:var(--green); color:var(--ink); }
+  #tabUsers .pd-kebab-menu { display:none; position:absolute; right:0; top:calc(100% + 4px); background:var(--surface); border:1px solid var(--border); border-radius:8px; box-shadow:0 8px 24px rgba(15,32,56,0.18); z-index:20; min-width:170px; flex-direction:column; padding:6px; }
+  #tabUsers .pd-kebab-menu.open { display:flex; }
+  #tabUsers .pd-kebab-menu button { background:none; border:none; text-align:left; font-family:inherit; font-size:0.82rem; padding:8px 10px; border-radius:6px; cursor:pointer; color:var(--ink); }
+  #tabUsers .pd-kebab-menu button:hover { background:var(--bg); }
+  #tabUsers .pd-kebab-menu button.pd-kebab-danger { color:#C94F5A; }
+
+  /* Bulk-select bar -- modeled on leads.html's .dispatch-bar, translated to
+     admin.html's own tokens instead of that page's hardcoded hex/Fraunces. */
+  #tabUsers .pd-bulkbar { display:none; align-items:center; gap:14px; background:var(--header); color:#fff; border-radius:10px; padding:11px 16px; margin-bottom:14px; flex-wrap:wrap; }
+  #tabUsers .pd-bulkbar.show { display:flex; }
+  #tabUsers .pd-bulkbar .cnt { font-weight:700; font-size:0.85rem; white-space:nowrap; }
+  #tabUsers .pd-bulkbar button { font-family:inherit; font-size:0.8rem; font-weight:600; padding:7px 12px; border-radius:7px; border:1px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.08); color:#fff; cursor:pointer; white-space:nowrap; }
+  #tabUsers .pd-bulkbar button:hover { background:rgba(255,255,255,0.18); }
+
+  #tabUsers .pd-pager { display:flex; align-items:center; gap:12px; justify-content:flex-end; margin-top:12px; }
+
+  #tabUsers .pd-check-inline { display:inline-flex; align-items:center; gap:6px; font-size:0.82rem; color:var(--ink); white-space:nowrap; }
+  #tabUsers .pd-check-inline input { width:auto; margin:0; }
+
+  /* ── Person drawer: Add + Edit are one component, two modes ── */
+  #tabUsers .pd-backdrop { position:fixed; inset:0; background:rgba(6,11,20,0.45); z-index:8999; opacity:0; pointer-events:none; transition:opacity var(--drawer-transition); }
+  #tabUsers .pd-backdrop.open { opacity:1; pointer-events:auto; }
+  #tabUsers .pd-drawer { position:fixed; top:0; right:0; height:100vh; width:var(--drawer-w); background:var(--surface); box-shadow:-10px 0 36px rgba(15,32,56,0.2); z-index:9000; display:flex; flex-direction:column; transform:translateX(100%); transition:transform var(--drawer-transition); }
+  #tabUsers .pd-drawer.open { transform:translateX(0); }
+  #tabUsers .pd-head { padding:18px 22px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; flex-shrink:0; }
+  #tabUsers .pd-head h3 { margin:0; font-size:1.05rem; font-weight:800; flex:1; color:var(--ink); }
+  #tabUsers .pd-close { background:none; border:none; font-size:22px; line-height:1; cursor:pointer; color:var(--muted); padding:0; }
+  #tabUsers .pd-close:hover { color:var(--ink); }
+  #tabUsers .pd-body { padding:18px 22px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:13px; }
+  #tabUsers .pd-foot { padding:14px 22px; border-top:1px solid var(--border); flex-shrink:0; }
+  #tabUsers .pd-foot-actions { display:flex; align-items:center; justify-content:flex-end; gap:12px; }
+  #tabUsers .pd-err { color:#C94F5A; font-size:0.82rem; margin-bottom:8px; }
+  #tabUsers .pd-readonly { font-size:0.9rem; color:var(--ink); padding:9px 12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; }
+  #tabUsers .pd-hint { font-size:0.74rem; color:var(--muted); margin-top:5px; }
+  #tabUsers .pd-hint-ok { color:var(--green-dark); }
+  #tabUsers .pd-hint-bad { color:#C94F5A; }
+  #tabUsers .pd-sees { font-size:0.79rem; line-height:1.5; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:9px 12px; }
+
   /* Mobile -- the People surface had no responsive rules, so on a phone the
      roster grid, toolbar, detail header/tabs, and the call-work chart all
      ran past the viewport. Single column, full-width controls, and a
@@ -521,6 +575,8 @@
     #tabUsers .edit-input { max-width:none; width:100%; }
     #tabUsers .cw-stats { grid-template-columns:repeat(2,1fr); }
     #tabUsers .cw-legend { flex-wrap:wrap; gap:8px; }
+    #tabUsers .pd-bulkbar { gap:8px; }
+    #tabUsers .pd-pager { justify-content:center; }
   }
   </style>
 </head>
@@ -949,14 +1005,24 @@
           <option value="rep">Reps</option>
           <option value="manager">Managers</option>
         </select>
+        <select id="stateFilter">
+          <option value="">All states</option>
+        </select>
         <select id="officeFilter">
           <option value="">All offices</option>
-          <option value="CTN">CT-North</option>
-          <option value="CTC">CT-Central</option>
+        </select>
+        <select id="divisionFilter">
+          <option value="">All divisions</option>
+        </select>
+        <select id="statusFilter">
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
         </select>
         <select id="mgrFilter">
           <option value="">All managers</option>
         </select>
+        <label class="pd-check-inline"><input type="checkbox" id="missingSetupFilter"> Missing setup</label>
         <select id="sort">
           <option value="name">Sort: Name (A-Z)</option>
           <option value="calls_today">Sort: Calls today</option>
@@ -970,7 +1036,41 @@
         <button class="btn-add" onclick="openBulkWizard()" style="background:#29A9E1">Bulk add</button>
       </div>
       <div class="count" id="count"></div>
-      <div class="rep-grid" id="repGrid"></div>
+      <!-- Bulk-select bar. Modeled on leads.html's .dispatch-bar (dark bar,
+           appears via a class toggle, no animation) but translated to
+           admin.html's own tokens. Buttons wired in JS via addEventListener,
+           same pattern as the filter controls above -- no inline onclick. -->
+      <div id="bulkBar" class="pd-bulkbar">
+        <span class="cnt" id="bulkCount">0 selected</span>
+        <span id="bulkBarStatus" style="font-size:0.78rem;color:rgba(255,255,255,0.75)"></span>
+        <span style="flex:1"></span>
+        <button type="button" id="bulkPwBtn">Reset password</button>
+        <button type="button" id="bulkActivateBtn">Activate</button>
+        <button type="button" id="bulkDeactivateBtn">Deactivate</button>
+        <button type="button" id="bulkReassignBtn">Reassign manager</button>
+        <button type="button" id="bulkOnboardBtn">Run onboarding</button>
+        <button type="button" id="bulkClearBtn">Clear</button>
+      </div>
+      <div class="pd-table-wrap">
+        <table class="pd-table">
+          <thead>
+            <tr>
+              <th style="width:34px"><input type="checkbox" id="selectAllRows"></th>
+              <th>Name</th>
+              <th>Role</th>
+              <th>State / Office</th>
+              <th>Division</th>
+              <th>Manager</th>
+              <th>Status</th>
+              <th>Complete</th>
+              <th>Last sign-in</th>
+              <th style="width:130px">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="peopleTableBody"><tr><td colspan="10" class="d-empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pd-pager" id="peoplePager"></div>
     </div>
 
     <!-- Per-person detail -->
@@ -4002,98 +4102,182 @@ async function deleteFeedback(id) {
   const REP360_BASE = 'https://tools.ct-resource-page.com/rep-360';
   const MANAGE_USERS_URL = 'https://qjcozskyopetvigjhlmh.supabase.co/functions/v1/manage-users';
 
-  let REPS = [], MANAGERS = [], MGR_BY_ID = {}, LAST_SEEN = {}, CALL_COUNTS = {}, PEOPLE_BY_ID = {};
-  let LOADED = false;
+  // ROWS holds the current PAGE of admin_list_people rows, raw (undecorated).
+  // Unlike the old fetchData(), the roster is no longer loaded whole into
+  // memory -- admin_list_people is server-paginated, filtered and sorted.
+  // MANAGERS stays a full unbounded list (small; needed for every manager
+  // picker and the filter dropdown) with sales_office carried directly on
+  // each row so a manager's office never needs deriving.
+  let ROWS = [], TOTAL = 0, PAGE = 1;
+  const PAGE_SIZE = 50;
+  let MANAGERS = [], MGR_BY_ID = {}, CALL_COUNTS = {}, SELECTED = new Set();
+  // SELECTED holds ids for checkbox-state lookups on the current page; SELECTED_DATA
+  // holds the actual row objects so bulk actions still see people selected on a PRIOR
+  // page after paging forward (ROWS only ever holds the current page -- selectedRows()
+  // must NOT filter ROWS, or a bulk action silently drops everyone selected off-page).
+  let SELECTED_DATA = new Map();
+  let LOADED = false, SEARCH_TIMER = null;
 
   // Called from switchTab('users'). Loads (once per tab open) then renders.
   async function loadData() {
-    await fetchData();
+    populateStateFilter();
+    populateOfficeFilter();
+    populateDivisionFilter();
+    await loadManagers();
     populateMgrFilter();
-    render();
+    PAGE = 1;
+    await loadPage();
     LOADED = true;
     // Deep-link: admin.html?tab=users&rep=<username> opens that person's detail.
     const rq = new URLSearchParams(location.search).get('rep');
     if (rq) openRep(rq);
   }
 
-  async function fetchData() {
-    // The object is Person: load reps AND managers from `people`. The rest of
-    // this file uses `manager_id` (the person's manager) so we alias
-    // parent_id -> manager_id on each row to keep downstream code unchanged.
-    const [peopleRes, mgrsRes, actRes] = await Promise.all([
-      supa.from('people')
-        .select('id, auth_user_id, name, username, email, status, role, parent_id, cohort_start_date, must_change_password, spd_slug, is_admin, department, title, sub_department, states, sales_office')
-        .in('role', ['rep', 'manager'])
-        .order('name'),
-      supa.from('people').select('id, name').eq('role', 'manager'),
-      supa.from('user_activity')
-        .select('auth_user_id, created_at')
-        .eq('event_type', 'sign_in')
-        .order('created_at', { ascending: false })
-        .limit(5000),
-    ]);
-    REPS = (peopleRes.data || []).map(r => Object.assign(r, { manager_id: r.parent_id }));
-    // id -> person, for walking the management chain (office derivation, chain display).
-    PEOPLE_BY_ID = {}; REPS.forEach(p => { PEOPLE_BY_ID[p.id] = p; });
-    MANAGERS = (mgrsRes.data || []).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  // Full manager list (unbounded -- there are only ever a few dozen). Carries
+  // sales_office directly so a manager's office is read, never derived by
+  // walking a chain (that walk -- OFFICE_BY_ADM/chainPeople/officeOf -- is
+  // retired; sales_office is a real column on every person now).
+  async function loadManagers() {
+    const { data, error } = await supa.from('people')
+      .select('id, name, username, sales_office').eq('role', 'manager').order('name');
+    if (error) { console.warn('[people] loadManagers failed:', error); MANAGERS = []; MGR_BY_ID = {}; return; }
+    MANAGERS = data || [];
     MGR_BY_ID = {};
-    (mgrsRes.data || []).forEach(m => { MGR_BY_ID[m.id] = m.name; });
-    LAST_SEEN = {};
-    (actRes.data || []).forEach(a => {
-      if (a.auth_user_id && !LAST_SEEN[a.auth_user_id]) LAST_SEEN[a.auth_user_id] = a.created_at;
+    MANAGERS.forEach(m => { MGR_BY_ID[m.id] = m; });
+  }
+
+  // Sort options the RPC understands directly vs. ones re-sorted client-side
+  // on just the fetched page. Call-count sorts have no server column to sort
+  // on (CALL_COUNTS is a separate name-keyed rollup, same as before); "Least
+  // active" reuses the server's last_sign_in ordering and reverses it, since
+  // the RPC exposes one direction, not two.
+  function serverSortFor(uiSort) {
+    if (uiSort === 'calls_today' || uiSort === 'calls_7d') return 'name';
+    if (uiSort === 'recent' || uiSort === 'stale') return 'last_sign_in';
+    return uiSort; // name / cohort / status pass straight through
+  }
+
+  async function loadPage() {
+    const q = (document.getElementById('search').value || '').trim();
+    const sort = (document.getElementById('sort') || {}).value || 'name';
+    const p_role = (document.getElementById('roleFilter') || {}).value || null;
+    const p_state = (document.getElementById('stateFilter') || {}).value || null;
+    const p_office = (document.getElementById('officeFilter') || {}).value || null;
+    const p_division = (document.getElementById('divisionFilter') || {}).value || null;
+    const p_status = (document.getElementById('statusFilter') || {}).value || null;
+    const mgrVal = (document.getElementById('mgrFilter') || {}).value || '';
+    const p_manager_id = (mgrVal && mgrVal !== '__none__') ? mgrVal : null;
+    const p_missing_setup = (document.getElementById('missingSetupFilter') || {}).checked ? true : null;
+    const { data, error } = await supa.rpc('admin_list_people', {
+      p_search: q || null, p_role, p_status, p_state, p_office, p_division,
+      p_manager_id, p_missing_setup, p_sort: serverSortFor(sort),
+      p_page: PAGE, p_page_size: PAGE_SIZE,
     });
-    // Per-rep call rollup (today / 7d). Guarded so a failure can never blank
-    // the roster. Managers simply won't have an entry here.
+    if (error) { console.error('[people] admin_list_people failed:', error); ROWS = []; TOTAL = 0; }
+    else { ROWS = (data && data.rows) || []; TOTAL = (data && data.total) || 0; }
+    // Per-rep call rollup (today / 7d), same guarded pattern as before --
+    // a failure here can never blank the roster. Managers won't have an entry.
     CALL_COUNTS = {};
     try {
       const { data: ccData } = await supa.rpc('get_rep_call_counts');
       (ccData || []).forEach(c => { if (c.rep_name) CALL_COUNTS[c.rep_name] = c; });
     } catch (e) { console.warn('[people] get_rep_call_counts failed:', e); }
+    renderTable();
+  }
+
+  // Re-fetch the current page in place -- used after any write so the table
+  // reflects server state rather than a hand-patched local guess.
+  async function refreshPage() { await loadPage(); }
+
+  function onFilterChange() { PAGE = 1; loadPage(); }
+  function onSearchInput() {
+    clearTimeout(SEARCH_TIMER);
+    SEARCH_TIMER = setTimeout(() => { PAGE = 1; loadPage(); }, 250);
   }
 
   function decorate(r) {
     const cc = CALL_COUNTS[r.name] || null;
     return { ...r,
-      manager: r.manager_id ? (MGR_BY_ID[r.manager_id] || '') : '',
-      lastSeen: LAST_SEEN[r.auth_user_id] || null,
+      manager_id: r.parent_id,               // alias kept: edit/save code reads manager_id
+      manager: r.manager_name || '',
+      lastSeen: r.last_sign_in || null,
       callsToday: cc ? Number(cc.calls_today) : null,
       calls7d: cc ? Number(cc.calls_7d) : null,
       lastCall: cc ? cc.last_call : null };
   }
 
-  function render() {
-    const q = (document.getElementById('search').value || '').trim().toLowerCase();
-    const sort = document.getElementById('sort').value;
-    const mgr = (document.getElementById('mgrFilter') || {}).value || '';
-    const roleF = (document.getElementById('roleFilter') || {}).value || '';
-    const officeF = (document.getElementById('officeFilter') || {}).value || '';
-    let rows = REPS.map(decorate);
-    if (roleF) rows = rows.filter(r => (r.role || '') === roleF);
-    if (officeF) rows = rows.filter(r => officeOf(r) === officeF);
-    if (q) rows = rows.filter(r =>
-      (r.name || '').toLowerCase().includes(q) || (r.username || '').toLowerCase().includes(q));
-    if (mgr === '__none__') rows = rows.filter(r => !r.manager_id);
-    else if (mgr) rows = rows.filter(r => r.manager_id === mgr);
-    rows.sort((a, b) => {
-      if (sort === 'name')   return (a.name || '').localeCompare(b.name || '');
-      if (sort === 'status') return (a.status || '').localeCompare(b.status || '') || (a.name || '').localeCompare(b.name || '');
-      if (sort === 'cohort') {
-        const ca = a.cohort_start_date ? new Date(a.cohort_start_date).getTime() : 0;
-        const cb = b.cohort_start_date ? new Date(b.cohort_start_date).getTime() : 0;
-        return cb - ca || (a.name || '').localeCompare(b.name || '');
-      }
-      if (sort === 'calls_today') return (b.callsToday || 0) - (a.callsToday || 0) || (a.name || '').localeCompare(b.name || '');
-      if (sort === 'calls_7d')    return (b.calls7d || 0) - (a.calls7d || 0) || (a.name || '').localeCompare(b.name || '');
-      const ta = a.lastSeen ? new Date(a.lastSeen).getTime() : 0;
-      const tb = b.lastSeen ? new Date(b.lastSeen).getTime() : 0;
-      return sort === 'recent' ? (tb - ta) : (ta - tb);
-    });
-    const filtered = (q || mgr || roleF || officeF);
+  // Client-only re-sort/filter applied to the fetched page -- calls sorts and
+  // the "Unassigned" manager filter have no server equivalent (see
+  // serverSortFor + loadPage's p_manager_id comment). A known limitation:
+  // this acts on the current page only, so the count can undercount a
+  // page-local "Unassigned" filter against TOTAL. Acceptable for an edge case.
+  function decoratedRows() {
+    let rows = ROWS.map(decorate);
+    const mgrVal = (document.getElementById('mgrFilter') || {}).value || '';
+    if (mgrVal === '__none__') rows = rows.filter(r => !r.parent_id);
+    const sort = (document.getElementById('sort') || {}).value || 'name';
+    if (sort === 'calls_today') rows = rows.slice().sort((a, b) => (b.callsToday || 0) - (a.callsToday || 0) || (a.name || '').localeCompare(b.name || ''));
+    else if (sort === 'calls_7d') rows = rows.slice().sort((a, b) => (b.calls7d || 0) - (a.calls7d || 0) || (a.name || '').localeCompare(b.name || ''));
+    else if (sort === 'stale') rows = rows.slice().reverse();
+    return rows;
+  }
+
+  function renderTable() {
+    const rows = decoratedRows();
     document.getElementById('count').textContent =
-      `${rows.length} ${rows.length === 1 ? 'person' : 'people'}${filtered ? ' (filtered)' : ''}`;
-    const grid = document.getElementById('repGrid');
-    grid.innerHTML = rows.length ? rows.map(repCard).join('')
-      : '<div class="notice"><p>No people match that search.</p></div>';
+      `${TOTAL} ${TOTAL === 1 ? 'person' : 'people'}` + (rows.length !== TOTAL ? ` (${rows.length} shown)` : '');
+    const body = document.getElementById('peopleTableBody');
+    body.innerHTML = rows.length ? rows.map(personRowHtml).join('')
+      : '<tr><td colspan="10" class="d-empty">No people match that search.</td></tr>';
+    updateBulkBar();
+    renderPager();
+  }
+
+  function renderPager() {
+    const el = document.getElementById('peoplePager');
+    if (!el) return;
+    const totalPages = Math.max(1, Math.ceil(TOTAL / PAGE_SIZE));
+    el.innerHTML =
+      `<button type="button" class="btn-cancel" id="pagerPrev"${PAGE <= 1 ? ' disabled' : ''}>&larr; Prev</button>` +
+      `<span style="font-size:0.8rem;color:var(--muted)">Page ${PAGE} of ${totalPages}</span>` +
+      `<button type="button" class="btn-cancel" id="pagerNext"${PAGE >= totalPages ? ' disabled' : ''}>Next &rarr;</button>`;
+    const prev = document.getElementById('pagerPrev'), next = document.getElementById('pagerNext');
+    if (prev) prev.onclick = () => { if (PAGE > 1) { PAGE--; loadPage(); } };
+    if (next) next.onclick = () => { if (PAGE < totalPages) { PAGE++; loadPage(); } };
+  }
+
+  // ── State / office / division filter options, from window.ORG_CONFIG ──
+  // Replaces the old hardcoded CTN/CTC-only office <select>.
+  function populateStateFilter() {
+    const sel = document.getElementById('stateFilter');
+    if (!sel) return;
+    const cfg = ORG(); const cur = sel.value;
+    const keys = Object.keys(cfg.states).sort();
+    sel.innerHTML = '<option value="">All states</option>' +
+      keys.map(s => `<option value="${escapeHtml(s)}">${escapeHtml((cfg.states[s] && cfg.states[s].label) || s)}</option>`).join('');
+    sel.value = keys.indexOf(cur) >= 0 ? cur : '';
+  }
+  function populateOfficeFilter() {
+    const sel = document.getElementById('officeFilter');
+    if (!sel) return;
+    const cfg = ORG(); const cur = sel.value;
+    const stateSel = (document.getElementById('stateFilter') || {}).value || '';
+    let offices = [];
+    if (stateSel) offices = (cfg.states[stateSel] && cfg.states[stateSel].offices) || [];
+    else Object.keys(cfg.states).forEach(s => (cfg.states[s].offices || []).forEach(o => { if (offices.indexOf(o) < 0) offices.push(o); }));
+    sel.innerHTML = '<option value="">All offices</option>' +
+      offices.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+    sel.value = offices.indexOf(cur) >= 0 ? cur : '';
+  }
+  function populateDivisionFilter() {
+    const sel = document.getElementById('divisionFilter');
+    if (!sel) return;
+    const cfg = ORG(); const cur = sel.value;
+    const divs = [];
+    Object.keys(cfg.states).forEach(s => (cfg.states[s].divisions || []).forEach(d => { if (divs.indexOf(d) < 0) divs.push(d); }));
+    sel.innerHTML = '<option value="">All divisions</option>' +
+      divs.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join('');
+    sel.value = divs.indexOf(cur) >= 0 ? cur : '';
   }
 
   function populateMgrFilter() {
@@ -4106,43 +4290,224 @@ async function deleteFeedback(id) {
     sel.value = cur || '';
   }
 
-  function repCard(r) {
-    const statusClass = r.status === 'active' ? 'active' : 'inactive';
+  // "3/5" pill, colored by how complete; the title attribute lists what's
+  // missing so a manager doesn't have to open the record to find out.
+  const MISSING_LABELS = { phone: 'Phone', address: 'Address', disc: 'DISC', photo: 'Photo', bio: 'Bio' };
+  function completenessPill(c) {
+    if (!c) return '<span class="pill">--</span>';
+    const total = c.core_total || 0, done = c.core_done || 0;
+    const cls = total === 0 ? '' : done >= total ? 'ok' : done === 0 ? 'bad' : 'warn';
+    const missing = (c.missing || []).map(k => MISSING_LABELS[k] || k).join(', ');
+    const title = missing ? ('Missing: ' + missing) : 'Complete';
+    return `<span class="pill ${cls}" title="${escapeHtml(title)}">${done}/${total}</span>`;
+  }
+
+  function personRowHtml(r) {
     const isMgr = (r.role || '') === 'manager';
     const roleTag = isMgr ? (r.is_admin ? 'Admin' : 'Manager') : 'Rep';
-    const office = officeOf(r);
-    const cohort = cohortLabel(r.cohort_start_date);
-    // Managers have no call rollup -- show "--" rather than break.
-    const callsLabel = (r.callsToday == null)
-      ? '<span class="cc-none">--</span>'
-      : `<b class="cc-today${r.callsToday > 0 ? ' cc-active' : ''}">${r.callsToday}</b> today <span class="cc-week">&middot; ${r.calls7d} (7d)</span>`;
-    // Rep 360 keys by spd_slug (e.g. ziemba_a), NOT username (aziemba). Only
-    // emit the handoff link when a slug exists (managers usually have none).
-    const rrLink = r.spd_slug
-      ? `<a class="rr-link" href="${REP360_BASE}?rep=${encodeURIComponent(r.spd_slug)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Rep 360 &#8599;</a>`
-      : '';
+    const statusClass = r.status === 'active' ? 'active' : 'inactive';
+    const states = (r.states || []).join(', ') || (r.is_national ? 'National' : '--');
     const u = (r.username || '').replace(/[^a-zA-Z0-9_-]/g, '');
-    const aria = escapeHtml(`View detail for ${r.name || r.username || 'person'}`);
-    return `
-      <div class="rep-card" role="button" tabindex="0" aria-label="${aria}" onclick="openRep('${u}')" onkeydown="cardKey(event,'${u}')">
-        <div class="top">
-          <div>
-            <div class="nm">${escapeHtml(r.name || '(no name)')}</div>
-            <div class="un">${escapeHtml(r.username || '')} &middot; ${escapeHtml(roleTag)}${office ? ' &middot; ' + escapeHtml(office) : ''}</div>
+    const checked = SELECTED.has(r.id) ? ' checked' : '';
+    const go = `onclick="openRep('${u}')"`;
+    return `<tr data-id="${escapeHtml(r.id)}">
+        <td onclick="event.stopPropagation()"><input type="checkbox" class="pd-rowchk" data-id="${escapeHtml(r.id)}"${checked} onchange="toggleSel('${escapeHtml(r.id)}', this.checked)"></td>
+        <td class="pd-clickable" ${go}>
+          <div class="nm">${escapeHtml(r.name || '(no name)')}</div>
+          <div class="un">${escapeHtml(r.username || '')}</div>
+        </td>
+        <td class="pd-clickable" ${go}><span class="badge ${isMgr ? 'inactive' : 'active'}" style="background:${isMgr ? '#E8F4FB' : '#EFF8E5'};color:${isMgr ? '#1E8BBC' : 'var(--green-dark)'}">${escapeHtml(roleTag)}</span></td>
+        <td class="pd-clickable" ${go}>${escapeHtml(states)}${r.sales_office ? `<div class="un">${escapeHtml(r.sales_office)}</div>` : ''}</td>
+        <td class="pd-clickable" ${go}>${escapeHtml(r.division || '--')}</td>
+        <td class="pd-clickable" ${go}>${escapeHtml(r.manager || '--')}</td>
+        <td class="pd-clickable" ${go}><span class="badge ${statusClass}">${escapeHtml(r.status || 'unknown')}</span></td>
+        <td class="pd-clickable" ${go}>${completenessPill(r.completeness)}</td>
+        <td class="pd-clickable" ${go}>${lastSeenLabel(r.lastSeen)}</td>
+        <td onclick="event.stopPropagation()">
+          <div class="pd-rowactions">
+            <button type="button" class="btn-edit" onclick="openPersonDrawer('edit','${escapeHtml(r.id)}')">Edit</button>
+            <div class="pd-kebab-wrap">
+              <button type="button" class="pd-kebab-btn" onclick="toggleKebab(event,'${escapeHtml(r.id)}')">&#8942;</button>
+              <div class="pd-kebab-menu" id="kebab-${escapeHtml(r.id)}">
+                <button type="button" onclick="rowAction('${u}','pw')">Reset password</button>
+                <button type="button" onclick="rowAction('${u}','status')">${r.status === 'active' ? 'Deactivate' : 'Activate'}</button>
+                <button type="button" onclick="rowAction('${u}','role')">${isMgr ? 'Demote to rep' : 'Promote to manager'}</button>
+                ${!isMgr ? `<button type="button" onclick="rowAction('${u}','onboarding')">Run onboarding</button>` : ''}
+                <button type="button" class="pd-kebab-danger" onclick="rowAction('${u}','delete')">Delete</button>
+              </div>
+            </div>
           </div>
-          <span class="badge ${statusClass}">${escapeHtml(r.status || 'unknown')}</span>
-        </div>
-        <div class="rep-meta">
-          <div class="row"><span class="k">Calls</span><span class="v">${callsLabel}</span></div>
-          <div class="row"><span class="k">Manager</span><span class="v">${escapeHtml(r.manager || '--')}</span></div>
-          <div class="row"><span class="k">Cohort</span><span class="v">${cohort}</span></div>
-          <div class="row"><span class="k">Last sign-in</span><span class="v">${lastSeenLabel(r.lastSeen)}</span></div>
-        </div>
-        <div class="actions">
-          <span class="view-detail">View detail <span class="arr">&rarr;</span></span>
-          ${rrLink}
-        </div>
-      </div>`;
+        </td>
+      </tr>`;
+  }
+
+  // ── Row kebab menu ──
+  function toggleKebab(e, id) {
+    e.stopPropagation();
+    document.querySelectorAll('.pd-kebab-menu.open').forEach(m => { if (m.id !== 'kebab-' + id) m.classList.remove('open'); });
+    const m = document.getElementById('kebab-' + id);
+    if (m) m.classList.toggle('open');
+  }
+  document.addEventListener('click', () => document.querySelectorAll('.pd-kebab-menu.open').forEach(m => m.classList.remove('open')));
+
+  // Dispatches a kebab-menu action onto the SAME single-person functions the
+  // detail view's Profile tab already exposes (togglePw/toggleRepStatus/
+  // togglePersonRole/runOnboarding/deletePerson) -- just re-wiring the
+  // trigger point from the detail tab to the table row, not rewriting the
+  // actions themselves.
+  async function rowAction(username, action) {
+    await openRep(username);
+    const fns = { pw: togglePw, status: toggleRepStatus, role: togglePersonRole, onboarding: runOnboarding, delete: deletePerson };
+    const fn = fns[action];
+    if (fn) fn();
+  }
+
+  // ── Bulk-select ──
+  function toggleSel(id, checked) {
+    if (checked) {
+      SELECTED.add(id);
+      const row = ROWS.find(r => r.id === id);
+      if (row) SELECTED_DATA.set(id, row);
+    } else {
+      SELECTED.delete(id);
+      SELECTED_DATA.delete(id);
+    }
+    updateBulkBar();
+  }
+  function selectAllVisible(checked) {
+    ROWS.forEach(r => {
+      if (checked) { SELECTED.add(r.id); SELECTED_DATA.set(r.id, r); }
+      else { SELECTED.delete(r.id); SELECTED_DATA.delete(r.id); }
+    });
+    renderTable();
+  }
+  function updateBulkBar() {
+    const bar = document.getElementById('bulkBar');
+    const n = SELECTED.size;
+    if (bar) bar.classList.toggle('show', n > 0);
+    const cnt = document.getElementById('bulkCount');
+    if (cnt) cnt.textContent = n + (n === 1 ? ' selected' : ' selected');
+    const headCb = document.getElementById('selectAllRows');
+    if (headCb) {
+      const visible = ROWS.map(r => r.id);
+      const selVisible = visible.filter(id => SELECTED.has(id));
+      headCb.checked = visible.length > 0 && selVisible.length === visible.length;
+      headCb.indeterminate = selVisible.length > 0 && selVisible.length < visible.length;
+    }
+  }
+  function bulkProgress(i, n, label) {
+    const el = document.getElementById('bulkBarStatus');
+    if (el) el.textContent = `${label}: ${i} of ${n}...`;
+  }
+  function bulkResultsSummary(title, results) {
+    bulkStyles(); // reuses the bulk-wizard's .bw-tbl/.bw-err chrome
+    const rows = results.map(r => `<tr><td>${escapeHtml(r.name || '')}</td><td>${escapeHtml(r.username || '')}</td>`
+      + `<td>${escapeHtml(r.status || '')}</td><td>${r.reason ? '<span class="bw-err">' + escapeHtml(r.reason) + '</span>' : escapeHtml(r.reason || '')}</td></tr>`).join('');
+    const body = `<div style="max-height:50vh;overflow:auto"><table class="bw-tbl" style="width:100%"><thead><tr><th>Name</th><th>Username</th><th>Status</th><th>Detail</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    openModal(title + ': done', body, 'Close', 'background:#1A2332;color:#fff', closeModal);
+    const el = document.getElementById('bulkBarStatus'); if (el) el.textContent = '';
+  }
+  function bulkPasswordSummary(results) {
+    bulkStyles();
+    const rows = results.map(r => `<tr><td>${escapeHtml(r.name || '')}</td><td>${escapeHtml(r.username || '')}</td>`
+      + `<td>${r.status === 'reset' ? escapeHtml(r.password) : '--'}</td>`
+      + `<td>${r.status === 'reset' ? 'Reset' : '<span class="bw-err">' + escapeHtml(r.reason || 'Failed') + '</span>'}</td></tr>`).join('');
+    const body = `<div class="bw-note"><b>Each password is shown once and cannot be recovered.</b> Copy anything you need before closing.</div>` +
+      `<div style="max-height:50vh;overflow:auto"><table class="bw-tbl" style="width:100%"><thead><tr><th>Name</th><th>Username</th><th>New password</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    openModal('Password reset: done', body, 'Close', 'background:#1A2332;color:#fff', closeModal);
+    const el = document.getElementById('bulkBarStatus'); if (el) el.textContent = '';
+  }
+
+  // Must read from SELECTED_DATA, not filter ROWS -- ROWS is only the current page,
+  // and a bulk action has to reach people selected on a page the admin has since left.
+  function selectedRows() { return Array.from(SELECTED_DATA.values()); }
+
+  async function bulkResetPasswords() {
+    const targets = selectedRows();
+    if (!targets.length) return;
+    if (!confirm(`Reset password for ${targets.length} selected ${targets.length === 1 ? 'person' : 'people'}? Each gets a new random password.`)) return;
+    const results = [];
+    let i = 0;
+    for (const r of targets) {
+      i++; bulkProgress(i, targets.length, 'Resetting passwords');
+      if (!r.auth_user_id) { results.push({ name: r.name, username: r.username, status: 'error', reason: 'No auth account linked' }); continue; }
+      const pw = genPassword();
+      try {
+        const res = await callManageUsers({ action: 'set_password', auth_user_id: r.auth_user_id, password: pw });
+        if (res && res.ok === true) results.push({ name: r.name, username: r.username, status: 'reset', password: pw });
+        else results.push({ name: r.name, username: r.username, status: 'error', reason: (res && res.error) || 'server did not confirm' });
+      } catch (e) { results.push({ name: r.name, username: r.username, status: 'error', reason: e.message || String(e) }); }
+    }
+    bulkPasswordSummary(results);
+    await refreshPage();
+  }
+
+  async function bulkSetStatus(status) {
+    const targets = selectedRows();
+    if (!targets.length) return;
+    const verb = status === 'active' ? 'Activate' : 'Deactivate';
+    if (!confirm(`${verb} ${targets.length} selected ${targets.length === 1 ? 'person' : 'people'}?`)) return;
+    const results = [];
+    let i = 0;
+    for (const r of targets) {
+      i++; bulkProgress(i, targets.length, verb + 'ing');
+      try {
+        const res = await callManageUsers({ action: 'set_status', auth_user_id: r.auth_user_id, status });
+        results.push({ name: r.name, username: r.username, status: (res && res.ok === true) ? 'ok' : 'error', reason: (res && res.error) || '' });
+      } catch (e) { results.push({ name: r.name, username: r.username, status: 'error', reason: e.message || String(e) }); }
+    }
+    bulkResultsSummary(verb, results);
+    await refreshPage();
+  }
+
+  function bulkReassignManager() {
+    const targets = selectedRows();
+    if (!targets.length) return;
+    const opts = ['<option value="">-- none --</option>'].concat(
+      MANAGERS.map(m => `<option value="${m.id}">${escapeHtml(m.name || '')}</option>`)
+    ).join('');
+    const body = `<div style="display:flex;flex-direction:column;gap:10px">
+      <p style="font-size:0.85rem;color:var(--muted)">Reassign ${targets.length} selected ${targets.length === 1 ? 'person' : 'people'} to:</p>
+      <select id="bulkMgrSel" class="edit-input" style="max-width:none">${opts}</select>
+      <p style="font-size:0.76rem;color:var(--muted)">Cohort start date is left unchanged for each person.</p>
+    </div>`;
+    openModal('Reassign manager', body, 'Reassign', 'background:var(--green,#5eba28);color:#fff', () => commitBulkReassign(targets));
+  }
+  async function commitBulkReassign(targets) {
+    const sel = document.getElementById('bulkMgrSel');
+    const p_manager_id = sel && sel.value ? sel.value : null;
+    const btn = document.getElementById('modalConfirmBtn');
+    setModalLoading(btn, true, 'Reassign');
+    const results = [];
+    let i = 0;
+    for (const r of targets) {
+      i++; bulkProgress(i, targets.length, 'Reassigning');
+      // Cohort start date comes straight off the already-loaded row -- passed
+      // back unchanged so this call only ever moves parent_id.
+      const { error } = await supa.rpc('set_rep_assignment',
+        { p_rep_id: r.id, p_manager_id, p_cohort_start_date: r.cohort_start_date || null });
+      results.push({ name: r.name, username: r.username, status: error ? 'error' : 'reassigned', reason: error ? error.message : '' });
+    }
+    closeModal();
+    bulkResultsSummary('Reassign manager', results);
+    await refreshPage();
+  }
+
+  async function bulkRunOnboarding() {
+    const targets = selectedRows().filter(r => (r.role || '') === 'rep');
+    if (!targets.length) { alert('Onboarding setup is for reps only -- none of the selected people are reps.'); return; }
+    if (!confirm(`Run onboarding setup for ${targets.length} selected ${targets.length === 1 ? 'rep' : 'reps'}?`)) return;
+    const results = [];
+    let i = 0;
+    for (const r of targets) {
+      i++; bulkProgress(i, targets.length, 'Running onboarding');
+      try {
+        const { data, error } = await supa.rpc('seed_new_hire', { p_person_id: r.id });
+        if (error) results.push({ name: r.name, username: r.username, status: 'error', reason: error.message });
+        else results.push({ name: r.name, username: r.username, status: 'ok', reason: (data && data.certs_added || 0) + ' certs, ' + (data && data.tasks_added || 0) + ' tasks' });
+      } catch (e) { results.push({ name: r.name, username: r.username, status: 'error', reason: e.message || String(e) }); }
+    }
+    bulkResultsSummary('Onboarding', results);
   }
 
   // ── Per-person detail ──
@@ -4150,13 +4515,27 @@ async function deleteFeedback(id) {
   // only after the server confirms the password is live -- the sign-in message
   // can be copied from PW_LIVE and never from PW_GENERATED, so it is impossible
   // to hand someone a password that was never saved (incident 2026-08-03).
-  let D_REP = null, D_DATA = null, D_TAB = 'profile', EDITING = false, PW_OPEN = false, PW_GENERATED = '', PW_LIVE = '';
+  let D_REP = null, D_DATA = null, D_TAB = 'profile', PW_OPEN = false, PW_GENERATED = '', PW_LIVE = '';
   const D_TABS = [['profile','Profile'],['activity','Portal Logins'],['university','University'],['callwork','Call Work'],['feedback','Feedback']];
 
+  // Looks up the person on the currently-loaded page first (the common case:
+  // every row click and kebab action targets a visible row). Falls back to a
+  // fresh search-scoped fetch for the ?rep=<username> deep link, which can
+  // point at someone off the current page/filter.
   async function openRep(username) {
-    const rep = REPS.find(r => (r.username || '') === username);
+    let rep = ROWS.find(r => (r.username || '') === username);
+    if (!rep) {
+      try {
+        const { data, error } = await supa.rpc('admin_list_people', {
+          p_search: username, p_role: null, p_status: null, p_state: null, p_office: null,
+          p_division: null, p_manager_id: null, p_missing_setup: null, p_sort: 'name',
+          p_page: 1, p_page_size: 5,
+        });
+        if (!error && data && data.rows) rep = data.rows.find(r => (r.username || '') === username) || data.rows[0];
+      } catch (e) { console.warn('[people] openRep fallback search failed:', e); }
+    }
     if (!rep) return;
-    D_REP = decorate(rep); D_TAB = 'profile'; D_DATA = null; EDITING = false; PW_OPEN = false; PW_LIVE = '';
+    D_REP = decorate(rep); D_TAB = 'profile'; D_DATA = null; PW_OPEN = false; PW_LIVE = '';
     document.getElementById('console').style.display = 'none';
     document.getElementById('repDetail').style.display = 'block';
     document.getElementById('detailName').textContent = D_REP.name || username;
@@ -4214,7 +4593,7 @@ async function deleteFeedback(id) {
     document.getElementById('detailTabs').innerHTML = D_TABS.map(([id, label]) =>
       `<button class="dtab ${id === D_TAB ? 'active' : ''}" onclick="setDetailTab('${id}')">${label}</button>`).join('');
   }
-  function setDetailTab(t) { D_TAB = t; EDITING = false; PW_OPEN = false; PW_LIVE = ''; renderTabBar(); renderDetailTab(); }
+  function setDetailTab(t) { D_TAB = t; PW_OPEN = false; PW_LIVE = ''; renderTabBar(); renderDetailTab(); }
 
   function renderDetailTab() {
     const b = document.getElementById('detailBody');
@@ -4244,30 +4623,6 @@ async function deleteFeedback(id) {
     </div>`;
     const focusCard = focusCardHtml();
     if (!window.IS_ADMIN) return card + focusCard;
-    if (EDITING) {
-      const opts = MANAGERS.map(m =>
-        `<option value="${m.id}"${m.id === r.manager_id ? ' selected' : ''}>${escapeHtml(m.name || '')}</option>`).join('');
-      const cohortVal = r.cohort_start_date ? String(r.cohort_start_date).slice(0, 10) : '';
-      const initMgr = r.manager_id ? PEOPLE_BY_ID[r.manager_id] : null;
-      const initChain = chainDisplayHtml(r.name || 'This person', initMgr);
-      return card + focusCard + `
-      <div class="d-card edit-card">
-        <div class="section-h" style="margin-top:4px">Edit assignment</div>
-        <div id="editErr" class="auth-error" style="display:none"></div>
-        <label class="edit-label" for="editMgr">Manager</label>
-        <select id="editMgr" class="edit-input" onchange="onEditMgrChange()">
-          <option value="">-- none --</option>
-          ${opts}
-        </select>
-        <div id="editChain" style="font-size:0.82rem;color:var(--ink);margin-top:8px;line-height:1.5">${initChain}</div>
-        <label class="edit-label" for="editCohort">Cohort start date</label>
-        <input type="date" id="editCohort" class="edit-input" value="${cohortVal}">
-        <div class="edit-actions">
-          <button class="btn-save" onclick="saveAssignment()">Save</button>
-          <button class="btn-cancel" onclick="toggleEdit()">Cancel</button>
-        </div>
-      </div>`;
-    }
     const isActive = r.status === 'active';
     // Two-step panel. Step 1 offers no way to copy a credential message: the
     // password in the field is not live yet, and a message copied from it would
@@ -4293,7 +4648,7 @@ async function deleteFeedback(id) {
           <button class="btn-cancel" onclick="togglePw()">Cancel</button>
         </div>`
       : `<div class="acct-actions">
-          <button class="btn-edit" onclick="toggleEdit()">Edit assignment</button>
+          <button class="btn-edit" onclick="openPersonDrawer('edit','${escapeHtml(r.id)}')">Edit profile</button>
           <button class="btn-edit" onclick="togglePw()">Reset password</button>
           ${!isMgr ? `<button class="btn-edit" onclick="runOnboarding()">Run onboarding</button>` : ''}
           <button class="btn-edit" onclick="toggleRepStatus()">${isActive ? 'Deactivate' : 'Activate'}</button>
@@ -4357,38 +4712,12 @@ async function deleteFeedback(id) {
     return (r.role || '') === 'manager' ? 'Demote to rep' : 'Promote to manager';
   }
 
-  function toggleEdit() { EDITING = !EDITING; renderDetailTab(); }
-
-  async function saveAssignment() {
-    const mgrEl = document.getElementById('editMgr');
-    const cohortEl = document.getElementById('editCohort');
-    const errEl = document.getElementById('editErr');
-    const saveBtn = document.querySelector('#repDetail .btn-save');
-    const p_manager_id = mgrEl && mgrEl.value ? mgrEl.value : null;
-    const p_cohort_start_date = cohortEl && cohortEl.value ? cohortEl.value : null;
-    if (errEl) errEl.style.display = 'none';
-    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
-    const { error } = await supa.rpc('set_rep_assignment',
-      { p_rep_id: D_REP.id, p_manager_id, p_cohort_start_date });
-    if (error) {
-      if (errEl) {
-        errEl.style.display = 'block';
-        errEl.textContent = /not authorized/i.test(error.message || '') ? 'Admins only.' : (error.message || 'Save failed.');
-      }
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
-      return;
-    }
-    const idx = REPS.findIndex(x => x.id === D_REP.id);
-    if (idx >= 0) {
-      REPS[idx].manager_id = p_manager_id;
-      REPS[idx].parent_id = p_manager_id;
-      REPS[idx].cohort_start_date = p_cohort_start_date;
-      D_REP = decorate(REPS[idx]);
-    }
-    EDITING = false;
-    renderDetailTab();
-    render();
-  }
+  // NOTE: the old inline "Edit assignment" card (toggleEdit/EDITING state +
+  // saveAssignment(), which called set_rep_assignment directly) is retired --
+  // superseded by the "Edit profile" button above, which opens the shared
+  // person drawer in edit mode. The drawer's Save still calls
+  // set_rep_assignment for Manager + Cohort (see savePersonDrawer), it is
+  // just no longer a standalone form of its own.
 
   // ── Account / CRUD actions (admin-only). Reuses the same manage-users Edge
   // Function admin.html uses; it enforces is_admin server-side. Buttons are
@@ -4515,8 +4844,7 @@ async function deleteFeedback(id) {
       if (btn) { btn.disabled = false; btn.textContent = 'Set password'; }
       return;
     }
-    const idx = REPS.findIndex(x => x.id === D_REP.id);
-    if (idx >= 0) { REPS[idx].must_change_password = true; D_REP = decorate(REPS[idx]); }
+    D_REP = { ...D_REP, must_change_password: true };
     // Confirmed live -- only now does a copyable sign-in message exist.
     PW_LIVE = pw;
     renderDetailTab();
@@ -4546,10 +4874,9 @@ async function deleteFeedback(id) {
       acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
       return;
     }
-    const idx = REPS.findIndex(x => x.id === D_REP.id);
-    if (idx >= 0) { REPS[idx].status = newStatus; D_REP = decorate(REPS[idx]); }
+    D_REP = { ...D_REP, status: newStatus };
     renderDetailTab();
-    render();
+    await refreshPage();
     acctMsg((D_REP.name || 'Person') + ' ' + (isActive ? 'deactivated' : 'reactivated') + '.', false);
   }
 
@@ -4566,17 +4893,12 @@ async function deleteFeedback(id) {
       acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
       return;
     }
-    const idx = REPS.findIndex(x => x.id === D_REP.id);
-    if (idx >= 0) {
-      REPS[idx].role = newKind;
-      if (newKind === 'rep') REPS[idx].is_admin = false;
-      D_REP = decorate(REPS[idx]);
-    }
-    // Manager set changed -- refresh the manager dropdown source.
-    await fetchData();
+    D_REP = { ...D_REP, role: newKind, is_admin: newKind === 'rep' ? false : D_REP.is_admin };
+    // Manager set changed -- refresh the manager dropdown source too.
+    await loadManagers();
     populateMgrFilter();
     renderDetailTab();
-    render();
+    await refreshPage();
     acctMsg((D_REP.name || 'Person') + (isMgr ? ' demoted to rep.' : ' promoted to manager.'), false);
   }
 
@@ -4589,10 +4911,9 @@ async function deleteFeedback(id) {
       acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
       return;
     }
-    const idx = REPS.findIndex(x => x.id === D_REP.id);
-    if (idx >= 0) { REPS[idx].is_admin = newAdmin; D_REP = decorate(REPS[idx]); }
+    D_REP = { ...D_REP, is_admin: newAdmin };
     renderDetailTab();
-    render();
+    await refreshPage();
     acctMsg((D_REP.name || 'Manager') + (newAdmin ? ' promoted to admin.' : ' demoted from admin.'), false);
   }
 
@@ -4604,9 +4925,8 @@ async function deleteFeedback(id) {
       acctMsg(/admin|authoriz|403/i.test(result.error) ? 'Admins only.' : result.error, true);
       return;
     }
-    REPS = REPS.filter(x => x.id !== D_REP.id);
     backToList();
-    render();
+    await refreshPage();
   }
 
   // ── Canonical org config (/org-config.js) ─────────────────────────────────
@@ -4655,267 +4975,520 @@ async function deleteFeedback(id) {
     return init + last;
   }
 
-  // ── Add person (roster action). Creates via manage-users action:'create'. ──
-  // Clean in-UI Add Person flow (replaces the old prompt()/confirm() system
-  // dialogs). Routes through the shared modal core (openModal) with edit-well
-  // styling to match the Reset Password design, and ends in a copy-paste invite
-  // card built from the shared buildInviteMessage().
+  // ── Add / Edit person drawer ──────────────────────────────────────────
+  // One component, two modes, replacing the old modal-based Add Person form
+  // (which is now Create mode here) plus the retired inline "Edit assignment"
+  // card (now folded into Edit mode). Create still routes through
+  // manage-users action:'create' (unchanged contract) and ends in the same
+  // copy-paste invite card as before (showInviteCard, below). Edit routes
+  // through the new manage-users action:'update' PLUS set_rep_assignment for
+  // Manager/Cohort -- two backend calls surfaced as one Save button.
   //
-  // Rebuilt 2026-08-03. What changed and why:
-  //   - Department + Position replace the Role/Tier/Admin/National controls.
-  //     Those four could be set to combinations that contradict each other --
-  //     a "Regional" scoped to one state with National ticked silently sees
-  //     every state, which is exactly how one manager got mis-scoped. Position
-  //     derives role + tier + the national default, and the form states in
-  //     plain words what the person will actually see.
-  //   - Departments exist at all, so Sales Ops / Call Center / Install /
-  //     Finance / IT / Legal / HR get accounts without pretending they sell.
-  //   - State is multi-select, because people.states is an array.
-  //   - Sales office is a closed list cascaded off the chosen states, not free
-  //     text. get_my_reps() scopes an ADM by string equality on sales_office,
-  //     so a typo there silently empties their roster with no error anywhere.
-  async function addPerson() {
+  // Department + a derived "position lookup" (effectivePosition -- a reverse
+  // lookup into ORG_CONFIG by department+kind+tier) still governs what's
+  // asked for and what's sent, carrying forward the reasoning from the
+  // pre-drawer Add Person rebuild (2026-08-03): Role/Tier/Admin/National as
+  // four independent controls could be set to combinations that contradict
+  // each other -- a "Regional" scoped to one state with National ticked
+  // silently saw every state, which is exactly how one manager got
+  // mis-scoped. A position (found here from department+kind+tier rather than
+  // picked directly) derives needs_rep_key / needs_office / allow_admin /
+  // is_national / seeds_onboarding, and the drawer states in plain words what
+  // the person will actually see.
+  let PD_MODE = 'create', PD_PERSON = null;
+
+  // Injected under #tabUsers (not document.body, unlike the bulk wizard) so
+  // the shared #tabUsers-scoped edit-label/edit-input/section-h styling
+  // applies without repeating it.
+  function drawerShell() {
+    let wrap = document.getElementById('personDrawerWrap');
+    if (wrap) return wrap;
+    const host = document.getElementById('tabUsers');
+    wrap = document.createElement('div');
+    wrap.id = 'personDrawerWrap';
+    wrap.innerHTML = `
+      <div id="personDrawerBackdrop" class="pd-backdrop"></div>
+      <div id="personDrawer" class="pd-drawer" role="dialog" aria-modal="true" aria-labelledby="pdTitle">
+        <div class="pd-head">
+          <h3 id="pdTitle">Add person</h3>
+          <button type="button" class="pd-close" id="pdClose" aria-label="Close">&times;</button>
+        </div>
+        <div class="pd-body" id="pdBody"></div>
+        <div class="pd-foot">
+          <div id="pdErr" class="pd-err" style="display:none"></div>
+          <div class="pd-foot-actions">
+            <button type="button" class="btn-cancel" id="pdCancel">Cancel</button>
+            <button type="button" class="btn-save" id="pdSave">Save</button>
+          </div>
+        </div>
+      </div>`;
+    host.appendChild(wrap);
+    document.getElementById('pdClose').onclick = closePersonDrawer;
+    document.getElementById('pdCancel').onclick = closePersonDrawer;
+    document.getElementById('personDrawerBackdrop').onclick = closePersonDrawer;
+    return wrap;
+  }
+
+  function closePersonDrawer() {
+    const backdrop = document.getElementById('personDrawerBackdrop');
+    const drawer = document.getElementById('personDrawer');
+    if (backdrop) backdrop.classList.remove('open');
+    if (drawer) drawer.classList.remove('open');
+  }
+
+  function showDrawerErr(msg) {
+    const el = document.getElementById('pdErr');
+    if (el) { el.textContent = msg; el.style.display = 'block'; }
+  }
+
+  // Full record for Edit mode. The table row already carries everything the
+  // drawer needs (admin_list_people's shape), so this only hits the network
+  // when editing someone off the currently-loaded page (e.g. a kebab action
+  // right after a filter change moved them off-page).
+  async function getPersonFull(id) {
+    const inPage = ROWS.find(r => r.id === id);
+    if (inPage) return inPage;
+    const { data, error } = await supa.from('people')
+      .select('id, auth_user_id, name, username, email, role, is_admin, status, parent_id, cohort_start_date, must_change_password, spd_slug, division, sales_office, tier, department, title, sub_department, states, is_national, photo_url')
+      .eq('id', id).maybeSingle();
+    if (error || !data) { console.warn('[people] getPersonFull failed:', error); return null; }
+    data.manager_name = data.parent_id && MGR_BY_ID[data.parent_id] ? (MGR_BY_ID[data.parent_id].name || '') : '';
+    return data;
+  }
+
+  // Live "is this taken" checks replace the old REPS-array .some() scans --
+  // the roster is no longer loaded whole into memory (admin_list_people is
+  // paginated), so uniqueness is checked against the server instead.
+  async function checkUsernameTaken(v) {
+    if (!v) return false;
+    const { data } = await supa.from('people').select('id').ilike('username', v).limit(1);
+    return !!(data && data.length);
+  }
+  async function checkSlugTaken(v, excludeId) {
+    if (!v) return false;
+    let q = supa.from('people').select('id').eq('spd_slug', v).limit(1);
+    if (excludeId) q = q.neq('id', excludeId);
+    const { data } = await q;
+    return !!(data && data.length);
+  }
+
+  // Reverse-lookup from (department, kind, tier) into ORG_CONFIG's positions
+  // list -- the source of truth for needs_rep_key / needs_office /
+  // allow_admin / is_national / seeds_onboarding / sees. Best-effort fallback
+  // chain so an edit on an odd/legacy combination still resolves to something
+  // sane rather than hiding every gated field.
+  function effectivePosition(department, kind, tier) {
+    const list = positionsFor(department || 'sales');
+    let cand = list.filter(p => p.role === kind && (p.tier || null) === (tier || null));
+    if (!cand.length) cand = list.filter(p => p.role === kind);
+    if (!cand.length) cand = ORG().positions.filter(p => p.role === kind);
+    return cand[0] || null;
+  }
+
+  async function openPersonDrawer(mode, personId) {
     if (!window.IS_ADMIN) { alert('Admins only.'); return; }
+    drawerShell();
+    let person = null;
+    if (mode === 'edit') {
+      person = await getPersonFull(personId);
+      if (!person) { alert('Could not load this person.'); return; }
+    }
+    PD_MODE = mode; PD_PERSON = person;
+    document.getElementById('pdTitle').textContent = mode === 'edit' ? ('Edit ' + (person.name || 'person')) : 'Add person';
+    document.getElementById('pdErr').style.display = 'none';
+    document.getElementById('pdBody').innerHTML = buildDrawerBody(mode, person);
+    const saveBtn = document.getElementById('pdSave');
+    saveBtn.disabled = false; saveBtn.textContent = 'Save';
+    saveBtn.onclick = () => savePersonDrawer(mode, personId);
+    wireDrawerEvents(mode, person);
+    document.getElementById('personDrawerBackdrop').classList.add('open');
+    document.getElementById('personDrawer').classList.add('open');
+  }
+
+  function buildDrawerBody(mode, person) {
     const cfg = ORG();
-    const mgrs = (REPS || []).filter(p => (p.role || '') === 'manager')
-      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    const isEdit = mode === 'edit';
+    const kind = isEdit ? (person.role || 'rep') : 'rep';
+
     const mgrOpts = ['<option value="">-- none --</option>'].concat(
-      mgrs.map(m => `<option value="${m.id}">${escapeHtml(m.name || m.username || m.id)}</option>`)
+      MANAGERS.map(m => `<option value="${m.id}"${isEdit && person.parent_id === m.id ? ' selected' : ''}>${escapeHtml(m.name || m.username || m.id)}</option>`)
     ).join('');
 
-    // States: canonical list, plus anything already on the roster so an
-    // existing person's state is never unpickable.
+    // States: canonical list, plus this person's own states (edit) so an
+    // existing state assignment is never unpickable.
     const stateKeys = new Set(Object.keys(cfg.states));
-    (REPS || []).forEach(p => (p.states || []).forEach(s => s && stateKeys.add(String(s).toUpperCase())));
-    const dflt = cfg.default_state;
+    (isEdit ? (person.states || []) : []).forEach(s => s && stateKeys.add(String(s).toUpperCase()));
+    const pickedSet = new Set(isEdit ? (person.states || []).map(s => String(s).toUpperCase()) : [cfg.default_state]);
     const stateBoxes = Array.from(stateKeys).sort().map(s => {
       const label = (cfg.states[s] && cfg.states[s].label) || s;
-      return `<label style="display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;margin:0 14px 6px 0;white-space:nowrap">
-        <input type="checkbox" class="apStateBox" value="${escapeHtml(s)}"${s === dflt ? ' checked' : ''} style="width:auto"> ${escapeHtml(s)}
-        <span style="color:var(--muted,#6B7280)">${escapeHtml(label)}</span></label>`;
+      return `<label class="pd-check-inline" style="margin:0 14px 6px 0"><input type="checkbox" class="pdStateBox" value="${escapeHtml(s)}"${pickedSet.has(s) ? ' checked' : ''}> ${escapeHtml(s)} <span style="color:var(--muted)">${escapeHtml(label)}</span></label>`;
     }).join('');
 
     const deptOpts = cfg.departments.map(d =>
-      `<option value="${escapeHtml(d.key)}">${escapeHtml(d.label)}</option>`).join('');
+      `<option value="${escapeHtml(d.key)}"${isEdit && person.department === d.key ? ' selected' : ''}>${escapeHtml(d.label)}</option>`).join('');
+
+    const tierOpts = ['', 'adm', 'dm', 'regional', 'vp', 'executive'].map(t =>
+      `<option value="${t}"${isEdit && (person.tier || '') === t ? ' selected' : ''}>${t ? t.toUpperCase() : '-- none --'}</option>`).join('');
 
     const warn = orgLoaded() ? '' : `<div style="font-size:0.78rem;color:#8a6d1f;background:#FDF6E3;border:1px solid #EBD9A6;border-radius:8px;padding:9px 12px;line-height:1.5">
       /org-config.js did not load, so only Connecticut and Sales are offered. Fix that before adding anyone outside CT.</div>`;
 
-    const body = `
-      <div style="display:flex;flex-direction:column;gap:13px">
-        ${warn}
-        <div>
-          <label class="edit-label" for="apName">Full name</label>
-          <input id="apName" class="edit-input" type="text" placeholder="Jane Smith" autocomplete="off">
+    const identity = `
+      ${warn}
+      <div class="section-h" style="margin-top:0">Identity</div>
+      <div>
+        <label class="edit-label" for="pdName">Full name</label>
+        <input id="pdName" class="edit-input" style="max-width:none" type="text" value="${isEdit ? escapeHtml(person.name || '') : ''}" placeholder="Jane Smith" autocomplete="off">
+      </div>
+      ${isEdit ? `
+      <div>
+        <label class="edit-label">Username / email</label>
+        <div class="pd-readonly">${escapeHtml(person.username || '--')} &middot; ${escapeHtml(person.email || ((person.username || '') + '@ct-resource-page.com'))}</div>
+        <div class="pd-hint">Username and sign-in email can't be changed here yet.</div>
+      </div>` : `
+      <div>
+        <label class="edit-label" for="pdUser">Username</label>
+        <input id="pdUser" class="edit-input" style="max-width:none" type="text" placeholder="jsmith" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">
+        <div id="pdUserMsg" class="pd-hint">Auto-filled as first initial + last name. Becomes &lt;username&gt;@ct-resource-page.com. No email is sent.</div>
+      </div>`}`;
+
+    const kindRow = !isEdit ? `
+      <div>
+        <label class="edit-label">Kind</label>
+        <div style="display:flex;gap:16px;padding-top:2px">
+          <label class="pd-check-inline"><input type="radio" name="pdKind" value="rep" checked> Rep</label>
+          <label class="pd-check-inline"><input type="radio" name="pdKind" value="manager"> Manager</label>
         </div>
-        <div>
-          <label class="edit-label" for="apUser">Username</label>
-          <input id="apUser" class="edit-input" type="text" placeholder="jsmith" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">
-          <div id="apUserMsg" style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px">Auto-filled as first initial + last name. Becomes &lt;username&gt;@ct-resource-page.com. No email is sent.</div>
+      </div>` : `
+      <div class="pd-hint" style="margin-top:0">Role: <strong>${escapeHtml(kind === 'manager' ? (person.is_admin ? 'Manager (Admin)' : 'Manager') : 'Rep')}</strong> &middot; change via Promote/Demote in the detail view, not here.</div>`;
+
+    const assignment = `
+      <div class="section-h">Assignment &amp; territory</div>
+      <div>
+        <label class="edit-label">State${'' /* multi: people.states is an array */}<span style="font-weight:400;color:var(--muted)"> (tick every state they cover)</span></label>
+        <div id="pdStates" style="padding-top:3px">${stateBoxes}</div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div id="pdOfficeRow" style="flex:1;min-width:150px">
+          <label class="edit-label" for="pdOffice">Sales office</label>
+          <select id="pdOffice" class="edit-input" style="max-width:none"></select>
+          <div id="pdOfficeMsg" class="pd-hint"></div>
         </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:150px">
-            <label class="edit-label" for="apDept">Department</label>
-            <select id="apDept" class="edit-input">${deptOpts}</select>
-          </div>
-          <div style="flex:1;min-width:150px">
-            <label class="edit-label" for="apPos">Position</label>
-            <select id="apPos" class="edit-input"></select>
-          </div>
+        <div id="pdDivisionRow" style="flex:1;min-width:150px">
+          <label class="edit-label" for="pdDivision">Division</label>
+          <select id="pdDivision" class="edit-input" style="max-width:none"></select>
         </div>
-        <div id="apSeesBox" style="font-size:0.79rem;line-height:1.5;background:#EFF1EC;border:1px solid var(--border,#DFE2DA);border-radius:8px;padding:9px 12px"></div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div style="flex:1;min-width:150px">
-            <label class="edit-label" for="apTitle">Job title <span style="font-weight:400;color:var(--muted,#6B7280)">(optional)</span></label>
-            <input id="apTitle" class="edit-input" type="text" placeholder="Director - Data Management" autocomplete="off">
-          </div>
-          <div style="flex:1;min-width:150px">
-            <label class="edit-label" for="apSubDept">Sub-department <span style="font-weight:400;color:var(--muted,#6B7280)">(optional)</span></label>
-            <input id="apSubDept" class="edit-input" type="text" placeholder="BT - Data" autocomplete="off">
-          </div>
-        </div>
-        <div style="font-size:0.74rem;color:var(--muted,#6B7280);margin:-6px 0 0">As the HR directory words them. Labels only &mdash; neither affects what the person can see.</div>
-        <div>
-          <label class="edit-label">State${'' /* multi: people.states is an array */}<span style="font-weight:400;color:var(--muted,#6B7280)"> (tick every state they cover)</span></label>
-          <div id="apStates" style="padding-top:3px">${stateBoxes}</div>
-        </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <div id="apOfficeRow" style="flex:1;min-width:150px">
-            <label class="edit-label" for="apOffice">Sales office</label>
-            <select id="apOffice" class="edit-input"></select>
-            <div id="apOfficeMsg" style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px"></div>
-          </div>
-          <div id="apDivisionRow" style="flex:1;min-width:150px">
-            <label class="edit-label" for="apDivision">Division</label>
-            <select id="apDivision" class="edit-input"></select>
-          </div>
-        </div>
-        <div>
-          <label class="edit-label" for="apStart">Start date</label>
-          <input id="apStart" class="edit-input" type="date" style="max-width:none">
-        </div>
-        <div>
-          <label class="edit-label" for="apMgr">Reports to</label>
-          <select id="apMgr" class="edit-input">${mgrOpts}</select>
-        </div>
-        <div id="apSlugRow">
-          <label class="edit-label" for="apSlug">Rep key <span style="font-weight:400;color:var(--muted,#6B7280)">(canonical id &mdash; links performance, university &amp; schedule)</span></label>
-          <input id="apSlug" class="edit-input" type="text" placeholder="lastname_f" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">
-          <div id="apSlugMsg" style="font-size:0.74rem;color:var(--muted,#6B7280);margin-top:5px">Auto-filled from the name (lastname_firstinitial). Required so they show in pickers + Rep 360.</div>
-        </div>
-        <label id="apAdminRow" style="display:none;align-items:center;gap:8px;font-size:0.82rem;color:var(--text,#1A2332)">
-          <input id="apAdmin" type="checkbox" style="width:auto"> Grant admin (manage users, edit content, and see every person in every state)
-        </label>
-        <label id="apNatRow" style="display:none;align-items:center;gap:8px;font-size:0.82rem;color:var(--text,#1A2332)">
-          <input id="apNat" type="checkbox" style="width:auto"> National (overrides the states above &mdash; they see every state)
-        </label>
+      </div>
+      <div>
+        <label class="edit-label" for="pdMgr">Manager</label>
+        <select id="pdMgr" class="edit-input" style="max-width:none">${mgrOpts}</select>
+        <div id="pdMgrChain" class="pd-hint"></div>
+      </div>
+      <div>
+        <label class="edit-label" for="pdCohort">Cohort start date</label>
+        <input id="pdCohort" class="edit-input" style="max-width:none" type="date" value="${isEdit && person.cohort_start_date ? String(person.cohort_start_date).slice(0, 10) : ''}">
       </div>`;
-    openModal('Add person', body, 'Create', 'background:var(--green,#5eba28);color:#fff', submitAddPerson);
 
-    const nameEl = document.getElementById('apName');
-    const userEl = document.getElementById('apUser');
-    const slugEl = document.getElementById('apSlug');
-    const deptEl = document.getElementById('apDept');
-    const posEl = document.getElementById('apPos');
-    let slugEdited = false, userEdited = false;
+    const roleDetails = `
+      <div class="section-h">Role details</div>
+      ${kindRow}
+      <div id="pdTierRow" style="display:none">
+        <label class="edit-label" for="pdTier">Tier</label>
+        <select id="pdTier" class="edit-input" style="max-width:none">${tierOpts}</select>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:150px">
+          <label class="edit-label" for="pdDept">Department</label>
+          <select id="pdDept" class="edit-input" style="max-width:none">${deptOpts}</select>
+        </div>
+        <div style="flex:1;min-width:150px">
+          <label class="edit-label" for="pdTitle">Job title <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+          <input id="pdTitle" class="edit-input" style="max-width:none" type="text" value="${isEdit ? escapeHtml(person.title || '') : ''}" placeholder="Director - Data Management" autocomplete="off">
+        </div>
+      </div>
+      <div>
+        <label class="edit-label" for="pdSubDept">Sub-department <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+        <input id="pdSubDept" class="edit-input" style="max-width:none" type="text" value="${isEdit ? escapeHtml(person.sub_department || '') : ''}" placeholder="BT - Data" autocomplete="off">
+      </div>
+      <div style="font-size:0.74rem;color:var(--muted);margin:-6px 0 0">As the HR directory words them. Labels only &mdash; neither affects what the person can see.</div>
+      <div id="pdSeesBox" class="pd-sees"></div>`;
 
-    function pickedStates() {
-      return Array.from(document.querySelectorAll('.apStateBox')).filter(b => b.checked).map(b => b.value);
+    const repKey = `
+      <div id="pdSlugRow">
+        <div class="section-h">Rep key</div>
+        <label class="edit-label" for="pdSlug">Rep key <span style="font-weight:400;color:var(--muted)">(canonical id &mdash; links performance, university &amp; schedule)</span></label>
+        <input id="pdSlug" class="edit-input" style="max-width:none" type="text" value="${isEdit ? escapeHtml(person.spd_slug || '') : ''}" placeholder="lastname_f" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="off">
+        <div id="pdSlugMsg" class="pd-hint">Auto-filled from the name (lastname_firstinitial). Required so they show in pickers + Rep 360.</div>
+      </div>`;
+
+    const natFlag = `
+      <label id="pdNatRow" style="display:none;align-items:center;gap:8px;font-size:0.82rem;color:var(--ink)">
+        <input id="pdNat" type="checkbox" style="width:auto"${isEdit && person.is_national ? ' checked' : ''}> National (overrides the states above &mdash; they see every state)
+      </label>`;
+
+    return identity + assignment + roleDetails + repKey + natFlag;
+  }
+
+  function wireDrawerEvents(mode, person) {
+    const isEdit = mode === 'edit';
+    const nameEl = document.getElementById('pdName');
+    const userEl = document.getElementById('pdUser');
+    const slugEl = document.getElementById('pdSlug');
+    const deptEl = document.getElementById('pdDept');
+    const tierEl = document.getElementById('pdTier');
+    const mgrSelEl = document.getElementById('pdMgr');
+    const mgrChainEl = document.getElementById('pdMgrChain');
+    let slugEdited = isEdit, userEdited = false;
+    let slugTimer = null, userTimer = null;
+
+    function pickedStates() { return Array.from(document.querySelectorAll('.pdStateBox')).filter(b => b.checked).map(b => b.value); }
+    function currentKind() {
+      if (isEdit) return person.role || 'rep';
+      const sel = document.querySelector('input[name=pdKind]:checked');
+      return sel ? sel.value : 'rep';
     }
 
-    function checkSlug() {
-      const msg = document.getElementById('apSlugMsg');
+    // Debounced live availability check -- replaces the old in-memory REPS
+    // array scan now that the roster isn't loaded whole client-side.
+    function checkSlugMsg() {
+      const msg = document.getElementById('pdSlugMsg');
       const v = (slugEl.value || '').trim().toLowerCase();
       if (!msg) return;
-      if (!v) { msg.textContent = 'Required so they show in pickers + Rep 360.'; msg.style.color = 'var(--muted,#6B7280)'; return; }
-      if ((REPS || []).some(p => (p.spd_slug || '') === v)) {
-        msg.textContent = 'That rep key is already taken. Pick another.'; msg.style.color = '#C94F5A';
-      } else {
-        msg.textContent = 'Rep key: ' + v; msg.style.color = 'var(--green-dark,#3d8b1f)';
-      }
+      if (!v) { msg.textContent = 'Required so they show in pickers + Rep 360.'; msg.className = 'pd-hint'; return; }
+      clearTimeout(slugTimer);
+      msg.textContent = 'Checking...'; msg.className = 'pd-hint';
+      slugTimer = setTimeout(async () => {
+        const taken = await checkSlugTaken(v, isEdit ? person.id : null);
+        msg.textContent = taken ? 'That rep key is already taken. Pick another.' : ('Rep key: ' + v);
+        msg.className = 'pd-hint ' + (taken ? 'pd-hint-bad' : 'pd-hint-ok');
+      }, 300);
     }
 
-    function checkUser() {
-      const msg = document.getElementById('apUserMsg');
+    function checkUserMsg() {
+      if (isEdit) return;
+      const msg = document.getElementById('pdUserMsg');
       const v = (userEl.value || '').trim().toLowerCase();
       if (!msg) return;
-      if (v && (REPS || []).some(p => (p.username || '').toLowerCase() === v)) {
-        msg.textContent = 'That username is already taken. Pick another.'; msg.style.color = '#C94F5A';
-      } else {
-        msg.textContent = 'Signs in as ' + (v || '<username>') + '. No email is sent.';
-        msg.style.color = 'var(--muted,#6B7280)';
-      }
+      if (!v) { msg.textContent = 'Auto-filled as first initial + last name. Becomes <username>@ct-resource-page.com.'; msg.className = 'pd-hint'; return; }
+      clearTimeout(userTimer);
+      msg.textContent = 'Checking...'; msg.className = 'pd-hint';
+      userTimer = setTimeout(async () => {
+        const taken = await checkUsernameTaken(v);
+        msg.textContent = taken ? 'That username is already taken. Pick another.' : ('Signs in as ' + v + '. No email is sent.');
+        msg.className = 'pd-hint' + (taken ? ' pd-hint-bad' : '');
+      }, 300);
     }
 
-    // Rebuild everything downstream of Department + Position + States.
-    function syncPosition() {
-      const dept = deptEl.value;
-      const list = positionsFor(dept);
-      const keep = posEl.value;
-      posEl.innerHTML = list.map(p =>
-        `<option value="${escapeHtml(p.key)}">${escapeHtml(p.label)}</option>`).join('');
-      if (list.some(p => p.key === keep)) posEl.value = keep;
-      syncFields();
-    }
-
-    function syncFields() {
-      const pos = positionByKey(posEl.value) || {};
-      const states = pickedStates();
-      const cfgNow = ORG();
-
-      // Offices for the chosen states only -- this is the bug being fixed:
-      // picking NY used to still offer CT offices.
-      const offices = [];
-      states.forEach(s => ((cfgNow.states[s] || {}).offices || []).forEach(o => {
-        if (offices.indexOf(o) < 0) offices.push(o);
-      }));
-      // Fail-safe: an office someone is ALREADY assigned to must stay pickable
-      // even if org-config.js has fallen behind. Closing the list fixed the
-      // typo problem, but a closed list that has drifted from reality would
-      // make a real office impossible to choose. Keyed off the person's own
-      // states rather than parsing the office string, so it stays correct if
-      // the naming convention ever changes.
-      (REPS || []).forEach(p => {
-        if (!p.sales_office || offices.indexOf(p.sales_office) >= 0) return;
-        if ((p.states || []).some(s => states.indexOf(String(s).toUpperCase()) >= 0)) {
-          offices.push(p.sales_office);
-        }
-      });
-      const offEl = document.getElementById('apOffice');
-      const offKeep = offEl.value;
-      offEl.innerHTML = ['<option value="">-- none --</option>']
-        .concat(offices.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`)).join('');
-      if (offices.indexOf(offKeep) >= 0) offEl.value = offKeep;
-      const offMsg = document.getElementById('apOfficeMsg');
-      if (offMsg) {
-        offMsg.textContent = !states.length ? 'Pick a state first.'
-          : !offices.length ? 'No offices configured for ' + states.join(', ') + ' yet.'
-          : pos.needs_office ? 'Must be exact -- an ADM with a mismatched office sees nobody.'
-          : 'Optional for this position.';
-      }
-      document.getElementById('apOfficeRow').style.display = (pos.needs_office || offices.length) ? 'block' : 'none';
-
-      // Divisions likewise follow the chosen states, and only apply to sales.
-      const divs = [];
-      states.forEach(s => ((cfgNow.states[s] || {}).divisions || []).forEach(d => {
-        if (divs.indexOf(d) < 0) divs.push(d);
-      }));
-      const isSales = (cfgNow.departments.find(d => d.key === deptEl.value) || {}).is_sales === true;
-      const divEl = document.getElementById('apDivision');
-      const divKeep = divEl.value;
-      divEl.innerHTML = ['<option value="">-- none --</option>']
-        .concat(divs.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`)).join('');
-      divEl.value = divs.indexOf(divKeep) >= 0 ? divKeep : (divs[0] || '');
-      document.getElementById('apDivisionRow').style.display = isSales ? 'block' : 'none';
-
-      document.getElementById('apSlugRow').style.display = pos.needs_rep_key ? 'block' : 'none';
-
-      const adminRow = document.getElementById('apAdminRow');
-      const natRow = document.getElementById('apNatRow');
-      adminRow.style.display = pos.allow_admin ? 'flex' : 'none';
-      if (!pos.allow_admin) document.getElementById('apAdmin').checked = false;
-      // National is only a choice for positions that are not already national.
-      natRow.style.display = (pos.role === 'manager' && !pos.is_national) ? 'flex' : 'none';
-      if (pos.is_national) document.getElementById('apNat').checked = true;
-      else if (pos.role !== 'manager') document.getElementById('apNat').checked = false;
-
-      renderSees();
-    }
-
-    // The whole point of the Position control: say what this actually grants,
+    // The whole point of the position lookup: say what this actually grants,
     // in the order the server resolves it (admin > national > tier > states).
-    function renderSees() {
-      const box = document.getElementById('apSeesBox');
-      const pos = positionByKey(posEl.value);
-      if (!box || !pos) return;
-      const states = pickedStates();
-      const isAdmin = document.getElementById('apAdmin').checked;
-      const isNat = document.getElementById('apNat').checked || pos.is_national === true;
-      let line;
-      if (isAdmin) line = 'Everyone, in every state, and can manage users and content. Admin overrides the states ticked above.';
-      else if (isNat) line = 'Everyone, in every state. National overrides the states ticked above.';
-      else line = pos.sees.replace('their state(s)', states.length ? states.join(' + ') : 'their state(s)');
+    function renderSeesDrawer(pos, states) {
+      const box = document.getElementById('pdSeesBox');
+      if (!box || !pos) { if (box) box.innerHTML = ''; return; }
+      const isNat = (document.getElementById('pdNat') || {}).checked || pos.is_national === true;
+      const line = isNat ? 'Everyone, in every state. National overrides the states ticked above.'
+        : pos.sees.replace('their state(s)', states.length ? states.join(' + ') : 'their state(s)');
       const extras = [];
       if (pos.seeds_onboarding) extras.push('Gets the Foundations + DISC certs and starter tasks.');
       if (!pos.needs_rep_key) extras.push('No rep key, so never appears in a sales roster.');
-      box.innerHTML = `<strong>They will see:</strong> ${escapeHtml(line)}`
-        + (extras.length ? `<div style="margin-top:4px;color:var(--muted,#6B7280)">${escapeHtml(extras.join(' '))}</div>` : '');
+      box.innerHTML = `<strong>They will see:</strong> ${escapeHtml(line)}` + (extras.length ? `<div style="margin-top:4px;color:var(--muted)">${escapeHtml(extras.join(' '))}</div>` : '');
+    }
+
+    // Live chain preview under the Manager select -- the fixed instruction
+    // for chainDisplayHtml(): read sales_office directly off the chosen
+    // manager rather than walking a chain (OFFICE_BY_ADM/chainPeople/officeOf
+    // are retired; every manager carries a real sales_office column now).
+    function updateMgrChain() {
+      if (!mgrChainEl || !mgrSelEl) return;
+      const mgr = mgrSelEl.value ? MGR_BY_ID[mgrSelEl.value] : null;
+      mgrChainEl.innerHTML = chainDisplayHtml((nameEl && nameEl.value) || (isEdit && person.name) || 'This person', mgr);
+    }
+
+    function syncFields() {
+      const kind = currentKind();
+      const states = pickedStates();
+      const cfgNow = ORG();
+      const department = deptEl.value;
+      document.getElementById('pdTierRow').style.display = kind === 'manager' ? 'block' : 'none';
+      const tier = kind === 'manager' ? (tierEl.value || null) : null;
+      const pos = effectivePosition(department, kind, tier);
+
+      // Offices for the chosen states only -- picking NY must not still offer
+      // CT offices.
+      const offices = [];
+      states.forEach(s => ((cfgNow.states[s] || {}).offices || []).forEach(o => { if (offices.indexOf(o) < 0) offices.push(o); }));
+      // Fail-safe: this person's OWN current office (edit mode) must stay
+      // pickable even if org-config.js has fallen behind.
+      if (isEdit && person.sales_office && offices.indexOf(person.sales_office) < 0) offices.push(person.sales_office);
+      const offEl = document.getElementById('pdOffice');
+      const offKeep = offEl.value || (isEdit ? person.sales_office : '') || '';
+      offEl.innerHTML = ['<option value="">-- none --</option>'].concat(offices.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`)).join('');
+      if (offices.indexOf(offKeep) >= 0) offEl.value = offKeep;
+      const offMsg = document.getElementById('pdOfficeMsg');
+      if (offMsg) offMsg.textContent = !states.length ? 'Pick a state first.'
+        : !offices.length ? 'No offices configured for ' + states.join(', ') + ' yet.'
+        : (pos && pos.needs_office) ? 'Must be exact -- an ADM with a mismatched office sees nobody.' : 'Optional for this role.';
+      document.getElementById('pdOfficeRow').style.display = ((pos && pos.needs_office) || offices.length) ? 'block' : 'none';
+
+      // Divisions likewise follow the chosen states, and only apply to sales.
+      const divs = [];
+      states.forEach(s => ((cfgNow.states[s] || {}).divisions || []).forEach(d => { if (divs.indexOf(d) < 0) divs.push(d); }));
+      const isSales = (cfgNow.departments.find(d => d.key === department) || {}).is_sales === true;
+      const divEl = document.getElementById('pdDivision');
+      const divKeep = divEl.value || (isEdit ? person.division : '') || '';
+      divEl.innerHTML = ['<option value="">-- none --</option>'].concat(divs.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`)).join('');
+      divEl.value = divs.indexOf(divKeep) >= 0 ? divKeep : (divs[0] || '');
+      document.getElementById('pdDivisionRow').style.display = isSales ? 'block' : 'none';
+
+      document.getElementById('pdSlugRow').style.display = (pos && pos.needs_rep_key) ? 'block' : 'none';
+
+      const natRow = document.getElementById('pdNatRow');
+      natRow.style.display = (kind === 'manager' && !(pos && pos.is_national)) ? 'flex' : 'none';
+      if (pos && pos.is_national) document.getElementById('pdNat').checked = true;
+      else if (kind !== 'manager') document.getElementById('pdNat').checked = false;
+
+      renderSeesDrawer(pos, states);
     }
 
     if (nameEl) nameEl.addEventListener('input', () => {
-      if (!slugEdited) slugEl.value = deriveSlug(nameEl.value);
-      if (!userEdited) userEl.value = deriveUsername(nameEl.value);
-      checkSlug(); checkUser();
+      if (!isEdit) {
+        if (!slugEdited) slugEl.value = deriveSlug(nameEl.value);
+        if (!userEdited) userEl.value = deriveUsername(nameEl.value);
+        checkUserMsg();
+        if (!slugEdited) checkSlugMsg();
+      }
+      updateMgrChain();
     });
-    if (slugEl) slugEl.addEventListener('input', () => { slugEdited = true; checkSlug(); });
-    if (userEl) userEl.addEventListener('input', () => { userEdited = true; checkUser(); });
-    if (deptEl) deptEl.addEventListener('change', syncPosition);
-    if (posEl) posEl.addEventListener('change', syncFields);
-    document.getElementById('apStates').addEventListener('change', syncFields);
-    document.getElementById('apAdmin').addEventListener('change', renderSees);
-    document.getElementById('apNat').addEventListener('change', renderSees);
-    syncPosition();
+    if (slugEl) slugEl.addEventListener('input', () => { slugEdited = true; checkSlugMsg(); });
+    if (userEl) userEl.addEventListener('input', () => { userEdited = true; checkUserMsg(); });
+    if (deptEl) deptEl.addEventListener('change', syncFields);
+    if (tierEl) tierEl.addEventListener('change', syncFields);
+    document.getElementById('pdStates').addEventListener('change', syncFields);
+    const natEl = document.getElementById('pdNat');
+    if (natEl) natEl.addEventListener('change', syncFields);
+    if (!isEdit) document.querySelectorAll('input[name=pdKind]').forEach(r => r.addEventListener('change', syncFields));
+    if (mgrSelEl) mgrSelEl.addEventListener('change', updateMgrChain);
+
+    if (isEdit) checkSlugMsg();
+    syncFields();
+    updateMgrChain();
   }
+
+  async function savePersonDrawer(mode, personId) {
+    const saveBtn = document.getElementById('pdSave');
+    // Disabled as the very first synchronous step, before any validation or
+    // await -- a rapid double-click otherwise re-enters this function while
+    // the first call is still awaiting checkSlugTaken() below and fires two
+    // concurrent create/update calls. Every early return re-enables it.
+    if (saveBtn && saveBtn.disabled) return;
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = 'Saving...'; }
+    const reenable = () => { if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = 'Save'; } };
+
+    document.getElementById('pdErr').style.display = 'none';
+    const name = ((document.getElementById('pdName') || {}).value || '').trim();
+    const department = ((document.getElementById('pdDept') || {}).value || '') || null;
+    const title = ((document.getElementById('pdTitle') || {}).value || '').trim() || null;
+    const sub_department = ((document.getElementById('pdSubDept') || {}).value || '').trim() || null;
+    const kind = mode === 'create'
+      ? ((document.querySelector('input[name=pdKind]:checked') || {}).value || 'rep')
+      : (PD_PERSON.role || 'rep');
+    const tierEl = document.getElementById('pdTier');
+    const tier = (kind === 'manager' && tierEl && tierEl.value) ? tierEl.value : null;
+    const states = Array.from(document.querySelectorAll('.pdStateBox')).filter(b => b.checked).map(b => b.value);
+    const division = ((document.getElementById('pdDivision') || {}).value || '') || null;
+    const sales_office = ((document.getElementById('pdOffice') || {}).value || '').trim() || null;
+    const parent_id = ((document.getElementById('pdMgr') || {}).value || '') || null;
+    const cohort_start_date = ((document.getElementById('pdCohort') || {}).value || '') || null;
+    const pos = effectivePosition(department, kind, tier);
+    const is_national = kind === 'manager' && ((pos && pos.is_national === true) || !!((document.getElementById('pdNat') || {}).checked));
+    // Only for positions that need one -- sending it anyway would hand a
+    // non-sales hire a rep key, which is precisely what puts someone into
+    // get_my_reps() and the rep pickers.
+    const spd_slug = (pos && pos.needs_rep_key)
+      ? (((document.getElementById('pdSlug') || {}).value || '').trim().toLowerCase() || null)
+      : null;
+
+    if (!name) { showDrawerErr('Enter a full name.'); reenable(); return; }
+    if (!states.length) { showDrawerErr('Tick at least one state.'); reenable(); return; }
+    if (spd_slug && !/^[a-z0-9_]+$/.test(spd_slug)) { showDrawerErr('Rep key: lowercase letters, digits, and underscores only.'); reenable(); return; }
+    if (pos && pos.needs_rep_key && !spd_slug) { showDrawerErr('This role needs a rep key (auto-filled from the name) so they appear in pickers + Rep 360.'); reenable(); return; }
+    if (pos && pos.needs_office && !sales_office) { showDrawerErr('This role needs a sales office -- their roster is scoped by it, and without one they see nobody.'); reenable(); return; }
+    if (spd_slug) {
+      const taken = await checkSlugTaken(spd_slug, mode === 'edit' ? personId : null);
+      if (taken) { showDrawerErr('That rep key is already taken. Pick another.'); reenable(); return; }
+    }
+
+    if (mode === 'create') {
+      const username = ((document.getElementById('pdUser') || {}).value || '').trim().toLowerCase();
+      if (!/^[a-z0-9_-]+$/.test(username)) { showDrawerErr('Username: lowercase letters, digits, hyphens, underscores only.'); saveBtn.disabled = false; saveBtn.textContent = 'Save'; return; }
+      if (await checkUsernameTaken(username)) { showDrawerErr('That username is already taken. Pick another.'); saveBtn.disabled = false; saveBtn.textContent = 'Save'; return; }
+      // Per-person random starter password -- a shared literal ("Trinity1") is
+      // guessable across the whole roster, and Supabase's leaked-password
+      // check rejects it on any later reset, so the account gets stuck on it.
+      const password = genPassword();
+      // Grant admin is deliberately not offered in this drawer -- it keeps
+      // its own dedicated one-off action (toggleAdminFlag) in the detail
+      // view, so there is exactly one write path for that flag.
+      const result = await callManageUsers({
+        action: 'create', kind, name, username, is_admin: false, password,
+        states, is_national, parent_id, cohort_start_date,
+        division, sales_office, tier, spd_slug, department, title, sub_department,
+      });
+      if (!result || result.error || result.ok !== true) {
+        const detail = (result && result.error) || 'the server did not confirm the account was created';
+        showDrawerErr(/admin|authoriz|403/i.test(detail) ? 'Admins only.' : detail);
+        saveBtn.disabled = false; saveBtn.textContent = 'Save';
+        return;
+      }
+      // Onboarding is a SALES seed (Foundations + DISC certs, starter tasks),
+      // so it follows the position, not the role -- a Sales Ops hire should
+      // not be handed sales certs. Idempotent + skips completed certs.
+      let onboard = null;
+      if (pos && pos.seeds_onboarding && result.id) {
+        try { const { data } = await supa.rpc('seed_new_hire', { p_person_id: result.id }); onboard = data; } catch (e) {}
+      }
+      closePersonDrawer();
+      await refreshPage();
+      showInviteCard(name, username, password, onboard);
+    } else {
+      // Edit mode: two backend calls, one Save button. Manager + cohort still
+      // exclusively go through set_rep_assignment; everything else goes
+      // through manage-users action:'update'. Both run, and a failure in
+      // either is surfaced -- never silently swallowed.
+      const updatePayload = {
+        action: 'update', auth_user_id: PD_PERSON.auth_user_id,
+        name, states, spd_slug, division, sales_office, tier, department, title, sub_department,
+      };
+      // is_national is omitted entirely for a rep rather than sent as false:
+      // the National checkbox is hidden from this drawer for reps, so there is
+      // no admin-visible control backing that value here. Sending false anyway
+      // would silently clear a pre-existing is_national=true on a rep row on
+      // every unrelated edit -- omitting the key leaves it untouched server-side.
+      if (kind === 'manager') updatePayload.is_national = is_national;
+      const [updateRes, assignRes] = await Promise.all([
+        callManageUsers(updatePayload),
+        supa.rpc('set_rep_assignment', { p_rep_id: personId, p_manager_id: parent_id, p_cohort_start_date: cohort_start_date }),
+      ]);
+      const updateOk = !!(updateRes && updateRes.ok === true && !updateRes.error);
+      const assignOk = !assignRes.error;
+      if (!updateOk || !assignOk) {
+        const parts = [];
+        if (!updateOk) parts.push('Profile fields: ' + ((updateRes && updateRes.error) || 'the server did not confirm the change'));
+        if (!assignOk) parts.push('Manager/cohort: ' + (assignRes.error.message || 'save failed'));
+        showDrawerErr(parts.join('  '));
+        saveBtn.disabled = false; saveBtn.textContent = 'Save';
+        return;
+      }
+      closePersonDrawer();
+      await refreshPage();
+      // If the detail view is open for this person, refresh it too.
+      if (D_REP && D_REP.id === personId) await openRep(D_REP.username);
+    }
+  }
+
+  // Entry point for the toolbar's "+ Add person" button -- opens the drawer
+  // in create mode. Kept as addPerson()/window.addPerson so the existing
+  // button markup (onclick="addPerson()") needed no change.
+  function addPerson() { openPersonDrawer('create', null); }
 
   // Canonical rep key from a full name: lastname_firstinitial (compound
   // surnames concatenated). "William Kallberg" -> "kallberg_w";
@@ -4929,71 +5502,10 @@ async function deleteFeedback(id) {
     return last + '_' + init;
   }
 
-  async function submitAddPerson() {
-    const name = ((document.getElementById('apName') || {}).value || '').trim();
-    const username = ((document.getElementById('apUser') || {}).value || '').trim().toLowerCase();
-    const department = ((document.getElementById('apDept') || {}).value || '') || null;
-    const title = ((document.getElementById('apTitle') || {}).value || '').trim() || null;
-    const sub_department = ((document.getElementById('apSubDept') || {}).value || '').trim() || null;
-    const pos = positionByKey(((document.getElementById('apPos') || {}).value || ''));
-    if (!pos) { setModalError('Pick a position.'); return; }
-    // role and tier are DERIVED from the position, never asked for separately.
-    const kind = pos.role === 'manager' ? 'manager' : 'rep';
-    const tier = (kind === 'manager' && pos.tier) ? pos.tier : null;
-    const states = Array.from(document.querySelectorAll('.apStateBox')).filter(b => b.checked).map(b => b.value);
-    const division = ((document.getElementById('apDivision') || {}).value || '') || null;
-    const sales_office = ((document.getElementById('apOffice') || {}).value || '').trim() || null;
-    const parent_id = ((document.getElementById('apMgr') || {}).value || '') || null;
-    const is_admin = kind === 'manager' && !!pos.allow_admin && !!((document.getElementById('apAdmin') || {}).checked);
-    const is_national = kind === 'manager' && (pos.is_national === true || !!((document.getElementById('apNat') || {}).checked));
-    const cohort_start_date = ((document.getElementById('apStart') || {}).value || '') || null;
-    // Only for positions that need one. The field keeps its auto-filled value
-    // while hidden, and sending it anyway would hand a Sales Ops hire a rep key
-    // -- which is precisely what puts someone into get_my_reps() and the rep
-    // pickers. The rep key is what makes a person a rep to the rest of the
-    // platform, so a non-sales account must not carry one.
-    const spd_slug = pos.needs_rep_key
-      ? (((document.getElementById('apSlug') || {}).value || '').trim().toLowerCase() || null)
-      : null;
-    if (!name) { setModalError('Enter a full name.'); return; }
-    if (!/^[a-z0-9_-]+$/.test(username)) { setModalError('Username: lowercase letters, digits, hyphens, underscores only.'); return; }
-    if ((REPS || []).some(p => (p.username || '').toLowerCase() === username)) { setModalError('That username is already taken. Pick another.'); return; }
-    if (!states.length) { setModalError('Tick at least one state.'); return; }
-    if (spd_slug && !/^[a-z0-9_]+$/.test(spd_slug)) { setModalError('Rep key: lowercase letters, digits, and underscores only.'); return; }
-    if (spd_slug && (REPS || []).some(p => (p.spd_slug || '') === spd_slug)) { setModalError('That rep key is already taken. Pick another.'); return; }
-    if (pos.needs_rep_key && !spd_slug) { setModalError('A ' + pos.label + ' needs a rep key (auto-filled from the name) so they appear in pickers + Rep 360.'); return; }
-    // An ADM is scoped by exact string match on sales_office. Without one they
-    // sign in to an empty roster and nothing explains why, so block it here.
-    if (pos.needs_office && !sales_office) { setModalError('A ' + pos.label + ' needs a sales office -- their roster is scoped by it, and without one they see nobody.'); return; }
-    const btn = document.getElementById('modalConfirmBtn');
-    setModalLoading(btn, true, 'Create');
-    // Per-person random starter password. A shared literal ("Trinity1") is
-    // guessable across the whole roster, and Supabase's leaked-password check
-    // rejects it on any later reset -- so the account gets stuck on it.
-    const password = genPassword();
-    const result = await callManageUsers({
-      action: 'create', kind, name, username, is_admin, password,
-      states, is_national, parent_id, cohort_start_date,
-      division, sales_office, tier, spd_slug, department, title, sub_department,
-    });
-    if (!result || result.error || result.ok !== true) {
-      setModalLoading(btn, false, 'Create');
-      const detail = (result && result.error) || 'the server did not confirm the account was created';
-      setModalError(/admin|authoriz|403/i.test(detail) ? 'Admins only.' : detail);
-      return;
-    }
-    // Onboarding is a SALES seed (Foundations + DISC certs, starter tasks), so
-    // it follows the position, not the role -- a Sales Ops hire should not be
-    // handed sales certs. Idempotent + skips completed certs.
-    let onboard = null;
-    if (pos.seeds_onboarding && result.id) {
-      try { const { data } = await supa.rpc('seed_new_hire', { p_person_id: result.id }); onboard = data; } catch (e) {}
-    }
-    await fetchData();
-    populateMgrFilter();
-    render();
-    showInviteCard(name, username, password, onboard);
-  }
+  // submitAddPerson() (the old modal-based Create submit handler) is retired
+  // -- Create mode now goes through savePersonDrawer(), which sends the same
+  // manage-users action:'create' payload. showInviteCard() below is still
+  // used, unchanged, as the post-create step for both.
 
   function showInviteCard(name, username, password, onboard) {
     const msg = buildInviteMessage(username, password);
@@ -5221,60 +5733,55 @@ async function deleteFeedback(id) {
     return Math.round(days / 30) + ' mo tenure';
   }
 
-  // ── Office is DERIVED from the management chain: which ADM you roll up to. ──
-  // Add a username -> office entry when a new ADM / office is created; no
-  // stored column to drift. CT-North = Anthony's branch, CT-Central = Charles's.
-  const OFFICE_BY_ADM = { avenditto: 'CTN', cjromanos: 'CTC' };
-  function chainPeople(r) {
-    const out = []; let cur = r, g = 0;
-    while (cur && g++ < 12) { out.push(cur); cur = cur.parent_id ? PEOPLE_BY_ID[cur.parent_id] : null; }
-    return out;
-  }
-  function officeOf(r) {
-    if (!r) return '';
-    for (const p of chainPeople(r)) { if (OFFICE_BY_ADM[p.username]) return OFFICE_BY_ADM[p.username]; }
-    return '';
-  }
-  // Chain display "Rep -> Watrous -> Charles -> Dan -> Melvin -- CTC" for the
-  // assignment editor. mgr is the chosen manager (the rep hangs above it).
+  // ── Office used to be DERIVED from the management chain (OFFICE_BY_ADM +
+  // chainPeople + officeOf, walking parent_id to find the nearest ADM with a
+  // hardcoded username -> office entry) -- retired. sales_office is a real
+  // column on every person now (carried directly by admin_list_people rows
+  // and by MANAGERS), so every former caller reads it straight off the
+  // record instead of walking a chain.
+  //
+  // Chain display for the drawer's Manager field: "Reports to: Rep -> Manager
+  // · office". Deliberately just one hop (rep -> their chosen manager), not
+  // the old multi-level walk -- there is no longer a full in-memory person
+  // graph to walk (the roster is server-paginated), and the manager's own
+  // office is exactly the fact this preview exists to surface.
   function chainDisplayHtml(repName, mgr) {
     if (!mgr) return '<span class="d-k">No manager -- this person is not in a management chain.</span>';
-    const names = [repName].concat(chainPeople(mgr).map(p => p.name || p.username || '?'));
-    const office = officeOf(mgr);
-    return '<span class="d-k">Chain:</span> ' + names.map(escapeHtml).join(' &rarr; ')
-      + (office ? ' &middot; <strong>' + escapeHtml(office === 'CTN' ? 'CT-North' : office === 'CTC' ? 'CT-Central' : office) + '</strong>' : '');
-  }
-  // Live-update the chain preview when the manager dropdown changes.
-  function onEditMgrChange() {
-    const sel = document.getElementById('editMgr'), out = document.getElementById('editChain');
-    if (!sel || !out) return;
-    const mgr = sel.value ? PEOPLE_BY_ID[sel.value] : null;
-    out.innerHTML = chainDisplayHtml((D_REP && D_REP.name) || 'This person', mgr);
+    return '<span class="d-k">Reports to:</span> ' + escapeHtml(repName) + ' &rarr; ' + escapeHtml(mgr.name || mgr.username || '?')
+      + (mgr.sales_office ? ' &middot; <strong>' + escapeHtml(mgr.sales_office) + '</strong>' : '');
   }
   function escapeHtml(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, m =>
       ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
   }
-  function cardKey(e, u) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openRep(u); } }
 
   // Filter/sort listeners. The elements live inside #tabUsers; they exist at
-  // parse time because this script runs after the markup. render() guards on
-  // its own element reads so a stray early call is harmless.
-  document.getElementById('search').addEventListener('input', render);
-  document.getElementById('roleFilter').addEventListener('change', render);
-  document.getElementById('officeFilter').addEventListener('change', render);
-  document.getElementById('mgrFilter').addEventListener('change', render);
-  document.getElementById('sort').addEventListener('change', render);
+  // parse time because this script runs after the markup. Search is
+  // debounced; every other filter re-fetches page 1 immediately. State
+  // changes also rebuild the office <select> (cascade), same pattern as the
+  // drawer's own State -> Office cascade.
+  document.getElementById('search').addEventListener('input', onSearchInput);
+  document.getElementById('roleFilter').addEventListener('change', onFilterChange);
+  document.getElementById('stateFilter').addEventListener('change', () => { populateOfficeFilter(); onFilterChange(); });
+  document.getElementById('officeFilter').addEventListener('change', onFilterChange);
+  document.getElementById('divisionFilter').addEventListener('change', onFilterChange);
+  document.getElementById('statusFilter').addEventListener('change', onFilterChange);
+  document.getElementById('mgrFilter').addEventListener('change', onFilterChange);
+  document.getElementById('missingSetupFilter').addEventListener('change', onFilterChange);
+  document.getElementById('sort').addEventListener('change', onFilterChange);
+  document.getElementById('selectAllRows').addEventListener('change', (e) => selectAllVisible(e.target.checked));
+  document.getElementById('bulkPwBtn').addEventListener('click', bulkResetPasswords);
+  document.getElementById('bulkActivateBtn').addEventListener('click', () => bulkSetStatus('active'));
+  document.getElementById('bulkDeactivateBtn').addEventListener('click', () => bulkSetStatus('inactive'));
+  document.getElementById('bulkReassignBtn').addEventListener('click', bulkReassignManager);
+  document.getElementById('bulkOnboardBtn').addEventListener('click', bulkRunOnboarding);
+  document.getElementById('bulkClearBtn').addEventListener('click', () => { SELECTED.clear(); SELECTED_DATA.clear(); renderTable(); });
 
   // ── Expose inline-handler + entry-point functions on window ──
   window.loadPeople = loadData;
   window.openRep = openRep;
-  window.cardKey = cardKey;
   window.backToList = backToList;
   window.setDetailTab = setDetailTab;
-  window.saveAssignment = saveAssignment;
-  window.toggleEdit = toggleEdit;
-  window.onEditMgrChange = onEditMgrChange;
   window.togglePw = togglePw;
   window.regenPw = regenPw;
   window.resetRepPassword = resetRepPassword;
@@ -5285,6 +5792,10 @@ async function deleteFeedback(id) {
   window.togglePersonRole = togglePersonRole;
   window.toggleAdminFlag = toggleAdminFlag;
   window.deletePerson = deletePerson;
+  window.openPersonDrawer = openPersonDrawer;
+  window.toggleSel = toggleSel;
+  window.rowAction = rowAction;
+  window.toggleKebab = toggleKebab;
   // ── Bulk provisioning wizard ──────────────────────
   // Source -> review -> dry run -> commit -> credential sheet.
   //
@@ -5485,7 +5996,7 @@ async function deleteFeedback(id) {
       next.disabled = !made.length;
       next.onclick = () => downloadCredentials(made);
       back.textContent = 'Close';
-      back.onclick = () => { closeBulkWizard(); fetchData(); };
+      back.onclick = () => { closeBulkWizard(); refreshPage(); };
       return;
     }
   }
