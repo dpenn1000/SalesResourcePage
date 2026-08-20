@@ -286,7 +286,10 @@
     if (!document.getElementById('ctCaptcha')) {
       var box = document.createElement('div');
       box.id = 'ctCaptcha';
-      box.style.margin = '0 0 12px';
+      // Top margin, not bottom: the widget is inserted directly under the
+      // password field, which has no bottom margin of its own, so a bottom-only
+      // margin left the captcha butted flush against the input.
+      box.style.margin = '16px 0 0';
       var form = screen.querySelector('form');
       var anchor = document.getElementById('loginBtn') || (form && form.querySelector('button'));
       if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(box, anchor);
