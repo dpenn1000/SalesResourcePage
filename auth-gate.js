@@ -64,7 +64,19 @@
   // To roll a version bump, change ONLY this constant, then run the auth
   // smoke-test: signed-out load -> login -> password reset -> signed-in.
   const SUPABASE_JS_VERSION = '2.107.0';
+  // Local copy first: no runtime dependency on a public CDN in the normal
+  // path, which is both a supply-chain and an availability improvement. The
+  // CDNs stay beneath it, so a missing or corrupt vendored file degrades to
+  // the previous behaviour rather than breaking sign-in.
+  //
+  // Carried here, on the stack that has no /static/ mount, so this file can be
+  // byte-identical to the launcher copy (scripts/sync_authgate.py). It costs
+  // nothing on the public stack: 86 of its 87 gated pages ship their own
+  // supabase-js <script> tag, so loadSupabaseSdk short-circuits above and never
+  // reads this list. The one that does not (/pulse/) takes a 404 whose onerror
+  // falls straight through to jsDelivr on the next tick.
   const SUPABASE_JS_URLS = [
+    '/static/supabase-js.js',
     'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@' + SUPABASE_JS_VERSION,
     'https://unpkg.com/@supabase/supabase-js@' + SUPABASE_JS_VERSION
   ];
@@ -220,8 +232,9 @@
   // "auth window with no CAPTCHA that fails" Dan hit on tools./admin.
   //
   // Ported from the launcher copy (Tools/Launcher/auth-gate.js), where this was
-  // fixed 2026-07-29. The two files are separate copies that drift; this one
-  // serves ct-resource-page.com/admin.html, which is where the redirect lands.
+  // fixed 2026-07-29, back when the two were separate copies that drifted. They
+  // are single-sourced from this file now: edit here, then run
+  // scripts/sync_authgate.py --sync to push it to the launcher.
   var HCAPTCHA_MAX_LOAD_TRIES = 4;
   var HCAPTCHA_LOAD_TIMEOUT_MS = 10000;
   var __hcaptchaLoadTries = 0;
@@ -542,6 +555,17 @@
       // Incident 2026-05-15: Anthony Venditto + Charles Romanos saw a blank
       // Flips Tracker because of this gate.
       appStarted = false;
+      // Fresh login context -> fresh captcha load budget, so a session that
+      // dies long after an early load blip still gets a widget.
+      __hcaptchaLoadTries = 0;
+      // Tear down any reconnect state before revealing the login screen. The
+      // notice is a fixed full-screen overlay appended to <body>, so showOnly()
+      // cannot hide it -- without this, a session that dies while we are
+      // retrying (sign-out, or a revoked token) leaves "Reconnecting" stranded
+      // on top of a login form the user cannot reach until the pending timer
+      // happens to fire. This also cancels that timer, which would otherwise
+      // wake up only to discover the session it was retrying is gone.
+      clearReconnectNotice();
       showOnly('loginScreen');
       return;
     }
@@ -806,6 +830,11 @@
         // provider, mismatched secret, hostname not allowed) are visible
         // instead of hidden behind a generic "complete the check" message.
         msg = 'Captcha: ' + (error.message || 'request rejected');
+        // A captcha rejection often means the widget never loaded at all. A
+        // sign-in attempt is an explicit signal it is needed right now, so
+        // reset the load budget and try mounting again.
+        __hcaptchaLoadTries = 0;
+        try { mountCaptcha(); } catch (e2) {}
       } else if (/invalid login credentials/i.test(error.message || '')) {
         // Do not name a starter password here: they are per-person and random
         // now, so a literal in this message would be wrong for every new account.
