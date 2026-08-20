@@ -1,0 +1,2652 @@
+{
+  "note": "Single source for every Trinity objection. The two field-mastery pages are generated from this file by scripts/build_objections.py. Edit here, never the views.",
+  "count": 86,
+  "objections": [
+    {
+      "id": "OBJ-B01",
+      "library": "solar",
+      "section": "B",
+      "sectionName": "Battery",
+      "title": "The ROI Doesn't Pencil Out",
+      "product": "Battery",
+      "difficulty": "Medium",
+      "surface": [
+        "The payback period is too long.",
+        "It doesn't make financial sense."
+      ],
+      "rootCause": "Customer calculating the battery as a standalone purchase. The ESS program income changes the math entirely.",
+      "disc": {
+        "D": "Wants the bottom line.",
+        "I": "Responds to excitement about what the battery enables.",
+        "S": "Doesn't respond to ROI. Lead with peace of mind.",
+        "C": "Has run their own numbers. Needs ESS factored in specifically."
+      },
+      "technique": "Short Answer, Long Answer. 'Before we talk ROI, there's a Connecticut program that changes the math, let me show you that first.'",
+      "ctContext": "Standard Powerwall 3 earns ~$930/year, ~$9,300 over 10 years. Grid edge: ~$1,755 enrollment vs ~$405.",
+      "standardResponse": "Before we talk about the financial case, there's a Connecticut state program that actually pays you for owning the battery, and it changes the math significantly. Let me walk you through that first.",
+      "repFailure": "Engaging in a ROI debate without introducing the ESS program.",
+      "extras": {
+        "DISC": "C has run their own numbers and needs ESS factored in specifically. D wants the bottom line. S doesn't respond to ROI, so lead with peace of mind. I responds to excitement about what the battery enables."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 29
+    },
+    {
+      "id": "OBJ-B02",
+      "library": "solar",
+      "section": "B",
+      "sectionName": "Battery",
+      "title": "I'll Add the Battery Later",
+      "product": "Battery",
+      "difficulty": "Medium",
+      "surface": [
+        "That's a big number on top of solar.",
+        "Can we just do solar first?"
+      ],
+      "rootCause": "Battery introduced as an add-on after solar price landed. Retrofit costs materially more than bundling.",
+      "technique": "Short Answer, Long Answer. 'Adding it later isn't the same cost, here's why.'",
+      "standardResponse": "Adding the battery now versus later isn't the same cost. The crew is already here, the electrical work is already happening. The incremental cost is lower than a separate project. And the ESS program rates aren't guaranteed to stay at current levels.",
+      "repFailure": "Accepting 'I'll add it later' without explaining the retrofit cost difference.",
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 30
+    },
+    {
+      "id": "OBJ-B03",
+      "library": "solar",
+      "section": "B",
+      "sectionName": "Battery",
+      "title": "I Don't Lose Power That Often / Don't Need Backup",
+      "product": "Battery",
+      "difficulty": "Medium",
+      "surface": [
+        "The grid is pretty reliable here.",
+        "We can handle a day without power."
+      ],
+      "rootCause": "Rep led with backup as the pitch. Customer's real motivation is savings or self-supply. This is the most common battery coaching gap. Homeowners rank savings and self-supply first; reps pitch backup first.",
+      "technique": "Hot Potato. 'Totally fair, backup isn't the only reason. What matters more to you, the savings piece or having the backup?' Then follow their answer.",
+      "standardResponse": "Totally fair, backup isn't the only reason people go with battery. A lot of our customers add it for the savings piece, storing solar energy during the day and using it at night instead of pulling from the grid at peak rates. And then the ESS program pays you directly from the utility for 10 years on top of that. Is savings and self-supply something that matters to you?",
+      "repFailure": "Doubling down on backup after the customer has already rejected it.",
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 31
+    },
+    {
+      "id": "OBJ-B04",
+      "library": "solar",
+      "section": "B",
+      "sectionName": "Battery",
+      "title": "The Utility Controlling My Battery Doesn't Feel Right",
+      "product": "Battery",
+      "difficulty": "Medium",
+      "surface": [
+        "I don't want them taking my power.",
+        "What if I need it during an event?"
+      ],
+      "rootCause": "Misunderstanding of ESS dispatch rules. The actual rules are reassuring, deliver them with confidence.",
+      "technique": "Short Answer, Long Answer. 'Your backup reserve is always protected, the utility cannot touch it.' Then the five rules.",
+      "standardResponse": "Walk through all five dispatch rules. The backup reserve protection is the key reassurance.",
+      "responseDetailsLabel": "The five ESS dispatch rules",
+      "responseDetails": [
+        "Events only between 12 PM and 9 PM.",
+        "About 24 hours advance notice.",
+        "About 3 hours per event.",
+        "Backup reserve always protected (default 20%, utility cannot touch this).",
+        "Customer can opt out of any event through the app, no financial penalty."
+      ],
+      "repFailure": "Being vague. The backup reserve protection is the key reassurance.",
+      "extras": {
+        "CT context, all five dispatch rules": "",
+        "Master notes": "1. Events only between 12 PM and 9 PM 2. ~24 hours advance notice 3. ~3 hours per event 4. Backup reserve always protected (default 20%, and the utility cannot touch it) 5. Customer can opt out of any event through the app, no financial penalty"
+      },
+      "variants": {
+        "rootCause": "Misunderstanding of ESS dispatch rules. The actual rules are reassuring, so deliver them with confidence.",
+        "standardResponse": "Walk through all five. \"Events happen between noon and 9pm, with about 24 hours notice, for roughly 3 hours. Your backup reserve, which we set at 20% by default, is always protected. The utility cannot touch it. And you can opt out of any individual event through the app with no penalty.\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 32
+    },
+    {
+      "id": "OBJ-D01",
+      "library": "solar",
+      "section": "D",
+      "sectionName": "Decision Maker",
+      "title": "I Need to Talk to My Spouse First",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "My husband isn't home.",
+        "We make big decisions together.",
+        "My partner needs to be here."
+      ],
+      "rootCause": "Legitimate stakeholder gap. How the rep handles the present partner determines go-back success.",
+      "disc": {
+        "D": "Uses it as an exit formality.",
+        "I": "Schedules the go-back and does nothing to prepare.",
+        "S": "Uses it as a shield.",
+        "C": "Genuinely requires both."
+      },
+      "technique": "Read the Room on whether the concept is sold. If not, sell the concept before leaving. Then coach the go-back.",
+      "ctContext": "The 80% Rule: if you don't sell the present partner on the concept before leaving, they cancel 80% of the time. Sell why solar, why Trinity, why now, to whoever is there. Then set a hard return with both present.",
+      "standardResponse": "Name the absent partner. 'Before I go: when you talk to [name] tonight, what do you think will matter most to them? Let me make sure you have the right answer for whatever they ask.' Schedule the go-back with both confirmed present. Coach them on the one thing [name] will probably care about most.",
+      "responseDetailsLabel": "Go-back coaching language",
+      "responseDetails": [
+        "'What do you think your spouse is going to like about this?'",
+        "'Don't try to sell them before I get back. Just make sure they'll let me in.'"
+      ],
+      "repFailure": "From real notes: 'Girlfriend owns the house and I couldn't meet her. He was hard to create urgency with.' Concept not sold to present partner. No coaching language used. Go-back had no purpose.",
+      "extras": {
+        "DISC": "D uses it as an exit formality. I schedules the go-back and does nothing to prepare. S uses it as a shield. C genuinely requires both.",
+        "Standard response (weak)": "Schedule a go-back and leave.",
+        "Standard response (strong)": "Coach the present homeowner. Name the absent partner. \"Before I go, when you talk to [name] tonight, what do you think will matter most to them? Let me make sure you have the right answer for whatever they ask.\" Schedule the go-back with both confirmed.",
+        "The 80% rule": "If you don't sell the present partner on the concept before leaving, they cancel 80% of the time. Ask: \"What do you think your spouse is going to like about this?\" Then: \"Don't try to sell them, just make sure they'll let me in.\"",
+        "Rep failure pattern (real data)": "\"Girlfriend owns the house and I couldn't meet her. He was hard to create urgency with.\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 8,
+      "related": [
+        "OBJ-RF-D01"
+      ]
+    },
+    {
+      "id": "OBJ-D02",
+      "library": "solar",
+      "section": "D",
+      "sectionName": "Decision Maker",
+      "title": "We Never Decide on the First Appointment",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "We don't sign on the same day.",
+        "We always sleep on big decisions."
+      ],
+      "rootCause": "Stated process preference. Either genuine or polite avoidance. Find out which.",
+      "disc": {
+        "D": "Rarely says this. Probe directly.",
+        "I": "Uses it as a social escape.",
+        "S": "Most likely. Conflict avoidance as a rule.",
+        "C": "If genuine, respect it and make the go-back structured."
+      },
+      "technique": "Hot Potato to determine genuineness. 'That's smart. What questions do you need answered before moving forward?'",
+      "standardResponse": "That's smart. What questions do you need answered before moving forward? Let's make sure the go-back has a specific purpose. Frame it as a signing appointment, not a review. Every go-back needs: a specific date, a specific time, both decision-makers confirmed, and a stated purpose.",
+      "note": "This is often a diagnostic signal, not an objection. If the real concern is unstated, probe before leaving.",
+      "repFailure": "From real notes: 'Believes it makes sense but doesn't sign anything same day.' Go-back scheduled with no named purpose. No stated concern surfaced.",
+      "extras": {
+        "DISC": "I uses it as a social escape. S most likely, conflict avoidance as a rule. C: if genuine, respect it and make the go-back structured.",
+        "Rep failure pattern (real data)": "\"Believes it makes sense but doesn't sign anything same day.\""
+      },
+      "variants": {
+        "rootCause": "Stated process preference, either genuine or polite avoidance. Your job is to find out which.",
+        "standardResponse": "\"That's smart. What questions do you need answered before moving forward? Let's make sure the go-back has a specific purpose.\" Frame it as a signing appointment, not a review. Every go-back needs a date, time, both decision-makers confirmed, and a stated purpose."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 9
+    },
+    {
+      "id": "OBJ-D03",
+      "library": "solar",
+      "section": "D",
+      "sectionName": "Decision Maker",
+      "title": "We'd Like to Think About It",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "We need to process this.",
+        "Let us sleep on it.",
+        "We'll reach out."
+      ],
+      "rootCause": "This is never about time. It is always one of two things: (1) lack of trust, or (2) incomplete discovery, something undiscovered and hidden. A stall without a named concern is a deferred failure.",
+      "disc": {
+        "D": "Rarely says this. Probe directly.",
+        "I": "Gets vague and friendly.",
+        "S": "Most common user. Real concern unstated.",
+        "C": "Has a specific concern not yet voiced."
+      },
+      "technique": "Short Answer, Long Answer to acknowledge, then Hot Potato to diagnose. 'Of course, what's the main thing on your mind right now?'",
+      "ctContext": "Every month of delay = $300-$800 extra paid to Eversource. Name it specifically, once, without pressure.",
+      "standardResponse": "Ask directly: 'Is it the program, the company, the timing, or something I haven't addressed?' The answer tells you whether it's trust or discovery. Then address the actual root. If trust: don't sell the product harder. Address why Trinity, why this rep. Feel/Felt/Found. Third-party validation. If discovery: something wasn't surfaced. Ask the next question. 'What would need to be true for you to feel confident moving forward today?'",
+      "note": "Prevention: if you get this at the closing appointment, the first visit wasn't set up correctly. Always open with: 'Nobody is committing today. My job is to make sure everything makes sense. If it's a win-win, great. If not, no problem.'",
+      "repFailure": "From real notes: 'She needs to process this, one week.' / 'He'll think about it, three weeks.' Both left without the rep naming the real concern or distinguishing trust from discovery.",
+      "extras": {
+        "DISC": "D rarely says this, so probe directly. I gets vague and friendly. S is the most common user, real concern unstated. C has a specific concern not yet voiced.",
+        "Prevention": "If you get this at the closing appointment, the first visit wasn't set up correctly. Always open with: \"Nobody is committing today. My job is to make sure everything makes sense. If it's a win-win, great. If not, no problem.\"",
+        "Rep failure pattern (real data)": "\"She needs to process this (one week).\" / \"He'll think about it (three weeks).\" Both left without naming the real concern."
+      },
+      "variants": {
+        "rootCause": "Almost never about time. This is an information or trust gap in disguise. A stall without a named concern is a deferred failure.",
+        "ctContext": "Every month of delay = $300-$800 extra paid to Eversource. Name it specifically.",
+        "standardResponse": "\"Of course. What's the main thing on your mind right now? Is it the program, the company, the timing, or something I haven't addressed?\" Then: \"What would need to be true for you to feel confident moving forward today?\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 10
+    },
+    {
+      "id": "OBJ-DR01",
+      "library": "solar",
+      "title": "Not Interested",
+      "surface": [
+        "Not interested.",
+        "We're all set."
+      ],
+      "standardResponse": "This is a reflex, not an objection. \"Totally get it, I'd probably say the same thing. Takes 60 seconds, fair enough?\"",
+      "inSources": [
+        "master"
+      ],
+      "order": 10007,
+      "section": "DR",
+      "sectionName": "Door Objections"
+    },
+    {
+      "id": "OBJ-DR02",
+      "library": "solar",
+      "title": "I Don't Have Time",
+      "surface": [
+        "We're busy right now.",
+        "Not a good time."
+      ],
+      "standardResponse": "\"I hear you. 60 seconds to see if it's worth your time later, fair enough?\"",
+      "inSources": [
+        "master"
+      ],
+      "order": 10008,
+      "section": "DR",
+      "sectionName": "Door Objections"
+    },
+    {
+      "id": "OBJ-F01",
+      "library": "solar",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "It's Too Expensive",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "That's a lot of money.",
+        "I wasn't expecting that number.",
+        "That's way out of our budget."
+      ],
+      "rootCause": "The rep presented a number before establishing value. Financial objections after pricing are symptoms of thin discovery.",
+      "disc": {
+        "D": "Says it bluntly.",
+        "I": "Goes quiet or changes subject.",
+        "S": "Says 'let us think about it.'",
+        "C": "Asks how it was calculated."
+      },
+      "technique": "Short Answer, Long Answer, then monthly reframe.",
+      "ctContext": "At 26-30¢/kWh, the monthly comparison is the only frame that works. Know their actual bill before presenting any number.",
+      "standardResponse": "Never defend the price. Reframe to monthly. 'You're already paying Eversource $X a month with no ceiling. We're talking about replacing that with $Y and locking it in.' Move to financing only after the monthly frame lands.",
+      "repFailure": "Jumping to discounting or financing before establishing the monthly comparison.",
+      "extras": {
+        "DISC": "D says it bluntly. I goes quiet. S says \"let us think about it.\" C asks how it was calculated."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 0,
+      "related": [
+        "OBJ-RF-F01"
+      ]
+    },
+    {
+      "id": "OBJ-F02",
+      "library": "solar",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "I Can't Afford It Right Now",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "We're tight right now.",
+        "Not in the budget.",
+        "Maybe in a year or two."
+      ],
+      "rootCause": "Information gap. The homeowner doesn't realize PPA means no capital outlay. They're replacing a bill, not buying something.",
+      "disc": {
+        "D": "Rarely says this.",
+        "I": "Uses it as a soft exit.",
+        "S": "Uses it as avoidance.",
+        "C": "May mean it literally."
+      },
+      "technique": "Short Answer, Long Answer. One sentence: 'There's nothing to buy.' Then explain.",
+      "standardResponse": "There's no cost to get started. We're not asking you to buy anything. We're talking about replacing your Eversource bill with a lower number starting the day your system turns on.",
+      "repFailure": "Jumping to financing before the bill-replacement frame is established.",
+      "extras": {
+        "DISC": "D rarely says this. I uses it as a soft exit. S uses it as avoidance. C may mean it literally."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 1,
+      "related": [
+        "OBJ-RF-F02"
+      ]
+    },
+    {
+      "id": "OBJ-F03",
+      "library": "solar",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "I Don't Want Another Bill",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "I don't need another monthly payment.",
+        "We're trying to simplify."
+      ],
+      "rootCause": "Customer sees solar as additive, not a replacement.",
+      "technique": "Short Answer, Long Answer. One sentence reframe, done.",
+      "standardResponse": "You're not adding a bill, you're replacing one. Your Eversource usage charges go away and get replaced with a lower solar payment.",
+      "repFailure": "Treating this as a financing conversation. It's a one-sentence reframe.",
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 2,
+      "related": [
+        "OBJ-RF-F03"
+      ]
+    },
+    {
+      "id": "OBJ-F04",
+      "library": "solar",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "Another Company Was Cheaper",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "Can you do better?",
+        "SolarCo quoted me lower.",
+        "What's your best price?"
+      ],
+      "rootCause": "Trust gap or comparison shopping. Immediately dropping price signals: (1) the original price wasn't justified, (2) we're afraid of losing you, (3) price is the only value.",
+      "disc": {
+        "D": "Asks directly. Respond with equal directness.",
+        "I": "Will mention the competitor seemed friendlier.",
+        "S": "Won't raise it directly.",
+        "C": "Compares specs and warranty, not just price."
+      },
+      "technique": "Be Proactive where possible. Walk-Around Close is the structured response.",
+      "standardResponse": "The Walk-Around Close has four moves: acknowledge, differentiate, inspect, reframe.",
+      "responseDetailsLabel": "The Walk-Around Close",
+      "responseDetails": [
+        {
+          "label": "Acknowledge.",
+          "text": " 'Every project is unique and I can't speak to what they may or may not be including.'"
+        },
+        {
+          "label": "Differentiate.",
+          "text": " 'We prioritize transparency. We don't want to call you three months from now with a structural issue that wasn't in the price.'"
+        },
+        {
+          "label": "Inspect.",
+          "text": " 'Let's walk your home together right now: meter, panel, attic. If everything is clean, I'll call my manager and see what we can do.'"
+        },
+        {
+          "label": "Reframe.",
+          "text": " 'I'd rather be honest now than promise a price and come back with problems.'"
+        }
+      ],
+      "note": "Never: drop price immediately, say 'I'll match it,' or say 'they're cutting corners.'",
+      "repFailure": "Discounting before doing the walk-around.",
+      "extras": {
+        "DISC": "D asks directly, so respond with equal directness. I will mention the competitor seemed friendlier. S won't raise it directly. C compares specs and warranty, not just price.",
+        "Standard response, the Walk-Around Close": "",
+        "Never": "Drop price immediately. Say \"I'll match it.\" Say \"they're cutting corners.\"",
+        "Master notes": "1. **Acknowledge:** \"Every project is unique and I can't speak to what they may or may not be including.\" 2. **Differentiate:** \"We prioritize transparency. We don't want to call you three months from now with a structural issue that wasn't in the price.\" 3. **Inspect:** \"Let's walk your home together right now: meter, panel, attic. If everything is clean, I'll call my manager and see what we can do.\" 4. **Reframe:** \"I'd rather be honest now than promise a price and come back with problems.\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 3,
+      "related": [
+        "OBJ-RF-F04"
+      ]
+    },
+    {
+      "id": "OBJ-F05",
+      "library": "solar",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "The Numbers Don't Work / Not Enough Savings",
+      "product": "Solar",
+      "difficulty": "Medium",
+      "surface": [
+        "The savings aren't that impressive.",
+        "I was hoping to save more."
+      ],
+      "rootCause": "Savings presented generically, not against this homeowner's actual bill.",
+      "technique": "Hot Potato. 'What would make it worth it to you?' Then anchor to their number.",
+      "standardResponse": "Out of curiosity, what would make it worth it to you? Then calculate against their specific bill. Never present savings without the actual bill in hand.",
+      "repFailure": "Giving a savings range instead of calculating against the specific bill.",
+      "variants": {
+        "standardResponse": "\"Out of curiosity, what would make it worth it to you?\" Then anchor to their specific numbers. Never present savings without the actual bill in hand."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 4
+    },
+    {
+      "id": "OBJ-F06",
+      "library": "solar",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "I Need to Run This By My Accountant / Financial Advisor",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I want my accountant to look at this.",
+        "My financial advisor handles these decisions.",
+        "I don't make financial decisions without reviewing them professionally."
+      ],
+      "rootCause": "One of two things: either genuine financial diligence (C-type, high earner, organized) or a polite exit. Determine which before responding.",
+      "disc": {
+        "D": "Rarely genuine, more likely avoidance.",
+        "I": "Unlikely to use this one.",
+        "S": "Avoidance framed as diligence.",
+        "C": "Most likely genuine. Welcome it, offer to facilitate."
+      },
+      "technique": "Hot Potato to determine genuineness. 'That makes sense, what specifically do you want them to review?' If they can name it, it's real. If they can't, it's a stall.",
+      "standardResponse": "If genuine: 'Absolutely, I can put together a one-page summary with everything they'd need to evaluate this. A lot of accountants appreciate having the numbers laid out clearly. What's the best way to get you back together with both of us on a call?' If stall: 'Of course. What specifically are you hoping they can clarify for you?' Name the concern, address it directly, set a specific go-back with a purpose.",
+      "repFailure": "Accepting the accountant referral without qualifying whether it's real, then leaving without a committed go-back date and a named question to resolve.",
+      "inSources": [
+        "page"
+      ],
+      "order": 5,
+      "related": [
+        "OBJ-RF-F05"
+      ]
+    },
+    {
+      "id": "OBJ-F07",
+      "library": "solar",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "I'm Going to Shop Around",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I want to shop this around first.",
+        "I'm getting a few quotes.",
+        "We always compare before we commit."
+      ],
+      "rootCause": "Healthy buying behavior, not a no. Welcome it out loud, then move the comparison off price and onto the things no competitor matches. If you flinch, you've told them the only thing worth comparing is the number.",
+      "disc": {
+        "D": "Wants to know fast why you're different, in one line.",
+        "I": "Shops on who they liked, give them a story they'll repeat.",
+        "S": "Shopping is the safe, careful move, reassure it's smart.",
+        "C": "Will build a spreadsheet, hand them the warranty and insurance specifics."
+      },
+      "technique": "Embrace it, then differentiate. Feel/Felt/Found on the parts a quote sheet never shows.",
+      "ctContext": "Trinity: 32 years, 125,000+ roofs, BBB A+. The roof penetration warranty runs 25 years where the industry standard is 10. The differentiators are service and the warranty, not the program. Every company offers the program.",
+      "standardResponse": "I actually love when someone tells me they're going to shop, it means you're taking this seriously, and you should. I'd just ask you to compare more than the number. Every company can quote you the same program. What you can't get everywhere is how we show up after the install. I know how this feels, a lot of my customers felt every quote looked the same on paper, and what they found is the difference shows up the day something needs attention, not the day you sign.",
+      "note": "Differentiate on white-glove responsiveness, the 25-year roof penetration warranty versus the industry's 10, and the fact that you're a Trinity customer yourself. Compete on what a quote sheet can't show, never on dropping your price.",
+      "repFailure": "Treating 'I'm going to shop' as a rejection and either folding on price or rushing to a hard close, instead of welcoming it and reframing the comparison onto service and the warranty.",
+      "inSources": [
+        "page"
+      ],
+      "order": 6
+    },
+    {
+      "id": "OBJ-F08",
+      "library": "solar",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "The Lowest Quote I Got Is Way Below Yours",
+      "product": "Universal",
+      "difficulty": "Hard",
+      "surface": [
+        "Someone quoted me thousands less.",
+        "Your price is the highest I've seen.",
+        "I can get this done way cheaper."
+      ],
+      "rootCause": "Price conditioning. A homeowner who collected one or two low numbers now believes that's 'the market.' It usually isn't. The low number is often one weak rep on a performance plan, not the company's real price. Every home is custom, so there is no single market price to be below.",
+      "disc": {
+        "D": "Throws the number down as a challenge, answer with calm conviction.",
+        "I": "Repeats what the cheap rep said warmly, don't attack the person.",
+        "S": "Worried about overpaying, reassure without defending.",
+        "C": "Has the competing quote in hand, walk the scope line by line."
+      },
+      "technique": "Don't lose color and don't defend. Reframe what 'the market' even means, then react to the low number with curiosity, not fear.",
+      "ctContext": "Every roof and system is custom, so identical quotes are a red flag, not reassurance. A price well below the rest is frequently a single under-pressure rep, not a company-wide rate. 90% of roofers are gone within 5 years, and a 25-year agreement is only as good as the company standing behind it.",
+      "standardResponse": "You wouldn't get three quotes to paint your family portrait and expect them all to be the same, because every one is custom, and your home is the same way. There isn't really one market price to be above or below. Honestly, a number that low usually tells me more about that one rep than about the going rate. I know how that sounds, plenty of my customers felt the lowest quote had to be the best deal, and what they found is the cheapest bid is often the one company that isn't around in five years to honor it.",
+      "note": "Your reaction is the message. If your face loses color you've told the customer to worry. A calm 'wow, that's a really low price, I'm honestly not sure how they could even offer that' creates doubt the price is even real. Not everybody headed out of business puts up a sign. Never chase the low number to win the moment.",
+      "repFailure": "Getting conditioned by one or two low quotes, treating them as 'the market,' and either dropping price to chase them or going quiet, which signals the low number is the one to trust.",
+      "inSources": [
+        "page"
+      ],
+      "order": 7
+    },
+    {
+      "id": "OBJ-H01",
+      "library": "solar",
+      "section": "H",
+      "sectionName": "HOA & Aesthetic",
+      "title": "My HOA Won't Allow It",
+      "product": "Solar",
+      "difficulty": "Medium",
+      "surface": [
+        "My HOA has rules about this.",
+        "I need HOA approval."
+      ],
+      "rootCause": "Most reps don't know CT law. This is the most underused piece of CT-specific knowledge on the team.",
+      "technique": "Short Answer, Long Answer. 'Connecticut law prohibits HOAs from blocking solar.' Then the specifics.",
+      "ctContext": "Connecticut law (January 2023) prohibits HOAs from blocking rooftop solar without compelling cause. They can regulate placement and appearance. They cannot say no.",
+      "standardResponse": "Connecticut law actually prohibits HOAs from blocking rooftop solar. They can regulate placement and appearance, but they cannot prohibit installation. Let's get the assessment done so you have the actual design to show them. That's a much stronger position than asking in the abstract.",
+      "repFailure": "Accepting the objection without citing CT law.",
+      "variants": {
+        "ctContext": "Connecticut law (January 2023) prohibits HOAs from blocking rooftop solar without compelling cause. They can regulate placement and appearance, but they cannot say no."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 35
+    },
+    {
+      "id": "OBJ-H02",
+      "library": "solar",
+      "section": "H",
+      "sectionName": "HOA & Aesthetic",
+      "title": "I Don't Like the Way Solar Panels Look",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "The panels look industrial.",
+        "I don't want to ruin the look of my house."
+      ],
+      "rootCause": "Image of older blue-silver panels. Doesn't match modern all-black designs.",
+      "technique": "Short Answer, Long Answer. 'The design has changed completely.' Then show, don't describe.",
+      "standardResponse": "The older panels had a very different look. We use all-black panels now that blend with the roofline significantly better. I can show you installations on homes in your area, the difference is pretty striking.",
+      "note": "Rule: show, don't describe. Photos of local installations close this fast.",
+      "extras": {
+        "Rule": "Show, don't describe. Photos of local installations close this fast."
+      },
+      "variants": {
+        "rootCause": "Image of older blue-silver panels, which don't match modern all-black designs."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 36
+    },
+    {
+      "id": "OBJ-M01",
+      "library": "solar",
+      "section": "M",
+      "sectionName": "Moving & Selling",
+      "title": "What Happens If I Sell My Home?",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "We might move in a few years.",
+        "What if the buyer doesn't want the panels?"
+      ],
+      "rootCause": "Information gap, often masking a buying signal. A homeowner thinking about selling is thinking about home value, which solar supports.",
+      "technique": "Be Proactive. Raise this before they do if they've mentioned the possibility of moving.",
+      "ctContext": "Homes with solar sell for 6.9% more (~$25-29K on a median CT home). PPA transfers to the new homeowner.",
+      "standardResponse": "Solar actually helps you sell. Homes with solar sell for about 6.9% more, roughly $25,000 on a typical CT home. If it's a PPA, the agreement transfers to the buyer easily. Most buyers see it as a feature.",
+      "note": "Analogy: 'It's like having a pool. If someone doesn't want a pool they probably wouldn't buy that house. Only difference, with a pool you're spending money. With solar, you're saving money.'",
+      "repFailure": "Using the outdated '20% faster' claim.",
+      "variants": {
+        "ctContext": "Homes with solar sell for 6.9% more (~$25-29K on a median CT home). PPA transfers to the new homeowner. \"20% faster\" is retired.",
+        "note": "\"It's like having a pool. If someone doesn't want a pool they probably wouldn't buy that house. Only difference: with a pool you're spending money. With solar, you're saving money.\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 18
+    },
+    {
+      "id": "OBJ-M02",
+      "library": "solar",
+      "section": "M",
+      "sectionName": "Moving & Selling",
+      "title": "It's Hard to Sell a House With Solar",
+      "product": "Solar",
+      "difficulty": "Hard",
+      "surface": [
+        "I heard solar makes a house harder to sell.",
+        "What if a buyer doesn't want to take it over?",
+        "Won't the panels scare buyers off?"
+      ],
+      "rootCause": "There's a fear underneath this, and it's almost always the very reason to buy. Peel the onion. Every customer means something different by it, so qualify first. The thing they're afraid of, being stuck, is exactly what flips into being protected once you redirect it. Reps resign and treat the fear as the reason they won't buy, when it's the reason they should.",
+      "disc": {
+        "D": "Wants the direct value answer, give the sells-for-more number.",
+        "I": "Picture them showing off the home, lean into the story.",
+        "S": "Worried about a hard handoff, reassure the transfer is easy.",
+        "C": "Will want the studies, cite the sale premium and the online-shopping behavior."
+      },
+      "technique": "Qualify why they're asking first, then reframe with facts. Redirect the fear: same energy, pointed toward the close.",
+      "ctContext": "Homes with solar sell for about 6.9% more, roughly $25-29K on a median CT home. A PPA transfers to the new owner. The real long-term risk is being the house that can't go solar later if the utility caps interconnection. The '20% faster' claim is retired.",
+      "standardResponse": "Let me ask what you've heard, because every homeowner means something a little different. Here's what's actually true: solar homes sell for more and quicker. Buyers shop online before they ever visit, so they already know your home has it, and a PPA transfers to them easily. The risk people miss is the other direction, being the house that can't go solar later when the grid fills up. I know it can feel like a thing to explain at sale, a lot of my customers felt the same, and what they found is buyers treat it like a feature, not a hurdle.",
+      "note": "Standard-feature reframe: 'Would you buy a house without a dishwasher? Nobody passes on their dream house over a $400 appliance, because it's the standard. Twenty years ago it wasn't. That's solar in five years.' Adding it now future-proofs the home.",
+      "repFailure": "Accepting the surface 'no' and treating the fear as a disqualifier, instead of qualifying what they actually heard and redirecting the fear into the reason to act.",
+      "inSources": [
+        "page"
+      ],
+      "order": 19
+    },
+    {
+      "id": "OBJ-P01",
+      "library": "solar",
+      "section": "P",
+      "sectionName": "Performance",
+      "title": "What Happens When It Snows?",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "Does it work in winter?",
+        "What about Connecticut weather?"
+      ],
+      "technique": "Be Proactive. Raise this before they do, it immediately establishes expertise.",
+      "ctContext": "Cold temperatures improve panel efficiency. Production estimates are CT-specific, not California figures.",
+      "standardResponse": "Cold weather actually makes panels more efficient. They produce better in cold than heat. Snow temporarily reduces production but slides off quickly. Panels are warm, black, and angled. Snow clears off them faster than it does off the surrounding shingles. Your estimate is built around CT's actual climate.",
+      "repFailure": "Vague reassurance instead of leading with the efficiency point.",
+      "variants": {
+        "standardResponse": "\"Cold weather actually makes panels more efficient. They produce better in cold than heat. Snow temporarily reduces production but slides off quickly. Panels are warm, black, and angled, so snow clears off them faster than it does off the surrounding shingles. Your estimate is built around CT's actual climate.\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 15
+    },
+    {
+      "id": "OBJ-P02",
+      "library": "solar",
+      "section": "P",
+      "sectionName": "Performance",
+      "title": "What Happens If I Lose Power?",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "What good is solar if the grid goes down?",
+        "Will solar keep my lights on?"
+      ],
+      "rootCause": "Information gap. Without a battery, grid-tied solar shuts off. This is the primary battery conversation opener.",
+      "technique": "Short Answer, Long Answer. 'Without a battery, it shuts off, here's why, and here's what changes with one.'",
+      "ctContext": "ESS program: Powerwall 3 earns ~$930/year standard, ~$1,395 underserved. Grid edge enrollment: ~$1,755 vs ~$405.",
+      "standardResponse": "Without battery storage, the system is grid-tied and shuts off during an outage. That's how the utility connection works. That's why a lot of our customers pair it with a battery. And in Connecticut right now, there's a state program that actually pays you for owning one. Want me to walk you through how that works?",
+      "repFailure": "Stopping at 'it shuts off' without opening the ESS conversation.",
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 16,
+      "variants": {
+        "product": "Solar → Battery"
+      }
+    },
+    {
+      "id": "OBJ-P03",
+      "library": "solar",
+      "section": "P",
+      "sectionName": "Performance",
+      "title": "I'm Waiting for Better Technology",
+      "product": "Solar",
+      "difficulty": "Medium",
+      "surface": [
+        "Solar is improving so fast.",
+        "Shouldn't I wait?",
+        "Won't prices drop?"
+      ],
+      "rootCause": "Timing objection disguised as a technology question.",
+      "technique": "Hot Potato. 'What specifically are you hoping improves?' Then reframe to cost of waiting.",
+      "ctContext": "Tier 1 panels degrade 0.4-0.5%/year, ~91% output at year 25. Commercial next-gen panels are years from reliability.",
+      "standardResponse": "Solar always improves, same as a smartphone. But waiting means paying your utility every month in the meantime. A better panel in five years doesn't recover what you paid to Eversource while you waited.",
+      "repFailure": "Engaging in a technology debate instead of reframing to cost of waiting.",
+      "variants": {
+        "ctContext": "Tier 1 panels degrade 0.4-0.5%/year, about 91% output at year 25. Commercial next-gen panels are years from reliability."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 17
+    },
+    {
+      "id": "OBJ-P04",
+      "library": "solar",
+      "section": "P",
+      "sectionName": "Performance & Reliability",
+      "title": "I Want 100% Offset Or I'm Not Interested",
+      "product": "Solar",
+      "difficulty": "Medium",
+      "surface": [
+        "I want it to cover 100% of my usage.",
+        "I want my bill to be zero.",
+        "If it doesn't wipe out my bill, what's the point?"
+      ],
+      "rootCause": "Sizing and expectation gap. Conflates offset with a zero bill, and ignores roof, shading, and program limits.",
+      "ctContext": "Systems are sized to the roof, shading, and program rules, not always to 100%. The SB4 charge and the small connection fee mean the bill is never literally zero.",
+      "technique": "Reframe from 'eliminate the bill' to 'lock the part that keeps climbing.'",
+      "standardResponse": "I get it, the goal is to knock out as much of that bill as possible. We size to your roof and your actual usage, and in most cases we cover the large majority of it. There's still a small connection fee and the state charge, so no honest company can promise a literal zero. What we can do is lock in the part that keeps going up every year.",
+      "repFailure": "Promising 100% offset or a zero bill to win the moment, then a production shortfall destroys trust.",
+      "inSources": [
+        "page"
+      ],
+      "order": 38
+    },
+    {
+      "id": "OBJ-P05",
+      "library": "solar",
+      "section": "P",
+      "sectionName": "Performance",
+      "title": "Will Solar Interfere With My Ham Radio / Radio Reception?",
+      "product": "Solar",
+      "difficulty": "Hard",
+      "surface": [
+        "I'm a ham operator, won't this wipe out my radio?",
+        "I heard SolarEdge kills AM/shortwave reception.",
+        "Will the optimizers cause interference on the HF bands?"
+      ],
+      "rootCause": "A licensed amateur-radio operator, shortwave listener, or AM hobbyist has heard, often from a forum or club, that SolarEdge systems raise the radio noise floor. The concern is real and documented, so denying it instantly destroys trust with a technical buyer. The move is acknowledge, qualify how exposed they actually are, then route to the known fix.",
+      "disc": {
+        "D": "Wants a straight yes/no and the fix, give the levers fast.",
+        "I": "Reassured by your confidence and track record more than the physics.",
+        "S": "Worried about hassle, emphasize it's handled and proven.",
+        "C": "Will engage on the mechanism, walk optimizers, harmonics, ferrites, grounding."
+      },
+      "technique": "Acknowledge honestly, qualify exposure, then route to mitigation. Never deny it; never promise zero interference.",
+      "ctContext": "Most homeowners have no HF gear and a short confident answer settles it. The depth only matters for an actual licensed operator running HF from the house.",
+      "standardResponse": "You're right that some SolarEdge installs have caused interference, it's a real, documented thing, mostly on AM and the HF bands, and only while the panels are making power. Two things put a radio operator at ease: you can shut the system off any time for a contest or an evening net and it goes quiet within seconds, and a standard no-battery system is basically silent at night on its own. And if it ever does interfere, there's a proven fix path, newer optimizers, ferrite chokes, twisted wiring and grounding, that resolves the large majority of cases without removing anything. If you're an active HF operator, I'll flag it on your file so the install team builds the suppression in from the start.",
+      "note": "Never guarantee zero interference. Promise the process, not perfection. For a serious HF operator, set honest expectations that some mitigation/tuning may be needed.",
+      "resourceLink": "../../solar/system-design/solaredge-ham-radio.html",
+      "resourceLinkLabel": "SolarEdge & Ham Radio (RFI) — full technical brief",
+      "repFailure": "Denying or hand-waving the concern to a technical buyer, or over-promising 'no interference, guaranteed,' instead of acknowledging it and routing to the documented mitigation playbook.",
+      "inSources": [
+        "page"
+      ],
+      "order": 42
+    },
+    {
+      "id": "OBJ-R01",
+      "library": "solar",
+      "section": "R",
+      "sectionName": "Roof & Home",
+      "title": "My Roof Isn't in Good Shape",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "My roof is old.",
+        "I think I need a new roof.",
+        "The shingles are bad."
+      ],
+      "rootCause": "Reps treat this as a disqualifier. It's an opportunity. A roof conversation never derails solar. It often unlocks the deal.",
+      "technique": "Be Proactive. Ask about the roof before they raise it. 'How do you feel about your roof?' surfaces this on your terms.",
+      "ctContext": "Roof + solar bundle: one loan, one payment, one installation. Permits, removal up to 3 layers, and cleanup always included.",
+      "standardResponse": "Good to know, that's actually something we handle together. If the roof needs work before we install solar, we can address both on one loan. Want to schedule the assessment?",
+      "note": "Trinity framing: 'If you have a roof problem with Trinity Solar on the roof, you're going to call Trinity Solar.' Right now, who do they call? Nobody has a roof warranty, only shingle warranties. Trinity's presence creates accountability that didn't exist before.",
+      "repFailure": "Treating it as a disqualifier. Rescheduling without introducing the bundle.",
+      "extras": {
+        "Ask every customer, even when the roof looks fine": "\"How do you feel about your roof?\" Surfaces a concern or confirms readiness.",
+        "Trinity framing": "\"If you have a roof problem with Trinity Solar on the roof, you're going to call Trinity Solar.\" Right now, who do they call? Nobody has a roof warranty, only shingle warranties. Trinity's presence creates accountability that didn't exist before."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 11
+    },
+    {
+      "id": "OBJ-R02",
+      "library": "solar",
+      "section": "R",
+      "sectionName": "Roof & Home",
+      "title": "What Happens If I Need a New Roof After Solar?",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "What if the panels need to come off?",
+        "What if my roof fails later?"
+      ],
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "Panels can be temporarily removed and reinstalled. We catch this upfront because we assess every roof before installation. If the roof needs work, we'd rather bundle it now. Many customers do both at the same time for exactly that reason.",
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 12
+    },
+    {
+      "id": "OBJ-R03",
+      "library": "solar",
+      "section": "R",
+      "sectionName": "Roof & Home",
+      "title": "I Don't Want Holes in My Roof / Worried About Leaks",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "Won't the mounting damage the roof?",
+        "I'm worried about leaks."
+      ],
+      "technique": "Short Answer, Long Answer. Lead with the warranty number, it does the work.",
+      "standardResponse": "The mounts are engineered for waterproofing, sealed and backed by a 25-year warranty. We guarantee leak-proof installation, and if anything ever happens, you call us.",
+      "variants": {
+        "standardResponse": "\"The mounts are engineered for waterproofing, sealed and backed by a 25-year warranty. We guarantee leak-proof installation, and if anything ever happens, you call us.\" Anchor to the 25-year warranty. That number does the work."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 13
+    },
+    {
+      "id": "OBJ-R04",
+      "library": "solar",
+      "section": "R",
+      "sectionName": "Roof & Home",
+      "title": "I Have Too Much Shade / Wrong Roof Direction",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "I have big trees.",
+        "My roof faces the wrong way."
+      ],
+      "technique": "Short Answer, Long Answer. 'We don't know until we assess.' Then close on the assessment.",
+      "standardResponse": "That's worth looking at specifically. We can't know without a site assessment. Shading affects system sizing, not necessarily viability. If it doesn't work, we'll tell you honestly. Let's get the data before we assume.",
+      "note": "Rule: no assessment, no answer. Never disqualify from the driveway.",
+      "extras": {
+        "Rule": "No assessment, no answer. Never disqualify from the driveway."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 14
+    },
+    {
+      "id": "OBJ-R05",
+      "library": "solar",
+      "section": "R",
+      "sectionName": "Roof & Home",
+      "title": "Will The Panels Be Too Heavy Or Cave In My Roof?",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "Will the panels be too heavy for my roof?",
+        "Could they cave the roof in?",
+        "Is my roof strong enough to hold them?"
+      ],
+      "rootCause": "Structural-load fear, distinct from the leak and holes concern.",
+      "technique": "Short Answer, Long Answer, with the engineering point.",
+      "standardResponse": "No. A solar array adds roughly 3 pounds per square foot, which is well within what your roof is built to carry, and we run a structural assessment before anything goes up. If an engineer ever flagged a concern, we would address it before installation, not after.",
+      "repFailure": "Hand-waving 'it's fine' without the load number or the structural-assessment point.",
+      "inSources": [
+        "page"
+      ],
+      "order": 41
+    },
+    {
+      "id": "OBJ-S01",
+      "library": "solar",
+      "section": "S",
+      "sectionName": "Skepticism",
+      "title": "I Don't Trust Solar Companies",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I've heard bad things.",
+        "Solar companies have a bad reputation.",
+        "I've seen news stories about scams."
+      ],
+      "rootCause": "Industry-wide trust gap from aggressive tactics. Requires proactive credentialing, not defensive positioning.",
+      "technique": "Be Proactive. Establish credibility before this surfaces. If it surfaces, Short Answer, Long Answer, then specific Trinity differentiators.",
+      "ctContext": "Trinity: 32 years in business, 125,000+ roofs installed, BBB A+ with no unresolved complaints.",
+      "standardResponse": "I'm going to walk you through every line of any agreement before we're anywhere near a signature. Nothing gets signed until you fully understand what it says.",
+      "note": "On reviews: 'I expect you to do your research. Just know that a lot of review sites are pay-to-play. The only one I trust is the BBB because they're regulated and you can't buy better ratings. Trinity has an A+ rating with no unresolved complaints.'",
+      "repFailure": "Being defensive. Dismissing the concern. Not naming it directly.",
+      "extras": {
+        "On reviews": "\"I expect you to do your research. Just know that a lot of review sites are pay-to-play. The only one I trust is the BBB because they're regulated and you can't buy better ratings. Trinity has an A+ rating with no unresolved complaints.\""
+      },
+      "variants": {
+        "standardResponse": "Establish credibility before the objection surfaces. \"I'm going to walk you through every line of any agreement before we're anywhere near a signature. Nothing gets signed until you fully understand what it says.\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 20
+    },
+    {
+      "id": "OBJ-S02",
+      "library": "solar",
+      "section": "S",
+      "sectionName": "Skepticism",
+      "title": "I Read Bad Reviews / Neighbor Had a Bad Experience",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "My neighbor had a bad experience.",
+        "I Googled you and saw complaints."
+      ],
+      "rootCause": "Social proof working in reverse. Requires direct engagement, not dismissal.",
+      "technique": "Hot Potato. 'Can you tell me what you saw specifically?' Then distinguish Trinity's process.",
+      "standardResponse": "I appreciate you bringing that up. Can you tell me what you saw specifically? I'd rather address it directly than have it sit there. Then distinguish Trinity's process from whatever went wrong.",
+      "repFailure": "'Every company has some bad reviews.' Never dismiss.",
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 21,
+      "related": [
+        "OBJ-RF-S02"
+      ]
+    },
+    {
+      "id": "OBJ-S03",
+      "library": "solar",
+      "section": "S",
+      "sectionName": "Skepticism",
+      "title": "I Already Talked to a Solar Company Before and Stopped",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "We went through this before and it didn't go anywhere.",
+        "I've already looked into this.",
+        "We talked to someone last year and just kind of let it drop."
+      ],
+      "rootCause": "A prior experience caused them to disengage. This is a trust reset situation. The rep's job is not to pick up where the last company left off, but to understand what broke down.",
+      "disc": {
+        "D": "Get to the point, don't relitigate the past.",
+        "I": "May have just lost interest. Re-energize, don't interrogate.",
+        "S": "Likely felt pressured. Establish a no-pressure frame immediately.",
+        "C": "Will remember the specifics. Ask what broke down and address it directly."
+      },
+      "technique": "Hot Potato. 'What happened?' Don't assume, let them tell you. The answer shapes everything.",
+      "standardResponse": "That happens more than you'd think, and I'd rather understand what went wrong before I do anything else. What happened? Listen. If it was a trust issue, acknowledge it and differentiate specifically. If it was process overwhelm, simplify. If it was the numbers not working, revisit from scratch with current data. If it was a life situation that got in the way, start fresh without assuming anything.",
+      "note": "What never to do: assume the prior company was the problem and make Trinity the hero by comparison. The customer doesn't know that yet, and you don't either until you've asked.",
+      "repFailure": "Jumping into the pitch as if the prior experience didn't happen. The homeowner who stopped once will stop again with the same trigger.",
+      "inSources": [
+        "page"
+      ],
+      "order": 22
+    },
+    {
+      "id": "OBJ-S04",
+      "library": "solar",
+      "section": "S",
+      "sectionName": "Skepticism",
+      "title": "What If Trinity Goes Out of Business?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "You've been around 32 years, but what if something changes?",
+        "What happens to my agreement if the company closes?",
+        "Solar companies come and go."
+      ],
+      "rootCause": "Legitimate question for a 25-year commitment. The customer is doing the right thing by asking. Respond with specifics, not reassurance.",
+      "technique": "Short Answer, Long Answer. 'The agreement is designed to survive us, here's how.' Then the specifics.",
+      "ctContext": "Trinity: 32 years in CT, 125,000+ roofs installed. The PPA agreement is held by a funding entity (not Trinity). Equipment warranties are manufacturer-backed (not Trinity). Monitoring is transferable.",
+      "standardResponse": "It's the right question for a 25-year commitment. The agreement is actually held by the funding entity, not Trinity, so it's structured to survive any change in our company. Your panel warranty is with the manufacturer, your inverter warranty is with the inverter manufacturer. Trinity is in the installation and service business. The agreement protects you regardless of what happens to us, but we also have 32 years and 125,000 roofs in Connecticut, which is longer than most of the companies comparing themselves to us have been in existence.",
+      "repFailure": "Over-reassuring without explaining the structural protection. 'We've been here 32 years' alone is not a sufficient answer to this question.",
+      "inSources": [
+        "page"
+      ],
+      "order": 23,
+      "related": [
+        "OBJ-RF-W02"
+      ]
+    },
+    {
+      "id": "OBJ-S05",
+      "library": "solar",
+      "section": "S",
+      "sectionName": "Reputation & Skepticism",
+      "title": "Why Do You Need My Social Security Number?",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "Why do you need my Social Security number?",
+        "I'm not comfortable giving that out.",
+        "Is this going to hurt my credit?"
+      ],
+      "rootCause": "Privacy concern plus an information gap. They don't know it's a soft credit check for financing eligibility, not a hard pull.",
+      "disc": {
+        "D": "Asks bluntly, wants the one-line reason.",
+        "I": "May joke about it, complies once reassured.",
+        "S": "Quietly uncomfortable, needs gentle reassurance.",
+        "C": "Wants to know exactly what happens to the data."
+      },
+      "technique": "Short Answer, Long Answer. Give the reason in one sentence, then the reassurance.",
+      "standardResponse": "It's a soft credit check to see which financing options you qualify for. It does not affect your credit score, and it's the same step any lender takes before showing you real terms. I can't put accurate numbers in front of you without it.",
+      "repFailure": "Getting defensive or skipping it, then presenting numbers the homeowner can't actually qualify for.",
+      "inSources": [
+        "page"
+      ],
+      "order": 37
+    },
+    {
+      "id": "OBJ-T01",
+      "library": "solar",
+      "section": "T",
+      "sectionName": "Time & Installation",
+      "title": "How Long Does Installation Take? / I Don't Want Construction",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "How disruptive will it be?",
+        "When would this actually happen?"
+      ],
+      "rootCause": "'How long?' and 'When?' are buying questions. The homeowner is mentally placing themselves in the scenario. Treat them that way.",
+      "technique": "Read the Room. This is a buying signal. Move toward scheduling.",
+      "standardResponse": "Installation is 1-2 days and our crews leave the property cleaner than they found it. Permitting and utility approval usually runs 4-8 weeks. We manage all of it. Do you have any preference on days of the week?",
+      "extras": {
+        "Rule": "This is a buying signal. Move toward scheduling."
+      },
+      "variants": {
+        "standardResponse": "\"Installation is 1-2 days and our crews leave the property cleaner than they found it. Permitting and utility approval usually runs 4-8 weeks, and we manage all of it. Do you have any preference on days of the week?\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 27,
+      "related": [
+        "OBJ-RF-P01"
+      ]
+    },
+    {
+      "id": "OBJ-T02",
+      "library": "solar",
+      "section": "T",
+      "sectionName": "Time & Installation",
+      "title": "What Happens at the End of the 25-Year Term?",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "What are my options at the end?",
+        "What happens when the agreement ends?"
+      ],
+      "rootCause": "Almost always a buying signal. They're mentally projecting into ownership. The answer has four favorable options.",
+      "technique": "Read the Room. Four favorable options presented confidently signals Trinity has thought this through. Close after the list.",
+      "standardResponse": "Walk through all four options confidently. They're all favorable.",
+      "responseDetailsLabel": "The four end-of-term options",
+      "responseDetails": [
+        "Renew and keep going.",
+        "Own the system outright. Free electricity, but maintenance and insurance become your responsibility.",
+        "Cancel and have panels removed (almost nobody does this).",
+        "Upgrade to the latest technology and start the cycle again."
+      ],
+      "repFailure": "Getting caught off guard or giving a vague 'we'll figure it out' answer.",
+      "extras": {
+        "Standard response, four options": "",
+        "Master notes": "1. Renew and keep going 2. Own the system outright: free electricity, but maintenance and insurance become your responsibility 3. Cancel and have panels removed (almost nobody does this) 4. Upgrade to the latest technology and start the cycle again Present with confidence. \"You actually have four options at the end of 25 years...\" The list itself signals Trinity has thought this through."
+      },
+      "variants": {
+        "rootCause": "Almost always a buying signal. They're mentally projecting into ownership. The answer has four favorable options and confirms there's no trap."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 28
+    },
+    {
+      "id": "OBJ-U01",
+      "library": "solar",
+      "section": "U",
+      "sectionName": "Utility & Policy",
+      "title": "What If Rates Go Down?",
+      "product": "Solar",
+      "difficulty": "Hard",
+      "surface": [
+        "I heard rates are going down.",
+        "Didn't Eversource just cut rates?",
+        "What if electricity gets cheaper?"
+      ],
+      "rootCause": "The PURA-approved 4.3¢/kWh decrease effective May 2026 is creating legitimate confusion. Eversource has stated publicly this is temporary. Deferred storm costs will be recovered through future increases.",
+      "technique": "Hot Potato first. 'What in your life is cheaper today than it was 20 years ago?' Get them to say it.",
+      "ctContext": "10.9¢ (2000) → 30.2¢ (2025), 177% increase over 25 years. The rate cut doesn't change the structural argument. Priority objection, April 2026.",
+      "standardResponse": "Use the Two-Lane Approach. Goal: get them to say 'I don't think rates will ever go down' before you present a single number.",
+      "responseDetailsLabel": "Two-Lane Approach",
+      "responseDetails": [
+        {
+          "label": "Lane 1, The Capitalist Reality.",
+          "text": " 'What in your life is cheaper today than it was 20 years ago? Our economy is engineered to get more expensive over time.'"
+        },
+        {
+          "label": "Lane 2, The Utilities Are Warning Us.",
+          "text": " 'Eversource has already said this cut is temporary and that higher bills are coming. Short-term rate relief always leads to longer-term increases. The utility has to remain profitable.'"
+        }
+      ],
+      "repFailure": "Arguing instead of questioning. 'Rates probably won't go down' is dismissive and confrontational.",
+      "extras": {
+        "Standard response, the Two-Lane Approach": "",
+        "Goal": "Get them to say \"I don't think rates will ever go down,\" before you present a single number.",
+        "Master notes": "Lane 1. The Capitalist Reality: \"What in your life is cheaper today than it was 20 years ago? Our economy is engineered to get more expensive over time.\" Lane 2. The Utilities Are Warning Us: \"Eversource has already said this cut is temporary and that higher bills are coming. Short-term rate relief always leads to longer-term increases. The utility has to remain profitable.\""
+      },
+      "variants": {
+        "ctContext": "10.9¢ (2000) → 30.2¢ (2025), a 177% increase over 25 years. The 12 structural forces driving utility costs have not changed. The rate cut doesn't change the long-term argument.",
+        "title": "What If Rates Go Down?\" *(Priority objection, April 2026)*"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 24
+    },
+    {
+      "id": "OBJ-U02",
+      "library": "solar",
+      "section": "U",
+      "sectionName": "Utility & Policy",
+      "title": "Do I Still Have to Pay a Utility Bill?",
+      "product": "Solar",
+      "difficulty": "Medium",
+      "surface": [
+        "Does solar eliminate my electric bill?",
+        "What's my Eversource bill after this?"
+      ],
+      "rootCause": "Most customers expect a zero utility bill. The answer is honest and simple. The frame matters more than the number.",
+      "technique": "Short Answer, Long Answer.",
+      "ctContext": "Solar handles your production. The utility side retains three things: the fixed meter connection fee (~$9.63/month), the SB4 charge on production (3.25¢/kWh, new customers 2026+), and any consumption your system doesn't cover.",
+      "standardResponse": "Solar covers the usage charges. Those go away and get replaced with your solar payment. On the utility side, you keep a small connection fee, typically about $9.63 a month, and there's a state charge of 3.25 cents per kilowatt-hour on your system's production. We've already factored both into your savings number, so what you're looking at is what you'll actually net.",
+      "note": "Lead with what solar covers. Mention the utility side as context, not as a warning. Always disclose SB4 before presenting final savings figures.",
+      "repFailure": "Leading with 'there's a charge' framing rather than 'here's what solar covers.' Or failing to disclose at all, which creates a trust breach when the first utility bill arrives.",
+      "extras": {
+        "Rule": "Disclose the non-bypassable charge proactively every time. Never bury it."
+      },
+      "variants": {
+        "rootCause": "Most customers expect a zero utility bill.",
+        "ctContext": "SB4 non-bypassable charge: 3.25¢/kWh on all solar production (new customers 2026+). Small connection fee of ~$10-20/month also remains. Must be disclosed proactively.",
+        "standardResponse": "\"There's a small connection fee from Eversource, typically $10-20/month. And there's a new state charge of 3.25 cents per kilowatt-hour on your system's production. I want to be upfront about that because we factor it into your savings calculation so you're seeing real net savings. Net result: your total monthly electricity spend goes way down.\"",
+        "title": "Do I Still Have to Pay My Utility Bill?"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 25
+    },
+    {
+      "id": "OBJ-U03",
+      "library": "solar",
+      "section": "U",
+      "sectionName": "Utility & Policy",
+      "title": "I Heard My Utility Won't Allow Solar",
+      "product": "Solar",
+      "difficulty": "Warm",
+      "surface": [
+        "Are there restrictions?",
+        "Does Eversource support solar?"
+      ],
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "Eversource fully supports solar. They have a formal interconnection process and we manage all of it. We pull the permits, they inspect and approve, then you flip the switch.",
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 26
+    },
+    {
+      "id": "OBJ-U04",
+      "library": "solar",
+      "section": "U",
+      "sectionName": "Utility & Policy",
+      "title": "What If Net Metering Rules Change?",
+      "product": "Solar",
+      "difficulty": "Hard",
+      "surface": [
+        "What if the net metering rules change?",
+        "What if the state changes the program?",
+        "Won't they just change the rules later?"
+      ],
+      "rootCause": "Policy uncertainty, distinct from rate movement. The reassurance is grandfathering, not a prediction.",
+      "ctContext": "Customers are locked into the program terms in place when they interconnect. Connecticut already moved off net metering to RRES, so the protection is the lock-in, not the specific program.",
+      "technique": "Make today's terms the safe harbor. Never predict future policy.",
+      "standardResponse": "The way these programs work, you're locked into the terms in place when your system goes live. The people exposed to changes are the ones who keep waiting. Acting now is exactly what protects you from whatever the state decides next.",
+      "note": "Never promise specific future program availability.",
+      "repFailure": "Speculating about future policy instead of anchoring to grandfathering.",
+      "inSources": [
+        "page"
+      ],
+      "order": 39
+    },
+    {
+      "id": "OBJ-U05",
+      "library": "solar",
+      "section": "U",
+      "sectionName": "Utility & Policy",
+      "title": "Natural Gas Will Make Rates Drop / My Expert Says So",
+      "product": "Solar",
+      "difficulty": "Hard",
+      "surface": [
+        "My son works in energy and says gas will bring rates down.",
+        "Natural gas is cheap, electricity will follow.",
+        "Someone in my family does this for a living and told me to wait."
+      ],
+      "rootCause": "An expert in the family, or a confident outside source, has handed the customer a conclusion. The conclusion is the problem, not the person. Concede the person warmly, then contest the conclusion: even if production costs fall, the customer doesn't automatically benefit. Fighting their relative makes you the enemy and them the defender.",
+      "disc": {
+        "D": "Wants you to get to the point, give the one-line economist answer.",
+        "I": "Proud of their smart relative, praise them first.",
+        "S": "Doesn't want a debate, agree the source is sharp, then redirect.",
+        "C": "Will engage on the mechanics, walk supply, demand, and the fixed pipeline."
+      },
+      "technique": "Concede the person, contest the conclusion. Short Answer, Long Answer on why cheaper fuel doesn't reach the homeowner's bill.",
+      "ctContext": "Production cost and retail rate are not the same line item. A homeowner pays delivery, transmission, and regulated charges layered on top of supply. CT rates have climbed 177% over 25 years (10.9¢ in 2000 to 30.2¢ in 2025) through every kind of fuel market.",
+      "standardResponse": "Your son sounds like a genius, and I'd trust him on a lot. I may not be a genius, but I look at energy bills all day. Here's the piece that gets missed: even if it gets cheaper to produce power, that doesn't mean you, the homeowner, see it on your bill. You're paying for delivery, transmission, and a stack of regulated charges on top of supply, and those only go one direction. I know it sounds reasonable that cheaper fuel means a cheaper bill. A lot of my customers felt the same after hearing it from someone they trust, and what they found is the production cost dropped before and their rate still went up.",
+      "note": "Never make the customer choose between you and their relative. Agree the source is smart, then separate 'rates could change' from 'you will benefit.' Those are two different claims.",
+      "repFailure": "Arguing with the absent expert or dismissing them, which forces the customer to defend their relative instead of hearing the point about who actually benefits.",
+      "inSources": [
+        "page"
+      ],
+      "order": 40
+    },
+    {
+      "id": "OBJ-UR01",
+      "library": "solar",
+      "section": "UR",
+      "sectionName": "Urgency & Timing",
+      "title": "Maybe Next Year / Not the Right Time",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "Let's revisit in the spring.",
+        "We're not ready to commit.",
+        "The timing isn't great."
+      ],
+      "rootCause": "Vague timing stall. Needs cost-of-inaction made concrete and specific.",
+      "technique": "Short Answer, Long Answer on the monthly cost. Then one specific urgency lever tied to their situation.",
+      "ctContext": "$300-$800/month extra paid to Eversource vs locked PPA rate. Spring is peak production, delay in April/May is capacity never recovered. ESS rates reviewed annually. 48E construction deadline July 4, 2026.",
+      "standardResponse": "At your current Eversource rate, every month you wait is approximately $[bill delta] that stays with the utility instead of being locked at your solar rate. Over 12 months, that's roughly $[annual delta]. I'm not trying to rush you, I just want you to decide with all the numbers in front of you.",
+      "repFailure": "From real notes: 'Will follow up with both, obtain bill.' / 'Going to review with his wife. Connect in one week.' Both left without making inaction visible or naming a specific reason to act now.",
+      "extras": {
+        "Rep failure pattern (real data)": "\"Will follow up with both, obtain bill.\" / \"Going to review with his wife. Connect in one week.\" Both left without making inaction visible."
+      },
+      "variants": {
+        "ctContext": "$300-$800/month extra paid to Eversource vs a locked PPA rate. Spring is peak production. A delay in April or May is capacity never recovered. ESS rates reviewed annually."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 33
+    },
+    {
+      "id": "OBJ-UR02",
+      "library": "solar",
+      "section": "UR",
+      "sectionName": "Urgency & Timing",
+      "title": "I'm Waiting to See What Happens Politically",
+      "product": "Solar",
+      "difficulty": "Hard",
+      "surface": [
+        "With all the changes going on I want to wait.",
+        "I want to see where incentives land.",
+        "I'm watching what happens with the administration."
+      ],
+      "rootCause": "Policy uncertainty. The answer is to make waiting feel riskier than acting, with honesty, not pressure.",
+      "technique": "Short Answer, Long Answer. 'Customers already on solar are grandfathered. The ones waiting are exposed to whatever comes next.'",
+      "ctContext": "Customers already on solar are grandfathered under their program terms. Section 48E (PPA/TPO) requires construction to begin before July 4, 2026. That is a real, hard deadline. ESS rates locked via ROF letter.",
+      "standardResponse": "Customers who are already on solar are grandfathered under their program terms. The ones who wait are exposed to whatever comes next. Acting now locks you into today's rules, not whatever the legislature or PURA decides next year. And there's a specific federal deadline for the program we'd be using. Construction has to begin before July 4th of this year. That's a real window.",
+      "note": "Rule: never promise specific future program availability. Cite what is factually documented.",
+      "extras": {
+        "Rule": "Never promise specific future program availability."
+      },
+      "variants": {
+        "surface": "\"With all the changes going on I want to wait.\" / \"I want to see where incentives land.\"",
+        "rootCause": "Policy uncertainty. The answer is to make waiting feel riskier than acting.",
+        "ctContext": "Customers already on solar are grandfathered. ESS rates locked via ROF letter. Section 48E (PPA/TPO) requires construction to begin before July 4, 2026.",
+        "standardResponse": "\"Customers who are already on solar are grandfathered under their program terms. The ones who wait are exposed to whatever comes next. Acting now locks you into today's rules, not whatever the legislature or PURA decides next year.\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 34
+    },
+    {
+      "id": "OBJ-RF-A01",
+      "library": "roofing",
+      "section": "A",
+      "sectionName": "Aesthetic",
+      "title": "I'm Not Sure About The Colors",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "I want to think about the color.",
+        "None of these match my house."
+      ],
+      "rootCause": "Often genuine, sometimes a stall disguised as aesthetics. Read the room. If genuine, the color tools resolve it.",
+      "technique": "Be Proactive. Walk through colors before they raise concern.",
+      "standardResponse": "Color is the most personal piece. The Dynasty line has 12 high-definition color options. Let me show you the IKO Viewer. You can upload a photo of your house and try every color virtually. Most customers are surprised how the right color changes the whole curb appeal.",
+      "note": "IKO Viewer (iko.chameleonpower.com) shows Dynasty colors on the actual house from a photo. Use it at the appointment. A color must be on the contract before submission.",
+      "repFailure": "Letting 'I want to think about the color' become a stall. Use the Viewer at the appointment.",
+      "extras": {
+        "Tools": "IKO Viewer (iko.chameleonpower.com) lets the customer see Dynasty colors on their actual house from a photo. Use it during the appointment if possible.",
+        "Color decision rule": "Color must be selected from the IKO Dynasty palette before contract submission. The Project Manager confirms the choice in the welcome call. Customer can change before scheduling, but a color must be on the contract."
+      },
+      "variants": {
+        "rootCause": "Often genuine. Sometimes a stall disguised as an aesthetic concern. Read the room. If genuine, the color tools resolve it.",
+        "standardResponse": "\"Color is the most personal piece of this. The Dynasty line has 12 high-definition color options. Let me show you the IKO Viewer. You can upload a photo of your house and try every color virtually. Most customers are surprised how the right color changes the whole curb appeal of the house.\"",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 30
+    },
+    {
+      "id": "OBJ-RF-A02",
+      "library": "roofing",
+      "section": "A",
+      "sectionName": "Aesthetic",
+      "title": "What Will The Neighbors / HOA Think?",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "Our HOA has rules about roof colors.",
+        "The neighbors all have a similar look."
+      ],
+      "rootCause": "Aesthetic concern plus HOA process question. Neither is a real obstacle in most cases.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "Most HOAs have approved color lists, and the IKO Dynasty palette covers the standard ranges. We can match what's already in your neighborhood. If your HOA requires submission, we provide the product specs and color sample for the application. Let me know your association and we can pre-check anything specific.",
+      "repFailure": "Treating HOA approval as a deal-killer. It rarely is.",
+      "variants": {
+        "standardResponse": "\"Most HOAs have approved color lists, and the IKO Dynasty palette covers the standard ranges. We can match what's already in your neighborhood. If your HOA requires submission, we'll provide the product specs and color sample for the application. Most HOAs approve within standard timelines. Let me know what association you're in and we can pre-check anything specific.\"",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 31
+    },
+    {
+      "id": "OBJ-RF-A03",
+      "library": "roofing",
+      "section": "A",
+      "sectionName": "Aesthetic",
+      "title": "I Don't Like How It Looks",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "I just don't love the look of it.",
+        "It doesn't really go with the house.",
+        "I'm picky about how the house looks."
+      ],
+      "rootCause": "Almost never a real obstacle. Nobody studies their own roof, so the aesthetic worry is abstract. A friendly bet exposes that, then the color tools resolve the genuine piece.",
+      "disc": {
+        "D": "States it flatly and moves on.",
+        "I": "Cares most here. Curb appeal is emotional.",
+        "S": "Worries the neighbors will notice.",
+        "C": "Wants to see exact colors before committing."
+      },
+      "technique": "A bet they can't win, then Feel/Felt/Found, then the Viewer.",
+      "standardResponse": "Let me ask you something, and it's not a trick. Two houses down on your side of the street, what color is their roof? Most people can't answer that, and that's the point. You weren't admiring your roof when I pulled up, and your neighbors aren't studying it either. I know how you feel. A lot of customers felt the same way before they saw the options. What they found is that the right color actually lifts the whole curb appeal. Let me pull up the Viewer with a photo of your house and show you.",
+      "note": "9 of 10 customers cannot name a neighbor's roof color. Use that bet to disarm the worry, then the IKO Viewer to settle the real preference. A color must be on the contract before submission.",
+      "repFailure": "Treating the looks objection as a hard no. Skipping the bet and the Viewer that turn it into a buying conversation.",
+      "inSources": [
+        "page"
+      ],
+      "order": 36
+    },
+    {
+      "id": "OBJ-RF-B01",
+      "library": "roofing",
+      "section": "B",
+      "sectionName": "Bundle",
+      "title": "Just Do The Solar, Roof Later",
+      "product": "Bundle",
+      "difficulty": "Medium",
+      "surface": [
+        "Can we just start with solar?",
+        "I'll do the roof in a couple of years."
+      ],
+      "rootCause": "Customer doesn't know the cost of doing it later. Removing and reinstalling solar to re-roof has a real cost, plus material increases, plus mid-project disruption.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "If we install solar on a roof near the end of its life, you'll pay twice: once for the new roof, once to remove and reinstall the solar so the roofers can work. Industry runs around $1 per watt, so on a typical system that's an extra $7,000 to $9,000 you didn't budget. The smart move is to bundle now: roofing crew goes first, same project, same financing, same coordination. Plus, if the roof fails after solar, every panel comes off and goes back on. That's a project you don't want to manage twice.",
+      "repFailure": "Not making the deferred cost concrete. Letting 'I'll do it later' go unchallenged.",
+      "extras": {
+        "Plus": "\"If your roof fails after solar is installed, every panel comes off, the roof gets replaced, and the panels go back on. That's a project you don't want to manage twice.\""
+      },
+      "variants": {
+        "rootCause": "Customer doesn't know the cost of doing it later. Removing and reinstalling solar to put a new roof underneath has a meaningful cost. Plus, material increases. Plus, mid-project disruption.",
+        "standardResponse": "\"If we install solar on a roof that's near the end of its life, you'll pay twice. Once for the new roof, and once to remove and reinstall the solar so the roofing crew can work. Industry runs around $1 per watt for that. On a typical system, that's an extra $7,000 to $9,000 you didn't budget for. The smart move is to bundle now. The solar crew is coming. The roofing crew goes first. Same project, same financing, same coordination. Doing it later is more expensive and more disruptive.\"",
+        "title": "Just Do The Solar. I'll Handle The Roof Later."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 33
+    },
+    {
+      "id": "OBJ-RF-B02",
+      "library": "roofing",
+      "section": "B",
+      "sectionName": "Bundle",
+      "title": "Can The Roof Be Financed With Solar?",
+      "product": "Bundle",
+      "difficulty": "Warm",
+      "surface": [
+        "How does the financing actually work?",
+        "Is it one loan or two?"
+      ],
+      "rootCause": "Logistics question. Direct answer.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "One loan, one payment. The roof rolls into the solar financing as long as we're doing both. It's processed as a complete project, one monthly payment that covers everything. The solar savings on your electric bill often cover most of the roofing portion of the payment.",
+      "repFailure": "Making the financing structure sound complicated. It's straightforward. Lead with that.",
+      "extras": {
+        "Discovery anchor": "\"Have you thought about what your monthly comfort zone is for the combined payment? Let me run a couple of scenarios.\""
+      },
+      "variants": {
+        "standardResponse": "\"One loan, one payment. The roof gets rolled into the solar financing as long as we're doing both projects. It's processed as a complete project. You get one monthly payment that covers everything. The solar savings on your electric bill often cover most of the roofing portion of the payment.\"",
+        "title": "Can The Roof Really Be Financed With The Solar?"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 34
+    },
+    {
+      "id": "OBJ-RF-B03",
+      "library": "roofing",
+      "section": "B",
+      "sectionName": "Bundle",
+      "title": "Won't The Solar Crew Damage The New Roof?",
+      "product": "Bundle",
+      "difficulty": "Warm",
+      "surface": [
+        "Doesn't drilling into the roof void the warranty?",
+        "I'm worried about leaks where the panels mount."
+      ],
+      "rootCause": "Reasonable concern. The mounting hardware is engineered for waterproofing, and Trinity warranties it.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "The mounts are engineered for waterproofing, sealed, flashed, and backed by our 25-year craftsmanship warranty. If anything ever leaks at a mount, you call us. Because we install both the roof and the solar, there's no finger-pointing between contractors. With a separate roofer and solar installer, a leak at a mount in year 4 means both blame each other. With us, it's one call.",
+      "repFailure": "Vague answers. The 'one call, no finger-pointing' frame is the strongest piece.",
+      "variants": {
+        "standardResponse": "\"The mounts are engineered for waterproofing. They're sealed, flashed, and backed by our 25-year craftsmanship warranty. If anything ever leaks at a panel mount, you call us. Because we install both the roof and the solar, there's no finger-pointing between contractors. One company is responsible for both, and the warranty reflects that. That's actually one of the biggest reasons to bundle. If you have a separate roofer and a separate solar installer, and a leak shows up at a mount in year 4, both companies blame each other. With us, it's one call.\"",
+        "repFailure": "Vague answers. The \"one call, no finger-pointing\" frame is the strongest piece of this."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 35
+    },
+    {
+      "id": "OBJ-RF-C01",
+      "library": "roofing",
+      "section": "C",
+      "sectionName": "Comparison",
+      "title": "I've Used a Smaller Local Contractor",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I prefer to support a local guy.",
+        "My buddy does roofs on the side.",
+        "I had a great guy but he retired."
+      ],
+      "rootCause": "Trust preference and loyalty to small business. Respect it without conceding the warranty and accountability gap.",
+      "technique": "Hot Potato on what they liked, then differentiate on what a small contractor can't offer.",
+      "standardResponse": "That's fair. Small contractors can do good work. The question is what happens when you have a problem in year 7. Will the small guy still be around? Will his warranty mean anything? Will he answer a Saturday call? We've been in business 32 years, with a 24/7 service line and 48-hour dispatch. A 25-year craftsmanship warranty is only worth what the company behind it is worth in year 25.",
+      "note": "Handoff line: 'If you have a roof problem with a Trinity roof, you call Trinity. There's no finger-pointing.'",
+      "repFailure": "Disparaging small contractors. Longevity and accountability are the comparison points, not quality.",
+      "extras": {
+        "The handoff line": "\"If you have a roof problem with a Trinity roof, you call Trinity. There's no finger-pointing. That's the difference between a manufacturer warranty alone and a manufacturer plus craftsmanship warranty backed by a company that's still here.\""
+      },
+      "variants": {
+        "surface": "\"I prefer to support a local guy.\" / \"My buddy does roofs on the side.\" / \"I had a great guy last time but he retired.\"",
+        "rootCause": "Trust preference and a (sometimes valid) loyalty to small business. The right answer respects that without conceding the warranty and accountability gap.",
+        "technique": "Hot Potato to surface what they actually liked about the prior experience. Then differentiate on what a small contractor cannot offer.",
+        "standardResponse": "\"That's fair. Small contractors can do good work. The question worth asking is what happens when you have a problem in year 7. Will the small guy still be around? Will his warranty still mean anything? Will he answer a Saturday call? We've been in business 32 years. We have a 24/7 service line and 48-hour dispatch. Our 25-year craftsmanship warranty is only worth what the company behind it is worth in year 25. That's the part most customers don't think about until they need it.\"",
+        "repFailure": "Disparaging small contractors. They aren't the problem. Longevity and accountability are the comparison points.",
+        "title": "I've Used a Smaller Local Contractor Before",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 9
+    },
+    {
+      "id": "OBJ-RF-C02",
+      "library": "roofing",
+      "section": "C",
+      "sectionName": "Comparison",
+      "title": "Why IKO And Not GAF / Owens Corning?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I've heard of GAF. Why don't you use them?",
+        "Isn't GAF the standard?"
+      ],
+      "rootCause": "Brand familiarity gap. Most homeowners know GAF or CertainTeed from marketing. IKO is less consumer-facing but one of the largest manufacturers in North America and the exclusive solar partner. C-types will research this.",
+      "technique": "Be Proactive with C-types. Short Answer, Long Answer if it surfaces.",
+      "standardResponse": "IKO has been making shingles since 1951, one of the largest roofing manufacturers in North America. They make their product end-to-end, which is unusual: most brands outsource pieces of their supply chain. They're also our exclusive solar partner, which matters with panels on the roof. The Dynasty line carries a Class 4 impact rating and a 130 mph wind warranty, the top of their consumer line.",
+      "note": "For C-types: 'IKO does a 50-point installation inspection on warranty claims. We install to that spec because we know they audit it. Any of those details done wrong voids the manufacturer warranty regardless of brand.'",
+      "repFailure": "Getting defensive about IKO vs competing brands. Not knowing IKO's history or the 4-product system answer.",
+      "extras": {
+        "The deeper answer (for C-types)": "\"There's a 50-point installation inspection IKO does on warranty claims. Every detail, including nail placement, exposure, starter strip, and ice and water shield placement. We install to that spec because we know they audit it. A lot of customers don't realize that any of those installation details, done wrong, voids the manufacturer warranty regardless of the brand on the box.\""
+      },
+      "variants": {
+        "surface": "\"I've heard of [other brand]. Why don't you use them?\" / \"Isn't GAF the standard?\"",
+        "rootCause": "Brand familiarity gap. Most homeowners have heard of GAF or CertainTeed because of marketing. IKO is less consumer-facing but is one of the largest manufacturers in North America and is the exclusive solar partner. C-type customers will research this. Have the answer ready.",
+        "technique": "Be Proactive. Raise IKO before they ask, especially with C-types. If raised, Short Answer, Long Answer.",
+        "standardResponse": "\"IKO has been making shingles since 1951. They're one of the largest roofing manufacturers in North America. They make their own product end-to-end, which is unusual in this industry. Most other brands outsource pieces of their supply chain. IKO controls quality from raw material through finished shingle. They're also our exclusive solar partner, which matters when you have panels going on the roof. The Dynasty line we install carries a Class 3 impact rating and a 130 mph wind warranty. That's the top of their consumer line.\"",
+        "repFailure": "Getting defensive about IKO vs competing brands. Not knowing IKO's history. Not having the four-product system answer ready.",
+        "title": "Why IKO And Not GAF / CertainTeed / Owens Corning?",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 10
+    },
+    {
+      "id": "OBJ-RF-C03",
+      "library": "roofing",
+      "section": "C",
+      "sectionName": "Comparison",
+      "title": "Why Architectural, Not 3-Tab?",
+      "product": "Standalone",
+      "difficulty": "Warm",
+      "surface": [
+        "My current roof is 3-tab. Why upgrade?",
+        "Aren't 3-tab shingles fine?"
+      ],
+      "rootCause": "Information gap on the performance, warranty, and curb-appeal difference. 3-tab is rarely the right answer in 2026 for a homeowner staying in the home.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "Three-tab shingles are basically obsolete for residential. They're thinner, have shorter warranties, and lower wind resistance. Architectural shingles like Dynasty are thicker, last longer, look better, and carry a Limited Lifetime warranty. The cost difference is small. The performance difference isn't.",
+      "note": "Insurance angle: 'Class 4 impact-resistant shingles can earn an insurance discount. 3-tab cannot. Over 25 years that can cover a meaningful chunk of the upgrade.'",
+      "repFailure": "Making it a technical lecture instead of a clear performance-and-value comparison.",
+      "extras": {
+        "The insurance angle": "\"Class 3 impact-resistant shingles can earn an insurance discount. Three-tab cannot. Over 25 years, the discount can cover a meaningful chunk of the upgrade.\""
+      },
+      "variants": {
+        "rootCause": "Information gap. Most customers don't know the difference between 3-tab and architectural in performance, warranty, or curb appeal. 3-tab is rarely the right answer in 2026 for a homeowner staying in the home.",
+        "standardResponse": "\"Three-tab shingles are basically obsolete for residential. They're thinner, have shorter warranties (often 20-25 years on the product side, but only if installed perfectly), and have lower wind resistance. Architectural shingles like the Dynasty line are thicker, last longer, look better, and carry a Limited Lifetime warranty. The cost difference is small. The performance difference isn't.\"",
+        "repFailure": "Making this a technical lecture instead of a clear performance-and-value comparison.",
+        "title": "Three-Tab Shingles Are Cheaper, Why Architectural?",
+        "product": "Standalone, occasionally bundle"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 11
+    },
+    {
+      "id": "OBJ-RF-C04",
+      "library": "roofing",
+      "section": "C",
+      "sectionName": "Comparison",
+      "title": "I Want To Get A Few Quotes",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I want to shop this around.",
+        "I always get three quotes.",
+        "Let me see what else is out there first."
+      ],
+      "rootCause": "A reflex, not a real plan. People value their time and are prone to inaction. The unworried rep who hands them the questions to ask usually keeps the deal, because most customers never actually get around to calling anyone else.",
+      "disc": {
+        "D": "Wants to control the process. Hand them the questions.",
+        "I": "Says it to be polite. Stay warm and confident.",
+        "S": "Genuinely wants to be thorough. Help them.",
+        "C": "Will actually compare. Arm them to compare correctly."
+      },
+      "technique": "Be unworried. Arm them with questions, then name the cost of waiting.",
+      "standardResponse": "That's smart, and I'd never talk you out of it. Let me actually help you. Here are 5 to 10 questions to ask any other roofer: How long is the labor warranty? Is the price cash or financed? Are permits, full drip edge, and underlayment included? How long have they been in business? Are service calls answered 24/7? The one thing I'd say is this: we already found a water issue on your roof, and every week you wait risks a several-thousand-dollar leak. I know how you feel. Most customers feel better getting a few numbers. What they find is they're confident enough after our questions that they never end up making the calls.",
+      "note": "The questions are the close. A confident, unworried rep who hands over the comparison list usually keeps the deal, because most customers value their time and never bother to quote.",
+      "repFailure": "Looking worried or pushing back hard. Not arming them with the questions. Not tying a specific cost of delay to their own roof.",
+      "inSources": [
+        "page"
+      ],
+      "order": 37
+    },
+    {
+      "id": "OBJ-RF-C05",
+      "library": "roofing",
+      "section": "C",
+      "sectionName": "Comparison",
+      "title": "Someone Quoted Me A Lot Less",
+      "product": "Universal",
+      "difficulty": "Hard",
+      "surface": [
+        "I got a number way under yours.",
+        "Another company came in thousands cheaper.",
+        "How is yours so much more?"
+      ],
+      "rootCause": "One low quote is not 'the market.' Every roof is custom, like a portrait, so you wouldn't expect three identical numbers. A price far below the rest is often one weak rep in town on a performance plan, not the company's real price. The rep's own reaction to the number is the message.",
+      "disc": {
+        "D": "Pushes hard on the gap. Match the directness.",
+        "I": "Mentions the other rep seemed nice. Stay confident.",
+        "S": "Quietly leans toward the cheaper, safer-feeling number.",
+        "C": "Has the written quote. Welcome it and compare."
+      },
+      "technique": "Control your reaction. Reframe the low number, then the Walk-Around Compare.",
+      "standardResponse": "Wow, that's a really low number. Honestly, I don't understand how anyone could do a complete roof for that. You wouldn't get three quotes to paint a family portrait and expect them to match, because every home is custom. A price that far under the rest is usually one rep in your town who needs the sale this week, not the company's real price. Not everyone having a going-out-of-business sale puts up a sign. Show me what they put in writing and let's compare it line by line. A real quote stands up. A cheap verbal number rarely does.",
+      "note": "If your face loses color when you hear the number, you've told the customer to worry. React with calm surprise instead, then move to the Walk-Around Compare in OBJ-RF-F04. Never drop your price to match a number you haven't seen in writing.",
+      "repFailure": "Flinching at the low number. Matching it on the spot. Treating one cheap quote as the market instead of an outlier.",
+      "inSources": [
+        "page"
+      ],
+      "order": 39
+    },
+    {
+      "id": "OBJ-RF-D01",
+      "library": "roofing",
+      "section": "D",
+      "sectionName": "Decision Maker",
+      "title": "I Need to Talk to My Spouse First",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "My partner isn't home.",
+        "We make big decisions together."
+      ],
+      "rootCause": "Legitimate stakeholder gap. How the rep handles the present partner determines go-back success.",
+      "technique": "Sell the concept before leaving. Then coach the go-back.",
+      "standardResponse": "Before I go, when you talk to [name] tonight, what do you think will matter most to them? Let me make sure you have the right answer for whatever they ask. Most spouses ask about the warranty, the timeline, the price, or the color. Schedule the go-back with both confirmed present.",
+      "note": "The 80% rule: if you don't sell the present partner on the concept first, they cancel 80% of the time. 'Don't try to sell them before I get back. Just make sure they'll let me in.'",
+      "repFailure": "Scheduling a go-back without selling the concept first. Not naming the absent partner.",
+      "extras": {
+        "The 80% Rule": "If you don't sell the present partner on the concept before leaving, they cancel 80% of the time. Sell why a new roof, why Trinity, why now. To whoever is there.",
+        "Roofing-specific go-back coaching": "",
+        "Standard response (strong)": "\"Before I go, when you talk to [name] tonight, what do you think will matter most to them? Let me make sure you have the right answer for whatever they ask. Most spouses ask about [the warranty / the install timeline / the price / the color].\" Schedule the go-back with both confirmed present.",
+        "Master notes": "- *\"What do you think your spouse is going to like most about this?\"* (Often: aesthetic for I-types, warranty for C-types, \"no more worrying about it\" for S-types.) - *\"When you walk them through this, what do you think their first concern will be?\"* This surfaces the unstated objection. - *\"Don't try to sell them before I get back. Just make sure they'll let me in.\"*"
+      },
+      "variants": {
+        "technique": "Read the Room on whether the concept is sold. If not, sell the concept before leaving. Then coach the go-back.",
+        "repFailure": "Scheduling a go-back without selling the concept first. Not naming the absent partner. Leaving without coaching language.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 23,
+      "related": [
+        "OBJ-D01"
+      ]
+    },
+    {
+      "id": "OBJ-RF-D02",
+      "library": "roofing",
+      "section": "D",
+      "sectionName": "Decision Maker",
+      "title": "We Need To Think About It",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "Let us sleep on it.",
+        "We need to process this.",
+        "We'll get back to you."
+      ],
+      "rootCause": "Never about time. Always lack of trust or something undiscovered. A stall without a named concern is a deferred failure.",
+      "technique": "Short Answer, Long Answer to acknowledge, then Hot Potato to diagnose.",
+      "standardResponse": "Of course. What's the main thing on your mind right now? Is it the company, the price, the timing, or something I haven't covered? If trust: address why Trinity, why this rep, with Feel/Felt/Found and third-party validation. If discovery: 'What would need to be true for you to feel confident moving forward today?'",
+      "repFailure": "Accepting the stall without diagnosing trust vs discovery. Going home without naming the real concern.",
+      "extras": {
+        "Diagnosis question": "*\"Of course. What's the main thing on your mind right now? Is it the company, the price, the timing, or something I haven't covered?\"* The answer tells you whether it's trust or discovery.",
+        "Prevention": "If you get this at the closing appointment, the first visit wasn't set up correctly. Always open with: \"Nobody is committing today. My job is to make sure everything makes sense. If it's a win-win, great. If not, no problem.\"",
+        "Master notes": "- If **trust:** Don't sell the product harder. Address why Trinity, why this rep. Feel/Felt/Found. Third-party validation. - If **discovery:** Something wasn't surfaced. Ask the next question. \"What would need to be true for you to feel confident moving forward today?\""
+      },
+      "variants": {
+        "rootCause": "Never about time. Always one of two things: (1) lack of trust, or (2) something undiscovered. A stall without a named concern is a deferred failure.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 24
+    },
+    {
+      "id": "OBJ-RF-F01",
+      "library": "roofing",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "Your Roof Is Too Expensive",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "That's a lot of money.",
+        "I wasn't expecting that number.",
+        "The price is way more than I thought."
+      ],
+      "rootCause": "The rep presented the price before establishing what's included. A Trinity roof is a complete system. Most competitor quotes exclude permits, plywood, drip edge, full underlayment, or warranty length. The customer is comparing a complete system to a partial one.",
+      "disc": {
+        "D": "Says it bluntly.",
+        "I": "Goes quiet.",
+        "S": "Says 'let us think about it.'",
+        "C": "Asks how it was calculated."
+      },
+      "technique": "Short Answer, Long Answer, then divide-by-warranty math.",
+      "standardResponse": "That's the total price for a complete system, not just shingles. Permits, full perimeter drip edge, synthetic underlayment, ice and water shield, three layers of removal, five sheets of decking, and a 25-year craftsmanship warranty are all included. Most quotes you'll see are not. The math that matters is annual cost. A 5-year warranty for $12,000 is $2,400 per year of protection. Our 25-year warranty divides out very differently.",
+      "note": "Sean Obrikis line: 'If you think hiring a good roofer is expensive, try hiring a bad roofer.'",
+      "repFailure": "Defending the price. Discounting before the line-by-line. Not surfacing what the competitor's quote leaves out.",
+      "extras": {
+        "DISC": "D says it bluntly. I goes quiet. S says \"let us think about it.\" C asks how it was calculated.",
+        "Sean Obrikis line": "\"If you think hiring a good roofer is expensive, try hiring a bad roofer.\""
+      },
+      "variants": {
+        "rootCause": "The rep presented the price before establishing what is included. Roof pricing without context is always too high, because the customer has no frame for what a Trinity roof actually contains. Most competitor quotes exclude permits, plywood, drip edge, full underlayment, or warranty length. The customer is comparing a complete system to a partial one.",
+        "standardResponse": "\"That's the total price for a complete system, not just shingles. Permits, full perimeter drip edge, synthetic underlayment, ice and water shield, three layers of removal, five sheets of decking, and a 25-year craftsmanship warranty are all included. Most quotes you'll see are not. The math that matters is annual cost. If a competitor offers a 5-year warranty for $12,000, that's $2,400 per year of protection. Our 25-year warranty divides out very differently.\"",
+        "repFailure": "Defending the price. Discounting before doing the line-by-line. Failing to surface what the competitor's quote does not include.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 0,
+      "related": [
+        "OBJ-F01"
+      ]
+    },
+    {
+      "id": "OBJ-RF-F02",
+      "library": "roofing",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "I Can't Afford This Right Now",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "We don't have the cash.",
+        "We were going to save up for this.",
+        "Maybe in a year or two."
+      ],
+      "rootCause": "Information gap. The customer assumes roof replacement is a cash purchase. Trinity has financing up to 20 years. They're replacing future emergency repair costs and ongoing deterioration with a fixed monthly number.",
+      "technique": "Short Answer, Long Answer. One sentence: 'There's no cash required.'",
+      "standardResponse": "There's no cash required to start. We have financing options up to 20 years. The question isn't whether you have the money today. It's whether you'd rather pay a fixed monthly number on a new roof or save for an emergency replacement that costs more every year.",
+      "note": "Bundled with solar: 'We can roll the roof into the solar financing. One loan, one payment. The solar savings often cover most or all of the roofing payment.' Discovery: 'Could you come up with $15,000 to $20,000 without notice if you had to replace it tomorrow?'",
+      "repFailure": "Treating it as a hard no instead of a financing question. Not surfacing the cost-of-emergency frame.",
+      "extras": {
+        "Standard response (standalone)": "\"There's no cash required to start. We have financing options up to 20 years. The question isn't whether you have the money today. It's whether you'd rather pay a fixed monthly number on a new roof or save for an emergency replacement that costs more every year.\"",
+        "Standard response (bundled with solar)": "\"We can roll the roof into the solar financing. One loan, one payment, one project. The solar savings often cover most or all of the roofing payment.\"",
+        "Discovery question (saving)": "\"What would you do if you had to replace your roof tomorrow? Could you come up with $15,000 to $20,000 without notice? How would you?\" Make the alternative tangible."
+      },
+      "variants": {
+        "rootCause": "Information gap. The customer assumes roof replacement is a cash purchase. Trinity has financing options up to 20 years. They are not buying something today. They are replacing future emergency repair costs and current shingle deterioration with a fixed monthly number.",
+        "repFailure": "Treating this as a hard \"no\" instead of a financing question. Not surfacing the cost-of-emergency frame.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 1,
+      "related": [
+        "OBJ-F02"
+      ]
+    },
+    {
+      "id": "OBJ-RF-F03",
+      "library": "roofing",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "I Don't Want Another Bill / Loan",
+      "product": "Standalone",
+      "difficulty": "Warm",
+      "surface": [
+        "I'm trying to simplify, not add payments.",
+        "I don't like taking on debt.",
+        "We're paying down credit cards."
+      ],
+      "rootCause": "Customer sees a roof loan as additive debt. The roof is a deferred expense they're already paying in energy waste, micro-leaks, and accelerating deterioration. The bill exists either way. The question is who collects it.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "I understand. The thing is, the roof is a bill you're already paying. Old roofs let heat escape in winter, let cool air out in summer, and create slow damage that shows up in repair costs. A loan turns an unpredictable future expense into a fixed monthly number. That's not adding a bill. That's converting one you can't see into one you can plan around.",
+      "repFailure": "Accepting it as debt-aversion. It's a deferred-cost conversation.",
+      "variants": {
+        "rootCause": "Customer sees a roof loan as additive debt. Real frame: a new roof is a deferred expense they are already paying for in the form of energy waste, micro-leaks, and accelerating deterioration. The bill exists either way. The question is who collects it.",
+        "repFailure": "Accepting it as a debt-aversion conversation. It is a deferred-cost conversation."
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 2,
+      "related": [
+        "OBJ-F03"
+      ]
+    },
+    {
+      "id": "OBJ-RF-F04",
+      "library": "roofing",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "Another Contractor Was Cheaper",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I got a quote for $4,000 less.",
+        "My brother knows a guy.",
+        "Can you match it?"
+      ],
+      "rootCause": "Trust gap or apples-to-oranges comparison. Dropping price immediately signals the original price wasn't justified, that you're afraid of losing them, and that price is the only value. The right move is the line-by-line.",
+      "disc": {
+        "D": "Asks directly. Respond with equal directness.",
+        "I": "Will mention the other contractor seemed friendlier.",
+        "S": "Won't raise it directly.",
+        "C": "Will have the written quote in hand."
+      },
+      "technique": "Walk-Around Compare.",
+      "standardResponse": "Ask for the written quote, then compare line by line. A real quote stands up. A verbal estimate usually doesn't.",
+      "responseDetailsLabel": "The Walk-Around Compare",
+      "responseDetails": [
+        {
+          "label": "Ask for the written quote.",
+          "text": " 'I'd love to see what they put together. I can't speak to what they may or may not be including.'"
+        },
+        {
+          "label": "Cash or financing?",
+          "text": " 'Is their number a cash price or a financing price? We have 20-year terms. The monthly comparison often inverts the answer.'"
+        },
+        {
+          "label": "Workmanship warranty length?",
+          "text": " 'How long is their labor warranty? Industry standard is 1, 5, sometimes 10. Ours is 25. If they make a mistake in year 8 and they're still around, you're paying for it.'"
+        },
+        {
+          "label": "What's actually in the price?",
+          "text": " 'Permits? More than one layer removed? Synthetic underlayment? Full perimeter drip edge? New flashing? Plywood replacement? Most contractors charge for these mid-install.'"
+        },
+        {
+          "label": "Will they still be there?",
+          "text": " 'How long in business? 24/7 service? 48-hour dispatch? When you have a leak in year 4, who picks up the phone?'"
+        }
+      ],
+      "note": "Divide each company's total by the years of workmanship warranty. The lower price often costs more per year. Never: drop price immediately, say 'I'll match it,' or say 'they're cutting corners' without seeing the quote.",
+      "repFailure": "Discounting before the walk-around. Getting defensive about brands. Letting it become 'us versus them' instead of 'what's actually in your quote.'",
+      "extras": {
+        "DISC": "D asks directly. Respond with equal directness. I will mention the other contractor seemed friendlier. S won't raise it directly. C will have the written quote in hand.",
+        "Standard response, the Walk-Around Compare": "",
+        "The math": "Divide each company's total price by the years of workmanship warranty. The lower price often costs more per year of protection.",
+        "Never": "Drop price immediately. Say \"I'll match it.\" Say \"they're cutting corners\" without seeing the quote.",
+        "Master notes": "1. **Ask for the written quote.** \"I'd love to see what they put together. Every project is unique and I can't speak to what they may or may not be including.\" A real quote stands up. A verbal \"estimate\" usually doesn't. 2. **Cash or financing?** \"Is their number a cash price or a financing price? Most contractors offer 12-24 months same-as-cash or short-term high-payment loans. We have 20-year terms. The monthly comparison often inverts the answer.\" 3. **Workmanship warranty length?** \"How long is their labor warranty? The industry standard is 1, 5, sometimes 10 years. Ours is 25. If they make a mistake in year 8 and they're still in business, you're paying for it.\" 4. **What's actually in the price?** \"Are they including permits? Removing more than one layer? Synthetic underlayment? Full perimeter drip edge? New flashing for vents and chimneys? Plywood replacement? Most contractors charge for all of these mid-installation.\" 5. **Are they still going to be there?** \"How long have they been in business? Do they answer service calls 24/7? Do they dispatch within 48 hours? When you have a leak in year 4, who picks up the phone?\""
+      },
+      "variants": {
+        "rootCause": "Trust gap or apples-to-oranges comparison. Immediately dropping price signals: (1) the original price wasn't justified, (2) we're afraid of losing them, (3) price is the only value. The right move is the line-by-line.",
+        "technique": "Be Proactive where possible. Walk-Around Compare is the structured response.",
+        "repFailure": "Discounting before doing the walk-around. Getting defensive about IKO vs other shingle brands. Letting the conversation become \"us versus them\" instead of \"what's actually in your quote.\"",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 3,
+      "related": [
+        "OBJ-F04"
+      ]
+    },
+    {
+      "id": "OBJ-RF-F05",
+      "library": "roofing",
+      "section": "F",
+      "sectionName": "Financial",
+      "title": "I Need to Run This By My Accountant",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I want my accountant to look at this.",
+        "I don't make financial decisions without reviewing them professionally."
+      ],
+      "rootCause": "Either genuine financial diligence (C-type, high earner) or a polite exit. Determine which before responding.",
+      "technique": "Hot Potato to determine genuineness. 'What specifically do you want them to review?' If they can name it, it's real. If not, it's a stall.",
+      "standardResponse": "If genuine: 'Of course. I can put together a one-page summary with everything they'd need: the contract, financing terms, and the warranty package. What's the best way to get the three of us on a call?' If stall: 'Of course. What specifically are you hoping they can clarify?' Name the concern, address it, set a go-back with a purpose.",
+      "repFailure": "Accepting the referral without qualifying whether it's real, then leaving without a committed go-back and a named question.",
+      "extras": {
+        "Standard response (genuine)": "\"Of course. I can put together a one-page summary with everything they'd need: the contract, financing terms, and the warranty package. What's the best way to get you back together with both of us on a call?\"",
+        "Standard response (stall)": "\"Of course. What specifically are you hoping they can clarify?\" Name the concern, address it directly, set a specific go-back with a purpose."
+      },
+      "variants": {
+        "technique": "Hot Potato to determine genuineness. \"That makes sense. What specifically do you want them to review?\" If they can name it, it is real. If they can't, it is a stall.",
+        "repFailure": "Accepting the referral without qualifying whether it is real, then leaving without a committed go-back date and a named question to resolve.",
+        "title": "I Need to Run This By My Accountant / Financial Advisor",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 4,
+      "related": [
+        "OBJ-F06"
+      ]
+    },
+    {
+      "id": "OBJ-RF-I01",
+      "library": "roofing",
+      "section": "I",
+      "sectionName": "Insurance",
+      "title": "Can't I Just Get Insurance To Pay?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "There must have been hail damage I didn't notice.",
+        "My neighbor got their roof free through insurance."
+      ],
+      "rootCause": "Either a real claim (storm, hail) or a hopeful misread. Insurance covers damage from a covered peril, not normal wear or aging. Distinguish before responding.",
+      "technique": "Hot Potato. 'When was the last storm in your area? Any visible damage at the time?'",
+      "standardResponse": "Real claim: 'If you've had a recent storm with hail or high winds, a claim is worth considering. We work alongside your adjuster, and the Class 4 impact rating is something carriers recognize. But the inspection has to happen first.' No real claim: 'Insurance covers damage from an event, not aging. Filing without real damage can affect premiums and usually gets denied. The honest path is replacement, often with the Class 4 rating that earns a discount going forward.'",
+      "repFailure": "Encouraging fraudulent claims. Or dismissing legitimate storm damage too quickly.",
+      "extras": {
+        "Standard response (real possible claim)": "\"If you've had a recent storm with hail or high winds, an insurance claim is worth considering. We can work alongside your adjuster. The Class 3 impact rating on Dynasty shingles is one of the things insurance companies recognize. If there's legitimate damage, the carrier may cover the replacement. But the inspection has to happen first.\"",
+        "Standard response (no real claim)": "\"Insurance covers damage from a covered event, not aging. If your shingles are deteriorating from age, granule loss, or general wear, that's not a claim. Insurance companies inspect carefully and deny non-event claims. Filing without real damage can affect future premiums. The honest path is replacement, often with the Class 3 impact rating that earns a discount on premiums going forward.\""
+      },
+      "variants": {
+        "surface": "\"There must have been hail damage I didn't notice.\" / \"My neighbor got their roof for free through insurance.\"",
+        "rootCause": "Either a real claim (storm damage, hail) or a hopeful misread of how insurance works. Insurance covers damage from a covered peril, not normal wear or aging. Distinguish before responding.",
+        "technique": "Hot Potato. \"When was the last storm in your area? Did you have any visible damage at the time?\"",
+        "title": "Can't I Just Get Insurance To Pay For This?",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 28
+    },
+    {
+      "id": "OBJ-RF-I02",
+      "library": "roofing",
+      "section": "I",
+      "sectionName": "Insurance",
+      "title": "Will A New Roof Lower My Insurance?",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "Does this come with an insurance discount?"
+      ],
+      "rootCause": "Buying signal disguised as a question. The answer is favorable.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "Often, yes. The Dynasty line carries a Class 4 impact-resistant rating. Insurers including USAA and State Farm have specific discount programs for impact-resistant roofs. We provide the IRR certification documentation to submit to your carrier. The exact discount depends on your insurer, but a meaningful percentage off the dwelling premium is common.",
+      "note": "Forms: USAA Impact Resistant Roof Discount Form, State Farm IRR Certification Form, both on the Roofing Resource Page.",
+      "repFailure": "Saying 'I think so' instead of having the certification process ready.",
+      "extras": {
+        "The forms to know": "USAA Impact Resistant Roof Discount Form, State Farm IRR Certification Form. Both are available through the Roofing Resource Page."
+      },
+      "variants": {
+        "standardResponse": "\"Often, yes. The Dynasty shingle line we install carries a Class 3 impact-resistant rating. Insurance companies including USAA and State Farm have specific discount programs for impact-resistant roofs. We'll provide you with the IRR certification documentation to submit to your carrier. The exact discount depends on your insurer and policy, but a meaningful percentage off the dwelling premium is common.\"",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 29
+    },
+    {
+      "id": "OBJ-RF-M01",
+      "library": "roofing",
+      "section": "M",
+      "sectionName": "Moving",
+      "title": "We Might Sell In A Few Years",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "We're not sure how long we'll stay.",
+        "We might move."
+      ],
+      "rootCause": "Buying signal in disguise. Selling soon means thinking about home value, which a new roof supports.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "A new roof is consistently one of the top return-on-investment improvements. Buyers value it because it removes a future expense from their list, and the 25-year craftsmanship warranty transfers once to the next owner. The opposite is also true: list with a 22-year-old roof and the inspector flags it, so you negotiate down or replace it before close anyway. Better to do it now and live under it for the years before you sell.",
+      "note": "Discovery anchor: 'Are you thinking 2 years out, 5, longer? That changes the math a little.'",
+      "repFailure": "Treating 'we might sell' as a disqualifier. It's usually a buying signal.",
+      "extras": {
+        "Discovery anchor": "\"Out of curiosity, are you thinking 2 years out, 5 years, longer? That changes the math a little.\""
+      },
+      "variants": {
+        "rootCause": "Buying signal in disguise. Selling soon means thinking about home value. A new roof helps, not hurts.",
+        "standardResponse": "\"A new roof is consistently one of the top return-on-investment home improvements. Buyers value it specifically because it removes a future expense from their list. Cost vs Value research consistently puts asphalt shingle roof replacement among the highest-recouped projects. The 25-year craftsmanship warranty transfers once to the next owner, which is a real selling point. So a new roof now isn't a sunk cost. It's a value add. The opposite is also true. If you list a house with a 22-year-old roof, the buyer's inspector will flag it, and you'll either negotiate down or replace it before close anyway. Better to do it now and live under it for the years before you sell.\"",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 32
+    },
+    {
+      "id": "OBJ-RF-P01",
+      "library": "roofing",
+      "section": "P",
+      "sectionName": "Process",
+      "title": "How Long Does The Install Take?",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "Will my house be a construction zone?",
+        "How disruptive is this?"
+      ],
+      "rootCause": "A buying question, not an objection. The homeowner is placing themselves in the install scenario.",
+      "technique": "Read the Room. This is a buying signal. Move toward scheduling.",
+      "standardResponse": "Most roofs are one day. Larger or complex roofs can run two. The crew arrives in the morning, brings a dumpster, tears off, decks, installs, and cleans up. We use Site Capture so you see progress in real time. Crew leaves the property cleaner than they found it. Permitting and scheduling typically run 60 days from contract. Any preference on days of the week?",
+      "repFailure": "Treating it like an objection instead of a buying signal. Not transitioning to scheduling.",
+      "variants": {
+        "rootCause": "This is a buying question, not an objection. The homeowner is mentally placing themselves in the install scenario. Treat it as such.",
+        "standardResponse": "\"Most roofs are one day. Larger or more complex roofs can run two days. The crew arrives in the morning, brings a dumpster, tears off, decks, installs, and cleans up. We use Site Capture so you can see progress in real time. Crew leaves the property cleaner than they found it. Permitting and scheduling typically run 60 days from contract. Do you have any preference on days of the week?\"",
+        "repFailure": "Treating this like an objection instead of a buying signal. Not transitioning to scheduling.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 17,
+      "related": [
+        "OBJ-T01"
+      ]
+    },
+    {
+      "id": "OBJ-RF-P02",
+      "library": "roofing",
+      "section": "P",
+      "sectionName": "Process",
+      "title": "I Don't Want A Dumpster In My Driveway",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "Where will the dumpster go?",
+        "Will it block the driveway?",
+        "We have HOA rules."
+      ],
+      "rootCause": "Logistics concern, often legitimate. The Project Manager handles this in pre-install calls.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "Your Project Manager works with you to find the right drop spot before install day. Most do the driveway because it's closest to the work, but yard placement is an option for HOA or access concerns. It drops the day before or morning of, and gets picked up after. If your HOA has rules, we accommodate them.",
+      "repFailure": "Promising specific dumpster placement at the appointment. Defer to the PM. Don't commit outside contracted scope.",
+      "variants": {
+        "rootCause": "Logistics concern, often legitimate. The Project Manager handles this in pre-install calls. Reassure with the process.",
+        "standardResponse": "\"Your Project Manager will work with you to find the right drop spot before installation day. Most customers do the driveway because it's the closest to the work area, but yard placement is an option if there's HOA or access concern. We confirm location ahead of time. The dumpster drops the day before or the morning of, and gets picked up after the install. If your HOA has rules, we'll accommodate them. Just let your PM know.\"",
+        "repFailure": "Promising specific dumpster placement at the appointment. Defer to the PM. Don't make commitments outside of the contracted scope.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 18
+    },
+    {
+      "id": "OBJ-RF-P03",
+      "library": "roofing",
+      "section": "P",
+      "sectionName": "Process",
+      "title": "What If You Find Damage Once The Roof Is Off?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "What if there's rotted plywood?",
+        "Will this turn into a much bigger project?"
+      ],
+      "rootCause": "Concern about scope creep. Yes, hidden damage happens, and yes, it can cost extra. But Trinity includes plywood, change orders are flat-rate, and the customer is informed before any additional work.",
+      "technique": "Be Proactive. Raise it before they do. Short Answer, Long Answer.",
+      "standardResponse": "Some hidden damage is normal on older roofs. We include replacement plywood in your contract. If we find more, you get a change order at $100 per sheet. Rotted ledger board is $15 per linear foot, rotted rafters $5 per linear foot. The Project Manager calls you before any change order is approved. Nothing happens without your sign-off. That's the difference between us and a contractor who tacks on charges mid-install without telling you.",
+      "note": "Per policy, stay general about 'we include some plywood.' Do not disclose the 5-sheet number up front.",
+      "repFailure": "Promising no hidden damage, or promising specific included plywood amounts up front.",
+      "extras": {
+        "Note": "Per policy, the 5 included sheets are not disclosed up front. Mention them only if hidden damage discussion arises. Reps should stay general about \"we include some plywood.\""
+      },
+      "variants": {
+        "rootCause": "Concern about scope creep. The honest answer is: yes, sometimes there's hidden damage, and yes, it costs extra. But Trinity includes 5 sheets of plywood, change orders are flat-rate per sheet, and the customer is informed before any additional work happens.",
+        "technique": "Be Proactive. Raise this before they do. Short Answer, Long Answer.",
+        "standardResponse": "\"Some hidden damage is normal on older roofs. We include up to 5 sheets of replacement plywood in your contract. If we find more, you'll get a change order at $100 per sheet for half-inch or three-quarter-inch decking. If we find rotted ledger board, it's $15 per linear foot. If we find rotted rafters, it's $5 per linear foot. The Project Manager calls you before any change order is approved. Nothing happens without your sign-off. That's the difference between us and a contractor who tacks on charges mid-install without telling you.\"",
+        "repFailure": "Promising no hidden damage. Or worse, promising specific amounts of included plywood up front.",
+        "title": "What If You Find Damage Once The Old Roof Is Off?",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 19
+    },
+    {
+      "id": "OBJ-RF-P04",
+      "library": "roofing",
+      "section": "P",
+      "sectionName": "Process",
+      "title": "Will My Skylights Be A Problem?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "We have skylights. What happens to them?",
+        "Will they leak after?"
+      ],
+      "rootCause": "Legitimate question. Skylights are the single biggest install-delay cause when not addressed up front. Trinity policy is firm.",
+      "technique": "Be Proactive. Ask the skylight discovery questions before this surfaces: how many, do you want to keep them, have they leaked, when replaced?",
+      "standardResponse": "Replacing: replacement skylights are $2,000 each, covered under our 25-year craftsmanship warranty for leaks. Exterior work only; interior drywall, paint, and electrical are on you. Keeping existing: we won't warranty leaks around them, since the seal between an old skylight and a new roof is unpredictable. I'd strongly recommend replacement now while the roof is open. It's much cheaper than retrofitting later.",
+      "repFailure": "Not asking about skylights up front. This causes 30-60 day install delays. The Customer Acknowledgement form requires this conversation.",
+      "extras": {
+        "Discovery questions": "",
+        "Standard response (replacing)": "\"Replacement skylights are $2,000 each, fixed or operable. If we install a new skylight, it's covered under our 25-year craftsmanship warranty for leaks. We do exterior work only. Interior drywall, paint, trim, and any electrical for motorized units are on you or your contractor.\"",
+        "Standard response (keeping existing)": "\"If we leave the existing skylights in place, we won't warranty leaks around them. Skylights are the most common roof leak source over time, and the seal between an old skylight and a new roof is unpredictable. I'd strongly recommend replacement now while the roof is open. It's much cheaper to do at install than to retrofit later.\"",
+        "Standard response (removing)": "\"We can remove the skylight as part of the install. That uses some of the included plywood. You'd be responsible for any interior repair after.\"",
+        "Master notes": "- \"How many skylights do you have?\" - \"Do you want to keep them?\" - \"Have they ever leaked?\" - \"Have you replaced them? When?\""
+      },
+      "variants": {
+        "technique": "Be Proactive. Always ask the skylight discovery questions before this objection surfaces.",
+        "repFailure": "Not asking about skylights up front. This causes 30-60 day install delays. The Customer Acknowledgement form requires this conversation. Get it on paper.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 20
+    },
+    {
+      "id": "OBJ-RF-P05",
+      "library": "roofing",
+      "section": "P",
+      "sectionName": "Process",
+      "title": "What About My Gutters / Fascia?",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "Can you do my gutters too?",
+        "My fascia is rotted, can you fix that?"
+      ],
+      "rootCause": "Reasonable upsell question. Trinity does not sell gutters or fascia. Hard line.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "We don't install gutters or fascia. It's a complicated product with a lot of variables, and we'd rather refer you to a local gutter contractor than do it poorly. Most customers do gutters after the roof is on. We'll set the drip edge correctly so the new gutters fit cleanly when they're installed.",
+      "repFailure": "Saying 'yes' to gutters or fascia to keep the deal warm. That creates an expectation Trinity can't fulfill, which becomes a complaint.",
+      "variants": {
+        "standardResponse": "\"We don't install gutters or fascia. It's a complicated product with a lot of variables and we'd rather refer you to a local gutter contractor than do it poorly. Most customers do gutters after the roof is on. There's no issue with that sequence. We'll make sure the drip edge is set correctly so the new gutters fit cleanly when they're installed.\"",
+        "repFailure": "Saying \"yes\" to gutters or fascia to keep the deal warm. This creates a customer expectation Trinity cannot fulfill, which becomes a complaint.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 21
+    },
+    {
+      "id": "OBJ-RF-P06",
+      "library": "roofing",
+      "section": "P",
+      "sectionName": "Process",
+      "title": "How Long After I Sign Until It's Installed?",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "When will this actually happen?",
+        "We need it done before [event]."
+      ],
+      "rootCause": "Buying signal. Schedule-expectation question.",
+      "technique": "Read the Room. This is a buying signal.",
+      "standardResponse": "Roof-only or independently financed: about 60 days from contract, covering permitting, scheduling, and material coordination. Bundled with solar: the roof installs no more than 10 days before solar and only after solar approvals, so the whole project from contract to fully installed is typically 60 to 75 days.",
+      "repFailure": "Promising tighter timelines than Sales Ops can deliver. Not differentiating roof-only from solar-attached.",
+      "extras": {
+        "Standard response (standalone)": "\"Roof-only or independently financed: about 60 days from contract signing. That covers permitting, scheduling, and material coordination.\"",
+        "Standard response (bundled with solar)": "\"We schedule the roof to install no more than 10 days before solar, and only after all solar approvals are in. So if your normal solar timeline is 30 to 45 days, the roof falls right before that. The whole project from contract to fully installed is typically 60 to 75 days.\""
+      },
+      "variants": {
+        "repFailure": "Promising tighter timelines than Sales Ops can deliver. Not differentiating between roof-only and solar-attached install timing.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 22
+    },
+    {
+      "id": "OBJ-RF-S01",
+      "library": "roofing",
+      "section": "S",
+      "sectionName": "Skepticism",
+      "title": "I Don't Know Trinity For Roofing",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "You're a solar company, right?",
+        "How long have you been doing roofs?",
+        "I know you for solar, but..."
+      ],
+      "rootCause": "Brand-recognition gap. Trinity has done roofing as a dedicated division since 2021 with significant growth, but the association is still solar-first.",
+      "technique": "Be Proactive. Raise the roofing track record before they ask.",
+      "standardResponse": "Fair question. Trinity has been in business 32 years total. Roofing as a division is newer, since 2021. What's relevant is how we got there: we were already on roofs every day for solar, and we saw what other contractors left behind, bad nailing, missing underlayment, voided warranties. We launched roofing to fix that. We did 187 roofs the first year and over 2,300 last year. Our crews are IKO-certified, and the 25-year craftsmanship warranty is the longest in the industry.",
+      "repFailure": "Apologizing for being newer to roofing. The 32-year foundation, IKO partnership, and growth are the right positioning.",
+      "variants": {
+        "rootCause": "Brand recognition gap. Trinity has been doing roofing as a dedicated division since 2021. The growth has been significant, but the brand association is still solar-first.",
+        "technique": "Be Proactive. Raise the roofing track record before they ask. Short Answer, Long Answer if it surfaces.",
+        "standardResponse": "\"Fair question. Trinity has been in business 32 years total. Roofing as a division is newer. We started in 2021. What's relevant is how we got there. We were already on roofs every day for solar. We saw what other contractors were leaving behind. Bad nailing patterns, missing underlayment, voided manufacturer warranties. We launched the roofing division to fix the problem. We did 187 roofs in our first year. Last year we did over 2,300. We're an exclusive solar partner with IKO, which means our install crews are IKO-certified. Field supervisors are certified by the manufacturer. The 25-year craftsmanship warranty is the longest in the industry. We backed it because we install to a standard we'll stand behind.\"",
+        "repFailure": "Apologizing for being newer to roofing. The 32-year company foundation, IKO partnership, and growth trajectory are the right positioning.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 25
+    },
+    {
+      "id": "OBJ-RF-S02",
+      "library": "roofing",
+      "section": "S",
+      "sectionName": "Skepticism",
+      "title": "I Read Bad Reviews / Neighbor Issue",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "My neighbor used you and had problems.",
+        "I saw some complaints online."
+      ],
+      "rootCause": "Social proof in reverse. Requires direct engagement, not dismissal.",
+      "technique": "Hot Potato. 'Can you tell me what you saw specifically?' Then distinguish.",
+      "standardResponse": "I appreciate you bringing that up. Can you tell me what you saw specifically? I'd rather address it directly than have it sit there. Then differentiate Trinity's process: Project Managers, Site Capture, IKO-certified supervisors, and a 24/7 service line, specifically because the industry has historically been bad at communication. On reviews: 'A lot of sites are pay-to-play. The one I trust is the BBB, regulated, and you can't buy a better rating. Trinity is A+ with no unresolved complaints.'",
+      "repFailure": "'Every company has some bad reviews.' Never dismiss. Engage directly.",
+      "extras": {
+        "On reviews generally": "\"I expect you to do your research. A lot of review sites are pay-to-play. The one I trust is the BBB because they're regulated and you can't buy better ratings. Trinity has an A+ rating with no unresolved complaints. The roofing division specifically: we've installed thousands of roofs. The vast majority of customers never need to call us back.\""
+      },
+      "variants": {
+        "rootCause": "Social proof working in reverse. Requires direct engagement, not dismissal.",
+        "standardResponse": "\"I appreciate you bringing that up. Can you tell me what you saw specifically? I'd rather address it directly than have it sit there.\" Listen. Then differentiate Trinity's process from whatever went wrong. Most install issues come down to communication gaps. Trinity has Project Managers, Site Capture, IKO-certified field supervisors, and a 24/7 service line specifically because the industry has historically been bad at this.",
+        "title": "I Read Bad Reviews / My Neighbor Had A Bad Experience",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 26,
+      "related": [
+        "OBJ-S02"
+      ]
+    },
+    {
+      "id": "OBJ-RF-S03",
+      "library": "roofing",
+      "section": "S",
+      "sectionName": "Skepticism",
+      "title": "Why So Much For Just Shingles?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "Shingles are a commodity, right?",
+        "How can the price be that high for asphalt?"
+      ],
+      "rootCause": "Customer is pricing the shingle, not the system. Dynasty shingles are perhaps 25% of the project cost. The rest is permits, removal, decking, drip edge, underlayment, ice and water, flashing, ridge vent, plywood, labor, and the warranty.",
+      "technique": "Short Answer, Long Answer with the system breakdown.",
+      "standardResponse": "Fair question. The shingle is one piece. The full price covers permits, removal of up to three layers, full perimeter drip edge, synthetic underlayment, ice and water shield in the vulnerable zones, new flashing, premium ridge vent, hip and ridge cap, and up to five sheets of decking, plus an IKO-certified crew and the 25-year warranty backed by a 32-year-old company. The shingle itself is a smaller piece than most people expect.",
+      "repFailure": "Not having the system breakdown ready. Letting the customer reduce the project to just shingles.",
+      "variants": {
+        "surface": "\"Shingles are commodity, right?\" / \"How can the price be that high for asphalt?\"",
+        "rootCause": "Customer is pricing the shingle, not the system. Dynasty shingles alone are perhaps 25% of the project cost. The rest is permits, removal, decking, drip edge, underlayment, ice and water shield, flashing, ridge vent, hip and ridge, plywood, labor, and the warranty itself.",
+        "standardResponse": "\"It's a fair question. The shingle is one piece of the system. The full price covers permits, removal of up to three layers, full perimeter drip edge, synthetic underlayment, ice and water shield in the vulnerable zones, new flashing for vents and chimney where needed, premium ridge vent, hip and ridge cap shingles, and up to 5 sheets of decking replacement. Plus the labor of an IKO-certified crew. Plus the 25-year craftsmanship warranty backed by a 32-year-old company. The shingle by itself is a smaller piece of the total than most people expect.\"",
+        "title": "My Roof Is Just Asphalt Shingles, Why So Much For Just Shingles?",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 27
+    },
+    {
+      "id": "OBJ-RF-T01",
+      "library": "roofing",
+      "section": "T",
+      "sectionName": "Timing",
+      "title": "My Roof Is Fine",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "Looks good to me.",
+        "We just had it inspected.",
+        "No leaks."
+      ],
+      "rootCause": "Most homeowners can't see their own roof. 'No active leak' is not 'no problem.' Granule loss, blister cracking, and ridge vent failures cause years of slow damage before the first interior stain.",
+      "technique": "Be Proactive. 'How do you feel about your roof?' surfaces it on your terms. Then inspect.",
+      "standardResponse": "That's good to hear. Most roof problems don't show up inside the house until the damage is significant. By the time water hits a ceiling, the deck and insulation have usually been wet for months. Let's step outside and I'll take a look. If the roof is in great shape, that's real peace of mind, and I'll tell you that honestly.",
+      "note": "The inspection is the cure. Binoculars or phone zoom: look for granule loss in gutters, curling edges, missing tabs, exposed nails, damaged ridge vent. Take photos. Show them. The lottery-ticket rule: ask everyone, every time.",
+      "repFailure": "Accepting 'fine' at face value. Skipping the inspection. Not asking 'how do you feel about your roof?' of every customer.",
+      "extras": {
+        "Discovery questions": "",
+        "The leak question": "",
+        "Master notes": "- \"How long have you lived here?\" - \"How long has it been since you replaced your roof?\" - \"Have you ever had it evaluated by anyone other than a roofer trying to sell you one?\" - \"Have you noticed [specific item visible from driveway]?\" **Roof inspection is the cure for this objection.** Bring binoculars or phone zoom. Look for granule loss in the gutters, curling at the edges, missing tabs, exposed nails, damaged ridge vent, missing or improper flashing. Take photos. Show the customer. Reps who skip the inspection get the \"fine\" answer back. Reps who inspect surface a real conversation. - *Yes, they've had a leak:* \"What happened? How did that feel? What was that like? How did you get it fixed?\" Slow them down on the experience. Let them re-feel the cost of a roof failure before moving on. - *No, never had a leak:* \"How would you pay for a new roof if you suddenly got one tomorrow? Would you be able to come up with $15,000 to $20,000 without notice?\""
+      },
+      "variants": {
+        "rootCause": "Most homeowners cannot see their own roof. They are answering based on the last time they noticed it, which is rarely. \"No active leak\" is not the same as \"no problem.\" Granule loss, blister cracking, and ridge vent failures cause years of slow damage before the first interior stain.",
+        "technique": "Be Proactive. Ask before they raise it. \"How do you feel about your roof?\" surfaces the conversation on your terms.",
+        "standardResponse": "\"That's good to hear. The thing is, most roof problems don't show up inside the house until the damage is significant. By the time water hits a ceiling, the deck and insulation have usually been wet for months. Let's step outside and I'll take a look. Even a quick look tells you a lot. If the roof is in great shape, that's a real piece of mind, and I'll tell you that honestly.\"",
+        "repFailure": "Accepting \"fine\" at face value. Skipping the inspection. Not asking \"how do you feel about your roof?\" of every customer, even when it looks fine. The lottery ticket rule applies. Ask everyone, every time.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 5
+    },
+    {
+      "id": "OBJ-RF-T02",
+      "library": "roofing",
+      "section": "T",
+      "sectionName": "Timing",
+      "title": "I'll Do The Roof Later",
+      "product": "Bundle",
+      "difficulty": "Warm",
+      "surface": [
+        "Let's just do solar first.",
+        "I'll handle the roof in a couple of years.",
+        "It can wait."
+      ],
+      "rootCause": "Customer doesn't know the cost of doing it later, especially with solar already installed. Removing and reinstalling solar to re-roof underneath has a real cost they aren't factoring, plus exposure to material price increases.",
+      "technique": "Short Answer, Long Answer. 'Doing it later isn't the same cost. Here's why.'",
+      "standardResponse": "If we put solar on a roof that needs replacement in a few years, you'll pay twice. Once for the roof, and once to remove and reinstall the solar so the roofers can work. The smart move is to bundle now while we're already on the property and the panels aren't mounted. The crew is here, the permitting is happening, one project handles both.",
+      "ctContext": "Industry runs roughly $1 per watt to remove and reset solar. On an 8 kW system that's an extra $8,000 to do it later, plus the roof at whatever the price is then.",
+      "repFailure": "Accepting 'later' without surfacing the remove-and-reinstall math.",
+      "extras": {
+        "The math (use real numbers when you have them)": "\"Industry roughly charges around $1 per watt to remove and reset solar. On an 8 kW system, that's an extra $8,000 to do it later, plus the roof itself at whatever the price is then. Material costs trend up every year.\"",
+        "Standalone version": "\"If you wait two years on a roof that's already showing wear, you're not just deferring the cost. You're letting damage compound underneath the shingles. Plywood replacement is the part nobody plans for, and it's the part that adds up fastest at install.\""
+      },
+      "variants": {
+        "rootCause": "Customer doesn't know the cost of doing it later, especially with solar already installed. Removing and reinstalling solar to put a new roof underneath has a meaningful cost the customer is not factoring in. They are also exposed to material price increases on a now-deferred project.",
+        "standardResponse": "\"If we put solar on a roof that's going to need replacement in a few years, you'll pay twice. Once for the roof, and once to remove and reinstall the solar so the roofers can work. The smart move is to bundle them now while we're already on the property and the panels haven't been mounted. The crew is here, the permitting is happening, and one project handles both. Adding it now versus later isn't apples to apples on cost.\"",
+        "repFailure": "Accepting \"later\" without surfacing the remove-and-reinstall math. Not making the deferred cost concrete.",
+        "product": "Bundle (especially with solar)"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 6
+    },
+    {
+      "id": "OBJ-RF-T03",
+      "library": "roofing",
+      "section": "T",
+      "sectionName": "Timing",
+      "title": "Let Me Wait Until Next Year",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "Maybe in the spring.",
+        "Let's revisit after the holidays.",
+        "I'm not ready right now."
+      ],
+      "rootCause": "Vague timing stall, often masking price concern or lack of urgency about damage. Needs cost-of-waiting made concrete.",
+      "technique": "Short Answer, Long Answer on material cost trends, then one specific reason tied to their roof.",
+      "standardResponse": "Roofing material costs have trended up every year for as long as I've been doing this. The same project quoted today and in twelve months is rarely the same number. Plus, every storm between now and then is one your current roof has to absorb. I'm not trying to rush you. I just want you to decide with the full picture.",
+      "note": "Discovery anchor: 'Do you think your roof would have cost more or less to replace five years ago? What about five years from now?'",
+      "repFailure": "A generic 'prices are going up' pitch instead of material-cost-and-damage-compounding tied to this roof.",
+      "extras": {
+        "Discovery anchor": "\"Do you think your roof would have cost more or less to replace five years ago? What about in five years from now?\""
+      },
+      "variants": {
+        "rootCause": "Vague timing stall. Often masking either price concern or lack of urgency about damage. Needs cost-of-waiting made concrete.",
+        "technique": "Short Answer, Long Answer on material cost trends, then one specific reason to act now tied to their roof.",
+        "standardResponse": "\"Roofing material costs have trended up every year for as long as I've been doing this. The same project quoted today and quoted in twelve months is rarely the same number. Plus, every storm between now and then is one your current roof has to absorb. I'm not trying to rush you. I just want you to make this decision with the full picture, not the partial one.\"",
+        "repFailure": "Engaging in a generic \"rates are going up\" pitch instead of a specific material-cost-and-damage-compounding pitch tied to this roof.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 7
+    },
+    {
+      "id": "OBJ-RF-T04",
+      "library": "roofing",
+      "section": "T",
+      "sectionName": "Timing",
+      "title": "I'm Saving Up to Pay Cash",
+      "product": "Standalone",
+      "difficulty": "Medium",
+      "surface": [
+        "We've been putting money aside for this.",
+        "I'd rather pay cash and not deal with a loan.",
+        "We'll be ready in a year or two."
+      ],
+      "rootCause": "Genuine financial preference, often S-type or older homeowner. Respect it, then surface what saving costs: rising material prices, ongoing damage, and the gap between today's quote and the future one.",
+      "technique": "Hot Potato. 'How much have you saved so far, and how long to get there?' Math the difference.",
+      "standardResponse": "I respect that. Material costs are trending up every year. If you're targeting two years out, the same roof might be $3,000 to $5,000 more by then, and meanwhile you're paying interest on damage. A loan today at a fixed rate often comes out cheaper than waiting. Want me to show you what financing today looks like next to the savings target?",
+      "note": "Cash-preserve angle: 'Most of my cash-strong customers finance the roof and keep their cash liquid. The interest is usually less than what the cash earns sitting in a money market.'",
+      "repFailure": "Accepting the cash-pay timeline without showing the math on material increases.",
+      "extras": {
+        "The cash-preserve angle": "\"Most of my cash-strong customers finance the roof and keep their cash liquid for emergencies or investments. The interest is usually less than what the cash earns sitting in a money market right now.\""
+      },
+      "variants": {
+        "rootCause": "Genuine financial preference (often S-type or older homeowner). Respect it. Then surface what saving costs in real terms: rising material prices, ongoing damage, and the gap between today's quote and the future quote.",
+        "technique": "Hot Potato. \"How much have you been able to save so far? And how long do you think it'll take to get there?\" Math the difference.",
+        "standardResponse": "\"I respect that. The thing worth knowing is that material costs are trending up every year. If you're targeting two years from now, the same roof might be $3,000 to $5,000 more by then. Meanwhile, you're paying interest on damage. A loan today at a fixed rate often comes out cheaper than waiting. Want me to show you what financing the project today actually looks like next to the savings target?\""
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 8
+    },
+    {
+      "id": "OBJ-RF-T05",
+      "library": "roofing",
+      "section": "T",
+      "sectionName": "Timing",
+      "title": "It's Fine For Now",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I'll just patch it for now.",
+        "A repair will hold us over.",
+        "It's not leaking badly, it can wait."
+      ],
+      "rootCause": "The customer is treating a system failure as a logistics delay. A repair on an aging roof is a band-aid on a bullet hole. The enemy of wood is water, and the damage compounds behind the wall before anyone notices it.",
+      "technique": "Be Proactive. Make the cost of delay concrete and physical.",
+      "standardResponse": "I understand the instinct, and a lot of customers feel that way at first. Here's what they found. A repair on a roof this age is a band-aid on a bullet hole. You might stop the drip you can see, but the enemy of wood is water, and water you can't see is already in the plywood. The real question isn't the leak today. It's what already happened behind the wall before you noticed: the soft decking, the start of mold. Roofing prices also climb every year, so the same roof costs more next spring. Doing it now, while it's still just shingles and underlayment, is how you avoid a much larger bill later.",
+      "ctContext": "A leak that reaches the plywood can turn a shingle job into a full decking replacement, which can run thousands on top of the roof. Replacement plywood is included up to the contracted amount; beyond that it's $100 per sheet on a change order you approve.",
+      "note": "Pair with the inspection. Show the soft decking or the attic moisture, don't just describe it. The cost of delay is the damage already in progress, not a vague 'prices go up.'",
+      "repFailure": "Letting 'it's fine for now' stand as a repair plan. Not making the hidden, compounding water damage concrete and visible.",
+      "inSources": [
+        "page"
+      ],
+      "order": 40
+    },
+    {
+      "id": "OBJ-RF-W01",
+      "library": "roofing",
+      "section": "W",
+      "sectionName": "Warranty",
+      "title": "What Does The 25-Year Warranty Cover?",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "Warranty sounds great, but what's covered?",
+        "Is there a deductible?",
+        "What's the catch?"
+      ],
+      "rootCause": "Healthy skepticism. Customers have been burned by fine print. A direct, complete answer builds significant trust.",
+      "technique": "Short Answer, Long Answer. Lead with the structure, then the specifics.",
+      "standardResponse": "Three layers. First, the 25-year Trinity craftsmanship warranty: anything we did wrong on installation, flashing, nails, anything causing a leak from how we built it. Zero deductible. Second, the 20-year IKO IronClad manufacturer warranty: material, labor, disposal, and reinstallation if a shingle defect causes a problem. Third, the Limited Lifetime shingle warranty for manufacturing defects, prorated. If you have a problem, you call us. No finger-pointing, because we're IKO-certified and install all four required IKO products.",
+      "note": "The four products: Dynasty shingles, Leading Edge Plus starter, Stormshield ice and water, and IKO Hip and Ridge. Substituting any voids the manufacturer side.",
+      "repFailure": "Vague 'everything's covered' answers. Confusing craftsmanship with manufacturer warranty.",
+      "extras": {
+        "The four products requirement (have ready)": "\"Dynasty shingles, Leading Edge Plus starter strip, Stormshield ice and water shield, and IKO Hip and Ridge. All four IKO. That's what triggers the full manufacturer warranty. A roofer who substitutes any of those four with a generic product voids the manufacturer side.\""
+      },
+      "variants": {
+        "rootCause": "Healthy skepticism. Customers have been burned by fine print before. A direct, complete answer here builds significant trust.",
+        "standardResponse": "\"Three layers of protection. First, the 25-year Trinity craftsmanship warranty. That covers anything we did wrong on installation. Flashing not sealed correctly, nails placed wrong, anything that causes a leak from how we built the roof. Zero deductible. Second, the 20-year IKO IronClad manufacturer warranty. That covers material, labor, disposal, and reinstallation if a defect in the shingle itself causes a problem. Third, the Limited Lifetime shingle warranty. That covers manufacturing defects in the shingle for the life of the roof, on a prorated schedule. If you have a problem, you call us. We sort it out. There's no finger-pointing between us and the manufacturer because we're certified by IKO and we install all four IKO products required for full warranty coverage.\"",
+        "repFailure": "Vague answers. Saying \"everything's covered\" without explaining the three layers. Confusing craftsmanship with manufacturer warranty.",
+        "title": "What Does The 25-Year Warranty Actually Cover?",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 12
+    },
+    {
+      "id": "OBJ-RF-W02",
+      "library": "roofing",
+      "section": "W",
+      "sectionName": "Warranty",
+      "title": "What If Trinity Goes Out Of Business?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "You've been around 32 years, but what if something changes?",
+        "What happens to my warranty if you close?"
+      ],
+      "rootCause": "A legitimate question for a 25-year warranty. Respond with structure, not reassurance.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "It's the right question. The Trinity craftsmanship warranty is on Trinity, so that piece would change if something happened to the company. But the IKO manufacturer warranty is on IKO, not us. Your 20-year IronClad and your Limited Lifetime shingle coverage are independent of us. So even worst case, the manufacturer side stands. That said, we've been here 32 years, installed 125,000 roofs, and the roofing division has grown every year since 2021.",
+      "repFailure": "'We've been here 32 years' alone is not sufficient. Walk them through the layered structure.",
+      "variants": {
+        "rootCause": "Legitimate question for a 25-year warranty. The customer is doing the right thing by asking. Respond with structure, not reassurance.",
+        "standardResponse": "\"It's the right question for a 25-year commitment. The Trinity craftsmanship warranty is on Trinity. If something ever happened to the company, that piece would change. The IKO manufacturer warranty is on IKO, not us. That's separate. Your 20-year IronClad coverage and your Limited Lifetime shingle coverage are with the manufacturer, not the installer. So even in a worst-case scenario, the manufacturer side is independent of us. That said, we've been here 32 years, installed 125,000 roofs, and we've been doing roofing as a division since 2021 with year-over-year growth. Most of the contractors comparing themselves to us haven't been in business as long as our roofing division has existed.\"",
+        "repFailure": "\"We've been here 32 years\" alone is not a sufficient answer to this question. Walk them through the layered structure.",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 13,
+      "related": [
+        "OBJ-S04"
+      ]
+    },
+    {
+      "id": "OBJ-RF-W03",
+      "library": "roofing",
+      "section": "W",
+      "sectionName": "Warranty",
+      "title": "Is The Warranty Transferable If I Sell?",
+      "product": "Universal",
+      "difficulty": "Warm",
+      "surface": [
+        "What if we move?",
+        "Does the next owner get this warranty?"
+      ],
+      "rootCause": "Almost always a buying signal. They're projecting forward into ownership and resale.",
+      "technique": "Short Answer, Long Answer.",
+      "standardResponse": "Yes, with terms. The Trinity craftsmanship warranty transfers once to the next homeowner. The IKO manufacturer side transfers at IKO's discretion, capped at 10 years from original installation. So if you sell in year 3, the new owner gets 7 years of remaining transferred manufacturer coverage on top of your craftsmanship transfer. A new roof is consistently one of the highest-recouped home improvements.",
+      "note": "Some older Trinity materials list 15-year transferability. The IKO published cap is 120 months (10 years). Use 10. If a customer cites 15 from a brochure: 'The accurate, published number is 10.'",
+      "repFailure": "Quoting 15-year transferability from outdated materials.",
+      "extras": {
+        "Note for rep": "Some Trinity training materials list 15-year transferability. The IKO published cap is 120 months (10 years). Use 10. If a customer references the 15-year number from a brochure, acknowledge: \"The published IKO terms cap at 10 years. Some of our older materials say 15. The accurate number is 10.\""
+      },
+      "variants": {
+        "rootCause": "Almost always a buying signal. They're projecting forward into ownership and resale. Direct answer with the IKO terms.",
+        "standardResponse": "\"Yes, with terms. The Trinity craftsmanship warranty transfers once to the next homeowner. The IKO manufacturer side transfers at IKO's discretion, capped at 10 years from original installation per their published terms. So if you sell in year 3, the new owner gets 7 years of remaining transferred manufacturer coverage on top of your craftsmanship transfer. A new roof is consistently one of the highest-recouped home improvements. Buyers value it specifically because they don't have to think about it.\"",
+        "repFailure": "Quoting 15-year transferability from outdated materials. Vague answers about \"talk to the manufacturer.\"",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 14
+    },
+    {
+      "id": "OBJ-RF-W04",
+      "library": "roofing",
+      "section": "W",
+      "sectionName": "Warranty",
+      "title": "What If The Subcontractor Does A Bad Job?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "I heard you use subs.",
+        "Is it Trinity actually doing the work or someone else?"
+      ],
+      "rootCause": "Trust gap on the install-partner model. The honest answer, delivered confidently, is reassuring. Hedging invites doubt.",
+      "technique": "Be Proactive. Raise it before they do. Then Short Answer, Long Answer.",
+      "standardResponse": "We work with a network of install partners. They're subcontractors, but not random. We screen, train, and monitor them on every job. They wear Trinity-branded vests on installation. We use Site Capture, so crews send photos before, during, and after in real time. Field supervisors are IKO-certified. If something goes wrong, you don't call the subcontractor. You call us. The 25-year warranty is on Trinity, not on them. That's the entire point of the structure.",
+      "repFailure": "Pretending Trinity employees do the install. They don't. Honesty plus the warranty structure resolves this.",
+      "extras": {
+        "Why this works": "Ownership of the warranty stays with Trinity. The customer never has to chase a subcontractor for service."
+      },
+      "variants": {
+        "technique": "Be Proactive. Raise this before they do. Then Short Answer, Long Answer.",
+        "standardResponse": "\"We work with a network of install partners. They're subcontractors, but they're not random. We screen them, train them, and monitor them on every job. They wear Trinity-branded vests on installation. We use Site Capture, which means our crews send photos before, during, and after the install in real time. Our Project Coordinator is in constant contact with the crew. Our field supervisors are IKO-certified. If something goes wrong, you don't call the subcontractor. You call us. The 25-year warranty is on Trinity, not on them. That's the entire point of the structure.\"",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 15
+    },
+    {
+      "id": "OBJ-RF-W05",
+      "library": "roofing",
+      "section": "W",
+      "sectionName": "Warranty",
+      "title": "How Do I Know You'll Install It Right?",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "Roofing is mostly about the install, right?",
+        "Bad install voids the manufacturer warranty, doesn't it?"
+      ],
+      "rootCause": "Often a C-type who has researched. Knows that improper nailing, wrong exposure, or skipped underlayment voids manufacturer warranties. Demonstrate Trinity's install standards specifically.",
+      "technique": "Short Answer, Long Answer with the install spec.",
+      "standardResponse": "You're right. Most warranty denials happen because of installation errors. IKO does a 50-point installation inspection on any claim: nail placement, exposure, starter strip, ice and water shield, drip edge, ventilation. We install to IKO's exact spec because we're certified and we know they audit. The reason we offer a 25-year craftsmanship warranty isn't marketing. It's because we install at a standard we'll back for 25 years.",
+      "repFailure": "Vague 'we do it right' answers. C-types want specifics. Have them.",
+      "variants": {
+        "rootCause": "Often a C-type customer who has done research. Knows that improper nailing, wrong exposure, missing flashing, or skipped underlayment voids manufacturer warranties. The right move is to demonstrate Trinity's install standards specifically.",
+        "standardResponse": "\"You're right. Most warranty claim denials happen because of installation errors. IKO does a 50-point installation inspection on any warranty claim. Nail placement, exposure, starter strip, ice and water shield, drip edge, ventilation. If any of it's wrong, the manufacturer denies the claim. We install to IKO's exact spec because we're certified by them and we know they audit. Six nails per shingle, full perimeter drip edge, synthetic underlayment, full ice and water shield in the right zones. The reason we have a 25-year craftsmanship warranty isn't a marketing decision. It's because we install at a standard we'll back for 25 years.\"",
+        "product": "Bundle or Standalone"
+      },
+      "inSources": [
+        "page",
+        "master"
+      ],
+      "order": 16
+    },
+    {
+      "id": "OBJ-RF-W06",
+      "library": "roofing",
+      "section": "W",
+      "sectionName": "Warranty",
+      "title": "It's Still Under Warranty / My Roof Is Newer",
+      "product": "Universal",
+      "difficulty": "Medium",
+      "surface": [
+        "The roof was redone before we bought.",
+        "It should still be under warranty.",
+        "It's only a few years old."
+      ],
+      "rootCause": "Information gap. Most homeowners assume a warranty exists and transfers automatically. It often does not. Manufacturer warranties transfer only once and within a short window after purchase, and many were never registered in the first place.",
+      "technique": "Hot Potato. Ask for the certificate, then walk the transfer rules.",
+      "standardResponse": "Good, let's use that. When you bought the house, did they hand you a copy of the warranty certificate? If you have it, that's great, and we'll work around it. Here's the part most people don't know: if there's no certificate, there's a real chance the original contractor never registered it, or it never transferred to you. These warranties usually transfer only once, within about 30 days of the sale. So you may not actually have the warranty you think you have. Let me take a look and we'll find out where you really stand.",
+      "note": "No certificate usually means no registration or no transfer. Surface it as a question, not an accusation. If they produce a valid certificate, respect it and work around it.",
+      "repFailure": "Accepting 'it's under warranty' at face value. Not asking for the certificate. Not knowing the transfer-once, short-window rule.",
+      "inSources": [
+        "page"
+      ],
+      "order": 38
+    }
+  ]
+}

@@ -1209,421 +1209,754 @@ const FOUNDATIONS = {
 };
 
 const OBJECTIONS = [
-  // ===== FINANCIAL =====
   {
-    id: "OBJ-RF-F01", section: "F", sectionName: "Financial", title: "Your Roof Is Too Expensive",
-    product: "Universal", difficulty: "Medium",
-    surface: ["That's a lot of money.", "I wasn't expecting that number.", "The price is way more than I thought."],
-    rootCause: "The rep presented the price before establishing what's included. A Trinity roof is a complete system. Most competitor quotes exclude permits, plywood, drip edge, full underlayment, or warranty length. The customer is comparing a complete system to a partial one.",
-    disc: { D: "Says it bluntly.", I: "Goes quiet.", S: "Says 'let us think about it.'", C: "Asks how it was calculated." },
-    technique: "Short Answer, Long Answer, then divide-by-warranty math.",
-    standardResponse: "That's the total price for a complete system, not just shingles. Permits, full perimeter drip edge, synthetic underlayment, ice and water shield, three layers of removal, five sheets of decking, and a 25-year craftsmanship warranty are all included. Most quotes you'll see are not. The math that matters is annual cost. A 5-year warranty for $12,000 is $2,400 per year of protection. Our 25-year warranty divides out very differently.",
-    note: "Sean Obrikis line: 'If you think hiring a good roofer is expensive, try hiring a bad roofer.'",
-    repFailure: "Defending the price. Discounting before the line-by-line. Not surfacing what the competitor's quote leaves out."
-  },
-  {
-    id: "OBJ-RF-F02", section: "F", sectionName: "Financial", title: "I Can't Afford This Right Now",
-    product: "Universal", difficulty: "Warm",
-    surface: ["We don't have the cash.", "We were going to save up for this.", "Maybe in a year or two."],
-    rootCause: "Information gap. The customer assumes roof replacement is a cash purchase. Trinity has financing up to 20 years. They're replacing future emergency repair costs and ongoing deterioration with a fixed monthly number.",
-    technique: "Short Answer, Long Answer. One sentence: 'There's no cash required.'",
-    standardResponse: "There's no cash required to start. We have financing options up to 20 years. The question isn't whether you have the money today. It's whether you'd rather pay a fixed monthly number on a new roof or save for an emergency replacement that costs more every year.",
-    note: "Bundled with solar: 'We can roll the roof into the solar financing. One loan, one payment. The solar savings often offset most or all of the roofing payment.' Discovery: 'Could you come up with $15,000 to $20,000 without notice if you had to replace it tomorrow?'",
-    repFailure: "Treating it as a hard no instead of a financing question. Not surfacing the cost-of-emergency frame."
-  },
-  {
-    id: "OBJ-RF-F03", section: "F", sectionName: "Financial", title: "I Don't Want Another Bill / Loan",
-    product: "Standalone", difficulty: "Warm",
-    surface: ["I'm trying to simplify, not add payments.", "I don't like taking on debt.", "We're paying down credit cards."],
-    rootCause: "Customer sees a roof loan as additive debt. The roof is a deferred expense they're already paying in energy waste, micro-leaks, and accelerating deterioration. The bill exists either way. The question is who collects it.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "I understand. The thing is, the roof is a bill you're already paying. Old roofs let heat escape in winter, let cool air out in summer, and create slow damage that shows up in repair costs. A loan turns an unpredictable future expense into a fixed monthly number. That's not adding a bill. That's converting one you can't see into one you can plan around.",
-    repFailure: "Accepting it as debt-aversion. It's a deferred-cost conversation."
-  },
-  {
-    id: "OBJ-RF-F04", section: "F", sectionName: "Financial", title: "Another Contractor Was Cheaper",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I got a quote for $4,000 less.", "My brother knows a guy.", "Can you match it?"],
-    rootCause: "Trust gap or apples-to-oranges comparison. Dropping price immediately signals the original price wasn't justified, that you're afraid of losing them, and that price is the only value. The right move is the line-by-line.",
-    disc: { D: "Asks directly. Respond with equal directness.", I: "Will mention the other contractor seemed friendlier.", S: "Won't raise it directly.", C: "Will have the written quote in hand." },
-    technique: "Walk-Around Compare.",
-    standardResponse: "Ask for the written quote, then compare line by line. A real quote stands up. A verbal estimate usually doesn't.",
-    responseDetailsLabel: "The Walk-Around Compare",
-    responseDetails: [
-      { label: "Ask for the written quote.", text: " 'I'd love to see what they put together. I can't speak to what they may or may not be including.'" },
-      { label: "Cash or financing?", text: " 'Is their number a cash price or a financing price? We have 20-year terms. The monthly comparison often inverts the answer.'" },
-      { label: "Workmanship warranty length?", text: " 'How long is their labor warranty? Industry standard is 1, 5, sometimes 10. Ours is 25. If they make a mistake in year 8 and they're still around, you're paying for it.'" },
-      { label: "What's actually in the price?", text: " 'Permits? More than one layer removed? Synthetic underlayment? Full perimeter drip edge? New flashing? Plywood replacement? Most contractors charge for these mid-install.'" },
-      { label: "Will they still be there?", text: " 'How long in business? 24/7 service? 48-hour dispatch? When you have a leak in year 4, who picks up the phone?'" }
+    "id": "OBJ-RF-F01",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "Your Roof Is Too Expensive",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "That's a lot of money.",
+      "I wasn't expecting that number.",
+      "The price is way more than I thought."
     ],
-    note: "Divide each company's total by the years of workmanship warranty. The lower price often costs more per year. Never: drop price immediately, say 'I'll match it,' or say 'they're cutting corners' without seeing the quote.",
-    repFailure: "Discounting before the walk-around. Getting defensive about brands. Letting it become 'us versus them' instead of 'what's actually in your quote.'"
+    "rootCause": "The rep presented the price before establishing what's included. A Trinity roof is a complete system. Most competitor quotes exclude permits, plywood, drip edge, full underlayment, or warranty length. The customer is comparing a complete system to a partial one.",
+    "technique": "Short Answer, Long Answer, then divide-by-warranty math.",
+    "standardResponse": "That's the total price for a complete system, not just shingles. Permits, full perimeter drip edge, synthetic underlayment, ice and water shield, three layers of removal, five sheets of decking, and a 25-year craftsmanship warranty are all included. Most quotes you'll see are not. The math that matters is annual cost. A 5-year warranty for $12,000 is $2,400 per year of protection. Our 25-year warranty divides out very differently.",
+    "note": "Sean Obrikis line: 'If you think hiring a good roofer is expensive, try hiring a bad roofer.'",
+    "repFailure": "Defending the price. Discounting before the line-by-line. Not surfacing what the competitor's quote leaves out.",
+    "disc": {
+      "D": "Says it bluntly.",
+      "I": "Goes quiet.",
+      "S": "Says 'let us think about it.'",
+      "C": "Asks how it was calculated."
+    }
   },
   {
-    id: "OBJ-RF-F05", section: "F", sectionName: "Financial", title: "I Need to Run This By My Accountant",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I want my accountant to look at this.", "I don't make financial decisions without reviewing them professionally."],
-    rootCause: "Either genuine financial diligence (C-type, high earner) or a polite exit. Determine which before responding.",
-    technique: "Hot Potato to determine genuineness. 'What specifically do you want them to review?' If they can name it, it's real. If not, it's a stall.",
-    standardResponse: "If genuine: 'Of course. I can put together a one-page summary with everything they'd need: the contract, financing terms, and the warranty package. What's the best way to get the three of us on a call?' If stall: 'Of course. What specifically are you hoping they can clarify?' Name the concern, address it, set a go-back with a purpose.",
-    repFailure: "Accepting the referral without qualifying whether it's real, then leaving without a committed go-back and a named question."
-  },
-  // ===== TIMING =====
-  {
-    id: "OBJ-RF-T01", section: "T", sectionName: "Timing", title: "My Roof Is Fine",
-    product: "Universal", difficulty: "Warm",
-    surface: ["Looks good to me.", "We just had it inspected.", "No leaks."],
-    rootCause: "Most homeowners can't see their own roof. 'No active leak' is not 'no problem.' Granule loss, blister cracking, and ridge vent failures cause years of slow damage before the first interior stain.",
-    technique: "Be Proactive. 'How do you feel about your roof?' surfaces it on your terms. Then inspect.",
-    standardResponse: "That's good to hear. Most roof problems don't show up inside the house until the damage is significant. By the time water hits a ceiling, the deck and insulation have usually been wet for months. Let's step outside and I'll take a look. If the roof is in great shape, that's real peace of mind, and I'll tell you that honestly.",
-    note: "The inspection is the cure. Binoculars or phone zoom: look for granule loss in gutters, curling edges, missing tabs, exposed nails, damaged ridge vent. Take photos. Show them. The lottery-ticket rule: ask everyone, every time.",
-    repFailure: "Accepting 'fine' at face value. Skipping the inspection. Not asking 'how do you feel about your roof?' of every customer."
+    "id": "OBJ-RF-F02",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "I Can't Afford This Right Now",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "We don't have the cash.",
+      "We were going to save up for this.",
+      "Maybe in a year or two."
+    ],
+    "rootCause": "Information gap. The customer assumes roof replacement is a cash purchase. Trinity has financing up to 20 years. They're replacing future emergency repair costs and ongoing deterioration with a fixed monthly number.",
+    "technique": "Short Answer, Long Answer. One sentence: 'There's no cash required.'",
+    "standardResponse": "There's no cash required to start. We have financing options up to 20 years. The question isn't whether you have the money today. It's whether you'd rather pay a fixed monthly number on a new roof or save for an emergency replacement that costs more every year.",
+    "note": "Bundled with solar: 'We can roll the roof into the solar financing. One loan, one payment. The solar savings often cover most or all of the roofing payment.' Discovery: 'Could you come up with $15,000 to $20,000 without notice if you had to replace it tomorrow?'",
+    "repFailure": "Treating it as a hard no instead of a financing question. Not surfacing the cost-of-emergency frame."
   },
   {
-    id: "OBJ-RF-T02", section: "T", sectionName: "Timing", title: "I'll Do The Roof Later",
-    product: "Bundle", difficulty: "Warm",
-    surface: ["Let's just do solar first.", "I'll handle the roof in a couple of years.", "It can wait."],
-    rootCause: "Customer doesn't know the cost of doing it later, especially with solar already installed. Removing and reinstalling solar to re-roof underneath has a real cost they aren't factoring, plus exposure to material price increases.",
-    technique: "Short Answer, Long Answer. 'Doing it later isn't the same cost. Here's why.'",
-    standardResponse: "If we put solar on a roof that needs replacement in a few years, you'll pay twice. Once for the roof, and once to remove and reinstall the solar so the roofers can work. The smart move is to bundle now while we're already on the property and the panels aren't mounted. The crew is here, the permitting is happening, one project handles both.",
-    ctContext: "Industry runs roughly $1 per watt to remove and reset solar. On an 8 kW system that's an extra $8,000 to do it later, plus the roof at whatever the price is then.",
-    repFailure: "Accepting 'later' without surfacing the remove-and-reinstall math."
+    "id": "OBJ-RF-F03",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "I Don't Want Another Bill / Loan",
+    "product": "Standalone",
+    "difficulty": "Warm",
+    "surface": [
+      "I'm trying to simplify, not add payments.",
+      "I don't like taking on debt.",
+      "We're paying down credit cards."
+    ],
+    "rootCause": "Customer sees a roof loan as additive debt. The roof is a deferred expense they're already paying in energy waste, micro-leaks, and accelerating deterioration. The bill exists either way. The question is who collects it.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "I understand. The thing is, the roof is a bill you're already paying. Old roofs let heat escape in winter, let cool air out in summer, and create slow damage that shows up in repair costs. A loan turns an unpredictable future expense into a fixed monthly number. That's not adding a bill. That's converting one you can't see into one you can plan around.",
+    "repFailure": "Accepting it as debt-aversion. It's a deferred-cost conversation."
   },
   {
-    id: "OBJ-RF-T03", section: "T", sectionName: "Timing", title: "Let Me Wait Until Next Year",
-    product: "Universal", difficulty: "Medium",
-    surface: ["Maybe in the spring.", "Let's revisit after the holidays.", "I'm not ready right now."],
-    rootCause: "Vague timing stall, often masking price concern or lack of urgency about damage. Needs cost-of-waiting made concrete.",
-    technique: "Short Answer, Long Answer on material cost trends, then one specific reason tied to their roof.",
-    standardResponse: "Roofing material costs have trended up every year for as long as I've been doing this. The same project quoted today and in twelve months is rarely the same number. Plus, every storm between now and then is one your current roof has to absorb. I'm not trying to rush you. I just want you to decide with the full picture.",
-    note: "Discovery anchor: 'Do you think your roof would have cost more or less to replace five years ago? What about five years from now?'",
-    repFailure: "A generic 'prices are going up' pitch instead of material-cost-and-damage-compounding tied to this roof."
+    "id": "OBJ-RF-F04",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "Another Contractor Was Cheaper",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I got a quote for $4,000 less.",
+      "My brother knows a guy.",
+      "Can you match it?"
+    ],
+    "rootCause": "Trust gap or apples-to-oranges comparison. Dropping price immediately signals the original price wasn't justified, that you're afraid of losing them, and that price is the only value. The right move is the line-by-line.",
+    "technique": "Walk-Around Compare.",
+    "standardResponse": "Ask for the written quote, then compare line by line. A real quote stands up. A verbal estimate usually doesn't.",
+    "responseDetailsLabel": "The Walk-Around Compare",
+    "responseDetails": [
+      {
+        "label": "Ask for the written quote.",
+        "text": " 'I'd love to see what they put together. I can't speak to what they may or may not be including.'"
+      },
+      {
+        "label": "Cash or financing?",
+        "text": " 'Is their number a cash price or a financing price? We have 20-year terms. The monthly comparison often inverts the answer.'"
+      },
+      {
+        "label": "Workmanship warranty length?",
+        "text": " 'How long is their labor warranty? Industry standard is 1, 5, sometimes 10. Ours is 25. If they make a mistake in year 8 and they're still around, you're paying for it.'"
+      },
+      {
+        "label": "What's actually in the price?",
+        "text": " 'Permits? More than one layer removed? Synthetic underlayment? Full perimeter drip edge? New flashing? Plywood replacement? Most contractors charge for these mid-install.'"
+      },
+      {
+        "label": "Will they still be there?",
+        "text": " 'How long in business? 24/7 service? 48-hour dispatch? When you have a leak in year 4, who picks up the phone?'"
+      }
+    ],
+    "note": "Divide each company's total by the years of workmanship warranty. The lower price often costs more per year. Never: drop price immediately, say 'I'll match it,' or say 'they're cutting corners' without seeing the quote.",
+    "repFailure": "Discounting before the walk-around. Getting defensive about brands. Letting it become 'us versus them' instead of 'what's actually in your quote.'",
+    "disc": {
+      "D": "Asks directly. Respond with equal directness.",
+      "I": "Will mention the other contractor seemed friendlier.",
+      "S": "Won't raise it directly.",
+      "C": "Will have the written quote in hand."
+    }
   },
   {
-    id: "OBJ-RF-T04", section: "T", sectionName: "Timing", title: "I'm Saving Up to Pay Cash",
-    product: "Standalone", difficulty: "Medium",
-    surface: ["We've been putting money aside for this.", "I'd rather pay cash and not deal with a loan.", "We'll be ready in a year or two."],
-    rootCause: "Genuine financial preference, often S-type or older homeowner. Respect it, then surface what saving costs: rising material prices, ongoing damage, and the gap between today's quote and the future one.",
-    technique: "Hot Potato. 'How much have you saved so far, and how long to get there?' Math the difference.",
-    standardResponse: "I respect that. Material costs are trending up every year. If you're targeting two years out, the same roof might be $3,000 to $5,000 more by then, and meanwhile you're paying interest on damage. A loan today at a fixed rate often comes out cheaper than waiting. Want me to show you what financing today looks like next to the savings target?",
-    note: "Cash-preserve angle: 'Most of my cash-strong customers finance the roof and keep their cash liquid. The interest is usually less than what the cash earns sitting in a money market.'",
-    repFailure: "Accepting the cash-pay timeline without showing the math on material increases."
-  },
-  // ===== COMPARISON =====
-  {
-    id: "OBJ-RF-C01", section: "C", sectionName: "Comparison", title: "I've Used a Smaller Local Contractor",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I prefer to support a local guy.", "My buddy does roofs on the side.", "I had a great guy but he retired."],
-    rootCause: "Trust preference and loyalty to small business. Respect it without conceding the warranty and accountability gap.",
-    technique: "Hot Potato on what they liked, then differentiate on what a small contractor can't offer.",
-    standardResponse: "That's fair. Small contractors can do good work. The question is what happens when you have a problem in year 7. Will the small guy still be around? Will his warranty mean anything? Will he answer a Saturday call? We've been in business 32 years, with a 24/7 service line and 48-hour dispatch. A 25-year craftsmanship warranty is only worth what the company behind it is worth in year 25.",
-    note: "Handoff line: 'If you have a roof problem with a Trinity roof, you call Trinity. There's no finger-pointing.'",
-    repFailure: "Disparaging small contractors. Longevity and accountability are the comparison points, not quality."
+    "id": "OBJ-RF-F05",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "I Need to Run This By My Accountant",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I want my accountant to look at this.",
+      "I don't make financial decisions without reviewing them professionally."
+    ],
+    "rootCause": "Either genuine financial diligence (C-type, high earner) or a polite exit. Determine which before responding.",
+    "technique": "Hot Potato to determine genuineness. 'What specifically do you want them to review?' If they can name it, it's real. If not, it's a stall.",
+    "standardResponse": "If genuine: 'Of course. I can put together a one-page summary with everything they'd need: the contract, financing terms, and the warranty package. What's the best way to get the three of us on a call?' If stall: 'Of course. What specifically are you hoping they can clarify?' Name the concern, address it, set a go-back with a purpose.",
+    "repFailure": "Accepting the referral without qualifying whether it's real, then leaving without a committed go-back and a named question."
   },
   {
-    id: "OBJ-RF-C02", section: "C", sectionName: "Comparison", title: "Why IKO And Not GAF / Owens Corning?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I've heard of GAF. Why don't you use them?", "Isn't GAF the standard?"],
-    rootCause: "Brand familiarity gap. Most homeowners know GAF or CertainTeed from marketing. IKO is less consumer-facing but one of the largest manufacturers in North America and the exclusive solar partner. C-types will research this.",
-    technique: "Be Proactive with C-types. Short Answer, Long Answer if it surfaces.",
-    standardResponse: "IKO has been making shingles since 1951, one of the largest roofing manufacturers in North America. They make their product end-to-end, which is unusual: most brands outsource pieces of their supply chain. They're also our exclusive solar partner, which matters with panels on the roof. The Dynasty line carries a Class 4 impact rating and a 130 mph wind warranty, the top of their consumer line.",
-    note: "For C-types: 'IKO does a 50-point installation inspection on warranty claims. We install to that spec because we know they audit it. Any of those details done wrong voids the manufacturer warranty regardless of brand.'",
-    repFailure: "Getting defensive about IKO vs competing brands. Not knowing IKO's history or the 4-product system answer."
+    "id": "OBJ-RF-T01",
+    "section": "T",
+    "sectionName": "Timing",
+    "title": "My Roof Is Fine",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "Looks good to me.",
+      "We just had it inspected.",
+      "No leaks."
+    ],
+    "rootCause": "Most homeowners can't see their own roof. 'No active leak' is not 'no problem.' Granule loss, blister cracking, and ridge vent failures cause years of slow damage before the first interior stain.",
+    "technique": "Be Proactive. 'How do you feel about your roof?' surfaces it on your terms. Then inspect.",
+    "standardResponse": "That's good to hear. Most roof problems don't show up inside the house until the damage is significant. By the time water hits a ceiling, the deck and insulation have usually been wet for months. Let's step outside and I'll take a look. If the roof is in great shape, that's real peace of mind, and I'll tell you that honestly.",
+    "note": "The inspection is the cure. Binoculars or phone zoom: look for granule loss in gutters, curling edges, missing tabs, exposed nails, damaged ridge vent. Take photos. Show them. The lottery-ticket rule: ask everyone, every time.",
+    "repFailure": "Accepting 'fine' at face value. Skipping the inspection. Not asking 'how do you feel about your roof?' of every customer."
   },
   {
-    id: "OBJ-RF-C03", section: "C", sectionName: "Comparison", title: "Why Architectural, Not 3-Tab?",
-    product: "Standalone", difficulty: "Warm",
-    surface: ["My current roof is 3-tab. Why upgrade?", "Aren't 3-tab shingles fine?"],
-    rootCause: "Information gap on the performance, warranty, and curb-appeal difference. 3-tab is rarely the right answer in 2026 for a homeowner staying in the home.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "Three-tab shingles are basically obsolete for residential. They're thinner, have shorter warranties, and lower wind resistance. Architectural shingles like Dynasty are thicker, last longer, look better, and carry a Limited Lifetime warranty. The cost difference is small. The performance difference isn't.",
-    note: "Insurance angle: 'Class 4 impact-resistant shingles can earn an insurance discount. 3-tab cannot. Over 25 years that can offset a meaningful chunk of the upgrade.'",
-    repFailure: "Making it a technical lecture instead of a clear performance-and-value comparison."
-  },
-  // ===== WARRANTY =====
-  {
-    id: "OBJ-RF-W01", section: "W", sectionName: "Warranty", title: "What Does The 25-Year Warranty Cover?",
-    product: "Universal", difficulty: "Warm",
-    surface: ["Warranty sounds great, but what's covered?", "Is there a deductible?", "What's the catch?"],
-    rootCause: "Healthy skepticism. Customers have been burned by fine print. A direct, complete answer builds significant trust.",
-    technique: "Short Answer, Long Answer. Lead with the structure, then the specifics.",
-    standardResponse: "Three layers. First, the 25-year Trinity craftsmanship warranty: anything we did wrong on installation, flashing, nails, anything causing a leak from how we built it. Zero deductible. Second, the 20-year IKO IronClad manufacturer warranty: material, labor, disposal, and reinstallation if a shingle defect causes a problem. Third, the Limited Lifetime shingle warranty for manufacturing defects, prorated. If you have a problem, you call us. No finger-pointing, because we're IKO-certified and install all four required IKO products.",
-    note: "The four products: Dynasty shingles, Leading Edge Plus starter, Stormshield ice and water, and IKO Hip and Ridge. Substituting any voids the manufacturer side.",
-    repFailure: "Vague 'everything's covered' answers. Confusing craftsmanship with manufacturer warranty."
+    "id": "OBJ-RF-T02",
+    "section": "T",
+    "sectionName": "Timing",
+    "title": "I'll Do The Roof Later",
+    "product": "Bundle",
+    "difficulty": "Warm",
+    "surface": [
+      "Let's just do solar first.",
+      "I'll handle the roof in a couple of years.",
+      "It can wait."
+    ],
+    "rootCause": "Customer doesn't know the cost of doing it later, especially with solar already installed. Removing and reinstalling solar to re-roof underneath has a real cost they aren't factoring, plus exposure to material price increases.",
+    "technique": "Short Answer, Long Answer. 'Doing it later isn't the same cost. Here's why.'",
+    "ctContext": "Industry runs roughly $1 per watt to remove and reset solar. On an 8 kW system that's an extra $8,000 to do it later, plus the roof at whatever the price is then.",
+    "standardResponse": "If we put solar on a roof that needs replacement in a few years, you'll pay twice. Once for the roof, and once to remove and reinstall the solar so the roofers can work. The smart move is to bundle now while we're already on the property and the panels aren't mounted. The crew is here, the permitting is happening, one project handles both.",
+    "repFailure": "Accepting 'later' without surfacing the remove-and-reinstall math."
   },
   {
-    id: "OBJ-RF-W02", section: "W", sectionName: "Warranty", title: "What If Trinity Goes Out Of Business?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["You've been around 32 years, but what if something changes?", "What happens to my warranty if you close?"],
-    rootCause: "A legitimate question for a 25-year warranty. Respond with structure, not reassurance.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "It's the right question. The Trinity craftsmanship warranty is on Trinity, so that piece would change if something happened to the company. But the IKO manufacturer warranty is on IKO, not us. Your 20-year IronClad and your Limited Lifetime shingle coverage are independent of us. So even worst case, the manufacturer side stands. That said, we've been here 32 years, installed 125,000 roofs, and the roofing division has grown every year since 2021.",
-    repFailure: "'We've been here 32 years' alone is not sufficient. Walk them through the layered structure."
+    "id": "OBJ-RF-T03",
+    "section": "T",
+    "sectionName": "Timing",
+    "title": "Let Me Wait Until Next Year",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "Maybe in the spring.",
+      "Let's revisit after the holidays.",
+      "I'm not ready right now."
+    ],
+    "rootCause": "Vague timing stall, often masking price concern or lack of urgency about damage. Needs cost-of-waiting made concrete.",
+    "technique": "Short Answer, Long Answer on material cost trends, then one specific reason tied to their roof.",
+    "standardResponse": "Roofing material costs have trended up every year for as long as I've been doing this. The same project quoted today and in twelve months is rarely the same number. Plus, every storm between now and then is one your current roof has to absorb. I'm not trying to rush you. I just want you to decide with the full picture.",
+    "note": "Discovery anchor: 'Do you think your roof would have cost more or less to replace five years ago? What about five years from now?'",
+    "repFailure": "A generic 'prices are going up' pitch instead of material-cost-and-damage-compounding tied to this roof."
   },
   {
-    id: "OBJ-RF-W03", section: "W", sectionName: "Warranty", title: "Is The Warranty Transferable If I Sell?",
-    product: "Universal", difficulty: "Warm",
-    surface: ["What if we move?", "Does the next owner get this warranty?"],
-    rootCause: "Almost always a buying signal. They're projecting forward into ownership and resale.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "Yes, with terms. The Trinity craftsmanship warranty transfers once to the next homeowner. The IKO manufacturer side transfers at IKO's discretion, capped at 10 years from original installation. So if you sell in year 3, the new owner gets 7 years of remaining transferred manufacturer coverage on top of your craftsmanship transfer. A new roof is consistently one of the highest-recouped home improvements.",
-    note: "Some older Trinity materials list 15-year transferability. The IKO published cap is 120 months (10 years). Use 10. If a customer cites 15 from a brochure: 'The accurate, published number is 10.'",
-    repFailure: "Quoting 15-year transferability from outdated materials."
+    "id": "OBJ-RF-T04",
+    "section": "T",
+    "sectionName": "Timing",
+    "title": "I'm Saving Up to Pay Cash",
+    "product": "Standalone",
+    "difficulty": "Medium",
+    "surface": [
+      "We've been putting money aside for this.",
+      "I'd rather pay cash and not deal with a loan.",
+      "We'll be ready in a year or two."
+    ],
+    "rootCause": "Genuine financial preference, often S-type or older homeowner. Respect it, then surface what saving costs: rising material prices, ongoing damage, and the gap between today's quote and the future one.",
+    "technique": "Hot Potato. 'How much have you saved so far, and how long to get there?' Math the difference.",
+    "standardResponse": "I respect that. Material costs are trending up every year. If you're targeting two years out, the same roof might be $3,000 to $5,000 more by then, and meanwhile you're paying interest on damage. A loan today at a fixed rate often comes out cheaper than waiting. Want me to show you what financing today looks like next to the savings target?",
+    "note": "Cash-preserve angle: 'Most of my cash-strong customers finance the roof and keep their cash liquid. The interest is usually less than what the cash earns sitting in a money market.'",
+    "repFailure": "Accepting the cash-pay timeline without showing the math on material increases."
   },
   {
-    id: "OBJ-RF-W04", section: "W", sectionName: "Warranty", title: "What If The Subcontractor Does A Bad Job?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I heard you use subs.", "Is it Trinity actually doing the work or someone else?"],
-    rootCause: "Trust gap on the install-partner model. The honest answer, delivered confidently, is reassuring. Hedging invites doubt.",
-    technique: "Be Proactive. Raise it before they do. Then Short Answer, Long Answer.",
-    standardResponse: "We work with a network of install partners. They're subcontractors, but not random. We screen, train, and monitor them on every job. They wear Trinity-branded vests on installation. We use Site Capture, so crews send photos before, during, and after in real time. Field supervisors are IKO-certified. If something goes wrong, you don't call the subcontractor. You call us. The 25-year warranty is on Trinity, not on them. That's the entire point of the structure.",
-    repFailure: "Pretending Trinity employees do the install. They don't. Honesty plus the warranty structure resolves this."
+    "id": "OBJ-RF-C01",
+    "section": "C",
+    "sectionName": "Comparison",
+    "title": "I've Used a Smaller Local Contractor",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I prefer to support a local guy.",
+      "My buddy does roofs on the side.",
+      "I had a great guy but he retired."
+    ],
+    "rootCause": "Trust preference and loyalty to small business. Respect it without conceding the warranty and accountability gap.",
+    "technique": "Hot Potato on what they liked, then differentiate on what a small contractor can't offer.",
+    "standardResponse": "That's fair. Small contractors can do good work. The question is what happens when you have a problem in year 7. Will the small guy still be around? Will his warranty mean anything? Will he answer a Saturday call? We've been in business 32 years, with a 24/7 service line and 48-hour dispatch. A 25-year craftsmanship warranty is only worth what the company behind it is worth in year 25.",
+    "note": "Handoff line: 'If you have a roof problem with a Trinity roof, you call Trinity. There's no finger-pointing.'",
+    "repFailure": "Disparaging small contractors. Longevity and accountability are the comparison points, not quality."
   },
   {
-    id: "OBJ-RF-W05", section: "W", sectionName: "Warranty", title: "How Do I Know You'll Install It Right?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["Roofing is mostly about the install, right?", "Bad install voids the manufacturer warranty, doesn't it?"],
-    rootCause: "Often a C-type who has researched. Knows that improper nailing, wrong exposure, or skipped underlayment voids manufacturer warranties. Demonstrate Trinity's install standards specifically.",
-    technique: "Short Answer, Long Answer with the install spec.",
-    standardResponse: "You're right. Most warranty denials happen because of installation errors. IKO does a 50-point installation inspection on any claim: nail placement, exposure, starter strip, ice and water shield, drip edge, ventilation. We install to IKO's exact spec because we're certified and we know they audit. The reason we offer a 25-year craftsmanship warranty isn't marketing. It's because we install at a standard we'll back for 25 years.",
-    repFailure: "Vague 'we do it right' answers. C-types want specifics. Have them."
-  },
-  // ===== PROCESS =====
-  {
-    id: "OBJ-RF-P01", section: "P", sectionName: "Process", title: "How Long Does The Install Take?",
-    product: "Universal", difficulty: "Warm",
-    surface: ["Will my house be a construction zone?", "How disruptive is this?"],
-    rootCause: "A buying question, not an objection. The homeowner is placing themselves in the install scenario.",
-    technique: "Read the Room. This is a buying signal. Move toward scheduling.",
-    standardResponse: "Most roofs are one day. Larger or complex roofs can run two. The crew arrives in the morning, brings a dumpster, tears off, decks, installs, and cleans up. We use Site Capture so you see progress in real time. Crew leaves the property cleaner than they found it. Permitting and scheduling typically run 60 days from contract. Any preference on days of the week?",
-    repFailure: "Treating it like an objection instead of a buying signal. Not transitioning to scheduling."
+    "id": "OBJ-RF-C02",
+    "section": "C",
+    "sectionName": "Comparison",
+    "title": "Why IKO And Not GAF / Owens Corning?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I've heard of GAF. Why don't you use them?",
+      "Isn't GAF the standard?"
+    ],
+    "rootCause": "Brand familiarity gap. Most homeowners know GAF or CertainTeed from marketing. IKO is less consumer-facing but one of the largest manufacturers in North America and the exclusive solar partner. C-types will research this.",
+    "technique": "Be Proactive with C-types. Short Answer, Long Answer if it surfaces.",
+    "standardResponse": "IKO has been making shingles since 1951, one of the largest roofing manufacturers in North America. They make their product end-to-end, which is unusual: most brands outsource pieces of their supply chain. They're also our exclusive solar partner, which matters with panels on the roof. The Dynasty line carries a Class 4 impact rating and a 130 mph wind warranty, the top of their consumer line.",
+    "note": "For C-types: 'IKO does a 50-point installation inspection on warranty claims. We install to that spec because we know they audit it. Any of those details done wrong voids the manufacturer warranty regardless of brand.'",
+    "repFailure": "Getting defensive about IKO vs competing brands. Not knowing IKO's history or the 4-product system answer."
   },
   {
-    id: "OBJ-RF-P02", section: "P", sectionName: "Process", title: "I Don't Want A Dumpster In My Driveway",
-    product: "Universal", difficulty: "Warm",
-    surface: ["Where will the dumpster go?", "Will it block the driveway?", "We have HOA rules."],
-    rootCause: "Logistics concern, often legitimate. The Project Manager handles this in pre-install calls.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "Your Project Manager works with you to find the right drop spot before install day. Most do the driveway because it's closest to the work, but yard placement is an option for HOA or access concerns. It drops the day before or morning of, and gets picked up after. If your HOA has rules, we accommodate them.",
-    repFailure: "Promising specific dumpster placement at the appointment. Defer to the PM. Don't commit outside contracted scope."
+    "id": "OBJ-RF-C03",
+    "section": "C",
+    "sectionName": "Comparison",
+    "title": "Why Architectural, Not 3-Tab?",
+    "product": "Standalone",
+    "difficulty": "Warm",
+    "surface": [
+      "My current roof is 3-tab. Why upgrade?",
+      "Aren't 3-tab shingles fine?"
+    ],
+    "rootCause": "Information gap on the performance, warranty, and curb-appeal difference. 3-tab is rarely the right answer in 2026 for a homeowner staying in the home.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "Three-tab shingles are basically obsolete for residential. They're thinner, have shorter warranties, and lower wind resistance. Architectural shingles like Dynasty are thicker, last longer, look better, and carry a Limited Lifetime warranty. The cost difference is small. The performance difference isn't.",
+    "note": "Insurance angle: 'Class 4 impact-resistant shingles can earn an insurance discount. 3-tab cannot. Over 25 years that can cover a meaningful chunk of the upgrade.'",
+    "repFailure": "Making it a technical lecture instead of a clear performance-and-value comparison."
   },
   {
-    id: "OBJ-RF-P03", section: "P", sectionName: "Process", title: "What If You Find Damage Once The Roof Is Off?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["What if there's rotted plywood?", "Will this turn into a much bigger project?"],
-    rootCause: "Concern about scope creep. Yes, hidden damage happens, and yes, it can cost extra. But Trinity includes plywood, change orders are flat-rate, and the customer is informed before any additional work.",
-    technique: "Be Proactive. Raise it before they do. Short Answer, Long Answer.",
-    standardResponse: "Some hidden damage is normal on older roofs. We include replacement plywood in your contract. If we find more, you get a change order at $100 per sheet. Rotted ledger board is $15 per linear foot, rotted rafters $5 per linear foot. The Project Manager calls you before any change order is approved. Nothing happens without your sign-off. That's the difference between us and a contractor who tacks on charges mid-install without telling you.",
-    note: "Per policy, stay general about 'we include some plywood.' Do not disclose the 5-sheet number up front.",
-    repFailure: "Promising no hidden damage, or promising specific included plywood amounts up front."
+    "id": "OBJ-RF-W01",
+    "section": "W",
+    "sectionName": "Warranty",
+    "title": "What Does The 25-Year Warranty Cover?",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "Warranty sounds great, but what's covered?",
+      "Is there a deductible?",
+      "What's the catch?"
+    ],
+    "rootCause": "Healthy skepticism. Customers have been burned by fine print. A direct, complete answer builds significant trust.",
+    "technique": "Short Answer, Long Answer. Lead with the structure, then the specifics.",
+    "standardResponse": "Three layers. First, the 25-year Trinity craftsmanship warranty: anything we did wrong on installation, flashing, nails, anything causing a leak from how we built it. Zero deductible. Second, the 20-year IKO IronClad manufacturer warranty: material, labor, disposal, and reinstallation if a shingle defect causes a problem. Third, the Limited Lifetime shingle warranty for manufacturing defects, prorated. If you have a problem, you call us. No finger-pointing, because we're IKO-certified and install all four required IKO products.",
+    "note": "The four products: Dynasty shingles, Leading Edge Plus starter, Stormshield ice and water, and IKO Hip and Ridge. Substituting any voids the manufacturer side.",
+    "repFailure": "Vague 'everything's covered' answers. Confusing craftsmanship with manufacturer warranty."
   },
   {
-    id: "OBJ-RF-P04", section: "P", sectionName: "Process", title: "Will My Skylights Be A Problem?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["We have skylights. What happens to them?", "Will they leak after?"],
-    rootCause: "Legitimate question. Skylights are the single biggest install-delay cause when not addressed up front. Trinity policy is firm.",
-    technique: "Be Proactive. Ask the skylight discovery questions before this surfaces: how many, do you want to keep them, have they leaked, when replaced?",
-    standardResponse: "Replacing: replacement skylights are $2,000 each, covered under our 25-year craftsmanship warranty for leaks. Exterior work only; interior drywall, paint, and electrical are on you. Keeping existing: we won't warranty leaks around them, since the seal between an old skylight and a new roof is unpredictable. I'd strongly recommend replacement now while the roof is open. It's much cheaper than retrofitting later.",
-    repFailure: "Not asking about skylights up front. This causes 30-60 day install delays. The Customer Acknowledgement form requires this conversation."
+    "id": "OBJ-RF-W02",
+    "section": "W",
+    "sectionName": "Warranty",
+    "title": "What If Trinity Goes Out Of Business?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "You've been around 32 years, but what if something changes?",
+      "What happens to my warranty if you close?"
+    ],
+    "rootCause": "A legitimate question for a 25-year warranty. Respond with structure, not reassurance.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "It's the right question. The Trinity craftsmanship warranty is on Trinity, so that piece would change if something happened to the company. But the IKO manufacturer warranty is on IKO, not us. Your 20-year IronClad and your Limited Lifetime shingle coverage are independent of us. So even worst case, the manufacturer side stands. That said, we've been here 32 years, installed 125,000 roofs, and the roofing division has grown every year since 2021.",
+    "repFailure": "'We've been here 32 years' alone is not sufficient. Walk them through the layered structure."
   },
   {
-    id: "OBJ-RF-P05", section: "P", sectionName: "Process", title: "What About My Gutters / Fascia?",
-    product: "Universal", difficulty: "Warm",
-    surface: ["Can you do my gutters too?", "My fascia is rotted, can you fix that?"],
-    rootCause: "Reasonable upsell question. Trinity does not sell gutters or fascia. Hard line.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "We don't install gutters or fascia. It's a complicated product with a lot of variables, and we'd rather refer you to a local gutter contractor than do it poorly. Most customers do gutters after the roof is on. We'll set the drip edge correctly so the new gutters fit cleanly when they're installed.",
-    repFailure: "Saying 'yes' to gutters or fascia to keep the deal warm. That creates an expectation Trinity can't fulfill, which becomes a complaint."
+    "id": "OBJ-RF-W03",
+    "section": "W",
+    "sectionName": "Warranty",
+    "title": "Is The Warranty Transferable If I Sell?",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "What if we move?",
+      "Does the next owner get this warranty?"
+    ],
+    "rootCause": "Almost always a buying signal. They're projecting forward into ownership and resale.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "Yes, with terms. The Trinity craftsmanship warranty transfers once to the next homeowner. The IKO manufacturer side transfers at IKO's discretion, capped at 10 years from original installation. So if you sell in year 3, the new owner gets 7 years of remaining transferred manufacturer coverage on top of your craftsmanship transfer. A new roof is consistently one of the highest-recouped home improvements.",
+    "note": "Some older Trinity materials list 15-year transferability. The IKO published cap is 120 months (10 years). Use 10. If a customer cites 15 from a brochure: 'The accurate, published number is 10.'",
+    "repFailure": "Quoting 15-year transferability from outdated materials."
   },
   {
-    id: "OBJ-RF-P06", section: "P", sectionName: "Process", title: "How Long After I Sign Until It's Installed?",
-    product: "Universal", difficulty: "Warm",
-    surface: ["When will this actually happen?", "We need it done before [event]."],
-    rootCause: "Buying signal. Schedule-expectation question.",
-    technique: "Read the Room. This is a buying signal.",
-    standardResponse: "Roof-only or independently financed: about 60 days from contract, covering permitting, scheduling, and material coordination. Bundled with solar: the roof installs no more than 10 days before solar and only after solar approvals, so the whole project from contract to fully installed is typically 60 to 75 days.",
-    repFailure: "Promising tighter timelines than Sales Ops can deliver. Not differentiating roof-only from solar-attached."
-  },
-  // ===== DECISION MAKER =====
-  {
-    id: "OBJ-RF-D01", section: "D", sectionName: "Decision Maker", title: "I Need to Talk to My Spouse First",
-    product: "Universal", difficulty: "Medium",
-    surface: ["My partner isn't home.", "We make big decisions together."],
-    rootCause: "Legitimate stakeholder gap. How the rep handles the present partner determines go-back success.",
-    technique: "Sell the concept before leaving. Then coach the go-back.",
-    standardResponse: "Before I go, when you talk to [name] tonight, what do you think will matter most to them? Let me make sure you have the right answer for whatever they ask. Most spouses ask about the warranty, the timeline, the price, or the color. Schedule the go-back with both confirmed present.",
-    note: "The 80% rule: if you don't sell the present partner on the concept first, they cancel 80% of the time. 'Don't try to sell them before I get back. Just make sure they'll let me in.'",
-    repFailure: "Scheduling a go-back without selling the concept first. Not naming the absent partner."
+    "id": "OBJ-RF-W04",
+    "section": "W",
+    "sectionName": "Warranty",
+    "title": "What If The Subcontractor Does A Bad Job?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I heard you use subs.",
+      "Is it Trinity actually doing the work or someone else?"
+    ],
+    "rootCause": "Trust gap on the install-partner model. The honest answer, delivered confidently, is reassuring. Hedging invites doubt.",
+    "technique": "Be Proactive. Raise it before they do. Then Short Answer, Long Answer.",
+    "standardResponse": "We work with a network of install partners. They're subcontractors, but not random. We screen, train, and monitor them on every job. They wear Trinity-branded vests on installation. We use Site Capture, so crews send photos before, during, and after in real time. Field supervisors are IKO-certified. If something goes wrong, you don't call the subcontractor. You call us. The 25-year warranty is on Trinity, not on them. That's the entire point of the structure.",
+    "repFailure": "Pretending Trinity employees do the install. They don't. Honesty plus the warranty structure resolves this."
   },
   {
-    id: "OBJ-RF-D02", section: "D", sectionName: "Decision Maker", title: "We Need To Think About It",
-    product: "Universal", difficulty: "Medium",
-    surface: ["Let us sleep on it.", "We need to process this.", "We'll get back to you."],
-    rootCause: "Never about time. Always lack of trust or something undiscovered. A stall without a named concern is a deferred failure.",
-    technique: "Short Answer, Long Answer to acknowledge, then Hot Potato to diagnose.",
-    standardResponse: "Of course. What's the main thing on your mind right now? Is it the company, the price, the timing, or something I haven't covered? If trust: address why Trinity, why this rep, with Feel/Felt/Found and third-party validation. If discovery: 'What would need to be true for you to feel confident moving forward today?'",
-    repFailure: "Accepting the stall without diagnosing trust vs discovery. Going home without naming the real concern."
-  },
-  // ===== SKEPTICISM =====
-  {
-    id: "OBJ-RF-S01", section: "S", sectionName: "Skepticism", title: "I Don't Know Trinity For Roofing",
-    product: "Universal", difficulty: "Medium",
-    surface: ["You're a solar company, right?", "How long have you been doing roofs?", "I know you for solar, but..."],
-    rootCause: "Brand-recognition gap. Trinity has done roofing as a dedicated division since 2021 with significant growth, but the association is still solar-first.",
-    technique: "Be Proactive. Raise the roofing track record before they ask.",
-    standardResponse: "Fair question. Trinity has been in business 32 years total. Roofing as a division is newer, since 2021. What's relevant is how we got there: we were already on roofs every day for solar, and we saw what other contractors left behind, bad nailing, missing underlayment, voided warranties. We launched roofing to fix that. We did 187 roofs the first year and over 2,300 last year. Our crews are IKO-certified, and the 25-year craftsmanship warranty is the longest in the industry.",
-    repFailure: "Apologizing for being newer to roofing. The 32-year foundation, IKO partnership, and growth are the right positioning."
+    "id": "OBJ-RF-W05",
+    "section": "W",
+    "sectionName": "Warranty",
+    "title": "How Do I Know You'll Install It Right?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "Roofing is mostly about the install, right?",
+      "Bad install voids the manufacturer warranty, doesn't it?"
+    ],
+    "rootCause": "Often a C-type who has researched. Knows that improper nailing, wrong exposure, or skipped underlayment voids manufacturer warranties. Demonstrate Trinity's install standards specifically.",
+    "technique": "Short Answer, Long Answer with the install spec.",
+    "standardResponse": "You're right. Most warranty denials happen because of installation errors. IKO does a 50-point installation inspection on any claim: nail placement, exposure, starter strip, ice and water shield, drip edge, ventilation. We install to IKO's exact spec because we're certified and we know they audit. The reason we offer a 25-year craftsmanship warranty isn't marketing. It's because we install at a standard we'll back for 25 years.",
+    "repFailure": "Vague 'we do it right' answers. C-types want specifics. Have them."
   },
   {
-    id: "OBJ-RF-S02", section: "S", sectionName: "Skepticism", title: "I Read Bad Reviews / Neighbor Issue",
-    product: "Universal", difficulty: "Medium",
-    surface: ["My neighbor used you and had problems.", "I saw some complaints online."],
-    rootCause: "Social proof in reverse. Requires direct engagement, not dismissal.",
-    technique: "Hot Potato. 'Can you tell me what you saw specifically?' Then distinguish.",
-    standardResponse: "I appreciate you bringing that up. Can you tell me what you saw specifically? I'd rather address it directly than have it sit there. Then differentiate Trinity's process: Project Managers, Site Capture, IKO-certified supervisors, and a 24/7 service line, specifically because the industry has historically been bad at communication. On reviews: 'A lot of sites are pay-to-play. The one I trust is the BBB, regulated, and you can't buy a better rating. Trinity is A+ with no unresolved complaints.'",
-    repFailure: "'Every company has some bad reviews.' Never dismiss. Engage directly."
+    "id": "OBJ-RF-P01",
+    "section": "P",
+    "sectionName": "Process",
+    "title": "How Long Does The Install Take?",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "Will my house be a construction zone?",
+      "How disruptive is this?"
+    ],
+    "rootCause": "A buying question, not an objection. The homeowner is placing themselves in the install scenario.",
+    "technique": "Read the Room. This is a buying signal. Move toward scheduling.",
+    "standardResponse": "Most roofs are one day. Larger or complex roofs can run two. The crew arrives in the morning, brings a dumpster, tears off, decks, installs, and cleans up. We use Site Capture so you see progress in real time. Crew leaves the property cleaner than they found it. Permitting and scheduling typically run 60 days from contract. Any preference on days of the week?",
+    "repFailure": "Treating it like an objection instead of a buying signal. Not transitioning to scheduling."
   },
   {
-    id: "OBJ-RF-S03", section: "S", sectionName: "Skepticism", title: "Why So Much For Just Shingles?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["Shingles are a commodity, right?", "How can the price be that high for asphalt?"],
-    rootCause: "Customer is pricing the shingle, not the system. Dynasty shingles are perhaps 25% of the project cost. The rest is permits, removal, decking, drip edge, underlayment, ice and water, flashing, ridge vent, plywood, labor, and the warranty.",
-    technique: "Short Answer, Long Answer with the system breakdown.",
-    standardResponse: "Fair question. The shingle is one piece. The full price covers permits, removal of up to three layers, full perimeter drip edge, synthetic underlayment, ice and water shield in the vulnerable zones, new flashing, premium ridge vent, hip and ridge cap, and up to five sheets of decking, plus an IKO-certified crew and the 25-year warranty backed by a 32-year-old company. The shingle itself is a smaller piece than most people expect.",
-    repFailure: "Not having the system breakdown ready. Letting the customer reduce the project to just shingles."
-  },
-  // ===== INSURANCE =====
-  {
-    id: "OBJ-RF-I01", section: "I", sectionName: "Insurance", title: "Can't I Just Get Insurance To Pay?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["There must have been hail damage I didn't notice.", "My neighbor got their roof free through insurance."],
-    rootCause: "Either a real claim (storm, hail) or a hopeful misread. Insurance covers damage from a covered peril, not normal wear or aging. Distinguish before responding.",
-    technique: "Hot Potato. 'When was the last storm in your area? Any visible damage at the time?'",
-    standardResponse: "Real claim: 'If you've had a recent storm with hail or high winds, a claim is worth considering. We work alongside your adjuster, and the Class 4 impact rating is something carriers recognize. But the inspection has to happen first.' No real claim: 'Insurance covers damage from an event, not aging. Filing without real damage can affect premiums and usually gets denied. The honest path is replacement, often with the Class 4 rating that earns a discount going forward.'",
-    repFailure: "Encouraging fraudulent claims. Or dismissing legitimate storm damage too quickly."
+    "id": "OBJ-RF-P02",
+    "section": "P",
+    "sectionName": "Process",
+    "title": "I Don't Want A Dumpster In My Driveway",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "Where will the dumpster go?",
+      "Will it block the driveway?",
+      "We have HOA rules."
+    ],
+    "rootCause": "Logistics concern, often legitimate. The Project Manager handles this in pre-install calls.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "Your Project Manager works with you to find the right drop spot before install day. Most do the driveway because it's closest to the work, but yard placement is an option for HOA or access concerns. It drops the day before or morning of, and gets picked up after. If your HOA has rules, we accommodate them.",
+    "repFailure": "Promising specific dumpster placement at the appointment. Defer to the PM. Don't commit outside contracted scope."
   },
   {
-    id: "OBJ-RF-I02", section: "I", sectionName: "Insurance", title: "Will A New Roof Lower My Insurance?",
-    product: "Universal", difficulty: "Warm",
-    surface: ["Does this come with an insurance discount?"],
-    rootCause: "Buying signal disguised as a question. The answer is favorable.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "Often, yes. The Dynasty line carries a Class 4 impact-resistant rating. Insurers including USAA and State Farm have specific discount programs for impact-resistant roofs. We provide the IRR certification documentation to submit to your carrier. The exact discount depends on your insurer, but a meaningful percentage off the dwelling premium is common.",
-    note: "Forms: USAA Impact Resistant Roof Discount Form, State Farm IRR Certification Form, both on the Roofing Resource Page.",
-    repFailure: "Saying 'I think so' instead of having the certification process ready."
-  },
-  // ===== AESTHETIC =====
-  {
-    id: "OBJ-RF-A01", section: "A", sectionName: "Aesthetic", title: "I'm Not Sure About The Colors",
-    product: "Universal", difficulty: "Warm",
-    surface: ["I want to think about the color.", "None of these match my house."],
-    rootCause: "Often genuine, sometimes a stall disguised as aesthetics. Read the room. If genuine, the color tools resolve it.",
-    technique: "Be Proactive. Walk through colors before they raise concern.",
-    standardResponse: "Color is the most personal piece. The Dynasty line has 12 high-definition color options. Let me show you the IKO Viewer. You can upload a photo of your house and try every color virtually. Most customers are surprised how the right color changes the whole curb appeal.",
-    note: "IKO Viewer (iko.chameleonpower.com) shows Dynasty colors on the actual house from a photo. Use it at the appointment. A color must be on the contract before submission.",
-    repFailure: "Letting 'I want to think about the color' become a stall. Use the Viewer at the appointment."
+    "id": "OBJ-RF-P03",
+    "section": "P",
+    "sectionName": "Process",
+    "title": "What If You Find Damage Once The Roof Is Off?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "What if there's rotted plywood?",
+      "Will this turn into a much bigger project?"
+    ],
+    "rootCause": "Concern about scope creep. Yes, hidden damage happens, and yes, it can cost extra. But Trinity includes plywood, change orders are flat-rate, and the customer is informed before any additional work.",
+    "technique": "Be Proactive. Raise it before they do. Short Answer, Long Answer.",
+    "standardResponse": "Some hidden damage is normal on older roofs. We include replacement plywood in your contract. If we find more, you get a change order at $100 per sheet. Rotted ledger board is $15 per linear foot, rotted rafters $5 per linear foot. The Project Manager calls you before any change order is approved. Nothing happens without your sign-off. That's the difference between us and a contractor who tacks on charges mid-install without telling you.",
+    "note": "Per policy, stay general about 'we include some plywood.' Do not disclose the 5-sheet number up front.",
+    "repFailure": "Promising no hidden damage, or promising specific included plywood amounts up front."
   },
   {
-    id: "OBJ-RF-A02", section: "A", sectionName: "Aesthetic", title: "What Will The Neighbors / HOA Think?",
-    product: "Universal", difficulty: "Warm",
-    surface: ["Our HOA has rules about roof colors.", "The neighbors all have a similar look."],
-    rootCause: "Aesthetic concern plus HOA process question. Neither is a real obstacle in most cases.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "Most HOAs have approved color lists, and the IKO Dynasty palette covers the standard ranges. We can match what's already in your neighborhood. If your HOA requires submission, we provide the product specs and color sample for the application. Let me know your association and we can pre-check anything specific.",
-    repFailure: "Treating HOA approval as a deal-killer. It rarely is."
-  },
-  // ===== MOVING =====
-  {
-    id: "OBJ-RF-M01", section: "M", sectionName: "Moving", title: "We Might Sell In A Few Years",
-    product: "Universal", difficulty: "Warm",
-    surface: ["We're not sure how long we'll stay.", "We might move."],
-    rootCause: "Buying signal in disguise. Selling soon means thinking about home value, which a new roof supports.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "A new roof is consistently one of the top return-on-investment improvements. Buyers value it because it removes a future expense from their list, and the 25-year craftsmanship warranty transfers once to the next owner. The opposite is also true: list with a 22-year-old roof and the inspector flags it, so you negotiate down or replace it before close anyway. Better to do it now and live under it for the years before you sell.",
-    note: "Discovery anchor: 'Are you thinking 2 years out, 5, longer? That changes the math a little.'",
-    repFailure: "Treating 'we might sell' as a disqualifier. It's usually a buying signal."
-  },
-  // ===== BUNDLE =====
-  {
-    id: "OBJ-RF-B01", section: "B", sectionName: "Bundle", title: "Just Do The Solar, Roof Later",
-    product: "Bundle", difficulty: "Medium",
-    surface: ["Can we just start with solar?", "I'll do the roof in a couple of years."],
-    rootCause: "Customer doesn't know the cost of doing it later. Removing and reinstalling solar to re-roof has a real cost, plus material increases, plus mid-project disruption.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "If we install solar on a roof near the end of its life, you'll pay twice: once for the new roof, once to remove and reinstall the solar so the roofers can work. Industry runs around $1 per watt, so on a typical system that's an extra $7,000 to $9,000 you didn't budget. The smart move is to bundle now: roofing crew goes first, same project, same financing, same coordination. Plus, if the roof fails after solar, every panel comes off and goes back on. That's a project you don't want to manage twice.",
-    repFailure: "Not making the deferred cost concrete. Letting 'I'll do it later' go unchallenged."
+    "id": "OBJ-RF-P04",
+    "section": "P",
+    "sectionName": "Process",
+    "title": "Will My Skylights Be A Problem?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "We have skylights. What happens to them?",
+      "Will they leak after?"
+    ],
+    "rootCause": "Legitimate question. Skylights are the single biggest install-delay cause when not addressed up front. Trinity policy is firm.",
+    "technique": "Be Proactive. Ask the skylight discovery questions before this surfaces: how many, do you want to keep them, have they leaked, when replaced?",
+    "standardResponse": "Replacing: replacement skylights are $2,000 each, covered under our 25-year craftsmanship warranty for leaks. Exterior work only; interior drywall, paint, and electrical are on you. Keeping existing: we won't warranty leaks around them, since the seal between an old skylight and a new roof is unpredictable. I'd strongly recommend replacement now while the roof is open. It's much cheaper than retrofitting later.",
+    "repFailure": "Not asking about skylights up front. This causes 30-60 day install delays. The Customer Acknowledgement form requires this conversation."
   },
   {
-    id: "OBJ-RF-B02", section: "B", sectionName: "Bundle", title: "Can The Roof Be Financed With Solar?",
-    product: "Bundle", difficulty: "Warm",
-    surface: ["How does the financing actually work?", "Is it one loan or two?"],
-    rootCause: "Logistics question. Direct answer.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "One loan, one payment. The roof rolls into the solar financing as long as we're doing both. It's processed as a complete project, one monthly payment that covers everything. The solar savings on your electric bill often offset most of the roofing portion of the payment.",
-    repFailure: "Making the financing structure sound complicated. It's straightforward. Lead with that."
+    "id": "OBJ-RF-P05",
+    "section": "P",
+    "sectionName": "Process",
+    "title": "What About My Gutters / Fascia?",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "Can you do my gutters too?",
+      "My fascia is rotted, can you fix that?"
+    ],
+    "rootCause": "Reasonable upsell question. Trinity does not sell gutters or fascia. Hard line.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "We don't install gutters or fascia. It's a complicated product with a lot of variables, and we'd rather refer you to a local gutter contractor than do it poorly. Most customers do gutters after the roof is on. We'll set the drip edge correctly so the new gutters fit cleanly when they're installed.",
+    "repFailure": "Saying 'yes' to gutters or fascia to keep the deal warm. That creates an expectation Trinity can't fulfill, which becomes a complaint."
   },
   {
-    id: "OBJ-RF-B03", section: "B", sectionName: "Bundle", title: "Won't The Solar Crew Damage The New Roof?",
-    product: "Bundle", difficulty: "Warm",
-    surface: ["Doesn't drilling into the roof void the warranty?", "I'm worried about leaks where the panels mount."],
-    rootCause: "Reasonable concern. The mounting hardware is engineered for waterproofing, and Trinity warranties it.",
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "The mounts are engineered for waterproofing, sealed, flashed, and backed by our 25-year craftsmanship warranty. If anything ever leaks at a mount, you call us. Because we install both the roof and the solar, there's no finger-pointing between contractors. With a separate roofer and solar installer, a leak at a mount in year 4 means both blame each other. With us, it's one call.",
-    repFailure: "Vague answers. The 'one call, no finger-pointing' frame is the strongest piece."
+    "id": "OBJ-RF-P06",
+    "section": "P",
+    "sectionName": "Process",
+    "title": "How Long After I Sign Until It's Installed?",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "When will this actually happen?",
+      "We need it done before [event]."
+    ],
+    "rootCause": "Buying signal. Schedule-expectation question.",
+    "technique": "Read the Room. This is a buying signal.",
+    "standardResponse": "Roof-only or independently financed: about 60 days from contract, covering permitting, scheduling, and material coordination. Bundled with solar: the roof installs no more than 10 days before solar and only after solar approvals, so the whole project from contract to fully installed is typically 60 to 75 days.",
+    "repFailure": "Promising tighter timelines than Sales Ops can deliver. Not differentiating roof-only from solar-attached."
   },
   {
-    id: "OBJ-RF-A03", section: "A", sectionName: "Aesthetic", title: "I Don't Like How It Looks",
-    product: "Universal", difficulty: "Warm",
-    surface: ["I just don't love the look of it.", "It doesn't really go with the house.", "I'm picky about how the house looks."],
-    rootCause: "Almost never a real obstacle. Nobody studies their own roof, so the aesthetic worry is abstract. A friendly bet exposes that, then the color tools resolve the genuine piece.",
-    disc: { D: "States it flatly and moves on.", I: "Cares most here. Curb appeal is emotional.", S: "Worries the neighbors will notice.", C: "Wants to see exact colors before committing." },
-    technique: "A bet they can't win, then Feel/Felt/Found, then the Viewer.",
-    standardResponse: "Let me ask you something, and it's not a trick. Two houses down on your side of the street, what color is their roof? Most people can't answer that, and that's the point. You weren't admiring your roof when I pulled up, and your neighbors aren't studying it either. I know how you feel. A lot of customers felt the same way before they saw the options. What they found is that the right color actually lifts the whole curb appeal. Let me pull up the Viewer with a photo of your house and show you.",
-    note: "9 of 10 customers cannot name a neighbor's roof color. Use that bet to disarm the worry, then the IKO Viewer to settle the real preference. A color must be on the contract before submission.",
-    repFailure: "Treating the looks objection as a hard no. Skipping the bet and the Viewer that turn it into a buying conversation."
+    "id": "OBJ-RF-D01",
+    "section": "D",
+    "sectionName": "Decision Maker",
+    "title": "I Need to Talk to My Spouse First",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "My partner isn't home.",
+      "We make big decisions together."
+    ],
+    "rootCause": "Legitimate stakeholder gap. How the rep handles the present partner determines go-back success.",
+    "technique": "Sell the concept before leaving. Then coach the go-back.",
+    "standardResponse": "Before I go, when you talk to [name] tonight, what do you think will matter most to them? Let me make sure you have the right answer for whatever they ask. Most spouses ask about the warranty, the timeline, the price, or the color. Schedule the go-back with both confirmed present.",
+    "note": "The 80% rule: if you don't sell the present partner on the concept first, they cancel 80% of the time. 'Don't try to sell them before I get back. Just make sure they'll let me in.'",
+    "repFailure": "Scheduling a go-back without selling the concept first. Not naming the absent partner."
   },
   {
-    id: "OBJ-RF-C04", section: "C", sectionName: "Comparison", title: "I Want To Get A Few Quotes",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I want to shop this around.", "I always get three quotes.", "Let me see what else is out there first."],
-    rootCause: "A reflex, not a real plan. People value their time and are prone to inaction. The unworried rep who hands them the questions to ask usually keeps the deal, because most customers never actually get around to calling anyone else.",
-    disc: { D: "Wants to control the process. Hand them the questions.", I: "Says it to be polite. Stay warm and confident.", S: "Genuinely wants to be thorough. Help them.", C: "Will actually compare. Arm them to compare correctly." },
-    technique: "Be unworried. Arm them with questions, then name the cost of waiting.",
-    standardResponse: "That's smart, and I'd never talk you out of it. Let me actually help you. Here are 5 to 10 questions to ask any other roofer: How long is the labor warranty? Is the price cash or financed? Are permits, full drip edge, and underlayment included? How long have they been in business? Are service calls answered 24/7? The one thing I'd say is this: we already found a water issue on your roof, and every week you wait risks a several-thousand-dollar leak. I know how you feel. Most customers feel better getting a few numbers. What they find is they're confident enough after our questions that they never end up making the calls.",
-    note: "The questions are the close. A confident, unworried rep who hands over the comparison list usually keeps the deal, because most customers value their time and never bother to quote.",
-    repFailure: "Looking worried or pushing back hard. Not arming them with the questions. Not tying a specific cost of delay to their own roof."
+    "id": "OBJ-RF-D02",
+    "section": "D",
+    "sectionName": "Decision Maker",
+    "title": "We Need To Think About It",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "Let us sleep on it.",
+      "We need to process this.",
+      "We'll get back to you."
+    ],
+    "rootCause": "Never about time. Always lack of trust or something undiscovered. A stall without a named concern is a deferred failure.",
+    "technique": "Short Answer, Long Answer to acknowledge, then Hot Potato to diagnose.",
+    "standardResponse": "Of course. What's the main thing on your mind right now? Is it the company, the price, the timing, or something I haven't covered? If trust: address why Trinity, why this rep, with Feel/Felt/Found and third-party validation. If discovery: 'What would need to be true for you to feel confident moving forward today?'",
+    "repFailure": "Accepting the stall without diagnosing trust vs discovery. Going home without naming the real concern."
   },
   {
-    id: "OBJ-RF-W06", section: "W", sectionName: "Warranty", title: "It's Still Under Warranty / My Roof Is Newer",
-    product: "Universal", difficulty: "Medium",
-    surface: ["The roof was redone before we bought.", "It should still be under warranty.", "It's only a few years old."],
-    rootCause: "Information gap. Most homeowners assume a warranty exists and transfers automatically. It often does not. Manufacturer warranties transfer only once and within a short window after purchase, and many were never registered in the first place.",
-    technique: "Hot Potato. Ask for the certificate, then walk the transfer rules.",
-    standardResponse: "Good, let's use that. When you bought the house, did they hand you a copy of the warranty certificate? If you have it, that's great, and we'll work around it. Here's the part most people don't know: if there's no certificate, there's a real chance the original contractor never registered it, or it never transferred to you. These warranties usually transfer only once, within about 30 days of the sale. So you may not actually have the warranty you think you have. Let me take a look and we'll find out where you really stand.",
-    note: "No certificate usually means no registration or no transfer. Surface it as a question, not an accusation. If they produce a valid certificate, respect it and work around it.",
-    repFailure: "Accepting 'it's under warranty' at face value. Not asking for the certificate. Not knowing the transfer-once, short-window rule."
+    "id": "OBJ-RF-S01",
+    "section": "S",
+    "sectionName": "Skepticism",
+    "title": "I Don't Know Trinity For Roofing",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "You're a solar company, right?",
+      "How long have you been doing roofs?",
+      "I know you for solar, but..."
+    ],
+    "rootCause": "Brand-recognition gap. Trinity has done roofing as a dedicated division since 2021 with significant growth, but the association is still solar-first.",
+    "technique": "Be Proactive. Raise the roofing track record before they ask.",
+    "standardResponse": "Fair question. Trinity has been in business 32 years total. Roofing as a division is newer, since 2021. What's relevant is how we got there: we were already on roofs every day for solar, and we saw what other contractors left behind, bad nailing, missing underlayment, voided warranties. We launched roofing to fix that. We did 187 roofs the first year and over 2,300 last year. Our crews are IKO-certified, and the 25-year craftsmanship warranty is the longest in the industry.",
+    "repFailure": "Apologizing for being newer to roofing. The 32-year foundation, IKO partnership, and growth are the right positioning."
   },
   {
-    id: "OBJ-RF-C05", section: "C", sectionName: "Comparison", title: "Someone Quoted Me A Lot Less",
-    product: "Universal", difficulty: "Hard",
-    surface: ["I got a number way under yours.", "Another company came in thousands cheaper.", "How is yours so much more?"],
-    rootCause: "One low quote is not 'the market.' Every roof is custom, like a portrait, so you wouldn't expect three identical numbers. A price far below the rest is often one weak rep in town on a performance plan, not the company's real price. The rep's own reaction to the number is the message.",
-    disc: { D: "Pushes hard on the gap. Match the directness.", I: "Mentions the other rep seemed nice. Stay confident.", S: "Quietly leans toward the cheaper, safer-feeling number.", C: "Has the written quote. Welcome it and compare." },
-    technique: "Control your reaction. Reframe the low number, then the Walk-Around Compare.",
-    standardResponse: "Wow, that's a really low number. Honestly, I don't understand how anyone could do a complete roof for that. You wouldn't get three quotes to paint a family portrait and expect them to match, because every home is custom. A price that far under the rest is usually one rep in your town who needs the sale this week, not the company's real price. Not everyone having a going-out-of-business sale puts up a sign. Show me what they put in writing and let's compare it line by line. A real quote stands up. A cheap verbal number rarely does.",
-    note: "If your face loses color when you hear the number, you've told the customer to worry. React with calm surprise instead, then move to the Walk-Around Compare in OBJ-RF-F04. Never drop your price to match a number you haven't seen in writing.",
-    repFailure: "Flinching at the low number. Matching it on the spot. Treating one cheap quote as the market instead of an outlier."
+    "id": "OBJ-RF-S02",
+    "section": "S",
+    "sectionName": "Skepticism",
+    "title": "I Read Bad Reviews / Neighbor Issue",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "My neighbor used you and had problems.",
+      "I saw some complaints online."
+    ],
+    "rootCause": "Social proof in reverse. Requires direct engagement, not dismissal.",
+    "technique": "Hot Potato. 'Can you tell me what you saw specifically?' Then distinguish.",
+    "standardResponse": "I appreciate you bringing that up. Can you tell me what you saw specifically? I'd rather address it directly than have it sit there. Then differentiate Trinity's process: Project Managers, Site Capture, IKO-certified supervisors, and a 24/7 service line, specifically because the industry has historically been bad at communication. On reviews: 'A lot of sites are pay-to-play. The one I trust is the BBB, regulated, and you can't buy a better rating. Trinity is A+ with no unresolved complaints.'",
+    "repFailure": "'Every company has some bad reviews.' Never dismiss. Engage directly."
   },
   {
-    id: "OBJ-RF-T05", section: "T", sectionName: "Timing", title: "It's Fine For Now",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I'll just patch it for now.", "A repair will hold us over.", "It's not leaking badly, it can wait."],
-    rootCause: "The customer is treating a system failure as a logistics delay. A repair on an aging roof is a band-aid on a bullet hole. The enemy of wood is water, and the damage compounds behind the wall before anyone notices it.",
-    technique: "Be Proactive. Make the cost of delay concrete and physical.",
-    standardResponse: "I understand the instinct, and a lot of customers feel that way at first. Here's what they found. A repair on a roof this age is a band-aid on a bullet hole. You might stop the drip you can see, but the enemy of wood is water, and water you can't see is already in the plywood. The real question isn't the leak today. It's what already happened behind the wall before you noticed: the soft decking, the start of mold. Roofing prices also climb every year, so the same roof costs more next spring. Doing it now, while it's still just shingles and underlayment, is how you avoid a much larger bill later.",
-    ctContext: "A leak that reaches the plywood can turn a shingle job into a full decking replacement, which can run thousands on top of the roof. Replacement plywood is included up to the contracted amount; beyond that it's $100 per sheet on a change order you approve.",
-    note: "Pair with the inspection. Show the soft decking or the attic moisture, don't just describe it. The cost of delay is the damage already in progress, not a vague 'prices go up.'",
-    repFailure: "Letting 'it's fine for now' stand as a repair plan. Not making the hidden, compounding water damage concrete and visible."
+    "id": "OBJ-RF-S03",
+    "section": "S",
+    "sectionName": "Skepticism",
+    "title": "Why So Much For Just Shingles?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "Shingles are a commodity, right?",
+      "How can the price be that high for asphalt?"
+    ],
+    "rootCause": "Customer is pricing the shingle, not the system. Dynasty shingles are perhaps 25% of the project cost. The rest is permits, removal, decking, drip edge, underlayment, ice and water, flashing, ridge vent, plywood, labor, and the warranty.",
+    "technique": "Short Answer, Long Answer with the system breakdown.",
+    "standardResponse": "Fair question. The shingle is one piece. The full price covers permits, removal of up to three layers, full perimeter drip edge, synthetic underlayment, ice and water shield in the vulnerable zones, new flashing, premium ridge vent, hip and ridge cap, and up to five sheets of decking, plus an IKO-certified crew and the 25-year warranty backed by a 32-year-old company. The shingle itself is a smaller piece than most people expect.",
+    "repFailure": "Not having the system breakdown ready. Letting the customer reduce the project to just shingles."
+  },
+  {
+    "id": "OBJ-RF-I01",
+    "section": "I",
+    "sectionName": "Insurance",
+    "title": "Can't I Just Get Insurance To Pay?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "There must have been hail damage I didn't notice.",
+      "My neighbor got their roof free through insurance."
+    ],
+    "rootCause": "Either a real claim (storm, hail) or a hopeful misread. Insurance covers damage from a covered peril, not normal wear or aging. Distinguish before responding.",
+    "technique": "Hot Potato. 'When was the last storm in your area? Any visible damage at the time?'",
+    "standardResponse": "Real claim: 'If you've had a recent storm with hail or high winds, a claim is worth considering. We work alongside your adjuster, and the Class 4 impact rating is something carriers recognize. But the inspection has to happen first.' No real claim: 'Insurance covers damage from an event, not aging. Filing without real damage can affect premiums and usually gets denied. The honest path is replacement, often with the Class 4 rating that earns a discount going forward.'",
+    "repFailure": "Encouraging fraudulent claims. Or dismissing legitimate storm damage too quickly."
+  },
+  {
+    "id": "OBJ-RF-I02",
+    "section": "I",
+    "sectionName": "Insurance",
+    "title": "Will A New Roof Lower My Insurance?",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "Does this come with an insurance discount?"
+    ],
+    "rootCause": "Buying signal disguised as a question. The answer is favorable.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "Often, yes. The Dynasty line carries a Class 4 impact-resistant rating. Insurers including USAA and State Farm have specific discount programs for impact-resistant roofs. We provide the IRR certification documentation to submit to your carrier. The exact discount depends on your insurer, but a meaningful percentage off the dwelling premium is common.",
+    "note": "Forms: USAA Impact Resistant Roof Discount Form, State Farm IRR Certification Form, both on the Roofing Resource Page.",
+    "repFailure": "Saying 'I think so' instead of having the certification process ready."
+  },
+  {
+    "id": "OBJ-RF-A01",
+    "section": "A",
+    "sectionName": "Aesthetic",
+    "title": "I'm Not Sure About The Colors",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "I want to think about the color.",
+      "None of these match my house."
+    ],
+    "rootCause": "Often genuine, sometimes a stall disguised as aesthetics. Read the room. If genuine, the color tools resolve it.",
+    "technique": "Be Proactive. Walk through colors before they raise concern.",
+    "standardResponse": "Color is the most personal piece. The Dynasty line has 12 high-definition color options. Let me show you the IKO Viewer. You can upload a photo of your house and try every color virtually. Most customers are surprised how the right color changes the whole curb appeal.",
+    "note": "IKO Viewer (iko.chameleonpower.com) shows Dynasty colors on the actual house from a photo. Use it at the appointment. A color must be on the contract before submission.",
+    "repFailure": "Letting 'I want to think about the color' become a stall. Use the Viewer at the appointment."
+  },
+  {
+    "id": "OBJ-RF-A02",
+    "section": "A",
+    "sectionName": "Aesthetic",
+    "title": "What Will The Neighbors / HOA Think?",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "Our HOA has rules about roof colors.",
+      "The neighbors all have a similar look."
+    ],
+    "rootCause": "Aesthetic concern plus HOA process question. Neither is a real obstacle in most cases.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "Most HOAs have approved color lists, and the IKO Dynasty palette covers the standard ranges. We can match what's already in your neighborhood. If your HOA requires submission, we provide the product specs and color sample for the application. Let me know your association and we can pre-check anything specific.",
+    "repFailure": "Treating HOA approval as a deal-killer. It rarely is."
+  },
+  {
+    "id": "OBJ-RF-M01",
+    "section": "M",
+    "sectionName": "Moving",
+    "title": "We Might Sell In A Few Years",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "We're not sure how long we'll stay.",
+      "We might move."
+    ],
+    "rootCause": "Buying signal in disguise. Selling soon means thinking about home value, which a new roof supports.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "A new roof is consistently one of the top return-on-investment improvements. Buyers value it because it removes a future expense from their list, and the 25-year craftsmanship warranty transfers once to the next owner. The opposite is also true: list with a 22-year-old roof and the inspector flags it, so you negotiate down or replace it before close anyway. Better to do it now and live under it for the years before you sell.",
+    "note": "Discovery anchor: 'Are you thinking 2 years out, 5, longer? That changes the math a little.'",
+    "repFailure": "Treating 'we might sell' as a disqualifier. It's usually a buying signal."
+  },
+  {
+    "id": "OBJ-RF-B01",
+    "section": "B",
+    "sectionName": "Bundle",
+    "title": "Just Do The Solar, Roof Later",
+    "product": "Bundle",
+    "difficulty": "Medium",
+    "surface": [
+      "Can we just start with solar?",
+      "I'll do the roof in a couple of years."
+    ],
+    "rootCause": "Customer doesn't know the cost of doing it later. Removing and reinstalling solar to re-roof has a real cost, plus material increases, plus mid-project disruption.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "If we install solar on a roof near the end of its life, you'll pay twice: once for the new roof, once to remove and reinstall the solar so the roofers can work. Industry runs around $1 per watt, so on a typical system that's an extra $7,000 to $9,000 you didn't budget. The smart move is to bundle now: roofing crew goes first, same project, same financing, same coordination. Plus, if the roof fails after solar, every panel comes off and goes back on. That's a project you don't want to manage twice.",
+    "repFailure": "Not making the deferred cost concrete. Letting 'I'll do it later' go unchallenged."
+  },
+  {
+    "id": "OBJ-RF-B02",
+    "section": "B",
+    "sectionName": "Bundle",
+    "title": "Can The Roof Be Financed With Solar?",
+    "product": "Bundle",
+    "difficulty": "Warm",
+    "surface": [
+      "How does the financing actually work?",
+      "Is it one loan or two?"
+    ],
+    "rootCause": "Logistics question. Direct answer.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "One loan, one payment. The roof rolls into the solar financing as long as we're doing both. It's processed as a complete project, one monthly payment that covers everything. The solar savings on your electric bill often cover most of the roofing portion of the payment.",
+    "repFailure": "Making the financing structure sound complicated. It's straightforward. Lead with that."
+  },
+  {
+    "id": "OBJ-RF-B03",
+    "section": "B",
+    "sectionName": "Bundle",
+    "title": "Won't The Solar Crew Damage The New Roof?",
+    "product": "Bundle",
+    "difficulty": "Warm",
+    "surface": [
+      "Doesn't drilling into the roof void the warranty?",
+      "I'm worried about leaks where the panels mount."
+    ],
+    "rootCause": "Reasonable concern. The mounting hardware is engineered for waterproofing, and Trinity warranties it.",
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "The mounts are engineered for waterproofing, sealed, flashed, and backed by our 25-year craftsmanship warranty. If anything ever leaks at a mount, you call us. Because we install both the roof and the solar, there's no finger-pointing between contractors. With a separate roofer and solar installer, a leak at a mount in year 4 means both blame each other. With us, it's one call.",
+    "repFailure": "Vague answers. The 'one call, no finger-pointing' frame is the strongest piece."
+  },
+  {
+    "id": "OBJ-RF-A03",
+    "section": "A",
+    "sectionName": "Aesthetic",
+    "title": "I Don't Like How It Looks",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "I just don't love the look of it.",
+      "It doesn't really go with the house.",
+      "I'm picky about how the house looks."
+    ],
+    "rootCause": "Almost never a real obstacle. Nobody studies their own roof, so the aesthetic worry is abstract. A friendly bet exposes that, then the color tools resolve the genuine piece.",
+    "technique": "A bet they can't win, then Feel/Felt/Found, then the Viewer.",
+    "standardResponse": "Let me ask you something, and it's not a trick. Two houses down on your side of the street, what color is their roof? Most people can't answer that, and that's the point. You weren't admiring your roof when I pulled up, and your neighbors aren't studying it either. I know how you feel. A lot of customers felt the same way before they saw the options. What they found is that the right color actually lifts the whole curb appeal. Let me pull up the Viewer with a photo of your house and show you.",
+    "note": "9 of 10 customers cannot name a neighbor's roof color. Use that bet to disarm the worry, then the IKO Viewer to settle the real preference. A color must be on the contract before submission.",
+    "repFailure": "Treating the looks objection as a hard no. Skipping the bet and the Viewer that turn it into a buying conversation.",
+    "disc": {
+      "D": "States it flatly and moves on.",
+      "I": "Cares most here. Curb appeal is emotional.",
+      "S": "Worries the neighbors will notice.",
+      "C": "Wants to see exact colors before committing."
+    }
+  },
+  {
+    "id": "OBJ-RF-C04",
+    "section": "C",
+    "sectionName": "Comparison",
+    "title": "I Want To Get A Few Quotes",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I want to shop this around.",
+      "I always get three quotes.",
+      "Let me see what else is out there first."
+    ],
+    "rootCause": "A reflex, not a real plan. People value their time and are prone to inaction. The unworried rep who hands them the questions to ask usually keeps the deal, because most customers never actually get around to calling anyone else.",
+    "technique": "Be unworried. Arm them with questions, then name the cost of waiting.",
+    "standardResponse": "That's smart, and I'd never talk you out of it. Let me actually help you. Here are 5 to 10 questions to ask any other roofer: How long is the labor warranty? Is the price cash or financed? Are permits, full drip edge, and underlayment included? How long have they been in business? Are service calls answered 24/7? The one thing I'd say is this: we already found a water issue on your roof, and every week you wait risks a several-thousand-dollar leak. I know how you feel. Most customers feel better getting a few numbers. What they find is they're confident enough after our questions that they never end up making the calls.",
+    "note": "The questions are the close. A confident, unworried rep who hands over the comparison list usually keeps the deal, because most customers value their time and never bother to quote.",
+    "repFailure": "Looking worried or pushing back hard. Not arming them with the questions. Not tying a specific cost of delay to their own roof.",
+    "disc": {
+      "D": "Wants to control the process. Hand them the questions.",
+      "I": "Says it to be polite. Stay warm and confident.",
+      "S": "Genuinely wants to be thorough. Help them.",
+      "C": "Will actually compare. Arm them to compare correctly."
+    }
+  },
+  {
+    "id": "OBJ-RF-W06",
+    "section": "W",
+    "sectionName": "Warranty",
+    "title": "It's Still Under Warranty / My Roof Is Newer",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "The roof was redone before we bought.",
+      "It should still be under warranty.",
+      "It's only a few years old."
+    ],
+    "rootCause": "Information gap. Most homeowners assume a warranty exists and transfers automatically. It often does not. Manufacturer warranties transfer only once and within a short window after purchase, and many were never registered in the first place.",
+    "technique": "Hot Potato. Ask for the certificate, then walk the transfer rules.",
+    "standardResponse": "Good, let's use that. When you bought the house, did they hand you a copy of the warranty certificate? If you have it, that's great, and we'll work around it. Here's the part most people don't know: if there's no certificate, there's a real chance the original contractor never registered it, or it never transferred to you. These warranties usually transfer only once, within about 30 days of the sale. So you may not actually have the warranty you think you have. Let me take a look and we'll find out where you really stand.",
+    "note": "No certificate usually means no registration or no transfer. Surface it as a question, not an accusation. If they produce a valid certificate, respect it and work around it.",
+    "repFailure": "Accepting 'it's under warranty' at face value. Not asking for the certificate. Not knowing the transfer-once, short-window rule."
+  },
+  {
+    "id": "OBJ-RF-C05",
+    "section": "C",
+    "sectionName": "Comparison",
+    "title": "Someone Quoted Me A Lot Less",
+    "product": "Universal",
+    "difficulty": "Hard",
+    "surface": [
+      "I got a number way under yours.",
+      "Another company came in thousands cheaper.",
+      "How is yours so much more?"
+    ],
+    "rootCause": "One low quote is not 'the market.' Every roof is custom, like a portrait, so you wouldn't expect three identical numbers. A price far below the rest is often one weak rep in town on a performance plan, not the company's real price. The rep's own reaction to the number is the message.",
+    "technique": "Control your reaction. Reframe the low number, then the Walk-Around Compare.",
+    "standardResponse": "Wow, that's a really low number. Honestly, I don't understand how anyone could do a complete roof for that. You wouldn't get three quotes to paint a family portrait and expect them to match, because every home is custom. A price that far under the rest is usually one rep in your town who needs the sale this week, not the company's real price. Not everyone having a going-out-of-business sale puts up a sign. Show me what they put in writing and let's compare it line by line. A real quote stands up. A cheap verbal number rarely does.",
+    "note": "If your face loses color when you hear the number, you've told the customer to worry. React with calm surprise instead, then move to the Walk-Around Compare in OBJ-RF-F04. Never drop your price to match a number you haven't seen in writing.",
+    "repFailure": "Flinching at the low number. Matching it on the spot. Treating one cheap quote as the market instead of an outlier.",
+    "disc": {
+      "D": "Pushes hard on the gap. Match the directness.",
+      "I": "Mentions the other rep seemed nice. Stay confident.",
+      "S": "Quietly leans toward the cheaper, safer-feeling number.",
+      "C": "Has the written quote. Welcome it and compare."
+    }
+  },
+  {
+    "id": "OBJ-RF-T05",
+    "section": "T",
+    "sectionName": "Timing",
+    "title": "It's Fine For Now",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I'll just patch it for now.",
+      "A repair will hold us over.",
+      "It's not leaking badly, it can wait."
+    ],
+    "rootCause": "The customer is treating a system failure as a logistics delay. A repair on an aging roof is a band-aid on a bullet hole. The enemy of wood is water, and the damage compounds behind the wall before anyone notices it.",
+    "technique": "Be Proactive. Make the cost of delay concrete and physical.",
+    "ctContext": "A leak that reaches the plywood can turn a shingle job into a full decking replacement, which can run thousands on top of the roof. Replacement plywood is included up to the contracted amount; beyond that it's $100 per sheet on a change order you approve.",
+    "standardResponse": "I understand the instinct, and a lot of customers feel that way at first. Here's what they found. A repair on a roof this age is a band-aid on a bullet hole. You might stop the drip you can see, but the enemy of wood is water, and water you can't see is already in the plywood. The real question isn't the leak today. It's what already happened behind the wall before you noticed: the soft decking, the start of mold. Roofing prices also climb every year, so the same roof costs more next spring. Doing it now, while it's still just shingles and underlayment, is how you avoid a much larger bill later.",
+    "note": "Pair with the inspection. Show the soft decking or the attic moisture, don't just describe it. The cost of delay is the damage already in progress, not a vague 'prices go up.'",
+    "repFailure": "Letting 'it's fine for now' stand as a repair plan. Not making the hidden, compounding water damage concrete and visible."
   }
 ];
 

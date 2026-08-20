@@ -1203,491 +1203,908 @@ const FOUNDATIONS = {
 };
 
 const OBJECTIONS = [
-  // ===== FINANCIAL =====
   {
-    id: "OBJ-F01", section: "F", sectionName: "Financial", title: "It's Too Expensive",
-    product: "Universal", difficulty: "Medium",
-    surface: ["That's a lot of money.", "I wasn't expecting that number.", "That's way out of our budget."],
-    rootCause: "The rep presented a number before establishing value. Financial objections after pricing are symptoms of thin discovery.",
-    disc: { D: "Says it bluntly.", I: "Goes quiet or changes subject.", S: "Says 'let us think about it.'", C: "Asks how it was calculated." },
-    technique: "Short Answer, Long Answer, then monthly reframe.",
-    ctContext: "At 26-30¢/kWh, the monthly comparison is the only frame that works. Know their actual bill before presenting any number.",
-    standardResponse: "Never defend the price. Reframe to monthly. 'You're already paying Eversource $X a month with no ceiling. We're talking about replacing that with $Y and locking it in.' Move to financing only after the monthly frame lands.",
-    repFailure: "Jumping to discounting or financing before establishing the monthly comparison."
-  },
-  {
-    id: "OBJ-F02", section: "F", sectionName: "Financial", title: "I Can't Afford It Right Now",
-    product: "Universal", difficulty: "Warm",
-    surface: ["We're tight right now.", "Not in the budget.", "Maybe in a year or two."],
-    rootCause: "Information gap. The homeowner doesn't realize PPA means no capital outlay. They're replacing a bill, not buying something.",
-    disc: { D: "Rarely says this.", I: "Uses it as a soft exit.", S: "Uses it as avoidance.", C: "May mean it literally." },
-    technique: "Short Answer, Long Answer. One sentence: 'There's nothing to buy.' Then explain.",
-    standardResponse: "There's no cost to get started. We're not asking you to buy anything. We're talking about replacing your Eversource bill with a lower number starting the day your system turns on.",
-    repFailure: "Jumping to financing before the bill-replacement frame is established."
-  },
-  {
-    id: "OBJ-F03", section: "F", sectionName: "Financial", title: "I Don't Want Another Bill",
-    product: "Solar", difficulty: "Warm",
-    surface: ["I don't need another monthly payment.", "We're trying to simplify."],
-    rootCause: "Customer sees solar as additive, not a replacement.",
-    technique: "Short Answer, Long Answer. One sentence reframe, done.",
-    standardResponse: "You're not adding a bill, you're replacing one. Your Eversource usage charges go away and get replaced with a lower solar payment.",
-    repFailure: "Treating this as a financing conversation. It's a one-sentence reframe."
-  },
-  {
-    id: "OBJ-F04", section: "F", sectionName: "Financial", title: "Another Company Was Cheaper",
-    product: "Universal", difficulty: "Medium",
-    surface: ["Can you do better?", "SolarCo quoted me lower.", "What's your best price?"],
-    rootCause: "Trust gap or comparison shopping. Immediately dropping price signals: (1) the original price wasn't justified, (2) we're afraid of losing you, (3) price is the only value.",
-    disc: { D: "Asks directly. Respond with equal directness.", I: "Will mention the competitor seemed friendlier.", S: "Won't raise it directly.", C: "Compares specs and warranty, not just price." },
-    technique: "Be Proactive where possible. Walk-Around Close is the structured response.",
-    standardResponse: "The Walk-Around Close has four moves: acknowledge, differentiate, inspect, reframe.",
-    responseDetailsLabel: "The Walk-Around Close",
-    responseDetails: [
-      { label: "Acknowledge.", text: " 'Every project is unique and I can't speak to what they may or may not be including.'" },
-      { label: "Differentiate.", text: " 'We prioritize transparency. We don't want to call you three months from now with a structural issue that wasn't in the price.'" },
-      { label: "Inspect.", text: " 'Let's walk your home together right now: meter, panel, attic. If everything is clean, I'll call my manager and see what we can do.'" },
-      { label: "Reframe.", text: " 'I'd rather be honest now than promise a price and come back with problems.'" }
+    "id": "OBJ-F01",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "It's Too Expensive",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "That's a lot of money.",
+      "I wasn't expecting that number.",
+      "That's way out of our budget."
     ],
-    note: "Never: drop price immediately, say 'I'll match it,' or say 'they're cutting corners.'",
-    repFailure: "Discounting before doing the walk-around."
+    "rootCause": "The rep presented a number before establishing value. Financial objections after pricing are symptoms of thin discovery.",
+    "technique": "Short Answer, Long Answer, then monthly reframe.",
+    "ctContext": "At 26-30¢/kWh, the monthly comparison is the only frame that works. Know their actual bill before presenting any number.",
+    "standardResponse": "Never defend the price. Reframe to monthly. 'You're already paying Eversource $X a month with no ceiling. We're talking about replacing that with $Y and locking it in.' Move to financing only after the monthly frame lands.",
+    "repFailure": "Jumping to discounting or financing before establishing the monthly comparison.",
+    "disc": {
+      "D": "Says it bluntly.",
+      "I": "Goes quiet or changes subject.",
+      "S": "Says 'let us think about it.'",
+      "C": "Asks how it was calculated."
+    }
   },
   {
-    id: "OBJ-F05", section: "F", sectionName: "Financial", title: "The Numbers Don't Work / Not Enough Savings",
-    product: "Solar", difficulty: "Medium",
-    surface: ["The savings aren't that impressive.", "I was hoping to save more."],
-    rootCause: "Savings presented generically, not against this homeowner's actual bill.",
-    technique: "Hot Potato. 'What would make it worth it to you?' Then anchor to their number.",
-    standardResponse: "Out of curiosity, what would make it worth it to you? Then calculate against their specific bill. Never present savings without the actual bill in hand.",
-    repFailure: "Giving a savings range instead of calculating against the specific bill."
+    "id": "OBJ-F02",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "I Can't Afford It Right Now",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "We're tight right now.",
+      "Not in the budget.",
+      "Maybe in a year or two."
+    ],
+    "rootCause": "Information gap. The homeowner doesn't realize PPA means no capital outlay. They're replacing a bill, not buying something.",
+    "technique": "Short Answer, Long Answer. One sentence: 'There's nothing to buy.' Then explain.",
+    "standardResponse": "There's no cost to get started. We're not asking you to buy anything. We're talking about replacing your Eversource bill with a lower number starting the day your system turns on.",
+    "repFailure": "Jumping to financing before the bill-replacement frame is established.",
+    "disc": {
+      "D": "Rarely says this.",
+      "I": "Uses it as a soft exit.",
+      "S": "Uses it as avoidance.",
+      "C": "May mean it literally."
+    }
   },
   {
-    id: "OBJ-F06", section: "F", sectionName: "Financial", title: "I Need to Run This By My Accountant / Financial Advisor",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I want my accountant to look at this.", "My financial advisor handles these decisions.", "I don't make financial decisions without reviewing them professionally."],
-    rootCause: "One of two things: either genuine financial diligence (C-type, high earner, organized) or a polite exit. Determine which before responding.",
-    disc: { D: "Rarely genuine, more likely avoidance.", I: "Unlikely to use this one.", S: "Avoidance framed as diligence.", C: "Most likely genuine. Welcome it, offer to facilitate." },
-    technique: "Hot Potato to determine genuineness. 'That makes sense, what specifically do you want them to review?' If they can name it, it's real. If they can't, it's a stall.",
-    standardResponse: "If genuine: 'Absolutely, I can put together a one-page summary with everything they'd need to evaluate this. A lot of accountants appreciate having the numbers laid out clearly. What's the best way to get you back together with both of us on a call?' If stall: 'Of course. What specifically are you hoping they can clarify for you?' Name the concern, address it directly, set a specific go-back with a purpose.",
-    repFailure: "Accepting the accountant referral without qualifying whether it's real, then leaving without a committed go-back date and a named question to resolve."
+    "id": "OBJ-F03",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "I Don't Want Another Bill",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "I don't need another monthly payment.",
+      "We're trying to simplify."
+    ],
+    "rootCause": "Customer sees solar as additive, not a replacement.",
+    "technique": "Short Answer, Long Answer. One sentence reframe, done.",
+    "standardResponse": "You're not adding a bill, you're replacing one. Your Eversource usage charges go away and get replaced with a lower solar payment.",
+    "repFailure": "Treating this as a financing conversation. It's a one-sentence reframe."
   },
   {
-    id: "OBJ-F07", section: "F", sectionName: "Financial", title: "I'm Going to Shop Around",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I want to shop this around first.", "I'm getting a few quotes.", "We always compare before we commit."],
-    rootCause: "Healthy buying behavior, not a no. Welcome it out loud, then move the comparison off price and onto the things no competitor matches. If you flinch, you've told them the only thing worth comparing is the number.",
-    disc: { D: "Wants to know fast why you're different, in one line.", I: "Shops on who they liked, give them a story they'll repeat.", S: "Shopping is the safe, careful move, reassure it's smart.", C: "Will build a spreadsheet, hand them the warranty and insurance specifics." },
-    technique: "Embrace it, then differentiate. Feel/Felt/Found on the parts a quote sheet never shows.",
-    ctContext: "Trinity: 32 years, 125,000+ roofs, BBB A+. The roof penetration warranty runs 25 years where the industry standard is 10. The differentiators are service and the warranty, not the program. Every company offers the program.",
-    standardResponse: "I actually love when someone tells me they're going to shop, it means you're taking this seriously, and you should. I'd just ask you to compare more than the number. Every company can quote you the same program. What you can't get everywhere is how we show up after the install. I know how this feels, a lot of my customers felt every quote looked the same on paper, and what they found is the difference shows up the day something needs attention, not the day you sign.",
-    note: "Differentiate on white-glove responsiveness, the 25-year roof penetration warranty versus the industry's 10, and the fact that you're a Trinity customer yourself. Compete on what a quote sheet can't show, never on dropping your price.",
-    repFailure: "Treating 'I'm going to shop' as a rejection and either folding on price or rushing to a hard close, instead of welcoming it and reframing the comparison onto service and the warranty."
+    "id": "OBJ-F04",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "Another Company Was Cheaper",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "Can you do better?",
+      "SolarCo quoted me lower.",
+      "What's your best price?"
+    ],
+    "rootCause": "Trust gap or comparison shopping. Immediately dropping price signals: (1) the original price wasn't justified, (2) we're afraid of losing you, (3) price is the only value.",
+    "technique": "Be Proactive where possible. Walk-Around Close is the structured response.",
+    "standardResponse": "The Walk-Around Close has four moves: acknowledge, differentiate, inspect, reframe.",
+    "responseDetailsLabel": "The Walk-Around Close",
+    "responseDetails": [
+      {
+        "label": "Acknowledge.",
+        "text": " 'Every project is unique and I can't speak to what they may or may not be including.'"
+      },
+      {
+        "label": "Differentiate.",
+        "text": " 'We prioritize transparency. We don't want to call you three months from now with a structural issue that wasn't in the price.'"
+      },
+      {
+        "label": "Inspect.",
+        "text": " 'Let's walk your home together right now: meter, panel, attic. If everything is clean, I'll call my manager and see what we can do.'"
+      },
+      {
+        "label": "Reframe.",
+        "text": " 'I'd rather be honest now than promise a price and come back with problems.'"
+      }
+    ],
+    "note": "Never: drop price immediately, say 'I'll match it,' or say 'they're cutting corners.'",
+    "repFailure": "Discounting before doing the walk-around.",
+    "disc": {
+      "D": "Asks directly. Respond with equal directness.",
+      "I": "Will mention the competitor seemed friendlier.",
+      "S": "Won't raise it directly.",
+      "C": "Compares specs and warranty, not just price."
+    }
   },
   {
-    id: "OBJ-F08", section: "F", sectionName: "Financial", title: "The Lowest Quote I Got Is Way Below Yours",
-    product: "Universal", difficulty: "Hard",
-    surface: ["Someone quoted me thousands less.", "Your price is the highest I've seen.", "I can get this done way cheaper."],
-    rootCause: "Price conditioning. A homeowner who collected one or two low numbers now believes that's 'the market.' It usually isn't. The low number is often one weak rep on a performance plan, not the company's real price. Every home is custom, so there is no single market price to be below.",
-    disc: { D: "Throws the number down as a challenge, answer with calm conviction.", I: "Repeats what the cheap rep said warmly, don't attack the person.", S: "Worried about overpaying, reassure without defending.", C: "Has the competing quote in hand, walk the scope line by line." },
-    technique: "Don't lose color and don't defend. Reframe what 'the market' even means, then react to the low number with curiosity, not fear.",
-    ctContext: "Every roof and system is custom, so identical quotes are a red flag, not reassurance. A price well below the rest is frequently a single under-pressure rep, not a company-wide rate. 90% of roofers are gone within 5 years, and a 25-year agreement is only as good as the company standing behind it.",
-    standardResponse: "You wouldn't get three quotes to paint your family portrait and expect them all to be the same, because every one is custom, and your home is the same way. There isn't really one market price to be above or below. Honestly, a number that low usually tells me more about that one rep than about the going rate. I know how that sounds, plenty of my customers felt the lowest quote had to be the best deal, and what they found is the cheapest bid is often the one company that isn't around in five years to honor it.",
-    note: "Your reaction is the message. If your face loses color you've told the customer to worry. A calm 'wow, that's a really low price, I'm honestly not sure how they could even offer that' creates doubt the price is even real. Not everybody headed out of business puts up a sign. Never chase the low number to win the moment.",
-    repFailure: "Getting conditioned by one or two low quotes, treating them as 'the market,' and either dropping price to chase them or going quiet, which signals the low number is the one to trust."
+    "id": "OBJ-F05",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "The Numbers Don't Work / Not Enough Savings",
+    "product": "Solar",
+    "difficulty": "Medium",
+    "surface": [
+      "The savings aren't that impressive.",
+      "I was hoping to save more."
+    ],
+    "rootCause": "Savings presented generically, not against this homeowner's actual bill.",
+    "technique": "Hot Potato. 'What would make it worth it to you?' Then anchor to their number.",
+    "standardResponse": "Out of curiosity, what would make it worth it to you? Then calculate against their specific bill. Never present savings without the actual bill in hand.",
+    "repFailure": "Giving a savings range instead of calculating against the specific bill."
   },
-
-  // ===== DECISION-MAKER =====
   {
-    id: "OBJ-D01", section: "D", sectionName: "Decision Maker", title: "I Need to Talk to My Spouse First",
-    product: "Universal", difficulty: "Medium",
-    surface: ["My husband isn't home.", "We make big decisions together.", "My partner needs to be here."],
-    rootCause: "Legitimate stakeholder gap. How the rep handles the present partner determines go-back success.",
-    disc: { D: "Uses it as an exit formality.", I: "Schedules the go-back and does nothing to prepare.", S: "Uses it as a shield.", C: "Genuinely requires both." },
-    technique: "Read the Room on whether the concept is sold. If not, sell the concept before leaving. Then coach the go-back.",
-    ctContext: "The 80% Rule: if you don't sell the present partner on the concept before leaving, they cancel 80% of the time. Sell why solar, why Trinity, why now, to whoever is there. Then set a hard return with both present.",
-    standardResponse: "Name the absent partner. 'Before I go: when you talk to [name] tonight, what do you think will matter most to them? Let me make sure you have the right answer for whatever they ask.' Schedule the go-back with both confirmed present. Coach them on the one thing [name] will probably care about most.",
-    responseDetailsLabel: "Go-back coaching language",
-    responseDetails: [
+    "id": "OBJ-F06",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "I Need to Run This By My Accountant / Financial Advisor",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I want my accountant to look at this.",
+      "My financial advisor handles these decisions.",
+      "I don't make financial decisions without reviewing them professionally."
+    ],
+    "rootCause": "One of two things: either genuine financial diligence (C-type, high earner, organized) or a polite exit. Determine which before responding.",
+    "technique": "Hot Potato to determine genuineness. 'That makes sense, what specifically do you want them to review?' If they can name it, it's real. If they can't, it's a stall.",
+    "standardResponse": "If genuine: 'Absolutely, I can put together a one-page summary with everything they'd need to evaluate this. A lot of accountants appreciate having the numbers laid out clearly. What's the best way to get you back together with both of us on a call?' If stall: 'Of course. What specifically are you hoping they can clarify for you?' Name the concern, address it directly, set a specific go-back with a purpose.",
+    "repFailure": "Accepting the accountant referral without qualifying whether it's real, then leaving without a committed go-back date and a named question to resolve.",
+    "disc": {
+      "D": "Rarely genuine, more likely avoidance.",
+      "I": "Unlikely to use this one.",
+      "S": "Avoidance framed as diligence.",
+      "C": "Most likely genuine. Welcome it, offer to facilitate."
+    }
+  },
+  {
+    "id": "OBJ-F07",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "I'm Going to Shop Around",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I want to shop this around first.",
+      "I'm getting a few quotes.",
+      "We always compare before we commit."
+    ],
+    "rootCause": "Healthy buying behavior, not a no. Welcome it out loud, then move the comparison off price and onto the things no competitor matches. If you flinch, you've told them the only thing worth comparing is the number.",
+    "technique": "Embrace it, then differentiate. Feel/Felt/Found on the parts a quote sheet never shows.",
+    "ctContext": "Trinity: 32 years, 125,000+ roofs, BBB A+. The roof penetration warranty runs 25 years where the industry standard is 10. The differentiators are service and the warranty, not the program. Every company offers the program.",
+    "standardResponse": "I actually love when someone tells me they're going to shop, it means you're taking this seriously, and you should. I'd just ask you to compare more than the number. Every company can quote you the same program. What you can't get everywhere is how we show up after the install. I know how this feels, a lot of my customers felt every quote looked the same on paper, and what they found is the difference shows up the day something needs attention, not the day you sign.",
+    "note": "Differentiate on white-glove responsiveness, the 25-year roof penetration warranty versus the industry's 10, and the fact that you're a Trinity customer yourself. Compete on what a quote sheet can't show, never on dropping your price.",
+    "repFailure": "Treating 'I'm going to shop' as a rejection and either folding on price or rushing to a hard close, instead of welcoming it and reframing the comparison onto service and the warranty.",
+    "disc": {
+      "D": "Wants to know fast why you're different, in one line.",
+      "I": "Shops on who they liked, give them a story they'll repeat.",
+      "S": "Shopping is the safe, careful move, reassure it's smart.",
+      "C": "Will build a spreadsheet, hand them the warranty and insurance specifics."
+    }
+  },
+  {
+    "id": "OBJ-F08",
+    "section": "F",
+    "sectionName": "Financial",
+    "title": "The Lowest Quote I Got Is Way Below Yours",
+    "product": "Universal",
+    "difficulty": "Hard",
+    "surface": [
+      "Someone quoted me thousands less.",
+      "Your price is the highest I've seen.",
+      "I can get this done way cheaper."
+    ],
+    "rootCause": "Price conditioning. A homeowner who collected one or two low numbers now believes that's 'the market.' It usually isn't. The low number is often one weak rep on a performance plan, not the company's real price. Every home is custom, so there is no single market price to be below.",
+    "technique": "Don't lose color and don't defend. Reframe what 'the market' even means, then react to the low number with curiosity, not fear.",
+    "ctContext": "Every roof and system is custom, so identical quotes are a red flag, not reassurance. A price well below the rest is frequently a single under-pressure rep, not a company-wide rate. 90% of roofers are gone within 5 years, and a 25-year agreement is only as good as the company standing behind it.",
+    "standardResponse": "You wouldn't get three quotes to paint your family portrait and expect them all to be the same, because every one is custom, and your home is the same way. There isn't really one market price to be above or below. Honestly, a number that low usually tells me more about that one rep than about the going rate. I know how that sounds, plenty of my customers felt the lowest quote had to be the best deal, and what they found is the cheapest bid is often the one company that isn't around in five years to honor it.",
+    "note": "Your reaction is the message. If your face loses color you've told the customer to worry. A calm 'wow, that's a really low price, I'm honestly not sure how they could even offer that' creates doubt the price is even real. Not everybody headed out of business puts up a sign. Never chase the low number to win the moment.",
+    "repFailure": "Getting conditioned by one or two low quotes, treating them as 'the market,' and either dropping price to chase them or going quiet, which signals the low number is the one to trust.",
+    "disc": {
+      "D": "Throws the number down as a challenge, answer with calm conviction.",
+      "I": "Repeats what the cheap rep said warmly, don't attack the person.",
+      "S": "Worried about overpaying, reassure without defending.",
+      "C": "Has the competing quote in hand, walk the scope line by line."
+    }
+  },
+  {
+    "id": "OBJ-D01",
+    "section": "D",
+    "sectionName": "Decision Maker",
+    "title": "I Need to Talk to My Spouse First",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "My husband isn't home.",
+      "We make big decisions together.",
+      "My partner needs to be here."
+    ],
+    "rootCause": "Legitimate stakeholder gap. How the rep handles the present partner determines go-back success.",
+    "technique": "Read the Room on whether the concept is sold. If not, sell the concept before leaving. Then coach the go-back.",
+    "ctContext": "The 80% Rule: if you don't sell the present partner on the concept before leaving, they cancel 80% of the time. Sell why solar, why Trinity, why now, to whoever is there. Then set a hard return with both present.",
+    "standardResponse": "Name the absent partner. 'Before I go: when you talk to [name] tonight, what do you think will matter most to them? Let me make sure you have the right answer for whatever they ask.' Schedule the go-back with both confirmed present. Coach them on the one thing [name] will probably care about most.",
+    "responseDetailsLabel": "Go-back coaching language",
+    "responseDetails": [
       "'What do you think your spouse is going to like about this?'",
       "'Don't try to sell them before I get back. Just make sure they'll let me in.'"
     ],
-    repFailure: "From real notes: 'Girlfriend owns the house and I couldn't meet her. He was hard to create urgency with.' Concept not sold to present partner. No coaching language used. Go-back had no purpose."
+    "repFailure": "From real notes: 'Girlfriend owns the house and I couldn't meet her. He was hard to create urgency with.' Concept not sold to present partner. No coaching language used. Go-back had no purpose.",
+    "disc": {
+      "D": "Uses it as an exit formality.",
+      "I": "Schedules the go-back and does nothing to prepare.",
+      "S": "Uses it as a shield.",
+      "C": "Genuinely requires both."
+    }
   },
   {
-    id: "OBJ-D02", section: "D", sectionName: "Decision Maker", title: "We Never Decide on the First Appointment",
-    product: "Universal", difficulty: "Medium",
-    surface: ["We don't sign on the same day.", "We always sleep on big decisions."],
-    rootCause: "Stated process preference. Either genuine or polite avoidance. Find out which.",
-    disc: { D: "Rarely says this. Probe directly.", I: "Uses it as a social escape.", S: "Most likely. Conflict avoidance as a rule.", C: "If genuine, respect it and make the go-back structured." },
-    technique: "Hot Potato to determine genuineness. 'That's smart. What questions do you need answered before moving forward?'",
-    standardResponse: "That's smart. What questions do you need answered before moving forward? Let's make sure the go-back has a specific purpose. Frame it as a signing appointment, not a review. Every go-back needs: a specific date, a specific time, both decision-makers confirmed, and a stated purpose.",
-    note: "This is often a diagnostic signal, not an objection. If the real concern is unstated, probe before leaving.",
-    repFailure: "From real notes: 'Believes it makes sense but doesn't sign anything same day.' Go-back scheduled with no named purpose. No stated concern surfaced."
-  },
-  {
-    id: "OBJ-D03", section: "D", sectionName: "Decision Maker", title: "We'd Like to Think About It",
-    product: "Universal", difficulty: "Medium",
-    surface: ["We need to process this.", "Let us sleep on it.", "We'll reach out."],
-    rootCause: "This is never about time. It is always one of two things: (1) lack of trust, or (2) incomplete discovery, something undiscovered and hidden. A stall without a named concern is a deferred failure.",
-    disc: { D: "Rarely says this. Probe directly.", I: "Gets vague and friendly.", S: "Most common user. Real concern unstated.", C: "Has a specific concern not yet voiced." },
-    technique: "Short Answer, Long Answer to acknowledge, then Hot Potato to diagnose. 'Of course, what's the main thing on your mind right now?'",
-    ctContext: "Every month of delay = $300-$800 extra paid to Eversource. Name it specifically, once, without pressure.",
-    standardResponse: "Ask directly: 'Is it the program, the company, the timing, or something I haven't addressed?' The answer tells you whether it's trust or discovery. Then address the actual root. If trust: don't sell the product harder. Address why Trinity, why this rep. Feel/Felt/Found. Third-party validation. If discovery: something wasn't surfaced. Ask the next question. 'What would need to be true for you to feel confident moving forward today?'",
-    note: "Prevention: if you get this at the closing appointment, the first visit wasn't set up correctly. Always open with: 'Nobody is committing today. My job is to make sure everything makes sense. If it's a win-win, great. If not, no problem.'",
-    repFailure: "From real notes: 'She needs to process this, one week.' / 'He'll think about it, three weeks.' Both left without the rep naming the real concern or distinguishing trust from discovery."
-  },
-
-  // ===== ROOF =====
-  {
-    id: "OBJ-R01", section: "R", sectionName: "Roof & Home", title: "My Roof Isn't in Good Shape",
-    product: "Solar", difficulty: "Warm",
-    surface: ["My roof is old.", "I think I need a new roof.", "The shingles are bad."],
-    rootCause: "Reps treat this as a disqualifier. It's an opportunity. A roof conversation never derails solar. It often unlocks the deal.",
-    technique: "Be Proactive. Ask about the roof before they raise it. 'How do you feel about your roof?' surfaces this on your terms.",
-    ctContext: "Roof + solar bundle: one loan, one payment, one installation. Permits, removal up to 3 layers, and cleanup always included.",
-    standardResponse: "Good to know, that's actually something we handle together. If the roof needs work before we install solar, we can address both on one loan. Want to schedule the assessment?",
-    note: "Trinity framing: 'If you have a roof problem with Trinity Solar on the roof, you're going to call Trinity Solar.' Right now, who do they call? Nobody has a roof warranty, only shingle warranties. Trinity's presence creates accountability that didn't exist before.",
-    repFailure: "Treating it as a disqualifier. Rescheduling without introducing the bundle."
-  },
-  {
-    id: "OBJ-R02", section: "R", sectionName: "Roof & Home", title: "What Happens If I Need a New Roof After Solar?",
-    product: "Solar", difficulty: "Warm",
-    surface: ["What if the panels need to come off?", "What if my roof fails later?"],
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "Panels can be temporarily removed and reinstalled. We catch this upfront because we assess every roof before installation. If the roof needs work, we'd rather bundle it now. Many customers do both at the same time for exactly that reason."
-  },
-  {
-    id: "OBJ-R03", section: "R", sectionName: "Roof & Home", title: "I Don't Want Holes in My Roof / Worried About Leaks",
-    product: "Solar", difficulty: "Warm",
-    surface: ["Won't the mounting damage the roof?", "I'm worried about leaks."],
-    technique: "Short Answer, Long Answer. Lead with the warranty number, it does the work.",
-    standardResponse: "The mounts are engineered for waterproofing, sealed and backed by a 25-year warranty. We guarantee leak-proof installation, and if anything ever happens, you call us."
-  },
-  {
-    id: "OBJ-R04", section: "R", sectionName: "Roof & Home", title: "I Have Too Much Shade / Wrong Roof Direction",
-    product: "Solar", difficulty: "Warm",
-    surface: ["I have big trees.", "My roof faces the wrong way."],
-    technique: "Short Answer, Long Answer. 'We don't know until we assess.' Then close on the assessment.",
-    standardResponse: "That's worth looking at specifically. We can't know without a site assessment. Shading affects system sizing, not necessarily viability. If it doesn't work, we'll tell you honestly. Let's get the data before we assume.",
-    note: "Rule: no assessment, no answer. Never disqualify from the driveway."
-  },
-
-  // ===== PERFORMANCE =====
-  {
-    id: "OBJ-P01", section: "P", sectionName: "Performance", title: "What Happens When It Snows?",
-    product: "Solar", difficulty: "Warm",
-    surface: ["Does it work in winter?", "What about Connecticut weather?"],
-    technique: "Be Proactive. Raise this before they do, it immediately establishes expertise.",
-    ctContext: "Cold temperatures improve panel efficiency. Production estimates are CT-specific, not California figures.",
-    standardResponse: "Cold weather actually makes panels more efficient. They produce better in cold than heat. Snow temporarily reduces production but slides off quickly. Panels are warm, black, and angled. Snow clears off them faster than it does off the surrounding shingles. Your estimate is built around CT's actual climate.",
-    repFailure: "Vague reassurance instead of leading with the efficiency point."
-  },
-  {
-    id: "OBJ-P02", section: "P", sectionName: "Performance", title: "What Happens If I Lose Power?",
-    product: "Solar", difficulty: "Warm",
-    surface: ["What good is solar if the grid goes down?", "Will solar keep my lights on?"],
-    rootCause: "Information gap. Without a battery, grid-tied solar shuts off. This is the primary battery conversation opener.",
-    technique: "Short Answer, Long Answer. 'Without a battery, it shuts off, here's why, and here's what changes with one.'",
-    ctContext: "ESS program: Powerwall 3 earns ~$930/year standard, ~$1,395 underserved. Grid edge enrollment: ~$1,755 vs ~$405.",
-    standardResponse: "Without battery storage, the system is grid-tied and shuts off during an outage. That's how the utility connection works. That's why a lot of our customers pair it with a battery. And in Connecticut right now, there's a state program that actually pays you for owning one. Want me to walk you through how that works?",
-    repFailure: "Stopping at 'it shuts off' without opening the ESS conversation."
-  },
-  {
-    id: "OBJ-P03", section: "P", sectionName: "Performance", title: "I'm Waiting for Better Technology",
-    product: "Solar", difficulty: "Medium",
-    surface: ["Solar is improving so fast.", "Shouldn't I wait?", "Won't prices drop?"],
-    rootCause: "Timing objection disguised as a technology question.",
-    technique: "Hot Potato. 'What specifically are you hoping improves?' Then reframe to cost of waiting.",
-    ctContext: "Tier 1 panels degrade 0.4-0.5%/year, ~91% output at year 25. Commercial next-gen panels are years from reliability.",
-    standardResponse: "Solar always improves, same as a smartphone. But waiting means paying your utility every month in the meantime. A better panel in five years doesn't recover what you paid to Eversource while you waited.",
-    repFailure: "Engaging in a technology debate instead of reframing to cost of waiting."
-  },
-
-  // ===== MOVING =====
-  {
-    id: "OBJ-M01", section: "M", sectionName: "Moving & Selling", title: "What Happens If I Sell My Home?",
-    product: "Solar", difficulty: "Warm",
-    surface: ["We might move in a few years.", "What if the buyer doesn't want the panels?"],
-    rootCause: "Information gap, often masking a buying signal. A homeowner thinking about selling is thinking about home value, which solar supports.",
-    technique: "Be Proactive. Raise this before they do if they've mentioned the possibility of moving.",
-    ctContext: "Homes with solar sell for 6.9% more (~$25-29K on a median CT home). PPA transfers to the new homeowner.",
-    standardResponse: "Solar actually helps you sell. Homes with solar sell for about 6.9% more, roughly $25,000 on a typical CT home. If it's a PPA, the agreement transfers to the buyer easily. Most buyers see it as a feature.",
-    note: "Analogy: 'It's like having a pool. If someone doesn't want a pool they probably wouldn't buy that house. Only difference, with a pool you're spending money. With solar, you're saving money.'",
-    repFailure: "Using the outdated '20% faster' claim."
-  },
-  {
-    id: "OBJ-M02", section: "M", sectionName: "Moving & Selling", title: "It's Hard to Sell a House With Solar",
-    product: "Solar", difficulty: "Hard",
-    surface: ["I heard solar makes a house harder to sell.", "What if a buyer doesn't want to take it over?", "Won't the panels scare buyers off?"],
-    rootCause: "There's a fear underneath this, and it's almost always the very reason to buy. Peel the onion. Every customer means something different by it, so qualify first. The thing they're afraid of, being stuck, is exactly what flips into being protected once you redirect it. Reps resign and treat the fear as the reason they won't buy, when it's the reason they should.",
-    disc: { D: "Wants the direct value answer, give the sells-for-more number.", I: "Picture them showing off the home, lean into the story.", S: "Worried about a hard handoff, reassure the transfer is easy.", C: "Will want the studies, cite the sale premium and the online-shopping behavior." },
-    technique: "Qualify why they're asking first, then reframe with facts. Redirect the fear: same energy, pointed toward the close.",
-    ctContext: "Homes with solar sell for about 6.9% more, roughly $25-29K on a median CT home. A PPA transfers to the new owner. The real long-term risk is being the house that can't go solar later if the utility caps interconnection. The '20% faster' claim is retired.",
-    standardResponse: "Let me ask what you've heard, because every homeowner means something a little different. Here's what's actually true: solar homes sell for more and quicker. Buyers shop online before they ever visit, so they already know your home has it, and a PPA transfers to them easily. The risk people miss is the other direction, being the house that can't go solar later when the grid fills up. I know it can feel like a thing to explain at sale, a lot of my customers felt the same, and what they found is buyers treat it like a feature, not a hurdle.",
-    note: "Standard-feature reframe: 'Would you buy a house without a dishwasher? Nobody passes on their dream house over a $400 appliance, because it's the standard. Twenty years ago it wasn't. That's solar in five years.' Adding it now future-proofs the home.",
-    repFailure: "Accepting the surface 'no' and treating the fear as a disqualifier, instead of qualifying what they actually heard and redirecting the fear into the reason to act."
-  },
-
-  // ===== SKEPTICISM =====
-  {
-    id: "OBJ-S01", section: "S", sectionName: "Skepticism", title: "I Don't Trust Solar Companies",
-    product: "Universal", difficulty: "Medium",
-    surface: ["I've heard bad things.", "Solar companies have a bad reputation.", "I've seen news stories about scams."],
-    rootCause: "Industry-wide trust gap from aggressive tactics. Requires proactive credentialing, not defensive positioning.",
-    technique: "Be Proactive. Establish credibility before this surfaces. If it surfaces, Short Answer, Long Answer, then specific Trinity differentiators.",
-    ctContext: "Trinity: 32 years in business, 125,000+ roofs installed, BBB A+ with no unresolved complaints.",
-    standardResponse: "I'm going to walk you through every line of any agreement before we're anywhere near a signature. Nothing gets signed until you fully understand what it says.",
-    note: "On reviews: 'I expect you to do your research. Just know that a lot of review sites are pay-to-play. The only one I trust is the BBB because they're regulated and you can't buy better ratings. Trinity has an A+ rating with no unresolved complaints.'",
-    repFailure: "Being defensive. Dismissing the concern. Not naming it directly."
-  },
-  {
-    id: "OBJ-S02", section: "S", sectionName: "Skepticism", title: "I Read Bad Reviews / Neighbor Had a Bad Experience",
-    product: "Universal", difficulty: "Medium",
-    surface: ["My neighbor had a bad experience.", "I Googled you and saw complaints."],
-    rootCause: "Social proof working in reverse. Requires direct engagement, not dismissal.",
-    technique: "Hot Potato. 'Can you tell me what you saw specifically?' Then distinguish Trinity's process.",
-    standardResponse: "I appreciate you bringing that up. Can you tell me what you saw specifically? I'd rather address it directly than have it sit there. Then distinguish Trinity's process from whatever went wrong.",
-    repFailure: "'Every company has some bad reviews.' Never dismiss."
-  },
-  {
-    id: "OBJ-S03", section: "S", sectionName: "Skepticism", title: "I Already Talked to a Solar Company Before and Stopped",
-    product: "Universal", difficulty: "Medium",
-    surface: ["We went through this before and it didn't go anywhere.", "I've already looked into this.", "We talked to someone last year and just kind of let it drop."],
-    rootCause: "A prior experience caused them to disengage. This is a trust reset situation. The rep's job is not to pick up where the last company left off, but to understand what broke down.",
-    disc: { D: "Get to the point, don't relitigate the past.", I: "May have just lost interest. Re-energize, don't interrogate.", S: "Likely felt pressured. Establish a no-pressure frame immediately.", C: "Will remember the specifics. Ask what broke down and address it directly." },
-    technique: "Hot Potato. 'What happened?' Don't assume, let them tell you. The answer shapes everything.",
-    standardResponse: "That happens more than you'd think, and I'd rather understand what went wrong before I do anything else. What happened? Listen. If it was a trust issue, acknowledge it and differentiate specifically. If it was process overwhelm, simplify. If it was the numbers not working, revisit from scratch with current data. If it was a life situation that got in the way, start fresh without assuming anything.",
-    note: "What never to do: assume the prior company was the problem and make Trinity the hero by comparison. The customer doesn't know that yet, and you don't either until you've asked.",
-    repFailure: "Jumping into the pitch as if the prior experience didn't happen. The homeowner who stopped once will stop again with the same trigger."
-  },
-  {
-    id: "OBJ-S04", section: "S", sectionName: "Skepticism", title: "What If Trinity Goes Out of Business?",
-    product: "Universal", difficulty: "Medium",
-    surface: ["You've been around 32 years, but what if something changes?", "What happens to my agreement if the company closes?", "Solar companies come and go."],
-    rootCause: "Legitimate question for a 25-year commitment. The customer is doing the right thing by asking. Respond with specifics, not reassurance.",
-    technique: "Short Answer, Long Answer. 'The agreement is designed to survive us, here's how.' Then the specifics.",
-    ctContext: "Trinity: 32 years in CT, 125,000+ roofs installed. The PPA agreement is held by a funding entity (not Trinity). Equipment warranties are manufacturer-backed (not Trinity). Monitoring is transferable.",
-    standardResponse: "It's the right question for a 25-year commitment. The agreement is actually held by the funding entity, not Trinity, so it's structured to survive any change in our company. Your panel warranty is with the manufacturer, your inverter warranty is with the inverter manufacturer. Trinity is in the installation and service business. The agreement protects you regardless of what happens to us, but we also have 32 years and 125,000 roofs in Connecticut, which is longer than most of the companies comparing themselves to us have been in existence.",
-    repFailure: "Over-reassuring without explaining the structural protection. 'We've been here 32 years' alone is not a sufficient answer to this question."
-  },
-
-  // ===== UTILITY =====
-  {
-    id: "OBJ-U01", section: "U", sectionName: "Utility & Policy", title: "What If Rates Go Down?",
-    product: "Solar", difficulty: "Hard",
-    surface: ["I heard rates are going down.", "Didn't Eversource just cut rates?", "What if electricity gets cheaper?"],
-    rootCause: "The PURA-approved 4.3¢/kWh decrease effective May 2026 is creating legitimate confusion. Eversource has stated publicly this is temporary. Deferred storm costs will be recovered through future increases.",
-    technique: "Hot Potato first. 'What in your life is cheaper today than it was 20 years ago?' Get them to say it.",
-    ctContext: "10.9¢ (2000) → 30.2¢ (2025), 177% increase over 25 years. The rate cut doesn't change the structural argument. Priority objection, April 2026.",
-    standardResponse: "Use the Two-Lane Approach. Goal: get them to say 'I don't think rates will ever go down' before you present a single number.",
-    responseDetailsLabel: "Two-Lane Approach",
-    responseDetails: [
-      { label: "Lane 1, The Capitalist Reality.", text: " 'What in your life is cheaper today than it was 20 years ago? Our economy is engineered to get more expensive over time.'" },
-      { label: "Lane 2, The Utilities Are Warning Us.", text: " 'Eversource has already said this cut is temporary and that higher bills are coming. Short-term rate relief always leads to longer-term increases. The utility has to remain profitable.'" }
+    "id": "OBJ-D02",
+    "section": "D",
+    "sectionName": "Decision Maker",
+    "title": "We Never Decide on the First Appointment",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "We don't sign on the same day.",
+      "We always sleep on big decisions."
     ],
-    repFailure: "Arguing instead of questioning. 'Rates probably won't go down' is dismissive and confrontational."
+    "rootCause": "Stated process preference. Either genuine or polite avoidance. Find out which.",
+    "technique": "Hot Potato to determine genuineness. 'That's smart. What questions do you need answered before moving forward?'",
+    "standardResponse": "That's smart. What questions do you need answered before moving forward? Let's make sure the go-back has a specific purpose. Frame it as a signing appointment, not a review. Every go-back needs: a specific date, a specific time, both decision-makers confirmed, and a stated purpose.",
+    "note": "This is often a diagnostic signal, not an objection. If the real concern is unstated, probe before leaving.",
+    "repFailure": "From real notes: 'Believes it makes sense but doesn't sign anything same day.' Go-back scheduled with no named purpose. No stated concern surfaced.",
+    "disc": {
+      "D": "Rarely says this. Probe directly.",
+      "I": "Uses it as a social escape.",
+      "S": "Most likely. Conflict avoidance as a rule.",
+      "C": "If genuine, respect it and make the go-back structured."
+    }
   },
   {
-    id: "OBJ-U02", section: "U", sectionName: "Utility & Policy", title: "Do I Still Have to Pay a Utility Bill?",
-    product: "Solar", difficulty: "Medium",
-    surface: ["Does solar eliminate my electric bill?", "What's my Eversource bill after this?"],
-    rootCause: "Most customers expect a zero utility bill. The answer is honest and simple. The frame matters more than the number.",
-    technique: "Short Answer, Long Answer.",
-    ctContext: "Solar handles your production. The utility side retains three things: the fixed meter connection fee (~$9.63/month), the SB4 charge on production (3.25¢/kWh, new customers 2026+), and any consumption your system doesn't cover.",
-    standardResponse: "Solar covers the usage charges. Those go away and get replaced with your solar payment. On the utility side, you keep a small connection fee, typically about $9.63 a month, and there's a state charge of 3.25 cents per kilowatt-hour on your system's production. We've already factored both into your savings number, so what you're looking at is what you'll actually net.",
-    note: "Lead with what solar covers. Mention the utility side as context, not as a warning. Always disclose SB4 before presenting final savings figures.",
-    repFailure: "Leading with 'there's a charge' framing rather than 'here's what solar covers.' Or failing to disclose at all, which creates a trust breach when the first utility bill arrives."
+    "id": "OBJ-D03",
+    "section": "D",
+    "sectionName": "Decision Maker",
+    "title": "We'd Like to Think About It",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "We need to process this.",
+      "Let us sleep on it.",
+      "We'll reach out."
+    ],
+    "rootCause": "This is never about time. It is always one of two things: (1) lack of trust, or (2) incomplete discovery, something undiscovered and hidden. A stall without a named concern is a deferred failure.",
+    "technique": "Short Answer, Long Answer to acknowledge, then Hot Potato to diagnose. 'Of course, what's the main thing on your mind right now?'",
+    "ctContext": "Every month of delay = $300-$800 extra paid to Eversource. Name it specifically, once, without pressure.",
+    "standardResponse": "Ask directly: 'Is it the program, the company, the timing, or something I haven't addressed?' The answer tells you whether it's trust or discovery. Then address the actual root. If trust: don't sell the product harder. Address why Trinity, why this rep. Feel/Felt/Found. Third-party validation. If discovery: something wasn't surfaced. Ask the next question. 'What would need to be true for you to feel confident moving forward today?'",
+    "note": "Prevention: if you get this at the closing appointment, the first visit wasn't set up correctly. Always open with: 'Nobody is committing today. My job is to make sure everything makes sense. If it's a win-win, great. If not, no problem.'",
+    "repFailure": "From real notes: 'She needs to process this, one week.' / 'He'll think about it, three weeks.' Both left without the rep naming the real concern or distinguishing trust from discovery.",
+    "disc": {
+      "D": "Rarely says this. Probe directly.",
+      "I": "Gets vague and friendly.",
+      "S": "Most common user. Real concern unstated.",
+      "C": "Has a specific concern not yet voiced."
+    }
   },
   {
-    id: "OBJ-U03", section: "U", sectionName: "Utility & Policy", title: "I Heard My Utility Won't Allow Solar",
-    product: "Solar", difficulty: "Warm",
-    surface: ["Are there restrictions?", "Does Eversource support solar?"],
-    technique: "Short Answer, Long Answer.",
-    standardResponse: "Eversource fully supports solar. They have a formal interconnection process and we manage all of it. We pull the permits, they inspect and approve, then you flip the switch."
+    "id": "OBJ-R01",
+    "section": "R",
+    "sectionName": "Roof & Home",
+    "title": "My Roof Isn't in Good Shape",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "My roof is old.",
+      "I think I need a new roof.",
+      "The shingles are bad."
+    ],
+    "rootCause": "Reps treat this as a disqualifier. It's an opportunity. A roof conversation never derails solar. It often unlocks the deal.",
+    "technique": "Be Proactive. Ask about the roof before they raise it. 'How do you feel about your roof?' surfaces this on your terms.",
+    "ctContext": "Roof + solar bundle: one loan, one payment, one installation. Permits, removal up to 3 layers, and cleanup always included.",
+    "standardResponse": "Good to know, that's actually something we handle together. If the roof needs work before we install solar, we can address both on one loan. Want to schedule the assessment?",
+    "note": "Trinity framing: 'If you have a roof problem with Trinity Solar on the roof, you're going to call Trinity Solar.' Right now, who do they call? Nobody has a roof warranty, only shingle warranties. Trinity's presence creates accountability that didn't exist before.",
+    "repFailure": "Treating it as a disqualifier. Rescheduling without introducing the bundle."
   },
-
-  // ===== TIME =====
   {
-    id: "OBJ-T01", section: "T", sectionName: "Time & Installation", title: "How Long Does Installation Take? / I Don't Want Construction",
-    product: "Universal", difficulty: "Warm",
-    surface: ["How disruptive will it be?", "When would this actually happen?"],
-    rootCause: "'How long?' and 'When?' are buying questions. The homeowner is mentally placing themselves in the scenario. Treat them that way.",
-    technique: "Read the Room. This is a buying signal. Move toward scheduling.",
-    standardResponse: "Installation is 1-2 days and our crews leave the property cleaner than they found it. Permitting and utility approval usually runs 4-8 weeks. We manage all of it. Do you have any preference on days of the week?"
+    "id": "OBJ-R02",
+    "section": "R",
+    "sectionName": "Roof & Home",
+    "title": "What Happens If I Need a New Roof After Solar?",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "What if the panels need to come off?",
+      "What if my roof fails later?"
+    ],
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "Panels can be temporarily removed and reinstalled. We catch this upfront because we assess every roof before installation. If the roof needs work, we'd rather bundle it now. Many customers do both at the same time for exactly that reason."
   },
   {
-    id: "OBJ-T02", section: "T", sectionName: "Time & Installation", title: "What Happens at the End of the 25-Year Term?",
-    product: "Solar", difficulty: "Warm",
-    surface: ["What are my options at the end?", "What happens when the agreement ends?"],
-    rootCause: "Almost always a buying signal. They're mentally projecting into ownership. The answer has four favorable options.",
-    technique: "Read the Room. Four favorable options presented confidently signals Trinity has thought this through. Close after the list.",
-    standardResponse: "Walk through all four options confidently. They're all favorable.",
-    responseDetailsLabel: "The four end-of-term options",
-    responseDetails: [
+    "id": "OBJ-R03",
+    "section": "R",
+    "sectionName": "Roof & Home",
+    "title": "I Don't Want Holes in My Roof / Worried About Leaks",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "Won't the mounting damage the roof?",
+      "I'm worried about leaks."
+    ],
+    "technique": "Short Answer, Long Answer. Lead with the warranty number, it does the work.",
+    "standardResponse": "The mounts are engineered for waterproofing, sealed and backed by a 25-year warranty. We guarantee leak-proof installation, and if anything ever happens, you call us."
+  },
+  {
+    "id": "OBJ-R04",
+    "section": "R",
+    "sectionName": "Roof & Home",
+    "title": "I Have Too Much Shade / Wrong Roof Direction",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "I have big trees.",
+      "My roof faces the wrong way."
+    ],
+    "technique": "Short Answer, Long Answer. 'We don't know until we assess.' Then close on the assessment.",
+    "standardResponse": "That's worth looking at specifically. We can't know without a site assessment. Shading affects system sizing, not necessarily viability. If it doesn't work, we'll tell you honestly. Let's get the data before we assume.",
+    "note": "Rule: no assessment, no answer. Never disqualify from the driveway."
+  },
+  {
+    "id": "OBJ-P01",
+    "section": "P",
+    "sectionName": "Performance",
+    "title": "What Happens When It Snows?",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "Does it work in winter?",
+      "What about Connecticut weather?"
+    ],
+    "technique": "Be Proactive. Raise this before they do, it immediately establishes expertise.",
+    "ctContext": "Cold temperatures improve panel efficiency. Production estimates are CT-specific, not California figures.",
+    "standardResponse": "Cold weather actually makes panels more efficient. They produce better in cold than heat. Snow temporarily reduces production but slides off quickly. Panels are warm, black, and angled. Snow clears off them faster than it does off the surrounding shingles. Your estimate is built around CT's actual climate.",
+    "repFailure": "Vague reassurance instead of leading with the efficiency point."
+  },
+  {
+    "id": "OBJ-P02",
+    "section": "P",
+    "sectionName": "Performance",
+    "title": "What Happens If I Lose Power?",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "What good is solar if the grid goes down?",
+      "Will solar keep my lights on?"
+    ],
+    "rootCause": "Information gap. Without a battery, grid-tied solar shuts off. This is the primary battery conversation opener.",
+    "technique": "Short Answer, Long Answer. 'Without a battery, it shuts off, here's why, and here's what changes with one.'",
+    "ctContext": "ESS program: Powerwall 3 earns ~$930/year standard, ~$1,395 underserved. Grid edge enrollment: ~$1,755 vs ~$405.",
+    "standardResponse": "Without battery storage, the system is grid-tied and shuts off during an outage. That's how the utility connection works. That's why a lot of our customers pair it with a battery. And in Connecticut right now, there's a state program that actually pays you for owning one. Want me to walk you through how that works?",
+    "repFailure": "Stopping at 'it shuts off' without opening the ESS conversation."
+  },
+  {
+    "id": "OBJ-P03",
+    "section": "P",
+    "sectionName": "Performance",
+    "title": "I'm Waiting for Better Technology",
+    "product": "Solar",
+    "difficulty": "Medium",
+    "surface": [
+      "Solar is improving so fast.",
+      "Shouldn't I wait?",
+      "Won't prices drop?"
+    ],
+    "rootCause": "Timing objection disguised as a technology question.",
+    "technique": "Hot Potato. 'What specifically are you hoping improves?' Then reframe to cost of waiting.",
+    "ctContext": "Tier 1 panels degrade 0.4-0.5%/year, ~91% output at year 25. Commercial next-gen panels are years from reliability.",
+    "standardResponse": "Solar always improves, same as a smartphone. But waiting means paying your utility every month in the meantime. A better panel in five years doesn't recover what you paid to Eversource while you waited.",
+    "repFailure": "Engaging in a technology debate instead of reframing to cost of waiting."
+  },
+  {
+    "id": "OBJ-M01",
+    "section": "M",
+    "sectionName": "Moving & Selling",
+    "title": "What Happens If I Sell My Home?",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "We might move in a few years.",
+      "What if the buyer doesn't want the panels?"
+    ],
+    "rootCause": "Information gap, often masking a buying signal. A homeowner thinking about selling is thinking about home value, which solar supports.",
+    "technique": "Be Proactive. Raise this before they do if they've mentioned the possibility of moving.",
+    "ctContext": "Homes with solar sell for 6.9% more (~$25-29K on a median CT home). PPA transfers to the new homeowner.",
+    "standardResponse": "Solar actually helps you sell. Homes with solar sell for about 6.9% more, roughly $25,000 on a typical CT home. If it's a PPA, the agreement transfers to the buyer easily. Most buyers see it as a feature.",
+    "note": "Analogy: 'It's like having a pool. If someone doesn't want a pool they probably wouldn't buy that house. Only difference, with a pool you're spending money. With solar, you're saving money.'",
+    "repFailure": "Using the outdated '20% faster' claim."
+  },
+  {
+    "id": "OBJ-M02",
+    "section": "M",
+    "sectionName": "Moving & Selling",
+    "title": "It's Hard to Sell a House With Solar",
+    "product": "Solar",
+    "difficulty": "Hard",
+    "surface": [
+      "I heard solar makes a house harder to sell.",
+      "What if a buyer doesn't want to take it over?",
+      "Won't the panels scare buyers off?"
+    ],
+    "rootCause": "There's a fear underneath this, and it's almost always the very reason to buy. Peel the onion. Every customer means something different by it, so qualify first. The thing they're afraid of, being stuck, is exactly what flips into being protected once you redirect it. Reps resign and treat the fear as the reason they won't buy, when it's the reason they should.",
+    "technique": "Qualify why they're asking first, then reframe with facts. Redirect the fear: same energy, pointed toward the close.",
+    "ctContext": "Homes with solar sell for about 6.9% more, roughly $25-29K on a median CT home. A PPA transfers to the new owner. The real long-term risk is being the house that can't go solar later if the utility caps interconnection. The '20% faster' claim is retired.",
+    "standardResponse": "Let me ask what you've heard, because every homeowner means something a little different. Here's what's actually true: solar homes sell for more and quicker. Buyers shop online before they ever visit, so they already know your home has it, and a PPA transfers to them easily. The risk people miss is the other direction, being the house that can't go solar later when the grid fills up. I know it can feel like a thing to explain at sale, a lot of my customers felt the same, and what they found is buyers treat it like a feature, not a hurdle.",
+    "note": "Standard-feature reframe: 'Would you buy a house without a dishwasher? Nobody passes on their dream house over a $400 appliance, because it's the standard. Twenty years ago it wasn't. That's solar in five years.' Adding it now future-proofs the home.",
+    "repFailure": "Accepting the surface 'no' and treating the fear as a disqualifier, instead of qualifying what they actually heard and redirecting the fear into the reason to act.",
+    "disc": {
+      "D": "Wants the direct value answer, give the sells-for-more number.",
+      "I": "Picture them showing off the home, lean into the story.",
+      "S": "Worried about a hard handoff, reassure the transfer is easy.",
+      "C": "Will want the studies, cite the sale premium and the online-shopping behavior."
+    }
+  },
+  {
+    "id": "OBJ-S01",
+    "section": "S",
+    "sectionName": "Skepticism",
+    "title": "I Don't Trust Solar Companies",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "I've heard bad things.",
+      "Solar companies have a bad reputation.",
+      "I've seen news stories about scams."
+    ],
+    "rootCause": "Industry-wide trust gap from aggressive tactics. Requires proactive credentialing, not defensive positioning.",
+    "technique": "Be Proactive. Establish credibility before this surfaces. If it surfaces, Short Answer, Long Answer, then specific Trinity differentiators.",
+    "ctContext": "Trinity: 32 years in business, 125,000+ roofs installed, BBB A+ with no unresolved complaints.",
+    "standardResponse": "I'm going to walk you through every line of any agreement before we're anywhere near a signature. Nothing gets signed until you fully understand what it says.",
+    "note": "On reviews: 'I expect you to do your research. Just know that a lot of review sites are pay-to-play. The only one I trust is the BBB because they're regulated and you can't buy better ratings. Trinity has an A+ rating with no unresolved complaints.'",
+    "repFailure": "Being defensive. Dismissing the concern. Not naming it directly."
+  },
+  {
+    "id": "OBJ-S02",
+    "section": "S",
+    "sectionName": "Skepticism",
+    "title": "I Read Bad Reviews / Neighbor Had a Bad Experience",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "My neighbor had a bad experience.",
+      "I Googled you and saw complaints."
+    ],
+    "rootCause": "Social proof working in reverse. Requires direct engagement, not dismissal.",
+    "technique": "Hot Potato. 'Can you tell me what you saw specifically?' Then distinguish Trinity's process.",
+    "standardResponse": "I appreciate you bringing that up. Can you tell me what you saw specifically? I'd rather address it directly than have it sit there. Then distinguish Trinity's process from whatever went wrong.",
+    "repFailure": "'Every company has some bad reviews.' Never dismiss."
+  },
+  {
+    "id": "OBJ-S03",
+    "section": "S",
+    "sectionName": "Skepticism",
+    "title": "I Already Talked to a Solar Company Before and Stopped",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "We went through this before and it didn't go anywhere.",
+      "I've already looked into this.",
+      "We talked to someone last year and just kind of let it drop."
+    ],
+    "rootCause": "A prior experience caused them to disengage. This is a trust reset situation. The rep's job is not to pick up where the last company left off, but to understand what broke down.",
+    "technique": "Hot Potato. 'What happened?' Don't assume, let them tell you. The answer shapes everything.",
+    "standardResponse": "That happens more than you'd think, and I'd rather understand what went wrong before I do anything else. What happened? Listen. If it was a trust issue, acknowledge it and differentiate specifically. If it was process overwhelm, simplify. If it was the numbers not working, revisit from scratch with current data. If it was a life situation that got in the way, start fresh without assuming anything.",
+    "note": "What never to do: assume the prior company was the problem and make Trinity the hero by comparison. The customer doesn't know that yet, and you don't either until you've asked.",
+    "repFailure": "Jumping into the pitch as if the prior experience didn't happen. The homeowner who stopped once will stop again with the same trigger.",
+    "disc": {
+      "D": "Get to the point, don't relitigate the past.",
+      "I": "May have just lost interest. Re-energize, don't interrogate.",
+      "S": "Likely felt pressured. Establish a no-pressure frame immediately.",
+      "C": "Will remember the specifics. Ask what broke down and address it directly."
+    }
+  },
+  {
+    "id": "OBJ-S04",
+    "section": "S",
+    "sectionName": "Skepticism",
+    "title": "What If Trinity Goes Out of Business?",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "You've been around 32 years, but what if something changes?",
+      "What happens to my agreement if the company closes?",
+      "Solar companies come and go."
+    ],
+    "rootCause": "Legitimate question for a 25-year commitment. The customer is doing the right thing by asking. Respond with specifics, not reassurance.",
+    "technique": "Short Answer, Long Answer. 'The agreement is designed to survive us, here's how.' Then the specifics.",
+    "ctContext": "Trinity: 32 years in CT, 125,000+ roofs installed. The PPA agreement is held by a funding entity (not Trinity). Equipment warranties are manufacturer-backed (not Trinity). Monitoring is transferable.",
+    "standardResponse": "It's the right question for a 25-year commitment. The agreement is actually held by the funding entity, not Trinity, so it's structured to survive any change in our company. Your panel warranty is with the manufacturer, your inverter warranty is with the inverter manufacturer. Trinity is in the installation and service business. The agreement protects you regardless of what happens to us, but we also have 32 years and 125,000 roofs in Connecticut, which is longer than most of the companies comparing themselves to us have been in existence.",
+    "repFailure": "Over-reassuring without explaining the structural protection. 'We've been here 32 years' alone is not a sufficient answer to this question."
+  },
+  {
+    "id": "OBJ-U01",
+    "section": "U",
+    "sectionName": "Utility & Policy",
+    "title": "What If Rates Go Down?",
+    "product": "Solar",
+    "difficulty": "Hard",
+    "surface": [
+      "I heard rates are going down.",
+      "Didn't Eversource just cut rates?",
+      "What if electricity gets cheaper?"
+    ],
+    "rootCause": "The PURA-approved 4.3¢/kWh decrease effective May 2026 is creating legitimate confusion. Eversource has stated publicly this is temporary. Deferred storm costs will be recovered through future increases.",
+    "technique": "Hot Potato first. 'What in your life is cheaper today than it was 20 years ago?' Get them to say it.",
+    "ctContext": "10.9¢ (2000) → 30.2¢ (2025), 177% increase over 25 years. The rate cut doesn't change the structural argument. Priority objection, April 2026.",
+    "standardResponse": "Use the Two-Lane Approach. Goal: get them to say 'I don't think rates will ever go down' before you present a single number.",
+    "responseDetailsLabel": "Two-Lane Approach",
+    "responseDetails": [
+      {
+        "label": "Lane 1, The Capitalist Reality.",
+        "text": " 'What in your life is cheaper today than it was 20 years ago? Our economy is engineered to get more expensive over time.'"
+      },
+      {
+        "label": "Lane 2, The Utilities Are Warning Us.",
+        "text": " 'Eversource has already said this cut is temporary and that higher bills are coming. Short-term rate relief always leads to longer-term increases. The utility has to remain profitable.'"
+      }
+    ],
+    "repFailure": "Arguing instead of questioning. 'Rates probably won't go down' is dismissive and confrontational."
+  },
+  {
+    "id": "OBJ-U02",
+    "section": "U",
+    "sectionName": "Utility & Policy",
+    "title": "Do I Still Have to Pay a Utility Bill?",
+    "product": "Solar",
+    "difficulty": "Medium",
+    "surface": [
+      "Does solar eliminate my electric bill?",
+      "What's my Eversource bill after this?"
+    ],
+    "rootCause": "Most customers expect a zero utility bill. The answer is honest and simple. The frame matters more than the number.",
+    "technique": "Short Answer, Long Answer.",
+    "ctContext": "Solar handles your production. The utility side retains three things: the fixed meter connection fee (~$9.63/month), the SB4 charge on production (3.25¢/kWh, new customers 2026+), and any consumption your system doesn't cover.",
+    "standardResponse": "Solar covers the usage charges. Those go away and get replaced with your solar payment. On the utility side, you keep a small connection fee, typically about $9.63 a month, and there's a state charge of 3.25 cents per kilowatt-hour on your system's production. We've already factored both into your savings number, so what you're looking at is what you'll actually net.",
+    "note": "Lead with what solar covers. Mention the utility side as context, not as a warning. Always disclose SB4 before presenting final savings figures.",
+    "repFailure": "Leading with 'there's a charge' framing rather than 'here's what solar covers.' Or failing to disclose at all, which creates a trust breach when the first utility bill arrives."
+  },
+  {
+    "id": "OBJ-U03",
+    "section": "U",
+    "sectionName": "Utility & Policy",
+    "title": "I Heard My Utility Won't Allow Solar",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "Are there restrictions?",
+      "Does Eversource support solar?"
+    ],
+    "technique": "Short Answer, Long Answer.",
+    "standardResponse": "Eversource fully supports solar. They have a formal interconnection process and we manage all of it. We pull the permits, they inspect and approve, then you flip the switch."
+  },
+  {
+    "id": "OBJ-T01",
+    "section": "T",
+    "sectionName": "Time & Installation",
+    "title": "How Long Does Installation Take? / I Don't Want Construction",
+    "product": "Universal",
+    "difficulty": "Warm",
+    "surface": [
+      "How disruptive will it be?",
+      "When would this actually happen?"
+    ],
+    "rootCause": "'How long?' and 'When?' are buying questions. The homeowner is mentally placing themselves in the scenario. Treat them that way.",
+    "technique": "Read the Room. This is a buying signal. Move toward scheduling.",
+    "standardResponse": "Installation is 1-2 days and our crews leave the property cleaner than they found it. Permitting and utility approval usually runs 4-8 weeks. We manage all of it. Do you have any preference on days of the week?"
+  },
+  {
+    "id": "OBJ-T02",
+    "section": "T",
+    "sectionName": "Time & Installation",
+    "title": "What Happens at the End of the 25-Year Term?",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "What are my options at the end?",
+      "What happens when the agreement ends?"
+    ],
+    "rootCause": "Almost always a buying signal. They're mentally projecting into ownership. The answer has four favorable options.",
+    "technique": "Read the Room. Four favorable options presented confidently signals Trinity has thought this through. Close after the list.",
+    "standardResponse": "Walk through all four options confidently. They're all favorable.",
+    "responseDetailsLabel": "The four end-of-term options",
+    "responseDetails": [
       "Renew and keep going.",
       "Own the system outright. Free electricity, but maintenance and insurance become your responsibility.",
       "Cancel and have panels removed (almost nobody does this).",
       "Upgrade to the latest technology and start the cycle again."
     ],
-    repFailure: "Getting caught off guard or giving a vague 'we'll figure it out' answer."
-  },
-
-  // ===== BATTERY =====
-  {
-    id: "OBJ-B01", section: "B", sectionName: "Battery", title: "The ROI Doesn't Pencil Out",
-    product: "Battery", difficulty: "Medium",
-    surface: ["The payback period is too long.", "It doesn't make financial sense."],
-    rootCause: "Customer calculating the battery as a standalone purchase. The ESS program income changes the math entirely.",
-    disc: { D: "Wants the bottom line.", I: "Responds to excitement about what the battery enables.", S: "Doesn't respond to ROI. Lead with peace of mind.", C: "Has run their own numbers. Needs ESS factored in specifically." },
-    technique: "Short Answer, Long Answer. 'Before we talk ROI, there's a Connecticut program that changes the math, let me show you that first.'",
-    ctContext: "Standard Powerwall 3 earns ~$930/year, ~$9,300 over 10 years. Grid edge: ~$1,755 enrollment vs ~$405.",
-    standardResponse: "Before we talk about the financial case, there's a Connecticut state program that actually pays you for owning the battery, and it changes the math significantly. Let me walk you through that first.",
-    repFailure: "Engaging in a ROI debate without introducing the ESS program."
+    "repFailure": "Getting caught off guard or giving a vague 'we'll figure it out' answer."
   },
   {
-    id: "OBJ-B02", section: "B", sectionName: "Battery", title: "I'll Add the Battery Later",
-    product: "Battery", difficulty: "Medium",
-    surface: ["That's a big number on top of solar.", "Can we just do solar first?"],
-    rootCause: "Battery introduced as an add-on after solar price landed. Retrofit costs materially more than bundling.",
-    technique: "Short Answer, Long Answer. 'Adding it later isn't the same cost, here's why.'",
-    standardResponse: "Adding the battery now versus later isn't the same cost. The crew is already here, the electrical work is already happening. The incremental cost is lower than a separate project. And the ESS program rates aren't guaranteed to stay at current levels.",
-    repFailure: "Accepting 'I'll add it later' without explaining the retrofit cost difference."
+    "id": "OBJ-B01",
+    "section": "B",
+    "sectionName": "Battery",
+    "title": "The ROI Doesn't Pencil Out",
+    "product": "Battery",
+    "difficulty": "Medium",
+    "surface": [
+      "The payback period is too long.",
+      "It doesn't make financial sense."
+    ],
+    "rootCause": "Customer calculating the battery as a standalone purchase. The ESS program income changes the math entirely.",
+    "technique": "Short Answer, Long Answer. 'Before we talk ROI, there's a Connecticut program that changes the math, let me show you that first.'",
+    "ctContext": "Standard Powerwall 3 earns ~$930/year, ~$9,300 over 10 years. Grid edge: ~$1,755 enrollment vs ~$405.",
+    "standardResponse": "Before we talk about the financial case, there's a Connecticut state program that actually pays you for owning the battery, and it changes the math significantly. Let me walk you through that first.",
+    "repFailure": "Engaging in a ROI debate without introducing the ESS program.",
+    "disc": {
+      "D": "Wants the bottom line.",
+      "I": "Responds to excitement about what the battery enables.",
+      "S": "Doesn't respond to ROI. Lead with peace of mind.",
+      "C": "Has run their own numbers. Needs ESS factored in specifically."
+    }
   },
   {
-    id: "OBJ-B03", section: "B", sectionName: "Battery", title: "I Don't Lose Power That Often / Don't Need Backup",
-    product: "Battery", difficulty: "Medium",
-    surface: ["The grid is pretty reliable here.", "We can handle a day without power."],
-    rootCause: "Rep led with backup as the pitch. Customer's real motivation is savings or self-supply. This is the most common battery coaching gap. Homeowners rank savings and self-supply first; reps pitch backup first.",
-    technique: "Hot Potato. 'Totally fair, backup isn't the only reason. What matters more to you, the savings piece or having the backup?' Then follow their answer.",
-    standardResponse: "Totally fair, backup isn't the only reason people go with battery. A lot of our customers add it for the savings piece, storing solar energy during the day and using it at night instead of pulling from the grid at peak rates. And then the ESS program pays you directly from the utility for 10 years on top of that. Is savings and self-supply something that matters to you?",
-    repFailure: "Doubling down on backup after the customer has already rejected it."
+    "id": "OBJ-B02",
+    "section": "B",
+    "sectionName": "Battery",
+    "title": "I'll Add the Battery Later",
+    "product": "Battery",
+    "difficulty": "Medium",
+    "surface": [
+      "That's a big number on top of solar.",
+      "Can we just do solar first?"
+    ],
+    "rootCause": "Battery introduced as an add-on after solar price landed. Retrofit costs materially more than bundling.",
+    "technique": "Short Answer, Long Answer. 'Adding it later isn't the same cost, here's why.'",
+    "standardResponse": "Adding the battery now versus later isn't the same cost. The crew is already here, the electrical work is already happening. The incremental cost is lower than a separate project. And the ESS program rates aren't guaranteed to stay at current levels.",
+    "repFailure": "Accepting 'I'll add it later' without explaining the retrofit cost difference."
   },
   {
-    id: "OBJ-B04", section: "B", sectionName: "Battery", title: "The Utility Controlling My Battery Doesn't Feel Right",
-    product: "Battery", difficulty: "Medium",
-    surface: ["I don't want them taking my power.", "What if I need it during an event?"],
-    rootCause: "Misunderstanding of ESS dispatch rules. The actual rules are reassuring, deliver them with confidence.",
-    technique: "Short Answer, Long Answer. 'Your backup reserve is always protected, the utility cannot touch it.' Then the five rules.",
-    standardResponse: "Walk through all five dispatch rules. The backup reserve protection is the key reassurance.",
-    responseDetailsLabel: "The five ESS dispatch rules",
-    responseDetails: [
+    "id": "OBJ-B03",
+    "section": "B",
+    "sectionName": "Battery",
+    "title": "I Don't Lose Power That Often / Don't Need Backup",
+    "product": "Battery",
+    "difficulty": "Medium",
+    "surface": [
+      "The grid is pretty reliable here.",
+      "We can handle a day without power."
+    ],
+    "rootCause": "Rep led with backup as the pitch. Customer's real motivation is savings or self-supply. This is the most common battery coaching gap. Homeowners rank savings and self-supply first; reps pitch backup first.",
+    "technique": "Hot Potato. 'Totally fair, backup isn't the only reason. What matters more to you, the savings piece or having the backup?' Then follow their answer.",
+    "standardResponse": "Totally fair, backup isn't the only reason people go with battery. A lot of our customers add it for the savings piece, storing solar energy during the day and using it at night instead of pulling from the grid at peak rates. And then the ESS program pays you directly from the utility for 10 years on top of that. Is savings and self-supply something that matters to you?",
+    "repFailure": "Doubling down on backup after the customer has already rejected it."
+  },
+  {
+    "id": "OBJ-B04",
+    "section": "B",
+    "sectionName": "Battery",
+    "title": "The Utility Controlling My Battery Doesn't Feel Right",
+    "product": "Battery",
+    "difficulty": "Medium",
+    "surface": [
+      "I don't want them taking my power.",
+      "What if I need it during an event?"
+    ],
+    "rootCause": "Misunderstanding of ESS dispatch rules. The actual rules are reassuring, deliver them with confidence.",
+    "technique": "Short Answer, Long Answer. 'Your backup reserve is always protected, the utility cannot touch it.' Then the five rules.",
+    "standardResponse": "Walk through all five dispatch rules. The backup reserve protection is the key reassurance.",
+    "responseDetailsLabel": "The five ESS dispatch rules",
+    "responseDetails": [
       "Events only between 12 PM and 9 PM.",
       "About 24 hours advance notice.",
       "About 3 hours per event.",
       "Backup reserve always protected (default 20%, utility cannot touch this).",
       "Customer can opt out of any event through the app, no financial penalty."
     ],
-    repFailure: "Being vague. The backup reserve protection is the key reassurance."
-  },
-
-  // ===== URGENCY =====
-  {
-    id: "OBJ-UR01", section: "UR", sectionName: "Urgency & Timing", title: "Maybe Next Year / Not the Right Time",
-    product: "Universal", difficulty: "Medium",
-    surface: ["Let's revisit in the spring.", "We're not ready to commit.", "The timing isn't great."],
-    rootCause: "Vague timing stall. Needs cost-of-inaction made concrete and specific.",
-    technique: "Short Answer, Long Answer on the monthly cost. Then one specific urgency lever tied to their situation.",
-    ctContext: "$300-$800/month extra paid to Eversource vs locked PPA rate. Spring is peak production, delay in April/May is capacity never recovered. ESS rates reviewed annually. 48E construction deadline July 4, 2026.",
-    standardResponse: "At your current Eversource rate, every month you wait is approximately $[bill delta] that stays with the utility instead of being locked at your solar rate. Over 12 months, that's roughly $[annual delta]. I'm not trying to rush you, I just want you to decide with all the numbers in front of you.",
-    repFailure: "From real notes: 'Will follow up with both, obtain bill.' / 'Going to review with his wife. Connect in one week.' Both left without making inaction visible or naming a specific reason to act now."
+    "repFailure": "Being vague. The backup reserve protection is the key reassurance."
   },
   {
-    id: "OBJ-UR02", section: "UR", sectionName: "Urgency & Timing", title: "I'm Waiting to See What Happens Politically",
-    product: "Solar", difficulty: "Hard",
-    surface: ["With all the changes going on I want to wait.", "I want to see where incentives land.", "I'm watching what happens with the administration."],
-    rootCause: "Policy uncertainty. The answer is to make waiting feel riskier than acting, with honesty, not pressure.",
-    technique: "Short Answer, Long Answer. 'Customers already on solar are grandfathered. The ones waiting are exposed to whatever comes next.'",
-    ctContext: "Customers already on solar are grandfathered under their program terms. Section 48E (PPA/TPO) requires construction to begin before July 4, 2026. That is a real, hard deadline. ESS rates locked via ROF letter.",
-    standardResponse: "Customers who are already on solar are grandfathered under their program terms. The ones who wait are exposed to whatever comes next. Acting now locks you into today's rules, not whatever the legislature or PURA decides next year. And there's a specific federal deadline for the program we'd be using. Construction has to begin before July 4th of this year. That's a real window.",
-    note: "Rule: never promise specific future program availability. Cite what is factually documented."
-  },
-
-  // ===== HOA =====
-  {
-    id: "OBJ-H01", section: "H", sectionName: "HOA & Aesthetic", title: "My HOA Won't Allow It",
-    product: "Solar", difficulty: "Medium",
-    surface: ["My HOA has rules about this.", "I need HOA approval."],
-    rootCause: "Most reps don't know CT law. This is the most underused piece of CT-specific knowledge on the team.",
-    technique: "Short Answer, Long Answer. 'Connecticut law prohibits HOAs from blocking solar.' Then the specifics.",
-    ctContext: "Connecticut law (January 2023) prohibits HOAs from blocking rooftop solar without compelling cause. They can regulate placement and appearance. They cannot say no.",
-    standardResponse: "Connecticut law actually prohibits HOAs from blocking rooftop solar. They can regulate placement and appearance, but they cannot prohibit installation. Let's get the assessment done so you have the actual design to show them. That's a much stronger position than asking in the abstract.",
-    repFailure: "Accepting the objection without citing CT law."
+    "id": "OBJ-UR01",
+    "section": "UR",
+    "sectionName": "Urgency & Timing",
+    "title": "Maybe Next Year / Not the Right Time",
+    "product": "Universal",
+    "difficulty": "Medium",
+    "surface": [
+      "Let's revisit in the spring.",
+      "We're not ready to commit.",
+      "The timing isn't great."
+    ],
+    "rootCause": "Vague timing stall. Needs cost-of-inaction made concrete and specific.",
+    "technique": "Short Answer, Long Answer on the monthly cost. Then one specific urgency lever tied to their situation.",
+    "ctContext": "$300-$800/month extra paid to Eversource vs locked PPA rate. Spring is peak production, delay in April/May is capacity never recovered. ESS rates reviewed annually. 48E construction deadline July 4, 2026.",
+    "standardResponse": "At your current Eversource rate, every month you wait is approximately $[bill delta] that stays with the utility instead of being locked at your solar rate. Over 12 months, that's roughly $[annual delta]. I'm not trying to rush you, I just want you to decide with all the numbers in front of you.",
+    "repFailure": "From real notes: 'Will follow up with both, obtain bill.' / 'Going to review with his wife. Connect in one week.' Both left without making inaction visible or naming a specific reason to act now."
   },
   {
-    id: "OBJ-H02", section: "H", sectionName: "HOA & Aesthetic", title: "I Don't Like the Way Solar Panels Look",
-    product: "Solar", difficulty: "Warm",
-    surface: ["The panels look industrial.", "I don't want to ruin the look of my house."],
-    rootCause: "Image of older blue-silver panels. Doesn't match modern all-black designs.",
-    technique: "Short Answer, Long Answer. 'The design has changed completely.' Then show, don't describe.",
-    standardResponse: "The older panels had a very different look. We use all-black panels now that blend with the roofline significantly better. I can show you installations on homes in your area, the difference is pretty striking.",
-    note: "Rule: show, don't describe. Photos of local installations close this fast."
-  },
-  // ===== ORPHAN SOLAR OBJECTIONS (added 2026-05-26) =====
-  {
-    id: "OBJ-S05", section: "S", sectionName: "Reputation & Skepticism", title: "Why Do You Need My Social Security Number?",
-    product: "Solar", difficulty: "Warm",
-    surface: ["Why do you need my Social Security number?", "I'm not comfortable giving that out.", "Is this going to hurt my credit?"],
-    rootCause: "Privacy concern plus an information gap. They don't know it's a soft credit check for financing eligibility, not a hard pull.",
-    disc: { D: "Asks bluntly, wants the one-line reason.", I: "May joke about it, complies once reassured.", S: "Quietly uncomfortable, needs gentle reassurance.", C: "Wants to know exactly what happens to the data." },
-    technique: "Short Answer, Long Answer. Give the reason in one sentence, then the reassurance.",
-    standardResponse: "It's a soft credit check to see which financing options you qualify for. It does not affect your credit score, and it's the same step any lender takes before showing you real terms. I can't put accurate numbers in front of you without it.",
-    repFailure: "Getting defensive or skipping it, then presenting numbers the homeowner can't actually qualify for."
+    "id": "OBJ-UR02",
+    "section": "UR",
+    "sectionName": "Urgency & Timing",
+    "title": "I'm Waiting to See What Happens Politically",
+    "product": "Solar",
+    "difficulty": "Hard",
+    "surface": [
+      "With all the changes going on I want to wait.",
+      "I want to see where incentives land.",
+      "I'm watching what happens with the administration."
+    ],
+    "rootCause": "Policy uncertainty. The answer is to make waiting feel riskier than acting, with honesty, not pressure.",
+    "technique": "Short Answer, Long Answer. 'Customers already on solar are grandfathered. The ones waiting are exposed to whatever comes next.'",
+    "ctContext": "Customers already on solar are grandfathered under their program terms. Section 48E (PPA/TPO) requires construction to begin before July 4, 2026. That is a real, hard deadline. ESS rates locked via ROF letter.",
+    "standardResponse": "Customers who are already on solar are grandfathered under their program terms. The ones who wait are exposed to whatever comes next. Acting now locks you into today's rules, not whatever the legislature or PURA decides next year. And there's a specific federal deadline for the program we'd be using. Construction has to begin before July 4th of this year. That's a real window.",
+    "note": "Rule: never promise specific future program availability. Cite what is factually documented."
   },
   {
-    id: "OBJ-P04", section: "P", sectionName: "Performance & Reliability", title: "I Want 100% Offset Or I'm Not Interested",
-    product: "Solar", difficulty: "Medium",
-    surface: ["I want it to cover 100% of my usage.", "I want my bill to be zero.", "If it doesn't wipe out my bill, what's the point?"],
-    rootCause: "Sizing and expectation gap. Conflates offset with a zero bill, and ignores roof, shading, and program limits.",
-    ctContext: "Systems are sized to the roof, shading, and program rules, not always to 100%. The SB4 charge and the small connection fee mean the bill is never literally zero.",
-    technique: "Reframe from 'eliminate the bill' to 'lock the part that keeps climbing.'",
-    standardResponse: "I get it, the goal is to knock out as much of that bill as possible. We size to your roof and your actual usage, and in most cases we offset the large majority of it. There's still a small connection fee and the state charge, so no honest company can promise a literal zero. What we can do is lock in the part that keeps going up every year.",
-    repFailure: "Promising 100% offset or a zero bill to win the moment, then a production shortfall destroys trust."
+    "id": "OBJ-H01",
+    "section": "H",
+    "sectionName": "HOA & Aesthetic",
+    "title": "My HOA Won't Allow It",
+    "product": "Solar",
+    "difficulty": "Medium",
+    "surface": [
+      "My HOA has rules about this.",
+      "I need HOA approval."
+    ],
+    "rootCause": "Most reps don't know CT law. This is the most underused piece of CT-specific knowledge on the team.",
+    "technique": "Short Answer, Long Answer. 'Connecticut law prohibits HOAs from blocking solar.' Then the specifics.",
+    "ctContext": "Connecticut law (January 2023) prohibits HOAs from blocking rooftop solar without compelling cause. They can regulate placement and appearance. They cannot say no.",
+    "standardResponse": "Connecticut law actually prohibits HOAs from blocking rooftop solar. They can regulate placement and appearance, but they cannot prohibit installation. Let's get the assessment done so you have the actual design to show them. That's a much stronger position than asking in the abstract.",
+    "repFailure": "Accepting the objection without citing CT law."
   },
   {
-    id: "OBJ-U04", section: "U", sectionName: "Utility & Policy", title: "What If Net Metering Rules Change?",
-    product: "Solar", difficulty: "Hard",
-    surface: ["What if the net metering rules change?", "What if the state changes the program?", "Won't they just change the rules later?"],
-    rootCause: "Policy uncertainty, distinct from rate movement. The reassurance is grandfathering, not a prediction.",
-    ctContext: "Customers are locked into the program terms in place when they interconnect. Connecticut already moved off net metering to RRES, so the protection is the lock-in, not the specific program.",
-    technique: "Make today's terms the safe harbor. Never predict future policy.",
-    standardResponse: "The way these programs work, you're locked into the terms in place when your system goes live. The people exposed to changes are the ones who keep waiting. Acting now is exactly what protects you from whatever the state decides next.",
-    note: "Never promise specific future program availability.",
-    repFailure: "Speculating about future policy instead of anchoring to grandfathering."
+    "id": "OBJ-H02",
+    "section": "H",
+    "sectionName": "HOA & Aesthetic",
+    "title": "I Don't Like the Way Solar Panels Look",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "The panels look industrial.",
+      "I don't want to ruin the look of my house."
+    ],
+    "rootCause": "Image of older blue-silver panels. Doesn't match modern all-black designs.",
+    "technique": "Short Answer, Long Answer. 'The design has changed completely.' Then show, don't describe.",
+    "standardResponse": "The older panels had a very different look. We use all-black panels now that blend with the roofline significantly better. I can show you installations on homes in your area, the difference is pretty striking.",
+    "note": "Rule: show, don't describe. Photos of local installations close this fast."
   },
   {
-    id: "OBJ-U05", section: "U", sectionName: "Utility & Policy", title: "Natural Gas Will Make Rates Drop / My Expert Says So",
-    product: "Solar", difficulty: "Hard",
-    surface: ["My son works in energy and says gas will bring rates down.", "Natural gas is cheap, electricity will follow.", "Someone in my family does this for a living and told me to wait."],
-    rootCause: "An expert in the family, or a confident outside source, has handed the customer a conclusion. The conclusion is the problem, not the person. Concede the person warmly, then contest the conclusion: even if production costs fall, the customer doesn't automatically benefit. Fighting their relative makes you the enemy and them the defender.",
-    disc: { D: "Wants you to get to the point, give the one-line economist answer.", I: "Proud of their smart relative, praise them first.", S: "Doesn't want a debate, agree the source is sharp, then redirect.", C: "Will engage on the mechanics, walk supply, demand, and the fixed pipeline." },
-    technique: "Concede the person, contest the conclusion. Short Answer, Long Answer on why cheaper fuel doesn't reach the homeowner's bill.",
-    ctContext: "Production cost and retail rate are not the same line item. A homeowner pays delivery, transmission, and regulated charges layered on top of supply. CT rates have climbed 177% over 25 years (10.9¢ in 2000 to 30.2¢ in 2025) through every kind of fuel market.",
-    standardResponse: "Your son sounds like a genius, and I'd trust him on a lot. I may not be a genius, but I look at energy bills all day. Here's the piece that gets missed: even if it gets cheaper to produce power, that doesn't mean you, the homeowner, see it on your bill. You're paying for delivery, transmission, and a stack of regulated charges on top of supply, and those only go one direction. I know it sounds reasonable that cheaper fuel means a cheaper bill. A lot of my customers felt the same after hearing it from someone they trust, and what they found is the production cost dropped before and their rate still went up.",
-    note: "Never make the customer choose between you and their relative. Agree the source is smart, then separate 'rates could change' from 'you will benefit.' Those are two different claims.",
-    repFailure: "Arguing with the absent expert or dismissing them, which forces the customer to defend their relative instead of hearing the point about who actually benefits."
+    "id": "OBJ-S05",
+    "section": "S",
+    "sectionName": "Reputation & Skepticism",
+    "title": "Why Do You Need My Social Security Number?",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "Why do you need my Social Security number?",
+      "I'm not comfortable giving that out.",
+      "Is this going to hurt my credit?"
+    ],
+    "rootCause": "Privacy concern plus an information gap. They don't know it's a soft credit check for financing eligibility, not a hard pull.",
+    "technique": "Short Answer, Long Answer. Give the reason in one sentence, then the reassurance.",
+    "standardResponse": "It's a soft credit check to see which financing options you qualify for. It does not affect your credit score, and it's the same step any lender takes before showing you real terms. I can't put accurate numbers in front of you without it.",
+    "repFailure": "Getting defensive or skipping it, then presenting numbers the homeowner can't actually qualify for.",
+    "disc": {
+      "D": "Asks bluntly, wants the one-line reason.",
+      "I": "May joke about it, complies once reassured.",
+      "S": "Quietly uncomfortable, needs gentle reassurance.",
+      "C": "Wants to know exactly what happens to the data."
+    }
   },
   {
-    id: "OBJ-R05", section: "R", sectionName: "Roof & Home", title: "Will The Panels Be Too Heavy Or Cave In My Roof?",
-    product: "Solar", difficulty: "Warm",
-    surface: ["Will the panels be too heavy for my roof?", "Could they cave the roof in?", "Is my roof strong enough to hold them?"],
-    rootCause: "Structural-load fear, distinct from the leak and holes concern.",
-    technique: "Short Answer, Long Answer, with the engineering point.",
-    standardResponse: "No. A solar array adds roughly 3 pounds per square foot, which is well within what your roof is built to carry, and we run a structural assessment before anything goes up. If an engineer ever flagged a concern, we would address it before installation, not after.",
-    repFailure: "Hand-waving 'it's fine' without the load number or the structural-assessment point."
+    "id": "OBJ-P04",
+    "section": "P",
+    "sectionName": "Performance & Reliability",
+    "title": "I Want 100% Offset Or I'm Not Interested",
+    "product": "Solar",
+    "difficulty": "Medium",
+    "surface": [
+      "I want it to cover 100% of my usage.",
+      "I want my bill to be zero.",
+      "If it doesn't wipe out my bill, what's the point?"
+    ],
+    "rootCause": "Sizing and expectation gap. Conflates offset with a zero bill, and ignores roof, shading, and program limits.",
+    "technique": "Reframe from 'eliminate the bill' to 'lock the part that keeps climbing.'",
+    "ctContext": "Systems are sized to the roof, shading, and program rules, not always to 100%. The SB4 charge and the small connection fee mean the bill is never literally zero.",
+    "standardResponse": "I get it, the goal is to knock out as much of that bill as possible. We size to your roof and your actual usage, and in most cases we cover the large majority of it. There's still a small connection fee and the state charge, so no honest company can promise a literal zero. What we can do is lock in the part that keeps going up every year.",
+    "repFailure": "Promising 100% offset or a zero bill to win the moment, then a production shortfall destroys trust."
   },
   {
-    id: "OBJ-P05", section: "P", sectionName: "Performance", title: "Will Solar Interfere With My Ham Radio / Radio Reception?",
-    product: "Solar", difficulty: "Hard",
-    surface: ["I'm a ham operator, won't this wipe out my radio?", "I heard SolarEdge kills AM/shortwave reception.", "Will the optimizers cause interference on the HF bands?"],
-    rootCause: "A licensed amateur-radio operator, shortwave listener, or AM hobbyist has heard, often from a forum or club, that SolarEdge systems raise the radio noise floor. The concern is real and documented, so denying it instantly destroys trust with a technical buyer. The move is acknowledge, qualify how exposed they actually are, then route to the known fix.",
-    disc: { D: "Wants a straight yes/no and the fix, give the levers fast.", I: "Reassured by your confidence and track record more than the physics.", S: "Worried about hassle, emphasize it's handled and proven.", C: "Will engage on the mechanism, walk optimizers, harmonics, ferrites, grounding." },
-    technique: "Acknowledge honestly, qualify exposure, then route to mitigation. Never deny it; never promise zero interference.",
-    ctContext: "Most homeowners have no HF gear and a short confident answer settles it. The depth only matters for an actual licensed operator running HF from the house.",
-    standardResponse: "You're right that some SolarEdge installs have caused interference, it's a real, documented thing, mostly on AM and the HF bands, and only while the panels are making power. Two things put a radio operator at ease: you can shut the system off any time for a contest or an evening net and it goes quiet within seconds, and a standard no-battery system is basically silent at night on its own. And if it ever does interfere, there's a proven fix path, newer optimizers, ferrite chokes, twisted wiring and grounding, that resolves the large majority of cases without removing anything. If you're an active HF operator, I'll flag it on your file so the install team builds the suppression in from the start.",
-    note: "Never guarantee zero interference. Promise the process, not perfection. For a serious HF operator, set honest expectations that some mitigation/tuning may be needed.",
-    resourceLink: "../../solar/system-design/solaredge-ham-radio.html",
-    resourceLinkLabel: "SolarEdge & Ham Radio (RFI) — full technical brief",
-    repFailure: "Denying or hand-waving the concern to a technical buyer, or over-promising 'no interference, guaranteed,' instead of acknowledging it and routing to the documented mitigation playbook."
+    "id": "OBJ-U04",
+    "section": "U",
+    "sectionName": "Utility & Policy",
+    "title": "What If Net Metering Rules Change?",
+    "product": "Solar",
+    "difficulty": "Hard",
+    "surface": [
+      "What if the net metering rules change?",
+      "What if the state changes the program?",
+      "Won't they just change the rules later?"
+    ],
+    "rootCause": "Policy uncertainty, distinct from rate movement. The reassurance is grandfathering, not a prediction.",
+    "technique": "Make today's terms the safe harbor. Never predict future policy.",
+    "ctContext": "Customers are locked into the program terms in place when they interconnect. Connecticut already moved off net metering to RRES, so the protection is the lock-in, not the specific program.",
+    "standardResponse": "The way these programs work, you're locked into the terms in place when your system goes live. The people exposed to changes are the ones who keep waiting. Acting now is exactly what protects you from whatever the state decides next.",
+    "note": "Never promise specific future program availability.",
+    "repFailure": "Speculating about future policy instead of anchoring to grandfathering."
+  },
+  {
+    "id": "OBJ-U05",
+    "section": "U",
+    "sectionName": "Utility & Policy",
+    "title": "Natural Gas Will Make Rates Drop / My Expert Says So",
+    "product": "Solar",
+    "difficulty": "Hard",
+    "surface": [
+      "My son works in energy and says gas will bring rates down.",
+      "Natural gas is cheap, electricity will follow.",
+      "Someone in my family does this for a living and told me to wait."
+    ],
+    "rootCause": "An expert in the family, or a confident outside source, has handed the customer a conclusion. The conclusion is the problem, not the person. Concede the person warmly, then contest the conclusion: even if production costs fall, the customer doesn't automatically benefit. Fighting their relative makes you the enemy and them the defender.",
+    "technique": "Concede the person, contest the conclusion. Short Answer, Long Answer on why cheaper fuel doesn't reach the homeowner's bill.",
+    "ctContext": "Production cost and retail rate are not the same line item. A homeowner pays delivery, transmission, and regulated charges layered on top of supply. CT rates have climbed 177% over 25 years (10.9¢ in 2000 to 30.2¢ in 2025) through every kind of fuel market.",
+    "standardResponse": "Your son sounds like a genius, and I'd trust him on a lot. I may not be a genius, but I look at energy bills all day. Here's the piece that gets missed: even if it gets cheaper to produce power, that doesn't mean you, the homeowner, see it on your bill. You're paying for delivery, transmission, and a stack of regulated charges on top of supply, and those only go one direction. I know it sounds reasonable that cheaper fuel means a cheaper bill. A lot of my customers felt the same after hearing it from someone they trust, and what they found is the production cost dropped before and their rate still went up.",
+    "note": "Never make the customer choose between you and their relative. Agree the source is smart, then separate 'rates could change' from 'you will benefit.' Those are two different claims.",
+    "repFailure": "Arguing with the absent expert or dismissing them, which forces the customer to defend their relative instead of hearing the point about who actually benefits.",
+    "disc": {
+      "D": "Wants you to get to the point, give the one-line economist answer.",
+      "I": "Proud of their smart relative, praise them first.",
+      "S": "Doesn't want a debate, agree the source is sharp, then redirect.",
+      "C": "Will engage on the mechanics, walk supply, demand, and the fixed pipeline."
+    }
+  },
+  {
+    "id": "OBJ-R05",
+    "section": "R",
+    "sectionName": "Roof & Home",
+    "title": "Will The Panels Be Too Heavy Or Cave In My Roof?",
+    "product": "Solar",
+    "difficulty": "Warm",
+    "surface": [
+      "Will the panels be too heavy for my roof?",
+      "Could they cave the roof in?",
+      "Is my roof strong enough to hold them?"
+    ],
+    "rootCause": "Structural-load fear, distinct from the leak and holes concern.",
+    "technique": "Short Answer, Long Answer, with the engineering point.",
+    "standardResponse": "No. A solar array adds roughly 3 pounds per square foot, which is well within what your roof is built to carry, and we run a structural assessment before anything goes up. If an engineer ever flagged a concern, we would address it before installation, not after.",
+    "repFailure": "Hand-waving 'it's fine' without the load number or the structural-assessment point."
+  },
+  {
+    "id": "OBJ-P05",
+    "section": "P",
+    "sectionName": "Performance",
+    "title": "Will Solar Interfere With My Ham Radio / Radio Reception?",
+    "product": "Solar",
+    "difficulty": "Hard",
+    "surface": [
+      "I'm a ham operator, won't this wipe out my radio?",
+      "I heard SolarEdge kills AM/shortwave reception.",
+      "Will the optimizers cause interference on the HF bands?"
+    ],
+    "rootCause": "A licensed amateur-radio operator, shortwave listener, or AM hobbyist has heard, often from a forum or club, that SolarEdge systems raise the radio noise floor. The concern is real and documented, so denying it instantly destroys trust with a technical buyer. The move is acknowledge, qualify how exposed they actually are, then route to the known fix.",
+    "technique": "Acknowledge honestly, qualify exposure, then route to mitigation. Never deny it; never promise zero interference.",
+    "ctContext": "Most homeowners have no HF gear and a short confident answer settles it. The depth only matters for an actual licensed operator running HF from the house.",
+    "standardResponse": "You're right that some SolarEdge installs have caused interference, it's a real, documented thing, mostly on AM and the HF bands, and only while the panels are making power. Two things put a radio operator at ease: you can shut the system off any time for a contest or an evening net and it goes quiet within seconds, and a standard no-battery system is basically silent at night on its own. And if it ever does interfere, there's a proven fix path, newer optimizers, ferrite chokes, twisted wiring and grounding, that resolves the large majority of cases without removing anything. If you're an active HF operator, I'll flag it on your file so the install team builds the suppression in from the start.",
+    "note": "Never guarantee zero interference. Promise the process, not perfection. For a serious HF operator, set honest expectations that some mitigation/tuning may be needed.",
+    "repFailure": "Denying or hand-waving the concern to a technical buyer, or over-promising 'no interference, guaranteed,' instead of acknowledging it and routing to the documented mitigation playbook.",
+    "disc": {
+      "D": "Wants a straight yes/no and the fix, give the levers fast.",
+      "I": "Reassured by your confidence and track record more than the physics.",
+      "S": "Worried about hassle, emphasize it's handled and proven.",
+      "C": "Will engage on the mechanism, walk optimizers, harmonics, ferrites, grounding."
+    },
+    "resourceLink": "../../solar/system-design/solaredge-ham-radio.html",
+    "resourceLinkLabel": "SolarEdge & Ham Radio (RFI) — full technical brief"
+  },
+  {
+    "id": "OBJ-DR01",
+    "section": "DR",
+    "sectionName": "Door Objections",
+    "title": "Not Interested",
+    "surface": [
+      "Not interested.",
+      "We're all set."
+    ],
+    "standardResponse": "This is a reflex, not an objection. \"Totally get it, I'd probably say the same thing. Takes 60 seconds, fair enough?\""
+  },
+  {
+    "id": "OBJ-DR02",
+    "section": "DR",
+    "sectionName": "Door Objections",
+    "title": "I Don't Have Time",
+    "surface": [
+      "We're busy right now.",
+      "Not a good time."
+    ],
+    "standardResponse": "\"I hear you. 60 seconds to see if it's worth your time later, fair enough?\""
   }
 ];
 
