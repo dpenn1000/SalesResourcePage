@@ -28,6 +28,22 @@
   font-family: 'Manrope', system-ui, -apple-system, sans-serif;
 }
 
+/* Border-box inside the card. Without this, `width: 100%` + padding made every
+ * field 26px WIDER than the card's content box. The username field got away
+ * with it -- the card's 32px padding absorbed the spill, leaving 6px. The
+ * password field did not: the eye toggle re-pads it to 42px on the right, so it
+ * measured 436px and hung 23px past the card's right border. Same root cause put
+ * the eye ~95px inboard of the field's right edge -- the button is positioned
+ * off its wrapper, and the wrapper was the only element actually the card's
+ * width. Border-box makes input, wrapper, button and card agree on one width.
+ */
+.auth-card,
+.auth-card input,
+.auth-card button,
+.auth-card .auth-error {
+  box-sizing: border-box;
+}
+
 .auth-card {
   background: var(--ag-surface);
   border: 1px solid var(--ag-border);
