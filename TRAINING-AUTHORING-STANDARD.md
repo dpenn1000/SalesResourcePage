@@ -7,10 +7,10 @@
 ## 0. Authority and pairing
 
 This standard owns **structure, learning design, and HTML semantics.**
-It does **not** own voice (governed by **`Voice_General.md`**, canonical path: `C:\Users\dan\OneDrive\AI\Voice_General.md`)
+It does **not** own voice (governed by **`Voice-Guide.md`**, canonical path: `_meta/voice/Voice-Guide.md` in the Trinity Platform repo (`C:\Users\dan\OneDrive - Trinity Solar\Apps\_meta\voice\Voice-Guide.md` on STUDIO-PC, `C:\Apps\_meta\voice\Voice-Guide.md` on the VM); it replaced `Voice_General.md` on 2026-06-15 and moved into the repo on 2026-09-03)
 or message consistency (governed by **`SALES-PSYCHOLOGY-CANON.md`** in this repo: the recurring DISC, cognitive-bias, and mantra threads to reinforce lightly across every training).
 
-**Mandatory before authoring or editing any training page:** read this file, apply `Voice_General.md`, and apply `SALES-PSYCHOLOGY-CANON.md`. The three together are the full spec. This standard is the single source of truth for the resource page; do not copy it elsewhere. Reference it by pointer only, so it cannot drift.
+**Mandatory before authoring or editing any training page:** read this file, apply `Voice-Guide.md`, and apply `SALES-PSYCHOLOGY-CANON.md`. The three together are the full spec. This standard is the single source of truth for the resource page; do not copy it elsewhere. Reference it by pointer only, so it cannot drift.
 
 ---
 
@@ -99,7 +99,7 @@ Default drafts run ~2x longer than they need. Cut to earn the reader's attention
 - **Active voice, present tense.** "The deed decides the signer," not "The signer is decided by the deed."
 - **Numerals, not words.** "16 scores," not "sixteen scores." Numerals catch the scanning eye.
 - **Lead with the answer.** Put the conclusion first, the explanation second. Reps reading in a driveway need the takeaway in line one.
-- **The earns-its-place test (from Voice_General).** Read each sentence and ask: does it change what the rep will do? If not, cut it.
+- **The earns-its-place test (from the Voice Guide).** Read each sentence and ask: what does the reader know after it that they didn't before? If nothing specific, cut it or make it concrete. For a training page the same test reads: does it change what the rep will do?
 
 **Worked example:**
 

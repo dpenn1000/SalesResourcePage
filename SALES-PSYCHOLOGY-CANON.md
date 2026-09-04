@@ -7,7 +7,7 @@
 ## 0. Authority and pairing
 
 This canon owns **message consistency**: the psychology threads, mantras, and DISC framing that recur across trainings.
-It does **not** own structure (that is `TRAINING-AUTHORING-STANDARD.md`) or voice (that is `Voice_General.md`).
+It does **not** own structure (that is `TRAINING-AUTHORING-STANDARD.md`) or voice (that is `Voice-Guide.md`, `_meta/voice/Voice-Guide.md` in the Trinity Platform repo (`C:\Users\dan\OneDrive - Trinity Solar\Apps\_meta\voice\Voice-Guide.md` on STUDIO-PC, `C:\Apps\_meta\voice\Voice-Guide.md` on the VM)).
 The three together are the full spec. Reference this file by pointer only, so it cannot drift.
 
 These threads already appear across the trainings (cognitive-biases, know-your-buyer, door-resistance, the objection pages, credit-conversation, one-touch-close, plus the roleplay `objections-master.md`). The job is to reinforce them evenly, not to invent new ones.
