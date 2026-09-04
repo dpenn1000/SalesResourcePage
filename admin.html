@@ -395,7 +395,7 @@
        so the console's generic class names (.badge, .pill, .btn-edit,
        .btn-save, .toolbar, .dtab, .d-item, etc.) cannot collide with
        admin.html's own classes of the same name. The console's :root
-       block was intentionally skipped -- its variables live in admin's
+       block was intentionally skipped, its variables live in admin's
        :root above. Source: reps/index.html (lines ~36-139).
        ============================================================ -->
   <style>
@@ -743,7 +743,7 @@
           <div class="img-panel" id="panel-pdf">
             <div class="info-note">
               Renders page 1 of a PDF as the card image. For OneDrive or SharePoint files, use
-              <strong>Upload PDF</strong> -- those URLs block direct browser access.
+              <strong>Upload PDF</strong>: those URLs block direct browser access.
             </div>
             <div class="src-tabs">
               <button type="button" class="src-btn active" data-psrc="url"  onclick="setPdfSrc('url')">From URL</button>
@@ -770,7 +770,7 @@
             <div class="info-note">
               Renders the first sheet of an XLSX file as a styled table card image.
               The preview shows real cell data from your spreadsheet.
-              File upload only -- OneDrive links block direct browser access.
+              File upload only: OneDrive links block direct browser access.
             </div>
             <label>XLSX File</label>
             <input type="file" id="xlsxFile" accept=".xlsx,.xls,.csv" onchange="onXlsxFileChange()">
@@ -1039,7 +1039,7 @@
       <!-- Bulk-select bar. Modeled on leads.html's .dispatch-bar (dark bar,
            appears via a class toggle, no animation) but translated to
            admin.html's own tokens. Buttons wired in JS via addEventListener,
-           same pattern as the filter controls above -- no inline onclick. -->
+           same pattern as the filter controls above, no inline onclick. -->
       <div id="bulkBar" class="pd-bulkbar">
         <span class="cnt" id="bulkCount">0 selected</span>
         <span id="bulkBarStatus" style="font-size:0.78rem;color:rgba(255,255,255,0.75)"></span>
@@ -1188,7 +1188,7 @@
         <h3 style="font-size:14px;font-weight:700;">Current (Manager Apps)</h3>
         <span id="ctDataFreshness" class="fresh-pill" style="display:none"></span>
       </div>
-      <p style="color:var(--text2);font-size:12px;margin:0;">Coaching + analytics tools served from the home-office server at <code>tools.ct-resource-page.com</code>. Same Supabase login -- you'll be prompted to sign in once on this subdomain.</p>
+      <p style="color:var(--text2);font-size:12px;margin:0;">Coaching + analytics tools served from the home-office server at <code>tools.ct-resource-page.com</code>. Same Supabase login: you'll be prompted to sign in once on this subdomain.</p>
     </div>
     <div class="tools-grid">
       <a class="tool-card theme-dark cat-daily" href="https://tools.ct-resource-page.com/dashboard" target="_blank" rel="noopener">
@@ -1260,7 +1260,7 @@
     <div id="adminToolsSection" style="display:none;">
       <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
         <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Admin / Maintenance <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;">Admins only</span></h3>
-        <p style="color:var(--text2);font-size:12px;margin:0;">Data refresh and system config. Most of these write to the home-office server -- change with care.</p>
+        <p style="color:var(--text2);font-size:12px;margin:0;">Data refresh and system config. Most of these write to the home-office server, change with care.</p>
       </div>
       <div class="tools-grid">
         <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/analytics-engine" target="_blank" rel="noopener">
@@ -1548,7 +1548,7 @@
       <div id="bulkStep1">
         <p style="font-size:13px;color:#6B7280;margin-bottom:16px;line-height:1.6">
           Upload a CSV file using the template format. Each row becomes one resource card.
-          Images default to Auto Favicon -- you can update individual cards after upload.
+          Images default to Auto Favicon: you can update individual cards after upload.
         </p>
 
         <div style="border:2px dashed #DFE2DA;border-radius:10px;padding:28px;text-align:center;margin-bottom:16px;cursor:pointer;transition:border-color 0.15s" 

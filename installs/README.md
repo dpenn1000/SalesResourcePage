@@ -10,14 +10,14 @@ admin approves it.** Seed content (loaded at launch) is pre-vetted and approved.
 
 ## Data model (Supabase `qjcozskyopetvigjhlmh`)
 
-**Table `public.install_photos`** -- one row per photo.
+**Table `public.install_photos`**, one row per photo.
 - `category` (`Solar|Roof|Battery`), `tags text[]`, `title`, `caption`
 - `storage_path` (full-res) + `thumb_path` (500px) in the private bucket
 - `status` (`pending|approved|rejected|archived`), `featured`, `sort_order`
 - `uploaded_by` / `uploaded_by_name`, `reviewed_by` / `reviewed_at` / `review_note`
 - `width`, `height`, `mime_type`, `size_bytes`, `created_at`
 
-**Bucket `install-photos`** -- **private**, 15 MB cap, images only. Layout
+**Bucket `install-photos`**, **private**, 15 MB cap, images only. Layout
 `full/<uuid>.<ext>` and `thumb/<uuid>.jpg`. The page reads via short-TTL signed URLs
 (`createSignedUrls`), so nothing is publicly hotlinkable.
 
