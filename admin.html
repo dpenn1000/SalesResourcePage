@@ -318,16 +318,18 @@
     .tool-card.theme-mobile .tool-name  { color: #0d0d0d; }
     .tool-card.theme-mobile .tool-arrow { color: #6b6b6b; }
 
-    /* APEX executive card (VP+ only) -- thumbnail banner mirroring the APEX page. */
-    .apex-card { display:block; max-width:560px; border-radius:14px; overflow:hidden;
+    /* Console index cards: a thumbnail banner mirroring the page it opens. APEX (VP+ only) and
+       the Call Center console share one look; each thumbnail follows
+       Index Photos/THUMBNAIL-STANDARD.md and has its own generator beside it. */
+    .apex-card, .console-card { display:block; max-width:560px; border-radius:14px; overflow:hidden;
       border:1px solid #22314c; background:#0b1120; text-decoration:none;
       transition:transform .12s, box-shadow .12s, border-color .12s; }
-    .apex-card:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(0,0,0,0.4); border-color:#5eba28; }
-    .apex-card-img { display:block; width:100%; aspect-ratio:1200/675; object-fit:cover; }
-    .apex-card-body { padding:12px 16px; }
-    .apex-card-name { font-size:16px; font-weight:800; color:#e8edf5; letter-spacing:.3px; }
-    .apex-card-arrow { color:#5eba28; font-size:14px; }
-    .apex-card-sub { font-size:12px; color:#8a96ad; margin-top:2px; }
+    .apex-card:hover, .console-card:hover { transform:translateY(-2px); box-shadow:0 8px 26px rgba(0,0,0,0.4); border-color:#5eba28; }
+    .apex-card-img, .console-card-img { display:block; width:100%; aspect-ratio:1200/675; object-fit:cover; }
+    .apex-card-body, .console-card-body { padding:12px 16px; }
+    .apex-card-name, .console-card-name { font-size:16px; font-weight:800; color:#e8edf5; letter-spacing:.3px; }
+    .apex-card-arrow, .console-card-arrow { color:#5eba28; font-size:14px; }
+    .apex-card-sub, .console-card-sub { font-size:12px; color:#8a96ad; margin-top:2px; }
 
     /* === Current per-purpose accents (used with theme-dark / theme-mobile)
        Brighter than Internal palettes because they ride on a dark background
@@ -1118,6 +1120,24 @@
       </a>
     </div>
 
+    <!-- Call Center console. Visible to every manager on this tab, as the Coverage Command tile
+         it replaces was; the pages behind it scope what they show to the viewer's own states
+         (server.ops._cc_scope_states on the launcher). Thumbnail:
+         Index Photos/call-center-thumbnail.gen.py. -->
+    <div id="ccConsoleSection" style="margin-bottom:26px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <h3 style="font-size:14px;font-weight:700;margin:0;">Call Center</h3>
+        <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#5eba28;border:1px solid rgba(94,186,40,0.4);border-radius:4px;padding:2px 6px;">Scoped to your states</span>
+      </div>
+      <a class="console-card" href="https://tools.ct-resource-page.com/cc" target="_blank" rel="noopener">
+        <img class="console-card-img" src="https://ct-resource-page.com/Index%20Photos/call-center-thumbnail.svg" alt="Call Center console: the runway of appointments by state and hour" loading="lazy">
+        <div class="console-card-body">
+          <div class="console-card-name">Coverage Command <span class="console-card-arrow">&#8599;</span></div>
+          <div class="console-card-sub">Today's moves, coverage and lead flow for every state, with each rep's day and each home's history</div>
+        </div>
+      </a>
+    </div>
+
     <div class="tools-grid">
       <a class="tool-card cat-leads" href="/leads.html">
         <div class="tool-icon">&#127960;</div>
@@ -1188,7 +1208,7 @@
         <h3 style="font-size:14px;font-weight:700;">Current (Manager Apps)</h3>
         <span id="ctDataFreshness" class="fresh-pill" style="display:none"></span>
       </div>
-      <p style="color:var(--text2);font-size:12px;margin:0;">Coaching + analytics tools served from the home-office server at <code>tools.ct-resource-page.com</code>. Same Supabase login: you'll be prompted to sign in once on this subdomain.</p>
+      <p style="color:var(--text2);font-size:12px;margin:0;">Coaching and analytics tools served from the platform server at <code>tools.ct-resource-page.com</code>. Same Supabase login: you'll be prompted to sign in once on this subdomain.</p>
     </div>
     <div class="tools-grid">
       <a class="tool-card theme-dark cat-daily" href="https://tools.ct-resource-page.com/dashboard" target="_blank" rel="noopener">
@@ -1239,12 +1259,6 @@
         <div class="tool-name">Coverage Heat Map</div>
         <span class="tool-arrow">&#8599;</span>
       </a>
-      <a class="tool-card theme-dark cat-leads" href="https://tools.ct-resource-page.com/cc" target="_blank" rel="noopener">
-        <div class="tool-icon">&#127911;</div>
-        <span class="tool-type">Call Center</span>
-        <div class="tool-name">CT Coverage Command</div>
-        <span class="tool-arrow">&#8599;</span>
-      </a>
       <a class="tool-card theme-mobile cat-mobile" href="https://tools.ct-resource-page.com/mobile" target="_blank" rel="noopener">
         <div class="tool-icon">&#128241;</div>
         <span class="tool-type">Mobile</span>
@@ -1260,7 +1274,7 @@
     <div id="adminToolsSection" style="display:none;">
       <div style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);">
         <h3 style="font-size:14px;font-weight:700;margin-bottom:4px;">Admin / Maintenance <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle;">Admins only</span></h3>
-        <p style="color:var(--text2);font-size:12px;margin:0;">Data refresh and system config. Most of these write to the home-office server, change with care.</p>
+        <p style="color:var(--text2);font-size:12px;margin:0;">Data refresh and system config. Most of these write to the platform server, so change with care.</p>
       </div>
       <div class="tools-grid">
         <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/analytics-engine" target="_blank" rel="noopener">

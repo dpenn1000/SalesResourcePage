@@ -41,6 +41,16 @@ writes every `<slug>-thumbnail.svg`. Then point the card:
 `image_type='custom'`. Commit + push the SVGs (GitHub Pages serves them; the
 image_url row is live immediately but the file must deploy or the card 404s).
 
+## Console index cards (admin.html Tools tab)
+The consoles on the admin hub get a banner card instead of a tile: APEX (VP+ only) and the Call
+Center console (every manager, the pages behind it scoped to their states). Same canvas and safe
+margin as above, but each mirrors the page it opens rather than a resource section, so each has
+its own generator beside its SVG: `apex-thumbnail.gen.py` and `call-center-thumbnail.gen.py`. The
+Call Center generator fails its run if any text would leave the safe area. The card markup is
+`.console-card` (`.console-card-img`, `-body`, `-name`, `-arrow`, `-sub`) in `admin.html`, which
+shares its styles with `.apex-card`. A console card replaces the tool tile that pointed at the same
+page; two doors to one place is one too many.
+
 ## Preview gotchas (so you don't chase ghosts)
 - **Inlining** many SVGs into one page makes them share `#bg`/`#acc` gradient IDs,
   so they all inherit the FIRST SVG's gradient (everything looks like card #1).
