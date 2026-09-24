@@ -331,6 +331,33 @@
     .apex-card-arrow, .console-card-arrow { color:#5eba28; font-size:14px; }
     .apex-card-sub, .console-card-sub { font-size:12px; color:#8a96ad; margin-top:2px; }
 
+    /* Prototype cards: pages the platform server already serves that are in team review.
+       Wider than .tool-card because each carries a one-line read of what the page answers,
+       its path, and who the server lets in. Group colour rides on --pc. */
+    .proto-group { margin-top:16px; }
+    .proto-group-label { font-size:10px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase;
+      color:var(--text2); margin:0 0 8px 2px; }
+    .proto-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
+    .proto-card { --pc:#5eba28; position:relative; display:flex; flex-direction:column; gap:6px;
+      padding:14px 16px 12px; border-radius:12px; border:1px solid #22314c; background:#0b1120;
+      text-decoration:none; overflow:hidden; transition:transform .12s, box-shadow .12s, border-color .12s; }
+    .proto-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, var(--pc) 0%, transparent 85%); }
+    .proto-card:hover { transform:translateY(-2px); border-color:var(--pc); box-shadow:0 8px 22px rgba(0,0,0,0.35); }
+    .proto-name { font-size:15px; font-weight:800; color:#e8edf5; letter-spacing:.2px; padding-right:18px; }
+    .proto-sub { font-size:12px; line-height:1.45; color:#8a96ad; flex:1; }
+    .proto-foot { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; }
+    .proto-path { font-family:'DM Mono', ui-monospace, monospace; font-size:11px; color:#6b7a94; }
+    .proto-access { font-size:10px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; white-space:nowrap;
+      color:var(--pc); border:1px solid var(--pc); border-radius:4px; padding:1px 6px; opacity:.85; }
+    .proto-arrow { position:absolute; top:12px; right:14px; color:#8a96ad; font-size:14px; }
+    .proto-card:hover .proto-arrow { color:var(--pc); }
+    .proto-card.pg-cc     { --pc:#29A9E1; }
+    .proto-card.pg-fm     { --pc:#F5A623; }
+    .proto-card.pg-deals  { --pc:#78C832; }
+    .proto-card.pg-field  { --pc:#A78BFA; }
+    .proto-card.pg-exec   { --pc:#F0A020; }
+
     /* === Current per-purpose accents (used with theme-dark / theme-mobile)
        Brighter than Internal palettes because they ride on a dark background
        and need to retain saturation. */
@@ -1118,6 +1145,14 @@
           <div class="apex-card-sub">The original NY profitability build, parked as a reference</div>
         </div>
       </a>
+      <div class="proto-grid" style="margin-top:14px;max-width:560px;">
+        <a class="proto-card pg-exec" href="https://tools.ct-resource-page.com/roof-elt" target="_blank" rel="noopener">
+          <span class="proto-arrow">&#8599;</span>
+          <div class="proto-name">Roof ELT</div>
+          <div class="proto-sub">The Total Home roofing executive dashboard, open to its own viewer list.</div>
+          <div class="proto-foot"><span class="proto-path">/roof-elt</span><span class="proto-access">Allowlist</span></div>
+        </a>
+      </div>
     </div>
 
     <!-- Call Center console. Visible to every manager on this tab, as the Coverage Command tile
@@ -1136,6 +1171,96 @@
           <div class="console-card-sub">Today's moves, coverage and lead flow for every state, with each rep's day and each home's history</div>
         </div>
       </a>
+    </div>
+
+    <!-- Prototypes in team review. Every page here is already served by the launcher and gated
+         server-side (the access chip names the rule each route enforces); these cards are the
+         only way in besides typing the URL. Promote a card into the Current grid once the team
+         signs off on it. -->
+    <div id="protoSection" style="margin-bottom:26px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+        <h3 style="font-size:14px;font-weight:700;margin:0;">Prototypes</h3>
+        <span style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#F5A623;border:1px solid rgba(245,166,35,0.45);border-radius:4px;padding:2px 6px;">In team review</span>
+      </div>
+      <p style="color:var(--text2);font-size:12px;margin:0;">Live on <code>tools.ct-resource-page.com</code> with the same sign-in. Numbers and layouts may still change.</p>
+
+      <div class="proto-group">
+        <div class="proto-group-label">Call Center</div>
+        <div class="proto-grid">
+          <a class="proto-card pg-cc" href="https://tools.ct-resource-page.com/cc-live" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Call Center Live</div>
+            <div class="proto-sub">Today's calls in every state, ranked by how much of a rep's drive each one can still save.</div>
+            <div class="proto-foot"><span class="proto-path">/cc-live</span><span class="proto-access">Your states</span></div>
+          </a>
+          <a class="proto-card pg-cc" href="https://tools.ct-resource-page.com/cc-analytics" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Lead Flow Analytics</div>
+            <div class="proto-sub">First appointments by lead source, with Home Depot shown apart from the rest of Field Marketing.</div>
+            <div class="proto-foot"><span class="proto-path">/cc-analytics</span><span class="proto-access">Managers</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="proto-group">
+        <div class="proto-group-label">Field Marketing / Outreach</div>
+        <div class="proto-grid">
+          <a class="proto-card pg-fm" href="https://tools.ct-resource-page.com/outreach" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Field Marketing Console</div>
+            <div class="proto-sub">The Lead Generator funnel by period, and the contracts each gap is worth if half of it closed.</div>
+            <div class="proto-foot"><span class="proto-path">/outreach</span><span class="proto-access">Managers</span></div>
+          </a>
+          <a class="proto-card pg-fm" href="https://tools.ct-resource-page.com/outreach/classic" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Outreach Command Center</div>
+            <div class="proto-sub">Lead Generator scorecard: funnel, flags, wins and watch-fors, shrunk for volume.</div>
+            <div class="proto-foot"><span class="proto-path">/outreach/classic</span><span class="proto-access">Managers</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="proto-group">
+        <div class="proto-group-label">Deals in flight</div>
+        <div class="proto-grid">
+          <a class="proto-card pg-deals" href="https://tools.ct-resource-page.com/constraint-desk" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Constraint Desk</div>
+            <div class="proto-sub">What is blocking the in-flight book, by constraint type, finance partner, office and rep, with raised against cleared back to 2020.</div>
+            <div class="proto-foot"><span class="proto-path">/constraint-desk</span><span class="proto-access">Your states</span></div>
+          </a>
+          <a class="proto-card pg-deals" href="https://tools.ct-resource-page.com/deal-desk" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Deal Desk</div>
+            <div class="proto-sub">Deals below the line, ranked, each with its cost stack and an approvals inbox for the decision.</div>
+            <div class="proto-foot"><span class="proto-path">/deal-desk</span><span class="proto-access">Regional and up</span></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="proto-group">
+        <div class="proto-group-label">Field and team</div>
+        <div class="proto-grid">
+          <a class="proto-card pg-field" href="https://tools.ct-resource-page.com/check-in" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Field Check-In</div>
+            <div class="proto-sub">Share of appointments properly punched in and out, and how close reps run to the start, by month and by rep.</div>
+            <div class="proto-foot"><span class="proto-path">/check-in</span><span class="proto-access">Managers</span></div>
+          </a>
+          <a class="proto-card pg-field" href="https://tools.ct-resource-page.com/appt-distribution" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Appointment Distribution</div>
+            <div class="proto-sub">Dispatched appointments by rep rank, across every state.</div>
+            <div class="proto-foot"><span class="proto-path">/appt-distribution</span><span class="proto-access">Managers</span></div>
+          </a>
+          <a class="proto-card pg-field" href="https://tools.ct-resource-page.com/messaging" target="_blank" rel="noopener">
+            <span class="proto-arrow">&#8599;</span>
+            <div class="proto-name">Message Studio</div>
+            <div class="proto-sub">Drafts a message to a team, a rep or a segment from today's results and each rep's trailing numbers.</div>
+            <div class="proto-foot"><span class="proto-path">/messaging</span><span class="proto-access">Managers</span></div>
+          </a>
+        </div>
+      </div>
     </div>
 
     <div class="tools-grid">
@@ -1311,6 +1436,12 @@
           <div class="tool-icon">&#129517;</div>
           <span class="tool-type">Program</span>
           <div class="tool-name">BT Integration Plan</div>
+          <span class="tool-arrow">&#8599;</span>
+        </a>
+        <a class="tool-card theme-dark cat-admin" href="https://tools.ct-resource-page.com/design-system" target="_blank" rel="noopener">
+          <div class="tool-icon">&#127912;</div>
+          <span class="tool-type">Build</span>
+          <div class="tool-name">Design System</div>
           <span class="tool-arrow">&#8599;</span>
         </a>
         <a class="tool-card cat-leads" href="admin.html?tab=gridedge" onclick="event.preventDefault(); switchTab('gridedge');">
